@@ -814,57 +814,6 @@
   }
  },
  "hard": {
-  "sol61-medium": {
-   "cli": "codex",
-   "model": "gpt-6.1-sol",
-   "effort": "medium",
-   "n": 15,
-   "passes": 15,
-   "pass_at_1": 1.0,
-   "ci95": [
-    1.0,
-    1.0
-   ],
-   "by_rung": {
-    "L7": {
-     "passed": 15,
-     "n": 15
-    }
-   },
-   "breaking_point": null,
-   "outcomes": {
-    "pass": 15
-   },
-   "latency_s": {
-    "median": 35.22,
-    "p90": 48.53,
-    "max": 61.25
-   },
-   "tokens_mean": {
-    "in_tok": 15351,
-    "cached_tok": 12288,
-    "out_tok": 968,
-    "reasoning_tok": 482
-   },
-   "input_floor": [
-    15298,
-    12288
-   ],
-   "usd_per_call": 0.017032,
-   "usd_total": 0.2555,
-   "usd_per_pass": 0.017032,
-   "usd_per_pass_L1_L2": null,
-   "pass_L1_L2": [
-    0,
-    0
-   ],
-   "cost_kind": "proxy",
-   "by_problem": {
-    "p13_xor_ring": 5,
-    "p14_bounce_board": 5,
-    "p15_paint_erase": 5
-   }
-  },
   "luna-high": {
    "cli": "codex",
    "model": "gpt-6-luna",
@@ -904,6 +853,57 @@
    "usd_per_call": 0.001544,
    "usd_total": 0.0232,
    "usd_per_pass": 0.001544,
+   "usd_per_pass_L1_L2": null,
+   "pass_L1_L2": [
+    0,
+    0
+   ],
+   "cost_kind": "proxy",
+   "by_problem": {
+    "p13_xor_ring": 5,
+    "p14_bounce_board": 5,
+    "p15_paint_erase": 5
+   }
+  },
+  "sol61-medium": {
+   "cli": "codex",
+   "model": "gpt-6.1-sol",
+   "effort": "medium",
+   "n": 15,
+   "passes": 15,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L7": {
+     "passed": 15,
+     "n": 15
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 15
+   },
+   "latency_s": {
+    "median": 35.22,
+    "p90": 48.53,
+    "max": 61.25
+   },
+   "tokens_mean": {
+    "in_tok": 15351,
+    "cached_tok": 12288,
+    "out_tok": 968,
+    "reasoning_tok": 482
+   },
+   "input_floor": [
+    15298,
+    12288
+   ],
+   "usd_per_call": 0.017032,
+   "usd_total": 0.2555,
+   "usd_per_pass": 0.017032,
    "usd_per_pass_L1_L2": null,
    "pass_L1_L2": [
     0,

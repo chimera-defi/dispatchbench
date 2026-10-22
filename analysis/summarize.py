@@ -229,7 +229,7 @@ def main():
         s["exploratory"][c] = blk
     hr = [r for r in rows if r["phase"] == "hard"]
     s["hard"] = {}
-    for c in sorted({r["config"] for r in hr}, key=lambda c: -sum(r["passed"] for r in hr if r["config"] == c)):
+    for c in sorted({r["config"] for r in hr}, key=lambda c: (-sum(r["passed"] for r in hr if r["config"] == c), c)):
         rr = [r for r in hr if r["config"] == c]; blk = config_block(rr)
         blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}
         s["hard"][c] = blk

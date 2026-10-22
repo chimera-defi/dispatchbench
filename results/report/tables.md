@@ -105,8 +105,8 @@ Not pre-registered (PLAN.md, deviation 16), so it is reported apart from L1–L6
 
 | config | pass@1 | 95% CI | p13_xor_ring | p14_bounce_board | p15_paint_erase | outcomes | median s | p90 s | mean reasoning tokens | $/call | $/pass | $ kind |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| sol61-medium | 100% (15/15) | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | pass 15 | 35.22 | 48.53 | 482 | 0.01703 | 0.01703 | proxy |
 | luna-high | 100% (15/15) | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | pass 15 | 24.03 | 34.99 | 1569 | 0.00154 | 0.00154 | proxy |
+| sol61-medium | 100% (15/15) | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | pass 15 | 35.22 | 48.53 | 482 | 0.01703 | 0.01703 | proxy |
 | sonnet-medium | 100% (15/15) | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | pass 15 | 14.97 | 22.64 | 806 | 0.01795 | 0.01795 | measured |
 | haiku-low | 80% (12/15) | 40%–100% | 5/5 | 5/5 | 2/5 | pass 12, timeout 3 | 16.5 | 20.4 | 2506 | 0.00184 | 0.00230 | measured |
 
