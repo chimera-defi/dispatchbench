@@ -145,6 +145,28 @@ rebuilds every table, chart and number in this README from the cache. It makes n
 - `make selftest` takes about 12 minutes; `make report` takes seconds.
 - **One run in time.** Hosted models change. CLI versions and run dates are in [results/manifest.json](results/manifest.json); a later re-run may differ.
 
+## Appendix: can refinements rescue luna-low? (exploratory, post hoc)
+
+After the main run, five changes were tried on the seven problems luna-low fails most often (p03, p04, p08, p09, p10, p11, p12), with 5 attempts each, n = 35 per row. The problems were picked because luna failed them, so these rows overstate any gain and carry no confidence intervals. The baselines are the main run's attempts on the same problems. Rows are in [results/appendix/luna_rescue.jsonl](results/appendix/luna_rescue.jsonl); `python3 -m analysis.luna_rescue` (part of `make report`) recomputes the table into [results/report/luna_rescue.md](results/report/luna_rescue.md).
+
+| config | passed | $ per pass | median s |
+|---|---|---|---|
+| luna-low baseline | 21/35 | 0.00129 | 8.5 |
+| B1: no shell, plus a "list edge cases and trace the examples first" nudge | 25/35 | 0.00097 | 8.6 |
+| B2: B1 plus a detailed reasoning summary | 19/35 | 0.00116 | 8.9 |
+| C: shell on, told to test its code before answering | 29/35 | 0.00364 | 21.9 |
+| D: luna-medium, stripped harness | 21/35 | 0.00120 | 8.4 |
+| D: luna-high, stripped harness | 31/35 | 0.00105 | 13.2 |
+| E: luna-low answer, then haiku-low reviews and repairs it | 35/35 | 0.00348 | 27.4 |
+| haiku-low | 32/35 | 0.00157 | 13.1 |
+| sonnet-medium | 35/35 | 0.01530 | 11.4 |
+
+- **Raising effort is the only cheap fix.** Stripped luna-high passes 31/35 at $0.00105 per pass (proxy), next to haiku-low's 32/35 at $0.00157. Medium effort does nothing (21/35), which fits the reasoning-token counts above: luna barely reasons below high.
+- **Prompting helps a little or hurts.** The "trace the examples first" nudge adds 4 passes; asking for a reasoning summary on top of it loses 6.
+- **Letting luna test its own code works but costs more than switching models.** Self-testing reaches 29/35 at 2.8× the baseline's cost per pass and 2.6× its latency, more than haiku-low for fewer passes.
+- **A Haiku repair pass fixes everything, but Haiku does the work.** luna-low's own answers pass 21/35; Haiku changed 22 of them and accounts for 78% of the arm's spend. At $0.00348 per pass it costs 2.2× sending the problem to haiku-low directly, for 3 more passes.
+- Not measured: luna without the host's `AGENTS.md`. Codex 0.163 reads a global `AGENTS.md` from its home directory and no flag turns that off, so the arm needs a separate Codex home with its own login; it was left out.
+
 ## Prior work this borrows from
 
 - [LiveCodeBench](https://livecodebench.github.io/) ([Jain et al. 2024](https://arxiv.org/abs/2403.07974)): problems written after the models' training cutoff, to limit contamination.

@@ -26,6 +26,7 @@ grade:               ## grade cached completions in the sandbox, write results/*
 report: grade        ## summary.json, manifest.json, tables.md, charts
 	$(PY) -m analysis.summarize
 	$(PY) -m analysis.charts
+	$(PY) -m analysis.luna_rescue > results/report/luna_rescue.md
 
 clean-report:
 	rm -rf results/report results/summary.json results/manifest.json
