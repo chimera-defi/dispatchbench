@@ -22,7 +22,7 @@ Function track: {{n_problems}} problems × {{repeats}} attempts per config. Clic
 
 Codex has no single switch like Claude's `--tools ""`. Turning off its tool features, shell tools, environment context and stock system prompt, six config knobs in all, cuts luna-low's mean input from {{luna_low_in}} to {{luna_low_bare_in}} tokens per call, {{in_cut}} less. Accuracy did not change: the stripped config passes {{luna_low_bare_pass}} against stock luna-low's {{luna_low_pass}} ({{lb_vs_ll}} pts, CI {{lb_vs_ll_ci}}). Its proxy cost per pass falls from {{luna_low_upp}} to {{luna_low_bare_upp}}.
 
-It still reads more than Claude with tools off: haiku-low's mean input is {{haiku_low_in}}. About 1.3k of luna's remaining tokens are the host's user-level `~/.codex/AGENTS.md`, which no Codex flag removes. Removing it needs a separate Codex home directory with its own copy of the login file, which this run did not do.
+It still reads more than Claude with tools off: haiku-low's mean input is {{haiku_low_in}}. About {{host_agents_md}} of luna's remaining tokens are the host's user-level `~/.codex/AGENTS.md`, which no Codex flag removes. Removing it needs a separate Codex home directory with its own copy of the login file, which this run did not do.
 
 {{chart:token_in.svg|Mean input tokens per call, function track. Stripping the Codex harness removes more than half of luna's input.}}
 @page </div>
@@ -36,17 +36,17 @@ It still reads more than Claude with tools off: haiku-low's mean input is {{haik
 
 {{chart:pareto.svg|Pass rate against cost per passing solution. Dashed: Pareto frontier of the pre-registered configs. Bars: 95% CI.}}
 
-{{chart:cost_time.svg|Cost per pass against median latency. Purple: among configs passing at least 90%, the ones no other beats on both.}}
+{{chart:cost_time.svg|Cost per pass against median latency. Purple: among configs passing at least {{min_pass}}, the ones no other beats on both.}}
 
-{{chart:cost_total.svg|Total spend for each config's 60 function-track calls.}}
+{{chart:cost_total.svg|Total spend for each config's {{n_calls}} function-track calls.}}
 
 {{chart:cost_per_1k.svg|Dollars per 1,000 tokens processed. Codex looks cheap per token partly because most of its long prompt is served from cache.}}
 
 {{table:tokens}}
 
-{{chart:pass_by_rung.svg|Pass rate by difficulty rung, 10 attempts per rung per config.}}
+{{chart:pass_by_rung.svg|Pass rate by difficulty rung, {{rung_attempts}} attempts per rung per config.}}
 
-{{chart:heatmap.svg|Passes out of 5 per problem and config.}}
+{{chart:heatmap.svg|Passes out of {{repeats}} per problem and config.}}
 
 {{chart:token_floor.svg|Minimum input tokens over all calls, cached share shaded.}}
 
@@ -141,7 +141,7 @@ rebuilds every table, chart and number in this README and the page from the cach
 - **The breaking point is unstable at this size.** With 10 attempts per rung, two attempts move it. Stripped luna breaks at L2 ({{lb_l2}}) and stock luna at L6, yet stripped luna then scores {{lb_l3}} on L3. The rung order is my prior about difficulty, not a measurement, and the per-problem chart shows where it was wrong (for luna, p04 at L2 is harder than every problem except p12).
 - **The repo tasks hit a ceiling.** All {{ag_runs}} runs passed. They show cost and latency differences, not capability differences.
 - **Codex cost is a proxy**, and it depends on the provider's prompt cache. Identical prompts got between 0 and {{cache_max}} cached tokens (stripped luna on p06), which moves a Codex call's cost by up to {{cache_swing}}. The stripped-luna figures give a no-cache bound for that reason. Claude cost is measured, but it is the CLI's own accounting.
-- **Harnesses are matched, not identical.** Codex cannot turn tools off on the function track; it gets a read-only sandbox and an instruction. Codex also injects the host's user-level `AGENTS.md` (about 1.3k tokens), so every Codex input count includes tokens a clean install would not have. Claude Code keeps its own default system prompt.
+- **Harnesses are matched, not identical.** Codex cannot turn tools off on the function track; it gets a read-only sandbox and an instruction. Codex also injects the host's user-level `AGENTS.md` (about {{host_agents_md}} tokens), so every Codex input count includes tokens a clean install would not have. Claude Code keeps its own default system prompt.
 - **Latency is wall-clock through the CLI** on one host with up to {{lanes}} calls in flight. It includes CLI start-up and network time, and is not comparable to API time-to-first-token. The exploratory stripped-luna run used one lane at a different time of day, so its latency is not a clean comparison with luna-low.
 - **The cache key leaves out a few inputs.** The effort and model literals inside the trim probe are not hashed. The one-line system prompt and the grader's source are pinned by SHA-256 instead: the runners and the grader refuse to run if either file changes while cached results exist.
 - **The repo-task runs are not sandboxed alike.** Claude Code ran with permission prompts bypassed and no sandbox; Codex ran in its workspace-write sandbox. The hidden tests run the agent's code with pytest outside the grader's sandbox. All of it ran in throwaway directories on one host.
@@ -165,11 +165,13 @@ After the main run, five changes were tried on the seven problems luna-low fails
 
 ## Appendix B: the pilot (superseded)
 
-Before this experiment, a pilot ran every config on three well-known problems. Every config passed all of them, so the pilot could not rank anything; an earlier page titled "Delegation Tier Bench" reported those 100% scores and is superseded by this report. The only pilot data used here is the Codex harness probe below, which needed a trivial problem so that accuracy would not vary while the prompt was trimmed.
+Before this experiment, a pilot ran {{pilot_configs}} configs on {{pilot_problems}} well-known LeetCode problems: three for every config, and three harder ones for {{pilot_r2_configs}} of the configs. All {{pilot_runs}} graded runs passed, so the pilot could not rank anything. An earlier page titled "Delegation Tier Bench" reported those scores and is superseded by this report. The pilot's rows and scripts are kept in [results/2026-10-22-pilot.jsonl](results/2026-10-22-pilot.jsonl) and [bench/pilot/](bench/pilot/README.md); `make report` does not use them for any number above.
+
+The one later step that reused pilot material is the Codex harness probe. It needed easy problems, so that accuracy would not move while the prompt was trimmed, and took the pilot's first {{pair_problems}}:
 
 {{table:pilot}}
 
-Three problems × three rounds. Stripped luna and haiku-low both pass {{pilot_luna_k}} at {{pilot_luna_call}} and {{pilot_haiku_call}} per call, but on problems this easy that says nothing about accuracy: on the full ladder above the same stripped luna passes {{luna_low_bare_pass}}.
+{{pair_problems}} problems × three rounds. Stripped luna and haiku-low both pass {{pilot_luna_k}} at {{pilot_luna_call}} and {{pilot_haiku_call}} per call, but on problems this easy that says nothing about accuracy: on the full ladder above the same stripped luna passes {{luna_low_bare_pass}}.
 
 ## Prior work this borrows from
 

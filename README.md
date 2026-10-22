@@ -224,7 +224,9 @@ After the main run, five changes were tried on the seven problems luna-low fails
 
 ## Appendix B: the pilot (superseded)
 
-Before this experiment, a pilot ran every config on three well-known problems. Every config passed all of them, so the pilot could not rank anything; an earlier page titled "Delegation Tier Bench" reported those 100% scores and is superseded by this report. The only pilot data used here is the Codex harness probe below, which needed a trivial problem so that accuracy would not vary while the prompt was trimmed.
+Before this experiment, a pilot ran 18 configs on 6 well-known LeetCode problems: three for every config, and three harder ones for 4 of the configs. All 205 graded runs passed, so the pilot could not rank anything. An earlier page titled "Delegation Tier Bench" reported those scores and is superseded by this report. The pilot's rows and scripts are kept in [results/2026-10-22-pilot.jsonl](results/2026-10-22-pilot.jsonl) and [bench/pilot/](bench/pilot/README.md); `make report` does not use them for any number above.
+
+The one later step that reused pilot material is the Codex harness probe. It needed easy problems, so that accuracy would not move while the prompt was trimmed, and took the pilot's first 3:
 
 | config | passes | median input | median s | $ per call | $ kind |
 |---|---|---|---|---|---|
@@ -233,7 +235,7 @@ Before this experiment, a pilot ran every config on three well-known problems. E
 | luna-low, tool features off | 9/9 | 9,939 | 4.4 | 0.00098 | proxy |
 | luna-low, stripped | 9/9 | 5,854 | 3.8 | 0.00030 | proxy |
 
-Three problems × three rounds. Stripped luna and haiku-low both pass 9/9 at $0.00030 and $0.00028 per call, but on problems this easy that says nothing about accuracy: on the full ladder above the same stripped luna passes 73%.
+3 problems × three rounds. Stripped luna and haiku-low both pass 9/9 at $0.00030 and $0.00028 per call, but on problems this easy that says nothing about accuracy: on the full ladder above the same stripped luna passes 73%.
 
 ## Prior work this borrows from
 

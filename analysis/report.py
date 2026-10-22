@@ -7,14 +7,14 @@ interactive explorer.
 Template syntax:
   {{name}}               a fact (string) from facts()
   {{table:name}}         a markdown table from tables_md(); on the page it becomes a sortable table
-  {{chart:file|caption}} README: an image link to results/report/charts/<file>; page: the SVG inline, with the caption
+  {{chart:file|caption}} README (the caption may hold facts): an image link to results/report/charts/<file>; page: the SVG inline, with the caption
   {{explorer}}           page only: the interactive config explorer
   lines starting "@readme " or "@page " appear only in that output
 """
 import html, json, os, re, statistics
 
 from analysis import luna_rescue
-from analysis.charts import COLOR
+from analysis.charts import COLOR, HOST_AGENTS_MD, MIN_PASS
 from analysis.summarize import ROOT, RES, FUNC, AGENT, ci_text, cost, cost_uncached, load, pct
 
 TEMPLATE = os.path.join(ROOT, "docs", "report.tmpl.md")
@@ -81,6 +81,9 @@ def facts(s):
     F.update(n_problems=str(nprob), n_tasks=str(ntask), n_configs=str(len(cfg)), n_l7=str(len({p for v in hard.values() for p in v["by_problem"]})),
              repeats=str(cfg["haiku-low"]["n"] // nprob), n_calls=str(cfg["haiku-low"]["n"]), n_all_problems=str(nprob + len({p for v in hard.values() for p in v["by_problem"]})),
              agent_repeats=str(next(iter(ag.values()))["n"] // ntask), n_rungs=str(len(cfg["haiku-low"]["by_rung"])), per_rung=str(nprob // len(cfg["haiku-low"]["by_rung"])))
+    need(all(v["n"] == cfg["haiku-low"]["n"] for v in every.values()), "every function-track config has the same number of calls")
+    F["host_agents_md"] = HOST_AGENTS_MD; F["min_pass"] = pct(MIN_PASS)
+    F["rung_attempts"] = str(cfg["haiku-low"]["by_rung"]["L1"]["n"])
     sp = s["spend"]
     F["claude_usd"] = f"${sp['claude_measured_usd']:.2f}"; F["codex_usd"] = f"${sp['codex_proxy_usd']:.2f}"
     for c, v in every.items():
@@ -103,6 +106,7 @@ def facts(s):
     # finding 3 and the token callout: stripped harness
     lb = ex["luna-low-bare"]
     F["in_cut"] = pct(1 - lb["tokens_mean"]["in_tok"] / ll["tokens_mean"]["in_tok"])
+    need(1 - lb["tokens_mean"]["in_tok"] / ll["tokens_mean"]["in_tok"] > 0.5, "stripping the harness cuts input by more than half")
     d = vs(s, "luna-low-bare", "haiku-low"); F["lb_vs_hl"] = p1(d["diff"]); F["lb_vs_hl_ci"] = ci_pts(d["ci95"]); need(d["ci95"][1] == 0, "CI upper end touches zero")
     d = vs(s, "luna-low-bare", "luna-low"); F["lb_vs_ll"] = p1(d["diff"]); F["lb_vs_ll_ci"] = ci_pts(d["ci95"]); need(d["ci95"][0] < 0 < d["ci95"][1], "stripping changes nothing")
     need(lb["usd_per_pass"] < hl["usd_per_pass"] < lb["usd_per_pass_uncached"], "stripped luna cheaper than haiku only with the cache")
@@ -178,8 +182,13 @@ def facts(s):
     F["r_e_luna"] = f"{sum(r['luna_passed'] for r in ee['rows'])}/{ee['n']}"; F["r_e_changed"] = str(sum(r["haiku_changed"] for r in ee["rows"]))
     F["r_e_haiku_share"] = pct(sum(r["haiku_cost_usd"] for r in ee["rows"]) / ee["usd_total"])
     F["r_e_vs_hl_x"] = x(ee["usd_per_pass"], a["haiku-low"]["usd_per_pass"]); F["r_e_more"] = str(ee["passes"] - a["haiku-low"]["passes"])
-    # appendix: pilot
-    need(all(v["passes"] == v["n"] for v in pr.values()), "every pilot config passed every pilot problem")
+    # appendix: the pilot (results/2026-10-22-pilot.jsonl) and the trim probe's pair step on three of its problems
+    pl = s["pilot"]; prow = load(os.path.join(RES, "2026-10-22-pilot.jsonl"))
+    need(all(v["passes"] == v["n"] for v in pl.values()), "every pilot run passed")
+    F["pilot_configs"] = str(len(pl)); F["pilot_runs"] = str(sum(v["n"] for v in pl.values())); F["pilot_problems"] = str(len({r["problem"] for r in prow}))
+    F["pilot_r2_configs"] = str(sum(1 for v in pl.values() if v["problems"] > 3))
+    need(all(v["passes"] == v["n"] for v in pr.values()), "every trim-probe pair config passed")
+    F["pair_problems"] = str(len({r["problem"] for r in load(os.path.join(RES, "2026-10-22b-trim.jsonl")) if r["step"] == "pair"}))
     F["pilot_luna_call"] = u(pr["luna/noshell"]["usd_per_call"]); F["pilot_haiku_call"] = u(pr["haiku"]["usd_per_call"])
     F["pilot_luna_k"] = f"{pr['luna/noshell']['passes']}/{pr['luna/noshell']['n']}"; F["pilot_haiku_k"] = f"{pr['haiku']['passes']}/{pr['haiku']['n']}"
     q = [r for r in quality_rows() if r["outcome"] == "pass" and r["phase"] in ("main", "exploratory", "escalation") and r.get("time_ratio") is not None]
@@ -197,7 +206,7 @@ def md_table(head, rows, bold=None):
 
 def tables_md(s):
     T = {}; cfg, ex = s["configs"], s["exploratory"]; nprob = len(s["problems"])
-    T["result"] = md_table(["config", "pass@1", "95% CI", "median s", "p90 s", "$ per pass", "total $ (60 calls)", "$ kind"],
+    T["result"] = md_table(["config", "pass@1", "95% CI", "median s", "p90 s", "$ per pass", f"total $ ({cfg['haiku-low']['n']} calls)", "$ kind"],
                            [[c + (" (exploratory)" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], nprob),
                              f"{v['latency_s']['median']:.1f}", f"{v['latency_s']['p90']:.1f}", f"{v['usd_per_pass']:.5f}", f"{v['usd_total']:.3f}", v["cost_kind"]]
                             for c, v in {**cfg, **ex}.items()])
@@ -286,7 +295,8 @@ def fill(text, F, T, mode):
             if mode != "page": continue
             line = line[6:]
         lines.append(line)
-    return PLACE.sub(sub, "\n".join(lines))
+    plain = lambda m: m.group(0) if m.group(1).split(":")[0] in ("table", "chart", "explorer") else F[m.group(1)]
+    return PLACE.sub(sub, PLACE.sub(plain, "\n".join(lines)))  # facts first, so chart captions can hold them
 
 
 def explorer(s):

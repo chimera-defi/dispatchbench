@@ -1,6 +1,4 @@
 [
- {"context": "About 1.3k of luna's remaining tokens", "literals": ["1.3"], "reason": "size of the host's ~/.codex/AGENTS.md, measured once by hand (wc -c / 4); not in the result rows"},
- {"context": "(about 1.3k tokens)", "literals": ["1.3"], "reason": "same measurement as above"},
  {"context": "Codex CLI 0.163.0", "literals": ["0.163.0"], "reason": "CLI version the trim knobs apply to; also in results/manifest.json"},
  {"context": "PLAN.md (deviation 17)", "literals": ["17"], "reason": "deviation number in PLAN.md"},
  {"context": "deviation 16), each harder", "literals": ["16", "10", "5"], "reason": "deviation number; problem constraints 10^18 and 10^9 from the problem statements; design: 5 attempts per problem"},
@@ -19,11 +17,12 @@
  {"context": "Identical prompts got between 0 and", "literals": ["0"], "reason": "minimum cached tokens; checked by need() in analysis/report.py"},
  {"context": "takes about 12 minutes", "literals": ["12"], "reason": "wall time of make selftest on this host, measured by hand"},
  {"context": "with 5 attempts each, n =", "literals": ["5"], "reason": "design of the rescue arms"},
- {"context": "reported those 100% scores", "literals": ["100"], "reason": "pilot result; checked by need() in analysis/report.py"},
  {"context": "Jain et al. 2024", "literals": ["2024"], "reason": "citation year"},
  {"context": "Jimenez et al. 2023", "literals": ["2023"], "reason": "citation year"},
  {"context": "(Miller 2024)", "literals": ["2024"], "reason": "citation year"},
  {"context": "15 problems (12 on L1-L6, 3 on L7)", "literals": ["15", "12", "3"], "reason": "repository layout: files in bench/problems"},
  {"context": "4 repo tasks", "literals": ["4"], "reason": "repository layout: tasks in bench/agentic"},
- {"context": "4 lanes max, $8 Claude cap", "literals": ["4", "8"], "reason": "runner limits in bench/run.py"}
+ {"context": "4 lanes max, $8 Claude cap", "literals": ["4", "8"], "reason": "runner limits in bench/run.py"},
+ {"context": "Bars: 95% CI.", "literals": ["95"], "reason": "interval level, fixed by the method (bootstrap 95% CI)"},
+ {"context": "Dollars per 1,000 tokens", "literals": ["1,000"], "reason": "unit of the chart, not a result"}
 ]

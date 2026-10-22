@@ -6,6 +6,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "results", "report", "charts")
 FONT = "font-family='-apple-system, Segoe UI, Helvetica, Arial, sans-serif'"
 INK, MUTED, GRID = "#1f2328", "#59636e", "#e3e6ea"
+HOST_AGENTS_MD = "1.3k"  # tokens of the host's ~/.codex/AGENTS.md, measured once by hand (bytes / 4); not in the result rows
 # One hue per CLI; darker = more effort.
 COLOR = {"haiku-low": "#f2a46b", "haiku-medium": "#d9692a", "haiku-high": "#a8471a", "sonnet-medium": "#8a3b12", "sonnet-high": "#5e260a",
          "luna-low": "#7fb2e5", "luna-medium": "#3a7cc4", "luna-high": "#1d4f8a", "sol61-medium": "#163a66", "sol61-high": "#0b213d"}
@@ -169,7 +170,7 @@ def floor_chart(s):
               f"<rect x='{L}' y='{y}' width='{X(cached) - L:.1f}' height='{bh}' fill='{COLOR.get(c, MUTED)}'/>",
               text(L - 8, y + 14, c, 11, "end"), text(X(tot) + 6, y + 14, f"{tot:,}", 11, fill=MUTED)]
         y += bh + 8
-    b.append(text(12, y + 22, "Solid: served from cache. Pale: uncached input. Codex floors include ~1.3k tokens of user AGENTS.md the CLI cannot switch off.", 11, fill=MUTED))
+    b.append(text(12, y + 22, f"Solid: served from cache. Pale: uncached input. Codex floors include ~{HOST_AGENTS_MD} tokens of user AGENTS.md the CLI cannot switch off.", 11, fill=MUTED))
     return svg(W, y + 40, b)
 
 
@@ -234,11 +235,19 @@ def token_in_chart(s):
     lab = {"luna-low": "luna-low, stock Codex", "luna-low-bare": "luna-low, stripped Codex", "haiku-low": "haiku-low, tools off", "sonnet-medium": "sonnet-medium, tools off"}
     rows = [(lab[c], allc[c]["tokens_mean"]["in_tok"], COLOR.get(c, MUTED), c not in s["configs"]) for c in TOKEN_IN if c in allc]
     return bars("Mean input tokens per call (function track, 60 calls each)", rows, lambda v: f"{v:,}",
-                "Includes cached input. Codex counts include about 1.3k tokens of the host's user-level AGENTS.md, which no flag turns off.", L=200, R=80)
+                f"Includes cached input. Codex counts include about {HOST_AGENTS_MD} tokens of the host's user-level AGENTS.md, which no flag turns off.", L=200, R=80)
+
+
+def check_design(s):
+    """Chart titles and notes state the design (12 problems x 5 attempts = 60 calls per config, 10 per rung, 5 per cell). Fail if the data differ."""
+    bad = [c for c, v, _ in all_configs(s) if v["n"] != 60 or any(r["n"] != 10 for r in v["by_rung"].values())]
+    if bad or len(s["problems"]) != 12:
+        raise SystemExit(f"chart text assumes 12 problems, 60 calls per config and 10 per rung; check {bad or 'the problem count'}")
 
 
 def build(s):
     """{file name: SVG text or None} for every chart."""
+    check_design(s)
     charts = {"pareto.svg": pareto_chart(s), "cost_time.svg": cost_time_chart(s), "pass_by_rung.svg": rung_chart(s), "heatmap.svg": heatmap(s),
               "token_floor.svg": floor_chart(s), "agentic.svg": agentic_chart(s), "token_in.svg": token_in_chart(s)}
     charts["cost_total.svg"], charts["cost_per_1k.svg"] = cost_tokens_chart(s)

@@ -28,7 +28,8 @@ def template_literals():
     """(line number, literal, line) for every number the template writes itself."""
     out = []
     for no, line in enumerate(open(report.TEMPLATE).read().split("\n"), 1):
-        t = re.sub(r"\{\{[^{}]*\}\}", " ", line)
+        t = re.sub(r"\{\{chart:[^|}]*\|", " ", line)  # keep chart captions in the scan
+        t = re.sub(r"\{\{[^{}]*\}\}", " ", t)
         t = re.sub(r"`[^`]*`", " ", t)
         t = re.sub(r"\]\([^)]*\)", "]", t)
         t = re.sub(r"<[^>]*>", " ", t)
