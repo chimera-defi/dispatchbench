@@ -105,7 +105,8 @@ def grid(s):
     out = [f'<div class="grid" style="grid-template-columns:minmax(84px,auto) repeat({len(ORDER)},minmax(40px,1fr))">', '<div class="h m">problem</div>']
     out += [f'<div class="h">{esc(c)}</div>' for c in ORDER]
     for p in probs:
-        out.append(f'<div class="m">{p[:3]} <span class="rung">L{s["problems"][p]["rung"]}</span></div>')
+        out.append(f'<div class="m">{p[:3]} <span class="rung">L{s["problems"][p]["rung"]}</span>'
+                   f'<span class="lc {LC[p].lower()}" title="LeetCode level, my estimate">{LC[p][0]}</span></div>')
         for c in ORDER:
             k, n = cell(p, c); cls = "pass" if k == n else "part" if k * 2 > n else "fail"
             out.append(f'<div class="{cls}" title="{esc(c)} on {p}: {k} of {n} passed">{k}/{n}</div>')

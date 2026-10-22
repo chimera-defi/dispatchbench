@@ -65,7 +65,11 @@ details[open]>summary{color:var(--fg)}
 details>.wrap,details>ul{margin:6px 0 10px}
 .notes{display:grid;gap:4px;font-size:14px}
 @media (max-width:640px){
- .chart{overflow-x:auto} .chart svg{min-width:520px} /* charts keep a readable size and scroll sideways on phones */
+ .chart{padding:10px 4px 6px} /* charts fit the screen; their text is enlarged so it stays readable once scaled down */
+ .chart svg text{font-size:16px} .chart svg .axis{font-size:15px} .chart svg .lbl{font-size:16px;stroke-width:5px}
+ .chart.floor svg text,.chart.floor svg .lbl{font-size:13px} .chart.floor svg .axis{font-size:12px}
+ .tablewrap th,.tablewrap td{padding:6px 4px;font-size:11px;white-space:normal} .tablewrap td:first-child{white-space:nowrap}
+ .tablewrap .dot{margin-right:4px}
  .grid{grid-template-columns:minmax(58px,auto) repeat(7,minmax(30px,1fr))!important;gap:3px;font-size:11px}
  .grid div{padding:5px 1px}.grid .rung{display:none}
  th,td{padding:7px 6px;font-size:12px}
@@ -77,3 +81,13 @@ details>.wrap,details>ul{margin:6px 0 10px}
 .method li.round>ul{list-style:none;padding-left:4px;margin:4px 0 0;display:grid;gap:3px}
 .lc{display:inline-block;min-width:58px;text-align:center;padding:0 6px;border-radius:99px;font:600 11px var(--mono);border:1px solid currentColor;margin-right:4px}
 .lc.easy{color:var(--good)}.lc.medium{color:var(--warn)}.lc.hard{color:var(--bad)}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.toc a{font:600 13px var(--body);text-decoration:none;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:4px 12px}
+.toc a:hover{border-color:var(--accent);color:var(--accent)}
+section[id]{scroll-margin-top:12px}
+.conclusion{border-left-color:var(--frontier)}
+.muted{color:var(--muted);margin:4px 0 0}
+.grid .lc{min-width:0;padding:0 4px;margin:0 0 0 3px;font-size:10px}
+main{counter-reset:sec toc}
+.toc a{counter-increment:toc}.toc a::before{content:counter(toc) " ";color:var(--muted)}
+.num{counter-increment:sec}.num::before{content:counter(sec) " · "}
