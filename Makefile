@@ -5,7 +5,7 @@ AGENT_CONFIGS ?= haiku-low,sonnet-medium,luna-low,sol61-medium
 
 .PHONY: selftest run agentic grade report clean-report
 
-selftest:            ## check every problem: reference == brute force, planted bugs fail, examples hold
+selftest:            ## check every problem: reference == brute force, planted bugs fail, examples hold (about 6 min)
 	$(PY) -m bench.selftest
 
 run:                 ## function track (cached calls are skipped; costs money for new ones)

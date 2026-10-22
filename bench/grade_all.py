@@ -18,7 +18,22 @@ def extract(text):
     return blocks[-1] if blocks else (text or "")
 
 
+# Grades are cached by (problem file, code), not by grader source. If the grader changes, these hashes stop matching
+# and cached grades are refused rather than silently reused; regrade with an empty cache/grades/ and update the hashes.
+GRADER_SHA = {"grade.py": "2a1339d60158a92320535736131618bf6ada0ec86a55b441ee9d8faff2246155",
+              "sandbox_exec.py": "0440be72f984035604492c270785f989b29698061f7ba072df4ad32eaca63f2c"}
+
+
+def check_grader():
+    here = os.path.dirname(os.path.abspath(__file__))
+    for f, want in GRADER_SHA.items():
+        got = hashlib.sha256(open(os.path.join(here, f), "rb").read()).hexdigest()
+        if want and got != want and os.listdir(GRADES):
+            raise SystemExit(f"bench/{f} changed since cache/grades/ was written: clear cache/grades/ and update GRADER_SHA")
+
+
 def main():
+    check_grader()
     rows = []
     entries = sorted((json.load(open(os.path.join(CALLS, f))) for f in os.listdir(CALLS) if f.endswith(".json")),
                      key=lambda e: (e["ts"], e["config"]))

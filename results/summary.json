@@ -414,7 +414,7 @@
  "phases": {
   "calibration": 30,
   "escalation": 15,
-  "exploratory": 60,
+  "exploratory": 105,
   "main": 360,
   "warmup": 6
  },
@@ -614,6 +614,104 @@
   }
  ],
  "exploratory": {
+  "luna-high": {
+   "cli": "codex",
+   "model": "gpt-6-luna",
+   "effort": "high",
+   "n": 60,
+   "passes": 55,
+   "pass_at_1": 0.9167,
+   "ci95": [
+    0.8167,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 10,
+     "n": 10
+    },
+    "L3": {
+     "passed": 9,
+     "n": 10
+    },
+    "L4": {
+     "passed": 10,
+     "n": 10
+    },
+    "L5": {
+     "passed": 8,
+     "n": 10
+    },
+    "L6": {
+     "passed": 8,
+     "n": 10
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 55,
+    "crash": 4,
+    "wrong": 1
+   },
+   "latency_s": {
+    "median": 12.17,
+    "p90": 22.9,
+    "max": 30.29
+   },
+   "tokens_mean": {
+    "in_tok": 14688,
+    "cached_tok": 11520,
+    "out_tok": 1060,
+    "reasoning_tok": 526
+   },
+   "input_floor": [
+    14490,
+    11520
+   ],
+   "usd_per_call": 0.000962,
+   "usd_total": 0.0577,
+   "usd_per_pass": 0.001049,
+   "usd_per_pass_L1_L2": 0.000691,
+   "pass_L1_L2": [
+    20,
+    20
+   ],
+   "cost_kind": "proxy",
+   "vs": [
+    {
+     "b": "luna-low",
+     "diff": 0.15,
+     "ci95": [
+      -0.0333,
+      0.35
+     ],
+     "problems": 12
+    },
+    {
+     "b": "haiku-low",
+     "diff": -0.0333,
+     "ci95": [
+      -0.1333,
+      0.0667
+     ],
+     "problems": 12
+    },
+    {
+     "b": "luna-medium",
+     "diff": 0.1333,
+     "ci95": [
+      -0.05,
+      0.35
+     ],
+     "problems": 12
+    }
+   ],
+   "usd_per_pass_uncached": 0.00218
+  },
   "luna-low-bare": {
    "cli": "codex",
    "model": "gpt-6-luna",
@@ -700,14 +798,25 @@
       0.0
      ],
      "problems": 12
+    },
+    {
+     "b": "luna-medium",
+     "diff": -0.05,
+     "ci95": [
+      -0.1667,
+      0.05
+     ],
+     "problems": 12
     }
    ],
    "usd_per_pass_uncached": 0.001198
   }
  },
  "pareto": [
-  "luna-low",
-  "luna-medium"
+  "luna-medium",
+  "haiku-low",
+  "haiku-medium",
+  "sonnet-medium"
  ],
  "agentic": {
   "haiku-low": {
@@ -1419,9 +1528,9 @@
   "claude_measured_usd": 1.7619,
   "claude_function_usd": 1.0571,
   "claude_agentic_usd": 0.7048,
-  "codex_proxy_usd": 2.0963,
+  "codex_proxy_usd": 2.1367,
   "calls": {
-   "function": 471,
+   "function": 516,
    "agentic": 48
   }
  },

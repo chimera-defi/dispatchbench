@@ -11,6 +11,11 @@ COLOR = {"haiku-low": "#f2a46b", "haiku-medium": "#d9692a", "haiku-high": "#a847
          "luna-low": "#7fb2e5", "luna-medium": "#3a7cc4", "luna-high": "#1d4f8a", "sol61-medium": "#163a66", "sol61-high": "#0b213d"}
 
 
+# Per-label vertical offsets so neighbouring points' labels do not collide.
+LABEL_DY = {"luna-low": 18, "luna-low-bare": 18}
+LABEL_LEFT = {"haiku-low"}  # left of the point, clear of luna-high
+
+
 def svg(w, h, body):
     return (f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {w} {h}' width='{w}' height='{h}' {FONT} font-size='12'>"
             f"<rect width='{w}' height='{h}' fill='white'/>{''.join(body)}</svg>\n")
@@ -37,32 +42,35 @@ def fmt_usd(v):
 def pareto_chart(s):
     cfg = {c: v for c, v in s["configs"].items() if v["usd_per_pass"]}
     extra = {c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"]}  # drawn hollow, not on the frontier
-    cfg_all = {**cfg, **extra}
+    allc = {**cfg, **extra}
     W, H, L, R, T, B = 760, 480, 80, 30, 50, 80
-    xs = [v["latency_s"]["median"] for v in cfg_all.values()]; ys = [v["usd_per_pass"] for v in cfg_all.values()]
-    x0, x1 = min(xs) / 1.4, max(xs) * 1.4; y0, y1 = min(ys) / 1.6, max(ys) * 1.6
+    xs = [v["usd_per_pass"] for v in allc.values()]
+    x0, x1 = min(xs) / 1.6, max(xs) * 1.6; y0 = 0.6
     X = lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R)
-    Y = lambda v: H - B - (math.log(v) - math.log(y0)) / (math.log(y1) - math.log(y0)) * (H - T - B)
-    b = [text(L, 24, "Cost per passing solution vs median latency (function track, both axes log)", 14, weight="600")]
+    Y = lambda p: H - B - (p - y0) / (1 - y0) * (H - T - B)
+    b = [text(L, 24, "Pass rate vs cost per passing solution (function track, x log)", 14, weight="600")]
+    for p in (0.6, 0.7, 0.8, 0.9, 1.0):
+        b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
     for v in log_ticks(x0, x1):
-        b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{H - B}' stroke='{GRID}'/>", text(X(v), H - B + 18, f"{v:g} s", 11, "middle", MUTED)]
-    for v in log_ticks(y0, y1):
-        b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(v):.1f}' y2='{Y(v):.1f}' stroke='{GRID}'/>", text(L - 8, Y(v) + 4, fmt_usd(v), 11, "end", MUTED)]
-    b += [text((L + W - R) / 2, H - B + 38, "median wall-clock seconds per call", 12, "middle", MUTED),
-          text(20, (T + H - B) / 2, "$ per passing call", 12, "middle", MUTED, rotate=-90)]
+        b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{H - B}' stroke='{GRID}'/>", text(X(v), H - B + 18, fmt_usd(v), 11, "middle", MUTED)]
+    b += [text((L + W - R) / 2, H - B + 38, "$ per passing call", 12, "middle", MUTED),
+          text(20, (T + H - B) / 2, "pass@1 (12 problems × 5 attempts)", 12, "middle", MUTED, rotate=-90)]
     front = s["pareto"]
     if len(front) > 1:
-        pts = " ".join(f"{X(cfg[c]['latency_s']['median']):.1f},{Y(cfg[c]['usd_per_pass']):.1f}" for c in front)
+        pts = " ".join(f"{X(cfg[c]['usd_per_pass']):.1f},{Y(cfg[c]['pass_at_1']):.1f}" for c in front)
         b.append(f"<polyline points='{pts}' fill='none' stroke='{INK}' stroke-width='1.5' stroke-dasharray='5 4'/>")
-    for i, (c, v) in enumerate(sorted(cfg.items(), key=lambda kv: kv[1]["latency_s"]["median"])):
-        x, y = X(v["latency_s"]["median"]), Y(v["usd_per_pass"]); on = c in front; below = i % 2 == 1
-        b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='{7 if on else 5.5}' fill='{COLOR.get(c, MUTED)}' stroke='{INK if on else 'white'}' stroke-width='1.5'/>")
-        b.append(text(x + 10, y + 18 if below else y - 8, f"{c} ({100 * v['pass_at_1']:.0f}%){' *' if v['cost_kind'] == 'proxy' else ''}", 11))
-    for c, v in extra.items():
-        x, y = X(v["latency_s"]["median"]), Y(v["usd_per_pass"])
-        b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='5.5' fill='white' stroke='{COLOR['luna-low']}' stroke-width='2'/>")
-        b.append(text(x - 4, y + 22, f"{c} ({100 * v['pass_at_1']:.0f}%) *, exploratory", 11, "end", MUTED))
-    b.append(text(L, H - 10, "Dashed line: Pareto frontier. Percent: pass@1. Hollow: exploratory, not pre-registered. * Codex $ is a proxy (tokens × list price); Claude $ is measured.", 10, fill=MUTED))
+    for c, v in allc.items():
+        x, y = X(v["usd_per_pass"]), Y(v["pass_at_1"]); on = c in front; hollow = c in extra
+        lo, hi = v["ci95"]
+        b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(max(lo, y0)):.1f}' y2='{Y(hi):.1f}' stroke='{COLOR.get(c, MUTED)}' stroke-width='2' opacity='0.35'/>")
+        if hollow:
+            b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='5.5' fill='white' stroke='{COLOR.get(c, COLOR['luna-low'])}' stroke-width='2'/>")
+        else:
+            b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='{7 if on else 5.5}' fill='{COLOR.get(c, MUTED)}' stroke='{INK if on else 'white'}' stroke-width='1.5'/>")
+        right = x > W - R - 170 or c in LABEL_LEFT
+        label = f"{c} ({100 * v['pass_at_1']:.0f}%){' *' if v['cost_kind'] == 'proxy' else ''}{', exploratory' if hollow else ''}"
+        b.append(text(x - 10 if right else x + 10, y + LABEL_DY.get(c, -8), label, 11, "end" if right else "start", MUTED if hollow else INK))
+    b.append(text(L, H - 10, "Dashed: Pareto frontier of the pre-registered configs. Bars: 95% CI. Hollow: exploratory. * Codex $ is a proxy; Claude $ is measured.", 10, fill=MUTED))
     return svg(W, H, b)
 
 
@@ -143,7 +151,7 @@ def agentic_chart(s):
     b += [text((L + W - R) / 2, H - B + 38, "$ per run", 12, "middle", MUTED), text(20, (T + H - B) / 2, "runs passing all hidden tests", 12, "middle", MUTED, rotate=-90)]
     for i, (c, v) in enumerate(sorted(ag.items(), key=lambda kv: kv[1]["usd_per_run"])):
         x, y = X(v["usd_per_run"]), Y(v["hidden_pass_rate"]); lo, hi = v["ci95"]
-        if v["hidden_pass"] == v["n"]: lo = 0.05 ** (1 / v["n"])  # bootstrap collapses at 100%; use the exact one-sided bound
+        if v["hidden_pass"] == v["n"]: lo = 0.05 ** (1 / len(v["by_task"]))  # bootstrap collapses at 100%; one-sided bound over tasks, as in the tables
         b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(lo):.1f}' y2='{Y(hi):.1f}' stroke='{COLOR.get(c, MUTED)}' stroke-width='2' opacity='0.5'/>")
         b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='6' fill='{COLOR.get(c, MUTED)}'/>")
         right = x > W - R - 150

@@ -106,11 +106,11 @@
   4
  ],
  "first_call_utc": "2026-10-22T08:32:54+00:00",
- "last_call_utc": "2026-10-22T10:01:03+00:00",
+ "last_call_utc": "2026-10-22T10:25:10+00:00",
  "rows_by_phase": {
   "calibration": 30,
   "escalation": 15,
-  "exploratory": 60,
+  "exploratory": 105,
   "main": 360,
   "warmup": 6
  },
@@ -120,9 +120,9 @@
   "claude_measured_usd": 1.7619,
   "claude_function_usd": 1.0571,
   "claude_agentic_usd": 0.7048,
-  "codex_proxy_usd": 2.0963,
+  "codex_proxy_usd": 2.1367,
   "calls": {
-   "function": 471,
+   "function": 516,
    "agentic": 48
   }
  },
