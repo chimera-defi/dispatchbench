@@ -151,7 +151,45 @@ def short_table(s, need):
             '<th>median seconds</th><th>verdict</th></tr></thead><tbody>' + "".join(rows) + "</tbody></table></div>")
 
 
+# What each problem tests, one line each, for the visible method list. Links go to the problem file in the repo.
+REPO = "https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/"
+TESTS = {
+    "p01_overlap_minutes": "minutes with at least k meetings at once; half-open intervals, sweep line",
+    "p02_squash": "run-length encoding with escaped digits and backslashes",
+    "p03_ledger": "bank operations with validation rules, frozen accounts and transfers",
+    "p04_taller_within": "count taller people among the k in front; sliding window",
+    "p05_pass_route": "cheapest route when zone passes can be bought on the way; state-space shortest path",
+    "p06_calc": "integer expression parser: precedence, right-assoc power, unary minus, errors",
+    "p07_weighted_distance_sums": "weighted distance sums from every tree node; rerooting",
+    "p08_recur": "calendar recurrence rules (daily, weekly, monthly) expanded to dates",
+    "p09_k_machine_schedule": "best total pay for jobs on k printers; weighted interval scheduling",
+    "p10_avoid_count": "count strings avoiding banned substrings; automaton DP, modulo",
+    "p11_best_average": "largest average of a subarray of length at least k, as an exact fraction",
+    "p12_sheet": "spreadsheet evaluator with references, ranges, division and cycle errors",
+    "p13_xor_ring": "XOR cellular automaton on a ring for huge t; doubling",
+    "p14_bounce_board": "expected turns on a bouncing board game with jumps, as an exact fraction",
+    "p15_paint_erase": "paint and erase ranges where higher colours win; segment tree",
+}
+
+
+def method(s):
+    from bench.run import CLAUDE_FLAGS, CODEX_FLAGS
+    rung = {p: v["rung"] for p, v in s["problems"].items()}
+    rung.update({p: 7 for v in s["hard"].values() for p in v["by_problem"]})
+    li = [f'<li>L{rung[p]} <a href="{REPO}{p}.py"><code>{p.split("_", 1)[1]}</code></a>: {esc(TESTS[p])}</li>' for p in sorted(rung)]
+    flag = lambda fl: esc(" ".join(f if f else '""' for f in fl))
+    group = {}
+    for c, v in list(s["configs"].items()) + list(s["hard"].items()):
+        if c in ORDER: group.setdefault((v["cli"], v["model"]), set()).add(v["effort"])
+    eff = lambda e: "|".join(x for x in ["low", "medium", "high"] if x in e)
+    cmds = [f'<li><code>claude -p --model {m} --effort {eff(e)} {flag(CLAUDE_FLAGS)}</code></li>' if cli == "claude" else
+            f'<li><code>codex exec -m {m} -c model_reasoning_effort={eff(e)} {flag(CODEX_FLAGS)}</code></li>'
+            for (cli, m), e in group.items()]
+    return "".join(li), "".join(cmds)
+
+
 def widgets(s, need):
     a, fa = pass_cost(s); b, fb = speed_cost(s)
     return {"pass_cost": a, "speed_cost": b, "grid": grid(s), "floor": floor(s), "short_table": short_table(s, need),
-            "front_pass": ", ".join(fa), "front_speed": ", ".join(fb)}
+            "front_pass": ", ".join(fa), "front_speed": ", ".join(fb),
+            "problems": method(s)[0], "flags": method(s)[1]}

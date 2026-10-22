@@ -71,3 +71,5 @@ details>.wrap,details>ul{margin:6px 0 10px}
  th,td{padding:7px 6px;font-size:12px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.method h3{font:700 15px var(--body);margin:12px 0 4px}
+.cmds code{white-space:normal;overflow-wrap:anywhere}
