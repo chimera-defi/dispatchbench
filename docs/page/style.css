@@ -73,3 +73,7 @@ details>.wrap,details>ul{margin:6px 0 10px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 .method h3{font:700 15px var(--body);margin:12px 0 4px}
 .cmds code{white-space:normal;overflow-wrap:anywhere}
+.method li.round{list-style:none;margin:6px 0 2px -22px}
+.method li.round>ul{list-style:none;padding-left:4px;margin:4px 0 0;display:grid;gap:3px}
+.lc{display:inline-block;min-width:58px;text-align:center;padding:0 6px;border-radius:99px;font:600 11px var(--mono);border:1px solid currentColor;margin-right:4px}
+.lc.easy{color:var(--good)}.lc.medium{color:var(--warn)}.lc.hard{color:var(--bad)}
