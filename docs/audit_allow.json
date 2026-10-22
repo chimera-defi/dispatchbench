@@ -23,6 +23,7 @@
  {"context": "4 repo tasks", "literals": ["4"], "reason": "repository layout: tasks in bench/agentic"},
  {"context": "4 lanes max, $8 Claude cap", "literals": ["4", "8"], "reason": "runner limits in bench/run.py"},
  {"context": "Bars: 95% CI.", "literals": ["95"], "reason": "interval level, fixed by the method (bootstrap 95% CI)"},
+ {"context": "Whiskers: 95% CI.", "literals": ["95"], "reason": "interval level, fixed by the method (bootstrap 95% CI)"},
  {"context": "Dollars per 1,000 tokens", "literals": ["1,000"], "reason": "unit of the chart, not a result"},
  {"context": "Liu et al. 2023", "literals": ["2023"], "reason": "citation year"}
 ]

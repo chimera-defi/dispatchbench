@@ -1,9 +1,10 @@
 """Widgets for the page (results/report/page.html), all drawn from results/summary.json: the two Pareto scatters, the
 problem × config grid, the token-floor bars and the short result table. Inline SVG and HTML that take their colours
 from the page's CSS variables, so both themes work. Standard library only."""
-import html, math
+import html, json, math, os
 
-from analysis.charts import MIN_PASS
+from analysis import luna_rescue
+from analysis.charts import COLOR, MIN_PASS
 
 # Plot order and family colour (a CSS variable of the page). luna-high is the exploratory full-ladder run.
 ORDER = ["haiku-low", "haiku-medium", "sonnet-medium", "sol61-medium", "luna-high", "luna-medium", "luna-low"]
@@ -131,6 +132,33 @@ def floor(s):
     return "".join(g)
 
 
+def pipes():
+    """Hard set, 35 attempts each: single models next to the luna-low → haiku-low repair pipeline."""
+    a = luna_rescue.arms()
+    bars = [("luna-low", "luna-low alone", "var(--codex)"), ("luna-high-bare", "luna-high alone", "var(--codex)"),
+            ("haiku-low", "haiku-low alone", "var(--claude)"), ("luna-low+haiku-low-repair", "luna-low → Haiku repair", "var(--frontier)"),
+            ("sonnet-medium", "sonnet-medium alone", "var(--sonnet)")]
+    W, BL, BR, H = 560, 190, 400, 16 + 40 * len(bars)
+    g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Passes out of 35 on the hard set, single models and the repair pipeline">']
+    for i, (c, name, col) in enumerate(bars):
+        v = a[c]; y = 8 + i * 40; w = v["passes"] / v["n"] * (BR - BL)
+        g.append(f'<text x="{BL - 10}" y="{y + 19}" text-anchor="end" class="lbl">{esc(name)}</text>')
+        g.append(f'<rect x="{BL}" y="{y}" width="{BR - BL}" height="28" rx="3" fill="var(--line)"/>')
+        g.append(f'<rect x="{BL}" y="{y}" width="{w:.1f}" height="28" rx="3" fill="{col}"/>')
+        g.append(f'<text x="{BR + 8}" y="{y + 19}" class="lbl">{v["passes"]}/{v["n"]} · ${v["usd_per_pass"]:.4f}</text>')
+    g.append("</svg>")
+    return "".join(g)
+
+
+def explorer(s):
+    """The pick-your-axes scatter (docs/page/explorer.html) with every config's numbers injected."""
+    data = [{"c": c, "exp": e, "col": COLOR.get(c, "#6e7781"), "kind": v["cost_kind"], "pass": v["pass_at_1"], "usd": v["usd_per_pass"],
+             "med": v["latency_s"]["median"], "inp": v["tokens_mean"]["in_tok"], "rsn": v["tokens_mean"]["reasoning_tok"]}
+            for e, group in ((False, s["configs"]), (True, s["exploratory"])) for c, v in group.items()]
+    src = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "page", "explorer.html")
+    return open(src).read().replace("__DATA__", json.dumps(data, separators=(",", ":")))
+
+
 def verdict(c, v, need):
     """One word per config; each is checked against the data so the table cannot drift from it."""
     if c == "haiku-low": need(v["pass_at_1"] >= MIN_PASS, "haiku-low clears the pass bar"); return "default · repair"
@@ -210,6 +238,6 @@ def method(s):
 
 def widgets(s, need):
     a, fa = pass_cost(s); b, fb = speed_cost(s)
-    return {"pass_cost": a, "speed_cost": b, "grid": grid(s), "floor": floor(s), "short_table": short_table(s, need),
+    return {"pass_cost": a, "speed_cost": b, "grid": grid(s), "floor": floor(s), "pipes": pipes(), "explorer": explorer(s), "short_table": short_table(s, need),
             "front_pass": ", ".join(fa), "front_speed": ", ".join(fb),
             "problems": method(s)[0], "flags": method(s)[1]}
