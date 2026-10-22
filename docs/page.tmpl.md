@@ -69,7 +69,7 @@
 </ul>
 </section>
 <section id="pipes">
-<h2><span class="num"></span>🔗 Pipelines: Haiku checks luna's work</h2>
+<h2><span class="num"></span>🔗 Pipelines: Haiku plans or checks luna's work</h2>
 <div class="chart floor"><h3>Hard set: passes, $ per pass, median seconds</h3><p class="sub">The {{rescue_n}} attempts luna-low failed most. Purple: haiku-low plans before luna builds, or repairs after.</p>{{w_pipes}}</div>
 <ul class="tight small">
 <li>Only the repair pipeline and sonnet-medium passed every attempt; the repair pipeline cost under a quarter as much.</li>

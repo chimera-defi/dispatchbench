@@ -108,7 +108,7 @@ def cost_time_chart(s):
         right = px > W - R - 170 or c in left
         lab = f"{c} ({100 * allc[c]['pass_at_1']:.0f}%){' *' if allc[c]['cost_kind'] == 'proxy' else ''}"
         b.append(text(px - 10 if right else px + 10, py + dy.get(c, -8), lab, 11, "end" if right else "start", MUTED if hollow else INK))
-    b.append(text(L, H - 10, f"Frontier: pass@1 ≥ {100 * MIN_PASS:.0f}%, then cost and time. Hollow: exploratory. * Codex cost is proxy.", 10, fill=MUTED))
+    b.append(text(L, H - 10, f"Purple ring: frontier, pass@1 ≥ {100 * MIN_PASS:.0f}%, then cost and time. Hollow: exploratory. * Codex cost is proxy.", 10, fill=MUTED))
     return svg(W, H, b)
 
 
@@ -120,7 +120,7 @@ def rung_chart(s):
     for p in (0, 0.2, 0.4, 0.6, 0.8, 1.0):
         b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
     b.append(f"<line x1='{L}' x2='{W - R}' y1='{Y(0.4):.1f}' y2='{Y(0.4):.1f}' stroke='var(--bad,#b3261e)' stroke-dasharray='4 3'/>")
-    b.append(text(W - R + 6, Y(0.4) + 4, "breaking point (≤ 40%)", 11, fill="var(--bad,#b3261e)"))
+    b.append(text(L + 6, Y(0.4) - 6, "breaking point (≤ 40%)", 11, fill="var(--bad,#b3261e)"))
     for i, g in enumerate(rungs):
         b.append(text(X(i), H - B + 18, g, 11, "middle", MUTED))
     b.append(text((L + W - R) / 2, H - 12, "rung (L1 easiest)", 12, "middle", MUTED))
