@@ -172,11 +172,30 @@ TESTS = {
 }
 
 
+# Closest LeetCode difficulty for each new problem: my estimate from the nearest LeetCode analogue, not a measurement.
+LC = {"p01_overlap_minutes": "Medium", "p02_squash": "Easy", "p03_ledger": "Medium", "p04_taller_within": "Medium",
+      "p05_pass_route": "Medium", "p06_calc": "Hard", "p07_weighted_distance_sums": "Hard", "p08_recur": "Medium",
+      "p09_k_machine_schedule": "Hard", "p10_avoid_count": "Hard", "p11_best_average": "Hard", "p12_sheet": "Hard",
+      "p13_xor_ring": "Hard", "p14_bounce_board": "Hard", "p15_paint_erase": "Hard"}
+# The pilot's well-known LeetCode problems, in the order the pilot ran them (round 1, then the harder round 2).
+PILOT = [("Fizz Buzz", "fizz-buzz", "Easy"), ("Course Schedule II", "course-schedule-ii", "Medium"), ("Candy", "candy", "Hard"),
+         ("Reconstruct Itinerary", "reconstruct-itinerary", "Hard"), ("Minimum Window Substring", "minimum-window-substring", "Hard"),
+         ("Wildcard Matching", "wildcard-matching", "Hard")]
+
+
 def method(s):
     from bench.run import CLAUDE_FLAGS, CODEX_FLAGS
-    rung = {p: v["rung"] for p, v in s["problems"].items()}
-    rung.update({p: 7 for v in s["hard"].values() for p in v["by_problem"]})
-    li = [f'<li>L{rung[p]} <a href="{REPO}{p}.py"><code>{p.split("_", 1)[1]}</code></a>: {esc(TESTS[p])}</li>' for p in sorted(rung)]
+    lvl = lambda d: f'<span class="lc {d.lower()}">{d}</span>'
+    item = lambda p, r: f'<li>{lvl(LC[p])} L{r} <a href="{REPO}{p}.py"><code>{p.split("_", 1)[1]}</code></a>: {esc(TESTS[p])}</li>'
+    main = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
+    hard = sorted({p for v in s["hard"].values() for p in v["by_problem"]})
+    hcfg = ", ".join(c for c in ORDER if c in s["hard"])
+    li = [f'<li class="round"><b>Pilot</b>: well-known LeetCode problems. Every config passed, so it ranked nothing and is not scored.<ul>'
+          + "".join(f'<li>{lvl(d)} <a href="https://leetcode.com/problems/{slug}/">{esc(n)}</a></li>' for n, slug, d in PILOT) + "</ul></li>",
+          f'<li class="round"><b>Round 1</b>: {len(main)} new problems on rungs L1–L6, every config.<ul>'
+          + "".join(item(p, s["problems"][p]["rung"]) for p in main) + "</ul></li>",
+          f'<li class="round"><b>Round 2</b>: {len(hard)} harder problems on rung L7, run later on {hcfg}.<ul>'
+          + "".join(item(p, 7) for p in hard) + "</ul></li>"]
     flag = lambda fl: esc(" ".join(f if f else '""' for f in fl))
     group = {}
     for c, v in list(s["configs"].items()) + list(s["hard"].items()):

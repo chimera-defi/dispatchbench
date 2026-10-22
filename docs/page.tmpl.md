@@ -14,7 +14,7 @@
 <h2>❓ How it was run</h2>
 <ul class="tight small">
 {{w_problems}}
-<li>{{repeats}} attempts per problem per config, tools off; L7 ran later on haiku-low, sonnet-medium, sol61-medium and luna-high.</li>
+<li>{{repeats}} attempts per problem per config, tools off. Level tags are the closest LeetCode difficulty, my estimate.</li>
 <li>Pass = every hidden test passes: fixed cases, random small cases checked against a brute force, and big cases for speed. Planted wrong answers must fail.</li>
 <li>Claude $ is measured by the CLI; Codex $ is tokens × list price.</li>
 <li>Intervals: hierarchical bootstrap over problems, {{n_boot}} resamples.</li>
