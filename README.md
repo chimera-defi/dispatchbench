@@ -252,7 +252,7 @@ Methods:
 Presentation:
 
 - [Aider leaderboards](https://aider.chat/docs/leaderboards/): one leaderboard row per model setting, with pass rate and dollar cost side by side and the exact command recorded. Here the CLI versions are in `results/manifest.json` and every flag is in `bench/run.py`. Every table on the page sorts by any column.
-- [Artificial Analysis](https://artificialanalysis.ai/): plot accuracy, price and speed against each other and mark the configs no other beats. The Pareto and cost-vs-time charts and the explorer do this.
+- [Artificial Analysis](https://artificialanalysis.ai/): plot accuracy, price and speed against each other and mark the configs no other beats. The Pareto and cost-vs-time charts and the page's two frontier scatters do this.
 - [Hamel Husain on evals](https://hamel.dev/blog/posts/evals/): read the failures, not only the average. The per-problem chart, the failure table and the exported solutions in `results/solutions/` are there so a reader can check any cell.
 
 What we did not borrow: scale. These benchmarks run hundreds of problems, and LiveCodeBench keeps adding new ones; this is one run on 15 problems, so its intervals are wide.
@@ -269,7 +269,7 @@ bench/            problems, prompts, runners, sandboxed grader
   escalate.py     pre-registered escalation step
   trim_probe.py   Codex harness floor probe (exploratory)
 analysis/         statistics, tables, SVG charts, this report and its audit (standard library only)
-docs/             the report template and the page's style, sort and explorer code
+docs/             the report template and the page template, style and sort code
 cache/            cached model calls and grades; the source of every number
 results/          graded rows (jsonl), prices, manifest, summary, quality, solutions, report and page
 PLAN.md           pre-registration and deviations
