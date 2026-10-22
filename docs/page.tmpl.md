@@ -10,6 +10,22 @@
 <li>A Haiku repair took luna-low from {{r_e_luna}} to {{r_luna_low_haiku_low_repair_k}} on its hardest problems. sonnet-medium passed {{sm_all}}.</li>
 </ul>
 </section>
+<section class="method">
+<h2>❓ How it was run</h2>
+<ul class="tight small">
+{{w_problems}}
+<li>{{repeats}} attempts per problem per config, tools off; L7 ran later on haiku-low, sonnet-medium, sol61-medium and luna-high.</li>
+<li>Pass = every hidden test passes: fixed cases, random small cases checked against a brute force, and big cases for speed. Planted wrong answers must fail.</li>
+<li>Claude $ is measured by the CLI; Codex $ is tokens × list price.</li>
+<li>Intervals: hierarchical bootstrap over problems, {{n_boot}} resamples.</li>
+<li>Repo tasks: {{n_tasks}} tasks × {{agent_repeats}} attempts, hidden tests; all {{ag_runs}} runs passed.</li>
+</ul>
+<h3>Exact commands</h3>
+<ul class="tight small cmds">
+{{w_flags}}
+<li>luna-low-bare adds the stripped harness from bench/trim_probe.py.</li>
+</ul>
+</section>
 <section>
 <h2>📊 Pass rate vs $ per pass</h2>
 <div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="dot hollow" style="color:var(--codex)"></span>exploratory</span><span><span class="ring"></span>Pareto frontier</span></div>
@@ -58,15 +74,6 @@
 </ol>
 </section>
 <section class="notes">
-<details><summary>❓ How it was run</summary>
-<ul class="tight">
-<li>{{n_problems}} post-cutoff Python problems on {{n_rungs}} difficulty rungs, {{repeats}} attempts each, tools off.</li>
-<li>Hidden tests against a reference that a brute force cross-checks; planted wrong answers must fail.</li>
-<li>Claude $ is measured by the CLI; Codex $ is tokens × list price.</li>
-<li>Intervals: hierarchical bootstrap over problems, {{n_boot}} resamples.</li>
-<li>Repo tasks: {{n_tasks}} tasks × {{agent_repeats}} attempts, hidden tests; all {{ag_runs}} runs passed.</li>
-</ul>
-</details>
 <details><summary>⚠️ Caveats</summary>
 <ul class="tight">
 <li>Small sample: read the intervals before the point estimates.</li>

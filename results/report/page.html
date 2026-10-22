@@ -76,6 +76,8 @@ details>.wrap,details>ul{margin:6px 0 10px}
  th,td{padding:7px 6px;font-size:12px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.method h3{font:700 15px var(--body);margin:12px 0 4px}
+.cmds code{white-space:normal;overflow-wrap:anywhere}
 </style></head><body><main>
 <header class="head">
 <span class="eyebrow">Run 2026-10-22b · 12 problems × 5 attempts = 60 calls per config · $2.06 Claude, $2.42 Codex (proxy)</span>
@@ -87,6 +89,22 @@ details>.wrap,details>ul{margin:6px 0 10px}
 <ul class="tight">
 <li>Cheapest safe single model: haiku-low, 95% at $0.00112 per pass. luna-high: 92% at $0.00105.</li>
 <li>A Haiku repair took luna-low from 21/35 to 35/35 on its hardest problems. sonnet-medium passed 75/75.</li>
+</ul>
+</section>
+<section class="method">
+<h2>❓ How it was run</h2>
+<ul class="tight small">
+<li>L1 <a href="https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/p01_overlap_minutes.py"><code>overlap_minutes</code></a>: minutes with at least k meetings at once; half-open intervals, sweep line</li><li>L1 <a href="https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/p02_squash.py"><code>squash</code></a>: run-length encoding with escaped digits and backslashes</li><li>L2 <a href="https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/p03_ledger.py"><code>ledger</code></a>: bank operations with validation rules, frozen accounts and transfers</li><li>L2 <a href="https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/p04_taller_within.py"><code>taller_within</code></a>: count taller people among the k in front; sliding window</li><li>L3 <a href="https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/p05_pass_route.py"><code>pass_route</code></a>: cheapest route when zone passes can be bought on the way; state-space shortest path</li><li>L3 <a href="https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/p06_calc.py"><code>calc</code></a>: integer expression parser: precedence, right-assoc power, unary minus, errors</li><li>L4 <a href="https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/p07_weighted_distance_sums.py"><code>weighted_distance_sums</code></a>: weighted distance sums from every tree node; rerooting</li><li>L4 <a href="https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/p08_recur.py"><code>recur</code></a>: calendar recurrence rules (daily, weekly, monthly) expanded to dates</li><li>L5 <a href="https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/p09_k_machine_schedule.py"><code>k_machine_schedule</code></a>: best total pay for jobs on k printers; weighted interval scheduling</li><li>L5 <a href="https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/p10_avoid_count.py"><code>avoid_count</code></a>: count strings avoiding banned substrings; automaton DP, modulo</li><li>L6 <a href="https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/p11_best_average.py"><code>best_average</code></a>: largest average of a subarray of length at least k, as an exact fraction</li><li>L6 <a href="https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/p12_sheet.py"><code>sheet</code></a>: spreadsheet evaluator with references, ranges, division and cycle errors</li><li>L7 <a href="https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/p13_xor_ring.py"><code>xor_ring</code></a>: XOR cellular automaton on a ring for huge t; doubling</li><li>L7 <a href="https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/p14_bounce_board.py"><code>bounce_board</code></a>: expected turns on a bouncing board game with jumps, as an exact fraction</li><li>L7 <a href="https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/p15_paint_erase.py"><code>paint_erase</code></a>: paint and erase ranges where higher colours win; segment tree</li>
+<li>5 attempts per problem per config, tools off; L7 ran later on haiku-low, sonnet-medium, sol61-medium and luna-high.</li>
+<li>Pass = every hidden test passes: fixed cases, random small cases checked against a brute force, and big cases for speed. Planted wrong answers must fail.</li>
+<li>Claude $ is measured by the CLI; Codex $ is tokens × list price.</li>
+<li>Intervals: hierarchical bootstrap over problems, 10,000 resamples.</li>
+<li>Repo tasks: 4 tasks × 3 attempts, hidden tests; all 48 runs passed.</li>
+</ul>
+<h3>Exact commands</h3>
+<ul class="tight small cmds">
+<li><code>claude -p --model claude-haiku-5-5 --effort low|medium --output-format json --no-session-persistence --tools &quot;&quot; --setting-sources &quot;&quot; --strict-mcp-config</code></li><li><code>claude -p --model claude-sonnet-5-5 --effort medium --output-format json --no-session-persistence --tools &quot;&quot; --setting-sources &quot;&quot; --strict-mcp-config</code></li><li><code>codex exec -m gpt-6-luna -c model_reasoning_effort=low|medium|high --ignore-user-config -c skills.include_instructions=false -c service_tier=default --json --ephemeral --skip-git-repo-check -s read-only</code></li><li><code>codex exec -m gpt-6.1-sol -c model_reasoning_effort=medium --ignore-user-config -c skills.include_instructions=false -c service_tier=default --json --ephemeral --skip-git-repo-check -s read-only</code></li>
+<li>luna-low-bare adds the stripped harness from bench/trim_probe.py.</li>
 </ul>
 </section>
 <section>
@@ -137,15 +155,6 @@ details>.wrap,details>ul{margin:6px 0 10px}
 </ol>
 </section>
 <section class="notes">
-<details><summary>❓ How it was run</summary>
-<ul class="tight">
-<li>12 post-cutoff Python problems on 6 difficulty rungs, 5 attempts each, tools off.</li>
-<li>Hidden tests against a reference that a brute force cross-checks; planted wrong answers must fail.</li>
-<li>Claude $ is measured by the CLI; Codex $ is tokens × list price.</li>
-<li>Intervals: hierarchical bootstrap over problems, 10,000 resamples.</li>
-<li>Repo tasks: 4 tasks × 3 attempts, hidden tests; all 48 runs passed.</li>
-</ul>
-</details>
 <details><summary>⚠️ Caveats</summary>
 <ul class="tight">
 <li>Small sample: read the intervals before the point estimates.</li>
