@@ -177,7 +177,7 @@ def trim_block():
         # the floor step's fizzbuzz round-1 call has the same cache key as the pair step's, so it is the same call and counts here
         rr = [r for r in rows if r["config"] == c]; usd = [cost(r) for r in rr]
         out["pair"][c] = {"cli": rr[0]["cli"], "model": rr[0]["model"], "level": rr[0].get("level"), "passes": sum(r["passed"] for r in rr), "n": len(rr),
-                          "errors": sum(bool(r["is_error"]) for r in rr), "in_median": round(statistics.median(r["in_tok"] for r in rr)),
+                          "errors": sum(bool(r["is_error"]) for r in rr), "uncached_calls": sum(r["cached_tok"] == 0 for r in rr), "in_median": round(statistics.median(r["in_tok"] for r in rr)),
                           "in_min": min(r["in_tok"] for r in rr), "cached_median": round(statistics.median(r["cached_tok"] or 0 for r in rr)),
                           "out_median": round(statistics.median(r["out_tok"] for r in rr)), "median_s": round(statistics.median(r["wall_s"] for r in rr), 2),
                           "p90_s": round(p90([r["wall_s"] for r in rr]), 2), "usd_per_call": round(statistics.mean(usd), 6),
