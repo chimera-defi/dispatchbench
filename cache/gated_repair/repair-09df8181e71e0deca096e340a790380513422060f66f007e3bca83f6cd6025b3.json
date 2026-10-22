@@ -1,0 +1,15 @@
+{
+ "wall_s": 12.176487229000031,
+ "text": "```python\nfrom math import gcd\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, x in enumerate(a):\n        prefix[i + 1] = prefix[i] + x\n\n    # Dinkelbach iteration: lambda = p/q is the current best average.\n    # For a subarray (l, r] of length >= k, its average exceeds lambda\n    # iff q*sum - p*len > 0. Maximize that exactly with integers.\n    p, q = prefix[n], n\n    while True:\n        min_val = None\n        min_idx = -1\n        best_diff = 0\n        best_sum = best_len = 0\n        for r in range(k, n + 1):\n            l = r - k\n            v = q * prefix[l] - p * l\n            if min_val is None or v < min_val:\n                min_val = v\n                min_idx = l\n            diff = (q * prefix[r] - p * r) - min_val\n            if diff > best_diff:\n                best_diff = diff\n                best_sum = prefix[r] - prefix[min_idx]\n                best_len = r - min_idx\n        if best_diff <= 0:\n            break\n        p, q = best_sum, best_len\n\n    g = gcd(p, q)\n    return [p // g, q // g]\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 8566,
+ "in_tok": 4725,
+ "cached_tok": 649,
+ "cache_write_tok": 4074,
+ "out_tok": 1765,
+ "reasoning_tok": 1333,
+ "cost_usd": 0.00170399,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

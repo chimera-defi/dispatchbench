@@ -1,0 +1,15 @@
+{
+ "wall_s": 11.524327256000106,
+ "text": "```python\ndef avoid_count(n: int, alphabet: str, banned: list[str]) -> int:\n    MOD = 1_000_000_007\n    chars = {ch: i for i, ch in enumerate(alphabet)}\n    k = len(alphabet)\n\n    transitions = [[-1] * k]\n    terminal = [False]\n\n    for word in banned:\n        state = 0\n        for ch in word:\n            c = chars[ch]\n            nxt = transitions[state][c]\n            if nxt == -1:\n                nxt = len(transitions)\n                transitions[state][c] = nxt\n                transitions.append([-1] * k)\n                terminal.append(False)\n            state = nxt\n        terminal[state] = True\n\n    fail = [0] * len(transitions)\n    queue = []\n\n    for c in range(k):\n        child = transitions[0][c]\n        if child == -1:\n            transitions[0][c] = 0\n        else:\n            queue.append(child)\n\n    head = 0\n    while head < len(queue):\n        state = queue[head]\n        head += 1\n\n        terminal[state] |= terminal[fail[state]]\n        for c in range(k):\n            child = transitions[state][c]\n            if child == -1:\n                transitions[state][c] = transitions[fail[state]][c]\n            else:\n                fail[child] = transitions[fail[state]][c]\n                queue.append(child)\n\n    safe_states = [i for i, is_terminal in enumerate(terminal) if not is_terminal]\n    index = {state: i for i, state in enumerate(safe_states)}\n    size = len(safe_states)\n\n    matrix = [[0] * size for _ in range(size)]\n    for state in safe_states:\n        i = index[state]\n        for c in range(k):\n            nxt = transitions[state][c]\n            if not terminal[nxt]:\n                j = index[nxt]\n                matrix[i][j] += 1\n\n    vector = [0] * size\n    vector[index[0]] = 1\n\n    def multiply_matrices(a, b):\n        result = [[0] * size for _ in range(size)]\n        for i, row in enumerate(a):\n            out = result[i]\n            for mid, x in enumerate(row):\n                if x:\n                    brow = b[mid]\n                    for j, y in enumerate(brow):\n                        if y:\n                            out[j] = (out[j] + x * y) % MOD\n        return result\n\n    def multiply_vector(v, a):\n        result = [0] * size\n        for i, x in enumerate(v):\n            if x:\n                for j, y in enumerate(a[i]):\n                    if y:\n                        result[j] = (result[j] + x * y) % MOD\n        return result\n\n    while n:\n        if n & 1:\n            vector = multiply_vector(vector, matrix)\n        n >>= 1\n        if n:\n            matrix = multiply_matrices(matrix, matrix)\n\n    return sum(vector) % MOD\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 8050,
+ "in_tok": 5184,
+ "cached_tok": 649,
+ "cache_write_tok": 4533,
+ "out_tok": 2020,
+ "reasoning_tok": 1076,
+ "cost_usd": 0.00192329,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

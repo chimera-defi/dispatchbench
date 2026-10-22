@@ -1,0 +1,15 @@
+{
+ "wall_s": 12.789589325999941,
+ "text": "```python\nimport heapq\n\n\ndef k_machine_schedule(jobs: list[list[int]], k: int) -> int:\n    # Min-cost flow: each unit of flow represents one printer's timeline.\n    # Job edges have cost -pay; timeline edges have zero cost.\n    if not jobs:\n        return 0\n\n    times = sorted({t for start, end, _ in jobs for t in (start, end)})\n    index = {t: i for i, t in enumerate(times)}\n    n = len(times)\n\n    graph = [[] for _ in range(n)]\n\n    def add_edge(u, v, capacity, cost):\n        forward = [v, capacity, cost, None]\n        backward = [u, 0, -cost, forward]\n        forward[3] = backward\n        graph[u].append(forward)\n        graph[v].append(backward)\n\n    for i in range(n - 1):\n        add_edge(i, i + 1, k, 0)\n\n    for start, end, pay in jobs:\n        add_edge(index[start], index[end], 1, -pay)\n\n    # Initial potentials: negative edge costs exist, so Dijkstra needs valid\n    # potentials up front. All original edges go from lower to higher index,\n    # so a single forward pass over the nodes gives exact shortest distances.\n    INF = float(\"inf\")\n    potential = [INF] * n\n    potential[0] = 0\n    for u in range(n):\n        if potential[u] == INF:\n            continue\n        for edge in graph[u]:\n            v, capacity, cost, _ = edge\n            if capacity > 0 and potential[u] + cost < potential[v]:\n                potential[v] = potential[u] + cost\n    # Nodes unreachable from 0 cannot occur (timeline chain), but keep safe.\n    potential = [p if p < INF else 0 for p in potential]\n\n    total_cost = 0\n\n    # Successive shortest augmenting paths, one unit of flow per printer.\n    for _ in range(k):\n        dist = [INF] * n\n        prev_node = [-1] * n\n        prev_edge = [None] * n\n        dist[0] = 0\n        heap = [(0, 0)]\n\n        while heap:\n            d, u = heapq.heappop(heap)\n            if d != dist[u]:\n                continue\n            for edge in graph[u]:\n                v, capacity, cost, _ = edge\n                if capacity:\n                    nd = d + cost + potential[u] - potential[v]\n                    if nd < dist[v]:\n                        dist[v] = nd\n                        prev_node[v] = u\n                        prev_edge[v] = edge\n                        heapq.heappush(heap, (nd, v))\n\n        for v in range(n):\n            if dist[v] < INF:\n                potential[v] += dist[v]\n\n        v = n - 1\n        while v != 0:\n            edge = prev_edge[v]\n            edge[1] -= 1\n            edge[3][1] += 1\n            total_cost += edge[2]\n            v = prev_node[v]\n\n    return -total_cost\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 9578,
+ "in_tok": 5134,
+ "cached_tok": 649,
+ "cache_write_tok": 4483,
+ "out_tok": 2168,
+ "reasoning_tok": 1187,
+ "cost_usd": 0.00198729,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

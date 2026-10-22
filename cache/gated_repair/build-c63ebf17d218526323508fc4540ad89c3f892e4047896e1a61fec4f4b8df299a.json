@@ -1,0 +1,14 @@
+{
+ "in_tok": 29044,
+ "cached_tok": 25856,
+ "cache_write_tok": 0,
+ "out_tok": 393,
+ "reasoning_tok": 0,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\nfrom fractions import Fraction\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, value in enumerate(a):\n        prefix[i + 1] = prefix[i] + value\n\n    # For each right endpoint r, minimize the average's denominator-adjusted\n    # left prefix: maximize (prefix[r] - prefix[l]) / (r - l).\n    # The lower convex hull supports this query in amortized O(1).\n    hull = []\n    best_num, best_den = 0, 1\n\n    for r in range(k, n + 1):\n        l = r - k\n        while len(hull) >= 2:\n            x, y = hull[-2], hull[-1]\n            # Remove y when x-y and y-l have non-increasing slopes.\n            if (prefix[y] - prefix[x]) * (l - y) >= (prefix[l] - prefix[y]) * (y - x):\n                hull.pop()\n            else:\n                break\n        hull.append(l)\n\n        while len(hull) >= 2:\n            x, y = hull[0], hull[1]\n            if (prefix[r] - prefix[x]) * (r - y) <= (prefix[r] - prefix[y]) * (r - x):\n                hull.pop(0)\n            else:\n                break\n\n        start = hull[0]\n        num = prefix[r] - prefix[start]\n        den = r - start\n        if num * best_den > best_num * den:\n            best_num, best_den = num, den\n\n    f = Fraction(best_num, best_den)\n    return [f.numerator, f.denominator]\n```",
+ "wall_s": 6.3575241000000915,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

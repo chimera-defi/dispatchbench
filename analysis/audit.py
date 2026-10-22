@@ -44,7 +44,14 @@ def main():
     s, tab, man = summarize.build()
     checked += same("summary", json.dumps(s, indent=1), os.path.join(RES, "summary.json"), fails)
     checked += same("tables", tab, os.path.join(RES, "report", "tables.md"), fails)
-    checked += same("manifest", json.dumps(man, indent=1), os.path.join(RES, "manifest.json"), fails)
+    have_manifest = os.path.join(RES, "manifest.json")
+    if os.path.exists(have_manifest):
+        current = json.load(open(have_manifest)); current.pop("git_sha", None); man.pop("git_sha", None)
+        checked += 1
+        if json.dumps(current, indent=1) != json.dumps(man, indent=1):
+            fails.append("manifest: results/manifest.json differs from what the data give (run make report)")
+    else:
+        checked += same("manifest", json.dumps(man, indent=1), have_manifest, fails)
     for name, body in charts.build(s).items():
         if body: checked += same("chart", body, os.path.join(charts.OUT, name), fails)
     checked += same("luna rescue", luna_rescue.table(luna_rescue.arms()) + "\n", os.path.join(RES, "report", "luna_rescue.md"), fails)

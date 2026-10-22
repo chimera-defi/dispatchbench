@@ -9,6 +9,16 @@ Rung L6. Signature: `def sheet(cells: dict[str, str]) -> dict[str, int | str]:`
 | haiku-low | main | 3 | pass |  | 198 | 222 | 29 | 2 | 1.18 vs 1.13 | 0.22 | [main-r3.py](haiku-low/main-r3.py) |
 | haiku-low | main | 4 | pass |  | 169 | 187 | 27 | 0 | 1.14 vs 1.13 | 0.21 | [main-r4.py](haiku-low/main-r4.py) |
 | haiku-low | main | 5 | pass |  | 211 | 231 | 18 | 0 | 1.05 vs 1.13 | 1.05 | [main-r5.py](haiku-low/main-r5.py) |
+| haiku-low-plan+luna-high-bare | f-build | 1 | pass |  | 199 | 220 | - | - | - vs - | - | [f-build-r1.py](haiku-low-plan+luna-high-bare/f-build-r1.py) |
+| haiku-low-plan+luna-high-bare | f-build | 2 | crash |  | 212 | 233 | - | - | - vs - | - | [f-build-r2.py](haiku-low-plan+luna-high-bare/f-build-r2.py) |
+| haiku-low-plan+luna-high-bare | f-build | 3 | crash |  | 206 | 226 | - | - | - vs - | - | [f-build-r3.py](haiku-low-plan+luna-high-bare/f-build-r3.py) |
+| haiku-low-plan+luna-high-bare | f-build | 4 | pass |  | 228 | 266 | - | - | - vs - | - | [f-build-r4.py](haiku-low-plan+luna-high-bare/f-build-r4.py) |
+| haiku-low-plan+luna-high-bare | f-build | 5 | pass |  | 207 | 230 | - | - | - vs - | - | [f-build-r5.py](haiku-low-plan+luna-high-bare/f-build-r5.py) |
+| haiku-low-plan+luna-low | f-build | 1 | pass |  | 223 | 244 | - | - | - vs - | - | [f-build-r1.py](haiku-low-plan+luna-low/f-build-r1.py) |
+| haiku-low-plan+luna-low | f-build | 2 | pass |  | 198 | 227 | - | - | - vs - | - | [f-build-r2.py](haiku-low-plan+luna-low/f-build-r2.py) |
+| haiku-low-plan+luna-low | f-build | 3 | crash |  | 193 | 211 | - | - | - vs - | - | [f-build-r3.py](haiku-low-plan+luna-low/f-build-r3.py) |
+| haiku-low-plan+luna-low | f-build | 4 | pass |  | 222 | 239 | - | - | - vs - | - | [f-build-r4.py](haiku-low-plan+luna-low/f-build-r4.py) |
+| haiku-low-plan+luna-low | f-build | 5 | pass |  | 182 | 201 | - | - | - vs - | - | [f-build-r5.py](haiku-low-plan+luna-low/f-build-r5.py) |
 | haiku-medium | main | 1 | pass |  | 214 | 239 | 26 | 0 | 0.94 vs 1.13 | 0.22 | [main-r1.py](haiku-medium/main-r1.py) |
 | haiku-medium | main | 2 | pass |  | 182 | 207 | 27 | 0 | 1.07 vs 1.13 | 1.10 | [main-r2.py](haiku-medium/main-r2.py) |
 | haiku-medium | main | 3 | pass |  | 181 | 207 | 25 | 0 | 1.04 vs 1.13 | 0.13 | [main-r3.py](haiku-medium/main-r3.py) |
@@ -19,11 +29,39 @@ Rung L6. Signature: `def sheet(cells: dict[str, str]) -> dict[str, int | str]:`
 | luna-high | escalation | 3 | pass |  | 176 | 207 | 28 | 0 | 1.00 vs 1.13 | 0.13 | [escalation-r3.py](luna-high/escalation-r3.py) |
 | luna-high | escalation | 4 | pass |  | 207 | 225 | 28 | 0 | 1.11 vs 1.13 | 0.99 | [escalation-r4.py](luna-high/escalation-r4.py) |
 | luna-high | escalation | 5 | crash | small case 0: error: bad character range =-< at position 34 | 185 | 205 | 27 | 0 | - vs - | - | [escalation-r5.py](luna-high/escalation-r5.py) |
+| luna-high-bare+haiku-on-fail | g-build | 1 | cached |  | 193 | 212 | - | - | - vs - | - | [g-build-r1.py](luna-high-bare+haiku-on-fail/g-build-r1.py) |
+| luna-high-bare+haiku-on-fail | g-build | 2 | cached |  | 188 | 208 | - | - | - vs - | - | [g-build-r2.py](luna-high-bare+haiku-on-fail/g-build-r2.py) |
+| luna-high-bare+haiku-on-fail | g-build | 3 | cached |  | 165 | 185 | - | - | - vs - | - | [g-build-r3.py](luna-high-bare+haiku-on-fail/g-build-r3.py) |
+| luna-high-bare+haiku-on-fail | g-build | 4 | cached |  | 181 | 199 | - | - | - vs - | - | [g-build-r4.py](luna-high-bare+haiku-on-fail/g-build-r4.py) |
+| luna-high-bare+haiku-on-fail | g-build | 5 | cached |  | 183 | 204 | - | - | - vs - | - | [g-build-r5.py](luna-high-bare+haiku-on-fail/g-build-r5.py) |
+| luna-high-bare+haiku-on-fail | g-repair | 2 | pass |  | 190 | 210 | - | - | - vs - | - | [g-repair-r2.py](luna-high-bare+haiku-on-fail/g-repair-r2.py) |
+| luna-high-bare+haiku-on-fail | g-repair | 5 | pass |  | 184 | 205 | - | - | - vs - | - | [g-repair-r5.py](luna-high-bare+haiku-on-fail/g-repair-r5.py) |
+| luna-high-bare+haiku-review-all | g-repair | 1 | pass |  | 193 | 212 | - | - | - vs - | - | [g-repair-r1.py](luna-high-bare+haiku-review-all/g-repair-r1.py) |
+| luna-high-bare+haiku-review-all | g-repair | 2 | pass |  | 188 | 208 | - | - | - vs - | - | [g-repair-r2.py](luna-high-bare+haiku-review-all/g-repair-r2.py) |
+| luna-high-bare+haiku-review-all | g-repair | 3 | pass |  | 165 | 185 | - | - | - vs - | - | [g-repair-r3.py](luna-high-bare+haiku-review-all/g-repair-r3.py) |
+| luna-high-bare+haiku-review-all | g-repair | 4 | pass |  | 200 | 221 | - | - | - vs - | - | [g-repair-r4.py](luna-high-bare+haiku-review-all/g-repair-r4.py) |
+| luna-high-bare+haiku-review-all | g-repair | 5 | pass |  | 183 | 204 | - | - | - vs - | - | [g-repair-r5.py](luna-high-bare+haiku-review-all/g-repair-r5.py) |
+| luna-high-bare+retry-on-fail | g-repair | 2 | pass |  | 189 | 222 | - | - | - vs - | - | [g-repair-r2.py](luna-high-bare+retry-on-fail/g-repair-r2.py) |
+| luna-high-bare+retry-on-fail | g-repair | 5 | pass |  | 193 | 225 | - | - | - vs - | - | [g-repair-r5.py](luna-high-bare+retry-on-fail/g-repair-r5.py) |
 | luna-low | main | 1 | crash | small case 0: ValueError: Invalid formula | 196 | 226 | 27 | 0 | - vs - | - | [main-r1.py](luna-low/main-r1.py) |
 | luna-low | main | 2 | crash | small case 1: ValueError: Invalid formula | 177 | 198 | 5 | 0 | - vs - | - | [main-r2.py](luna-low/main-r2.py) |
 | luna-low | main | 3 | crash | small case 0: ValueError: Invalid formula | 190 | 215 | 29 | 0 | - vs - | - | [main-r3.py](luna-low/main-r3.py) |
 | luna-low | main | 4 | wrong | small case 0 | 191 | 216 | 5 | 2 | - vs - | - | [main-r4.py](luna-low/main-r4.py) |
 | luna-low | main | 5 | crash | large case 0: RecursionError: maximum recursion depth exceeded | 177 | 192 | 28 | 0 | - vs - | - | [main-r5.py](luna-low/main-r5.py) |
+| luna-low+haiku-on-fail | g-build | 1 | cached |  | 185 | 210 | - | - | - vs - | - | [g-build-r1.py](luna-low+haiku-on-fail/g-build-r1.py) |
+| luna-low+haiku-on-fail | g-build | 2 | cached |  | 189 | 210 | - | - | - vs - | - | [g-build-r2.py](luna-low+haiku-on-fail/g-build-r2.py) |
+| luna-low+haiku-on-fail | g-build | 3 | cached |  | 199 | 216 | - | - | - vs - | - | [g-build-r3.py](luna-low+haiku-on-fail/g-build-r3.py) |
+| luna-low+haiku-on-fail | g-build | 4 | cached |  | 197 | 229 | - | - | - vs - | - | [g-build-r4.py](luna-low+haiku-on-fail/g-build-r4.py) |
+| luna-low+haiku-on-fail | g-build | 5 | cached |  | 314 | 344 | - | - | - vs - | - | [g-build-r5.py](luna-low+haiku-on-fail/g-build-r5.py) |
+| luna-low+haiku-on-fail | g-repair | 1 | pass |  | 219 | 245 | - | - | - vs - | - | [g-repair-r1.py](luna-low+haiku-on-fail/g-repair-r1.py) |
+| luna-low+haiku-on-fail | g-repair | 2 | pass |  | 178 | 205 | - | - | - vs - | - | [g-repair-r2.py](luna-low+haiku-on-fail/g-repair-r2.py) |
+| luna-low+haiku-on-fail | g-repair | 3 | pass |  | 207 | 224 | - | - | - vs - | - | [g-repair-r3.py](luna-low+haiku-on-fail/g-repair-r3.py) |
+| luna-low+haiku-on-fail | g-repair | 5 | pass |  | 213 | 237 | - | - | - vs - | - | [g-repair-r5.py](luna-low+haiku-on-fail/g-repair-r5.py) |
+| luna-low+haiku-review-all | g-repair | 1 | pass |  | 207 | 233 | - | - | - vs - | - | [g-repair-r1.py](luna-low+haiku-review-all/g-repair-r1.py) |
+| luna-low+haiku-review-all | g-repair | 2 | wrong |  | 178 | 207 | - | - | - vs - | - | [g-repair-r2.py](luna-low+haiku-review-all/g-repair-r2.py) |
+| luna-low+haiku-review-all | g-repair | 3 | pass |  | 202 | 220 | - | - | - vs - | - | [g-repair-r3.py](luna-low+haiku-review-all/g-repair-r3.py) |
+| luna-low+haiku-review-all | g-repair | 4 | pass |  | 201 | 234 | - | - | - vs - | - | [g-repair-r4.py](luna-low+haiku-review-all/g-repair-r4.py) |
+| luna-low+haiku-review-all | g-repair | 5 | pass |  | 217 | 237 | - | - | - vs - | - | [g-repair-r5.py](luna-low+haiku-review-all/g-repair-r5.py) |
 | luna-low-bare | exploratory | 1 | crash | large case 0: RecursionError: maximum recursion depth exceeded | 202 | 224 | 27 | 0 | - vs - | - | [exploratory-r1.py](luna-low-bare/exploratory-r1.py) |
 | luna-low-bare | exploratory | 2 | crash | small case 1: ValueError: Invalid formula | 182 | 197 | 27 | 0 | - vs - | - | [exploratory-r2.py](luna-low-bare/exploratory-r2.py) |
 | luna-low-bare | exploratory | 3 | crash | small case 1: ValueError: invalid literal for int() with base 10: '' | 227 | 264 | 6 | 2 | - vs - | - | [exploratory-r3.py](luna-low-bare/exploratory-r3.py) |

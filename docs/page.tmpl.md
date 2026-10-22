@@ -5,10 +5,11 @@
 </header>
 <section class="verdict" id="winner">
 <span class="eyebrow"><span class="num"></span>🏆 WINNER</span>
-<b>Build with luna-high, let haiku-low repair a failed check, and use sonnet-medium when no miss is acceptable.</b>
+<b>Build with luna-high and let haiku-low review every answer. For speed: luna-low, with a Haiku repair only when the statement's examples fail.</b>
 <ul class="tight">
 <li>Cheapest safe single model: haiku-low, {{haiku_low_pass}} at {{haiku_low_upp}} per pass. luna-high: {{luna_high_pass}} at {{luna_high_upp}}.</li>
-<li>A Haiku repair took luna-low from {{r_e_luna}} to {{r_luna_low_haiku_low_repair_k}} on its hardest problems. sonnet-medium passed {{sm_all}}.</li>
+<li>Hard set: luna-high → Haiku review passed {{r_luna_high_bare_haiku_review_all_k}} at {{r_luna_high_bare_haiku_review_all_upp}} per pass, {{g_vs_sm_x}} cheaper than sonnet-medium ({{r_sonnet_medium_k}}) but slower ({{r_luna_high_bare_haiku_review_all_s}} vs {{r_sonnet_medium_s}}).</li>
+<li>Fastest: luna-low → Haiku if examples fail, {{r_luna_low_haiku_on_fail_k}} in {{r_luna_low_haiku_on_fail_s}} at {{r_luna_low_haiku_on_fail_upp}}.</li>
 </ul>
 </section>
 <section class="method" id="method">
@@ -22,6 +23,7 @@
 <li>{{repeats}} attempts per problem per config, tools off. E/M/H: nearest LeetCode level, my estimate.</li>
 <li>Pass = all hidden tests pass: fixed cases, random cases vs a brute force, big cases for speed.</li>
 <li>Claude $ from the CLI; Codex $ = tokens × list price. Intervals: bootstrap, {{n_boot}} resamples.</li>
+<li>Designed, run and checked by a {{orchestrator}} orchestrator; Opus planned the experiment but is not one of the configs or pipelines measured.</li>
 </ul>
 <details><summary>Exact commands</summary>
 <ul class="tight small cmds">
@@ -55,11 +57,17 @@
 <h2><span class="num"></span>📋 Results</h2>
 {{w_short_table}}
 <ul class="tight small">
-<li>Click a header to sort. ~ marks the Codex token-price proxy.</li>
+<li>Click a header to sort; each group sorts on its own. ~ = Codex $ from token list prices.</li>
+<li>Hard set: {{rescue_n}} attempts on the problems luna-low failed most. → = a second step: Haiku reviews every answer, Haiku or luna retries only when the statement's own examples fail, or a Haiku plan comes first.</li>
+<li><b>default · repair</b>: cheapest single model at or above {{min_pass}}, and the repairer. <b>build</b>: cheapest builder at or above it. <b>never failed</b>: every attempt passed. <b>no gain</b>: another config is as cheap and passes as often. <b>trade-off</b>: passes more than a cheaper config, for more $. <b>avoid</b>: under {{min_pass}}. <b>★ cheapest clean</b>: cheapest hard-set row that never failed.</li>
 </ul>
 <details><summary>Full table with intervals</summary>
 {{table:result}}
 </details>
+<div class="chart floor"><h3>⚡ Codex fast mode: seconds and $ per call</h3><p class="sub">Pilot, {{fast_problems}} easy problems × {{fast_rounds}} rounds; every call passed. The main run used the default tier.</p>{{w_fast}}</div>
+<ul class="tight small">
+<li>Fast mode bills {{fast_mult}}× and cut sol61-low from {{fast_sol_def}}s to {{fast_sol_fast}}s; luna-low did not speed up ({{fast_luna_def}}s vs {{fast_luna_fast}}s).</li>
+</ul>
 </section>
 <section id="tokens">
 <h2><span class="num"></span>🧱 Token floor: input tokens per call</h2>
@@ -69,13 +77,14 @@
 </ul>
 </section>
 <section id="pipes">
-<h2><span class="num"></span>🔗 Pipelines: Haiku plans or checks luna's work</h2>
-<div class="chart floor"><h3>Hard set: passes, $ per pass, median seconds</h3><p class="sub">The {{rescue_n}} attempts luna-low failed most. Purple: haiku-low plans before luna builds, or repairs after.</p>{{w_pipes}}</div>
+<h2><span class="num"></span>🔗 Pipelines: Haiku checks luna's work</h2>
+<div class="chart floor"><h3>Hard set: passes, $ per pass, median seconds</h3><p class="sub">The {{rescue_n}} attempts luna-low failed most. Purple: luna builds, then haiku-low reviews all answers, or only those that fail the statement's examples (on fail).</p>{{w_pipes}}</div>
 <ul class="tight small">
-<li>Only the repair pipeline and sonnet-medium passed every attempt; the repair pipeline cost under a quarter as much.</li>
-<li>Haiku was {{r_e_haiku_share}} of the repair pipeline's cost. haiku-low alone is cheaper but missed {{r_e_more}}.</li>
+<li>Review every answer: luna-high → Haiku passed {{r_luna_high_bare_haiku_review_all_k}}, {{g_vs_sm_x}} cheaper than sonnet-medium.</li>
+<li>The examples are a weak check: they flagged {{g_hi_fixed}} luna-high answers and let {{g_hi_missed}} failing ones through. luna-low fails them more often ({{g_lo_fixed}} repairs), so its gate works better.</li>
+<li>Arm E rerun from committed code: luna-low → Haiku review passed {{r_luna_low_haiku_review_all_k}} (original run {{r_luna_low_haiku_low_repair_k}}; prompt reconstructed).</li>
 <li>Repo tasks ({{n_tasks}} × {{agent_repeats}}, with tools): every config passed {{ag_k}}. $ per run: luna-low {{ag_luna_low_usd}}, haiku-low {{ag_haiku_low_usd}}, sonnet-medium {{ag_sonnet_medium_usd}}, sol61-medium {{ag_sol61_medium_usd}}.</li>
-<li>A Haiku plan first lifted luna-low to {{r_haiku_low_plan_luna_low_k}} but left luna-high at {{r_haiku_low_plan_luna_high_bare_k}} (alone: {{r_luna_high_bare_k}}), at {{r_haiku_low_plan_luna_high_bare_upp}} vs {{r_luna_high_bare_upp}} per pass. Repair after beats plan first.</li>
+<li>A Haiku plan first lifted luna-low to {{r_haiku_low_plan_luna_low_k}} but left luna-high at {{r_haiku_low_plan_luna_high_bare_k}} (alone: {{r_luna_high_bare_k}}), at {{r_haiku_low_plan_luna_high_bare_upp}} vs {{r_luna_high_bare_upp}} per pass. Checking after beats planning first.</li>
 </ul>
 </section>
 <section class="verdict conclusion" id="conclusion">
@@ -83,21 +92,23 @@
 <b>No single model wins: route by risk.</b>
 <ol class="recs">
 <li>Build: luna at high effort.</li>
-<li>Failed check: haiku-low repairs, <code>claude -p --tools ""</code>.</li>
+<li>Check: haiku-low reviews every answer, <code>claude -p --tools ""</code>. Need speed over the last miss: luna-low, Haiku only when the examples fail.</li>
 <li>No miss acceptable, or the hardest problems: sonnet-medium.</li>
 <li>Never luna at low or medium effort, unless Haiku checks it.</li>
 </ol>
-<p class="small"><strong>💳 On a Codex plan:</strong> luna tokens are free until the quota resets, so luna-high first costs nothing; Claude is paid only when a check fails (luna-high passed {{r_luna_high_bare_k}} on the hard set). Derived from the prices, not a separate test.</p>
-<p class="small muted">Why: luna-high is the cheapest config on the frontier, a Haiku repair closed every luna-low miss on the hard set ({{r_luna_low_haiku_low_repair_k}}), and only sonnet-medium never failed ({{sm_all}}).</p>
+<p class="small"><strong>💳 On a Codex plan:</strong> luna tokens are free until the quota resets, so only the Haiku review is paid. Derived from the prices, not a separate test.</p>
+<p class="small muted">Why: luna-high is the cheapest config on the frontier; with a Haiku review it never failed on the hard set ({{r_luna_high_bare_haiku_review_all_k}}), {{g_vs_sm_x}} cheaper than sonnet-medium.</p>
 </section>
 <section class="extras" id="extras">
 <h2><span class="num"></span>🔍 More charts</h2>
+<details><summary>🎛️ Explorer and more charts</summary>
 <div class="chart"><h3>🎛️ Explorer</h3>{{w_explorer}}</div>
 {{chart:heatmap.svg|Pass rate per problem and config}}
 {{chart:pass_by_rung.svg|Pass rate by difficulty rung}}
 {{chart:cost_time.svg|Cost vs time per pass}}
 {{chart:token_in.svg|Input tokens per call}}
 {{chart:agentic.svg|Repo tasks: pass rate vs $ per run}}
+</details>
 </section>
 <section class="notes">
 <details><summary>⚠️ Caveats</summary>
@@ -120,7 +131,7 @@
 <ul class="tight">
 <li>Harder L7 rung: haiku-low {{l7_haiku_low_upp}} per pass, sonnet-medium {{l7_sonnet_medium_upp}}.</li>
 <li>Escalation: luna-high passed {{esc_k}} where {{esc_vs}} passed {{esc_base}}.</li>
-<li>Haiku repair of luna-low: {{r_luna_low_haiku_low_repair_k}} at {{r_luna_low_haiku_low_repair_upp}} per pass.</li>
+<li>luna-high → Haiku retry vs luna-high retry when examples fail: {{r_luna_high_bare_haiku_on_fail_k}} at {{r_luna_high_bare_haiku_on_fail_upp}} vs {{r_luna_high_bare_retry_on_fail_k}} at {{r_luna_high_bare_retry_on_fail_upp}}.</li>
 <li>Pilot ({{pilot_problems}} easy problems): every config passed, so it ranked nothing.</li>
 </ul>
 </details>

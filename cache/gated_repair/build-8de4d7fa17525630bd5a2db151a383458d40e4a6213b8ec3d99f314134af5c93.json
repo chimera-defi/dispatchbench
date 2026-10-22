@@ -1,0 +1,14 @@
+{
+ "in_tok": 14503,
+ "cached_tok": 11520,
+ "cache_write_tok": 0,
+ "out_tok": 260,
+ "reasoning_tok": 0,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\nfrom fractions import Fraction\nfrom collections import deque\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    prefix = [0]\n    for x in a:\n        prefix.append(prefix[-1] + x)\n\n    candidates = deque()\n    best = Fraction(-1, 1)\n\n    for end in range(k, len(a) + 1):\n        start = end - k\n        while len(candidates) >= 2:\n            x, y = candidates[0], candidates[1]\n            if (prefix[y] - prefix[x]) * (end - y) >= (prefix[end] - prefix[y]) * (y - x):\n                candidates.popleft()\n            else:\n                break\n\n        best = max(best, Fraction(prefix[end] - prefix[candidates[0]], end - candidates[0]))\n\n        while len(candidates) >= 2:\n            x, y = candidates[-2], candidates[-1]\n            if (prefix[y] - prefix[x]) * (start - y) >= (prefix[start] - prefix[y]) * (y - x):\n                candidates.pop()\n            else:\n                break\n        candidates.append(start)\n\n    return [best.numerator, best.denominator]\n```",
+ "wall_s": 5.297056203000011,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

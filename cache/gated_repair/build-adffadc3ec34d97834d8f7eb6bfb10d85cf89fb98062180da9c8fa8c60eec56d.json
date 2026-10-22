@@ -1,0 +1,14 @@
+{
+ "in_tok": 5959,
+ "cached_tok": 0,
+ "cache_write_tok": 0,
+ "out_tok": 1241,
+ "reasoning_tok": 855,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\nfrom math import gcd\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    prefix = [0]\n    for value in a:\n        prefix.append(prefix[-1] + value)\n\n    hull = []\n    best_num, best_den = 0, 1\n\n    for end in range(k, len(a) + 1):\n        point = (end - k, prefix[end - k])\n        while len(hull) >= 2:\n            (x1, y1), (x2, y2) = hull[-2], hull[-1]\n            x3, y3 = point\n            if (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1) <= 0:\n                hull.pop()\n            else:\n                break\n        hull.append(point)\n\n        left, right = 0, len(hull) - 1\n        while left < right:\n            mid = (left + right) // 2\n            x1, y1 = hull[mid]\n            x2, y2 = hull[mid + 1]\n            num1, den1 = prefix[end] - y1, end - x1\n            num2, den2 = prefix[end] - y2, end - x2\n            if num1 * den2 < num2 * den1:\n                left = mid + 1\n            else:\n                right = mid\n\n        x, y = hull[left]\n        num, den = prefix[end] - y, end - x\n        if num * best_den > best_num * den:\n            best_num, best_den = num, den\n\n    divisor = gcd(best_num, best_den)\n    return [best_num // divisor, best_den // divisor]\n```",
+ "wall_s": 13.234944136999957,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

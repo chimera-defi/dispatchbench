@@ -1,0 +1,14 @@
+{
+ "in_tok": 14540,
+ "cached_tok": 11520,
+ "cache_write_tok": 0,
+ "out_tok": 506,
+ "reasoning_tok": 0,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\ndef k_machine_schedule(jobs: list[list[int]], k: int) -> int:\n    from collections import deque\n\n    if not jobs:\n        return 0\n\n    times = sorted({time for start, end, _ in jobs for time in (start, end)})\n    index = {time: i for i, time in enumerate(times)}\n    n = len(times)\n\n    # Residual graph edges are [to, reverse_edge_index, capacity, cost].\n    graph = [[] for _ in range(n)]\n\n    def add_edge(u, v, capacity, cost):\n        graph[u].append([v, len(graph[v]), capacity, cost])\n        graph[v].append([u, len(graph[u]) - 1, 0, -cost])\n\n    for i in range(n - 1):\n        add_edge(i, i + 1, k, 0)\n\n    for start, end, pay in jobs:\n        add_edge(index[start], index[end], 1, -pay)\n\n    # Send k units of flow; each unit represents one printer's schedule.\n    total_cost = 0\n    for _ in range(k):\n        dist = [float(\"inf\")] * n\n        prev_node = [-1] * n\n        prev_edge = [-1] * n\n        in_queue = [False] * n\n        dist[0] = 0\n        queue = deque([0])\n        in_queue[0] = True\n\n        while queue:\n            u = queue.popleft()\n            in_queue[u] = False\n            for ei, edge in enumerate(graph[u]):\n                v, _, capacity, cost = edge\n                if capacity and dist[v] > dist[u] + cost:\n                    dist[v] = dist[u] + cost\n                    prev_node[v] = u\n                    prev_edge[v] = ei\n                    if not in_queue[v]:\n                        queue.append(v)\n                        in_queue[v] = True\n\n        if dist[n - 1] == float(\"inf\"):\n            break\n\n        total_cost += dist[n - 1]\n        v = n - 1\n        while v != 0:\n            u = prev_node[v]\n            ei = prev_edge[v]\n            edge = graph[u][ei]\n            edge[2] -= 1\n            graph[v][edge[1]][2] += 1\n            v = u\n\n    return -total_cost\n```",
+ "wall_s": 6.162704619000124,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

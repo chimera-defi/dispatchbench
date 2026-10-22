@@ -9,6 +9,16 @@ Rung L6. Signature: `def best_average(a: list[int], k: int) -> list[int]:`
 | haiku-low | main | 3 | pass |  | 29 | 39 | 7 | 0 | 1.13 vs 1.35 | 1.18 | [main-r3.py](haiku-low/main-r3.py) |
 | haiku-low | main | 4 | pass |  | 30 | 42 | 10 | 1 | 1.14 vs 1.35 | 1.13 | [main-r4.py](haiku-low/main-r4.py) |
 | haiku-low | main | 5 | pass |  | 32 | 46 | 8 | 0 | 1.10 vs 1.35 | 1.00 | [main-r5.py](haiku-low/main-r5.py) |
+| haiku-low-plan+luna-high-bare | f-build | 1 | pass |  | 36 | 42 | - | - | - vs - | - | [f-build-r1.py](haiku-low-plan+luna-high-bare/f-build-r1.py) |
+| haiku-low-plan+luna-high-bare | f-build | 2 | wrong |  | 38 | 47 | - | - | - vs - | - | [f-build-r2.py](haiku-low-plan+luna-high-bare/f-build-r2.py) |
+| haiku-low-plan+luna-high-bare | f-build | 3 | crash |  | 34 | 43 | - | - | - vs - | - | [f-build-r3.py](haiku-low-plan+luna-high-bare/f-build-r3.py) |
+| haiku-low-plan+luna-high-bare | f-build | 4 | pass |  | 37 | 46 | - | - | - vs - | - | [f-build-r4.py](haiku-low-plan+luna-high-bare/f-build-r4.py) |
+| haiku-low-plan+luna-high-bare | f-build | 5 | pass |  | 30 | 37 | - | - | - vs - | - | [f-build-r5.py](haiku-low-plan+luna-high-bare/f-build-r5.py) |
+| haiku-low-plan+luna-low | f-build | 1 | pass |  | 33 | 43 | - | - | - vs - | - | [f-build-r1.py](haiku-low-plan+luna-low/f-build-r1.py) |
+| haiku-low-plan+luna-low | f-build | 2 | pass |  | 27 | 34 | - | - | - vs - | - | [f-build-r2.py](haiku-low-plan+luna-low/f-build-r2.py) |
+| haiku-low-plan+luna-low | f-build | 3 | pass |  | 41 | 53 | - | - | - vs - | - | [f-build-r3.py](haiku-low-plan+luna-low/f-build-r3.py) |
+| haiku-low-plan+luna-low | f-build | 4 | pass |  | 27 | 34 | - | - | - vs - | - | [f-build-r4.py](haiku-low-plan+luna-low/f-build-r4.py) |
+| haiku-low-plan+luna-low | f-build | 5 | pass |  | 28 | 36 | - | - | - vs - | - | [f-build-r5.py](haiku-low-plan+luna-low/f-build-r5.py) |
 | haiku-medium | main | 1 | pass |  | 32 | 40 | 8 | 0 | 1.07 vs 1.35 | 1.13 | [main-r1.py](haiku-medium/main-r1.py) |
 | haiku-medium | main | 2 | pass |  | 28 | 36 | 9 | 0 | 1.13 vs 1.35 | 1.00 | [main-r2.py](haiku-medium/main-r2.py) |
 | haiku-medium | main | 3 | pass |  | 29 | 34 | 8 | 0 | 1.29 vs 1.35 | 1.00 | [main-r3.py](haiku-medium/main-r3.py) |
@@ -19,11 +29,34 @@ Rung L6. Signature: `def best_average(a: list[int], k: int) -> list[int]:`
 | luna-high | escalation | 3 | pass |  | 37 | 45 | 8 | 0 | 1.05 vs 1.35 | 1.00 | [escalation-r3.py](luna-high/escalation-r3.py) |
 | luna-high | escalation | 4 | pass |  | 38 | 49 | 8 | 0 | 1.06 vs 1.35 | 1.00 | [escalation-r4.py](luna-high/escalation-r4.py) |
 | luna-high | escalation | 5 | pass |  | 33 | 40 | 8 | 0 | 1.02 vs 1.35 | 1.00 | [escalation-r5.py](luna-high/escalation-r5.py) |
+| luna-high-bare+haiku-on-fail | g-build | 1 | cached |  | 34 | 41 | - | - | - vs - | - | [g-build-r1.py](luna-high-bare+haiku-on-fail/g-build-r1.py) |
+| luna-high-bare+haiku-on-fail | g-build | 2 | cached |  | 40 | 48 | - | - | - vs - | - | [g-build-r2.py](luna-high-bare+haiku-on-fail/g-build-r2.py) |
+| luna-high-bare+haiku-on-fail | g-build | 3 | cached |  | 37 | 47 | - | - | - vs - | - | [g-build-r3.py](luna-high-bare+haiku-on-fail/g-build-r3.py) |
+| luna-high-bare+haiku-on-fail | g-build | 4 | cached |  | 34 | 40 | - | - | - vs - | - | [g-build-r4.py](luna-high-bare+haiku-on-fail/g-build-r4.py) |
+| luna-high-bare+haiku-on-fail | g-build | 5 | cached |  | 37 | 45 | - | - | - vs - | - | [g-build-r5.py](luna-high-bare+haiku-on-fail/g-build-r5.py) |
+| luna-high-bare+haiku-review-all | g-repair | 1 | pass |  | 34 | 41 | - | - | - vs - | - | [g-repair-r1.py](luna-high-bare+haiku-review-all/g-repair-r1.py) |
+| luna-high-bare+haiku-review-all | g-repair | 2 | pass |  | 40 | 48 | - | - | - vs - | - | [g-repair-r2.py](luna-high-bare+haiku-review-all/g-repair-r2.py) |
+| luna-high-bare+haiku-review-all | g-repair | 3 | pass |  | 37 | 47 | - | - | - vs - | - | [g-repair-r3.py](luna-high-bare+haiku-review-all/g-repair-r3.py) |
+| luna-high-bare+haiku-review-all | g-repair | 4 | pass |  | 34 | 40 | - | - | - vs - | - | [g-repair-r4.py](luna-high-bare+haiku-review-all/g-repair-r4.py) |
+| luna-high-bare+haiku-review-all | g-repair | 5 | pass |  | 37 | 45 | - | - | - vs - | - | [g-repair-r5.py](luna-high-bare+haiku-review-all/g-repair-r5.py) |
 | luna-low | main | 1 | wrong | small case 0 | 35 | 47 | 8 | 0 | - vs - | - | [main-r1.py](luna-low/main-r1.py) |
 | luna-low | main | 2 | pass |  | 37 | 49 | 9 | 0 | 1.05 vs 1.35 | 1.00 | [main-r2.py](luna-low/main-r2.py) |
 | luna-low | main | 3 | pass |  | 34 | 44 | 8 | 1 | 1.03 vs 1.35 | 1.02 | [main-r3.py](luna-low/main-r3.py) |
 | luna-low | main | 4 | pass |  | 35 | 44 | 8 | 0 | 1.01 vs 1.35 | 1.00 | [main-r4.py](luna-low/main-r4.py) |
 | luna-low | main | 5 | pass |  | 30 | 41 | 8 | 0 | 0.99 vs 1.35 | 1.03 | [main-r5.py](luna-low/main-r5.py) |
+| luna-low+haiku-on-fail | g-build | 1 | cached |  | 34 | 46 | - | - | - vs - | - | [g-build-r1.py](luna-low+haiku-on-fail/g-build-r1.py) |
+| luna-low+haiku-on-fail | g-build | 2 | cached |  | 30 | 41 | - | - | - vs - | - | [g-build-r2.py](luna-low+haiku-on-fail/g-build-r2.py) |
+| luna-low+haiku-on-fail | g-build | 3 | cached |  | 35 | 44 | - | - | - vs - | - | [g-build-r3.py](luna-low+haiku-on-fail/g-build-r3.py) |
+| luna-low+haiku-on-fail | g-build | 4 | cached |  | 33 | 42 | - | - | - vs - | - | [g-build-r4.py](luna-low+haiku-on-fail/g-build-r4.py) |
+| luna-low+haiku-on-fail | g-build | 5 | cached |  | 25 | 31 | - | - | - vs - | - | [g-build-r5.py](luna-low+haiku-on-fail/g-build-r5.py) |
+| luna-low+haiku-on-fail | g-repair | 3 | pass |  | 43 | 59 | - | - | - vs - | - | [g-repair-r3.py](luna-low+haiku-on-fail/g-repair-r3.py) |
+| luna-low+haiku-on-fail | g-repair | 4 | pass |  | 33 | 44 | - | - | - vs - | - | [g-repair-r4.py](luna-low+haiku-on-fail/g-repair-r4.py) |
+| luna-low+haiku-on-fail | g-repair | 5 | pass |  | 28 | 34 | - | - | - vs - | - | [g-repair-r5.py](luna-low+haiku-on-fail/g-repair-r5.py) |
+| luna-low+haiku-review-all | g-repair | 1 | pass |  | 38 | 51 | - | - | - vs - | - | [g-repair-r1.py](luna-low+haiku-review-all/g-repair-r1.py) |
+| luna-low+haiku-review-all | g-repair | 2 | pass |  | 31 | 43 | - | - | - vs - | - | [g-repair-r2.py](luna-low+haiku-review-all/g-repair-r2.py) |
+| luna-low+haiku-review-all | g-repair | 3 | pass |  | 36 | 48 | - | - | - vs - | - | [g-repair-r3.py](luna-low+haiku-review-all/g-repair-r3.py) |
+| luna-low+haiku-review-all | g-repair | 4 | pass |  | 33 | 44 | - | - | - vs - | - | [g-repair-r4.py](luna-low+haiku-review-all/g-repair-r4.py) |
+| luna-low+haiku-review-all | g-repair | 5 | pass |  | 25 | 31 | - | - | - vs - | - | [g-repair-r5.py](luna-low+haiku-review-all/g-repair-r5.py) |
 | luna-low-bare | exploratory | 1 | pass |  | 34 | 42 | 8 | 1 | 1.02 vs 1.35 | 1.03 | [exploratory-r1.py](luna-low-bare/exploratory-r1.py) |
 | luna-low-bare | exploratory | 2 | wrong | small case 0 | 35 | 44 | 8 | 0 | - vs - | - | [exploratory-r2.py](luna-low-bare/exploratory-r2.py) |
 | luna-low-bare | exploratory | 3 | wrong | small case 0 | 33 | 43 | 8 | 1 | - vs - | - | [exploratory-r3.py](luna-low-bare/exploratory-r3.py) |

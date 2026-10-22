@@ -1,0 +1,15 @@
+{
+ "wall_s": 35.40947095999991,
+ "text": "```python\nfrom math import gcd\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, value in enumerate(a):\n        prefix[i + 1] = prefix[i] + value\n\n    # Lower convex hull of prefix points (i, prefix[i]), built with x increasing.\n    # For each endpoint j, the best start is the hull vertex that maximizes\n    # the slope to (j, prefix[j]). That slope is unimodal along the hull, so\n    # binary search finds it without relying on a monotone front pointer.\n    hx = []\n    hy = []\n    best_num = 0\n    best_den = 1\n\n    for j in range(k, n + 1):\n        i = j - k\n        yi = prefix[i]\n\n        while len(hx) >= 2:\n            x1, y1 = hx[-2], hy[-2]\n            x2, y2 = hx[-1], hy[-1]\n            if (y2 - y1) * (i - x2) >= (yi - y2) * (x2 - x1):\n                hx.pop()\n                hy.pop()\n            else:\n                break\n        hx.append(i)\n        hy.append(yi)\n\n        pj = prefix[j]\n        lo, hi = 0, len(hx) - 1\n        while lo < hi:\n            mid = (lo + hi) // 2\n            # slope(mid -> j) <= slope(mid+1 -> j): the optimum is further right.\n            if (pj - hy[mid]) * (j - hx[mid + 1]) <= (pj - hy[mid + 1]) * (j - hx[mid]):\n                lo = mid + 1\n            else:\n                hi = mid\n\n        x, y = hx[lo], hy[lo]\n        num = pj - y\n        den = j - x\n        if num * best_den > best_num * den:\n            best_num, best_den = num, den\n\n    divisor = gcd(best_num, best_den)\n    return [best_num // divisor, best_den // divisor]\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 30548,
+ "in_tok": 4774,
+ "cached_tok": 649,
+ "cache_write_tok": 4123,
+ "out_tok": 6311,
+ "reasoning_tok": 5650,
+ "cost_usd": 0.0039867900000000005,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

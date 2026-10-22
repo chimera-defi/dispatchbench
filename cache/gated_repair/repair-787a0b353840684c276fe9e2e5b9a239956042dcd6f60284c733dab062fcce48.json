@@ -1,0 +1,15 @@
+{
+ "wall_s": 15.259418197000059,
+ "text": "```python\ndef avoid_count(n: int, alphabet: str, banned: list[str]) -> int:\n    MOD = 1_000_000_007\n    chars = list(alphabet)\n    char_index = {ch: i for i, ch in enumerate(chars)}\n    k = len(chars)\n\n    children = [{}]\n    terminal = [False]\n\n    for word in banned:\n        state = 0\n        for ch in word:\n            ci = char_index[ch]\n            if ci not in children[state]:\n                children[state][ci] = len(children)\n                children.append({})\n                terminal.append(False)\n            state = children[state][ci]\n        terminal[state] = True\n\n    go = [[0] * k for _ in children]\n    fail = [0] * len(children)\n    queue = []\n\n    for ci in range(k):\n        child = children[0].get(ci)\n        if child is not None:\n            go[0][ci] = child\n            queue.append(child)\n\n    head = 0\n    while head < len(queue):\n        state = queue[head]\n        head += 1\n        terminal[state] |= terminal[fail[state]]\n\n        for ci in range(k):\n            child = children[state].get(ci)\n            if child is not None:\n                fail[child] = go[fail[state]][ci]\n                go[state][ci] = child\n                queue.append(child)\n            else:\n                go[state][ci] = go[fail[state]][ci]\n\n    safe = [s for s in range(len(children)) if not terminal[s]]\n    index = {state: i for i, state in enumerate(safe)}\n    size = len(safe)\n\n    matrix = [[0] * size for _ in range(size)]\n    for state in safe:\n        src = index[state]\n        for ci in range(k):\n            dest = go[state][ci]\n            if not terminal[dest]:\n                dst = index[dest]\n                matrix[src][dst] = (matrix[src][dst] + 1) % MOD\n\n    vector = [0] * size\n    vector[index[0]] = 1\n\n    def multiply_matrices(a, b):\n        result = [[0] * size for _ in range(size)]\n        for i in range(size):\n            for mid, value in enumerate(a[i]):\n                if value:\n                    for j, other in enumerate(b[mid]):\n                        if other:\n                            result[i][j] = (result[i][j] + value * other) % MOD\n        return result\n\n    def multiply_vector(v, m):\n        result = [0] * size\n        for i, value in enumerate(v):\n            if value:\n                for j, other in enumerate(m[i]):\n                    if other:\n                        result[j] = (result[j] + value * other) % MOD\n        return result\n\n    while n:\n        if n & 1:\n            vector = multiply_vector(vector, matrix)\n        n >>= 1\n        if n:\n            matrix = multiply_matrices(matrix, matrix)\n\n    return sum(vector) % MOD\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 11328,
+ "in_tok": 5164,
+ "cached_tok": 649,
+ "cache_write_tok": 4513,
+ "out_tok": 2590,
+ "reasoning_tok": 1662,
+ "cost_usd": 0.00220429,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

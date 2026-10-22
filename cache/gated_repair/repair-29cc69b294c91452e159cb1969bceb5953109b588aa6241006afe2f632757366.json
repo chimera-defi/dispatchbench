@@ -1,0 +1,15 @@
+{
+ "wall_s": 14.710229180999704,
+ "text": "```python\nfrom fractions import Fraction\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, value in enumerate(a):\n        prefix[i + 1] = prefix[i] + value\n\n    # For each right endpoint, the best eligible start is the lower\n    # convex hull of prefix-sum points with indices at most right - k.\n    hull = []\n    head = 0\n    best_num, best_den = 0, 1\n\n    for right in range(k, n + 1):\n        start = right - k\n        while len(hull) - head >= 2:\n            x1, y1 = hull[-2], prefix[hull[-2]]\n            x2, y2 = hull[-1], prefix[hull[-1]]\n            if (y2 - y1) * (start - x2) >= (prefix[start] - y2) * (x2 - x1):\n                hull.pop()\n            else:\n                break\n        hull.append(start)\n\n        # Advance head while the next hull point gives a slope to\n        # (right, prefix[right]) that is at least as large.\n        while len(hull) - head >= 2:\n            x1, y1 = hull[head], prefix[hull[head]]\n            x2, y2 = hull[head + 1], prefix[hull[head + 1]]\n            if (prefix[right] - y1) * (right - x2) <= (prefix[right] - y2) * (right - x1):\n                head += 1\n            else:\n                break\n\n        begin = hull[head]\n        numerator = prefix[right] - prefix[begin]\n        denominator = right - begin\n        if numerator * best_den > best_num * denominator:\n            best_num, best_den = numerator, denominator\n\n    fraction = Fraction(best_num, best_den)\n    return [fraction.numerator, fraction.denominator]\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 10279,
+ "in_tok": 4779,
+ "cached_tok": 649,
+ "cache_write_tok": 4128,
+ "out_tok": 2135,
+ "reasoning_tok": 1537,
+ "cost_usd": 0.0018997900000000002,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

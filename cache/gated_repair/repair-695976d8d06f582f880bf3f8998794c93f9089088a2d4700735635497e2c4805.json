@@ -1,0 +1,15 @@
+{
+ "wall_s": 17.970430332999968,
+ "text": "```python\nfrom math import gcd\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, value in enumerate(a, 1):\n        prefix[i] = prefix[i - 1] + value\n\n    # Lower convex hull of points (s, prefix[s]) for eligible starts s.\n    hull_x = []\n    hull_y = []\n    best_num = -1\n    best_den = 1\n\n    for end in range(k, n + 1):\n        start = end - k\n        xs = start\n        ys = prefix[start]\n\n        # Keep the hull convex: drop the middle point if it lies on or above\n        # the segment from its left neighbour to the new point.\n        while len(hull_x) >= 2:\n            x1, y1 = hull_x[-2], hull_y[-2]\n            x2, y2 = hull_x[-1], hull_y[-1]\n            if (y2 - y1) * (xs - x2) >= (ys - y2) * (x2 - x1):\n                hull_x.pop()\n                hull_y.pop()\n            else:\n                break\n        hull_x.append(xs)\n        hull_y.append(ys)\n\n        # Find the hull vertex that maximises (prefix[end] - y) / (end - x).\n        # Moving from vertex i to i+1 helps iff the edge slope is at most the\n        # slope from vertex i+1 to the query point; this predicate is monotone\n        # along the hull, so binary search for the switch point.\n        qx = end\n        qy = prefix[end]\n        lo = 0\n        hi = len(hull_x) - 1\n        while lo < hi:\n            mid = (lo + hi) // 2\n            x1, y1 = hull_x[mid], hull_y[mid]\n            x2, y2 = hull_x[mid + 1], hull_y[mid + 1]\n            # slope(v_mid, v_mid+1) <= slope(v_mid+1, query)\n            if (y2 - y1) * (qx - x2) <= (qy - y2) * (x2 - x1):\n                lo = mid + 1\n            else:\n                hi = mid\n\n        x, y = hull_x[lo], hull_y[lo]\n        num = qy - y\n        den = qx - x\n        if best_num < 0 or num * best_den > best_num * den:\n            best_num, best_den = num, den\n\n    divisor = gcd(best_num, best_den)\n    return [best_num // divisor, best_den // divisor]\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 14304,
+ "in_tok": 4749,
+ "cached_tok": 649,
+ "cache_write_tok": 4098,
+ "out_tok": 3175,
+ "reasoning_tok": 2357,
+ "cost_usd": 0.00241379,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

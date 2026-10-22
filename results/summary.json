@@ -2021,6 +2021,32 @@
    "usd_per_call": 0.000888
   }
  },
+ "pilot_fast": {
+  "sol61-low/default": {
+   "passes": 9,
+   "n": 9,
+   "median_s": 7.43,
+   "usd_per_call": 0.03455
+  },
+  "sol61-low/fast": {
+   "passes": 9,
+   "n": 9,
+   "median_s": 5.15,
+   "usd_per_call": 0.069036
+  },
+  "luna-low/default": {
+   "passes": 9,
+   "n": 9,
+   "median_s": 4.45,
+   "usd_per_call": 0.000888
+  },
+  "luna-low/fast": {
+   "passes": 9,
+   "n": 9,
+   "median_s": 4.52,
+   "usd_per_call": 0.002172
+  }
+ },
  "trim": {
   "floor": {
    "luna/base": {
