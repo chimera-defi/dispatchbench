@@ -1,0 +1,356 @@
+"""Turn results/*.jsonl into results/summary.json and results/report/tables.md. No model calls.
+
+Every number in the README and the report comes from summary.json, and every summary.json number is computed here
+from rows in results/. Codex dollar figures are proxies (token counts x list price); Claude dollar figures are the
+CLI's measured total_cost_usd."""
+import json, os, statistics
+from collections import defaultdict
+
+from analysis.stats import hier_boot, paired_boot, p90
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RES = os.path.join(ROOT, "results")
+FUNC = os.path.join(RES, "2026-10-22b-function.jsonl")
+AGENT = os.path.join(RES, "2026-10-22b-agentic.jsonl")
+PILOT = os.path.join(RES, "2026-10-22-pilot.jsonl")
+TRIM = os.path.join(RES, "2026-10-22b-trim.jsonl")
+BASE = ["haiku-low", "haiku-medium", "sonnet-medium", "luna-low", "luna-medium", "sol61-medium"]
+ESCALATE = {"haiku-high": "haiku-medium", "sonnet-high": "sonnet-medium", "luna-high": "luna-medium", "sol61-high": "sol61-medium"}
+PAIRS = [("haiku-medium", "haiku-low"), ("luna-medium", "luna-low"), ("sonnet-medium", "haiku-medium"),
+         ("sol61-medium", "luna-medium"), ("haiku-low", "luna-low"), ("sonnet-medium", "sol61-medium")]
+BREAK_AT = 0.40
+
+
+def load(p):
+    return [json.loads(l) for l in open(p)] if os.path.exists(p) else []
+
+
+PRICES = json.load(open(os.path.join(RES, "prices.json")))["models"]
+
+
+def cost(r):
+    """Measured for Claude; proxy for Codex (uncached input, cached input and output at list price)."""
+    if r["cli"] == "claude":
+        return r.get("cost_usd") or 0.0
+    p = PRICES[r["model"]]
+    return ((r["in_tok"] - r["cached_tok"]) * p["input"] + r["cached_tok"] * p["cached_input"] + r["out_tok"] * p["output"]) / 1e6
+
+
+def cost_uncached(r):
+    """Codex proxy with no prompt-cache discount: an upper bound that does not depend on how many tokens the provider cached."""
+    if r["cli"] == "claude":
+        return r.get("cost_usd") or 0.0
+    p = PRICES[r["model"]]
+    return (r["in_tok"] * p["input"] + r["out_tok"] * p["output"]) / 1e6
+
+
+def ci_text(k, n, ci):
+    """Bootstrap CI, except when every attempt passed: the bootstrap then collapses to 100-100, so report the exact
+    one-sided 95% lower bound 0.05^(1/n) instead (Clopper-Pearson, attempts treated as independent, so it is optimistic)."""
+    if n and k == n:
+        return f"≥{pct(0.05 ** (1 / n))} (all passed)"
+    return f"{pct(ci[0])}–{pct(ci[1])}"
+
+
+def cells(rows, rungs=None):
+    c = defaultdict(list)
+    for r in rows:
+        if rungs is None or r["rung"] in rungs:
+            c[r["problem"]].append(1 if r["passed"] else 0)
+    return dict(c)
+
+
+def config_block(rows):
+    walls = [r["wall_s"] for r in rows]; dollars = [cost(r) for r in rows]; passes = sum(r["passed"] for r in rows)
+    pt, lo, hi = hier_boot(cells(rows))
+    by_rung = {}
+    for g in sorted({r["rung"] for r in rows}):
+        rr = [r for r in rows if r["rung"] == g]
+        by_rung[f"L{g}"] = {"passed": sum(r["passed"] for r in rr), "n": len(rr)}
+    broke = next((k for k, v in by_rung.items() if v["passed"] / v["n"] <= BREAK_AT), None)
+    outcomes = defaultdict(int)
+    for r in rows: outcomes[r["outcome"]] += 1
+    l12 = [r for r in rows if r["rung"] in (1, 2)]
+    return {
+        "cli": rows[0]["cli"], "model": rows[0]["model"], "effort": rows[0]["effort"], "n": len(rows), "passes": passes,
+        "pass_at_1": round(pt, 4), "ci95": [round(lo, 4), round(hi, 4)], "by_rung": by_rung, "breaking_point": broke,
+        "outcomes": dict(outcomes),
+        "latency_s": {"median": round(statistics.median(walls), 2), "p90": round(p90(walls), 2), "max": round(max(walls), 2)},
+        "tokens_mean": {k: round(statistics.mean(r[k] or 0 for r in rows)) for k in ("in_tok", "cached_tok", "out_tok", "reasoning_tok")},
+        "input_floor": min((r["in_tok"], r["cached_tok"]) for r in rows),
+        "usd_per_call": round(statistics.mean(dollars), 6), "usd_total": round(sum(dollars), 4),
+        "usd_per_pass": round(sum(dollars) / passes, 6) if passes else None,
+        "usd_per_pass_L1_L2": round(sum(map(cost, l12)) / sum(r["passed"] for r in l12), 6) if l12 and any(r["passed"] for r in l12) else None,
+        "pass_L1_L2": [sum(r["passed"] for r in l12), len(l12)],
+        "cost_kind": "measured" if rows[0]["cli"] == "claude" else "proxy",
+    }
+
+
+def pareto(points):
+    """Configs not dominated on (median latency, $ per pass): no other config is at least as good on both and better on one."""
+    out = []
+    for a, (x, y) in points.items():
+        if not any((x2 <= x and y2 <= y) and (x2 < x or y2 < y) for b, (x2, y2) in points.items() if b != a):
+            out.append(a)
+    return sorted(out, key=lambda k: points[k][0])
+
+
+def agentic_block(rows):
+    out = {}
+    for c in sorted({r["config"] for r in rows}):
+        rr = [r for r in rows if r["config"] == c]
+        by_task = {}
+        for t in sorted({r["task"] for r in rr}):
+            tt = [r for r in rr if r["task"] == t]
+            by_task[t] = {"hidden_pass": sum(r["hidden_pass"] for r in tt), "n": len(tt),
+                          "hidden_tests": [f"{r['hidden']['passed']}/{r['hidden']['passed'] + r['hidden']['failed']}" for r in tt]}
+        pt, lo, hi = hier_boot({t: [1 if r["hidden_pass"] else 0 for r in rr if r["task"] == t] for t in by_task})
+        dollars = [cost(r) for r in rr]; walls = [r["wall_s"] for r in rr]
+        out[c] = {
+            "cli": rr[0]["cli"], "model": rr[0]["model"], "n": len(rr), "hidden_pass": sum(r["hidden_pass"] for r in rr),
+            "hidden_pass_rate": round(pt, 4), "ci95": [round(lo, 4), round(hi, 4)],
+            "visible_pass": sum(r["visible_pass"] for r in rr), "own_tests_written": sum(r["own_tests"] for r in rr),
+            "tests_tampered_runs": sum(bool(r["tests_tampered"]) for r in rr), "delegate_calls": sum(r.get("delegate_calls") or 0 for r in rr),
+            "errors": sum(r["is_error"] for r in rr), "by_task": by_task,
+            "latency_s": {"median": round(statistics.median(walls), 1), "p90": round(p90(walls), 1)},
+            "input_floor": min((r["in_tok"], r["cached_tok"]) for r in rr),
+            "tokens_mean": {k: round(statistics.mean(r[k] or 0 for r in rr)) for k in ("in_tok", "cached_tok", "out_tok")},
+            "usd_per_run": round(statistics.mean(dollars), 5), "usd_total": round(sum(dollars), 4),
+            "usd_per_hidden_pass": round(sum(dollars) / sum(r["hidden_pass"] for r in rr), 5) if any(r["hidden_pass"] for r in rr) else None,
+            "cost_kind": "measured" if rr[0]["cli"] == "claude" else "proxy",
+        }
+    return out
+
+
+def pilot_reprice():
+    """The pilot priced priority-tier Codex rows at 1.5x list; the published multiplier is 2x. Recompute both."""
+    mult = json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]
+    rows = [r for r in load(PILOT) if r["cli"] == "codex" and "priority" in (r.get("service_tier") or "") and r["model"] in PRICES]
+    base = sum(cost(r) for r in rows)
+    return {"rows": len(rows), "usd_at_1_5x": round(1.5 * base, 4), "usd_at_2x": round(mult * base, 4), "multiplier_source": "results/prices.json"}
+
+
+def pilot_block():
+    """Pilot (2026-10-22) per config. Each cell carries its n; n differs between configs (3 to 19 runs), so the table flags n != 9."""
+    rows = load(PILOT); out = {}
+    mult = json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]
+    for c in dict.fromkeys(r["config"] for r in rows):
+        rr = [r for r in rows if r["config"] == c]
+        prio = rr[0]["cli"].startswith("codex") and (rr[0].get("service_tier") or "").startswith("priority")
+        usd = [r["cost_usd"] if r["cli"].startswith("claude") else cost(r) * (mult if prio else 1) for r in rr]
+        out[c] = {"cli": rr[0]["cli"], "model": rr[0]["model"], "effort": rr[0]["effort"], "passes": sum(bool(r["passed"]) for r in rr), "n": len(rr),
+                  "problems": len({r["problem"] for r in rr}), "service_tier": rr[0].get("service_tier"), "ladder": rr[0]["phase"] == "ladder",
+                  "input_floor": min(r["in_tok"] for r in rr), "median_s": round(statistics.median(r["wall_s"] for r in rr), 2),
+                  "usd_per_call": round(statistics.mean(usd), 6)}
+    return out
+
+
+def trim_block():
+    """Codex input-floor probe on the pilot problems: per trim level, and the 3x3 pair step against haiku-low (tools off)."""
+    rows = load(TRIM); out = {"floor": {}, "pair": {}}
+    for r in rows:
+        if r["step"] == "floor":
+            out["floor"][r["config"]] = {"in_tok": r["in_tok"], "cached_tok": r["cached_tok"], "passed": r["passed"]}
+    for c in dict.fromkeys(r["config"] for r in rows if r["step"] == "pair"):
+        # the floor step's fizzbuzz round-1 call has the same cache key as the pair step's, so it is the same call and counts here
+        rr = [r for r in rows if r["config"] == c]; usd = [cost(r) for r in rr]
+        out["pair"][c] = {"cli": rr[0]["cli"], "model": rr[0]["model"], "level": rr[0].get("level"), "passes": sum(r["passed"] for r in rr), "n": len(rr),
+                          "errors": sum(bool(r["is_error"]) for r in rr), "in_median": round(statistics.median(r["in_tok"] for r in rr)),
+                          "in_min": min(r["in_tok"] for r in rr), "cached_median": round(statistics.median(r["cached_tok"] or 0 for r in rr)),
+                          "out_median": round(statistics.median(r["out_tok"] for r in rr)), "median_s": round(statistics.median(r["wall_s"] for r in rr), 2),
+                          "p90_s": round(p90([r["wall_s"] for r in rr]), 2), "usd_per_call": round(statistics.mean(usd), 6),
+                          "cost_kind": "measured" if rr[0]["cli"] == "claude" else "proxy"}
+    return out
+
+
+def main():
+    rows = load(FUNC); agent = load(AGENT)
+    main_rows = [r for r in rows if r["phase"] == "main"]
+    s = {"generated_from": [os.path.relpath(p, ROOT) for p in (FUNC, AGENT) if os.path.exists(p)], "configs": {}, "phases": {}}
+    for ph in sorted({r["phase"] for r in rows}):
+        s["phases"][ph] = len([r for r in rows if r["phase"] == ph])
+    for c in BASE:
+        rr = [r for r in main_rows if r["config"] == c]
+        if rr: s["configs"][c] = config_block(rr)
+    s["problems"] = {}
+    for p in sorted({r["problem"] for r in main_rows}):
+        s["problems"][p] = {"rung": next(r["rung"] for r in main_rows if r["problem"] == p),
+                            **{c: sum(r["passed"] for r in main_rows if r["problem"] == p and r["config"] == c) for c in BASE}}
+    s["paired"] = []
+    for a, b in PAIRS:
+        ca = cells([r for r in main_rows if r["config"] == a]); cb = cells([r for r in main_rows if r["config"] == b])
+        if ca and cb:
+            d, lo, hi, n = paired_boot(ca, cb)
+            s["paired"].append({"a": a, "b": b, "diff": round(d, 4), "ci95": [round(lo, 4), round(hi, 4)], "problems": n})
+    esc = [r for r in rows if r["phase"] == "escalation"]
+    s["escalation"] = []
+    for c in sorted({r["config"] for r in esc}):
+        er = [r for r in esc if r["config"] == c]; probs = sorted({r["problem"] for r in er}); base = ESCALATE[c]
+        br = [r for r in main_rows if r["config"] == base and r["problem"] in probs]
+        d, lo, hi, n = paired_boot(cells(er), cells(br))
+        s["escalation"].append({"config": c, "vs": base, "problems": probs, "passes": sum(r["passed"] for r in er), "n": len(er),
+                                "base_passes": sum(r["passed"] for r in br), "base_n": len(br), "diff": round(d, 4), "ci95": [round(lo, 4), round(hi, 4)],
+                                "median_latency_s": round(statistics.median(r["wall_s"] for r in er), 2),
+                                "usd_total": round(sum(map(cost, er)), 4), "cost_kind": "measured" if er[0]["cli"] == "claude" else "proxy"})
+    xr = [r for r in rows if r["phase"] == "exploratory"]
+    s["exploratory"] = {}
+    for c in sorted({r["config"] for r in xr}):
+        rr = [r for r in xr if r["config"] == c]; blk = config_block(rr); blk["vs"] = []
+        for base in ("luna-low", "haiku-low"):
+            cb = cells([r for r in main_rows if r["config"] == base])
+            if cb:
+                d, lo, hi, n = paired_boot(cells(rr), cb)
+                blk["vs"].append({"b": base, "diff": round(d, 4), "ci95": [round(lo, 4), round(hi, 4)], "problems": n})
+        er = [r for r in rr if r["passed"]]
+        blk["usd_per_pass_uncached"] = round(sum(map(cost_uncached, rr)) / len(er), 6) if er else None
+        s["exploratory"][c] = blk
+    cfg = s["configs"]
+    s["pareto"] = pareto({c: (v["latency_s"]["median"], v["usd_per_pass"]) for c, v in cfg.items() if v["usd_per_pass"]})
+    s["agentic"] = agentic_block(agent) if agent else {}
+    s["pilot_reprice"] = pilot_reprice()
+    s["pilot"] = pilot_block()
+    s["trim"] = trim_block()
+    claude_all = [r for r in rows if r["cli"] == "claude"] + [r for r in agent if r["cli"] == "claude"]
+    s["spend"] = {"claude_measured_usd": round(sum(r.get("cost_usd") or 0 for r in claude_all), 4),
+                  "claude_function_usd": round(sum(r.get("cost_usd") or 0 for r in rows if r["cli"] == "claude"), 4),
+                  "claude_agentic_usd": round(sum(r.get("cost_usd") or 0 for r in agent if r["cli"] == "claude"), 4),
+                  "codex_proxy_usd": round(sum(cost(r) for r in rows + agent if r["cli"] == "codex"), 4),
+                  "calls": {"function": len(rows), "agentic": len(agent)}}
+    s["hypotheses"] = hypotheses(s)
+    json.dump(s, open(os.path.join(RES, "summary.json"), "w"), indent=1)
+    os.makedirs(os.path.join(RES, "report"), exist_ok=True)
+    open(os.path.join(RES, "report", "tables.md"), "w").write(tables(s))
+    json.dump(manifest(rows, agent, s), open(os.path.join(RES, "manifest.json"), "w"), indent=1)
+    print(f"summary: {len(main_rows)} main rows, {len(esc)} escalation rows, {len(agent)} agentic rows -> results/summary.json, results/report/tables.md")
+
+
+def manifest(rows, agent, s):
+    """What produced the rows: CLI versions, harness flags, models, lanes, dates, call counts, errors (verbatim)."""
+    from bench import run as R
+    from bench.agentic import run as A
+    allr = rows + agent
+    errs = [{"key": r["key"][:12], "config": r["config"], "error": r["error"]} for r in allr if r.get("is_error") or r.get("error")]
+    return {"experiment": "2026-10-22b", "pre_registration": "PLAN.md (committed before any model call)",
+            "cli_versions": sorted({f"{r['cli']} {r['cli_version']}" for r in allr}),
+            "configs": {c: {"cli": v[0], "model": v[1], "effort": v[2]} for c, v in R.CONFIGS.items() if any(r["config"] == c for r in allr)},
+            "flags": {"function": {"claude": R.CLAUDE_FLAGS, "codex": R.CODEX_FLAGS}, "agentic": {"claude": A.CLAUDE_FLAGS, "codex": A.CODEX_FLAGS}},
+            "lanes": sorted({r["lanes"] for r in allr if r.get("lanes")}),
+            "first_call_utc": min(r["ts"] for r in allr) if allr else None, "last_call_utc": max(r["ts"] for r in allr) if allr else None,
+            "rows_by_phase": s["phases"], "agentic_runs": len(agent), "claude_budget_cap_usd": R.CLAUDE_BUDGET_USD, "spend": s["spend"],
+            "errors": errs, "prices": "results/prices.json"}
+
+
+def hypotheses(s):
+    cfg = s["configs"]; h = {}
+    if not cfg: return h
+    l12 = {c: v["pass_L1_L2"] for c, v in cfg.items()}
+    h["H1"] = {"claim": "every base config >= 80% on L1-L2", "holds": all(p / n >= 0.8 for p, n in l12.values()),
+               "data": {c: f"{p}/{n}" for c, (p, n) in l12.items()}}
+    bp = {c: v["breaking_point"] for c, v in cfg.items()}
+    pairs = [(a, b) for a, b in [("haiku-low", "haiku-medium"), ("luna-low", "luna-medium")] if a in bp and b in bp]
+    if all(bp[a] is None and bp[b] is None for a, b in pairs):
+        h["H2"] = {"claim": "within a model, higher effort moves the breaking point up by at least one rung, or removes it", "holds": None, "note": "not testable: no config in these pairs has a breaking point", "data": bp}
+    else:
+        rank = lambda x: 99 if x is None else int(x[1:])
+        h["H2"] = {"claim": "within a model, higher effort moves the breaking point up by at least one rung, or removes it", "holds": all(rank(bp[b]) > rank(bp[a]) for a, b in pairs if bp[a] is not None), "data": bp}
+    perfect = {c: v["usd_per_pass_L1_L2"] for c, v in cfg.items() if v["pass_L1_L2"][0] == v["pass_L1_L2"][1]}
+    h["H3"] = {"claim": "among configs with 100% on L1-L2, luna-low has the lowest $ per pass there",
+               "holds": "luna-low" in perfect and min(perfect, key=perfect.get) == "luna-low", "data": perfect}
+    if "luna-low" not in perfect and "luna-low" in cfg:
+        h["H3"]["note"] = f"luna-low was not 100% on L1-L2 ({'/'.join(map(str, cfg['luna-low']['pass_L1_L2']))}), so it is not in the set"
+    low = {c: b for c, b in bp.items() if b is not None and int(b[1:]) <= 5}
+    h["H4"] = {"claim": "at least one config breaks at or below L5", "holds": bool(low), "data": bp}
+    ag = s.get("agentic") or {}
+    if ag:
+        cx = min(v["input_floor"][0] for v in ag.values() if v["cli"] == "codex"); cl = min(v["input_floor"][0] for v in ag.values() if v["cli"] == "claude")
+        h["H5"] = {"claim": "agentic Codex min input tokens > Claude's", "holds": cx > cl, "data": {"codex_min_in": cx, "claude_min_in": cl}}
+    return h
+
+
+def pct(x):
+    return f"{100 * x:.0f}%"
+
+
+def tables(s):
+    L = ["# Tables", "", "Generated by `analysis/summarize.py` from `results/`. Codex $ are proxies (tokens × list price); Claude $ are measured.", ""]
+    L += ["## Function track, main run", "", "| config | pass@1 | 95% CI | breaking point | median s | p90 s | $/call | $/pass | $ kind |", "|---|---|---|---|---|---|---|---|---|"]
+    for c, v in s["configs"].items():
+        L.append(f"| {c} | {pct(v['pass_at_1'])} ({v['passes']}/{v['n']}) | {ci_text(v['passes'], v['n'], v['ci95'])} | {v['breaking_point'] or 'none ≤ L6'} | "
+                 f"{v['latency_s']['median']} | {v['latency_s']['p90']} | {v['usd_per_call']:.5f} | {v['usd_per_pass']:.5f} | {v['cost_kind']} |")
+    rungs = sorted({g for v in s["configs"].values() for g in v["by_rung"]})
+    L += ["", "## Passes by rung (out of 10: 2 problems × 5 repeats)", "", "| config | " + " | ".join(rungs) + " |", "|---|" + "---|" * len(rungs)]
+    for c, v in s["configs"].items():
+        L.append(f"| {c} | " + " | ".join(f"{v['by_rung'][g]['passed']}/{v['by_rung'][g]['n']}" for g in rungs) + " |")
+    L += ["", "## Passes per problem (out of 5)", "", "| problem | rung | " + " | ".join(s["configs"]) + " |", "|---|---|" + "---|" * len(s["configs"])]
+    for p, v in s["problems"].items():
+        L.append(f"| {p} | L{v['rung']} | " + " | ".join(str(v[c]) for c in s["configs"]) + " |")
+    L += ["", "## Paired differences in pass@1 (a − b, same problems)", "", "| a | b | diff | 95% CI |", "|---|---|---|---|"]
+    for d in s["paired"]:
+        L.append(f"| {d['a']} | {d['b']} | {100 * d['diff']:+.1f} pts | {100 * d['ci95'][0]:+.1f} to {100 * d['ci95'][1]:+.1f} |")
+    L += ["", "## Tokens per call (mean) and input floor (minimum over calls)", "", "| config | input | of which cached | output | of which reasoning | input floor (cached) |", "|---|---|---|---|---|---|"]
+    for c, v in s["configs"].items():
+        t = v["tokens_mean"]
+        L.append(f"| {c} | {t['in_tok']} | {t['cached_tok']} | {t['out_tok']} | {t['reasoning_tok']} | {v['input_floor'][0]} ({v['input_floor'][1]}) |")
+    if s["escalation"]:
+        L += ["", "## Escalation (subset only)", "", "| config | vs | problems | passes | base passes | diff | 95% CI |", "|---|---|---|---|---|---|---|"]
+        for e in s["escalation"]:
+            L.append(f"| {e['config']} | {e['vs']} | {', '.join(e['problems'])} | {e['passes']}/{e['n']} | {e['base_passes']}/{e['base_n']} | "
+                     f"{100 * e['diff']:+.0f} pts | {100 * e['ci95'][0]:+.0f} to {100 * e['ci95'][1]:+.0f} |")
+    for c, v in s.get("exploratory", {}).items():
+        L += ["", f"## Exploratory, not pre-registered: {c} (Codex trim level noshell, full ladder)", "",
+              "| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |", "|---|---|---|---|---|---|---|---|---|---|---|",
+              f"| {c} | {pct(v['pass_at_1'])} ({v['passes']}/{v['n']}) | {ci_text(v['passes'], v['n'], v['ci95'])} | {v['breaking_point'] or 'none ≤ L6'} | "
+              f"{v['latency_s']['median']} | {v['latency_s']['p90']} | {v['tokens_mean']['in_tok']} | {v['usd_per_call']:.5f} | {v['usd_per_pass']:.5f} | {v['usd_per_pass_uncached']:.5f} | {v['cost_kind']} |", "",
+              "| a | b | diff | 95% CI |", "|---|---|---|---|"]
+        for d in v["vs"]:
+            L.append(f"| {c} | {d['b']} | {100 * d['diff']:+.1f} pts | {100 * d['ci95'][0]:+.1f} to {100 * d['ci95'][1]:+.1f} |")
+    if s["agentic"]:
+        L += ["", "## Agentic track (hidden tests)", "", "| config | hidden pass | 95% CI | visible suite, incl. agent's own tests | median s | input floor | $/run | $ kind |", "|---|---|---|---|---|---|---|---|"]
+        for c, v in s["agentic"].items():
+            L.append(f"| {c} | {v['hidden_pass']}/{v['n']} | {ci_text(v['hidden_pass'], v['n'], v['ci95'])} | {v['visible_pass']}/{v['n']} | {v['latency_s']['median']} | "
+                     f"{v['input_floor'][0]} | {v['usd_per_run']:.4f} | {v['cost_kind']} |")
+        tasks = sorted({t for v in s["agentic"].values() for t in v["by_task"]})
+        L += ["", "| config | " + " | ".join(tasks) + " |", "|---|" + "---|" * len(tasks)]
+        for c, v in s["agentic"].items():
+            L.append(f"| {c} | " + " | ".join(f"{v['by_task'][t]['hidden_pass']}/{v['by_task'][t]['n']} (tests {', '.join(v['by_task'][t]['hidden_tests'])})" for t in tasks) + " |")
+    t = s.get("trim") or {}
+    if t.get("floor"):
+        L += ["", "## Codex input floor by trim level (fizzbuzz, one call each, low effort)", "",
+              "Levels are cumulative. base = the function-track harness. nodoc = project_doc_max_bytes=0. noctx = environment and permission context off. "
+              "nofeat = tool-adding features and web search off. mininst = one-line model_instructions_file (no longer stock Codex). noshell = shell and exec tools off.", "",
+              ]
+        from bench.trim_probe import LEVELS
+        levels = [lv for lv in LEVELS if any(k.endswith("/" + lv) for k in t["floor"])]
+        L += ["| model | " + " | ".join(levels) + " |", "|---|" + "---|" * len(levels)]
+        for m in dict.fromkeys(k.split("/")[0] for k in t["floor"]):
+            L.append(f"| {m} | " + " | ".join(f"{t['floor'][f'{m}/{lv}']['in_tok']:,}" if f"{m}/{lv}" in t["floor"] else "–" for lv in levels) + " |")
+    if t.get("pair"):
+        L += ["", "## Pilot problems, 3 rounds × 3 problems: stripped Codex vs haiku-low (tools off)", "",
+              "| config | level | passes | median input | of which cached | min input | median output | median s | p90 s | $/call | $ kind |", "|---|---|---|---|---|---|---|---|---|---|---|"]
+        for c, v in t["pair"].items():
+            L.append(f"| {c} | {v['level'] or '–'} | {v['passes']}/{v['n']} | {v['in_median']:,} | {v['cached_median']:,} | {v['in_min']:,} | {v['out_median']:,} | {v['median_s']} | {v['p90_s']} | "
+                     f"{v['usd_per_call']:.5f} | {v['cost_kind']} |")
+    if s.get("pilot"):
+        L += ["", "## Pilot (2026-10-22), for reference", "",
+              "Well-known problems, so every config passed everything. Cells show passes/runs; † marks a cell whose n is not 9, so it does not read as a 9/9 equivalent. "
+              "Priority-tier Codex $ use the published 2× fast-mode multiplier.", "",
+              "| config | model | effort | passes | problems | tier | input floor | median s | $/call |", "|---|---|---|---|---|---|---|---|---|"]
+        for c, v in s["pilot"].items():
+            L.append(f"| {c} | {v['model']} | {v['effort']} | {v['passes']}/{v['n']}{'' if v['n'] == 9 else ' †'} | {v['problems']} | {v['service_tier']} | "
+                     f"{v['input_floor']:,} | {v['median_s']} | {v['usd_per_call']:.5f} |")
+        L += ["", "† n ≠ 9: these configs ran a different number of rounds or problems (3 problems × 3 rounds = 9 is the common cell).", "",
+              "The pilot's Codex ladder records only the levels that were actually tested. Every model passed at low effort, so nothing escalated, "
+              "and the ladder is not an intelligence ranking."]
+    L += ["", "## Hypotheses", ""]
+    for k, v in s["hypotheses"].items():
+        verdict = {True: "holds", False: "does not hold", None: "not testable"}[v["holds"]]
+        L.append(f"- {k} ({v['claim']}): {verdict}. Data: `{json.dumps(v['data'])}`" + (f" {v['note']}." if v.get("note") else ""))
+    sp = s["spend"]
+    L += ["", "## Spend", "", f"- Claude, measured: ${sp['claude_measured_usd']:.2f} (function ${sp['claude_function_usd']:.2f}, agentic ${sp['claude_agentic_usd']:.2f}).",
+          f"- Codex, proxy at list price: ${sp['codex_proxy_usd']:.2f}.",
+          f"- Pilot repricing: {s['pilot_reprice']['rows']} priority-tier Codex rows cost ${s['pilot_reprice']['usd_at_1_5x']:.4f} at the pilot's 1.5× and ${s['pilot_reprice']['usd_at_2x']:.4f} at the published 2×.", ""]
+    return "\n".join(L)
+
+
+if __name__ == "__main__":
+    main()

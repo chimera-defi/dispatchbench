@@ -1,0 +1,45 @@
+{
+ "key": "6f2f1a0dbd6c8ed873fc0f7f290678ecebe99a53f30959350f34e8a688e5aa15",
+ "ts": "2026-10-22T09:45:26+00:00",
+ "track": "agentic",
+ "config": "luna-low",
+ "cli": "codex",
+ "cli_version": "0.163.0",
+ "model": "gpt-6-luna",
+ "effort": "low",
+ "task": "t2_cache_bugs",
+ "repeat": 2,
+ "lanes": 4,
+ "wall_s": 28.85115799983032,
+ "in_tok": 92906,
+ "cached_tok": 79104,
+ "cache_write_tok": 0,
+ "out_tok": 1478,
+ "reasoning_tok": 0,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)",
+ "turns": 1,
+ "tool_calls": {
+  "command_execution": 4
+ },
+ "is_error": false,
+ "error": null,
+ "delegate_calls": 0,
+ "visible_pass": false,
+ "visible": {
+  "ok": false,
+  "passed": 5,
+  "failed": 1,
+  "tail": "1 failed, 5 passed in 0.03s"
+ },
+ "hidden_pass": true,
+ "hidden": {
+  "ok": true,
+  "passed": 6,
+  "failed": 0,
+  "tail": "6 passed in 0.02s"
+ },
+ "own_tests": true,
+ "tests_tampered": [],
+ "diff_stat": " 2 files changed, 64 insertions(+), 6 deletions(-)"
+}

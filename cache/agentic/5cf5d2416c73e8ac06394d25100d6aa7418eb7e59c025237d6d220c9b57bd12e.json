@@ -1,0 +1,44 @@
+{
+ "key": "5cf5d2416c73e8ac06394d25100d6aa7418eb7e59c025237d6d220c9b57bd12e",
+ "ts": "2026-10-22T09:46:16+00:00",
+ "track": "agentic",
+ "config": "sonnet-medium",
+ "cli": "claude",
+ "cli_version": "2.1.308",
+ "model": "claude-sonnet-5-5",
+ "effort": "medium",
+ "task": "t4_retry_queue",
+ "repeat": 2,
+ "lanes": 4,
+ "wall_s": 27.42672982485965,
+ "in_tok": 29854,
+ "cached_tok": 22626,
+ "cache_write_tok": 7222,
+ "out_tok": 3496,
+ "cost_usd": 0.0661226,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 3,
+ "tool_calls": {
+  "Bash": 2
+ },
+ "is_error": false,
+ "error": null,
+ "delegate_calls": 0,
+ "visible_pass": true,
+ "visible": {
+  "ok": true,
+  "passed": 10,
+  "failed": 0,
+  "tail": "10 passed in 0.03s"
+ },
+ "hidden_pass": true,
+ "hidden": {
+  "ok": true,
+  "passed": 10,
+  "failed": 0,
+  "tail": "10 passed in 0.02s"
+ },
+ "own_tests": true,
+ "tests_tampered": [],
+ "diff_stat": " 4 files changed, 144 insertions(+), 6 deletions(-)"
+}

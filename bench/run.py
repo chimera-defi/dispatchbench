@@ -24,6 +24,19 @@ for fam, mid in [("luna", "gpt-6-luna"), ("sol61", "gpt-6.1-sol")]:
     for e in ["low", "medium", "high"]:
         CONFIGS[f"{fam}-{e}"] = ("codex", mid, e)
 
+# Exploratory, added after the main run (not pre-registered): luna-low with the leanest Codex harness found by
+# bench/trim_probe.py ("noshell": tool features, shell and base instructions stripped). See PLAN.md, Deviations.
+CONFIGS["luna-low-bare"] = ("codex", "gpt-6-luna", "low")
+TRIM_LEVEL = {"luna-low-bare": "noshell"}
+
+
+def codex_flags(config, portable=False):
+    if config not in TRIM_LEVEL:
+        return CODEX_FLAGS
+    from bench import trim_probe as T  # late import: trim_probe imports this module
+    return CODEX_FLAGS + T.LEVELS[TRIM_LEVEL[config]] if portable else T.flags(TRIM_LEVEL[config])
+
+
 # Function track harness. Claude: no tools, no user/project settings. Codex: user config ignored, host skill list
 # dropped, default (non-priority) tier, read-only sandbox (Codex tools cannot be switched off).
 CLAUDE_FLAGS = ["--output-format", "json", "--no-session-persistence", "--tools", "", "--setting-sources", "", "--strict-mcp-config"]
@@ -57,7 +70,7 @@ def prompt_for(pid):
 
 def key_for(config, pid, rep, prompt):
     cli, mid, eff = CONFIGS[config]
-    flags = CLAUDE_FLAGS if cli == "claude" else CODEX_FLAGS
+    flags = CLAUDE_FLAGS if cli == "claude" else codex_flags(config, portable=True)
     blob = json.dumps({"config": config, "model": mid, "effort": eff, "cli": cli, "cli_version": cli_version(cli),
                        "flags": flags, "prompt": prompt, "problem": pid, "repeat": rep}, sort_keys=True)
     return hashlib.sha256(blob.encode()).hexdigest()
@@ -105,8 +118,8 @@ def parse_codex(stdout):
     return dict(in_tok=i, cached_tok=c, cache_write_tok=0, out_tok=o, reasoning_tok=rs, tool_items=tools, error=err, text=text)
 
 
-def call_codex(mid, eff, prompt, cwd):
-    cmd = [CODEX, "exec", "-m", mid, "-c", f"model_reasoning_effort={eff}"] + CODEX_FLAGS + ["-C", cwd, prompt]
+def call_codex(mid, eff, prompt, cwd, flags=CODEX_FLAGS):
+    cmd = [CODEX, "exec", "-m", mid, "-c", f"model_reasoning_effort={eff}"] + flags + ["-C", cwd, prompt]
     t = time.monotonic(); r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=1200)
     wall = time.monotonic() - t
     p = parse_codex(r.stdout)
@@ -130,7 +143,7 @@ def one(config, pid, rep, phase, lanes):
             return f"refused: Claude spend ${spent:.2f} >= ${CLAUDE_BUDGET_USD}"
     cwd = tempfile.mkdtemp(prefix="mrb-")
     try:
-        res, raw = (call_claude if cli == "claude" else call_codex)(mid, eff, prompt, cwd)
+        res, raw = call_claude(mid, eff, prompt, cwd) if cli == "claude" else call_codex(mid, eff, prompt, cwd, codex_flags(config))
     finally:
         shutil.rmtree(cwd, ignore_errors=True)
     if res.get("error"):
