@@ -1,0 +1,14 @@
+{
+ "in_tok": 15558,
+ "cached_tok": 11520,
+ "cache_write_tok": 0,
+ "out_tok": 313,
+ "reasoning_tok": 0,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\nfrom collections import deque\nfrom math import gcd\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, value in enumerate(a):\n        prefix[i + 1] = prefix[i] + value\n\n    p, q = prefix[n], n\n\n    while True:\n        candidates = deque()\n        best_value = 0\n        best_pair = None\n\n        for r in range(k, n + 1):\n            i = r - k\n            g_i = q * prefix[i] - p * i\n            while candidates and q * prefix[candidates[-1]] - p * candidates[-1] >= g_i:\n                candidates.pop()\n            candidates.append(i)\n\n            min_start = r - (2 * k - 1)\n            while candidates and candidates[0] < min_start:\n                candidates.popleft()\n\n            i = candidates[0]\n            value = (q * prefix[r] - p * r) - (q * prefix[i] - p * i)\n            if value > best_value:\n                best_value = value\n                best_pair = (i, r)\n\n        if best_pair is None:\n            break\n\n        i, r = best_pair\n        p = prefix[r] - prefix[i]\n        q = r - i\n\n    divisor = gcd(p, q)\n    return [p // divisor, q // divisor]\n```",
+ "wall_s": 4.909010924000029,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

@@ -1,0 +1,15 @@
+{
+ "wall_s": 13.962600546000004,
+ "text": "## Plan: sliding window with an order-statistics structure\n\n**Core idea.** For position `i`, the window is the indices `[max(0, i-k), i-1]`. The answer is the number of values in that window strictly greater than `a[i]`. Since the window slides one step at a time, keep it as a multiset that supports insert, delete, and \"count of values greater than x.\" Then each position is one query and at most two updates.\n\n**Data structures.**\n- **Coordinate compression:** sort the distinct values of `a` and map each value to its 1-based rank. This handles the `\u00b110^9` range and duplicates without a huge array.\n- **Fenwick tree (BIT)** over the ranks, storing how many window elements have each rank. It supports point update and prefix sum.\n\n**Algorithm.**\n1. Compress `a` to ranks `r[0..n-1]`.\n2. Initialize an empty BIT and a counter `size = 0`.\n3. For `i` from `0` to `n-1`:\n   - If `i >= 1`, insert `a[i-1]` into the BIT and increment `size`.\n   - If `i-1-k >= 0`, remove `a[i-1-k]` from the BIT and decrement `size`. This must run after the insert so that `k = 0` leaves the window empty.\n   - Count elements `<= a[i]` as `prefix(r[i])`, then set `ans[i] = size - prefix(r[i])`.\n4. Return `ans`.\n\nTies are handled by using `<=` in the prefix query, so equal values are not counted as \"taller.\"\n\n**Edge cases the examples point to.**\n- `k = 0`: the window is always empty, so every answer is `0` (`[7, 7], 0` \u2192 `[0, 0]`). The insert-then-remove ordering above covers this.\n- `i = 0`: the window is empty, so the answer is `0`.\n- Equal heights: strictly taller only, so `[7, 7]` with `k` large gives `0` for the second person.\n- `k >= n`: the window is the whole prefix. The removal branch never fires, and the algorithm still works.\n- Values can be negative or as large as `10^9` in magnitude, so compression is needed.\n- Non-decreasing input gives all zeros, and strictly decreasing input with large `k` gives `[0, 1, 2, ...]`, matching the second example.\n\n**Verification to do before finalizing.** Check the three examples by hand. Also compare against an O(n\u00b7k) brute force on small random inputs, including duplicates, `k = 0`, and `k >= n`.\n\n**Complexity.**\n- Time: O(n log n) overall. Compression is O(n log n) for the sort, and each position does a constant number of BIT operations at O(log n) each. For `n = 2\u00b710^5`, that is roughly 10^7 elementary steps, which is fine in Python.\n- Space: O(n) for the compressed ranks, the BIT, and the output.\n\n**Alternative (acceptable, not preferred).** A sorted list with `bisect` insert and remove gives the same answers, but each insert and delete is O(k) in the worst case because of list shifting. This could be too slow when `k` is near `n`. Use it only if no Fenwick implementation is convenient.",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 10019,
+ "in_tok": 4170,
+ "cached_tok": 649,
+ "cache_write_tok": 3519,
+ "out_tok": 1982,
+ "reasoning_tok": 925,
+ "cost_usd": 0.00170149,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

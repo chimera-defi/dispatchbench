@@ -1,0 +1,14 @@
+{
+ "in_tok": 15230,
+ "cached_tok": 11520,
+ "cache_write_tok": 0,
+ "out_tok": 665,
+ "reasoning_tok": 0,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\ndef k_machine_schedule(jobs: list[list[int]], k: int) -> int:\n    if not jobs:\n        return 0\n\n    times = sorted({time for start, end, _ in jobs for time in (start, end)})\n    index = {time: i for i, time in enumerate(times)}\n    n = len(times)\n\n    # Residual edges are [destination, reverse_edge_index, capacity, cost].\n    graph = [[] for _ in range(n)]\n\n    def add_edge(u: int, v: int, capacity: int, cost: int) -> None:\n        forward = [v, len(graph[v]), capacity, cost]\n        backward = [u, len(graph[u]), 0, -cost]\n        graph[u].append(forward)\n        graph[v].append(backward)\n\n    for i in range(n - 1):\n        add_edge(i, i + 1, k, 0)\n\n    for start, end, pay in jobs:\n        add_edge(index[start], index[end], 1, -pay)\n\n    # Initial shortest distances are computed in topological time order.\n    # They serve as feasible potentials for Dijkstra on the residual graph.\n    inf = 10**30\n    potential = [inf] * n\n    potential[0] = 0\n    for u in range(n):\n        if potential[u] == inf:\n            continue\n        for v, _, capacity, cost in graph[u]:\n            if capacity and v > u:\n                potential[v] = min(potential[v], potential[u] + cost)\n\n    total_cost = 0\n    flow = 0\n\n    while flow < k:\n        dist = [inf] * n\n        previous_node = [-1] * n\n        previous_edge = [-1] * n\n        dist[0] = 0\n        heap = [(0, 0)]\n\n        while heap:\n            current_dist, u = heapq.heappop(heap)\n            if current_dist != dist[u]:\n                continue\n            for edge_index, edge in enumerate(graph[u]):\n                v, _, capacity, cost = edge\n                if capacity <= 0:\n                    continue\n                reduced_cost = cost + potential[u] - potential[v]\n                candidate = current_dist + reduced_cost\n                if candidate < dist[v]:\n                    dist[v] = candidate\n                    previous_node[v] = u\n                    previous_edge[v] = edge_index\n                    heapq.heappush(heap, (candidate, v))\n\n        for v in range(n):\n            if dist[v] < inf:\n                potential[v] += dist[v]\n\n        # The zero-cost chain guarantees a path for every unit.\n        v = n - 1\n        path_cost = 0\n        while v != 0:\n            u = previous_node[v]\n            edge_index = previous_edge[v]\n            edge = graph[u][edge_index]\n            path_cost += edge[3]\n            edge[2] -= 1\n            graph[v][edge[1]][2] += 1\n            v = u\n\n        total_cost += path_cost\n        flow += 1\n\n    return -total_cost\n\n\nimport heapq\n```",
+ "wall_s": 7.3492442980000305,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

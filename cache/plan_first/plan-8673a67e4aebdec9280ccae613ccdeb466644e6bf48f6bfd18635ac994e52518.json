@@ -1,0 +1,15 @@
+{
+ "wall_s": 15.122910158000025,
+ "text": "## Plan: min-cost flow on a timeline\n\n**Core idea.** Model each machine as a unit of flow moving forward in time. Jobs are the only paid edges, and waiting costs nothing.\n\n**Data structures**\n- Collect all `start` and `end` values, sort, and deduplicate. Call these `T` time nodes, so `V \u2264 600`.\n- Chain edges `t_i \u2192 t_{i+1}` with capacity `k` and cost `0`. These represent a machine sitting idle.\n- For each job `[s, e, pay]`, add an edge `node(s) \u2192 node(e)` with capacity `1` and cost `-pay`. This represents running that job on one machine.\n- Source is the first time node, sink is the last time node. Edges go strictly forward in time, so the graph is a DAG.\n\n**Algorithm**\n1. Compute initial potentials with a single left-to-right DP pass over the DAG, so Dijkstra with potentials can handle the negative job costs.\n2. Run successive shortest paths, pushing `k` units total. Each augmentation pushes one unit along the cheapest path. Chain edges always provide a cost-0 route, so exactly `k` units can always be sent.\n3. Answer = `-(total cost)`.\n\nSkipped jobs are handled automatically: a machine that does not take a job just flows along the chain.\n\n**Edge cases the examples hint at**\n- **Touching intervals.** `[0,4]` and `[4,6]` may share a machine. Because `end` and `start` map to the same time node, the flow passes through that node and this works without special handling. Example 1 relies on this: `[1,3]` and `[3,6]` give 8 on one machine.\n- **Overlapping intervals on one machine.** Example 1 also shows that `[0,4]` (pay 5) loses to the non-overlapping pair. The flow model enforces this with no extra check.\n- **`k` larger than needed.** Example 2 uses `k=2`, and some machines stay idle. Pushing `k` units with zero-cost chain edges covers this.\n- **Identical jobs.** Parallel edges between the same two nodes are fine.\n- **Empty input.** Return `0` immediately.\n- **Large coordinates.** Compress them first; never allocate a node per integer time.\n\n**Complexity**\n- Sorting and compression: `O(n log n)`.\n- Initial potentials: `O(V + E)`.\n- Successive shortest paths: `k \u2264 10` augmentations. Each uses Dijkstra with a heap, `O(E log V)`, with `E \u2248 2n + V \u2248 1200`. Total is about `O(k \u00b7 E log V)`, which is trivial for `n \u2264 300`.\n- Even plain Bellman-Ford/SPFA per augmentation (`O(VE)` \u2248 7\u00b710\u2075 per run) is well within limits.\n\n**Choices I made that the implementer can change:** I chose successive shortest paths with Dijkstra and potentials. An SPFA-based version is simpler and fast enough at these sizes if potentials add complexity.",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 11209,
+ "in_tok": 4241,
+ "cached_tok": 649,
+ "cache_write_tok": 3590,
+ "out_tok": 1943,
+ "reasoning_tok": 924,
+ "cost_usd": 0.0016961900000000002,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

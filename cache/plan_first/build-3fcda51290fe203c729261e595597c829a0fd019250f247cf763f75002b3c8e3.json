@@ -1,0 +1,14 @@
+{
+ "in_tok": 15683,
+ "cached_tok": 11520,
+ "cache_write_tok": 0,
+ "out_tok": 422,
+ "reasoning_tok": 0,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\nfrom math import gcd\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, x in enumerate(a):\n        prefix[i + 1] = prefix[i] + x\n\n    p, q = prefix[n], n\n\n    while True:\n        best_value = 0\n        best_sum = best_length = 0\n        min_key = 0  # q * prefix[0] - p * 0\n\n        for j in range(k, n + 1):\n            i = j - k\n            key_i = q * prefix[i] - p * i\n            if i == 0 or key_i < min_key:\n                min_key = key_i\n\n            key_j = q * prefix[j] - p * j\n            value = key_j - min_key\n            if value > best_value:\n                best_value = value\n                best_sum = prefix[j] - prefix[i]  # corrected below using the min-key index\n                best_length = j - i\n\n        if best_value == 0:\n            break\n\n        # Recover the maximizing start index for this iteration.\n        min_key = 0\n        min_i = 0\n        best_value = 0\n        for j in range(k, n + 1):\n            i = j - k\n            key_i = q * prefix[i] - p * i\n            if i == 0 or key_i < min_key:\n                min_key = key_i\n                min_i = i\n\n            value = q * prefix[j] - p * j - min_key\n            if value > best_value:\n                best_value = value\n                best_sum = prefix[j] - prefix[min_i]\n                best_length = j - min_i\n\n        p, q = best_sum, best_length\n\n    divisor = gcd(p, q)\n    return [p // divisor, q // divisor]\n```",
+ "wall_s": 6.545590724999954,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

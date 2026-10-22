@@ -1,0 +1,14 @@
+{
+ "in_tok": 6877,
+ "cached_tok": 3456,
+ "cache_write_tok": 0,
+ "out_tok": 914,
+ "reasoning_tok": 313,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\ndef k_machine_schedule(jobs: list[list[int]], k: int) -> int:\n    if not jobs:\n        return 0\n    if k >= len(jobs):\n        return sum(job[2] for job in jobs)\n\n    times = sorted({t for start, end, _ in jobs for t in (start, end)})\n    index = {t: i for i, t in enumerate(times)}\n    n = len(times)\n    graph = [[] for _ in range(n)]\n\n    def add_edge(u, v, cap, cost):\n        graph[u].append([v, cap, cost, len(graph[v])])\n        graph[v].append([u, 0, -cost, len(graph[u]) - 1])\n\n    for i in range(n - 1):\n        add_edge(i, i + 1, k, 0)\n    for start, end, pay in jobs:\n        add_edge(index[start], index[end], 1, -pay)\n\n    # Initial shortest-distance potentials; all positive-capacity edges go forward.\n    inf = float(\"inf\")\n    potential = [inf] * n\n    potential[0] = 0\n    for u in range(n):\n        if potential[u] == inf:\n            continue\n        for v, cap, cost, _ in graph[u]:\n            if cap and potential[v] > potential[u] + cost:\n                potential[v] = potential[u] + cost\n    potential = [0 if d == inf else d for d in potential]\n\n    total_cost = 0\n    for _ in range(k):\n        dist = [inf] * n\n        parent_node = [-1] * n\n        parent_edge = [-1] * n\n        dist[0] = 0\n        heap = [(0, 0)]\n\n        while heap:\n            d, u = heapq.heappop(heap)\n            if d != dist[u]:\n                continue\n            for ei, (v, cap, cost, _) in enumerate(graph[u]):\n                if cap <= 0:\n                    continue\n                nd = d + cost + potential[u] - potential[v]\n                if nd < dist[v]:\n                    dist[v] = nd\n                    parent_node[v] = u\n                    parent_edge[v] = ei\n                    heapq.heappush(heap, (nd, v))\n\n        for v in range(n):\n            if dist[v] < inf:\n                potential[v] += dist[v]\n\n        v = n - 1\n        while v != 0:\n            u = parent_node[v]\n            ei = parent_edge[v]\n            edge = graph[u][ei]\n            total_cost += edge[2]\n            edge[1] -= 1\n            graph[v][edge[3]][1] += 1\n            v = u\n\n    return -total_cost\n\n\nimport heapq\n```",
+ "wall_s": 9.974379184999975,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

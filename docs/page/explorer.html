@@ -43,10 +43,10 @@ function draw(){try{localStorage.setItem("rb-x2",JSON.stringify(st))}catch(e){}
  var g=[];
  if(!pts.length){box.innerHTML='<p class="meta" style="padding:40px 12px">No configs selected.</p>';return}
  var sx=scale(pts.map(function(d){return d[st.x]}),st.lx,L,W-R,small),sy=scale(pts.map(function(d){return d[st.y]}),st.ly,H-B,T);
- sx.t.forEach(function(v){var x=sx.f(v);if(x<L-1||x>W-R+1)return;g.push('<line x1="'+x+'" x2="'+x+'" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--line)"/><text x="'+x+'" y="'+(H-B+16)+'" text-anchor="middle" fill="#59636e">'+tf(st.x,v)+'</text>')});
- sy.t.forEach(function(v){var y=sy.f(v);if(y>H-B+1||y<T-1)return;g.push('<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)"/><text x="'+(L-8)+'" y="'+(y+4)+'" text-anchor="end" fill="#59636e">'+tf(st.y,v)+'</text>')});
- g.push('<text x="'+((L+W-R)/2)+'" y="'+(H-12)+'" text-anchor="middle" fill="var(--fg)">'+M[st.x].l+(st.lx?" (log)":"")+'</text>');
- g.push('<text transform="translate(14,'+((T+H-B)/2)+') rotate(-90)" text-anchor="middle" fill="var(--fg)">'+M[st.y].l+(st.ly?" (log)":"")+'</text>');
+ sx.t.forEach(function(v){var x=sx.f(v);if(x<L-1||x>W-R+1)return;g.push('<line x1="'+x+'" x2="'+x+'" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--line)"/><text x="'+x+'" y="'+(H-B+16)+'" text-anchor="middle" style="fill:var(--muted)">'+tf(st.x,v)+'</text>')});
+ sy.t.forEach(function(v){var y=sy.f(v);if(y>H-B+1||y<T-1)return;g.push('<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)"/><text x="'+(L-8)+'" y="'+(y+4)+'" text-anchor="end" style="fill:var(--muted)">'+tf(st.y,v)+'</text>')});
+ g.push('<text x="'+((L+W-R)/2)+'" y="'+(H-12)+'" text-anchor="middle" style="fill:var(--fg)">'+M[st.x].l+(st.lx?" (log)":"")+'</text>');
+ g.push('<text transform="translate(14,'+((T+H-B)/2)+') rotate(-90)" text-anchor="middle" style="fill:var(--fg)">'+M[st.y].l+(st.ly?" (log)":"")+'</text>');
  function better(a,b,k){return M[k].up?a>=b:a<=b}function strict(a,b,k){return M[k].up?a>b:a<b}
  var cand=pts.filter(function(p){return p.pass>=+st.fl});var fr=cand.filter(function(p){return !cand.some(function(q){return q!==p&&better(q[st.x],p[st.x],st.x)&&better(q[st.y],p[st.y],st.y)&&(strict(q[st.x],p[st.x],st.x)||strict(q[st.y],p[st.y],st.y))})});
  if(st.x!==st.y&&fr.length>1){fr.sort(function(a,b){return a[st.x]-b[st.x]});
@@ -57,7 +57,7 @@ function draw(){try{localStorage.setItem("rb-x2",JSON.stringify(st))}catch(e){}
  pts.slice().sort(function(a,b){return sy.f(a[st.y])-sy.f(b[st.y])}).forEach(function(p){var x=sx.f(p[st.x]),y=sy.f(p[st.y]),w=p.c.length*(small?5.6:6.4)+4;
   var right=x+12+w>W-R,lx=right?x-12-w:x+12,ly=y+4;
   for(var n=0;n<8&&placed.some(function(r){return Math.abs(r[1]-ly)<13&&lx<r[0]+r[2]&&r[0]<lx+w});n++)ly+=(n%2?-1:1)*13*(n+1);
-  ly=Math.min(ly,H-B-4);placed.push([lx,ly,w]);g.push('<text x="'+lx+'" y="'+ly+'" fill="'+(p.exp?"var(--muted)":"var(--fg)")+'" pointer-events="none">'+esc(p.c)+'</text>')});
+  ly=Math.min(ly,H-B-4);placed.push([lx,ly,w]);g.push('<text x="'+lx+'" y="'+ly+'" style="fill:'+(p.exp?"var(--muted)":"var(--fg)")+'" pointer-events="none">'+esc(p.c)+'</text>')});
  box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="'+(small?11:12)+'" role="img" aria-label="'+M[st.y].l+' against '+M[st.x].l+'">'+g.join("")+'</svg>';
  box.querySelectorAll("circle").forEach(function(c){function show(){var d=D[+c.getAttribute("data-i")],t=document.getElementById("tip");
    t.innerHTML='<b>'+esc(d.c)+'</b>'+(d.exp?' <span class="tag">exploratory</span>':'')+'<br>'+Object.keys(M).map(function(k){return M[k].l+': '+M[k].f(d[k])}).join("<br>")+'<br>$ kind: '+d.kind;

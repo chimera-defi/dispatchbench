@@ -5,12 +5,9 @@ from xml.sax.saxutils import escape
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "results", "report", "charts")
 FONT = "font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, sans-serif'"
-# Field Lab v3 plate: the charts keep one light palette in both page themes and sit on a framed plate there.
-INK, MUTED, GRID, PLATE = "#0c1a16", "#40524b", "#c3d0c9", "#f6f9f7"
+INK, MUTED, GRID, PLATE = "var(--fg,#1d2321)", "var(--muted,#5d6763)", "var(--line,#dde2de)", "var(--panel,#ffffff)"
 HOST_AGENTS_MD = "1.3k"  # tokens of the host's ~/.codex/AGENTS.md, measured once by hand (bytes / 4); not in the result rows
-# One hue per CLI; darker = more effort.
-COLOR = {"haiku-low": "#f2a46b", "haiku-medium": "#d9692a", "haiku-high": "#a8471a", "sonnet-medium": "#8a3b12", "sonnet-high": "#5e260a",
-         "luna-low": "#7fb2e5", "luna-medium": "#3a7cc4", "luna-high": "#1d4f8a", "sol61-medium": "#163a66", "sol61-high": "#0b213d"}
+FAMILY = lambda c: "var(--claude,#b4572e)" if c.startswith("haiku") else "var(--sonnet,#2f8f7d)" if c.startswith("sonnet") else "var(--codex,#3a5bb8)"
 
 
 # Per-label vertical offsets so neighbouring points' labels do not collide.
@@ -25,7 +22,7 @@ def svg(w, h, body):
 
 def text(x, y, s, size=12, anchor="start", fill=INK, weight="normal", rotate=None):
     t = f" transform='rotate({rotate} {x} {y})'" if rotate else ""
-    return f"<text x='{x:.1f}' y='{y:.1f}' font-size='{size}' text-anchor='{anchor}' fill='{fill}' font-weight='{weight}'{t}>{escape(str(s))}</text>"
+    return f"<text x='{x:.1f}' y='{y:.1f}' font-size='{size}' text-anchor='{anchor}' style='fill:{fill}' font-weight='{weight}'{t}>{escape(str(s))}</text>"
 
 
 def log_ticks(lo, hi):
@@ -64,20 +61,21 @@ def pareto_chart(s):
     for c, v in allc.items():
         x, y = X(v["usd_per_pass"]), Y(v["pass_at_1"]); on = c in front; hollow = c in extra
         lo, hi = v["ci95"]
-        b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(max(lo, y0)):.1f}' y2='{Y(hi):.1f}' stroke='{COLOR.get(c, MUTED)}' stroke-width='2' opacity='0.35'/>")
+        col = FAMILY(c)
+        b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(max(lo, y0)):.1f}' y2='{Y(hi):.1f}' stroke='{col}' stroke-width='2' opacity='0.35'/>")
         if hollow:
-            b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='5.5' fill='{PLATE}' stroke='{COLOR.get(c, COLOR['luna-low'])}' stroke-width='2'/>")
+            b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='5.5' fill='{PLATE}' stroke='{col}' stroke-width='2'/>")
         else:
-            b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='{7 if on else 5.5}' fill='{COLOR.get(c, MUTED)}' stroke='{INK if on else PLATE}' stroke-width='1.5'/>")
+            b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='{7 if on else 5.5}' fill='{col}' stroke='{INK if on else PLATE}' stroke-width='1.5'/>")
         right = x > W - R - 170 or c in LABEL_LEFT
         label = f"{c} ({100 * v['pass_at_1']:.0f}%){' *' if v['cost_kind'] == 'proxy' else ''}{', exploratory' if hollow else ''}"
         b.append(text(x - 10 if right else x + 10, y + LABEL_DY.get(c, -8), label, 11, "end" if right else "start", MUTED if hollow else INK))
-    b.append(text(L, H - 10, "Dashed: Pareto frontier of the pre-registered configs. Bars: 95% CI. Hollow: exploratory. * Codex $ is a proxy; Claude $ is measured.", 10, fill=MUTED))
+    b.append(text(L, H - 10, "Dashed: Pareto. Bars: 95% CI. Hollow: exploratory. * Codex cost is proxy.", 10, fill=MUTED))
     return svg(W, H, b)
 
 
 MIN_PASS = 0.90
-PURPLE = "#7b4fc9"
+PURPLE = "var(--frontier,#7b3fe4)"
 
 
 def cost_time_chart(s):
@@ -105,11 +103,12 @@ def cost_time_chart(s):
     dy = {"luna-low": 16, "sonnet-medium": 16, "haiku-low": -12, "luna-medium": 4}; left = {"luna-high", "luna-low-bare"}
     for c, (x, t) in pts.items():
         hollow = c not in s["configs"]; px, py = X(x), Y(t)
-        b.append(f"<circle cx='{px:.1f}' cy='{py:.1f}' r='6' fill='{PLATE if hollow else COLOR.get(c, MUTED)}' stroke='{PURPLE if c in front else COLOR.get(c, MUTED) if hollow else PLATE}' stroke-width='{3 if c in front else 2 if hollow else 1.5}'/>")
+        col = FAMILY(c)
+        b.append(f"<circle cx='{px:.1f}' cy='{py:.1f}' r='6' fill='{PLATE if hollow else col}' stroke='{PURPLE if c in front else col if hollow else PLATE}' stroke-width='{3 if c in front else 2 if hollow else 1.5}'/>")
         right = px > W - R - 170 or c in left
         lab = f"{c} ({100 * allc[c]['pass_at_1']:.0f}%){' *' if allc[c]['cost_kind'] == 'proxy' else ''}"
         b.append(text(px - 10 if right else px + 10, py + dy.get(c, -8), lab, 11, "end" if right else "start", MUTED if hollow else INK))
-    b.append(text(L, H - 10, f"Purple: among configs with pass@1 ≥ {100 * MIN_PASS:.0f}%, those no other beats on both cost and time. Label: pass@1. Hollow: exploratory. * Codex $ is a proxy.", 10, fill=MUTED))
+    b.append(text(L, H - 10, f"Purple ring: frontier, pass@1 ≥ {100 * MIN_PASS:.0f}%, then cost and time. Hollow: exploratory. * Codex cost is proxy.", 10, fill=MUTED))
     return svg(W, H, b)
 
 
@@ -120,22 +119,23 @@ def rung_chart(s):
     b = [text(L, 24, "Pass rate by difficulty rung (10 attempts per rung per config)", 14, weight="600")]
     for p in (0, 0.2, 0.4, 0.6, 0.8, 1.0):
         b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
-    b.append(f"<line x1='{L}' x2='{W - R}' y1='{Y(0.4):.1f}' y2='{Y(0.4):.1f}' stroke='#b42318' stroke-dasharray='4 3'/>")
-    b.append(text(W - R + 6, Y(0.4) + 4, "breaking point (≤ 40%)", 11, fill="#b42318"))
+    b.append(f"<line x1='{L}' x2='{W - R}' y1='{Y(0.4):.1f}' y2='{Y(0.4):.1f}' stroke='var(--bad,#b3261e)' stroke-dasharray='4 3'/>")
+    b.append(text(L + 6, Y(0.4) - 6, "breaking point (≤ 40%)", 11, fill="var(--bad,#b3261e)"))
     for i, g in enumerate(rungs):
         b.append(text(X(i), H - B + 18, g, 11, "middle", MUTED))
     b.append(text((L + W - R) / 2, H - 12, "rung (L1 easiest)", 12, "middle", MUTED))
-    n = len(cfg); labels = []
+    n = len(cfg); labels = []; seen = {}
     for k, (c, v) in enumerate(cfg.items()):
         off = (k - (n - 1) / 2) * 3  # small horizontal jitter so overlapping lines stay visible
         pts = [(X(i) + off, Y(v["by_rung"][g]["passed"] / v["by_rung"][g]["n"])) for i, g in enumerate(rungs) if g in v["by_rung"]]
-        b.append(f"<polyline points='{' '.join(f'{x:.1f},{y:.1f}' for x, y in pts)}' fill='none' stroke='{COLOR.get(c, MUTED)}' stroke-width='2'/>")
-        b += [f"<circle cx='{x:.1f}' cy='{y:.1f}' r='3.5' fill='{COLOR.get(c, MUTED)}'/>" for x, y in pts]
+        col = FAMILY(c); j = seen.get(col, 0); seen[col] = j + 1; dash = ("", " stroke-dasharray='5 3'", " stroke-dasharray='2 3'")[j % 3]
+        b.append(f"<polyline points='{' '.join(f'{x:.1f},{y:.1f}' for x, y in pts)}' fill='none' stroke='{col}' stroke-width='2'{dash}/>")
+        b += [f"<circle cx='{x:.1f}' cy='{y:.1f}' r='3.5' fill='{col}'/>" for x, y in pts]
         labels.append((pts[-1][1], c))
     labels.sort(); last = -1e9
     for y, c in labels:  # spread end labels so they don't collide
         y = max(y, last + 14); last = y
-        b.append(text(W - R + 6, y + 4 + 20, c, 11, fill=COLOR.get(c, MUTED)))
+        b.append(text(W - R + 6, y + 4, c, 11, fill=FAMILY(c)))
     return svg(W, H, b)
 
 
@@ -150,9 +150,9 @@ def heatmap(s):
         v = s["problems"][p]; y = T + i * ch
         b.append(text(L - 10, y + ch / 2 + 4, f"L{v['rung']}  {p}", 11, "end", INK))
         for j, c in enumerate(cfg):
-            k = v[c]; shade = ["#b42318", "#e8705f", "#f4b8a8", "#cfe3c9", "#86c27a", "#2f8a3b"][k]
-            b.append(f"<rect x='{L + j * cw + 1}' y='{y + 1}' width='{cw - 2}' height='{ch - 2}' fill='{shade}'/>")
-            b.append(text(L + j * cw + cw / 2, y + ch / 2 + 4, k, 11, "middle", "white" if k in (0, 5) else INK))
+            k = v[c]; fill, op = ("var(--bad,#b3261e)", 0.35) if k == 0 else ("var(--good,#1c7c3c)", 0.1 + 0.09 * k)
+            b.append(f"<rect x='{L + j * cw + 1}' y='{y + 1}' width='{cw - 2}' height='{ch - 2}' fill='{fill}' opacity='{op:.2f}'/>")
+            b.append(text(L + j * cw + cw / 2, y + ch / 2 + 4, k, 11, "middle", INK))
     return svg(W, H, b)
 
 
@@ -167,11 +167,11 @@ def floor_chart(s):
     for c, track, tot, cached in rows:
         if track != last:
             b.append(text(12, y + 12, f"{track} track", 11, fill=MUTED, weight="600")); y += 18; last = track
-        b += [f"<rect x='{L}' y='{y}' width='{X(tot) - L:.1f}' height='{bh}' fill='{COLOR.get(c, MUTED)}' opacity='0.35'/>",
-              f"<rect x='{L}' y='{y}' width='{X(cached) - L:.1f}' height='{bh}' fill='{COLOR.get(c, MUTED)}'/>",
+        b += [f"<rect x='{L}' y='{y}' width='{X(tot) - L:.1f}' height='{bh}' fill='{FAMILY(c)}' opacity='0.35'/>",
+              f"<rect x='{L}' y='{y}' width='{X(cached) - L:.1f}' height='{bh}' fill='{FAMILY(c)}'/>",
               text(L - 8, y + 14, c, 11, "end"), text(X(tot) + 6, y + 14, f"{tot:,}", 11, fill=MUTED)]
         y += bh + 8
-    b.append(text(12, y + 22, f"Solid: served from cache. Pale: uncached input. Codex floors include ~{HOST_AGENTS_MD} tokens of user AGENTS.md the CLI cannot switch off.", 11, fill=MUTED))
+    b.append(text(12, y + 22, f"Solid: cached. Pale: uncached. Codex includes ~{HOST_AGENTS_MD} host AGENTS.md tokens.", 11, fill=MUTED))
     return svg(W, y + 40, b)
 
 
@@ -191,11 +191,11 @@ def agentic_chart(s):
     for i, (c, v) in enumerate(sorted(ag.items(), key=lambda kv: kv[1]["usd_per_run"])):
         x, y = X(v["usd_per_run"]), Y(v["hidden_pass_rate"]); lo, hi = v["ci95"]
         if v["hidden_pass"] == v["n"]: lo = 0.05 ** (1 / len(v["by_task"]))  # bootstrap collapses at 100%; one-sided bound over tasks, as in the tables
-        b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(lo):.1f}' y2='{Y(hi):.1f}' stroke='{COLOR.get(c, MUTED)}' stroke-width='2' opacity='0.5'/>")
-        b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='6' fill='{COLOR.get(c, MUTED)}'/>")
+        b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(lo):.1f}' y2='{Y(hi):.1f}' stroke='{FAMILY(c)}' stroke-width='2' opacity='0.5'/>")
+        b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='6' fill='{FAMILY(c)}'/>")
         right = x > W - R - 150
         b.append(text(x - 10 if right else x + 10, y - 8 if i % 2 == 0 else y + 18, anchor="end" if right else "start", s=f"{c} {v['hidden_pass']}/{v['n']}{' *' if v['cost_kind'] == 'proxy' else ''}", size=11))
-    b.append(text(L, H - 10, "Every config passed 12/12, so the track does not separate them. Bars: exact one-sided 95% lower bound. * Codex $ is a proxy.", 11, fill=MUTED))
+    b.append(text(L, H - 10, "All configs passed 12/12. Bars: one-sided 95% lower bound. * Codex cost is proxy.", 11, fill=MUTED))
     return svg(W, H, b)
 
 
@@ -219,12 +219,12 @@ def all_configs(s):
 def cost_tokens_chart(s):
     """Total $ for the 60 function-track calls, and $ per 1,000 tokens processed (input plus output), per config."""
     rows = all_configs(s)
-    tot = [(c + (" *" if v["cost_kind"] == "proxy" else ""), v["usd_total"], COLOR.get(c, MUTED), x) for c, v, x in rows]
-    per = [(c + (" *" if v["cost_kind"] == "proxy" else ""), 1000 * v["usd_per_call"] / (v["tokens_mean"]["in_tok"] + v["tokens_mean"]["out_tok"]), COLOR.get(c, MUTED), x)
+    tot = [(c + (" *" if v["cost_kind"] == "proxy" else ""), v["usd_total"], FAMILY(c), x) for c, v, x in rows]
+    per = [(c + (" *" if v["cost_kind"] == "proxy" else ""), 1000 * v["usd_per_call"] / (v["tokens_mean"]["in_tok"] + v["tokens_mean"]["out_tok"]), FAMILY(c), x)
            for c, v, x in rows]
-    a = bars("Total $ for the 60 function-track calls (L1–L6)", tot, lambda v: f"${v:.3f}", "Hollow: exploratory. * Codex $ is a proxy (tokens × list price); Claude $ is measured.")
+    a = bars("Total $ for the 60 function-track calls (L1–L6)", tot, lambda v: f"${v:.3f}", "Hollow: exploratory. * Codex cost is proxy; Claude is measured.")
     b = bars("$ per 1,000 tokens processed (input + output, mean per call)", per, lambda v: f"${v:.5f}",
-             "Cached input is billed at a discount, so a config whose prompt is mostly cached looks cheap per token. * Codex $ is a proxy.")
+                "Cached input costs less per token. * Codex cost is proxy.")
     return a, b
 
 
@@ -234,9 +234,9 @@ TOKEN_IN = ["luna-low", "luna-low-bare", "haiku-low", "sonnet-medium"]
 def token_in_chart(s):
     allc = {c: v for c, v, _ in all_configs(s)}
     lab = {"luna-low": "luna-low, stock Codex", "luna-low-bare": "luna-low, stripped Codex", "haiku-low": "haiku-low, tools off", "sonnet-medium": "sonnet-medium, tools off"}
-    rows = [(lab[c], allc[c]["tokens_mean"]["in_tok"], COLOR.get(c, MUTED), c not in s["configs"]) for c in TOKEN_IN if c in allc]
+    rows = [(lab[c], allc[c]["tokens_mean"]["in_tok"], FAMILY(c), c not in s["configs"]) for c in TOKEN_IN if c in allc]
     return bars("Mean input tokens per call (function track, 60 calls each)", rows, lambda v: f"{v:,}",
-                f"Includes cached input. Codex counts include about {HOST_AGENTS_MD} tokens of the host's user-level AGENTS.md, which no flag turns off.", L=200, R=80)
+                f"Includes cached input. Codex includes ~{HOST_AGENTS_MD} host AGENTS.md tokens.", L=200, R=80)
 
 
 def check_design(s):

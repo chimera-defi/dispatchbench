@@ -1,0 +1,14 @@
+{
+ "in_tok": 15322,
+ "cached_tok": 11520,
+ "cache_write_tok": 0,
+ "out_tok": 252,
+ "reasoning_tok": 0,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\ndef taller_within(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    values = sorted(set(a))\n    rank = {value: i + 1 for i, value in enumerate(values)}\n    ranks = [rank[value] for value in a]\n\n    bit = [0] * (len(values) + 1)\n\n    def add(index: int, delta: int) -> None:\n        while index < len(bit):\n            bit[index] += delta\n            index += index & -index\n\n    def prefix_sum(index: int) -> int:\n        total = 0\n        while index:\n            total += bit[index]\n            index -= index & -index\n        return total\n\n    result = []\n    left = 0\n\n    for i in range(n):\n        if i > 0:\n            add(ranks[i - 1], 1)\n\n        new_left = max(0, i - k)\n        while left < new_left:\n            add(ranks[left], -1)\n            left += 1\n\n        window_size = i - left\n        result.append(window_size - prefix_sum(ranks[i]))\n\n    return result\n```",
+ "wall_s": 4.711162160000015,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

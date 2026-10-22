@@ -1,0 +1,14 @@
+{
+ "in_tok": 6819,
+ "cached_tok": 0,
+ "cache_write_tok": 0,
+ "out_tok": 1124,
+ "reasoning_tok": 509,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\ndef avoid_count(n: int, alphabet: str, banned: list[str]) -> int:\n    MOD = 1_000_000_007\n    if n == 0:\n        return 1\n\n    char_id = {ch: i for i, ch in enumerate(alphabet)}\n    sigma = len(alphabet)\n\n    edges = [[-1] * sigma]\n    fail = [0]\n    dead = [False]\n\n    for word in banned:\n        node = 0\n        for ch in word:\n            c = char_id[ch]\n            nxt = edges[node][c]\n            if nxt == -1:\n                nxt = len(edges)\n                edges[node][c] = nxt\n                edges.append([-1] * sigma)\n                fail.append(0)\n                dead.append(False)\n            node = nxt\n        dead[node] = True\n\n    queue = []\n    for c in range(sigma):\n        child = edges[0][c]\n        if child == -1:\n            edges[0][c] = 0\n        else:\n            fail[child] = 0\n            queue.append(child)\n\n    head = 0\n    while head < len(queue):\n        node = queue[head]\n        head += 1\n        dead[node] = dead[node] or dead[fail[node]]\n\n        for c in range(sigma):\n            child = edges[node][c]\n            if child == -1:\n                edges[node][c] = edges[fail[node]][c]\n            else:\n                fail[child] = edges[fail[node]][c]\n                queue.append(child)\n\n    live_nodes = [i for i, is_dead in enumerate(dead) if not is_dead]\n    index = {node: i for i, node in enumerate(live_nodes)}\n    size = len(live_nodes)\n\n    matrix = [[0] * size for _ in range(size)]\n    for node in live_nodes:\n        u = index[node]\n        for c in range(sigma):\n            nxt = edges[node][c]\n            if not dead[nxt]:\n                v = index[nxt]\n                matrix[u][v] += 1\n\n    def multiply(a, b):\n        result = [[0] * size for _ in range(size)]\n        for i in range(size):\n            row = result[i]\n            for k, value in enumerate(a[i]):\n                if value:\n                    brow = b[k]\n                    for j in range(size):\n                        row[j] += value * brow[j]\n            for j in range(size):\n                row[j] %= MOD\n        return result\n\n    result = [[int(i == j) for j in range(size)] for i in range(size)]\n    exponent = n\n    while exponent:\n        if exponent & 1:\n            result = multiply(result, matrix)\n        exponent >>= 1\n        if exponent:\n            matrix = multiply(matrix, matrix)\n\n    return sum(result[index[0]]) % MOD\n```",
+ "wall_s": 11.311145484000008,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

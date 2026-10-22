@@ -1,0 +1,14 @@
+{
+ "in_tok": 6686,
+ "cached_tok": 2432,
+ "cache_write_tok": 0,
+ "out_tok": 1266,
+ "reasoning_tok": 670,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\ndef k_machine_schedule(jobs: list[list[int]], k: int) -> int:\n    if not jobs:\n        return 0\n\n    times = sorted({t for start, end, _ in jobs for t in (start, end)})\n    index = {t: i for i, t in enumerate(times)}\n    n = len(times)\n    graph = [[] for _ in range(n)]\n\n    def add_edge(u: int, v: int, cap: int, cost: int) -> None:\n        graph[u].append([v, len(graph[v]), cap, cost])\n        graph[v].append([u, len(graph[u]) - 1, 0, -cost])\n\n    for i in range(n - 1):\n        add_edge(i, i + 1, k, 0)\n\n    for start, end, pay in jobs:\n        add_edge(index[start], index[end], 1, -pay)\n\n    # Initial shortest-path potentials, computed in timeline order.\n    inf = float(\"inf\")\n    potential = [inf] * n\n    potential[0] = 0\n    for u in range(n):\n        if potential[u] == inf:\n            continue\n        for v, _, cap, cost in graph[u]:\n            if cap and v > u:\n                potential[v] = min(potential[v], potential[u] + cost)\n\n    total_cost = 0\n    flow = 0\n\n    while flow < k:\n        dist = [inf] * n\n        parent = [None] * n\n        dist[0] = 0\n        heap = [(0, 0)]\n\n        while heap:\n            d, u = heapq.heappop(heap)\n            if d != dist[u]:\n                continue\n            for ei, edge in enumerate(graph[u]):\n                v, _, cap, cost = edge\n                if cap:\n                    nd = d + cost + potential[u] - potential[v]\n                    if nd < dist[v]:\n                        dist[v] = nd\n                        parent[v] = (u, ei)\n                        heapq.heappush(heap, (nd, v))\n\n        for v in range(n):\n            if dist[v] < inf:\n                potential[v] += dist[v]\n\n        add = k - flow\n        v = n - 1\n        while v:\n            u, ei = parent[v]\n            add = min(add, graph[u][ei][2])\n            v = u\n\n        v = n - 1\n        while v:\n            u, ei = parent[v]\n            edge = graph[u][ei]\n            total_cost += add * edge[3]\n            edge[2] -= add\n            graph[v][edge[1]][2] += add\n            v = u\n\n        flow += add\n\n    return -total_cost\n\n\nimport heapq\n```",
+ "wall_s": 12.512343469999962,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

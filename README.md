@@ -213,6 +213,8 @@ After the main run, five changes were tried on the seven problems luna-low fails
 | D: luna-medium, stripped harness | 21/35 | 0.00120 | 8.4 |
 | D: luna-high, stripped harness | 31/35 | 0.00105 | 13.2 |
 | E: luna-low answer, then haiku-low reviews and repairs it | 35/35 | 0.00348 | 27.4 |
+| F: haiku-low writes a plan, luna-low builds from it | 30/35 | 0.00336 | 22.1 |
+| F: haiku-low writes a plan, luna-high (stripped harness) builds from it | 31/35 | 0.00357 | 27.4 |
 | haiku-low | 32/35 | 0.00157 | 13.1 |
 | sonnet-medium | 35/35 | 0.01530 | 11.4 |
 
