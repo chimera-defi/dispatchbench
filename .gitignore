@@ -2,3 +2,6 @@ TASKS.md
 __pycache__/
 *.pyc
 cache/tmp/
+cache/raw/
+cache/grades/
+artifacts/

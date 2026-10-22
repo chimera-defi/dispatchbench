@@ -1,0 +1,9 @@
+Solve this problem in Python 3.
+
+{statement}
+
+Implement exactly this function (a top-level function, not a class):
+```python
+{signature}
+```
+Reply with only the code in a single ```python block. Do not run any commands or tools.

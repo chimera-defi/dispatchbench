@@ -1,0 +1,48 @@
+"""Grade every cached completion serially and write results/<run>-function.jsonl. No model calls.
+
+Grades are cached in cache/grades by (problem file hash, code hash), so a rebuild only grades what changed."""
+import hashlib, json, os, re, sys
+
+from bench import problems
+from bench.grade import grade_text
+from bench.run import CALLS, ROOT
+
+GRADES = os.path.join(ROOT, "cache", "grades")
+OUT = os.path.join(ROOT, "results", "2026-10-22b-function.jsonl")
+FIELDS = ["ts", "phase", "config", "cli", "cli_version", "model", "effort", "problem", "repeat", "lanes", "wall_s", "api_duration_ms",
+          "in_tok", "cached_tok", "cache_write_tok", "out_tok", "reasoning_tok", "cost_usd", "cost_kind", "tool_items", "is_error", "error", "key", "prompt_sha"]
+
+
+def extract(text):
+    blocks = re.findall(r"```(?:python|py|python3)?[ \t]*\n(.*?)```", text or "", re.S)
+    return blocks[-1] if blocks else (text or "")
+
+
+def main():
+    rows = []
+    entries = sorted((json.load(open(os.path.join(CALLS, f))) for f in os.listdir(CALLS) if f.endswith(".json")),
+                     key=lambda e: (e["ts"], e["config"]))
+    os.makedirs(GRADES, exist_ok=True)
+    for e in entries:
+        code = extract(e.get("text"))
+        ph = hashlib.sha256(open(problems.path(e["problem"]), "rb").read()).hexdigest()[:16]
+        gk = hashlib.sha256((ph + "\0" + code).encode()).hexdigest()
+        gp = os.path.join(GRADES, gk + ".json")
+        if e["is_error"] and not code.strip():
+            g = {"outcome": "harness_error", "detail": (e.get("error") or "")[:300]}
+        elif os.path.exists(gp):
+            g = json.load(open(gp))
+        else:
+            g = grade_text(e["problem"], code) if code.strip() else {"outcome": "no_code", "detail": "empty completion"}
+            json.dump(g, open(gp, "w"))
+        m = problems.load(e["problem"])
+        row = {k: e.get(k) for k in FIELDS}
+        row.update(rung=m.RUNG, outcome=g["outcome"], passed=g["outcome"] == "pass", grade_detail=g.get("detail"), code_lines=code.count("\n"))
+        rows.append(row)
+    with open(OUT, "w") as f:
+        for r in rows: f.write(json.dumps(r) + "\n")
+    print(f"graded {len(rows)} calls -> {os.path.relpath(OUT, ROOT)}")
+
+
+if __name__ == "__main__":
+    main()

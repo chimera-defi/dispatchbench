@@ -108,4 +108,10 @@ Caching:
 
 ## Deviations
 
-(none yet)
+Each entry gives the change, when it happened, and why.
+
+1. Codex harness: the plan's flags (`--ignore-user-config`, default service tier) were extended with `-c skills.include_instructions=false`, before the first model call. Without it, Codex injects the host's skill list (about 5.6k input tokens) into every prompt.
+2. Codex harness, limitation: Codex still injects the user-level `AGENTS.md` (about 1.3k tokens of host-specific instructions). No CLI flag disables it, and the alternative (a separate `CODEX_HOME`) would mean copying the login credentials. Codex input-token floors therefore include about 1.3k tokens that a clean install would not have. This affects H5 and the token-floor chart.
+3. Claude agentic harness: tools are pinned to `Bash,Read,Edit,Write,Glob,Grep` and `--strict-mcp-config` is added, before the first agentic call. The default tool set adds remote connectors and built-in skills (about 31k input tokens); the pinned set matches what Codex's shell and edit tools can do.
+4. Warm-up rows use repeat number 100 rather than -1 (a CLI parsing limitation). They are excluded from every estimate.
+5. Calibration result: haiku-low, sonnet-medium and sol61-medium passed all 10 problems (30/30, one repeat each). The L6 rule fired. I wrote `p11_best_average` (exact fraction, near-tie cases that defeat floating point) and `p12_sheet` (spreadsheet evaluator with lazy IF, left-to-right error short-circuit, cycle detection, deep reference chains). Both passed the checker self-test (reference = independent brute force on 2,000 random inputs; every planted bug fails). They were committed before any model saw them, and were not tried on a model and revised. The main run becomes 6 configs × 12 problems × 5 repeats = 360 calls. If L6 does not break any config either, the ladder stops there: no L7.
