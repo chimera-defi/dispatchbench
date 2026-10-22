@@ -6,6 +6,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "results", "report", "charts")
 FONT = "font-family='-apple-system, Segoe UI, Helvetica, Arial, sans-serif'"
 INK, MUTED, GRID = "#1f2328", "#59636e", "#e3e6ea"
+HOST_AGENTS_MD = "1.3k"  # tokens of the host's ~/.codex/AGENTS.md, measured once by hand (bytes / 4); not in the result rows
 # One hue per CLI; darker = more effort.
 COLOR = {"haiku-low": "#f2a46b", "haiku-medium": "#d9692a", "haiku-high": "#a8471a", "sonnet-medium": "#8a3b12", "sonnet-high": "#5e260a",
          "luna-low": "#7fb2e5", "luna-medium": "#3a7cc4", "luna-high": "#1d4f8a", "sol61-medium": "#163a66", "sol61-high": "#0b213d"}
@@ -169,7 +170,7 @@ def floor_chart(s):
               f"<rect x='{L}' y='{y}' width='{X(cached) - L:.1f}' height='{bh}' fill='{COLOR.get(c, MUTED)}'/>",
               text(L - 8, y + 14, c, 11, "end"), text(X(tot) + 6, y + 14, f"{tot:,}", 11, fill=MUTED)]
         y += bh + 8
-    b.append(text(12, y + 22, "Solid: served from cache. Pale: uncached input. Codex floors include ~1.3k tokens of user AGENTS.md the CLI cannot switch off.", 11, fill=MUTED))
+    b.append(text(12, y + 22, f"Solid: served from cache. Pale: uncached input. Codex floors include ~{HOST_AGENTS_MD} tokens of user AGENTS.md the CLI cannot switch off.", 11, fill=MUTED))
     return svg(W, y + 40, b)
 
 
@@ -197,11 +198,66 @@ def agentic_chart(s):
     return svg(W, H, b)
 
 
+def bars(title, rows, fmt, note, W=760, L=190, R=110):
+    """Horizontal bars. rows: (label, value, colour, hollow). Labels sit left of the bars, values right of them."""
+    T, bh = 50, 20; H = T + len(rows) * (bh + 8) + 46
+    mx = max(r[1] for r in rows) * 1.02; X = lambda v: L + v / mx * (W - L - R)
+    b = [text(12, 24, title, 14, weight="600")]
+    for i, (lab, v, col, hollow) in enumerate(rows):
+        y = T + i * (bh + 8)
+        b += [f"<rect x='{L}' y='{y}' width='{max(1, X(v) - L):.1f}' height='{bh}' fill='{'white' if hollow else col}' stroke='{col}' stroke-width='{2 if hollow else 0}'/>",
+              text(L - 8, y + 14, lab, 11, "end", MUTED if hollow else INK), text(X(v) + 6, y + 14, fmt(v), 11, fill=MUTED)]
+    b.append(text(12, H - 14, note, 10, fill=MUTED))
+    return svg(W, H, b)
+
+
+def all_configs(s):
+    return [(c, v, False) for c, v in s["configs"].items()] + [(c, v, True) for c, v in (s.get("exploratory") or {}).items()]
+
+
+def cost_tokens_chart(s):
+    """Total $ for the 60 function-track calls, and $ per 1,000 tokens processed (input plus output), per config."""
+    rows = all_configs(s)
+    tot = [(c + (" *" if v["cost_kind"] == "proxy" else ""), v["usd_total"], COLOR.get(c, MUTED), x) for c, v, x in rows]
+    per = [(c + (" *" if v["cost_kind"] == "proxy" else ""), 1000 * v["usd_per_call"] / (v["tokens_mean"]["in_tok"] + v["tokens_mean"]["out_tok"]), COLOR.get(c, MUTED), x)
+           for c, v, x in rows]
+    a = bars("Total $ for the 60 function-track calls (L1–L6)", tot, lambda v: f"${v:.3f}", "Hollow: exploratory. * Codex $ is a proxy (tokens × list price); Claude $ is measured.")
+    b = bars("$ per 1,000 tokens processed (input + output, mean per call)", per, lambda v: f"${v:.5f}",
+             "Cached input is billed at a discount, so a config whose prompt is mostly cached looks cheap per token. * Codex $ is a proxy.")
+    return a, b
+
+
+TOKEN_IN = ["luna-low", "luna-low-bare", "haiku-low", "sonnet-medium"]
+
+
+def token_in_chart(s):
+    allc = {c: v for c, v, _ in all_configs(s)}
+    lab = {"luna-low": "luna-low, stock Codex", "luna-low-bare": "luna-low, stripped Codex", "haiku-low": "haiku-low, tools off", "sonnet-medium": "sonnet-medium, tools off"}
+    rows = [(lab[c], allc[c]["tokens_mean"]["in_tok"], COLOR.get(c, MUTED), c not in s["configs"]) for c in TOKEN_IN if c in allc]
+    return bars("Mean input tokens per call (function track, 60 calls each)", rows, lambda v: f"{v:,}",
+                f"Includes cached input. Codex counts include about {HOST_AGENTS_MD} tokens of the host's user-level AGENTS.md, which no flag turns off.", L=200, R=80)
+
+
+def check_design(s):
+    """Chart titles and notes state the design (12 problems x 5 attempts = 60 calls per config, 10 per rung, 5 per cell). Fail if the data differ."""
+    bad = [c for c, v, _ in all_configs(s) if v["n"] != 60 or any(r["n"] != 10 for r in v["by_rung"].values())]
+    if bad or len(s["problems"]) != 12:
+        raise SystemExit(f"chart text assumes 12 problems, 60 calls per config and 10 per rung; check {bad or 'the problem count'}")
+
+
+def build(s):
+    """{file name: SVG text or None} for every chart."""
+    check_design(s)
+    charts = {"pareto.svg": pareto_chart(s), "cost_time.svg": cost_time_chart(s), "pass_by_rung.svg": rung_chart(s), "heatmap.svg": heatmap(s),
+              "token_floor.svg": floor_chart(s), "agentic.svg": agentic_chart(s), "token_in.svg": token_in_chart(s)}
+    charts["cost_total.svg"], charts["cost_per_1k.svg"] = cost_tokens_chart(s)
+    return charts
+
+
 def main():
     s = json.load(open(os.path.join(ROOT, "results", "summary.json")))
     os.makedirs(OUT, exist_ok=True)
-    charts = {"pareto.svg": pareto_chart(s), "cost_time.svg": cost_time_chart(s), "pass_by_rung.svg": rung_chart(s), "heatmap.svg": heatmap(s),
-              "token_floor.svg": floor_chart(s), "agentic.svg": agentic_chart(s)}
+    charts = build(s)
     for name, body in charts.items():
         if body: open(os.path.join(OUT, name), "w").write(body)
     print("charts ->", os.path.relpath(OUT, ROOT), ", ".join(n for n, b in charts.items() if b))
