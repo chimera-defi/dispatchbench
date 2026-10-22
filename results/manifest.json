@@ -106,23 +106,24 @@
   4
  ],
  "first_call_utc": "2026-10-22T08:32:54+00:00",
- "last_call_utc": "2026-10-22T10:25:10+00:00",
+ "last_call_utc": "2026-10-22T14:52:07+00:00",
  "rows_by_phase": {
   "calibration": 30,
   "escalation": 15,
   "exploratory": 105,
+  "hard": 60,
   "main": 360,
   "warmup": 6
  },
  "agentic_runs": 48,
  "claude_budget_cap_usd": 8.0,
  "spend": {
-  "claude_measured_usd": 1.7619,
-  "claude_function_usd": 1.0571,
+  "claude_measured_usd": 2.0588,
+  "claude_function_usd": 1.354,
   "claude_agentic_usd": 0.7048,
-  "codex_proxy_usd": 2.1367,
+  "codex_proxy_usd": 2.4153,
   "calls": {
-   "function": 516,
+   "function": 576,
    "agentic": 48
   }
  },

@@ -415,6 +415,7 @@
   "calibration": 30,
   "escalation": 15,
   "exploratory": 105,
+  "hard": 60,
   "main": 360,
   "warmup": 6
  },
@@ -810,6 +811,656 @@
     }
    ],
    "usd_per_pass_uncached": 0.001198
+  }
+ },
+ "hard": {
+  "sol61-medium": {
+   "cli": "codex",
+   "model": "gpt-6.1-sol",
+   "effort": "medium",
+   "n": 15,
+   "passes": 15,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L7": {
+     "passed": 15,
+     "n": 15
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 15
+   },
+   "latency_s": {
+    "median": 35.22,
+    "p90": 48.53,
+    "max": 61.25
+   },
+   "tokens_mean": {
+    "in_tok": 15351,
+    "cached_tok": 12288,
+    "out_tok": 968,
+    "reasoning_tok": 482
+   },
+   "input_floor": [
+    15298,
+    12288
+   ],
+   "usd_per_call": 0.017032,
+   "usd_total": 0.2555,
+   "usd_per_pass": 0.017032,
+   "usd_per_pass_L1_L2": null,
+   "pass_L1_L2": [
+    0,
+    0
+   ],
+   "cost_kind": "proxy",
+   "by_problem": {
+    "p13_xor_ring": 5,
+    "p14_bounce_board": 5,
+    "p15_paint_erase": 5
+   }
+  },
+  "luna-high": {
+   "cli": "codex",
+   "model": "gpt-6-luna",
+   "effort": "high",
+   "n": 15,
+   "passes": 15,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L7": {
+     "passed": 15,
+     "n": 15
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 15
+   },
+   "latency_s": {
+    "median": 24.03,
+    "p90": 34.99,
+    "max": 38.0
+   },
+   "tokens_mean": {
+    "in_tok": 14660,
+    "cached_tok": 11520,
+    "out_tok": 2229,
+    "reasoning_tok": 1569
+   },
+   "input_floor": [
+    14606,
+    11520
+   ],
+   "usd_per_call": 0.001544,
+   "usd_total": 0.0232,
+   "usd_per_pass": 0.001544,
+   "usd_per_pass_L1_L2": null,
+   "pass_L1_L2": [
+    0,
+    0
+   ],
+   "cost_kind": "proxy",
+   "by_problem": {
+    "p13_xor_ring": 5,
+    "p14_bounce_board": 5,
+    "p15_paint_erase": 5
+   }
+  },
+  "sonnet-medium": {
+   "cli": "claude",
+   "model": "claude-sonnet-5-5",
+   "effort": "medium",
+   "n": 15,
+   "passes": 15,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L7": {
+     "passed": 15,
+     "n": 15
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 15
+   },
+   "latency_s": {
+    "median": 14.97,
+    "p90": 22.64,
+    "max": 23.67
+   },
+   "tokens_mean": {
+    "in_tok": 3667,
+    "cached_tok": 2809,
+    "out_tok": 1424,
+    "reasoning_tok": 806
+   },
+   "input_floor": [
+    3600,
+    3018
+   ],
+   "usd_per_call": 0.017952,
+   "usd_total": 0.2693,
+   "usd_per_pass": 0.017952,
+   "usd_per_pass_L1_L2": null,
+   "pass_L1_L2": [
+    0,
+    0
+   ],
+   "cost_kind": "measured",
+   "by_problem": {
+    "p13_xor_ring": 5,
+    "p14_bounce_board": 5,
+    "p15_paint_erase": 5
+   }
+  },
+  "haiku-low": {
+   "cli": "claude",
+   "model": "claude-haiku-5-5",
+   "effort": "low",
+   "n": 15,
+   "passes": 12,
+   "pass_at_1": 0.8,
+   "ci95": [
+    0.4,
+    1.0
+   ],
+   "by_rung": {
+    "L7": {
+     "passed": 12,
+     "n": 15
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 12,
+    "timeout": 3
+   },
+   "latency_s": {
+    "median": 16.5,
+    "p90": 20.4,
+    "max": 50.88
+   },
+   "tokens_mean": {
+    "in_tok": 4446,
+    "cached_tok": 3695,
+    "out_tok": 3309,
+    "reasoning_tok": 2506
+   },
+   "input_floor": [
+    4372,
+    3798
+   ],
+   "usd_per_call": 0.001841,
+   "usd_total": 0.0276,
+   "usd_per_pass": 0.002302,
+   "usd_per_pass_L1_L2": null,
+   "pass_L1_L2": [
+    0,
+    0
+   ],
+   "cost_kind": "measured",
+   "by_problem": {
+    "p13_xor_ring": 5,
+    "p14_bounce_board": 5,
+    "p15_paint_erase": 2
+   }
+  }
+ },
+ "failures": {
+  "p03_ledger": {
+   "rung": 2,
+   "cells": {
+    "haiku-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sonnet-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-medium": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "crash": 1
+     }
+    },
+    "sol61-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low-bare": {
+     "passed": 3,
+     "n": 5,
+     "fails": {
+      "crash": 1,
+      "wrong": 1
+     }
+    }
+   }
+  },
+  "p04_taller_within": {
+   "rung": 2,
+   "cells": {
+    "haiku-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sonnet-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low": {
+     "passed": 1,
+     "n": 5,
+     "fails": {
+      "timeout": 2,
+      "wrong": 2
+     }
+    },
+    "luna-medium": {
+     "passed": 1,
+     "n": 5,
+     "fails": {
+      "wrong": 3,
+      "timeout": 1
+     }
+    },
+    "sol61-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low-bare": {
+     "passed": 1,
+     "n": 5,
+     "fails": {
+      "wrong": 4
+     }
+    }
+   }
+  },
+  "p05_pass_route": {
+   "rung": 3,
+   "cells": {
+    "haiku-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-medium": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "wrong": 1
+     }
+    },
+    "sonnet-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-high": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "wrong": 1
+     }
+    },
+    "luna-low-bare": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    }
+   }
+  },
+  "p08_recur": {
+   "rung": 4,
+   "cells": {
+    "haiku-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sonnet-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "wrong": 1
+     }
+    },
+    "luna-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low-bare": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "timeout": 1
+     }
+    }
+   }
+  },
+  "p09_k_machine_schedule": {
+   "rung": 5,
+   "cells": {
+    "haiku-low": {
+     "passed": 3,
+     "n": 5,
+     "fails": {
+      "timeout": 2
+     }
+    },
+    "haiku-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sonnet-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low": {
+     "passed": 2,
+     "n": 5,
+     "fails": {
+      "wrong": 1,
+      "timeout": 2
+     }
+    },
+    "luna-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-high": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "crash": 1
+     }
+    },
+    "luna-low-bare": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    }
+   }
+  },
+  "p10_avoid_count": {
+   "rung": 5,
+   "cells": {
+    "haiku-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sonnet-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-high": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "crash": 1
+     }
+    },
+    "luna-low-bare": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "wrong": 1
+     }
+    }
+   }
+  },
+  "p11_best_average": {
+   "rung": 6,
+   "cells": {
+    "haiku-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sonnet-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "wrong": 1
+     }
+    },
+    "luna-medium": {
+     "passed": 2,
+     "n": 5,
+     "fails": {
+      "wrong": 3
+     }
+    },
+    "sol61-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low-bare": {
+     "passed": 2,
+     "n": 5,
+     "fails": {
+      "wrong": 2,
+      "crash": 1
+     }
+    }
+   }
+  },
+  "p12_sheet": {
+   "rung": 6,
+   "cells": {
+    "haiku-low": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "crash": 1
+     }
+    },
+    "haiku-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sonnet-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low": {
+     "passed": 0,
+     "n": 5,
+     "fails": {
+      "crash": 4,
+      "wrong": 1
+     }
+    },
+    "luna-medium": {
+     "passed": 0,
+     "n": 5,
+     "fails": {
+      "crash": 4,
+      "wrong": 1
+     }
+    },
+    "sol61-medium": {
+     "passed": 3,
+     "n": 5,
+     "fails": {
+      "crash": 2
+     }
+    },
+    "luna-high": {
+     "passed": 3,
+     "n": 5,
+     "fails": {
+      "crash": 2
+     }
+    },
+    "luna-low-bare": {
+     "passed": 0,
+     "n": 5,
+     "fails": {
+      "crash": 4,
+      "wrong": 1
+     }
+    }
+   }
+  },
+  "p15_paint_erase": {
+   "rung": 7,
+   "cells": {
+    "haiku-low": {
+     "passed": 2,
+     "n": 5,
+     "fails": {
+      "timeout": 3
+     }
+    },
+    "sonnet-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    }
+   }
   }
  },
  "pareto": [
@@ -1525,12 +2176,12 @@
   }
  },
  "spend": {
-  "claude_measured_usd": 1.7619,
-  "claude_function_usd": 1.0571,
+  "claude_measured_usd": 2.0588,
+  "claude_function_usd": 1.354,
   "claude_agentic_usd": 0.7048,
-  "codex_proxy_usd": 2.1367,
+  "codex_proxy_usd": 2.4153,
   "calls": {
-   "function": 516,
+   "function": 576,
    "agentic": 48
   }
  },

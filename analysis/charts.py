@@ -43,7 +43,7 @@ def pareto_chart(s):
     cfg = {c: v for c, v in s["configs"].items() if v["usd_per_pass"]}
     extra = {c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"]}  # drawn hollow, not on the frontier
     allc = {**cfg, **extra}
-    W, H, L, R, T, B = 760, 480, 80, 30, 50, 80
+    W, H, L, R, T, B = 760, 480, 96, 30, 50, 80
     xs = [v["usd_per_pass"] for v in allc.values()]
     x0, x1 = min(xs) / 1.6, max(xs) * 1.6; y0 = 0.6
     X = lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R)
@@ -54,7 +54,7 @@ def pareto_chart(s):
     for v in log_ticks(x0, x1):
         b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{H - B}' stroke='{GRID}'/>", text(X(v), H - B + 18, fmt_usd(v), 11, "middle", MUTED)]
     b += [text((L + W - R) / 2, H - B + 38, "$ per passing call", 12, "middle", MUTED),
-          text(20, (T + H - B) / 2, "pass@1 (12 problems × 5 attempts)", 12, "middle", MUTED, rotate=-90)]
+          text(26, (T + H - B) / 2, "pass@1 (12 problems × 5 attempts)", 12, "middle", MUTED, rotate=-90)]
     front = s["pareto"]
     if len(front) > 1:
         pts = " ".join(f"{X(cfg[c]['usd_per_pass']):.1f},{Y(cfg[c]['pass_at_1']):.1f}" for c in front)
@@ -71,6 +71,43 @@ def pareto_chart(s):
         label = f"{c} ({100 * v['pass_at_1']:.0f}%){' *' if v['cost_kind'] == 'proxy' else ''}{', exploratory' if hollow else ''}"
         b.append(text(x - 10 if right else x + 10, y + LABEL_DY.get(c, -8), label, 11, "end" if right else "start", MUTED if hollow else INK))
     b.append(text(L, H - 10, "Dashed: Pareto frontier of the pre-registered configs. Bars: 95% CI. Hollow: exploratory. * Codex $ is a proxy; Claude $ is measured.", 10, fill=MUTED))
+    return svg(W, H, b)
+
+
+MIN_PASS = 0.90
+PURPLE = "#7b4fc9"
+
+
+def cost_time_chart(s):
+    """$ per pass against median latency, function track L1-L6. The frontier is drawn over configs at or above MIN_PASS
+    pass@1: among those, the ones no other config beats on both cost and time."""
+    allc = {**{c: v for c, v in s["configs"].items() if v["usd_per_pass"]}, **{c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"]}}
+    pts = {c: (v["usd_per_pass"], v["latency_s"]["median"]) for c, v in allc.items()}
+    ok = {c: p for c, p in pts.items() if allc[c]["pass_at_1"] >= MIN_PASS}
+    front = [a for a, (x, y) in ok.items() if not any(x2 <= x and y2 <= y and (x2 < x or y2 < y) for b, (x2, y2) in ok.items() if b != a)]
+    front.sort(key=lambda c: pts[c][0])
+    W, H, L, R, T, B = 760, 440, 96, 30, 50, 80
+    xs = [p[0] for p in pts.values()]; x0, x1 = min(xs) / 1.6, max(xs) * 1.6
+    y1 = math.ceil(max(p[1] for p in pts.values()) / 5) * 5 + 5
+    X = lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R)
+    Y = lambda t: H - B - t / y1 * (H - T - B)
+    b = [text(L, 24, "Cost per passing solution vs median latency (function track, x log)", 14, weight="600")]
+    for t in range(0, int(y1) + 1, 5):
+        b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(t):.1f}' y2='{Y(t):.1f}' stroke='{GRID}'/>", text(L - 8, Y(t) + 4, f"{t} s", 11, "end", MUTED)]
+    for v in log_ticks(x0, x1):
+        b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{H - B}' stroke='{GRID}'/>", text(X(v), H - B + 18, fmt_usd(v), 11, "middle", MUTED)]
+    b += [text((L + W - R) / 2, H - B + 38, "$ per passing call", 12, "middle", MUTED),
+          text(26, (T + H - B) / 2, "median seconds per call", 12, "middle", MUTED, rotate=-90)]
+    if len(front) > 1:
+        b.append(f"<polyline points='{' '.join(f'{X(pts[c][0]):.1f},{Y(pts[c][1]):.1f}' for c in front)}' fill='none' stroke='{PURPLE}' stroke-width='2.5' stroke-dasharray='6 4'/>")
+    dy = {"luna-low": 16, "sonnet-medium": 16, "haiku-low": -12, "luna-medium": 4}; left = {"luna-high", "luna-low-bare"}
+    for c, (x, t) in pts.items():
+        hollow = c not in s["configs"]; px, py = X(x), Y(t)
+        b.append(f"<circle cx='{px:.1f}' cy='{py:.1f}' r='6' fill='{'white' if hollow else COLOR.get(c, MUTED)}' stroke='{PURPLE if c in front else COLOR.get(c, MUTED) if hollow else 'white'}' stroke-width='{3 if c in front else 2 if hollow else 1.5}'/>")
+        right = px > W - R - 170 or c in left
+        lab = f"{c} ({100 * allc[c]['pass_at_1']:.0f}%){' *' if allc[c]['cost_kind'] == 'proxy' else ''}"
+        b.append(text(px - 10 if right else px + 10, py + dy.get(c, -8), lab, 11, "end" if right else "start", MUTED if hollow else INK))
+    b.append(text(L, H - 10, f"Purple: among configs with pass@1 ≥ {100 * MIN_PASS:.0f}%, those no other beats on both cost and time. Label: pass@1. Hollow: exploratory. * Codex $ is a proxy.", 10, fill=MUTED))
     return svg(W, H, b)
 
 
@@ -163,7 +200,7 @@ def agentic_chart(s):
 def main():
     s = json.load(open(os.path.join(ROOT, "results", "summary.json")))
     os.makedirs(OUT, exist_ok=True)
-    charts = {"pareto.svg": pareto_chart(s), "pass_by_rung.svg": rung_chart(s), "heatmap.svg": heatmap(s),
+    charts = {"pareto.svg": pareto_chart(s), "cost_time.svg": cost_time_chart(s), "pass_by_rung.svg": rung_chart(s), "heatmap.svg": heatmap(s),
               "token_floor.svg": floor_chart(s), "agentic.svg": agentic_chart(s)}
     for name, body in charts.items():
         if body: open(os.path.join(OUT, name), "w").write(body)

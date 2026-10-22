@@ -124,6 +124,26 @@ def agentic_block(rows):
     return out
 
 
+def failures(rows):
+    """Problems x configs, for every problem at least one config failed at least once. Each cell: passes, attempts and
+    the outcome of each failed attempt (wrong answer, crash, timeout, no code)."""
+    order = BASE + sorted({r["config"] for r in rows} - set(BASE))
+    out = {}
+    for p in sorted({r["problem"] for r in rows}):
+        pr = [r for r in rows if r["problem"] == p]
+        if all(r["passed"] for r in pr): continue
+        cell = {}
+        for c in order:
+            cr = [r for r in pr if r["config"] == c]
+            if cr:
+                fails = defaultdict(int)
+                for r in cr:
+                    if not r["passed"]: fails[r["outcome"]] += 1
+                cell[c] = {"passed": sum(r["passed"] for r in cr), "n": len(cr), "fails": dict(fails)}
+        out[p] = {"rung": pr[0]["rung"], "cells": cell}
+    return out
+
+
 def pilot_reprice():
     """The pilot priced priority-tier Codex rows at 1.5x list; the published multiplier is 2x. Recompute both."""
     mult = json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]
@@ -207,6 +227,13 @@ def main():
         er = [r for r in rr if r["passed"]]
         blk["usd_per_pass_uncached"] = round(sum(map(cost_uncached, rr)) / len(er), 6) if er else None
         s["exploratory"][c] = blk
+    hr = [r for r in rows if r["phase"] == "hard"]
+    s["hard"] = {}
+    for c in sorted({r["config"] for r in hr}, key=lambda c: -sum(r["passed"] for r in hr if r["config"] == c)):
+        rr = [r for r in hr if r["config"] == c]; blk = config_block(rr)
+        blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}
+        s["hard"][c] = blk
+    s["failures"] = failures([r for r in rows if r["phase"] in ("main", "exploratory", "escalation", "hard")])
     cfg = s["configs"]
     s["pareto"] = pareto({c: (v["usd_per_pass"], v["pass_at_1"]) for c, v in cfg.items() if v["usd_per_pass"]})
     s["agentic"] = agentic_block(agent) if agent else {}
@@ -313,6 +340,31 @@ def tables(s):
               "| a | b | diff | 95% CI |", "|---|---|---|---|"]
         for d in v["vs"]:
             L.append(f"| {c} | {d['b']} | {100 * d['diff']:+.1f} pts | {100 * d['ci95'][0]:+.1f} to {100 * d['ci95'][1]:+.1f} |")
+    if s.get("hard"):
+        probs = sorted({p for v in s["hard"].values() for p in v["by_problem"]})
+        L += ["", "## L7, added after the main run (3 problems × 5 attempts)", "",
+              "Not pre-registered (PLAN.md, deviation 16), so it is reported apart from L1–L6 and does not change any number above.", "",
+              "| config | pass@1 | 95% CI | " + " | ".join(probs) + " | outcomes | median s | p90 s | mean reasoning tokens | $/call | $/pass | $ kind |",
+              "|---|---|---|" + "---|" * len(probs) + "---|---|---|---|---|---|---|"]
+        for c, v in s["hard"].items():
+            oc = ", ".join(f"{k} {n}" for k, n in sorted(v["outcomes"].items()))
+            L.append(f"| {c} | {pct(v['pass_at_1'])} ({v['passes']}/{v['n']}) | {ci_text(v['passes'], v['n'], v['ci95'], len(probs))} | "
+                     + " | ".join(f"{v['by_problem'].get(p, 0)}/5" for p in probs)
+                     + f" | {oc} | {v['latency_s']['median']} | {v['latency_s']['p90']} | {v['tokens_mean']['reasoning_tok']} | {v['usd_per_call']:.5f} | "
+                     + (f"{v['usd_per_pass']:.5f}" if v["usd_per_pass"] else "no pass") + f" | {v['cost_kind']} |")
+    if s.get("failures"):
+        cfgs = list(dict.fromkeys(c for f in s["failures"].values() for c in f["cells"]))
+        L += ["", "## Where they fail", "",
+              "Every problem on which at least one config failed at least once, over all phases (main, escalation, exploratory, L7). "
+              "Cells show passes/attempts and, for the failures, the outcome: w = wrong answer, c = crash, t = timeout, n = no code. A dash means not run.", "",
+              "| problem | rung | " + " | ".join(cfgs) + " |", "|---|---|" + "---|" * len(cfgs)]
+        ab = {"wrong": "w", "crash": "c", "timeout": "t", "no_code": "n"}
+        def cell(x):
+            if not x: return "–"
+            f = " ".join(f"{n}{ab.get(k, k)}" for k, n in sorted(x["fails"].items()))
+            return f"{x['passed']}/{x['n']}" + (f" ({f})" if f else "")
+        for p, f in s["failures"].items():
+            L.append(f"| {p} | L{f['rung']} | " + " | ".join(cell(f["cells"].get(c)) for c in cfgs) + " |")
     if s["agentic"]:
         L += ["", "## Agentic track (hidden tests)", "", "| config | hidden pass | 95% CI | visible suite, incl. agent's own tests | median s | input floor | $/run | $ kind |", "|---|---|---|---|---|---|---|---|"]
         for c, v in s["agentic"].items():

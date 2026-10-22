@@ -99,6 +99,33 @@ By rung: L1 10/10, L2 4/10, L3 10/10, L4 9/10, L5 9/10, L6 2/10
 | luna-low-bare | haiku-low | -21.7 pts | -43.3 to +0.0 |
 | luna-low-bare | luna-medium | -5.0 pts | -16.7 to +5.0 |
 
+## L7, added after the main run (3 problems × 5 attempts)
+
+Not pre-registered (PLAN.md, deviation 16), so it is reported apart from L1–L6 and does not change any number above.
+
+| config | pass@1 | 95% CI | p13_xor_ring | p14_bounce_board | p15_paint_erase | outcomes | median s | p90 s | mean reasoning tokens | $/call | $/pass | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| sol61-medium | 100% (15/15) | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | pass 15 | 35.22 | 48.53 | 482 | 0.01703 | 0.01703 | proxy |
+| luna-high | 100% (15/15) | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | pass 15 | 24.03 | 34.99 | 1569 | 0.00154 | 0.00154 | proxy |
+| sonnet-medium | 100% (15/15) | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | pass 15 | 14.97 | 22.64 | 806 | 0.01795 | 0.01795 | measured |
+| haiku-low | 80% (12/15) | 40%–100% | 5/5 | 5/5 | 2/5 | pass 12, timeout 3 | 16.5 | 20.4 | 2506 | 0.00184 | 0.00230 | measured |
+
+## Where they fail
+
+Every problem on which at least one config failed at least once, over all phases (main, escalation, exploratory, L7). Cells show passes/attempts and, for the failures, the outcome: w = wrong answer, c = crash, t = timeout, n = no code. A dash means not run.
+
+| problem | rung | haiku-low | haiku-medium | sonnet-medium | luna-low | luna-medium | sol61-medium | luna-high | luna-low-bare |
+|---|---|---|---|---|---|---|---|---|---|
+| p03_ledger | L2 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 5/5 | 5/5 | 3/5 (1c 1w) |
+| p04_taller_within | L2 | 5/5 | 5/5 | 5/5 | 1/5 (2t 2w) | 1/5 (1t 3w) | 5/5 | 5/5 | 1/5 (4w) |
+| p05_pass_route | L3 | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 5/5 |
+| p08_recur | L4 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 4/5 (1t) |
+| p09_k_machine_schedule | L5 | 3/5 (2t) | 5/5 | 5/5 | 2/5 (2t 1w) | 5/5 | 5/5 | 4/5 (1c) | 5/5 |
+| p10_avoid_count | L5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 4/5 (1w) |
+| p11_best_average | L6 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 2/5 (3w) | 5/5 | 5/5 | 2/5 (1c 2w) |
+| p12_sheet | L6 | 4/5 (1c) | 5/5 | 5/5 | 0/5 (4c 1w) | 0/5 (4c 1w) | 3/5 (2c) | 3/5 (2c) | 0/5 (4c 1w) |
+| p15_paint_erase | L7 | 2/5 (3t) | – | 5/5 | – | – | 5/5 | 5/5 | – |
+
 ## Agentic track (hidden tests)
 
 | config | hidden pass | 95% CI | visible suite, incl. agent's own tests | median s | input floor | $/run | $ kind |
@@ -175,6 +202,6 @@ The pilot's Codex ladder records only the levels that were actually tested. Ever
 
 ## Spend
 
-- Claude, measured: $1.76 (function $1.06, agentic $0.70).
-- Codex, proxy at list price: $2.14.
+- Claude, measured: $2.06 (function $1.35, agentic $0.70).
+- Codex, proxy at list price: $2.42.
 - Pilot repricing: 83 priority-tier Codex rows cost $3.5190 at the pilot's 1.5× and $4.6920 at the published 2×.
