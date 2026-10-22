@@ -76,7 +76,7 @@ def config_block(rows):
         "cli": rows[0]["cli"], "model": rows[0]["model"], "effort": rows[0]["effort"], "n": len(rows), "passes": passes,
         "pass_at_1": round(pt, 4), "ci95": [round(lo, 4), round(hi, 4)], "by_rung": by_rung, "breaking_point": broke,
         "outcomes": dict(outcomes),
-        "latency_s": {"median": round(statistics.median(walls), 2), "p90": round(p90(walls), 2), "max": round(max(walls), 2)},
+        "latency_s": {"median": round(statistics.median(walls), 2), "p25": round(statistics.quantiles(walls, n=4)[0], 2), "p75": round(statistics.quantiles(walls, n=4)[2], 2), "p90": round(p90(walls), 2), "max": round(max(walls), 2)},
         "tokens_mean": {k: round(statistics.mean(r[k] or 0 for r in rows)) for k in ("in_tok", "cached_tok", "out_tok", "reasoning_tok")},
         "input_floor": min((r["in_tok"], r["cached_tok"]) for r in rows),
         "usd_per_call": round(statistics.mean(dollars), 6), "usd_total": round(sum(dollars), 4),

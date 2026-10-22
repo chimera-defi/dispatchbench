@@ -1,24 +1,24 @@
-"""Render README.md and results/report/page.html from one template, docs/report.tmpl.md. No model calls, standard library only.
+"""Render README.md from docs/report.tmpl.md and results/report/page.html from docs/page.tmpl.md. No model calls,
+standard library only.
 
-Every number in the prose is a {{fact}} computed here from results/; the template itself holds no measured number (make
-audit checks that). The page is the same text turned into HTML, with the charts inlined, sortable tables and the
-interactive explorer.
+Every number in the prose is a {{fact}} computed here from results/; the templates hold no measured number (make
+audit checks that). The page template is HTML; its charts, grid and short table come from analysis/page.py.
 
 Template syntax:
   {{name}}               a fact (string) from facts()
   {{table:name}}         a markdown table from tables_md(); on the page it becomes a sortable table
   {{chart:file|caption}} README (the caption may hold facts): an image link to results/report/charts/<file>; page: the SVG inline, with the caption
-  {{explorer}}           page only: the interactive config explorer
+  {{w_name}}             page only: a widget from analysis/page.py (scatters, grid, token bars, short table)
   lines starting "@readme " or "@page " appear only in that output
 """
 import html, json, os, re, statistics
 
-from analysis import luna_rescue
+from analysis import luna_rescue, page as pagew
 from analysis.charts import COLOR, HOST_AGENTS_MD, MIN_PASS
 from analysis.summarize import ROOT, RES, FUNC, AGENT, ci_text, cost, cost_uncached, load, pct
 
 TEMPLATE = os.path.join(ROOT, "docs", "report.tmpl.md")
-PAGE_TEMPLATE = os.path.join(ROOT, "docs", "page.tmpl.md")  # visual-first page; pulls README sections into <details>
+PAGE_TEMPLATE = os.path.join(ROOT, "docs", "page.tmpl.md")  # the page: HTML with facts and widgets
 README = os.path.join(ROOT, "README.md")
 PAGE = os.path.join(RES, "report", "page.html")
 CHARTS = os.path.join(RES, "report", "charts")
@@ -288,12 +288,11 @@ PLACE = re.compile(r"\{\{([^{}]+)\}\}")
 def fill(text, F, T, mode):
     def sub(m):
         k = m.group(1)
-        if k.startswith("table:"): return T[k[6:]]
+        if k.startswith("table:"): return T[k[6:]] if mode == "readme" else to_html(T[k[6:]])
         if k.startswith("chart:"):
             f, cap = k[6:].split("|", 1)
             if mode == "readme": return f"![{cap}](results/report/charts/{f})"
             return f"<figure>{open(os.path.join(CHARTS, f)).read().strip()}<figcaption>{html.escape(cap)}</figcaption></figure>"
-        if k == "explorer": return explorer(json.load(open(os.path.join(RES, "summary.json"))))
         return F[k]
     lines = []
     for line in text.split("\n"):
@@ -304,15 +303,8 @@ def fill(text, F, T, mode):
             if mode != "page": continue
             line = line[6:]
         lines.append(line)
-    plain = lambda m: m.group(0) if m.group(1).split(":")[0] in ("table", "chart", "explorer") else F[m.group(1)]
+    plain = lambda m: m.group(0) if m.group(1).split(":")[0] in ("table", "chart") else F[m.group(1)]
     return PLACE.sub(sub, PLACE.sub(plain, "\n".join(lines)))  # facts first, so chart captions can hold them
-
-
-def explorer(s):
-    data = [{"c": c, "exp": e, "col": COLOR.get(c, "#6e7781"), "kind": v["cost_kind"], "pass": v["pass_at_1"], "usd": v["usd_per_pass"],
-             "med": v["latency_s"]["median"], "inp": v["tokens_mean"]["in_tok"], "rsn": v["tokens_mean"]["reasoning_tok"]}
-            for c, v, e in [(c, v, False) for c, v in s["configs"].items()] + [(c, v, True) for c, v in s["exploratory"].items()]]
-    return open(os.path.join(PAGE_DIR, "explorer.html")).read().replace("__DATA__", json.dumps(data, separators=(",", ":")))
 
 
 def inline(t):
@@ -337,7 +329,7 @@ def to_html(md):
     while i < len(L):
         line = L[i]
         if not line.strip(): i += 1; continue
-        if line.startswith("<"):  # raw HTML block (figures, explorer, page-only markup) runs to the next blank line
+        if line.startswith("<"):  # raw HTML block (figures, page-only markup) runs to the next blank line
             j = i
             while j < len(L) and L[j].strip(): j += 1
             out.append("\n".join(L[i:j])); i = j; continue
@@ -374,25 +366,13 @@ def to_html(md):
     return "\n".join(out)
 
 
-def sections(page, tmpl):
-    """Replace each {{section:Heading}} in the page template with that README section's body (heading line dropped),
-    leaving out charts the page already shows above."""
-    shown = set(re.findall(r"\{\{chart:([^|}]+)\|", page))
-    lines = tmpl.split("\n")
-    def body(m):
-        head = "## " + m.group(1); i = lines.index(head) + 1; j = i
-        while j < len(lines) and not re.match(r"(@readme )?## ", lines[j]): j += 1
-        keep = [l for l in lines[i:j] if not any(l.startswith("{{chart:" + f + "|") for f in shown)]
-        return "\n".join(keep).strip()
-    return re.sub(r"\{\{section:([^{}]+)\}\}", body, page)
-
-
 def render():
     """(README text, page HTML), both computed from results/ and the template."""
     s = json.load(open(os.path.join(RES, "summary.json")))
     F = facts(s); T = tables_md(s); tmpl = open(TEMPLATE).read()
     readme = fill(tmpl, F, T, "readme").strip() + "\n"
-    body = to_html(fill(sections(open(PAGE_TEMPLATE).read(), tmpl), F, T, "page"))
+    W = pagew.widgets(s, need)
+    body = fill(open(PAGE_TEMPLATE).read(), Facts({**F, **{"w_" + k: v for k, v in W.items()}}), T, "page")
     shell = open(os.path.join(PAGE_DIR, "shell.html")).read()
     page = shell.replace("__CSS__", open(os.path.join(PAGE_DIR, "style.css")).read().strip()).replace("__BODY__", body).replace("__JS__", open(os.path.join(PAGE_DIR, "sort.js")).read().strip())
     return readme, page

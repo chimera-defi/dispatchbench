@@ -1,124 +1,94 @@
-<p class="meta">Run 2026-10-22b · {{claude_usd}} Claude · {{codex_usd}} Codex (proxy) · <code>make audit</code> checked</p>
-
-# Which model should a coding task go to?
-
-<p class="lede">{{n_configs}} configs, {{n_problems}} post-cutoff Python problems, {{n_tasks}} repo tasks.</p>
-
-<nav class="toc"><a href="#pass-rate-vs-cost">Scatter</a><a href="#where-each-model-fails">Failures</a><a href="#results">Results</a><a href="#tokens-per-call">Tokens</a><a href="#cost-vs-latency">Latency</a><a href="#code-quality">Quality</a><a href="#what-to-do">What to do</a><a href="#details">Details</a></nav>
-
-<div class="winner"><span class="eyebrow">🏆 Routing rule</span>
-<b>Default to haiku-low. Cheapest near-equal: luna-high, with a Haiku repair pass on hard problems. When a miss is not an option: sonnet-medium.</b>
-<ul><li>haiku-low passes {{haiku_low_pass}} at {{haiku_low_upp}} per pass; luna-high {{luna_high_pass}} at {{luna_high_upp}}.</li>
-<li>A haiku-low repair pass took luna-low from {{r_e_luna}} to {{r_luna_low_haiku_low_repair_k}} on its hardest problems.</li>
-<li>sonnet-medium never failed ({{sm_all}}), at {{sm_vs_hl_x}} haiku-low's price per pass.</li></ul></div>
-
-## 📊 Pass rate vs cost
-
-{{explorer}}
-
-- luna at low and medium effort is cheap but passes only {{luna_low_pass}} and {{luna_medium_pass}}.
-
-## 🟥 Where each model fails
-
-{{chart:heatmap.svg|Passes out of {{repeats}}.}}
-
-{{chart:pass_by_rung.svg|Pass rate by rung.}}
-
-- p12 breaks most configs by crashing: parse errors and recursion limits.
-- luna low/medium fail p04 on the statement's own first example.
-- haiku-low is never wrong, only slow: {{hl_timeouts}} timeouts.
-
-## 📋 Results
-
+<header class="head">
+<span class="eyebrow">Run 2026-10-22b · {{n_problems}} problems × {{repeats}} attempts = {{n_calls}} calls per config · {{claude_usd}} Claude, {{codex_usd}} Codex (proxy)</span>
+<h1>Which model should a coding task go to?</h1>
+</header>
+<section class="verdict">
+<span class="eyebrow">🏆 WINNER</span>
+<b>Build with luna-high, let haiku-low repair a failed check, and use sonnet-medium when no miss is acceptable.</b>
+<ul class="tight">
+<li>Cheapest safe single model: haiku-low, {{haiku_low_pass}} at {{haiku_low_upp}} per pass. luna-high: {{luna_high_pass}} at {{luna_high_upp}}.</li>
+<li>A Haiku repair took luna-low from {{r_e_luna}} to {{r_luna_low_haiku_low_repair_k}} on its hardest problems. sonnet-medium passed {{sm_all}}.</li>
+</ul>
+</section>
+<section>
+<h2>📊 Pass rate vs $ per pass</h2>
+<div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="dot hollow" style="color:var(--codex)"></span>exploratory</span><span><span class="ring"></span>Pareto frontier</span></div>
+<div class="chart">{{w_pass_cost}}</div>
+<ul class="tight small">
+<li>Purple line: nothing beats these on both price and pass rate. Bars: 95% CI.</li>
+<li>luna low and medium are cheapest but pass only {{luna_low_pass}} and {{luna_medium_pass}}.</li>
+</ul>
+<div class="chart"><h3>⏱️ Speed vs $ per pass</h3><p class="sub">Frontier among configs passing at least {{min_pass}}.</p>{{w_speed_cost}}</div>
+<ul class="tight small">
+<li>haiku-low and luna-high: nothing as accurate is faster and cheaper.</li>
+</ul>
+</section>
+<section>
+<h2>🟥 Where they fail</h2>
+{{w_grid}}
+<ul class="tight small">
+<li>p12 crashes most configs; p04 sinks luna low and medium.</li>
+<li>haiku-low never answers wrong: {{hl_timeouts}} timeouts and {{hl_crashes}} crash in {{hl_attempts}} tries.</li>
+</ul>
+</section>
+<section>
+<h2>📋 Results</h2>
+{{w_short_table}}
+<ul class="tight small">
+<li>Click a header to sort. ~ marks the Codex token-price proxy.</li>
+</ul>
+<details><summary>Full table with intervals</summary>
 {{table:result}}
-
-- Click a header to sort. Codex $ is a token-price proxy.
-
-## 🧱 Tokens per call
-
-{{chart:token_in.svg|Mean input tokens per call.}}
-
-- Stripping the Codex harness cuts luna's input {{in_cut}}; accuracy moves {{lb_vs_ll}} pts (CI {{lb_vs_ll_ci}}).
-
-## ⏱️ Cost vs latency
-
-{{chart:cost_time.svg|Purple: Pareto frontier.}}
-
-- haiku-low and luna-high share the cheap, fast corner.
-
-## 🧪 Code quality
-
+</details>
+</section>
+<section>
+<h2>🧱 Token floor: input tokens per call</h2>
+<div class="chart">{{w_floor}}</div>
+<ul class="tight small">
+<li>Stripping the Codex harness cuts luna's input {{in_cut}}; still above Claude's {{haiku_low_in}}.</li>
+</ul>
+</section>
+<section>
+<h2>💡 What to do</h2>
+<ol class="recs">
+<li>Build: luna at high effort.</li>
+<li>Failed check: haiku-low repairs, <code>claude -p --tools ""</code>.</li>
+<li>No miss acceptable, or the hardest problems: sonnet-medium.</li>
+<li>Never luna at low or medium effort.</li>
+</ol>
+</section>
+<section class="notes">
+<details><summary>❓ How it was run</summary>
+<ul class="tight">
+<li>{{n_problems}} post-cutoff Python problems on {{n_rungs}} difficulty rungs, {{repeats}} attempts each, tools off.</li>
+<li>Hidden tests against a reference that a brute force cross-checks; planted wrong answers must fail.</li>
+<li>Claude $ is measured by the CLI; Codex $ is tokens × list price.</li>
+<li>Intervals: hierarchical bootstrap over problems, {{n_boot}} resamples.</li>
+<li>Repo tasks: {{n_tasks}} tasks × {{agent_repeats}} attempts, hidden tests; all {{ag_runs}} runs passed.</li>
+</ul>
+</details>
+<details><summary>⚠️ Caveats</summary>
+<ul class="tight">
+<li>Small sample: read the intervals before the point estimates.</li>
+<li>luna-high was added after the main run (exploratory).</li>
+<li>Codex cost swings up to {{cache_swing}} with prompt-cache hits.</li>
+<li>Latency is CLI wall clock, up to {{lanes}} calls in flight on one host.</li>
+<li>One run in time; hosted models change.</li>
+</ul>
+</details>
+<details><summary>🧪 Code quality</summary>
 {{table:quality}}
-
-- All {{n_solutions}} passing solutions are in [results/solutions/](https://github.com/chimera-defi/model-routing-bench/tree/main/results/solutions).
-
-## 🛠️ Repo tasks
-
-{{chart:agentic.svg|Pass rate vs $ per run.}}
-
-- Every config passed every hidden test; cost per run spans {{ag_spread}}.
-
-## 💡 What to do
-
-1. Default: haiku-low with `claude -p --tools ""`.
-2. Cheaper: luna at high effort, never low or medium; let Haiku repair hard cases.
-3. Must not fail, or L7-hard: sonnet-medium.
-4. On Codex, strip the harness first: input drops {{in_cut}}.
-
-## 📎 Details
-
-<details><summary>Findings in full</summary>
-
-{{section:Can luna run on fewer tokens?}}
-
-{{section:What it found}}
-
+<ul class="tight">
+<li>Passing solutions only; all {{n_solutions}} are in the repo under results/solutions.</li>
+<li>On {{q_worst_problem}}, {{q_slow_n}} solutions run {{q_slow_lo}} to {{q_worst_x}} slower than the reference.</li>
+</ul>
 </details>
-
-<details><summary>Every failure, by problem</summary>
-
-{{section:Where they fail}}
-
+<details><summary>📎 Appendix</summary>
+<ul class="tight">
+<li>Harder L7 rung: haiku-low {{l7_haiku_low_upp}} per pass, sonnet-medium {{l7_sonnet_medium_upp}}.</li>
+<li>Escalation: luna-high passed {{esc_k}} where {{esc_vs}} passed {{esc_base}}.</li>
+<li>Haiku repair of luna-low: {{r_luna_low_haiku_low_repair_k}} at {{r_luna_low_haiku_low_repair_upp}} per pass.</li>
+<li>Pilot ({{pilot_problems}} easy problems): every config passed, so it ranked nothing.</li>
+</ul>
 </details>
-
-<details><summary>Harder rung (L7)</summary>
-
-{{section:Harder rung (L7), added after the main run}}
-
-</details>
-
-<details><summary>Code quality and repo-task notes</summary>
-
-{{section:Code quality}}
-
-</details>
-
-<details><summary>Method</summary>
-
-{{section:Method}}
-
-</details>
-
-<details><summary>Limitations</summary>
-
-{{section:Limitations}}
-
-</details>
-
-<details><summary>Appendix A: can refinements rescue luna-low?</summary>
-
-{{section:Appendix A: can refinements rescue luna-low? (exploratory, post hoc)}}
-
-</details>
-
-<details><summary>Appendix B: the pilot</summary>
-
-{{section:Appendix B: the pilot (superseded)}}
-
-</details>
-
-<details><summary>What we borrowed from other benchmarks</summary>
-
-{{section:What we borrowed from other benchmarks}}
-
-</details>
+</section>
