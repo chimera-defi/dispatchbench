@@ -18,6 +18,7 @@ from analysis.charts import COLOR, HOST_AGENTS_MD, MIN_PASS
 from analysis.summarize import ROOT, RES, FUNC, AGENT, ci_text, cost, cost_uncached, load, pct
 
 TEMPLATE = os.path.join(ROOT, "docs", "report.tmpl.md")
+PAGE_TEMPLATE = os.path.join(ROOT, "docs", "page.tmpl.md")  # visual-first page; pulls README sections into <details>
 README = os.path.join(ROOT, "README.md")
 PAGE = os.path.join(RES, "report", "page.html")
 CHARTS = os.path.join(RES, "report", "charts")
@@ -373,12 +374,25 @@ def to_html(md):
     return "\n".join(out)
 
 
+def sections(page, tmpl):
+    """Replace each {{section:Heading}} in the page template with that README section's body (heading line dropped),
+    leaving out charts the page already shows above."""
+    shown = set(re.findall(r"\{\{chart:([^|}]+)\|", page))
+    lines = tmpl.split("\n")
+    def body(m):
+        head = "## " + m.group(1); i = lines.index(head) + 1; j = i
+        while j < len(lines) and not re.match(r"(@readme )?## ", lines[j]): j += 1
+        keep = [l for l in lines[i:j] if not any(l.startswith("{{chart:" + f + "|") for f in shown)]
+        return "\n".join(keep).strip()
+    return re.sub(r"\{\{section:([^{}]+)\}\}", body, page)
+
+
 def render():
     """(README text, page HTML), both computed from results/ and the template."""
     s = json.load(open(os.path.join(RES, "summary.json")))
     F = facts(s); T = tables_md(s); tmpl = open(TEMPLATE).read()
     readme = fill(tmpl, F, T, "readme").strip() + "\n"
-    body = to_html(fill(tmpl, F, T, "page"))
+    body = to_html(fill(sections(open(PAGE_TEMPLATE).read(), tmpl), F, T, "page"))
     shell = open(os.path.join(PAGE_DIR, "shell.html")).read()
     page = shell.replace("__CSS__", open(os.path.join(PAGE_DIR, "style.css")).read().strip()).replace("__BODY__", body).replace("__JS__", open(os.path.join(PAGE_DIR, "sort.js")).read().strip())
     return readme, page
