@@ -1,0 +1,4 @@
+TASKS.md
+__pycache__/
+*.pyc
+cache/tmp/
