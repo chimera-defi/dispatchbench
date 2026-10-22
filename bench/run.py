@@ -1,6 +1,7 @@
 """Generate completions for the function track. Every call is cached; a cached key never calls a model again.
 
 python3 -m bench.run --phase main --configs haiku-low,luna-low --problems all --repeats 1-5 --lanes 4
+python3 -m bench.run --phase hard --configs sonnet-medium,sol61-medium,haiku-low,luna-high --problems hard --repeats 1-5 --lanes 4
 
 Cache entry: cache/calls/<sha256>.json with the completion text, token usage, wall time and CLI metadata.
 Grading is a separate step (bench.grade_all), so lanes never compete with timed test runs."""
@@ -171,7 +172,7 @@ def main():
     ap.add_argument("--phase", required=True); ap.add_argument("--configs", required=True)
     ap.add_argument("--problems", default="all"); ap.add_argument("--repeats", default="1-5"); ap.add_argument("--lanes", type=int, default=4)
     a = ap.parse_args()
-    cfgs = a.configs.split(","); pids = problems.IDS if a.problems == "all" else a.problems.split(","); reps = parse_reps(a.repeats)
+    cfgs = a.configs.split(","); pids = {"all": problems.MAIN, "hard": problems.HARD}.get(a.problems) or a.problems.split(","); reps = parse_reps(a.repeats)
     assert a.lanes <= 4, "at most 4 lanes (timing hygiene)"
     for c in cfgs: assert c in CONFIGS, c
 
