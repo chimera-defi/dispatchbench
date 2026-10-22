@@ -4,8 +4,9 @@ from xml.sax.saxutils import escape
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "results", "report", "charts")
-FONT = "font-family='-apple-system, Segoe UI, Helvetica, Arial, sans-serif'"
-INK, MUTED, GRID = "#1f2328", "#59636e", "#e3e6ea"
+FONT = "font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, sans-serif'"
+# Field Lab v3 plate: the charts keep one light palette in both page themes and sit on a framed plate there.
+INK, MUTED, GRID, PLATE = "#0c1a16", "#40524b", "#c3d0c9", "#f6f9f7"
 HOST_AGENTS_MD = "1.3k"  # tokens of the host's ~/.codex/AGENTS.md, measured once by hand (bytes / 4); not in the result rows
 # One hue per CLI; darker = more effort.
 COLOR = {"haiku-low": "#f2a46b", "haiku-medium": "#d9692a", "haiku-high": "#a8471a", "sonnet-medium": "#8a3b12", "sonnet-high": "#5e260a",
@@ -19,7 +20,7 @@ LABEL_LEFT = {"haiku-low"}  # left of the point, clear of luna-high
 
 def svg(w, h, body):
     return (f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {w} {h}' width='{w}' height='{h}' {FONT} font-size='12'>"
-            f"<rect width='{w}' height='{h}' fill='white'/>{''.join(body)}</svg>\n")
+            f"<rect width='{w}' height='{h}' fill='{PLATE}'/>{''.join(body)}</svg>\n")
 
 
 def text(x, y, s, size=12, anchor="start", fill=INK, weight="normal", rotate=None):
@@ -65,9 +66,9 @@ def pareto_chart(s):
         lo, hi = v["ci95"]
         b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(max(lo, y0)):.1f}' y2='{Y(hi):.1f}' stroke='{COLOR.get(c, MUTED)}' stroke-width='2' opacity='0.35'/>")
         if hollow:
-            b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='5.5' fill='white' stroke='{COLOR.get(c, COLOR['luna-low'])}' stroke-width='2'/>")
+            b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='5.5' fill='{PLATE}' stroke='{COLOR.get(c, COLOR['luna-low'])}' stroke-width='2'/>")
         else:
-            b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='{7 if on else 5.5}' fill='{COLOR.get(c, MUTED)}' stroke='{INK if on else 'white'}' stroke-width='1.5'/>")
+            b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='{7 if on else 5.5}' fill='{COLOR.get(c, MUTED)}' stroke='{INK if on else PLATE}' stroke-width='1.5'/>")
         right = x > W - R - 170 or c in LABEL_LEFT
         label = f"{c} ({100 * v['pass_at_1']:.0f}%){' *' if v['cost_kind'] == 'proxy' else ''}{', exploratory' if hollow else ''}"
         b.append(text(x - 10 if right else x + 10, y + LABEL_DY.get(c, -8), label, 11, "end" if right else "start", MUTED if hollow else INK))
@@ -104,7 +105,7 @@ def cost_time_chart(s):
     dy = {"luna-low": 16, "sonnet-medium": 16, "haiku-low": -12, "luna-medium": 4}; left = {"luna-high", "luna-low-bare"}
     for c, (x, t) in pts.items():
         hollow = c not in s["configs"]; px, py = X(x), Y(t)
-        b.append(f"<circle cx='{px:.1f}' cy='{py:.1f}' r='6' fill='{'white' if hollow else COLOR.get(c, MUTED)}' stroke='{PURPLE if c in front else COLOR.get(c, MUTED) if hollow else 'white'}' stroke-width='{3 if c in front else 2 if hollow else 1.5}'/>")
+        b.append(f"<circle cx='{px:.1f}' cy='{py:.1f}' r='6' fill='{PLATE if hollow else COLOR.get(c, MUTED)}' stroke='{PURPLE if c in front else COLOR.get(c, MUTED) if hollow else PLATE}' stroke-width='{3 if c in front else 2 if hollow else 1.5}'/>")
         right = px > W - R - 170 or c in left
         lab = f"{c} ({100 * allc[c]['pass_at_1']:.0f}%){' *' if allc[c]['cost_kind'] == 'proxy' else ''}"
         b.append(text(px - 10 if right else px + 10, py + dy.get(c, -8), lab, 11, "end" if right else "start", MUTED if hollow else INK))
@@ -205,7 +206,7 @@ def bars(title, rows, fmt, note, W=760, L=190, R=110):
     b = [text(12, 24, title, 14, weight="600")]
     for i, (lab, v, col, hollow) in enumerate(rows):
         y = T + i * (bh + 8)
-        b += [f"<rect x='{L}' y='{y}' width='{max(1, X(v) - L):.1f}' height='{bh}' fill='{'white' if hollow else col}' stroke='{col}' stroke-width='{2 if hollow else 0}'/>",
+        b += [f"<rect x='{L}' y='{y}' width='{max(1, X(v) - L):.1f}' height='{bh}' fill='{PLATE if hollow else col}' stroke='{col}' stroke-width='{2 if hollow else 0}'/>",
               text(L - 8, y + 14, lab, 11, "end", MUTED if hollow else INK), text(X(v) + 6, y + 14, fmt(v), 11, fill=MUTED)]
     b.append(text(12, H - 14, note, 10, fill=MUTED))
     return svg(W, H, b)

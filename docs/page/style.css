@@ -32,7 +32,7 @@ table.sortable th[aria-sort="descending"]::after{content:" ↓"}
 .tag{font:500 10px/14px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);color:var(--ink-2);padding:1px 6px;border-radius:999px;margin-left:6px}
 ol li,ul li{margin-bottom:10px}
 strong{color:var(--ink);font-weight:700}
-figure{margin:28px 0;background:var(--plate);border:1px solid var(--line);padding:12px}
+figure{margin:28px 6px 34px 0;background:var(--plate);border:1.5px solid var(--ink);box-shadow:6px 6px 0 var(--line);padding:12px}
 figure svg{display:block;width:100%;height:auto}
 figcaption{font:400 14px/20px var(--font-body);color:#40524b;padding:8px 2px 0;border-top:1px solid #c3d0c9;margin-top:8px}
 code{font:500 .86em var(--font-mono);background:var(--surface-2);padding:1px 4px}
