@@ -13,6 +13,8 @@ ARMS = [("luna-low", "luna-low baseline"),
         ("luna-medium-bare", "D: luna-medium, stripped harness"),
         ("luna-high-bare", "D: luna-high, stripped harness"),
         ("luna-low+haiku-low-repair", "E: luna-low answer, then haiku-low reviews and repairs it"),
+        ("haiku-low-plan+luna-low", "F: haiku-low writes a plan, luna-low builds from it"),
+        ("haiku-low-plan+luna-high-bare", "F: haiku-low writes a plan, luna-high (stripped harness) builds from it"),
         ("haiku-low", "haiku-low"),
         ("sonnet-medium", "sonnet-medium")]
 

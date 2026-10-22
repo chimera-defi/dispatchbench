@@ -39,7 +39,7 @@ table.sortable th[aria-sort="descending"]::after{content:" ↓"}
 .chart h3{font:700 15px var(--body);margin:0 0 2px}
 .chart .sub{font-size:13px;color:var(--muted);margin:0 0 8px}
 .chart svg{display:block;width:100%;max-width:640px;height:auto;margin:0 auto}
-svg text{font:13px var(--mono);fill:var(--fg)}
+svg text:not([font-size]){font:13px var(--mono);fill:var(--fg)}
 svg .axis{fill:var(--muted);font-size:12px}
 svg .lbl{font-size:13px;font-weight:600;paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round}
 svg .lbl.on{fill:var(--frontier)}
@@ -95,8 +95,7 @@ main{counter-reset:sec toc}
 .ctl select{font:inherit;max-width:100%;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:2px 4px}.ctl label{white-space:nowrap}
 .ctl i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
 #xfig{position:relative;margin:0}#xplot{width:100%;overflow:hidden}#xplot svg{width:100%;height:auto}
-#tip{position:absolute;background:#0c1a16;color:#e6efea;font:500 12px/18px var(--mono);padding:8px 10px;border-radius:4px;pointer-events:none;max-width:260px;z-index:2}
-#tip .tag{color:#9db1a8}
+#tip{position:absolute;background:var(--panel);color:var(--fg);border:1px solid var(--line);font:500 12px/18px var(--mono);padding:8px 10px;border-radius:4px;pointer-events:none;max-width:260px;z-index:2}
+#tip .tag{color:var(--muted)}
 .extras figure{margin:0 0 24px}.extras figure svg{width:100%;height:auto;border-radius:6px}
-.extras>figure>figcaption{display:none}.extras figure svg text{font-family:var(--body)}
-.extras svg text[text-anchor="start"][fill="#40524b"][font-size="10"],.extras svg text[text-anchor="start"][fill="#40524b"][font-size="11"]{font-size:8.5px}
+.extras>figure>figcaption{display:none}

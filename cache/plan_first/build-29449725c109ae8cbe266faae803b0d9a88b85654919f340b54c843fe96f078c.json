@@ -1,0 +1,14 @@
+{
+ "in_tok": 7030,
+ "cached_tok": 0,
+ "cache_write_tok": 0,
+ "out_tok": 1015,
+ "reasoning_tok": 421,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\nimport heapq\n\n\ndef k_machine_schedule(jobs: list[list[int]], k: int) -> int:\n    if not jobs:\n        return 0\n\n    times = sorted({time for start, end, _ in jobs for time in (start, end)})\n    index = {time: i for i, time in enumerate(times)}\n    n = len(times)\n    graph = [[] for _ in range(n)]\n\n    def add_edge(u: int, v: int, capacity: int, cost: int) -> None:\n        graph[u].append([v, capacity, cost, len(graph[v])])\n        graph[v].append([u, 0, -cost, len(graph[u]) - 1])\n\n    for i in range(n - 1):\n        add_edge(i, i + 1, k, 0)\n\n    for start, end, pay in jobs:\n        add_edge(index[start], index[end], 1, -pay)\n\n    # Initial shortest-path potentials; all original edges point forward.\n    inf = float(\"inf\")\n    potential = [inf] * n\n    potential[0] = 0\n    for u in range(n):\n        for v, capacity, cost, _ in graph[u]:\n            if capacity and v > u:\n                potential[v] = min(potential[v], potential[u] + cost)\n\n    total_cost = 0\n    source, sink = 0, n - 1\n\n    for _ in range(k):\n        dist = [inf] * n\n        parent_node = [-1] * n\n        parent_edge = [-1] * n\n        dist[source] = 0\n        heap = [(0, source)]\n\n        while heap:\n            d, u = heapq.heappop(heap)\n            if d != dist[u]:\n                continue\n            for edge_i, (v, capacity, cost, _) in enumerate(graph[u]):\n                if capacity <= 0:\n                    continue\n                reduced_cost = cost + potential[u] - potential[v]\n                candidate = d + reduced_cost\n                if candidate < dist[v]:\n                    dist[v] = candidate\n                    parent_node[v] = u\n                    parent_edge[v] = edge_i\n                    heapq.heappush(heap, (candidate, v))\n\n        for v in range(n):\n            if dist[v] < inf:\n                potential[v] += dist[v]\n\n        v = sink\n        path_cost = 0\n        while v != source:\n            u = parent_node[v]\n            edge_i = parent_edge[v]\n            edge = graph[u][edge_i]\n            path_cost += edge[2]\n            edge[1] -= 1\n            graph[v][edge[3]][1] += 1\n            v = u\n\n        total_cost += path_cost\n\n    return -total_cost\n```",
+ "wall_s": 10.879080528000031,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

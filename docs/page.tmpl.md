@@ -13,8 +13,12 @@
 </section>
 <section class="method" id="method">
 <h2><span class="num"></span>❓ How it was run</h2>
+<details><summary>📚 Problems by round (Easy/Medium/Hard)</summary>
 <ul class="tight small">
 {{w_problems}}
+</ul>
+</details>
+<ul class="tight small">
 <li>{{repeats}} attempts per problem per config, tools off. E/M/H: nearest LeetCode level, my estimate.</li>
 <li>Pass = all hidden tests pass: fixed cases, random cases vs a brute force, big cases for speed.</li>
 <li>Claude $ from the CLI; Codex $ = tokens × list price. Intervals: bootstrap, {{n_boot}} resamples.</li>
@@ -66,12 +70,12 @@
 </section>
 <section id="pipes">
 <h2><span class="num"></span>🔗 Pipelines: Haiku checks luna's work</h2>
-<div class="chart floor"><h3>Hard set: passes, $ per pass</h3><p class="sub">The {{rescue_n}} attempts luna-low failed most. Purple: luna-low builds, haiku-low reviews and repairs.</p>{{w_pipes}}</div>
+<div class="chart floor"><h3>Hard set: passes, $ per pass, median seconds</h3><p class="sub">The {{rescue_n}} attempts luna-low failed most. Purple: haiku-low plans before luna builds, or repairs after.</p>{{w_pipes}}</div>
 <ul class="tight small">
-<li>Only the pipeline and sonnet-medium passed every attempt; the pipeline cost under a quarter as much.</li>
-<li>Haiku was {{r_e_haiku_share}} of the pipeline's cost. haiku-low alone is cheaper but missed {{r_e_more}}.</li>
+<li>Only the repair pipeline and sonnet-medium passed every attempt; the repair pipeline cost under a quarter as much.</li>
+<li>Haiku was {{r_e_haiku_share}} of the repair pipeline's cost. haiku-low alone is cheaper but missed {{r_e_more}}.</li>
 <li>Repo tasks ({{n_tasks}} × {{agent_repeats}}, with tools): every config passed {{ag_k}}. $ per run: luna-low {{ag_luna_low_usd}}, haiku-low {{ag_haiku_low_usd}}, sonnet-medium {{ag_sonnet_medium_usd}}, sol61-medium {{ag_sol61_medium_usd}}.</li>
-<li>Not tested: Haiku plans first, then luna builds.</li>
+<li>A Haiku plan first lifted luna-low to {{r_haiku_low_plan_luna_low_k}} but left luna-high at {{r_haiku_low_plan_luna_high_bare_k}} (alone: {{r_luna_high_bare_k}}), at {{r_haiku_low_plan_luna_high_bare_upp}} vs {{r_luna_high_bare_upp}} per pass. Repair after beats plan first.</li>
 </ul>
 </section>
 <section class="verdict conclusion" id="conclusion">
@@ -88,7 +92,6 @@
 </section>
 <section class="extras" id="extras">
 <h2><span class="num"></span>🔍 More charts</h2>
-<p class="small muted">Extra views from earlier page versions, for digging in.</p>
 <div class="chart"><h3>🎛️ Explorer</h3>{{w_explorer}}</div>
 {{chart:heatmap.svg|Pass rate per problem and config}}
 {{chart:pass_by_rung.svg|Pass rate by difficulty rung}}

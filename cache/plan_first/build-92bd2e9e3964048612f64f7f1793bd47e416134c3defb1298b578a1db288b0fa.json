@@ -1,0 +1,14 @@
+{
+ "in_tok": 15632,
+ "cached_tok": 11520,
+ "cache_write_tok": 0,
+ "out_tok": 492,
+ "reasoning_tok": 0,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\nfrom collections import deque\n\n\ndef k_machine_schedule(jobs: list[list[int]], k: int) -> int:\n    if not jobs:\n        return 0\n\n    times = sorted({time for start, end, _ in jobs for time in (start, end)})\n    index = {time: i for i, time in enumerate(times)}\n    graph = [[] for _ in times]\n\n    def add_edge(u: int, v: int, capacity: int, cost: int) -> None:\n        graph[u].append([v, len(graph[v]), capacity, cost])\n        graph[v].append([u, len(graph[u]) - 1, 0, -cost])\n\n    for i in range(len(times) - 1):\n        add_edge(i, i + 1, k, 0)\n\n    for start, end, pay in jobs:\n        add_edge(index[start], index[end], 1, -pay)\n\n    total_cost = 0\n    source, sink = 0, len(times) - 1\n\n    for _ in range(k):\n        dist = [float(\"inf\")] * len(times)\n        parent_node = [-1] * len(times)\n        parent_edge = [-1] * len(times)\n        in_queue = [False] * len(times)\n        queue = deque([source])\n        dist[source] = 0\n        in_queue[source] = True\n\n        while queue:\n            u = queue.popleft()\n            in_queue[u] = False\n            for edge_index, edge in enumerate(graph[u]):\n                v, _, capacity, cost = edge\n                if capacity and dist[v] > dist[u] + cost:\n                    dist[v] = dist[u] + cost\n                    parent_node[v] = u\n                    parent_edge[v] = edge_index\n                    if not in_queue[v]:\n                        queue.append(v)\n                        in_queue[v] = True\n\n        if dist[sink] == float(\"inf\") or dist[sink] >= 0:\n            break\n\n        total_cost += dist[sink]\n        v = sink\n        while v != source:\n            u = parent_node[v]\n            edge = graph[u][parent_edge[v]]\n            edge[2] -= 1\n            graph[v][edge[1]][2] += 1\n            v = u\n\n    return -total_cost\n```",
+ "wall_s": 6.823631380999984,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

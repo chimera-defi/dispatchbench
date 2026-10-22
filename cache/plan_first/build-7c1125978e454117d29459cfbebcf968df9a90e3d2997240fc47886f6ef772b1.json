@@ -1,0 +1,14 @@
+{
+ "in_tok": 15276,
+ "cached_tok": 11520,
+ "cache_write_tok": 0,
+ "out_tok": 257,
+ "reasoning_tok": 0,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\nfrom math import gcd\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    p, q = sum(a), n\n\n    while True:\n        prefix = [0] * (n + 1)\n        for i, value in enumerate(a):\n            prefix[i + 1] = prefix[i] + q * value - p\n\n        min_prefix = prefix[0]\n        min_index = 0\n        best_sum = None\n        best_start = best_end = 0\n\n        for end in range(k, n + 1):\n            start_candidate = end - k\n            if prefix[start_candidate] < min_prefix:\n                min_prefix = prefix[start_candidate]\n                min_index = start_candidate\n\n            current_sum = prefix[end] - min_prefix\n            if best_sum is None or current_sum > best_sum:\n                best_sum = current_sum\n                best_start = min_index\n                best_end = end\n\n        if best_sum <= 0:\n            divisor = gcd(p, q)\n            return [p // divisor, q // divisor]\n\n        p = sum(a[best_start:best_end])\n        q = best_end - best_start\n```",
+ "wall_s": 4.483616898999969,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

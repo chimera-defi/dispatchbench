@@ -1,0 +1,15 @@
+{
+ "wall_s": 16.147850414000004,
+ "text": "## Plan: exact maximum average over subarrays of length \u2265 k\n\n**Approach: Dinkelbach iteration with integer arithmetic.** Avoid floats entirely. Two distinct averages with denominators at most 10^5 differ by at least 1/(10^5 \u00b7 10^5) = 10^-10, so a float binary search with a 10^-9 tolerance can return the wrong fraction. Exact integers avoid this.\n\n**Setup:** Keep the current candidate \u03bb = p/q as an integer pair, with q \u2265 1. Start with the average of the whole array: p = sum(a), q = n. This subarray has length n \u2265 k, so it is valid.\n\n**Each iteration (O(n)):**\n1. Define integer weights w_i = q\u00b7a_i \u2212 p. For any subarray, sum(w) = q\u00b7(subarray sum) \u2212 p\u00b7(length). So sum(w) > 0 exactly when that subarray's average exceeds p/q.\n2. Find the maximum-sum subarray of w with length \u2265 k. Use prefix sums P_0..P_n of w. For each end j from k to n, the best start is the minimum of P_i over i \u2264 j \u2212 k. Maintain that running minimum and its index as you sweep j. Record the best (start, end) pair.\n3. If the best sum is > 0, update \u03bb to the exact average of the best subarray: p = its sum of a, q = its length. Then repeat.\n4. If the best sum is \u2264 0, stop. The current \u03bb is the answer.\n\n**Termination:** \u03bb strictly increases on every update, and there are finitely many subarrays, so the loop ends. Dinkelbach converges superlinearly, so only a handful of iterations are expected in practice.\n\n**Output:** Reduce p/q by gcd(p, q). Zero gives gcd(0, q) = q, so [0, 1] comes out automatically.\n\n**Edge cases from the examples and constraints:**\n- `k = 1`: the answer is the maximum element, e.g. `[5, 1]` for `[5, 5]`. The general loop handles this.\n- `k = len(a)`: the only candidate is the whole array, so the answer is sum/n reduced. The loop returns this immediately.\n- All zeros, e.g. `[0, 0, 0]` with k = 2: returns `[0, 1]` via gcd reduction.\n- Values up to 10^9 and n up to 10^5 give sums up to 10^14, and weights and prefix sums up to about 10^19. Python's arbitrary-precision ints handle this with no overflow concern. Use Python ints, not floats.\n- Ties: any optimal subarray gives the same average, so the choice of argmax does not affect the output.\n\n**Complexity:**\n- Time: O(n) per iteration times the small number of Dinkelbach iterations, so roughly O(n) overall in practice for n = 10^5.\n- Space: O(1) beyond the input if prefix sums are computed on the fly with a running sum and running minimum. O(n) if stored.\n\n**Optional pruning:** An optimal subarray of length \u2265 2k can always be split into two halves of length \u2265 k, and one half has an average at least as large. So some optimal subarray has length in [k, 2k\u22121]. This is not needed for correctness, but it can cut work when k is small relative to n.",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 12315,
+ "in_tok": 4177,
+ "cached_tok": 649,
+ "cache_write_tok": 3526,
+ "out_tok": 2316,
+ "reasoning_tok": 1230,
+ "cost_usd": 0.00186989,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

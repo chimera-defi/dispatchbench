@@ -1,0 +1,14 @@
+{
+ "in_tok": 15259,
+ "cached_tok": 11520,
+ "cache_write_tok": 0,
+ "out_tok": 649,
+ "reasoning_tok": 0,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\ndef avoid_count(n: int, alphabet: str, banned: list[str]) -> int:\n    MOD = 1_000_000_007\n\n    # Trie nodes store transitions by character.\n    trie = [{}]\n    terminal = [False]\n\n    for word in banned:\n        node = 0\n        for ch in word:\n            if ch not in trie[node]:\n                trie[node][ch] = len(trie)\n                trie.append({})\n                terminal.append(False)\n            node = trie[node][ch]\n        terminal[node] = True\n\n    # Build failure links and complete transitions in BFS order.\n    from collections import deque\n\n    fail = [0] * len(trie)\n    queue = deque()\n\n    for ch in alphabet:\n        child = trie[0].get(ch)\n        if child is not None:\n            queue.append(child)\n\n    order = [0]\n    while queue:\n        node = queue.popleft()\n        order.append(node)\n\n        terminal[node] = terminal[node] or terminal[fail[node]]\n\n        for ch in alphabet:\n            child = trie[node].get(ch)\n            if child is not None:\n                fail[child] = trie[fail[node]].get(ch, 0)\n                queue.append(child)\n\n    # Complete transitions for every node.\n    go = [{} for _ in trie]\n    for ch in alphabet:\n        go[0][ch] = trie[0].get(ch, 0)\n\n    for node in order[1:]:\n        for ch in alphabet:\n            go[node][ch] = trie[node].get(ch, go[fail[node]][ch])\n\n    states = [node for node in range(len(trie)) if not terminal[node]]\n    index = {node: i for i, node in enumerate(states)}\n    size = len(states)\n\n    matrix = [[0] * size for _ in range(size)]\n    for node in states:\n        u = index[node]\n        for ch in alphabet:\n            dest = go[node][ch]\n            if not terminal[dest]:\n                matrix[u][index[dest]] += 1\n\n    def multiply(a, b):\n        c = [[0] * size for _ in range(size)]\n        for i in range(size):\n            for k in range(size):\n                if a[i][k]:\n                    aik = a[i][k]\n                    for j in range(size):\n                        if b[k][j]:\n                            c[i][j] = (c[i][j] + aik * b[k][j]) % MOD\n        return c\n\n    # Row vector initially concentrated at the root.\n    vector = [0] * size\n    vector[index[0]] = 1\n\n    power = matrix\n    while n:\n        if n & 1:\n            result = [0] * size\n            for i, value in enumerate(vector):\n                if value:\n                    for j in range(size):\n                        result[j] = (result[j] + value * power[i][j]) % MOD\n            vector = result\n        power = multiply(power, power)\n        n >>= 1\n\n    return sum(vector) % MOD\n```",
+ "wall_s": 6.837090562000014,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

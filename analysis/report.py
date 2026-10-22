@@ -14,7 +14,7 @@ Template syntax:
 import html, json, os, re, statistics
 
 from analysis import luna_rescue, page as pagew
-from analysis.charts import COLOR, HOST_AGENTS_MD, MIN_PASS
+from analysis.charts import HOST_AGENTS_MD, MIN_PASS
 from analysis.summarize import ROOT, RES, FUNC, AGENT, ci_text, cost, cost_uncached, load, pct
 
 TEMPLATE = os.path.join(ROOT, "docs", "report.tmpl.md")

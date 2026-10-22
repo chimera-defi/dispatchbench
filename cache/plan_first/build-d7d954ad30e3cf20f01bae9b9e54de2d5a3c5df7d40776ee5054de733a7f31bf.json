@@ -1,0 +1,14 @@
+{
+ "in_tok": 15572,
+ "cached_tok": 11520,
+ "cache_write_tok": 0,
+ "out_tok": 572,
+ "reasoning_tok": 0,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\ndef k_machine_schedule(jobs: list[list[int]], k: int) -> int:\n    if not jobs:\n        return 0\n\n    times = sorted({time for start, end, _ in jobs for time in (start, end)})\n    index = {time: i for i, time in enumerate(times)}\n    graph = [[] for _ in times]\n\n    def add_edge(u: int, v: int, capacity: int, cost: int) -> None:\n        graph[u].append([v, len(graph[v]), capacity, cost])\n        graph[v].append([u, len(graph[u]) - 1, 0, -cost])\n\n    for i in range(len(times) - 1):\n        add_edge(i, i + 1, k, 0)\n\n    for start, end, pay in jobs:\n        add_edge(index[start], index[end], 1, -pay)\n\n    n = len(times)\n    # Initial shortest-path potentials in the forward-time DAG.\n    potential = [0] * n\n    for u in range(n):\n        for v, _, capacity, cost in graph[u]:\n            if capacity > 0 and v > u:\n                potential[v] = min(potential[v], potential[u] + cost)\n\n    total_cost = 0\n    flow = 0\n\n    while flow < k:\n        dist = [float(\"inf\")] * n\n        prev_node = [-1] * n\n        prev_edge = [-1] * n\n        dist[0] = 0\n        heap = [(0, 0)]\n\n        while heap:\n            d, u = heapq.heappop(heap)\n            if d != dist[u]:\n                continue\n            for edge_index, edge in enumerate(graph[u]):\n                v, _, capacity, cost = edge\n                if capacity <= 0:\n                    continue\n                reduced_cost = cost + potential[u] - potential[v]\n                candidate = d + reduced_cost\n                if candidate < dist[v]:\n                    dist[v] = candidate\n                    prev_node[v] = u\n                    prev_edge[v] = edge_index\n                    heapq.heappush(heap, (candidate, v))\n\n        sink = n - 1\n        for v in range(n):\n            if dist[v] < float(\"inf\"):\n                potential[v] += dist[v]\n\n        v = sink\n        while v != 0:\n            u = prev_node[v]\n            edge = graph[u][prev_edge[v]]\n            edge[2] -= 1\n            graph[v][edge[1]][2] += 1\n            total_cost += edge[3]\n            v = u\n        flow += 1\n\n    return -total_cost\n\n\nimport heapq\n```",
+ "wall_s": 6.700144589999979,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}
