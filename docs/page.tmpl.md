@@ -20,11 +20,12 @@
 <li>Intervals: hierarchical bootstrap over problems, {{n_boot}} resamples.</li>
 <li>Repo tasks: {{n_tasks}} tasks × {{agent_repeats}} attempts, hidden tests; all {{ag_runs}} runs passed.</li>
 </ul>
-<h3>Exact commands</h3>
+<details><summary>Exact commands</summary>
 <ul class="tight small cmds">
 {{w_flags}}
 <li>luna-low-bare adds the stripped harness from bench/trim_probe.py.</li>
 </ul>
+</details>
 </section>
 <section>
 <h2>📊 Pass rate vs $ per pass</h2>

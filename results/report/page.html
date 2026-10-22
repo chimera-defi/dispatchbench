@@ -101,11 +101,12 @@ details>.wrap,details>ul{margin:6px 0 10px}
 <li>Intervals: hierarchical bootstrap over problems, 10,000 resamples.</li>
 <li>Repo tasks: 4 tasks × 3 attempts, hidden tests; all 48 runs passed.</li>
 </ul>
-<h3>Exact commands</h3>
+<details><summary>Exact commands</summary>
 <ul class="tight small cmds">
 <li><code>claude -p --model claude-haiku-5-5 --effort low|medium --output-format json --no-session-persistence --tools &quot;&quot; --setting-sources &quot;&quot; --strict-mcp-config</code></li><li><code>claude -p --model claude-sonnet-5-5 --effort medium --output-format json --no-session-persistence --tools &quot;&quot; --setting-sources &quot;&quot; --strict-mcp-config</code></li><li><code>codex exec -m gpt-6-luna -c model_reasoning_effort=low|medium|high --ignore-user-config -c skills.include_instructions=false -c service_tier=default --json --ephemeral --skip-git-repo-check -s read-only</code></li><li><code>codex exec -m gpt-6.1-sol -c model_reasoning_effort=medium --ignore-user-config -c skills.include_instructions=false -c service_tier=default --json --ephemeral --skip-git-repo-check -s read-only</code></li>
 <li>luna-low-bare adds the stripped harness from bench/trim_probe.py.</li>
 </ul>
+</details>
 </section>
 <section>
 <h2>📊 Pass rate vs $ per pass</h2>
