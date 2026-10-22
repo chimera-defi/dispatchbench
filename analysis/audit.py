@@ -5,7 +5,7 @@
 2. Every chart in results/report/charts equals what analysis.charts draws from that summary.
 3. results/report/luna_rescue.md equals the table analysis.luna_rescue computes from the appendix rows.
 4. README.md and results/report/page.html equal what analysis.report renders from the template.
-5. The template holds no number of its own outside {{facts}}, code spans and link targets, except the constants listed
+5. The templates (README and page) hold no number of its own outside {{facts}}, code spans and link targets, except the constants listed
    with a reason in docs/audit_allow.json. Each allowed literal must still occur on a line containing its context.
 """
 import json, os, re, sys
@@ -25,16 +25,17 @@ def same(label, want, path, fails):
 
 
 def template_literals():
-    """(line number, literal, line) for every number the template writes itself."""
+    """(template, line number, literal, line) for every number the templates write themselves."""
     out = []
-    for no, line in enumerate(open(report.TEMPLATE).read().split("\n"), 1):
-        t = re.sub(r"\{\{chart:[^|}]*\|", " ", line)  # keep chart captions in the scan
-        t = re.sub(r"\{\{[^{}]*\}\}", " ", t)
-        t = re.sub(r"`[^`]*`", " ", t)
-        t = re.sub(r"\]\([^)]*\)", "]", t)
-        t = re.sub(r"<[^>]*>", " ", t)
-        t = re.sub(r"^(\s*)\d+\. ", r"\1", t)  # ordered-list markers
-        out += [(no, m.group(1), line) for m in NUM.finditer(t)]
+    for path in (report.TEMPLATE, report.PAGE_TEMPLATE):
+        for no, line in enumerate(open(path).read().split("\n"), 1):
+            t = re.sub(r"\{\{chart:[^|}]*\|", " ", line)  # keep chart captions in the scan
+            t = re.sub(r"\{\{[^{}]*\}\}", " ", t)
+            t = re.sub(r"`[^`]*`", " ", t)
+            t = re.sub(r"\]\([^)]*\)", "]", t)
+            t = re.sub(r"<[^>]*>", " ", t)
+            t = re.sub(r"^(\s*)\d+\. ", r"\1", t)  # ordered-list markers
+            out += [(os.path.relpath(path, ROOT), no, m.group(1), line) for m in NUM.finditer(t)]
     return out
 
 
@@ -53,10 +54,10 @@ def main():
 
     allow = json.load(open(ALLOW))
     used = set(); stray = []
-    for no, lit, line in template_literals():
+    for path, no, lit, line in template_literals():
         hit = [i for i, a in enumerate(allow) if lit in a["literals"] and a["context"] in line]
         if hit: used.update(hit)
-        else: stray.append(f"docs/report.tmpl.md:{no}: literal {lit!r} is not a {{{{fact}}}} and not in docs/audit_allow.json")
+        else: stray.append(f"{path}:{no}: literal {lit!r} is not a {{{{fact}}}} and not in docs/audit_allow.json")
     fails += stray
     fails += [f"docs/audit_allow.json: entry {a['context']!r} no longer matches the template" for i, a in enumerate(allow) if i not in used]
 
