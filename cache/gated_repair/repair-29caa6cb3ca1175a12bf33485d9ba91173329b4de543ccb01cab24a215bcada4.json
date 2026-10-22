@@ -1,0 +1,15 @@
+{
+ "wall_s": 16.77415182599998,
+ "text": "```python\ndef avoid_count(n: int, alphabet: str, banned: list[str]) -> int:\n    mod = 1_000_000_007\n\n    children = [{}]\n    terminal = [False]\n\n    for word in banned:\n        node = 0\n        for ch in word:\n            nxt = children[node].get(ch)\n            if nxt is None:\n                nxt = len(children)\n                children[node][ch] = nxt\n                children.append({})\n                terminal.append(False)\n            node = nxt\n        terminal[node] = True\n\n    fail = [0] * len(children)\n    queue = []\n    for nxt in children[0].values():\n        queue.append(nxt)\n\n    for node in queue:\n        terminal[node] |= terminal[fail[node]]\n\n    head = 0\n    while head < len(queue):\n        node = queue[head]\n        head += 1\n        for ch, nxt in children[node].items():\n            f = fail[node]\n            while f and ch not in children[f]:\n                f = fail[f]\n            fail[nxt] = children[f].get(ch, 0)\n            terminal[nxt] |= terminal[fail[nxt]]\n            queue.append(nxt)\n\n    safe_nodes = [i for i, is_terminal in enumerate(terminal) if not is_terminal]\n    index = {node: i for i, node in enumerate(safe_nodes)}\n    size = len(safe_nodes)\n\n    matrix = [[0] * size for _ in range(size)]\n    for node in safe_nodes:\n        src = index[node]\n        for ch in alphabet:\n            cur = node\n            while cur and ch not in children[cur]:\n                cur = fail[cur]\n            nxt = children[cur].get(ch, 0)\n            if not terminal[nxt]:\n                dst = index[nxt]\n                matrix[src][dst] += 1\n\n    def multiply(a, b):\n        result = [[0] * size for _ in range(size)]\n        for i in range(size):\n            for k, val in enumerate(a[i]):\n                if val:\n                    row = b[k]\n                    for j, other in enumerate(row):\n                        if other:\n                            result[i][j] = (result[i][j] + val * other) % mod\n        return result\n\n    vector = [0] * size\n    vector[index[0]] = 1\n\n    while n:\n        if n & 1:\n            new_vector = [0] * size\n            for i, val in enumerate(vector):\n                if val:\n                    for j, ways in enumerate(matrix[i]):\n                        if ways:\n                            new_vector[j] = (new_vector[j] + val * ways) % mod\n            vector = new_vector\n        n >>= 1\n        if n:\n            matrix = multiply(matrix, matrix)\n\n    return sum(vector) % mod\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 12910,
+ "in_tok": 5129,
+ "cached_tok": 649,
+ "cache_write_tok": 4478,
+ "out_tok": 2980,
+ "reasoning_tok": 2089,
+ "cost_usd": 0.00239229,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

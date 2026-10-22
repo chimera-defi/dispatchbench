@@ -1,0 +1,15 @@
+{
+ "wall_s": 22.149689391000038,
+ "text": "```python\ndef k_machine_schedule(jobs: list[list[int]], k: int) -> int:\n    if not jobs:\n        return 0\n\n    times = sorted({time for start, end, _ in jobs for time in (start, end)})\n    index = {time: i for i, time in enumerate(times)}\n    n = len(times)\n    graph = [[] for _ in range(n)]\n\n    def add_edge(u: int, v: int, capacity: int, cost: int) -> None:\n        graph[u].append([v, len(graph[v]), capacity, cost])\n        graph[v].append([u, len(graph[u]) - 1, 0, -cost])\n\n    for i in range(n - 1):\n        add_edge(i, i + 1, k, 0)\n\n    for start, end, pay in jobs:\n        add_edge(index[start], index[end], 1, -pay)\n\n    INF = 1 << 60\n    source, sink = 0, n - 1\n    remaining = k\n    total_pay = 0\n\n    while remaining > 0:\n        dist = [INF] * n\n        parent = [None] * n\n        dist[source] = 0\n\n        for _ in range(n - 1):\n            changed = False\n            for u in range(n):\n                if dist[u] == INF:\n                    continue\n                for edge_index, (v, _, capacity, cost) in enumerate(graph[u]):\n                    if capacity > 0 and dist[u] + cost < dist[v]:\n                        dist[v] = dist[u] + cost\n                        parent[v] = (u, edge_index)\n                        changed = True\n            if not changed:\n                break\n\n        # Stop once no augmenting path adds profit; using at most k machines.\n        if dist[sink] >= 0:\n            break\n\n        flow = remaining\n        v = sink\n        while v != source:\n            u, edge_index = parent[v]\n            flow = min(flow, graph[u][edge_index][2])\n            v = u\n\n        v = sink\n        while v != source:\n            u, edge_index = parent[v]\n            edge = graph[u][edge_index]\n            edge[2] -= flow\n            graph[v][edge[1]][2] += flow\n            v = u\n\n        total_pay += -flow * dist[sink]\n        remaining -= flow\n\n    return total_pay\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 17868,
+ "in_tok": 4933,
+ "cached_tok": 649,
+ "cache_write_tok": 4282,
+ "out_tok": 3683,
+ "reasoning_tok": 2955,
+ "cost_usd": 0.00270459,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

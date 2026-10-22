@@ -1,0 +1,14 @@
+{
+ "in_tok": 14503,
+ "cached_tok": 11520,
+ "cache_write_tok": 0,
+ "out_tok": 407,
+ "reasoning_tok": 0,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\nfrom fractions import Fraction\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, value in enumerate(a):\n        prefix[i + 1] = prefix[i] + value\n\n    # For each right endpoint, the best eligible start is the lower\n    # convex hull of prefix-sum points with indices at most right - k.\n    hull = []\n    head = 0\n    best_num, best_den = 0, 1\n\n    for right in range(k, n + 1):\n        start = right - k\n        while len(hull) - head >= 2:\n            x1, y1 = hull[-2], prefix[hull[-2]]\n            x2, y2 = hull[-1], prefix[hull[-1]]\n            if (y2 - y1) * (start - x2) >= (prefix[start] - y2) * (x2 - x1):\n                hull.pop()\n            else:\n                break\n        hull.append(start)\n\n        while len(hull) - head >= 2:\n            x1, y1 = hull[head], prefix[hull[head]]\n            x2, y2 = hull[head + 1], prefix[hull[head + 1]]\n            if (prefix[right] - y1) * (x2 - x1) <= (prefix[right] - y2) * (x2 - x1):\n                head += 1\n            else:\n                break\n\n        begin = hull[head]\n        numerator = prefix[right] - prefix[begin]\n        denominator = right - begin\n        if numerator * best_den > best_num * denominator:\n            best_num, best_den = numerator, denominator\n\n    fraction = Fraction(best_num, best_den)\n    return [fraction.numerator, fraction.denominator]\n```",
+ "wall_s": 5.649135905999856,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

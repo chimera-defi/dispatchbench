@@ -1,0 +1,15 @@
+{
+ "wall_s": 12.905950585000028,
+ "text": "```python\ndef taller_within(a: list[int], k: int) -> list[int]:\n    if k == 0:\n        return [0] * len(a)\n\n    values = sorted(set(a))\n    ranks = {value: i + 1 for i, value in enumerate(values)}\n    tree = [0] * (len(values) + 1)\n\n    def add(index: int, delta: int) -> None:\n        while index < len(tree):\n            tree[index] += delta\n            index += index & -index\n\n    def prefix_sum(index: int) -> int:\n        total = 0\n        while index:\n            total += tree[index]\n            index -= index & -index\n        return total\n\n    counts = []\n    for i, height in enumerate(a):\n        # Window before position i should hold a[max(0, i-k) .. i-1].\n        # Entering step i, drop a[i-k-1] if it is still in the window.\n        if i > k:\n            add(ranks[a[i - k - 1]], -1)\n\n        window_size = min(i, k)\n        rank = ranks[height]\n        # Elements in the window that are <= height; the rest are strictly taller.\n        counts.append(window_size - prefix_sum(rank))\n\n        add(rank, 1)\n\n    return counts\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 7714,
+ "in_tok": 4563,
+ "cached_tok": 649,
+ "cache_write_tok": 3912,
+ "out_tok": 1627,
+ "reasoning_tok": 1238,
+ "cost_usd": 0.0016025899999999999,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

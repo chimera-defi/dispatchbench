@@ -1,0 +1,15 @@
+{
+ "wall_s": 20.43685322400006,
+ "text": "```python\nfrom fractions import Fraction\nfrom math import gcd\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, value in enumerate(a, 1):\n        prefix[i] = prefix[i - 1] + value\n\n    # Maintain the lower convex hull of eligible prefix-sum points.\n    hull = []\n    head = 0\n    best_num = 0\n    best_den = 1\n\n    for end in range(k, n + 1):\n        start = end - k\n        point = (start, prefix[start])\n\n        while len(hull) - head >= 2:\n            x1, y1 = hull[-2]\n            x2, y2 = hull[-1]\n            if (y2 - y1) * (start - x2) >= (prefix[start] - y2) * (x2 - x1):\n                hull.pop()\n            else:\n                break\n        hull.append(point)\n\n        # Advance the tangent pointer while the next hull point gives a\n        # slope to (end, prefix[end]) that is at least as large.\n        # slope(p1) <= slope(p2)  <=>  (Ey - y1) * (Ex - x2) <= (Ey - y2) * (Ex - x1)\n        while len(hull) - head >= 2:\n            x1, y1 = hull[head]\n            x2, y2 = hull[head + 1]\n            if (prefix[end] - y1) * (end - x2) <= (prefix[end] - y2) * (end - x1):\n                head += 1\n            else:\n                break\n\n        x, y = hull[head]\n        num = prefix[end] - y\n        den = end - x\n        if num * best_den > best_num * den:\n            best_num, best_den = num, den\n\n    divisor = gcd(best_num, best_den)\n    return [best_num // divisor, best_den // divisor]\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 17251,
+ "in_tok": 4716,
+ "cached_tok": 649,
+ "cache_write_tok": 4065,
+ "out_tok": 3510,
+ "reasoning_tok": 2907,
+ "cost_usd": 0.00257469,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

@@ -1,0 +1,15 @@
+{
+ "wall_s": 18.083314933999873,
+ "text": "```python\ndef best_average(a: list[int], k: int) -> list[int]:\n    from math import gcd\n\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, value in enumerate(a):\n        prefix[i + 1] = prefix[i] + value\n\n    hull = []\n    best_num = 0\n    best_den = 1\n\n    def cross(p, q, r):\n        return (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])\n\n    for j in range(k, n + 1):\n        point = (j - k, prefix[j - k])\n        while len(hull) >= 2 and cross(hull[-2], hull[-1], point) <= 0:\n            hull.pop()\n        hull.append(point)\n\n        query = (j, prefix[j])\n        lo, hi = 0, len(hull) - 1\n        while lo < hi:\n            mid = (lo + hi) // 2\n            p, q = hull[mid], hull[mid + 1]\n            left = (query[1] - p[1]) * (query[0] - q[0])\n            right = (query[1] - q[1]) * (query[0] - p[0])\n            if left <= right:\n                lo = mid + 1\n            else:\n                hi = mid\n\n        p = hull[lo]\n        num = query[1] - p[1]\n        den = query[0] - p[0]\n        if num * best_den > best_num * den:\n            best_num, best_den = num, den\n\n    divisor = gcd(best_num, best_den)\n    return [best_num // divisor, best_den // divisor]\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 14606,
+ "in_tok": 4736,
+ "cached_tok": 649,
+ "cache_write_tok": 4085,
+ "out_tok": 3090,
+ "reasoning_tok": 2568,
+ "cost_usd": 0.0023686899999999997,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

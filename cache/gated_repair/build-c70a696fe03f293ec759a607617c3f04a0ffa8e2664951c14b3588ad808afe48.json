@@ -1,0 +1,14 @@
+{
+ "in_tok": 14501,
+ "cached_tok": 11520,
+ "cache_write_tok": 0,
+ "out_tok": 421,
+ "reasoning_tok": 0,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\nfrom fractions import Fraction\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, value in enumerate(a):\n        prefix[i + 1] = prefix[i] + value\n\n    # For each endpoint j, find the minimum prefix[i] / (j - i)\n    # over eligible starts i <= j-k. Maintain the lower convex hull\n    # of prefix points (i, prefix[i]).\n    hull = []\n    head = 0\n    best_num = 0\n    best_den = 1\n\n    for j in range(k, n + 1):\n        i = j - k\n\n        while len(hull) - head >= 2:\n            x1, y1 = hull[-2]\n            x2, y2 = hull[-1]\n            if (y2 - y1) * (i - x2) >= (prefix[i] - y2) * (x2 - x1):\n                hull.pop()\n            else:\n                break\n        hull.append((i, prefix[i]))\n\n        while len(hull) - head >= 2:\n            x1, y1 = hull[head]\n            x2, y2 = hull[head + 1]\n            # Compare slopes from the two hull points to (j, prefix[j]).\n            if (prefix[j] - y1) * (j - x2) <= (prefix[j] - y2) * (j - x1):\n                head += 1\n            else:\n                break\n\n        x, y = hull[head]\n        num = prefix[j] - y\n        den = j - x\n        if num * best_den > best_num * den:\n            best_num, best_den = num, den\n\n    divisor = __import__(\"math\").gcd(best_num, best_den)\n    return [best_num // divisor, best_den // divisor]\n```",
+ "wall_s": 5.8703823850000845,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

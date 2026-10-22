@@ -2,9 +2,9 @@
 
     python3 -m analysis.agentic_tests
 
-NOT part of `make report`: it reads cache/raw/agentic-<key>.out, which is gitignored and exists only on the machine that
-ran the benchmark. It writes results/agentic_tests.json and never copies transcript text, paths or commands into it.
-Standard library only, no model calls.
+Rebuildable from the scrubbed transcripts in cache/agentic_raw/. Use --scrub to copy cache/raw/agentic-<key>.out there
+with local paths and email addresses scrubbed. It writes results/agentic_tests.json and never copies transcript text,
+paths or commands into it. Standard library only, no model calls.
 
 What is recoverable (inspected, see `method`):
   claude: Write / Edit / MultiEdit tool inputs (content, so test functions are counted: `def test_` in the written
@@ -15,18 +15,23 @@ In-place rewrites of an existing test file through shell (python - <<EOF ... s.r
 lower bounds: they cover new files and Write/Edit/heredoc content only.
 test_functions_added is null when a touched test file's content was not recoverable (a lower bound is then reported
 in test_functions_lower_bound)."""
-import json, os, re
+import argparse, json, os, re
 
 from bench.run import ROOT
 
 AGENTIC = os.path.join(ROOT, "cache", "agentic")
-RAW = os.path.join(ROOT, "cache", "raw")
+RAW = os.path.join(ROOT, "cache", "agentic_raw")
+SOURCE_RAW = os.path.join(ROOT, "cache", "raw")
 OUT = os.path.join(ROOT, "results", "agentic_tests.json")
 TEST_DEF = re.compile(r"^\s*(?:async\s+)?def test_\w*", re.M)
+HOME_PATH = re.compile(r"/home/[^/\\\s\"'<>]+")
+TMP_PATH = re.compile(r"/tmp(?=/|[\s\"'<>]|$)")
+EMAIL = re.compile(r"(?<![\w.+\\-\\\\])[\w.!#$%&'*+/=?^`{|}~-]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,}")
+REL_PATH = re.compile(r"(?:\.\./|claude-\d+/)[^\s\"'\\]+")
 # Commands that only the host's user-level AGENTS.md asks for: look for AGENTS.md files, run its search helper or its delegate, clean up the
 # delegate's artifacts/ directory. Counted per run so the report can say how much of the Codex agentic work the host file caused.
 HOST_DOC = re.compile(r"AGENTS\.md|token-reduce|kimi-delegate|\bartifacts\b")
-HEREDOC = re.compile(r"(?:cat|tee)\s+(?:-a\s+)?(?:>>?\s*)?(['\"]?)([^\s<>|'\"]*tests/[^\s<>|'\"]+)\1[^\n]*<<\s*-?\\?['\"]?(\w+)['\"]?[^\n]*\n(.*?)\n\3\b", re.S)
+HEREDOC = re.compile(r"(?:cat|tee)\s+(?:-a\s+)?(?:>>?\s*)?(['\"]?)((?:<path>)?[^\s<>|'\"]*tests/[^\s<>|'\"]+)\1[^\n]*<<\s*-?\\?['\"]?(\w+)['\"]?[^\n]*\n(.*?)\n\3\b", re.S)
 
 
 def test_path(p):
@@ -37,6 +42,25 @@ def test_path(p):
 
 def count_defs(s):
     return len(TEST_DEF.findall(s or ""))
+
+
+def scrub_raw(source, dest):
+    """Copy a transcript while replacing machine-specific path roots and email addresses."""
+    text = open(source, encoding="utf-8", errors="replace").read()
+    text = HOME_PATH.sub("<path>", text)
+    text = TMP_PATH.sub("<path>", text)
+    text = EMAIL.sub("<email>", text)
+    text = REL_PATH.sub("<path>", text)  # sibling dirs an agent listed (e.g. rg --files ..) name other host sessions
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
+    with open(dest, "w", encoding="utf-8") as fh:
+        fh.write(text)
+
+
+def scrub_raw_files():
+    sources = sorted(os.path.join(SOURCE_RAW, f) for f in os.listdir(SOURCE_RAW) if f.startswith("agentic-") and f.endswith(".out"))
+    for source in sources:
+        scrub_raw(source, os.path.join(RAW, os.path.basename(source)))
+    print(f"scrubbed {len(sources)} transcripts -> {os.path.relpath(RAW, ROOT)}")
 
 
 def events(path):
@@ -95,6 +119,10 @@ def analyse(path):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--scrub", action="store_true")
+    if parser.parse_args().scrub:
+        scrub_raw_files()
     out = []
     for f in sorted(os.listdir(AGENTIC)):
         if not f.endswith(".json"):

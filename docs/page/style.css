@@ -28,7 +28,8 @@ th{font:700 12px var(--body);color:var(--muted);text-transform:uppercase;letter-
 th:first-child,td:first-child{text-align:left}
 tr:last-child td{border-bottom:0}
 table.sortable th{cursor:pointer;user-select:none}
-table.sortable th[aria-sort]::after{content:" ↑";color:var(--accent)}
+table.sortable th::after{content:" ↕";color:var(--muted);opacity:.6}
+table.sortable th[aria-sort]::after{content:" ↑";color:var(--accent);opacity:1}
 table.sortable th[aria-sort="descending"]::after{content:" ↓"}
 .pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:600;border:1px solid currentColor}
 .pill.good{color:var(--good)}.pill.warn{color:var(--warn)}.pill.bad{color:var(--bad)}
@@ -99,3 +100,5 @@ main{counter-reset:sec toc}
 #tip .tag{color:var(--muted)}
 .extras figure{margin:0 0 24px}.extras figure svg{width:100%;height:auto;border-radius:6px}
 .extras>figure>figcaption{display:none}
+tr.grp th{text-align:left;cursor:default;background:var(--bg);color:var(--muted);font-size:12px;font-weight:600;letter-spacing:.02em}
+tr.grp th::after{content:none}

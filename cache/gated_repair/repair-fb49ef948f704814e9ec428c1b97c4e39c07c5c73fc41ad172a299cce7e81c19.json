@@ -1,0 +1,15 @@
+{
+ "wall_s": 18.681262642000092,
+ "text": "```python\nfrom collections import deque\nfrom fractions import Fraction\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, value in enumerate(a):\n        prefix[i + 1] = prefix[i] + value\n\n    # For each right endpoint r, maximize (prefix[r] - prefix[l]) / (r - l)\n    # over l <= r - k. The lower convex hull of points (l, prefix[l]) supports\n    # this query, and the optimal left endpoint only moves right as r grows.\n    hull = deque()\n    best_num, best_den = 0, 1\n\n    for r in range(k, n + 1):\n        l = r - k\n        # Add point l to the lower hull, removing points that are not strictly convex.\n        while len(hull) >= 2:\n            x, y = hull[-2], hull[-1]\n            if (prefix[y] - prefix[x]) * (l - y) >= (prefix[l] - prefix[y]) * (y - x):\n                hull.pop()\n            else:\n                break\n        hull.append(l)\n\n        # Drop front points that are no better than their successor for query r.\n        while len(hull) >= 2:\n            x, y = hull[0], hull[1]\n            if (prefix[r] - prefix[x]) * (r - y) <= (prefix[r] - prefix[y]) * (r - x):\n                hull.popleft()\n            else:\n                break\n\n        start = hull[0]\n        num = prefix[r] - prefix[start]\n        den = r - start\n        if num * best_den > best_num * den:\n            best_num, best_den = num, den\n\n    f = Fraction(best_num, best_den)\n    return [f.numerator, f.denominator]\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 15380,
+ "in_tok": 4749,
+ "cached_tok": 649,
+ "cache_write_tok": 4098,
+ "out_tok": 3159,
+ "reasoning_tok": 2584,
+ "cost_usd": 0.00240579,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

@@ -1,0 +1,15 @@
+{
+ "wall_s": 16.158874033999837,
+ "text": "```python\nfrom fractions import Fraction\nfrom collections import deque\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    prefix = [0]\n    for x in a:\n        prefix.append(prefix[-1] + x)\n\n    candidates = deque()\n    best = Fraction(-1, 1)\n\n    for end in range(k, len(a) + 1):\n        start = end - k\n        while len(candidates) >= 2:\n            x, y = candidates[-2], candidates[-1]\n            if (prefix[y] - prefix[x]) * (start - y) >= (prefix[start] - prefix[y]) * (y - x):\n                candidates.pop()\n            else:\n                break\n        candidates.append(start)\n\n        while len(candidates) >= 2:\n            x, y = candidates[0], candidates[1]\n            if (prefix[y] - prefix[x]) * (end - y) <= (prefix[end] - prefix[y]) * (y - x):\n                candidates.popleft()\n            else:\n                break\n\n        best = max(best, Fraction(prefix[end] - prefix[candidates[0]], end - candidates[0]))\n\n    return [best.numerator, best.denominator]\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 13092,
+ "in_tok": 4608,
+ "cached_tok": 649,
+ "cache_write_tok": 3957,
+ "out_tok": 2801,
+ "reasoning_tok": 2414,
+ "cost_usd": 0.00219859,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

@@ -167,6 +167,18 @@ def pilot_block():
     return out
 
 
+def pilot_fast():
+    """Codex fast mode (priority tier) against the default tier: same model, harness and pilot problems, 3 rounds each."""
+    rows = load(PILOT); mult = json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]
+    probs = {r["problem"] for r in rows if r["config"] == "sol61-low-defa"}; out = {}
+    for name, d, f in (("sol61-low", "sol61-low-defa", "sol61-low-prio"), ("luna-low", "luna-low-defa", "luna-low")):
+        for tier, c, m in (("default", d, 1), ("fast", f, mult)):
+            rr = [r for r in rows if r["config"] == c and r["problem"] in probs]
+            out[f"{name}/{tier}"] = {"passes": sum(bool(r["passed"]) for r in rr), "n": len(rr), "median_s": round(statistics.median(r["wall_s"] for r in rr), 2),
+                                     "usd_per_call": round(statistics.mean(cost(r) * m for r in rr), 6)}
+    return out
+
+
 def trim_block():
     """Codex input-floor probe on the pilot problems: per trim level, and the 3x3 pair step against haiku-low (tools off)."""
     rows = load(TRIM); out = {"floor": {}, "pair": {}}
@@ -240,6 +252,7 @@ def build():
     s["agentic"] = agentic_block(agent) if agent else {}
     s["pilot_reprice"] = pilot_reprice()
     s["pilot"] = pilot_block()
+    s["pilot_fast"] = pilot_fast()
     s["trim"] = trim_block()
     claude_all = [r for r in rows if r["cli"] == "claude"] + [r for r in agent if r["cli"] == "claude"]
     s["spend"] = {"claude_measured_usd": round(sum(r.get("cost_usd") or 0 for r in claude_all), 4),
@@ -266,14 +279,74 @@ def manifest(rows, agent, s):
     from bench.agentic import run as A
     allr = rows + agent
     errs = [{"key": r["key"][:12], "config": r["config"], "error": r["error"]} for r in allr if r.get("is_error") or r.get("error")]
-    return {"experiment": "2026-10-22b", "pre_registration": "PLAN.md (committed before any model call)",
+    out = {"experiment": "2026-10-22b", "pre_registration": "PLAN.md (committed before any model call)",
             "cli_versions": sorted({f"{r['cli']} {r['cli_version']}" for r in allr}),
             "configs": {c: {"cli": v[0], "model": v[1], "effort": v[2]} for c, v in R.CONFIGS.items() if any(r["config"] == c for r in allr)},
             "flags": {"function": {"claude": R.CLAUDE_FLAGS, "codex": R.CODEX_FLAGS}, "agentic": {"claude": A.CLAUDE_FLAGS, "codex": A.CODEX_FLAGS}},
             "lanes": sorted({r["lanes"] for r in allr if r.get("lanes")}),
             "first_call_utc": min(r["ts"] for r in allr) if allr else None, "last_call_utc": max(r["ts"] for r in allr) if allr else None,
             "rows_by_phase": s["phases"], "agentic_runs": len(agent), "claude_budget_cap_usd": R.CLAUDE_BUDGET_USD, "spend": s["spend"],
-            "errors": errs, "prices": "results/prices.json"}
+            "errors": errs, "prices": "results/prices.json", "exploratory": exploratory_manifest()}
+    sha = git_sha()
+    if sha: out["git_sha"] = sha
+    return out
+
+
+def git_sha():
+    import subprocess
+    try:
+        return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, stderr=subprocess.DEVNULL, text=True).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def exploratory_manifest():
+    """Provenance for exploratory inputs, including the post-hoc appendix and pilots."""
+    import glob
+    from bench.plan_first import BUILDERS, PLANNER
+    from bench.gated_repair import CONFIGS
+
+    def entry(path, rows, script, configs=None, models=None):
+        if configs is None:
+            configs = {r["config"] for r in rows if r.get("config")}
+            if not configs:
+                configs = {"/".join(x for x in (r.get("pipeline"), r.get("builder")) if x) for r in rows}
+        out = {"file": os.path.relpath(path, ROOT), "configs": sorted(configs),
+               "producing_script": script}
+        if any("ts" in r for r in rows):
+            stamps = [r["ts"] for r in rows if r.get("ts")]
+            if stamps:
+                from datetime import datetime
+                stamp_key = lambda x: datetime.fromisoformat(x.replace("Z", "+00:00"))
+                out.update(first_timestamp=min(stamps, key=stamp_key), last_timestamp=max(stamps, key=stamp_key))
+        versions = sorted({f"{k}={r[k]}" for r in rows for k in ("claude_cli", "codex_cli", "cli_version") if r.get(k)})
+        if versions: out["cli_versions"] = versions
+        if models is not None: out["models_efforts"] = models
+        return out
+
+    out = {}
+    paths = [TRIM] + sorted(glob.glob(os.path.join(RES, "2026-10-22-pilot*.jsonl")))
+    scripts = {TRIM: "bench/trim_probe.py", PILOT: "bench/pilot/bench.py",
+               os.path.join(RES, "2026-10-22-pilot-agentic.jsonl"): "bench/pilot/agentic/e2e.py"}
+    for path in paths:
+        rr = load(path)
+        if os.path.exists(path): out[os.path.relpath(path, ROOT)] = entry(path, rr, scripts.get(path, "none: rows only"))
+    appendix = os.path.join(RES, "appendix", "luna_rescue.jsonl")
+    grouped = defaultdict(list)
+    for r in load(appendix):
+        arm = r.get("arm", "unknown")
+        # Historical B contains the two separately configured B1/B2 arms.
+        if arm == "B": arm = next((x for x in ("B1", "B2") if str(r.get("config", "")).endswith(x)), "B")
+        grouped[arm].append(r)
+    for arm, rr in sorted(grouped.items()):
+        key = f"{os.path.relpath(appendix, ROOT)}#{arm}"
+        script = {"F": "bench/plan_first.py", "G": "bench/gated_repair.py"}.get(arm, "none: rows only")
+        models = None
+        if arm == "F": models = {"planner": {"model": PLANNER[0], "effort": PLANNER[1]},
+                                  "builders": {c: {"model": v[0], "effort": v[1]} for c, v in BUILDERS.items()}}
+        if arm == "G": models = {c: {"model": v[0], "effort": v[1]} for c, v in CONFIGS.items()}
+        out[key] = entry(appendix, rr, script, models=models)
+    return out
 
 
 def hypotheses(s):

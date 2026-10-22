@@ -1,0 +1,14 @@
+{
+ "in_tok": 5959,
+ "cached_tok": 3456,
+ "cache_write_tok": 0,
+ "out_tok": 1770,
+ "reasoning_tok": 1370,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\nfrom math import gcd\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, value in enumerate(a):\n        prefix[i + 1] = prefix[i] + value\n\n    hull = []\n    best_num = 0\n    best_den = 1\n\n    for j in range(k, n + 1):\n        x = j - k\n        y = prefix[x]\n\n        while len(hull) >= 2:\n            x1, y1 = hull[-2]\n            x2, y2 = hull[-1]\n            if (x2 - x1) * (y - y2) - (y2 - y1) * (x - x2) <= 0:\n                hull.pop()\n            else:\n                break\n        hull.append((x, y))\n\n        lo, hi = 0, len(hull) - 1\n        while lo < hi:\n            mid = (lo + hi) // 2\n            x1, y1 = hull[mid]\n            x2, y2 = hull[mid + 1]\n            num1, den1 = prefix[j] - y1, j - x1\n            num2, den2 = prefix[j] - y2, j - x2\n            if num1 * den2 < num2 * den1:\n                lo = mid + 1\n            else:\n                hi = mid\n\n        x0, y0 = hull[lo]\n        num, den = prefix[j] - y0, j - x0\n        if num * best_den > best_num * den:\n            best_num, best_den = num, den\n\n    common = gcd(best_num, best_den)\n    return [best_num // common, best_den // common]\n```",
+ "wall_s": 17.447513910999987,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

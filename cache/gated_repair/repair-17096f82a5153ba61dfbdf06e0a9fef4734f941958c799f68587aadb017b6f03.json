@@ -1,0 +1,15 @@
+{
+ "wall_s": 11.758557732999861,
+ "text": "```python\ndef taller_within(a: list[int], k: int) -> list[int]:\n    values = sorted(set(a))\n    ranks = {value: i + 1 for i, value in enumerate(values)}\n    bit = [0] * (len(values) + 1)\n\n    def update(index: int, delta: int) -> None:\n        while index < len(bit):\n            bit[index] += delta\n            index += index & -index\n\n    def prefix(index: int) -> int:\n        total = 0\n        while index:\n            total += bit[index]\n            index -= index & -index\n        return total\n\n    result = [0] * len(a)\n    window_size = 0\n\n    for i, height in enumerate(a):\n        if i > 0:\n            update(ranks[a[i - 1]], 1)\n            window_size += 1\n\n        expired = i - k - 1\n        if expired >= 0:\n            update(ranks[a[expired]], -1)\n            window_size -= 1\n\n        result[i] = window_size - prefix(ranks[height])\n\n    return result\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 5992,
+ "in_tok": 4535,
+ "cached_tok": 649,
+ "cache_write_tok": 3884,
+ "out_tok": 1313,
+ "reasoning_tok": 991,
+ "cost_usd": 0.00143999,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

@@ -1,0 +1,15 @@
+{
+ "wall_s": 17.213336307999725,
+ "text": "```python\ndef k_machine_schedule(jobs: list[list[int]], k: int) -> int:\n    if not jobs:\n        return 0\n\n    times = sorted({t for start, end, _ in jobs for t in (start, end)})\n    index = {t: i for i, t in enumerate(times)}\n    n = len(times)\n\n    # Min-cost flow on a time-line: sending k units from the first to the\n    # last time chooses up to k overlapping jobs. Timeline edges have zero\n    # cost; each job edge has cost -pay.\n    graph = [[] for _ in range(n)]\n\n    def add_edge(u, v, capacity, cost):\n        graph[u].append([v, capacity, cost, len(graph[v])])\n        graph[v].append([u, 0, -cost, len(graph[u]) - 1])\n\n    for i in range(n - 1):\n        add_edge(i, i + 1, k, 0)\n\n    for start, end, pay in jobs:\n        add_edge(index[start], index[end], 1, -pay)\n\n    total_cost = 0\n    flow = 0\n\n    while flow < k:\n        dist = [float(\"inf\")] * n\n        prev_node = [-1] * n\n        prev_edge = [-1] * n\n        in_queue = [False] * n\n        queue = [0]\n        head = 0\n        dist[0] = 0\n        in_queue[0] = True\n\n        # SPFA finds a shortest residual path; reverse edges allow replacing\n        # previously selected jobs when a better schedule is found.\n        while head < len(queue):\n            u = queue[head]\n            head += 1\n            in_queue[u] = False\n\n            for ei, edge in enumerate(graph[u]):\n                v, capacity, cost, _ = edge\n                if capacity and dist[v] > dist[u] + cost:\n                    dist[v] = dist[u] + cost\n                    prev_node[v] = u\n                    prev_edge[v] = ei\n                    if not in_queue[v]:\n                        queue.append(v)\n                        in_queue[v] = True\n\n        # Using another machine no longer helps once the best path costs >= 0.\n        if prev_node[n - 1] == -1 or dist[n - 1] >= 0:\n            break\n\n        v = n - 1\n        while v != 0:\n            u = prev_node[v]\n            ei = prev_edge[v]\n            edge = graph[u][ei]\n            edge[1] -= 1\n            graph[v][edge[3]][1] += 1\n            v = u\n\n        flow += 1\n        total_cost += dist[n - 1]\n\n    return -total_cost\n```",
+ "is_error": false,
+ "error": null,
+ "api_duration_ms": 13781,
+ "in_tok": 5077,
+ "cached_tok": 649,
+ "cache_write_tok": 4426,
+ "out_tok": 3026,
+ "reasoning_tok": 2185,
+ "cost_usd": 0.00240489,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 1
+}

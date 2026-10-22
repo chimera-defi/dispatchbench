@@ -59,6 +59,68 @@ def read_quality():
     return q
 
 
+def exploratory_entries():
+    """Read cached F/G completions by rebuilding the runners' content-addressed keys."""
+    from bench import gated_repair as G, plan_first as F
+    from bench.run import cli_version, prompt_for
+    from analysis.luna_rescue import PIDS
+
+    appendix = os.path.join(ROOT, "results", "appendix", "luna_rescue.jsonl")
+    if not os.path.exists(appendix): return []
+    rows = [json.loads(line) for line in open(appendix) if line.strip()]
+    out, seen = [], set()
+
+    def cached(cache, kind, blob):
+        key = hashlib.sha256(json.dumps(blob, sort_keys=True).encode()).hexdigest()
+        path = os.path.join(cache, f"{kind}-{key}.json")
+        if not os.path.exists(path): return key, None
+        return key, json.load(open(path))
+
+    indexed = {(r.get("arm"), r.get("config"), r.get("problem"), r.get("repeat")): r for r in rows}
+    for rep in F.REPS:
+        for pid in PIDS:
+            for cfg in F.BUILDERS:
+                row = indexed.get(("F", cfg, pid, rep), {})
+                m = problems.load(pid); planner_prompt = F.PLAN.format(statement=m.STATEMENT.strip(), signature=m.SIGNATURE)
+                plan_blob = {"model": F.PLANNER, "cli": row.get("claude_cli") or cli_version("claude"), "flags": F.CLAUDE_FLAGS,
+                             "prompt": planner_prompt, "repeat": rep}
+                _, plan = cached(F.CACHE, "plan", plan_blob)
+                if not plan or not plan.get("text"): continue
+                mid, effort, flags = F.BUILDERS[cfg]
+                prompt = F.BUILD.format(prompt=prompt_for(pid), plan=plan["text"].strip())
+                blob = {"config": cfg, "model": mid, "effort": effort, "cli": row.get("codex_cli") or cli_version("codex"),
+                        "flags": flags, "prompt": prompt, "repeat": rep}
+                key, result = cached(F.CACHE, "build", blob)
+                if result and result.get("text") and ("F", key) not in seen:
+                    seen.add(("F", key)); out.append(("F build", key, cfg, pid, rep, extract(result["text"]), row.get("check", "cached")))
+    for rep in G.REPS:
+        for pid in PIDS:
+            for cfg, (mid, effort, flags, repair_kind) in G.CONFIGS.items():
+                row = indexed.get(("G", cfg, pid, rep), {})
+                blob, _ = G.build_key(pid, rep, mid, effort, flags)
+                if row.get("codex_cli"): blob["cli"] = row["codex_cli"]
+                key, build = cached(G.CACHE, "build", blob)
+                if build and build.get("text") and ("G-build", key) not in seen:
+                    seen.add(("G-build", key)); out.append(("G build", key, cfg, pid, rep, extract(build["text"]), "cached"))
+                if not build or not build.get("text"): continue
+                base_code = extract(build["text"])
+                ok, report = G.visible(pid, base_code)
+                if ok and repair_kind != "review": continue
+                prompt = (G.REVIEW if repair_kind == "review" else G.REPAIR).format(
+                    prompt=prompt_for(pid), report=report, code=base_code)
+                if repair_kind in ("haiku", "review"):
+                    model = "claude-haiku-5-5"
+                    repair_blob = {"model": (model, "low"), "cli": row.get("claude_cli") or cli_version("claude"),
+                                   "flags": G.CLAUDE_FLAGS, "prompt": prompt, "repeat": rep}
+                else:
+                    repair_blob = {"model": mid, "effort": effort, "cli": row.get("codex_cli") or cli_version("codex"),
+                                   "flags": flags, "prompt": prompt, "repeat": rep}
+                repair_key, repair = cached(G.CACHE, "repair", repair_blob)
+                if repair and repair.get("text") and ("G-repair", repair_key) not in seen:
+                    seen.add(("G-repair", repair_key)); out.append(("G repair", repair_key, cfg, pid, rep, extract(repair["text"]), row.get("check", "cached")))
+    return out
+
+
 def fmt(v):
     if v is None:
         return "-"
@@ -79,7 +141,7 @@ def main():
         shutil.rmtree(OUT)
     rows = defaultdict(list)
     seen_keys, seen_names = set(), {}
-    phase_counts = defaultdict(int)
+    phase_counts = defaultdict(int); source_counts = defaultdict(int)
     for e in entries:
         if e["key"] in seen_keys:
             continue
@@ -98,6 +160,18 @@ def main():
         assert open(path, "rb").read() == code.encode()
         phase_counts[e["phase"]] += 1
         rows[e["problem"]].append(dict(e=e, g=g, code=code, rel=rel))
+
+    for source, key, cfg, pid, rep, code, outcome in exploratory_entries():
+        rel = f"{cfg}/{source.lower().replace(' ', '-')}-r{rep}.py"
+        name = (pid, rel)
+        if name in seen_names: raise SystemExit(f"file name collision {name}: {seen_names[name]} and {key}")
+        seen_names[name] = key
+        path = os.path.join(OUT, pid, rel); os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "wb") as fh: fh.write(code.encode())
+        assert open(path, "rb").read() == code.encode()
+        phase_counts[source] += 1; source_counts[source] += 1
+        rows[pid].append(dict(e={"config": cfg, "phase": source.lower().replace(" ", "-"), "repeat": rep,
+                                 "key": key}, g={"outcome": outcome}, code=code, rel=rel))
 
     for pid in sorted(rows):
         m = problems.load(pid)
@@ -133,19 +207,21 @@ def main():
            "`sha256(problem_file_hash16 + NUL + code)` for every file and fails unless `cache/grades/<key>.json` exists "
            "(harness errors and empty completions have no cached grade). Output is deterministic; re-running leaves no diff.", "",
            f"Files by phase: {ph}. Total {sum(phase_counts.values())}.", "",
-           "The post-hoc luna rescue arms (`results/appendix/luna_rescue.jsonl`) have no code in this repository: only their "
-           "summary rows were imported.", "",
+           "Post-hoc appendix F/G completions are exported when their cache entries hold text; other appendix arms contain "
+           "summary rows only.", "",
            "Passes per config (pass / graded, all phases):", "",
            "| problem | rung | " + " | ".join(configs) + " |", "|---|---|" + "---|" * len(configs)]
     for pid in sorted(rows):
         cells = []
         for c in configs:
             rs = [r for r in rows[pid] if r["e"]["config"] == c]
-            cells.append(f"{sum(r['g']['outcome'] == 'pass' for r in rs)}/{len(rs)}" if rs else "-")
+            graded = [r for r in rs if r["g"]["outcome"] in OUTCOMES]
+            cells.append(f"{sum(r['g']['outcome'] == 'pass' for r in graded)}/{len(graded)}" if graded else "-")
         out.append(f"| [{pid}]({pid}/index.md) | L{problems.load(pid).RUNG} | " + " | ".join(cells) + " |")
     with open(os.path.join(OUT, "README.md"), "w") as fh:
         fh.write("\n".join(out) + "\n")
-    print(f"exported {sum(phase_counts.values())} solutions ({ph}) for {len(rows)} problems -> {os.path.relpath(OUT, ROOT)}")
+    counts = ", ".join(f"{k} {v}" for k, v in sorted(source_counts.items())) or "none"
+    print(f"exported {sum(phase_counts.values())} solutions ({ph}; exploratory: {counts}) for {len(rows)} problems -> {os.path.relpath(OUT, ROOT)}")
 
 
 if __name__ == "__main__":

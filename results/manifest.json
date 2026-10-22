@@ -128,5 +128,175 @@
   }
  },
  "errors": [],
- "prices": "results/prices.json"
+ "prices": "results/prices.json",
+ "exploratory": {
+  "results/2026-10-22b-trim.jsonl": {
+   "file": "results/2026-10-22b-trim.jsonl",
+   "configs": [
+    "haiku",
+    "luna/base",
+    "luna/mininst",
+    "luna/noctx",
+    "luna/nodoc",
+    "luna/nofeat",
+    "luna/noshell",
+    "terra/base",
+    "terra/mininst",
+    "terra/noctx",
+    "terra/nodoc",
+    "terra/nofeat",
+    "terra/noshell"
+   ],
+   "producing_script": "bench/trim_probe.py",
+   "first_timestamp": "2026-10-22T09:33:51+00:00",
+   "last_timestamp": "2026-10-22T09:41:06+00:00",
+   "cli_versions": [
+    "cli_version=0.163.0",
+    "cli_version=2.1.308"
+   ]
+  },
+  "results/2026-10-22-pilot-agentic.jsonl": {
+   "file": "results/2026-10-22-pilot-agentic.jsonl",
+   "configs": [
+    "A/gpt-6.1-sol",
+    "B/gpt-6-luna",
+    "C/claude-sonnet-5-5"
+   ],
+   "producing_script": "bench/pilot/agentic/e2e.py",
+   "first_timestamp": "2026-10-22T06:36:28.526053+00:00",
+   "last_timestamp": "2026-10-22T06:38:24.019562+00:00"
+  },
+  "results/2026-10-22-pilot.jsonl": {
+   "file": "results/2026-10-22-pilot.jsonl",
+   "configs": [
+    "astra-low",
+    "codex-bare",
+    "codex-low",
+    "codex-low-lean",
+    "codex-medium",
+    "haiku-low",
+    "haiku-low-agent",
+    "haiku-medium",
+    "luna-high-prio",
+    "luna-low",
+    "luna-low-defa",
+    "sol6-low-prio",
+    "sol61-low-defa",
+    "sol61-low-prio",
+    "sonnet-low",
+    "sonnet-medium",
+    "sonnet-medium-agent",
+    "terra56-low-prio"
+   ],
+   "producing_script": "bench/pilot/bench.py",
+   "first_timestamp": "2026-10-22T05:48:56.518590Z",
+   "last_timestamp": "2026-10-22T06:39:38.441464+00:00",
+   "cli_versions": [
+    "cli_version=0.163.0",
+    "cli_version=2.1.308"
+   ]
+  },
+  "results/appendix/luna_rescue.jsonl#B1": {
+   "file": "results/appendix/luna_rescue.jsonl",
+   "configs": [
+    "luna-low-noshell-B1"
+   ],
+   "producing_script": "none: rows only"
+  },
+  "results/appendix/luna_rescue.jsonl#B2": {
+   "file": "results/appendix/luna_rescue.jsonl",
+   "configs": [
+    "luna-low-noshell-B2"
+   ],
+   "producing_script": "none: rows only"
+  },
+  "results/appendix/luna_rescue.jsonl#C": {
+   "file": "results/appendix/luna_rescue.jsonl",
+   "configs": [
+    "luna-low-selftest"
+   ],
+   "producing_script": "none: rows only"
+  },
+  "results/appendix/luna_rescue.jsonl#D": {
+   "file": "results/appendix/luna_rescue.jsonl",
+   "configs": [
+    "luna-high-bare",
+    "luna-medium-bare"
+   ],
+   "producing_script": "none: rows only"
+  },
+  "results/appendix/luna_rescue.jsonl#E": {
+   "file": "results/appendix/luna_rescue.jsonl",
+   "configs": [
+    "luna-low+haiku-low-repair"
+   ],
+   "producing_script": "none: rows only"
+  },
+  "results/appendix/luna_rescue.jsonl#F": {
+   "file": "results/appendix/luna_rescue.jsonl",
+   "configs": [
+    "haiku-low-plan+luna-high-bare",
+    "haiku-low-plan+luna-low"
+   ],
+   "producing_script": "bench/plan_first.py",
+   "cli_versions": [
+    "claude_cli=2.1.308",
+    "codex_cli=0.163.0"
+   ],
+   "models_efforts": {
+    "planner": {
+     "model": "claude-haiku-5-5",
+     "effort": "low"
+    },
+    "builders": {
+     "haiku-low-plan+luna-low": {
+      "model": "gpt-6-luna",
+      "effort": "low"
+     },
+     "haiku-low-plan+luna-high-bare": {
+      "model": "gpt-6-luna",
+      "effort": "high"
+     }
+    }
+   }
+  },
+  "results/appendix/luna_rescue.jsonl#G": {
+   "file": "results/appendix/luna_rescue.jsonl",
+   "configs": [
+    "luna-high-bare+haiku-on-fail",
+    "luna-high-bare+haiku-review-all",
+    "luna-high-bare+retry-on-fail",
+    "luna-low+haiku-on-fail",
+    "luna-low+haiku-review-all"
+   ],
+   "producing_script": "bench/gated_repair.py",
+   "cli_versions": [
+    "claude_cli=2.1.308",
+    "codex_cli=0.163.0"
+   ],
+   "models_efforts": {
+    "luna-high-bare+haiku-on-fail": {
+     "model": "gpt-6-luna",
+     "effort": "high"
+    },
+    "luna-high-bare+retry-on-fail": {
+     "model": "gpt-6-luna",
+     "effort": "high"
+    },
+    "luna-low+haiku-on-fail": {
+     "model": "gpt-6-luna",
+     "effort": "low"
+    },
+    "luna-high-bare+haiku-review-all": {
+     "model": "gpt-6-luna",
+     "effort": "high"
+    },
+    "luna-low+haiku-review-all": {
+     "model": "gpt-6-luna",
+     "effort": "low"
+    }
+   }
+  }
+ },
+ "git_sha": "6d5847327bcdefdb7c1f254f0c9766ac28aff2f0"
 }

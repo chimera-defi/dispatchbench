@@ -1,0 +1,14 @@
+{
+ "in_tok": 5959,
+ "cached_tok": 0,
+ "cache_write_tok": 0,
+ "out_tok": 810,
+ "reasoning_tok": 400,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\ndef best_average(a: list[int], k: int) -> list[int]:\n    from math import gcd\n\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, value in enumerate(a):\n        prefix[i + 1] = prefix[i] + value\n\n    hull = []\n    best_num = 0\n    best_den = 1\n\n    def cross(p, q, r):\n        return (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])\n\n    for j in range(k, n + 1):\n        point = (j - k, prefix[j - k])\n        while len(hull) >= 2 and cross(hull[-2], hull[-1], point) <= 0:\n            hull.pop()\n        hull.append(point)\n\n        query = (j, prefix[j])\n        lo, hi = 0, len(hull) - 1\n        while lo < hi:\n            mid = (lo + hi) // 2\n            p, q = hull[mid], hull[mid + 1]\n            left = (query[1] - p[1]) * (query[0] - q[0])\n            right = (query[1] - q[1]) * (query[0] - p[0])\n            if left <= right:\n                lo = mid + 1\n            else:\n                hi = mid\n\n        p = hull[lo]\n        num = query[1] - p[1]\n        den = query[0] - p[0]\n        if num * best_den > best_num * den:\n            best_num, best_den = num, den\n\n    divisor = gcd(best_num, best_den)\n    return [best_num // divisor, best_den // divisor]\n```",
+ "wall_s": 9.930287677000024,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

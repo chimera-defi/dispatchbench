@@ -175,7 +175,7 @@ def facts(s):
     # appendix: luna rescue
     a = luna_rescue.arms(); F["rescue_n"] = str(a["luna-low"]["n"])
     for c, v in a.items():
-        k = re.sub(r"\W", "_", c); F[f"r_{k}_k"] = f"{v['passes']}/{v['n']}"; F[f"r_{k}_upp"] = u(v["usd_per_pass"])
+        k = re.sub(r"\W", "_", c); F[f"r_{k}_k"] = f"{v['passes']}/{v['n']}"; F[f"r_{k}_upp"] = u(v["usd_per_pass"]); F[f"r_{k}_s"] = f"{v['median_s']:.0f}s"
     b0, b1, b2, sc, ee = a["luna-low"], a["luna-low-noshell-B1"], a["luna-low-noshell-B2"], a["luna-low-selftest"], a["luna-low+haiku-low-repair"]
     F["r_b1_gain"] = str(b1["passes"] - b0["passes"]); F["r_b2_loss"] = str(b1["passes"] - b2["passes"])
     F["r_c_cost_x"] = x(sc["usd_per_pass"], b0["usd_per_pass"]); F["r_c_time_x"] = x(sc["median_s"], b0["median_s"])
@@ -183,10 +183,21 @@ def facts(s):
     F["r_e_luna"] = f"{sum(r['luna_passed'] for r in ee['rows'])}/{ee['n']}"; F["r_e_changed"] = str(sum(r["haiku_changed"] for r in ee["rows"]))
     F["r_e_haiku_share"] = pct(sum(r["haiku_cost_usd"] for r in ee["rows"]) / ee["usd_total"])
     F["r_e_vs_hl_x"] = x(ee["usd_per_pass"], a["haiku-low"]["usd_per_pass"]); F["r_e_more"] = str(ee["passes"] - a["haiku-low"]["passes"])
+    F["orchestrator"] = "Claude Opus 5.5"  # the model that designed, ran and checked this benchmark; not a measured config
+    hr, lr, hv, sm = a["luna-high-bare+haiku-on-fail"], a["luna-low+haiku-on-fail"], a["luna-high-bare+haiku-review-all"], a["sonnet-medium"]
+    need(hv["passes"] == hv["n"] == sm["passes"], "luna-high + Haiku review and sonnet-medium never failed on the hard set")
+    need(hv["usd_per_pass"] == min(v["usd_per_pass"] for v in a.values() if v["passes"] == v["n"] and "original" not in v["label"]), "luna-high + review is the cheapest clean row")
+    need(lr["median_s"] == min(v["median_s"] for v in a.values()), "luna-low + gated Haiku is the fastest hard-set row")
+    F["g_vs_sm_x"] = x(sm["usd_per_pass"], hv["usd_per_pass"]); F["g_hi_fixed"] = str(sum(r["repaired"] for r in hr["rows"]))
+    F["g_hi_missed"] = str(hr["n"] - hr["passes"]); F["g_lo_fixed"] = str(sum(r["repaired"] for r in lr["rows"]))
     # appendix: the pilot (results/2026-10-22-pilot.jsonl) and the trim probe's pair step on three of its problems
     pl = s["pilot"]; prow = load(os.path.join(RES, "2026-10-22-pilot.jsonl"))
     need(all(v["passes"] == v["n"] for v in pl.values()), "every pilot run passed")
     F["pilot_configs"] = str(len(pl)); F["pilot_runs"] = str(sum(v["n"] for v in pl.values())); F["pilot_problems"] = str(len({r["problem"] for r in prow}))
+    pf = s["pilot_fast"]; F["fast_mult"] = f'{json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]:g}'
+    F["fast_problems"] = str(len({r["problem"] for r in prow if r["config"] == "sol61-low-defa"})); F["fast_rounds"] = str(pf["sol61-low/default"]["n"] // int(F["fast_problems"]))
+    assert all(v["passes"] == v["n"] for v in pf.values()), "fast-mode text says every call passed"
+    for k, v in pf.items(): F[f"fast_{k.split('-')[0].rstrip('0123456789')}_{'def' if k.endswith('default') else 'fast'}"] = f"{v['median_s']:.1f}"
     F["pilot_r2_configs"] = str(sum(1 for v in pl.values() if v["problems"] > 3))
     need(all(v["passes"] == v["n"] for v in pr.values()), "every trim-probe pair config passed")
     F["pair_problems"] = str(len({r["problem"] for r in load(os.path.join(RES, "2026-10-22b-trim.jsonl")) if r["step"] == "pair"}))
