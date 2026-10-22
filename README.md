@@ -63,7 +63,7 @@ Three more problems, written and checked before any model saw them (PLAN.md, dev
 | haiku-low | 12/15 | 5/5 | 5/5 | 2/5 | 16.5 | 2,506 | 0.0023 | measured |
 
 - **Only haiku-low failed, and only on speed.** All three misses are timeouts on the same p15 case: 50,000 single cells painted with a high colour, then 50,000 paints across the whole strip. All three failing solutions keep a sorted list of coloured intervals and visit every interval a paint covers, which is quadratic on that case; both passing attempts used a segment tree with lazy updates. None of haiku-low's answers was wrong.
-- **The other three did not separate.** With 3 problems, 15/15 only bounds the pass rate at ≥37% (one-sided 95%), so this says L7 is still not hard enough for them, not that they are equally strong. What does separate them is price and time: luna-high costs $0.0015 per pass (proxy) against about $0.017 for sol61-medium and sonnet-medium, and sonnet-medium is the fastest at 15 s.
+- **The other three did not separate.** With 3 problems, 15/15 only bounds the pass rate at ≥37% (one-sided 95%), so this says L7 is still not hard enough for them, not that they are equally strong. What does separate them is price and time: luna-high costs $0.0015 per pass (proxy) against $0.017–0.018 for sol61-medium and sonnet-medium, and sonnet-medium is the fastest at 15 s.
 - Both effort-adaptive configs spent more reasoning on L7 than on L1–L6: haiku-low 2.4× (1,027 → 2,506 tokens), luna-high 3.0× (526 → 1,569).
 
 ## Where they fail
@@ -83,8 +83,8 @@ Every problem with at least one failure, over all phases. Cells are passes out o
 | p15 L7 | **2** (3t) | – | 5 | – | – | 5 | 5 | – |
 
 - **sonnet-medium never failed**: 75/75 across L1–L7.
-- **p12 (a spreadsheet evaluator) is where most configs break, and they break by crashing.** Of luna-low, luna-medium and stripped luna's 15 attempts, 9 raise a parse error on a formula the statement allows and 3 hit Python's recursion limit on a long chain of cell references; haiku-low's one miss is also the recursion limit.
-- **luna at low and medium effort fails p04 at L2**, a sliding-window count, mostly with wrong answers on the first random input. luna-high and every Claude config pass it 5/5, which is why the rung order is called a prior, not a measurement.
+- **p12 (a spreadsheet evaluator) is where most configs break, and they break by crashing.** Of luna-low, luna-medium and stripped luna's 15 attempts, 9 raise a parse error on one of the statement's own worked examples and 3 hit Python's recursion limit on a long chain of cell references; haiku-low's one miss is also the recursion limit.
+- **luna at low and medium effort fails p04 at L2**, a sliding-window count, and 8 of its 9 wrong answers are on the statement's own first worked example, `taller_within([5, 1, 4, 4, 9], 2)`. luna-high and every Claude config pass it 5/5, which is why the rung order is called a prior, not a measurement.
 - **haiku-low fails by being slow, not wrong**: 5 timeouts (p09, p15) and 1 crash over 75 attempts, no wrong answers. haiku-medium's one miss is a wrong answer on p05.
 
 ## Method
