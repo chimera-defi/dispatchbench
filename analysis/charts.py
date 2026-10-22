@@ -197,11 +197,58 @@ def agentic_chart(s):
     return svg(W, H, b)
 
 
+def bars(title, rows, fmt, note, W=760, L=190, R=110):
+    """Horizontal bars. rows: (label, value, colour, hollow). Labels sit left of the bars, values right of them."""
+    T, bh = 50, 20; H = T + len(rows) * (bh + 8) + 46
+    mx = max(r[1] for r in rows) * 1.02; X = lambda v: L + v / mx * (W - L - R)
+    b = [text(12, 24, title, 14, weight="600")]
+    for i, (lab, v, col, hollow) in enumerate(rows):
+        y = T + i * (bh + 8)
+        b += [f"<rect x='{L}' y='{y}' width='{max(1, X(v) - L):.1f}' height='{bh}' fill='{'white' if hollow else col}' stroke='{col}' stroke-width='{2 if hollow else 0}'/>",
+              text(L - 8, y + 14, lab, 11, "end", MUTED if hollow else INK), text(X(v) + 6, y + 14, fmt(v), 11, fill=MUTED)]
+    b.append(text(12, H - 14, note, 10, fill=MUTED))
+    return svg(W, H, b)
+
+
+def all_configs(s):
+    return [(c, v, False) for c, v in s["configs"].items()] + [(c, v, True) for c, v in (s.get("exploratory") or {}).items()]
+
+
+def cost_tokens_chart(s):
+    """Total $ for the 60 function-track calls, and $ per 1,000 tokens processed (input plus output), per config."""
+    rows = all_configs(s)
+    tot = [(c + (" *" if v["cost_kind"] == "proxy" else ""), v["usd_total"], COLOR.get(c, MUTED), x) for c, v, x in rows]
+    per = [(c + (" *" if v["cost_kind"] == "proxy" else ""), 1000 * v["usd_per_call"] / (v["tokens_mean"]["in_tok"] + v["tokens_mean"]["out_tok"]), COLOR.get(c, MUTED), x)
+           for c, v, x in rows]
+    a = bars("Total $ for the 60 function-track calls (L1–L6)", tot, lambda v: f"${v:.3f}", "Hollow: exploratory. * Codex $ is a proxy (tokens × list price); Claude $ is measured.")
+    b = bars("$ per 1,000 tokens processed (input + output, mean per call)", per, lambda v: f"${v:.5f}",
+             "Cached input is billed at a discount, so a config whose prompt is mostly cached looks cheap per token. * Codex $ is a proxy.")
+    return a, b
+
+
+TOKEN_IN = ["luna-low", "luna-low-bare", "haiku-low", "sonnet-medium"]
+
+
+def token_in_chart(s):
+    allc = {c: v for c, v, _ in all_configs(s)}
+    lab = {"luna-low": "luna-low, stock Codex", "luna-low-bare": "luna-low, stripped Codex", "haiku-low": "haiku-low, tools off", "sonnet-medium": "sonnet-medium, tools off"}
+    rows = [(lab[c], allc[c]["tokens_mean"]["in_tok"], COLOR.get(c, MUTED), c not in s["configs"]) for c in TOKEN_IN if c in allc]
+    return bars("Mean input tokens per call (function track, 60 calls each)", rows, lambda v: f"{v:,}",
+                "Includes cached input. Codex counts include about 1.3k tokens of the host's user-level AGENTS.md, which no flag turns off.", L=200, R=80)
+
+
+def build(s):
+    """{file name: SVG text or None} for every chart."""
+    charts = {"pareto.svg": pareto_chart(s), "cost_time.svg": cost_time_chart(s), "pass_by_rung.svg": rung_chart(s), "heatmap.svg": heatmap(s),
+              "token_floor.svg": floor_chart(s), "agentic.svg": agentic_chart(s), "token_in.svg": token_in_chart(s)}
+    charts["cost_total.svg"], charts["cost_per_1k.svg"] = cost_tokens_chart(s)
+    return charts
+
+
 def main():
     s = json.load(open(os.path.join(ROOT, "results", "summary.json")))
     os.makedirs(OUT, exist_ok=True)
-    charts = {"pareto.svg": pareto_chart(s), "cost_time.svg": cost_time_chart(s), "pass_by_rung.svg": rung_chart(s), "heatmap.svg": heatmap(s),
-              "token_floor.svg": floor_chart(s), "agentic.svg": agentic_chart(s)}
+    charts = build(s)
     for name, body in charts.items():
         if body: open(os.path.join(OUT, name), "w").write(body)
     print("charts ->", os.path.relpath(OUT, ROOT), ", ".join(n for n, b in charts.items() if b))

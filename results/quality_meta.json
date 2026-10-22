@@ -1,0 +1,200 @@
+{
+ "generated": "2026-10-22T15:40:29+00:00",
+ "tools": {
+  "python": "3.12.3",
+  "radon": "6.0.1",
+  "ruff": "ruff 0.17.1"
+ },
+ "platform": "Linux-6.8.0-142-generic-x86_64-with-glibc2.39",
+ "cpus": 12,
+ "jobs": 4,
+ "cap_s": 10.0,
+ "reps_per_size": 3,
+ "slow_first_run_s": 2.0,
+ "mem_wall_s": 60.0,
+ "mem_size_factor": "4 * n0",
+ "rows": 570,
+ "n0": {
+  "p01_overlap_minutes": 12500,
+  "p02_squash": 25000,
+  "p03_ledger": 2500,
+  "p04_taller_within": 25000,
+  "p05_pass_route": 250,
+  "p06_calc": 1250,
+  "p07_weighted_distance_sums": 25000,
+  "p08_recur": 130,
+  "p09_k_machine_schedule": 37,
+  "p10_avoid_count": 2,
+  "p11_best_average": 12500,
+  "p12_sheet": 312,
+  "p13_xor_ring": 600,
+  "p14_bounce_board": 10,
+  "p15_paint_erase": 12500
+ },
+ "max_n": {
+  "p01_overlap_minutes": 100000,
+  "p02_squash": 200000,
+  "p03_ledger": 20000,
+  "p04_taller_within": 200000,
+  "p05_pass_route": 2000,
+  "p06_calc": 10000,
+  "p07_weighted_distance_sums": 200000,
+  "p08_recur": 1100,
+  "p09_k_machine_schedule": 300,
+  "p10_avoid_count": 20,
+  "p11_best_average": 100000,
+  "p12_sheet": 2574,
+  "p13_xor_ring": 5000,
+  "p14_bounce_board": 80,
+  "p15_paint_erase": 100000
+ },
+ "sizes": {
+  "p01_overlap_minutes": [
+   12500,
+   25000,
+   50000,
+   100000
+  ],
+  "p02_squash": [
+   25000,
+   50000,
+   100000,
+   200000
+  ],
+  "p03_ledger": [
+   2500,
+   5000,
+   10000,
+   20000
+  ],
+  "p04_taller_within": [
+   25000,
+   50000,
+   100000,
+   200000
+  ],
+  "p05_pass_route": [
+   250,
+   500,
+   1000,
+   2000
+  ],
+  "p06_calc": [
+   1250,
+   2500,
+   5000,
+   10000
+  ],
+  "p07_weighted_distance_sums": [
+   25000,
+   50000,
+   100000,
+   200000
+  ],
+  "p08_recur": [
+   130,
+   260,
+   520,
+   1040
+  ],
+  "p09_k_machine_schedule": [
+   37,
+   74,
+   148,
+   296
+  ],
+  "p10_avoid_count": [
+   2,
+   4,
+   8,
+   16
+  ],
+  "p11_best_average": [
+   12500,
+   25000,
+   50000,
+   100000
+  ],
+  "p12_sheet": [
+   312,
+   624,
+   1248,
+   2496
+  ],
+  "p13_xor_ring": [
+   600,
+   1200,
+   2400,
+   4800
+  ],
+  "p14_bounce_board": [
+   10,
+   20,
+   40,
+   80
+  ],
+  "p15_paint_erase": [
+   12500,
+   25000,
+   50000,
+   100000
+  ]
+ },
+ "ref_ms_at_n0": {
+  "p01_overlap_minutes": 26.0575,
+  "p02_squash": 4.8857,
+  "p03_ledger": 1.5186,
+  "p04_taller_within": 161.6476,
+  "p05_pass_route": 1.3583,
+  "p06_calc": 0.4286,
+  "p07_weighted_distance_sums": 52.4531,
+  "p08_recur": 0.1062,
+  "p09_k_machine_schedule": 0.5697,
+  "p10_avoid_count": 0.3593,
+  "p11_best_average": 22.3958,
+  "p12_sheet": 7.6821,
+  "p13_xor_ring": 0.5456,
+  "p14_bounce_board": 4.3362,
+  "p15_paint_erase": 67.8231
+ },
+ "ref_time_exp": {
+  "p01_overlap_minutes": 1.149523435485863,
+  "p02_squash": 1.0986295693060653,
+  "p03_ledger": 1.228265149122404,
+  "p04_taller_within": 1.0427201933907198,
+  "p05_pass_route": 1.2388104309805155,
+  "p06_calc": 1.1060497177770714,
+  "p07_weighted_distance_sums": 1.2407205214198358,
+  "p08_recur": 0.030635263432250603,
+  "p09_k_machine_schedule": 1.950281571945045,
+  "p10_avoid_count": 2.242571462228708,
+  "p11_best_average": 1.3506905004295646,
+  "p12_sheet": 1.1312087308920435,
+  "p13_xor_ring": 0.7721879457547787,
+  "p14_bounce_board": 2.218413139691849,
+  "p15_paint_erase": 0.9310656317406049
+ },
+ "ref_mem_peak_kb": {
+  "p01_overlap_minutes": 6637.9,
+  "p02_squash": 261.0,
+  "p03_ledger": 289.0,
+  "p04_taller_within": 13654.5,
+  "p05_pass_route": 1312.5,
+  "p06_calc": 19.8,
+  "p07_weighted_distance_sums": 21523.5,
+  "p08_recur": 6.2,
+  "p09_k_machine_schedule": 150.0,
+  "p10_avoid_count": 9.4,
+  "p11_best_average": 2158.1,
+  "p12_sheet": 1215.1,
+  "p13_xor_ring": 24.3,
+  "p14_bounce_board": 301.9,
+  "p15_paint_erase": 13440.2
+ },
+ "lint": {
+  "select": "E,F,W,B",
+  "ignore": "E501",
+  "flags": "--isolated --no-cache"
+ },
+ "note": "timing varies run to run; jobs <= 4 on a 12-core host; this file and quality.jsonl are the record of one run"
+}

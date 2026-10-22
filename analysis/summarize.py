@@ -185,7 +185,8 @@ def trim_block():
     return out
 
 
-def main():
+def build():
+    """Everything summarize writes, computed in memory: (summary, tables.md text, manifest). make audit calls this too."""
     rows = load(FUNC); agent = load(AGENT)
     main_rows = [r for r in rows if r["phase"] == "main"]
     s = {"generated_from": [os.path.relpath(p, ROOT) for p in (FUNC, AGENT) if os.path.exists(p)], "configs": {}, "phases": {}}
@@ -247,11 +248,16 @@ def main():
                   "codex_proxy_usd": round(sum(cost(r) for r in rows + agent if r["cli"] == "codex"), 4),
                   "calls": {"function": len(rows), "agentic": len(agent)}}
     s["hypotheses"] = hypotheses(s)
+    return s, tables(s), manifest(rows, agent, s)
+
+
+def main():
+    s, tab, man = build()
     json.dump(s, open(os.path.join(RES, "summary.json"), "w"), indent=1)
     os.makedirs(os.path.join(RES, "report"), exist_ok=True)
-    open(os.path.join(RES, "report", "tables.md"), "w").write(tables(s))
-    json.dump(manifest(rows, agent, s), open(os.path.join(RES, "manifest.json"), "w"), indent=1)
-    print(f"summary: {len(main_rows)} main rows, {len(esc)} escalation rows, {len(agent)} agentic rows -> results/summary.json, results/report/tables.md")
+    open(os.path.join(RES, "report", "tables.md"), "w").write(tab)
+    json.dump(man, open(os.path.join(RES, "manifest.json"), "w"), indent=1)
+    print(f"summary: {s['phases'].get('main', 0)} main rows, {s['phases'].get('escalation', 0)} escalation rows, {len(load(AGENT))} agentic rows -> results/summary.json, results/report/tables.md")
 
 
 def manifest(rows, agent, s):
