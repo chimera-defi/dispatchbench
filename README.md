@@ -169,3 +169,7 @@ cache/            cached model calls and grades; the source of every number
 results/          graded rows (jsonl), prices, manifest, summary, report
 PLAN.md           pre-registration and deviations
 ```
+
+## Licence
+
+MIT, see [LICENSE](LICENSE).
