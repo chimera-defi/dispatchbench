@@ -13,7 +13,6 @@
  {"context": "pass@1 is the fraction", "literals": ["1"], "reason": "metric name"},
  {"context": "hierarchical bootstrap intervals", "literals": ["95", "2024"], "reason": "confidence level; citation year"},
  {"context": "collapses to 100", "literals": ["100", "95", "0.05", "1"], "reason": "formula for the one-sided bound"},
- {"context": "With 10 attempts per rung", "literals": ["10"], "reason": "design: 2 problems per rung x 5 attempts"},
  {"context": "Identical prompts got between 0 and", "literals": ["0"], "reason": "minimum cached tokens; checked by need() in analysis/report.py"},
  {"context": "takes about 12 minutes", "literals": ["12"], "reason": "wall time of make selftest on this host, measured by hand"},
  {"context": "with 5 attempts each, n =", "literals": ["5"], "reason": "design of the rescue arms"},
@@ -24,5 +23,6 @@
  {"context": "4 repo tasks", "literals": ["4"], "reason": "repository layout: tasks in bench/agentic"},
  {"context": "4 lanes max, $8 Claude cap", "literals": ["4", "8"], "reason": "runner limits in bench/run.py"},
  {"context": "Bars: 95% CI.", "literals": ["95"], "reason": "interval level, fixed by the method (bootstrap 95% CI)"},
- {"context": "Dollars per 1,000 tokens", "literals": ["1,000"], "reason": "unit of the chart, not a result"}
+ {"context": "Dollars per 1,000 tokens", "literals": ["1,000"], "reason": "unit of the chart, not a result"},
+ {"context": "Liu et al. 2023", "literals": ["2023"], "reason": "citation year"}
 ]

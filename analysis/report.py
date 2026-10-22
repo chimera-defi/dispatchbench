@@ -169,7 +169,7 @@ def facts(s):
     need(lb["breaking_point"] == "L2" and ll["breaking_point"] == "L6", "breaking points as described")
     p06 = [r for r in rows if r["config"] == "luna-low-bare" and r["problem"] == "p06_calc"]
     big = max(p06, key=lambda r: r["cached_tok"]); F["cache_max"] = f"{big['cached_tok'] / 1000:.1f}k"; need(min(r["cached_tok"] for r in p06) == 0, "some p06 call had no cache")
-    F["cache_swing"] = f"{cost_uncached(big) / cost(big):.0f}×"
+    F["cache_swing"] = f"{cost_uncached(big) / cost(big):.1f}×"
     F["lanes"] = str(max(r["lanes"] for r in rows if r.get("lanes")))
     # appendix: luna rescue
     a = luna_rescue.arms(); F["rescue_n"] = str(a["luna-low"]["n"])
@@ -189,12 +189,18 @@ def facts(s):
     F["pilot_r2_configs"] = str(sum(1 for v in pl.values() if v["problems"] > 3))
     need(all(v["passes"] == v["n"] for v in pr.values()), "every trim-probe pair config passed")
     F["pair_problems"] = str(len({r["problem"] for r in load(os.path.join(RES, "2026-10-22b-trim.jsonl")) if r["step"] == "pair"}))
+    nf = [r for r in load(os.path.join(RES, "2026-10-22b-trim.jsonl")) if r["step"] == "pair" and r["config"] == "luna/nofeat"]
+    need(pr["luna/nofeat"]["usd_per_call"] > pr["luna/base"]["usd_per_call"], "tool features off costs more per call than stock")
+    F["nofeat_nocache"] = str(sum(1 for r in nf if r["cached_tok"] == 0)); F["nofeat_calls"] = str(len(nf))
     F["pilot_luna_call"] = u(pr["luna/noshell"]["usd_per_call"]); F["pilot_haiku_call"] = u(pr["haiku"]["usd_per_call"])
     F["pilot_luna_k"] = f"{pr['luna/noshell']['passes']}/{pr['luna/noshell']['n']}"; F["pilot_haiku_k"] = f"{pr['haiku']['passes']}/{pr['haiku']['n']}"
     q = [r for r in quality_rows() if r["outcome"] == "pass" and r["phase"] in ("main", "exploratory", "escalation") and r.get("time_ratio") is not None]
     if q:
         w = max(q, key=lambda r: r["time_ratio"])
-        F["q_worst_x"] = f"{w['time_ratio']:.0f}×"; F["q_worst_problem"] = w["problem"].split("_")[0]; F["q_worst_config"] = w["config"]
+        F["q_worst_x"] = f"{w['time_ratio']:.0f}×"; F["q_worst_problem"] = w["problem"].split("_")[0]
+        slow = [r for r in q if r["problem"] == w["problem"] and r["time_ratio"] >= w["time_ratio"] / 2]
+        F["q_slow_n"] = str(len(slow)); F["q_slow_cfgs"] = str(len({r["config"] for r in slow})); F["q_slow_lo"] = f"{min(r['time_ratio'] for r in slow):.0f}×"
+        need(len({r["config"] for r in slow}) > 1, "the slowest problem is slow across configs, not one config's outlier")
     F["growth_margin"] = str(GROWTH_MARGIN)
     F["n_solutions"] = str(sum(1 for _, _, fs in os.walk(os.path.join(RES, "solutions")) for f in fs if f.endswith(".py")))
     return F
