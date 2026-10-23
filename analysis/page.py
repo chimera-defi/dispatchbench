@@ -71,10 +71,10 @@ def pass_cost(s):
     fr = sorted(front(pts, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
     d = f"M{X(fr[0]['x']):.1f} {B} V{Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
-    xt = [(v, f"${v:g}") for v in (5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2)]
+    xt = [(v, f"${v:g}") for v in (1e-3, 2e-3, 5e-3, 1e-2, 2e-2)]
     yt = [(v / 100, f"{v}%") for v in (60, 70, 80, 90, 100)]
-    lab = {"luna-low": (12, 16, "start"), "luna-medium": (12, -8, "start"), "luna-high": (12, 14, "start"), "haiku-low": (-14, -6, "end"),
-           "haiku-medium": (14, 4, "start"), "sonnet-medium": (-16, 4, "end"), "sol61-medium": (-16, 4, "end")}
+    lab = {"luna-low": (12, 16, "start"), "luna-medium": (12, -8, "start"), "luna-high": (12, 14, "start"), "haiku-low": (-14, 16, "end"),
+           "haiku-medium": (14, 22, "start"), "sonnet-medium": (-16, 4, "end"), "sol61-medium": (0, 26, "middle")}
     return scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab), [p["c"] for p in fr]
 
 
@@ -91,20 +91,27 @@ def speed_cost(s):
     d = f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
     xt = [(v, f"{v} s") for v in (5, 10, 15, 20, 25, 30)]
     yt = [(v, f"${v:g}") for v in (5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2)]
-    lab = {"luna-low": (-10, 20, "end"), "luna-medium": (8, 22, "start"), "haiku-low": (-14, -10, "end"), "luna-high": (6, 24, "start"),
+    lab = {"luna-low": (-10, 20, "end"), "luna-medium": (8, 22, "start"), "haiku-low": (-14, -10, "end"), "luna-high": (14, -10, "start"),
            "haiku-medium": (14, -8, "start"), "sonnet-medium": (14, 4, "start"), "sol61-medium": (-14, -12, "end")}
     return scatter(pts, d, X, Y, xt, yt, "median seconds per call (bar: middle half of calls)", "$ per pass (log)", "↙ better", lab), [p["c"] for p in fr]
 
 
-# Hard-set points: the four single models and the four luna → Haiku pipelines of the pipelines chart.
-HARD_PTS = [("luna-low", "luna-low"), ("luna-high-bare", "luna-high"), ("haiku-low", "haiku-low"), ("sonnet-medium", "sonnet-medium"),
-            ("luna-low+haiku-on-fail", "luna-low → Haiku on fail"), ("luna-high-bare+haiku-on-fail", "luna-high → Haiku on fail"),
-            ("luna-low+haiku-review-all", "luna-low → Haiku all"), ("luna-high-bare+haiku-review-all", "luna-high → Haiku all")]
+# Display names for hard-set rows, used by every chart and table so a pipeline reads the same everywhere. luna-high on the hard
+# set is the stripped harness (luna-high-bare); the name says so. Haiku in a pipeline reviews the answer and rewrites it if wrong.
+NAME = {"luna-low": "luna-low", "luna-high-bare": "luna-high-bare", "haiku-low": "haiku-low", "haiku-medium": "haiku-medium",
+        "sonnet-medium": "sonnet-medium", "sol61-medium": "sol61-medium",
+        "luna-low+haiku-review-all": "luna-low → Haiku fixes all", "luna-low+haiku-on-fail": "luna-low → Haiku if samples fail",
+        "luna-high-bare+haiku-review-all": "luna-high-bare → Haiku fixes all", "luna-high-bare+haiku-on-fail": "luna-high-bare → Haiku if samples fail",
+        "luna-high-bare+retry-on-fail": "luna-high-bare → retry if samples fail",
+        "haiku-low-plan+luna-low": "Haiku plan → luna-low", "haiku-low-plan+luna-high-bare": "Haiku plan → luna-high-bare"}
+# Hard-set points: every row of the results table except the plan-first pipelines (in the table, not plotted).
+HARD_PTS = [(c, n) for c, n in NAME.items() if not c.startswith("haiku-low-plan")]
+SHORT = lambda n: n.replace("luna-", "").replace(" → Haiku if samples fail", "→H fail").replace(" → Haiku fixes all", "→H all").replace(" → retry if samples fail", "→retry")
 
 
 def hard_pts():
-    a = luna_rescue.arms(); short = lambda n: n if "→" not in n else n.replace("luna-", "").replace(" → Haiku on fail", "→H fail").replace(" → Haiku all", "→H all")
-    return [{"c": c, "name": short(n), "col": "var(--frontier)" if "→" in n else FAM(c), "hollow": False, "w": None, "k": a[c]["passes"] / a[c]["n"],
+    a = luna_rescue.arms()
+    return [{"c": c, "name": SHORT(n) if "→" in n else n, "col": "var(--frontier)" if "→" in n else FAM(c), "hollow": False, "w": None, "k": a[c]["passes"] / a[c]["n"],
              "usd": a[c]["usd_per_pass"], "sec": a[c]["median_s"],
              "tip": f"{n}: {a[c]['passes']}/{a[c]['n']} passed, ${a[c]['usd_per_pass']:.5f} per pass, median {a[c]['median_s']:.1f} s"} for c, n in HARD_PTS]
 
@@ -112,34 +119,39 @@ def hard_pts():
 def hard_pass_cost():
     """Hard set: pass rate against $ per pass (log), single models and the Haiku pipelines; no intervals (n is small and post hoc)."""
     L, R, T, B, W = 84, 16, 14, 382, 560
-    X = logscale(5e-4, 3e-2, L, W - R); Y = lambda v: B - (v - 0.55) / 0.47 * (B - T)
-    pts = [dict(p, x=p["usd"], y=p["k"]) for p in hard_pts()]
+    X = logscale(5e-4, 3e-2, L, W - R); Y = lambda v: B - (v - 0.84) / 0.18 * (B - T)
+    pts = [dict(p, x=p["usd"], y=p["k"]) for p in hard_pts() if p["k"] >= 0.84]; off = [p for p in hard_pts() if p["k"] < 0.84]
     fr = sorted(front(pts, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
     d = f"M{X(fr[0]['x']):.1f} {B} V{Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
-    xt = [(v, f"${v:g}") for v in (5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2)]
-    yt = [(v / 100, f"{v}%") for v in (60, 70, 80, 90, 100)]
-    lab = {"luna-low": (14, 5, "start"), "luna-high-bare": (14, 22, "start"), "haiku-low": (14, 5, "start"), "sonnet-medium": (0, 50, "middle"),
-           "luna-high-bare+haiku-on-fail": (-14, -8, "end"), "luna-low+haiku-on-fail": (-14, 5, "end"),
-           "luna-low+haiku-review-all": (14, 5, "start"), "luna-high-bare+haiku-review-all": (-14, 5, "end")}
-    return scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, H=440, B=B), [p["c"] for p in fr]
+    xt = [(v, f"${v:g}") for v in (1e-3, 2e-3, 5e-3, 1e-2, 2e-2)]
+    yt = [(v / 100, f"{v}%") for v in (85, 90, 95, 100)]
+    lab = {"luna-high-bare": (14, 20, "start"), "haiku-low": (14, 5, "start"), "haiku-medium": (0, -16, "middle"),
+           "sonnet-medium": (0, -14, "middle"), "sol61-medium": (0, 24, "middle"), "luna-high-bare+retry-on-fail": (-14, 5, "end"),
+           "luna-high-bare+haiku-on-fail": (0, 24, "middle"), "luna-low+haiku-on-fail": (-14, 5, "end"),
+           "luna-low+haiku-review-all": (14, 5, "start"), "luna-high-bare+haiku-review-all": (0, 22, "middle")}
+    g = scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, H=440, B=B)
+    note = "".join(f'<text x="{W - R}" y="{B - 10}" text-anchor="end" class="axis">below the chart: {esc(p["name"])} {100 * p["k"]:.0f}%</text>' for p in off)
+    return g.replace("</svg>", note + "</svg>"), [p["c"] for p in fr]
 
 
 def hard_speed_cost():
     """Hard set: median seconds against $ per pass (log); frontier among rows passing at least MIN_PASS."""
-    L, R, T, B, W = 84, 16, 14, 382, 560
-    X = lambda v: L + (v - 4) / 26 * (W - R - L); Y = logscale(5e-4, 3e-2, B, T)
+    L, R, T, B, W = 84, 16, 14, 462, 560
+    X = lambda v: L + (v - 6) / 22 * (W - R - L); Y = logscale(8e-4, 2.5e-2, B, T)
     pts = [dict(p, x=p["sec"], y=p["usd"]) for p in hard_pts()]
     ok = [p for p in pts if p["k"] >= MIN_PASS]
     fr = sorted(front(ok, lambda a, b: a["x"] <= b["x"] and a["y"] <= b["y"]), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
     d = f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
-    xt = [(v, f"{v} s") for v in (5, 10, 15, 20, 25)]
-    yt = [(v, f"${v:g}") for v in (5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2)]
-    lab = {"luna-low": (-10, -10, "end"), "luna-high-bare": (14, 5, "start"), "haiku-low": (14, 5, "start"), "sonnet-medium": (14, 5, "start"),
-           "luna-high-bare+haiku-on-fail": (-14, 26, "end"), "luna-low+haiku-on-fail": (-14, -12, "end"),
-           "luna-low+haiku-review-all": (-14, 5, "end"), "luna-high-bare+haiku-review-all": (0, 28, "middle")}
-    return scatter(pts, d, X, Y, xt, yt, "median seconds per call", "$ per pass (log)", "↙ better", lab, H=440, B=B), [p["c"] for p in fr]
+    xt = [(v, f"{v} s") for v in (10, 15, 20, 25)]
+    yt = [(v, f"${v:g}") for v in (1e-3, 2e-3, 5e-3, 1e-2, 2e-2)]
+    lab = {"luna-low": (-12, 5, "end"), "luna-high-bare": (14, 5, "start"), "haiku-low": (14, 1, "start"), "haiku-medium": (14, 5, "start"),
+           "sonnet-medium": (14, 5, "start"), "sol61-medium": (-14, 4, "end"), "luna-high-bare+retry-on-fail": (-20, 28, "middle"),
+           "luna-high-bare+haiku-on-fail": (12, 6, "start"), "luna-low+haiku-on-fail": (0, -16, "middle"),
+           "luna-low+haiku-review-all": (0, -14, "middle"), "luna-high-bare+haiku-review-all": (-14, 5, "end")}
+    g = scatter(pts, d, X, Y, xt, yt, "median seconds per call", "$ per pass (log)", "", lab, H=520, B=B)  # corner label goes top right: the bottom left is crowded
+    return g.replace("</svg>", f'<text x="{W - R - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>'), [p["c"] for p in fr]
 
 
 def grid(s):
@@ -181,14 +193,10 @@ def floor(s):
 def pipes():
     """Hard set: single models next to the Haiku review and repair pipelines (plan-first rows are in the results table)."""
     a = luna_rescue.arms()
-    bars = [("luna-low", "luna-low alone", "var(--codex)"), ("luna-high-bare", "luna-high alone", "var(--codex)"),
-            ("haiku-low", "haiku-low alone", "var(--claude)"),
-            ("luna-low+haiku-on-fail", "luna-low → Haiku on fail", "var(--frontier)"),
-            ("luna-high-bare+haiku-on-fail", "luna-high → Haiku on fail", "var(--frontier)"),
-            ("luna-low+haiku-review-all", "luna-low → Haiku all", "var(--frontier)"),
-            ("luna-high-bare+haiku-review-all", "luna-high → Haiku all", "var(--frontier)"),
-            ("sonnet-medium", "sonnet-medium alone", "var(--sonnet)")]
-    W, BL, BR, H = 560, 210, 370, 16 + 40 * len(bars)
+    bars = [(c, SHORT(NAME[c]) if "→" in NAME[c] else NAME[c], "var(--frontier)" if "→" in NAME[c] else FAM(c))
+            for c in ("luna-low", "luna-high-bare", "haiku-low", "luna-low+haiku-on-fail", "luna-high-bare+haiku-on-fail",
+                      "luna-low+haiku-review-all", "luna-high-bare+haiku-review-all", "haiku-medium", "sonnet-medium")]
+    W, BL, BR, H = 560, 150, 360, 16 + 40 * len(bars)
     g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Passes on the hard set: single models and the Haiku review and repair pipelines">']
     for i, (c, name, col) in enumerate(bars):
         v = a[c]; y = 8 + i * 40; w = v["passes"] / v["n"] * (BR - BL)
@@ -226,20 +234,20 @@ def explorer(s):
 
 def verdict(c, v, need, E):
     """One word per config; each is checked against the data so the table cannot drift from it."""
-    if c == "haiku-low": need(v["pass_at_1"] >= MIN_PASS, "haiku-low clears the pass bar"); return "default · repair"
-    if c == "luna-high": need(v["pass_at_1"] >= MIN_PASS, "luna-high clears the pass bar"); return "build"
-    if v["passes"] == v["n"]: return "never failed"
+    if c == "haiku-medium":
+        need(v["passes"] == v["n"] - 1 and luna_rescue.arms()[c]["passes"] == luna_rescue.arms()[c]["n"], "haiku-medium: one miss, none on the hard set")
+        return "★ pick"
+    if c == "haiku-low":
+        need(v["usd_per_pass"] == min(E[d]["usd_per_pass"] for d in ORDER if E[d]["pass_at_1"] >= 0.95), "haiku-low is the cheapest at 95%+")
+        return "budget pick"
+    if v["passes"] == v["n"]: return "0 misses"
     if v["pass_at_1"] < MIN_PASS: return "avoid"
     dominated = any(d != c and E[d]["usd_per_pass"] <= v["usd_per_pass"] and E[d]["pass_at_1"] >= v["pass_at_1"] for d in ORDER)
-    return "no gain" if dominated else "trade-off"
+    return "beaten" if dominated else "pricier, passes more"
 
 
 # Hard-set rows for the results table: single models, then pipelines (arrow = a second model or call after the first).
-HARD = [("luna-low", "luna-low"), ("luna-high-bare", "luna-high"), ("haiku-low", "haiku-low"), ("sonnet-medium", "sonnet-medium"),
-        ("luna-low+haiku-review-all", "luna-low → Haiku review"), ("luna-low+haiku-on-fail", "luna-low → Haiku if examples fail"),
-        ("luna-high-bare+haiku-review-all", "luna-high → Haiku review"), ("luna-high-bare+haiku-on-fail", "luna-high → Haiku if examples fail"),
-        ("luna-high-bare+retry-on-fail", "luna-high → retry if examples fail"),
-        ("haiku-low-plan+luna-low", "Haiku plan → luna-low"), ("haiku-low-plan+luna-high-bare", "Haiku plan → luna-high")]
+HARD = list(NAME.items())
 
 
 def row(name, col, k, n, usd, sec, verdict, proxy=False):
@@ -257,14 +265,15 @@ def short_table(s, need):
                E[c]["cost_kind"] == "proxy") for c in ORDER]
     clean = [c for c, _ in HARD if a[c]["passes"] == a[c]["n"]]; need(clean, "some hard-set row never failed")
     best = min(clean, key=lambda c: a[c]["usd_per_pass"])
-    hv = lambda c: "★ cheapest clean" if c == best else "never failed" if c in clean else f"missed {a[c]['n'] - a[c]['passes']}"
+    need(best == "haiku-medium", "haiku-medium is the cheapest hard-set row with no miss")
+    hv = lambda c: "0 misses, cheapest" if c == best else "0 misses" if c in clean else f"missed {a[c]['n'] - a[c]['passes']}"
     hard = [row(name, "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], a[c]["median_s"], hv(c),
-                "luna" in c) for c, name in HARD]
+                "luna" in c or "sol61" in c) for c, name in HARD]
     grp = lambda t: f'<tr class="grp"><th colspan="5">{t}</th></tr>'
     return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>$ per pass</th>'
-            '<th>median seconds</th><th>verdict</th></tr></thead>'
+            '<th>median s</th><th>verdict</th></tr></thead>'
             f'<tbody>{grp("All problems")}{"".join(top)}</tbody>'
-            f'<tbody>{grp(f"Hard set: the {a[HARD[0][0]]["n"]} attempts luna-low failed most")}{"".join(hard)}</tbody></table></div>')
+            f'<tbody>{grp(f"Hard set: {a[HARD[0][0]]["n"]} attempts on {len(luna_rescue.PIDS)} problems chosen after round 1")}{"".join(hard)}</tbody></table></div>')
 
 
 # What each problem tests, one line each, for the visible method list. Links go to the problem file in the repo.

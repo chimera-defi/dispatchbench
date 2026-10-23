@@ -25,5 +25,12 @@
  {"context": "Bars: 95% CI.", "literals": ["95"], "reason": "interval level, fixed by the method (bootstrap 95% CI)"},
  {"context": "Whiskers: 95% CI.", "literals": ["95"], "reason": "interval level, fixed by the method (bootstrap 95% CI)"},
  {"context": "Dollars per 1,000 tokens", "literals": ["1,000"], "reason": "unit of the chart, not a result"},
- {"context": "Liu et al. 2023", "literals": ["2023"], "reason": "citation year"}
+ {"context": "Liu et al. 2023", "literals": ["2023"], "reason": "citation year"},
+ {"context": "0 misses on the hard set (its {{rescue_n}} main-run attempts", "literals": ["0"], "reason": "haiku-medium had no hard-set miss; checked by need() in analysis/report.py"},
+ {"context": "problems chosen after round 1", "literals": ["1"], "reason": "round name (Round 1 in the method list)"},
+ {"context": "0 wrong outputs in", "literals": ["0"], "reason": "haiku-low never wrong; checked by need() in analysis/report.py"},
+ {"context": "cheapest config passing 95% or more", "literals": ["95"], "reason": "budget-pick threshold; checked by need() in analysis/page.py verdict()"},
+ {"context": "<b>0 misses</b>: every attempt passed", "literals": ["0", "0"], "reason": "verdict names, defined by the numbers in analysis/page.py"},
+ {"context": "alone also had 0 misses", "literals": ["0"], "reason": "haiku-medium hard-set result; checked by need() in analysis/report.py"},
+ {"context": "pipeline: also 0 misses, but", "literals": ["0"], "reason": "luna-high-bare + Haiku fixes all had no hard-set miss; checked by need() in analysis/report.py"}
 ]

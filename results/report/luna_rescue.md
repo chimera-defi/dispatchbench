@@ -15,4 +15,6 @@
 | G: luna-high (stripped) builds; haiku-low reviews every answer, as in E | 35/35 | 0.00348 | 26.1 |
 | G: luna-low builds; haiku-low reviews every answer (arm E rerun from committed code) | 34/35 | 0.00391 | 23.1 |
 | haiku-low | 32/35 | 0.00157 | 13.1 |
+| haiku-medium | 35/35 | 0.00192 | 14.8 |
 | sonnet-medium | 35/35 | 0.01530 | 11.4 |
+| sol61-medium | 33/35 | 0.01785 | 25.6 |

@@ -170,7 +170,7 @@ def facts(s):
     need(lb["breaking_point"] == "L2" and ll["breaking_point"] == "L6", "breaking points as described")
     p06 = [r for r in rows if r["config"] == "luna-low-bare" and r["problem"] == "p06_calc"]
     big = max(p06, key=lambda r: r["cached_tok"]); F["cache_max"] = f"{big['cached_tok'] / 1000:.1f}k"; need(min(r["cached_tok"] for r in p06) == 0, "some p06 call had no cache")
-    F["cache_swing"] = f"{cost_uncached(big) / cost(big):.1f}×"
+    F["cache_swing"] = f"{max(cost_uncached(r) / cost(r) for r in rows if r['cli'] == 'codex' and cost(r)):.1f}×"  # largest over every Codex call
     F["lanes"] = str(max(r["lanes"] for r in rows if r.get("lanes")))
     # appendix: luna rescue
     a = luna_rescue.arms(); F["rescue_n"] = str(a["luna-low"]["n"])
@@ -186,8 +186,10 @@ def facts(s):
     F["orchestrator"] = "Claude Opus 5.5"  # the model that designed, ran and checked this benchmark; not a measured config
     hr, lr, hv, sm = a["luna-high-bare+haiku-on-fail"], a["luna-low+haiku-on-fail"], a["luna-high-bare+haiku-review-all"], a["sonnet-medium"]
     need(hv["passes"] == hv["n"] == sm["passes"], "luna-high + Haiku review and sonnet-medium never failed on the hard set")
-    need(hv["usd_per_pass"] == min(v["usd_per_pass"] for v in a.values() if v["passes"] == v["n"] and "original" not in v["label"]), "luna-high + review is the cheapest clean row")
-    need(lr["median_s"] == min(v["median_s"] for v in a.values()), "luna-low + gated Haiku is the fastest hard-set row")
+    hm = a["haiku-medium"]; need(hm["passes"] == hm["n"] and hm["usd_per_pass"] < hv["usd_per_pass"], "haiku-medium alone: no miss, cheaper than the pipeline")
+    F["hm_vs_pipe_x"] = x(hv["usd_per_pass"], hm["usd_per_pass"]); F["r_pids"] = str(len(luna_rescue.PIDS))
+    F["sm_vs_hm_x"] = f"{cfg['sonnet-medium']['usd_per_pass'] / cfg['haiku-medium']['usd_per_pass']:.0f}×"
+    need("haiku-medium" not in hard, "haiku-medium did not run the L7 rung")
     F["g_vs_sm_x"] = x(sm["usd_per_pass"], hv["usd_per_pass"]); F["g_hi_fixed"] = str(sum(r["repaired"] for r in hr["rows"]))
     F["g_hi_missed"] = str(hr["n"] - hr["passes"]); F["g_lo_fixed"] = str(sum(r["repaired"] for r in lr["rows"]))
     # appendix: the pilot (results/2026-10-22-pilot.jsonl) and the trim probe's pair step on three of its problems

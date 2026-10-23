@@ -21,7 +21,9 @@ ARMS = [("luna-low", "luna-low baseline"),
         ("luna-high-bare+haiku-review-all", "G: luna-high (stripped) builds; haiku-low reviews every answer, as in E"),
         ("luna-low+haiku-review-all", "G: luna-low builds; haiku-low reviews every answer (arm E rerun from committed code)"),
         ("haiku-low", "haiku-low"),
-        ("sonnet-medium", "sonnet-medium")]
+        ("haiku-medium", "haiku-medium"),
+        ("sonnet-medium", "sonnet-medium"),
+        ("sol61-medium", "sol61-medium")]
 
 
 def arms():
