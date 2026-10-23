@@ -35,6 +35,8 @@
 <section id="pareto">
 <h2><span class="num"></span>📊 Cost vs accuracy</h2>
 <div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="dot hollow" style="color:var(--codex)"></span>exploratory</span><span><span class="ring"></span>Pareto frontier</span></div>
+<div class="tabs"><input type="radio" name="pset" id="pset-all" checked><label for="pset-all">All problems</label><input type="radio" name="pset" id="pset-hard"><label for="pset-hard">Hard set + pipelines</label>
+<div class="tab tab-all">
 <div class="chart">{{w_pass_cost}}</div>
 <ul class="tight small">
 <li>Purple line: nothing beats these on both price and pass rate. Whiskers: 95% CI.</li>
@@ -44,6 +46,21 @@
 <ul class="tight small">
 <li>haiku-low and luna-high: nothing as accurate is both faster and cheaper.</li>
 </ul>
+<ul class="tight small">
+<li>Codex fast mode is not plotted: it ran only in the pilot ({{fast_problems}} easy problems, every call passed), so it has no pass rate here. It bills {{fast_mult}}× and sped up sol61-low, not luna (Results).</li>
+</ul>
+</div>
+<div class="tab tab-hard">
+<div class="chart"><h3>Hard set: pass rate vs $ per pass</h3><p class="sub">The {{rescue_n}} attempts luna-low failed most. Purple: pipelines. low/high = luna build effort; →H fail = Haiku repairs only answers failing the statement's examples; →H all = Haiku reviews every answer. No intervals: small, post-hoc sample.</p>{{w_hard_pass_cost}}</div>
+<ul class="tight small">
+<li>Frontier, cheapest first: {{w_hard_front_pass}}.</li>
+</ul>
+<div class="chart"><h3>⏱️ Hard set: speed vs $ per pass</h3><p class="sub">Frontier among rows passing at least {{min_pass}}.</p>{{w_hard_speed_cost}}</div>
+<ul class="tight small">
+<li>Frontier: {{w_hard_front_speed}}.</li>
+</ul>
+</div>
+</div>
 </section>
 <section id="fail">
 <h2><span class="num"></span>🟥 Where they fail</h2>
