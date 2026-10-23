@@ -2,6 +2,7 @@
 
 python3 -m bench.run --phase main --configs haiku-low,luna-low --problems all --repeats 1-5 --lanes 4
 python3 -m bench.run --phase hard --configs sonnet-medium,sol61-medium,haiku-low,luna-high --problems hard --repeats 1-5 --lanes 4
+python3 -m bench.run --phase fastmode --configs sol61-high-fast,sol61-xhigh --problems hard --repeats 1-5 --lanes 4   # control: sol61-high --repeats 6-10
 
 Cache entry: cache/calls/<sha256>.json with the completion text, token usage, wall time and CLI metadata.
 Grading is a separate step (bench.grade_all), so lanes never compete with timed test runs."""
@@ -32,9 +33,15 @@ TRIM_LEVEL = {"luna-low-bare": "noshell"}
 # Exploratory, 2026-10-23, at the operator's request: the previous Codex generation and the flagship, stock harness.
 CONFIGS.update({"sol56-high": ("codex", "gpt-5.6-sol", "high"), "luna56-low": ("codex", "gpt-5.6-luna", "low"),
                 "luna56-high": ("codex", "gpt-5.6-luna", "high"), "astra-medium": ("codex", "gpt-6-astra", "medium")})
+# Exploratory, 2026-10-23, at the operator's request: sol61-high in fast mode (priority tier, same model and effort) as a
+# fan-out default, and sol61 at xhigh effort for the "does more effort write worse code" question. Hard set only.
+CONFIGS.update({"sol61-high-fast": ("codex", "gpt-6.1-sol", "high"), "sol61-xhigh": ("codex", "gpt-6.1-sol", "xhigh")})
+TIER = {"sol61-high-fast": "priority"}
 
 
 def codex_flags(config, portable=False):
+    if config in TIER:
+        return [f"service_tier={TIER[config]}" if f == "service_tier=default" else f for f in CODEX_FLAGS]
     if config not in TRIM_LEVEL:
         return CODEX_FLAGS
     from bench import trim_probe as T  # late import: trim_probe imports this module

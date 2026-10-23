@@ -1,11 +1,11 @@
 {
- "generated": "2026-10-22T15:40:29+00:00",
+ "generated": "2026-10-23T20:46:45+00:00",
  "tools": {
   "python": "3.12.3",
   "radon": "6.0.1",
   "ruff": "ruff 0.17.1"
  },
- "platform": "Linux-6.8.0-142-generic-x86_64-with-glibc2.39",
+ "platform": "Linux-6.8.0-147-generic-x86_64-with-glibc2.39",
  "cpus": 12,
  "jobs": 4,
  "cap_s": 10.0,
@@ -13,7 +13,7 @@
  "slow_first_run_s": 2.0,
  "mem_wall_s": 60.0,
  "mem_size_factor": "4 * n0",
- "rows": 570,
+ "rows": 1050,
  "n0": {
   "p01_overlap_minutes": 12500,
   "p02_squash": 25000,

@@ -155,6 +155,15 @@
 <li>On {{q_worst_problem}}, {{q_slow_n}} solutions run {{q_slow_lo}} to {{q_worst_x}} slower than the reference.</li>
 </ul>
 </details>
+<details><summary>⚡ Codex fast mode and xhigh</summary>
+{{table:fastmode}}
+<ul class="tight">
+<li>Fast mode: same passes and code, {{fm_fast_s}} s vs {{fm_ctrl_s}} s per call ({{fm_faster}} faster), {{fm_mult}} price.</li>
+<li>xhigh: same passes, {{fm_x_cost}} the cost, slower, no better code.</li>
+<li>Blind read, {{bl_n}} solutions: all {{bl_blocks}} blocks were sonnet-medium.</li>
+</ul>
+{{table:blind}}
+</details>
 <details><summary>📎 Appendix</summary>
 <ul class="tight">
 <li>Harder L7 rung: haiku-low {{l7_haiku_low_upp}} per pass, sonnet-medium {{l7_sonnet_medium_upp}}.</li>

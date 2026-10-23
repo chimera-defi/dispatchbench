@@ -218,16 +218,32 @@ def facts(s):
     if q:
         w = max(q, key=lambda r: r["time_ratio"])
         F["q_worst_x"] = f"{w['time_ratio']:.0f}×"; F["q_worst_problem"] = w["problem"].split("_")[0]
-        slow = [r for r in q if r["problem"] == w["problem"] and r["time_ratio"] >= w["time_ratio"] / 2]
+        slow = [r for r in q if r["problem"] == w["problem"] and r["time_ratio"] >= 10]  # 10x: one config's extreme outlier must not hide the rest
         F["q_slow_n"] = str(len(slow)); F["q_slow_cfgs"] = str(len({r["config"] for r in slow})); F["q_slow_lo"] = f"{min(r['time_ratio'] for r in slow):.0f}×"
         need(w["ref_time_exp"] < 0.2, "the slowest problem's reference is near constant time"); F["q_worst_ref_exp"] = f"{w['ref_time_exp']:.2f}"
         need(len({r["config"] for r in slow}) > 1, "the slowest problem is slow across configs, not one config's outlier")
+    fm = s.get("fastmode") or {}
+    if len(fm) == 3:
+        c0, cf, cx = fm["sol61-high"], fm["sol61-high-fast"], fm["sol61-xhigh"]
+        need(c0["passes"] == cf["passes"] == cx["passes"] == c0["n"], "fast mode and xhigh pass every hard-set attempt, like the control")
+        need(cf["median_s"] < c0["median_s"] < cx["median_s"], "fast mode is the quickest and xhigh the slowest")
+        F["fm_n"] = str(c0["n"]); F["fm_rep_lo"] = str(min(c0["repeats"])); F["fm_rep_hi"] = str(max(c0["repeats"]))
+        F["fm_ctrl_s"] = f"{c0['median_s']:.1f}"; F["fm_fast_s"] = f"{cf['median_s']:.1f}"; F["fm_x_s"] = f"{cx['median_s']:.1f}"
+        F["fm_faster"] = f"{(1 - cf['median_s'] / c0['median_s']) * 100:.0f}%"
+        F["fm_mult"] = f"{json.load(open(os.path.join(RES, 'prices.json')))['fast_mode_multiplier']:g}×"
+        F["fm_x_cost"] = f"{cx['usd_per_pass'] / c0['usd_per_pass']:.1f}×"; F["fm_x_out"] = f"{cx['out_median'] / c0['out_median']:.1f}×"
+        b = json.load(open(BLIND)) if os.path.exists(BLIND) else None
+        if b:
+            F["bl_n"] = str(len(b["items"])); F["bl_probs"] = str(len({i["problem"] for i in b["items"]})); F["bl_cfgs"] = str(len({i["config"] for i in b["items"]}))
+            blk = {i["config"] for i in b["items"] if i["block"]}
+            need(blk == {"sonnet-medium"}, "every solution the blind reader would block came from sonnet-medium")
+            F["bl_blocks"] = str(sum(i["block"] for i in b["items"]))
     F["growth_margin"] = str(GROWTH_MARGIN)
     F["n_solutions"] = str(sum(1 for _, _, fs in os.walk(os.path.join(RES, "solutions")) for f in fs if f.endswith(".py")))
     # Codex additions (exploratory, run after the report at the operator's request)
-    nr = [r for r in rows if r["config"] in NEW_CODEX]; F["new_date"] = min(r["ts"] for r in nr)[:10]; F["n_new_codex"] = str(len(NEW_CODEX))
+    nr = [r for r in rows if r["config"] in NEW_CODEX and r["phase"] != "fastmode"]; F["new_date"] = min(r["ts"] for r in nr)[:10]; F["n_new_codex"] = str(len(NEW_CODEX))
     nu = sum(map(cost, nr + [r for r in agent if r["config"] in NEW_CODEX]))  # function and repo-task runs alike
-    F["codex_new_usd"] = f"${nu:.2f}"; F["codex_old_usd"] = f"${sp['codex_proxy_usd'] - nu:.2f}"
+    F["codex_new_usd"] = f"${nu:.2f}"; F["codex_old_usd"] = f"${sp['codex_proxy_usd'] - nu - sp['codex_fastmode_usd']:.2f}"; F["fm_usd"] = f"${sp['codex_fastmode_usd']:.2f}"
     for c in NEW_CODEX:
         k = "x_" + c.replace("-", "_"); e, h = ex[c], hard[c]
         F[k + "_k"] = f"{e['passes']}/{e['n']}"; F[k + "_upp"] = u(e["usd_per_pass"], 4); F[k + "_med"] = f"{e['latency_s']['median']:.1f}"
@@ -304,6 +320,7 @@ def tables_md(s):
     T["pilot"] = md_table(["config", "passes", "median input", "median s", "$ per call", "$ kind"],
                           [[lab[c], f"{v['passes']}/{v['n']}", n(v["in_median"]), f"{v['median_s']:.1f}", f"{v['usd_per_call']:.5f}", v["cost_kind"]] for c, v in pr.items() if c in lab])
     T["quality"] = quality_table(s)
+    T["fastmode"], T["blind"] = fastmode_tables(s)
     T["configs"] = md_table(["config", "CLI", "model", "effort"], [[c, {"claude": "Claude Code", "codex": "Codex CLI"}[v["cli"]], v["model"], v["effort"]] for c, v in cfg.items()])
     return T
 
@@ -329,6 +346,30 @@ def quality_table(s):
     return md_table(["config", "passing solutions", "median LOC", "median max complexity", "lint warnings per solution", "median time vs reference",
                      "growth worse than reference", "median peak memory vs reference"], out)
 
+
+BLIND = os.path.join(ROOT, "results", "appendix", "blind_readability.json")
+FM_LABEL = {"sol61-high": "sol61-high, default tier (control)", "sol61-high-fast": "sol61-high, fast mode", "sol61-xhigh": "sol61-xhigh, default tier"}
+
+
+def fastmode_tables(s):
+    fm = s.get("fastmode") or {}
+    if not fm: return "_no fast-mode runs yet._", "_no blind read yet._"
+    q = [r for r in quality_rows() if r.get("phase") == "fastmode" and r.get("outcome") == "pass"]; out = []
+    for c, v in fm.items():
+        rr = [r for r in q if r["config"] == c]; need(len(rr) == v["passes"], f"quality rows cover every passing fast-mode {c} solution")
+        tr = [r["time_ratio"] for r in rr if r.get("time_ratio") is not None]
+        out.append([FM_LABEL[c], f"{v['passes']}/{v['n']}", f"{v['median_s']:.1f}", n(v["out_median"]), f"{v['usd_per_pass']:.4f}",
+                    f"{statistics.median(r['loc'] for r in rr):.0f}", f"{statistics.median(r['cc_max'] for r in rr):.0f}",
+                    f"{sum(r['lint_warnings'] for r in rr) / len(rr):.2f}", f"{statistics.median(tr):.2f}" if tr else "–"])
+    t1 = md_table(["config", "passed", "median s", "median output tokens", "$ per pass (proxy)", "median LOC", "median max complexity",
+                   "lint warnings per solution", "median time vs reference"], out)
+    b = json.load(open(BLIND)) if os.path.exists(BLIND) else None
+    if not b: return t1, "_no blind read yet._"
+    cs = sorted({i["config"] for i in b["items"]}, key=lambda c: -statistics.mean(i["score"] for i in b["items"] if i["config"] == c))
+    t2 = md_table(["config", "solutions read", "mean score (1 to 10)", "would block"],
+                  [[c, str(sum(1 for i in b["items"] if i["config"] == c)), f"{statistics.mean(i['score'] for i in b['items'] if i['config'] == c):.2f}",
+                    str(sum(i["block"] for i in b["items"] if i["config"] == c))] for c in cs])
+    return t1, t2
 
 # ---------- rendering ----------
 

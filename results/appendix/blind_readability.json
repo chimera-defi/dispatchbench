@@ -1,0 +1,147 @@
+{
+ "reviewer": "claude-fable-5-1, one blind pass, 2026-10-23",
+ "scale": "1-10 readability and maintainability; block = would not merge as is",
+ "method": "one passing solution per config per problem, shuffled and labelled A-E (seed 7); the reviewer saw code only",
+ "items": [
+  {
+   "item": "p03_ledger-A",
+   "problem": "p03_ledger",
+   "config": "haiku-medium",
+   "score": 7,
+   "block": false
+  },
+  {
+   "item": "p03_ledger-B",
+   "problem": "p03_ledger",
+   "config": "sol61-high",
+   "score": 7,
+   "block": false
+  },
+  {
+   "item": "p03_ledger-C",
+   "problem": "p03_ledger",
+   "config": "sonnet-medium",
+   "score": 4,
+   "block": true
+  },
+  {
+   "item": "p03_ledger-D",
+   "problem": "p03_ledger",
+   "config": "sol61-xhigh",
+   "score": 7,
+   "block": false
+  },
+  {
+   "item": "p03_ledger-E",
+   "problem": "p03_ledger",
+   "config": "astra-medium",
+   "score": 8,
+   "block": false
+  },
+  {
+   "item": "p08_recur-A",
+   "problem": "p08_recur",
+   "config": "astra-medium",
+   "score": 8,
+   "block": false
+  },
+  {
+   "item": "p08_recur-B",
+   "problem": "p08_recur",
+   "config": "sonnet-medium",
+   "score": 5,
+   "block": false
+  },
+  {
+   "item": "p08_recur-C",
+   "problem": "p08_recur",
+   "config": "sol61-xhigh",
+   "score": 8,
+   "block": false
+  },
+  {
+   "item": "p08_recur-D",
+   "problem": "p08_recur",
+   "config": "haiku-medium",
+   "score": 7,
+   "block": false
+  },
+  {
+   "item": "p08_recur-E",
+   "problem": "p08_recur",
+   "config": "sol61-high",
+   "score": 8,
+   "block": false
+  },
+  {
+   "item": "p10_avoid_count-A",
+   "problem": "p10_avoid_count",
+   "config": "sonnet-medium",
+   "score": 4,
+   "block": true
+  },
+  {
+   "item": "p10_avoid_count-B",
+   "problem": "p10_avoid_count",
+   "config": "astra-medium",
+   "score": 8,
+   "block": false
+  },
+  {
+   "item": "p10_avoid_count-C",
+   "problem": "p10_avoid_count",
+   "config": "sol61-high",
+   "score": 8,
+   "block": false
+  },
+  {
+   "item": "p10_avoid_count-D",
+   "problem": "p10_avoid_count",
+   "config": "sol61-xhigh",
+   "score": 6,
+   "block": false
+  },
+  {
+   "item": "p10_avoid_count-E",
+   "problem": "p10_avoid_count",
+   "config": "haiku-medium",
+   "score": 8,
+   "block": false
+  },
+  {
+   "item": "p12_sheet-A",
+   "problem": "p12_sheet",
+   "config": "sol61-xhigh",
+   "score": 6,
+   "block": false
+  },
+  {
+   "item": "p12_sheet-B",
+   "problem": "p12_sheet",
+   "config": "astra-medium",
+   "score": 6,
+   "block": false
+  },
+  {
+   "item": "p12_sheet-C",
+   "problem": "p12_sheet",
+   "config": "sol61-high",
+   "score": 6,
+   "block": false
+  },
+  {
+   "item": "p12_sheet-D",
+   "problem": "p12_sheet",
+   "config": "haiku-medium",
+   "score": 6,
+   "block": false
+  },
+  {
+   "item": "p12_sheet-E",
+   "problem": "p12_sheet",
+   "config": "sonnet-medium",
+   "score": 3,
+   "block": true
+  }
+ ]
+}

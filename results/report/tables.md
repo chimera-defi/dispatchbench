@@ -286,5 +286,5 @@ The pilot's Codex ladder records only the levels that were actually tested. Ever
 ## Spend
 
 - Claude, measured: $2.06 (function $1.35, agentic $0.70).
-- Codex, proxy at list price: $19.12.
+- Codex, proxy at list price: $22.53.
 - Pilot repricing: 83 priority-tier Codex rows cost $3.5190 at the pilot's 1.5× and $4.6920 at the published 2×.

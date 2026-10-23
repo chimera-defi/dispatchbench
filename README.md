@@ -21,7 +21,7 @@ Main ladder: 12 problems × 5 attempts per config.
 - **Skip luna at low or medium effort.** It barely reasons there and misses easy problems. luna-high is the cheapest Codex config but misses some.
 - **sonnet-medium also never failed** (75/75); it is the cheapest of the three by list price.
 
-Total spend: $2.06 Claude, $19.12 Codex at list prices ($16.70 of it for the Codex models added on 2026-10-23).
+Total spend: $2.06 Claude, $22.53 Codex at list prices ($16.70 of it for the Codex models added on 2026-10-23, $3.41 for the fast-mode and xhigh runs).
 
 ## Read more
 

@@ -21,7 +21,7 @@ Main ladder: {{n_problems}} problems × {{repeats}} attempts per config.
 - **Skip luna at low or medium effort.** It barely reasons there and misses easy problems. luna-high is the cheapest Codex config but misses some.
 - **sonnet-medium also never failed** ({{sm_all}}); it is the cheapest of the three by list price.
 
-Total spend: {{claude_usd}} Claude, {{codex_usd}} Codex at list prices ({{codex_new_usd}} of it for the Codex models added on {{new_date}}).
+Total spend: {{claude_usd}} Claude, {{codex_usd}} Codex at list prices ({{codex_new_usd}} of it for the Codex models added on {{new_date}}, {{fm_usd}} for the fast-mode and xhigh runs).
 
 ## Read more
 
