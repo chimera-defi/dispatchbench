@@ -179,6 +179,19 @@ def pilot_fast():
     return out
 
 
+def fastmode_block(rows):
+    """sol61-high in fast mode (priority tier) and at xhigh effort on the hard set, against a default-tier sol61-high control run alongside them (repeats 6-10)."""
+    mult = json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]; out = {}
+    for c in ("sol61-high", "sol61-high-fast", "sol61-xhigh"):
+        rr = [r for r in rows if r["phase"] == "fastmode" and r["config"] == c]
+        if not rr: continue
+        m = mult if c == "sol61-high-fast" else 1; ps = sum(r["passed"] for r in rr)
+        out[c] = {"passes": ps, "n": len(rr), "repeats": sorted({r["repeat"] for r in rr}), "median_s": round(statistics.median(r["wall_s"] for r in rr), 2),
+                  "out_median": statistics.median(r["out_tok"] for r in rr), "usd_per_pass": round(sum(cost(r) * m for r in rr) / ps, 6) if ps else None,
+                  "usd_per_pass_list": round(sum(map(cost, rr)) / ps, 6) if ps else None}
+    return out
+
+
 def trim_block():
     """Codex input-floor probe on the pilot problems: per trim level, and the 3x3 pair step against haiku-low (tools off)."""
     rows = load(TRIM); out = {"floor": {}, "pair": {}}
@@ -254,6 +267,7 @@ def build():
     s["pilot"] = pilot_block()
     s["pilot_fast"] = pilot_fast()
     s["trim"] = trim_block()
+    s["fastmode"] = fastmode_block(rows)
     claude_all = [r for r in rows if r["cli"] == "claude"] + [r for r in agent if r["cli"] == "claude"]
     s["spend"] = {"claude_measured_usd": round(sum(r.get("cost_usd") or 0 for r in claude_all), 4),
                   "claude_function_usd": round(sum(r.get("cost_usd") or 0 for r in rows if r["cli"] == "claude"), 4),

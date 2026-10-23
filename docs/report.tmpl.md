@@ -165,6 +165,19 @@ After the main run, several changes were tried on the seven problems luna-low fa
 - **Planning first (arm F) did not help luna-high:** {{r_haiku_low_plan_luna_high_bare_k}}, against {{r_luna_high_bare_k}} alone.
 - Not measured: luna without the host's `AGENTS.md`, for the reason given in the token section above.
 
+## Appendix C: Codex fast mode and xhigh effort (exploratory, added later)
+
+Asked after the main run: can fan-outs use sol61-high in fast mode (the priority service tier, same model and effort), and does sol61 at xhigh write better or worse code? Both ran on the hard set, {{fm_n}} attempts each, with a default-tier sol61-high control run at the same time (repeats {{fm_rep_lo}} to {{fm_rep_hi}}, so the earlier sol61-high rows stay as they were). These rows are kept apart and change no number above. Fast-mode dollars use the published {{fm_mult}} multiplier.
+
+{{table:fastmode}}
+
+- **Fast mode is the same answers, sooner.** Every attempt passed, the code measures the same, and the median call took {{fm_fast_s}} s against {{fm_ctrl_s}} s ({{fm_faster}} faster), at {{fm_mult}} the list price.
+- **xhigh buys nothing here.** Same passes, {{fm_x_out}} the output tokens, {{fm_x_cost}} the cost per pass and {{fm_x_s}} s per call, with no better code on any measure.
+
+A blind read of {{bl_n}} passing solutions ({{bl_probs}} problems × {{bl_cfgs}} configs, shuffled, labels hidden, one Fable reviewer) scored readability and marked any it would not merge. All {{bl_blocks}} blocks were sonnet-medium answers; the Codex flagships and haiku-medium scored alike. One reviewer and one solution per cell is a small sample: read it as "no sign of bad code", not a ranking.
+
+{{table:blind}}
+
 ## Appendix B: the pilot (superseded)
 
 Before this experiment, a pilot ran {{pilot_configs}} configs on {{pilot_problems}} well-known LeetCode problems: three problems for every config, and three harder problems for {{pilot_r2_configs}} of the configs. All {{pilot_runs}} graded runs passed, so the pilot could not rank anything. An earlier page titled "Delegation Tier Bench" reported those scores and is superseded by this report. The pilot's rows and scripts are kept in [results/2026-10-22-pilot.jsonl](results/2026-10-22-pilot.jsonl) and [bench/pilot/](bench/pilot/README.md); `make report` does not use them for any number above.

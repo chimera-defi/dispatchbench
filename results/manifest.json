@@ -70,6 +70,16 @@
    "cli": "codex",
    "model": "gpt-6-astra",
    "effort": "medium"
+  },
+  "sol61-high-fast": {
+   "cli": "codex",
+   "model": "gpt-6.1-sol",
+   "effort": "high"
+  },
+  "sol61-xhigh": {
+   "cli": "codex",
+   "model": "gpt-6.1-sol",
+   "effort": "xhigh"
   }
  },
  "flags": {
@@ -131,11 +141,12 @@
   4
  ],
  "first_call_utc": "2026-10-22T08:32:54+00:00",
- "last_call_utc": "2026-10-23T18:39:24+00:00",
+ "last_call_utc": "2026-10-23T20:34:12+00:00",
  "rows_by_phase": {
   "calibration": 30,
   "escalation": 15,
   "exploratory": 405,
+  "fastmode": 105,
   "hard": 135,
   "main": 360,
   "warmup": 6
@@ -146,9 +157,9 @@
   "claude_measured_usd": 2.0588,
   "claude_function_usd": 1.354,
   "claude_agentic_usd": 0.7048,
-  "codex_proxy_usd": 19.1193,
+  "codex_proxy_usd": 21.7651,
   "calls": {
-   "function": 951,
+   "function": 1056,
    "agentic": 72
   }
  },
@@ -333,5 +344,5 @@
    }
   }
  },
- "git_sha": "74e6af21471ca647e372fbb04aa8fc6f512ac615"
+ "git_sha": "b0732874e0e6baeed8326a55fbe607fa62770dd4"
 }
