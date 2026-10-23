@@ -262,7 +262,7 @@ def short_table(s, need):
     return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>$ per pass</th>'
             '<th>median s</th><th>verdict</th></tr></thead>'
             f'<tbody>{grp("All problems")}{"".join(top)}</tbody>'
-            f'<tbody>{grp(f"Hard set: the {a[HARD[0][0]]["n"]} attempts luna-low failed most")}{"".join(hard)}</tbody></table></div>')
+            f'<tbody>{grp(f"Hard set: {a[HARD[0][0]]["n"]} attempts on the problems luna-low failed most")}{"".join(hard)}</tbody></table></div>')
 
 
 # What each problem tests, one line each, for the visible method list. Links go to the problem file in the repo.
