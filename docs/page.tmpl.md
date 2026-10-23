@@ -122,7 +122,6 @@
 <li>Zero misses allowed, no checker: sonnet-medium.</li>
 <li>Never luna-low or luna-medium without a Haiku check.</li>
 </ol>
-<p class="small"><strong>💳 On a Codex plan:</strong> luna tokens cost nothing until the quota runs out, so you only pay for Haiku. (From the prices, not tested.)</p>
 </section>
 <section class="extras" id="extras">
 <h2><span class="num"></span>🔍 More charts</h2>
