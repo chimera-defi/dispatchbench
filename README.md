@@ -189,7 +189,7 @@ rebuilds every table, chart and number in this README and the page from the cach
 - **Small sample.** 12 problems and 4 repo tasks, with 5 and 3 attempts. The intervals are wide; read them before the point estimates.
 - **The breaking point is unstable at this size.** With 10 attempts per rung, two attempts move it. Stripped luna breaks at L2 (4/10) and stock luna at L6, yet stripped luna then scores 10/10 on L3. The rung order is the author's prior about difficulty, not a measurement, and the per-problem chart shows where it was wrong (for luna, p04 at L2 is harder than every problem except p12).
 - **The repo tasks hit a ceiling.** All 48 runs passed. They show cost and latency differences, not capability differences.
-- **Codex cost is a proxy**, and it depends on the provider's prompt cache. Identical prompts got between 0 and 6.1k cached tokens (stripped luna on p06), which moves a Codex call's cost by up to 2.6×. The stripped-luna figures give a no-cache bound for that reason. Claude cost is measured, but it is the CLI's own accounting.
+- **Codex cost is a proxy**, and it depends on the provider's prompt cache. Identical prompts got between 0 and 6.1k cached tokens (stripped luna on p06), which moves a Codex call's cost by up to 3.7×. The stripped-luna figures give a no-cache bound for that reason. Claude cost is measured, but it is the CLI's own accounting.
 - **Harnesses are matched, not identical.** Codex cannot turn tools off on the function track; it gets a read-only sandbox and an instruction. Codex also injects the host's user-level `AGENTS.md` (about 1.3k tokens), so every Codex input count includes tokens a clean install would not have. Claude Code keeps its own default system prompt.
 - **Latency is wall-clock through the CLI** on one host with up to 4 calls in flight. It includes CLI start-up and network time, and is not comparable to API time-to-first-token. The exploratory stripped-luna run used one lane at a different time of day, so its latency is not a clean comparison with luna-low.
 - **The cache key leaves out a few inputs.** The effort and model literals inside the trim probe are not hashed. The one-line system prompt and the grader's source are pinned by SHA-256 instead: the runners and the grader refuse to run if either file changes while cached results exist.
@@ -221,7 +221,9 @@ After the main run, several changes were tried on the seven problems luna-low fa
 | G: luna-high (stripped) builds; haiku-low reviews every answer, as in E | 35/35 | 0.00348 | 26.1 |
 | G: luna-low builds; haiku-low reviews every answer (arm E rerun from committed code) | 34/35 | 0.00391 | 23.1 |
 | haiku-low | 32/35 | 0.00157 | 13.1 |
+| haiku-medium | 35/35 | 0.00192 | 14.8 |
 | sonnet-medium | 35/35 | 0.01530 | 11.4 |
+| sol61-medium | 33/35 | 0.01785 | 25.6 |
 
 - **Raising effort is the only cheap fix.** Stripped luna-high passes 31/35 at $0.00105 per pass (proxy), next to haiku-low's 32/35 at $0.00157. Medium effort does nothing (21/35), which fits the reasoning-token counts above: luna barely reasons below high.
 - **Prompting helps a little or hurts.** The "trace the examples first" nudge adds 4 passes; asking for a reasoning summary on top of it loses 6.

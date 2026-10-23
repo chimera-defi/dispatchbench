@@ -68,7 +68,7 @@ details>.wrap,details>ul{margin:6px 0 10px}
 @media (max-width:640px){
  .chart{padding:10px 4px 6px} /* charts fit the screen; their text is enlarged so it stays readable once scaled down */
  .chart svg text{font-size:16px} .chart svg .axis{font-size:15px} .chart svg .lbl{font-size:16px;stroke-width:5px}
- .chart.floor svg text,.chart.floor svg .lbl{font-size:13px} .chart.floor svg .axis{font-size:12px}
+ .chart.floor svg text,.chart.floor svg .lbl{font-size:13px} .chart.floor svg .axis{font-size:12px} .tab-hard .chart svg .lbl{font-size:14px;stroke-width:4px}
  .tablewrap th,.tablewrap td{padding:6px 4px;font-size:11px;white-space:normal} .tablewrap td:first-child{white-space:nowrap}
  .tablewrap .dot{margin-right:4px}
  .grid{grid-template-columns:minmax(58px,auto) repeat(7,minmax(30px,1fr))!important;gap:3px;font-size:11px}
