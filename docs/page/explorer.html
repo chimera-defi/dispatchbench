@@ -56,8 +56,9 @@ function draw(){try{localStorage.setItem("rb-x2",JSON.stringify(st))}catch(e){}
   g.push('<circle data-i="'+D.indexOf(p)+'" cx="'+x+'" cy="'+y+'" r="7" fill="'+(p.exp?"var(--panel)":p.col)+'" stroke="'+(onf?"var(--frontier)":p.col)+'" stroke-width="'+(onf?3:2)+'" style="cursor:pointer"/>')});
  pts.slice().sort(function(a,b){return sy.f(a[st.y])-sy.f(b[st.y])}).forEach(function(p){var x=sx.f(p[st.x]),y=sy.f(p[st.y]),w=p.c.length*(small?5.6:6.4)+4;
   var right=x+12+w>W-R,lx=right?x-12-w:x+12,ly=y+4;
-  for(var n=0;n<8&&placed.some(function(r){return Math.abs(r[1]-ly)<13&&lx<r[0]+r[2]&&r[0]<lx+w});n++)ly+=(n%2?-1:1)*13*(n+1);
-  ly=Math.min(ly,H-B-4);placed.push([lx,ly,w]);g.push('<text x="'+lx+'" y="'+ly+'" style="fill:'+(p.exp?"var(--muted)":"var(--fg)")+'" pointer-events="none">'+esc(p.c)+'</text>')});
+  function hit(){return placed.some(function(r){return Math.abs(r[1]-ly)<13&&lx<r[0]+r[2]&&r[0]<lx+w})}
+  for(var n=0;n<8&&hit();n++)ly+=(n%2?-1:1)*13*(n+1);
+  if(ly>H-B-4){ly=H-B-4;for(n=0;n<8&&hit();n++)ly-=13}placed.push([lx,ly,w]);g.push('<text x="'+lx+'" y="'+ly+'" style="fill:'+(p.exp?"var(--muted)":"var(--fg)")+'" pointer-events="none">'+esc(p.c)+'</text>')});
  box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="'+(small?11:12)+'" role="img" aria-label="'+M[st.y].l+' against '+M[st.x].l+'">'+g.join("")+'</svg>';
  box.querySelectorAll("circle").forEach(function(c){function show(){var d=D[+c.getAttribute("data-i")],t=document.getElementById("tip");
    t.innerHTML='<b>'+esc(d.c)+'</b>'+(d.exp?' <span class="tag">exploratory</span>':'')+'<br>'+Object.keys(M).map(function(k){return M[k].l+': '+M[k].f(d[k])}).join("<br>")+'<br>$ kind: '+d.kind;
