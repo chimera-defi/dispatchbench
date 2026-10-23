@@ -11,7 +11,7 @@
 <li>Can't afford one miss? sonnet-medium.</li>
 </ol>
 <ul class="tight">
-<li>✅ haiku-medium: {{haiku_medium_k}} on all problems, 0 misses in {{rescue_n}} hard-set attempts. {{haiku_medium_upp}} per pass, {{haiku_medium_med}}s. Measured $, not estimated.</li>
+<li>✅ haiku-medium: {{haiku_medium_k}} on all problems, 0 misses on the hard set (its {{rescue_n}} main-run attempts on those problems, not a new run). {{haiku_medium_upp}} per pass, {{haiku_medium_med}}s. Measured $, not estimated.</li>
 <li>💸 haiku-low: {{haiku_low_k}} at {{haiku_low_upp}}. Misses: too slow or a crash, never a wrong answer.</li>
 <li>🛡️ sonnet-medium: {{sm_all}} including the hardest rung, at {{sm_vs_hm_x}} haiku-medium's cost.</li>
 <li>⚠️ haiku-medium was not run on the hardest rung (L7).</li>
@@ -55,7 +55,7 @@
 </ul>
 </div>
 <div class="tab tab-hard">
-<div class="chart"><h3>Hard set: pass rate vs $ per pass</h3><p class="sub">{{rescue_n}} attempts on {{r_pids}} problems chosen after round 1. Purple = pipelines: low / high-bare is the luna build; →H all = Haiku fixes every answer; →H fail = Haiku only when sample tests fail; →retry = luna tries again. Small sample, no intervals.</p>{{w_hard_pass_cost}}</div>
+<div class="chart"><h3>Hard set: pass rate vs $ per pass</h3><p class="sub">{{rescue_n}} attempts on {{r_pids}} problems chosen after round 1 (luna-low fails them most). Single models: their main-run attempts. Purple = pipelines: low / high-bare is the luna build; →H all = Haiku fixes every answer; →H fail = Haiku only when sample tests fail; →retry = luna tries again. Small sample, no intervals.</p>{{w_hard_pass_cost}}</div>
 <ul class="tight small">
 <li>Best trade-offs, cheapest first: {{w_hard_front_pass}}.</li>
 </ul>
@@ -105,7 +105,7 @@
 </section>
 <section id="pipes">
 <h2><span class="num"></span>🔗 Pipelines: Haiku fixes luna's work</h2>
-<div class="chart floor"><h3>Hard set: passes, $ per pass, median seconds</h3><p class="sub">{{rescue_n}} attempts on {{r_pids}} problems chosen after round 1. Purple = luna builds, then Haiku reviews and fixes: H all = every answer; H fail = only when sample tests fail.</p>{{w_pipes}}</div>
+<div class="chart floor"><h3>Hard set: passes, $ per pass, median seconds</h3><p class="sub">{{rescue_n}} attempts on {{r_pids}} problems chosen after round 1 (luna-low fails them most). Single models: their main-run attempts. Purple = luna builds, then Haiku reviews and fixes: H all = every answer; H fail = only when sample tests fail.</p>{{w_pipes}}</div>
 <ul class="tight small">
 <li>✅ Haiku fixing every luna-high-bare answer: {{r_luna_high_bare_haiku_review_all_k}}. But haiku-medium alone also had 0 misses, {{hm_vs_pipe_x}} cheaper.</li>
 <li>⚠️ Sample tests are a weak gate: they caught {{g_hi_fixed}} bad luna-high answers and missed {{g_hi_missed}}. luna-low fails them more often ({{g_lo_fixed}} repairs), so the gate helps it more.</li>
