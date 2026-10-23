@@ -25,7 +25,7 @@ def esc(t):
     return html.escape(str(t))
 
 
-def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=84, R=16, T=14, B=322):
+def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=84, R=16, T=14, B=322, extra=""):
     """pts: dicts with c, x, y, w (whisker (axis, lo, hi) or None), tip, hollow. fr: frontier points in step order,
     each step already a list of (x, y) pixel vertices."""
     g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="{esc(ylab)} against {esc(xlab)}, Pareto frontier in purple">']
@@ -36,7 +36,7 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
     g.append(f'<text x="{(L + W - R) / 2}" y="{H - 14}" text-anchor="middle" class="axis">{esc(xlab)}</text>')
     g.append(f'<text x="16" y="{(T + B) / 2}" text-anchor="middle" class="axis" transform="rotate(-90 16 {(T + B) / 2})">{esc(ylab)}</text>')
     g.append(f'<text x="{L + 10}" y="{T + 18 if corner.startswith("↖") else B - 10}" class="better">{corner}</text>')
-    g.append(f'<path d="{fr}" fill="none" stroke="var(--frontier)" stroke-width="4" stroke-dasharray="9 6" stroke-linejoin="round"/>')
+    g.append(f'<path d="{fr}" fill="none" stroke="var(--frontier)" stroke-width="4" stroke-dasharray="9 6" stroke-linejoin="round"/>' + extra)
     for p in pts:
         px, py, col = X(p["x"]), Y(p["y"]), p.get("col") or FAM(p["c"])
         if p["w"]:
@@ -45,7 +45,7 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
             else: g.append(f'<line x1="{px:.1f}" x2="{px:.1f}" y1="{Y(lo):.1f}" y2="{Y(hi):.1f}" stroke="{col}" stroke-width="2" stroke-opacity=".3"/>')
         if p["on"]: g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="12" fill="none" stroke="var(--frontier)" stroke-width="3"/>')
         fill = "var(--panel)" if p["hollow"] else col
-        g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="6.5" fill="{fill}" stroke="{col}" stroke-width="2.5"><title>{esc(p["tip"])}</title></circle>')
+        g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="6.5" fill="{fill}" stroke="{col}" stroke-width="2.5"{' stroke-dasharray="3 2"' if p.get("dash") else ""}><title>{esc(p["tip"])}</title></circle>')
         dx, dy, a = labels.get(p["c"], (14, 4, "start"))
         g.append(f'<text x="{px + dx:.1f}" y="{py + dy:.1f}" text-anchor="{a}" class="lbl{" on" if p["on"] else ""}">{esc(p.get("name", p["c"]))}</text>')
     g.append("</svg>")
@@ -81,19 +81,30 @@ def pass_cost(s):
 def speed_cost(s):
     """Median seconds (left is better, whisker p25–p75) against $ per pass, log (down is better). Frontier among configs
     that pass at least MIN_PASS; the rest are drawn but cannot be on it."""
-    E = every(s); L, R, T, B, W = 84, 16, 14, 322, 560
-    X = lambda v: L + (v - 4) / 26 * (W - R - L); Y = logscale(2.5e-4, 3e-2, B, T)
+    E = every(s); L, R, T, B, W = 84, 16, 14, 462, 560
+    X = lambda v: L + (v - 3) / 27 * (W - R - L); Y = logscale(5e-4, 1e-1, B, T)
     pts = [{"c": c, "x": E[c]["latency_s"]["median"], "y": E[c]["usd_per_pass"], "hollow": c == "luna-high", "tip": tip(c, E[c]),
             "w": ("x", E[c]["latency_s"]["p25"], E[c]["latency_s"]["p75"]) if "p25" in E[c]["latency_s"] else None} for c in ORDER]
     ok = [p for p in pts if E[p["c"]]["pass_at_1"] >= MIN_PASS]
     fr = sorted(front(ok, lambda a, b: a["x"] <= b["x"] and a["y"] <= b["y"]), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
+    # Codex fast mode ran only in the pilot (other problems, every call passed, so $ per call = $ per pass): drawn dashed and
+    # hollow, joined default → fast, never on the frontier.
+    pf = s["pilot_fast"]; pil = []
+    for k, v in pf.items():
+        c, tier = k.split("/"); nm = f"{c} {'⚡' if tier == 'fast' else 'pilot'}"; short = "pilot" if k == "luna-low/default" else nm  # its ⚡ twin, joined by the line, names it
+        pil.append({"c": k, "name": short, "x": v["median_s"], "y": v["usd_per_call"], "hollow": True, "dash": True, "on": False, "w": None, "col": "var(--codex)",
+                    "tip": f"{nm}: pilot, {v['passes']}/{v['n']} passed, ${v['usd_per_call']:.5f} per call, median {v['median_s']:.1f} s"})
+    ex = "".join(f'<line x1="{X(pf[c + "/default"]["median_s"]):.1f}" y1="{Y(pf[c + "/default"]["usd_per_call"]):.1f}" x2="{X(pf[c + "/fast"]["median_s"]):.1f}" '
+                 f'y2="{Y(pf[c + "/fast"]["usd_per_call"]):.1f}" stroke="var(--codex)" stroke-width="2" stroke-dasharray="4 3" stroke-opacity=".6"/>' for c in dict.fromkeys(k.split("/")[0] for k in pf))
     d = f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
-    xt = [(v, f"{v} s") for v in (5, 10, 15, 20, 25, 30)]
-    yt = [(v, f"${v:g}") for v in (5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2)]
-    lab = {"luna-low": (-10, 20, "end"), "luna-medium": (8, 22, "start"), "haiku-low": (-14, -10, "end"), "luna-high": (14, -10, "start"),
+    xt = [(v, f"{v} s") for v in (5, 10, 15, 20, 25)]
+    yt = [(v, f"${v:g}") for v in (1e-3, 3e-3, 1e-2, 3e-2, 1e-1)]
+    lab = {"luna-low/default": (-8, 26, "start"), "luna-low/fast": (14, 5, "start"), "sol61-low/default": (14, 5, "start"), "sol61-low/fast": (14, 5, "start"),
+           "luna-low": (0, -14, "middle"), "luna-medium": (14, 10, "start"), "haiku-low": (0, -20, "middle"), "luna-high": (14, -10, "start"),
            "haiku-medium": (14, -8, "start"), "sonnet-medium": (14, 4, "start"), "sol61-medium": (-14, -12, "end")}
-    return scatter(pts, d, X, Y, xt, yt, "median seconds per call (bar: middle half of calls)", "$ per pass (log)", "↙ better", lab), [p["c"] for p in fr]
+    g = scatter(pts + pil, d, X, Y, xt, yt, "median seconds per call (bar: middle half of calls)", "$ per pass (log)", "", lab, H=520, B=B, extra=ex)
+    return g.replace("</svg>", f'<text x="{W - R - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>'), [p["c"] for p in fr]
 
 
 # Display names for hard-set rows, used by every chart and table so a pipeline reads the same everywhere. luna-high on the hard
