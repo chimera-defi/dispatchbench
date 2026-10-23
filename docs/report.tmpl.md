@@ -1,4 +1,6 @@
-@readme # model-routing-bench
+@readme # model-routing-bench: full report
+@readme
+@readme Short version: [README](README.md). Interactive version: [results/report/page.html](results/report/page.html).
 
 @readme Which model and reasoning effort should a coding task be routed to? This repo measures {{n_configs}} Claude Code and Codex CLI configs on {{n_problems}} Python problems written after the models' training cutoff, plus {{n_tasks}} small repo tasks. For each config it records where pass rate drops, and what a passing answer costs in dollars and seconds.
 
@@ -205,7 +207,7 @@ What we did not borrow: scale. These benchmarks run hundreds of problems, and Li
 @readme   gated_repair.py Appendix G gated-repair runner
 @readme analysis/         statistics, tables, SVG charts, this report and its audit (standard library only)
 @readme   luna_rescue.py  appendix result tables
-@readme docs/             the report template and the page template, style and sort code
+@readme docs/             README, report and page templates, style and sort code; REPORT.md (generated)
 @readme cache/            cached model calls and grades; the source of every number
 @readme   plan_first/     Appendix F calls
 @readme   gated_repair/   Appendix G calls
@@ -214,7 +216,4 @@ What we did not borrow: scale. These benchmarks run hundreds of problems, and Li
 @readme   appendix/       appendix graded rows
 @readme PLAN.md           pre-registration and deviations
 @readme ```
-@readme
-@readme ## Licence
-@readme
-@readme MIT, see [LICENSE](LICENSE).
+

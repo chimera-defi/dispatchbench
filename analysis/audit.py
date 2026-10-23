@@ -4,7 +4,7 @@
    from the graded rows.
 2. Every chart in results/report/charts equals what analysis.charts draws from that summary.
 3. results/report/luna_rescue.md equals the table analysis.luna_rescue computes from the appendix rows.
-4. README.md and results/report/page.html equal what analysis.report renders from the template.
+4. README.md, docs/REPORT.md and results/report/page.html equal what analysis.report renders from the template.
 5. The templates (README and page) hold no number of its own outside {{facts}}, code spans and link targets, except the constants listed
    with a reason in docs/audit_allow.json. Each allowed literal must still occur on a line containing its context.
 """
@@ -27,7 +27,7 @@ def same(label, want, path, fails):
 def template_literals():
     """(template, line number, literal, line) for every number the templates write themselves."""
     out = []
-    for path in (report.TEMPLATE, report.PAGE_TEMPLATE):
+    for path in (report.README_TEMPLATE, report.TEMPLATE, report.PAGE_TEMPLATE):
         for no, line in enumerate(open(path).read().split("\n"), 1):
             t = re.sub(r"\{\{chart:[^|}]*\|", " ", line)  # keep chart captions in the scan
             t = re.sub(r"\{\{[^{}]*\}\}", " ", t)
@@ -55,8 +55,9 @@ def main():
     for name, body in charts.build(s).items():
         if body: checked += same("chart", body, os.path.join(charts.OUT, name), fails)
     checked += same("luna rescue", luna_rescue.table(luna_rescue.arms()) + "\n", os.path.join(RES, "report", "luna_rescue.md"), fails)
-    readme, page = report.render()
+    readme, full, page = report.render()
     checked += same("readme", readme, report.README, fails)
+    checked += same("report", full, report.REPORT, fails)
     checked += same("page", page, report.PAGE, fails)
 
     allow = json.load(open(ALLOW))

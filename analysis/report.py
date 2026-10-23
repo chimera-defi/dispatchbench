@@ -1,4 +1,4 @@
-"""Render README.md from docs/report.tmpl.md and results/report/page.html from docs/page.tmpl.md. No model calls,
+"""Render README.md from docs/readme.tmpl.md, docs/REPORT.md from docs/report.tmpl.md and results/report/page.html from docs/page.tmpl.md. No model calls,
 standard library only.
 
 Every number in the prose is a {{fact}} computed here from results/; the templates hold no measured number (make
@@ -19,7 +19,9 @@ from analysis.summarize import ROOT, RES, FUNC, AGENT, ci_text, cost, cost_uncac
 
 TEMPLATE = os.path.join(ROOT, "docs", "report.tmpl.md")
 PAGE_TEMPLATE = os.path.join(ROOT, "docs", "page.tmpl.md")  # the page: HTML with facts and widgets
-README = os.path.join(ROOT, "README.md")
+README = os.path.join(ROOT, "README.md")  # short front page, from docs/readme.tmpl.md
+README_TEMPLATE = os.path.join(ROOT, "docs", "readme.tmpl.md")
+REPORT = os.path.join(ROOT, "docs", "REPORT.md")  # the full report, from docs/report.tmpl.md
 PAGE = os.path.join(RES, "report", "page.html")
 CHARTS = os.path.join(RES, "report", "charts")
 PAGE_DIR = os.path.join(ROOT, "docs", "page")
@@ -309,12 +311,10 @@ def fill(text, F, T, mode):
         return F[k]
     lines = []
     for line in text.split("\n"):
-        if line.startswith("@readme "):
-            if mode != "readme": continue
-            line = line[8:]
-        elif line.startswith("@page "):
-            if mode != "page": continue
-            line = line[6:]
+        tag = line.split(" ", 1)[0]
+        if tag in ("@readme", "@page"):  # a bare tag is an empty line in that output
+            if mode != tag[1:]: continue
+            line = line[len(tag) + 1:]
         lines.append(line)
     plain = lambda m: m.group(0) if m.group(1).split(":")[0] in ("table", "chart") else F[m.group(1)]
     return PLACE.sub(sub, PLACE.sub(plain, "\n".join(lines)))  # facts first, so chart captions can hold them
@@ -380,21 +380,24 @@ def to_html(md):
 
 
 def render():
-    """(README text, page HTML), both computed from results/ and the template."""
+    """(README text, full report text, page HTML), all computed from results/ and the templates."""
     s = json.load(open(os.path.join(RES, "summary.json")))
-    F = facts(s); T = tables_md(s); tmpl = open(TEMPLATE).read()
-    readme = fill(tmpl, F, T, "readme").strip() + "\n"
+    F = facts(s); T = tables_md(s)
+    readme = fill(open(README_TEMPLATE).read(), F, T, "readme").strip() + "\n"
+    up = lambda m: m.group(0) if re.match(r"https?:|#|mailto:", m.group(2)) else f"{m.group(1)}(../{m.group(2)})"
+    report = re.sub(r"(\]|!\[[^\]]*\])\(([^)\s]+)\)", up, fill(open(TEMPLATE).read(), F, T, "readme").strip() + "\n")  # it lives in docs/
     W = pagew.widgets(s, need)
     body = fill(open(PAGE_TEMPLATE).read(), Facts({**F, **{"w_" + k: v for k, v in W.items()}}), T, "page")
     shell = open(os.path.join(PAGE_DIR, "shell.html")).read()
     page = shell.replace("__CSS__", open(os.path.join(PAGE_DIR, "style.css")).read().strip()).replace("__BODY__", body).replace("__JS__", open(os.path.join(PAGE_DIR, "sort.js")).read().strip())
-    return readme, page
+    return readme, report, page
 
 
 def main():
-    readme, page = render()
-    open(README, "w").write(readme); os.makedirs(os.path.dirname(PAGE), exist_ok=True); open(PAGE, "w").write(page)
-    print(f"report -> README.md ({len(readme):,} chars), {os.path.relpath(PAGE, ROOT)} ({len(page):,} chars)")
+    readme, report, page = render()
+    open(README, "w").write(readme); open(REPORT, "w").write(report)
+    os.makedirs(os.path.dirname(PAGE), exist_ok=True); open(PAGE, "w").write(page)
+    print(f"report -> README.md ({len(readme):,} chars), docs/REPORT.md ({len(report):,} chars), {os.path.relpath(PAGE, ROOT)} ({len(page):,} chars)")
 
 
 if __name__ == "__main__":
