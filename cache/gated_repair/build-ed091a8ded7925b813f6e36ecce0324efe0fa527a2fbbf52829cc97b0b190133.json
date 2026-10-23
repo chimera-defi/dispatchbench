@@ -1,0 +1,14 @@
+{
+ "in_tok": 15234,
+ "cached_tok": 12288,
+ "cache_write_tok": 0,
+ "out_tok": 1047,
+ "reasoning_tok": 516,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\ndef k_machine_schedule(jobs: list[list[int]], k: int) -> int:\n    import heapq\n\n    if not jobs:\n        return 0\n\n    times = sorted({t for start, end, _ in jobs for t in (start, end)})\n    index = {t: i for i, t in enumerate(times)}\n    n = len(times)\n    graph = [[] for _ in range(n)]\n\n    def add_edge(u, v, capacity, cost):\n        graph[u].append([v, len(graph[v]), capacity, cost])\n        graph[v].append([u, len(graph[u]) - 1, 0, -cost])\n\n    for u in range(n - 1):\n        add_edge(u, u + 1, k, 0)\n\n    for start, end, pay in jobs:\n        add_edge(index[start], index[end], 1, -pay)\n\n    # Initial shortest-path potentials: all usable edges go forward in time.\n    potential = [0] * n\n    for u in range(n):\n        for v, _, capacity, cost in graph[u]:\n            if capacity and potential[u] + cost < potential[v]:\n                potential[v] = potential[u] + cost\n\n    total_cost = 0\n    infinity = 10**30\n\n    for _ in range(k):\n        distance = [infinity] * n\n        parent = [None] * n\n        distance[0] = 0\n        heap = [(0, 0)]\n\n        while heap:\n            current_distance, u = heapq.heappop(heap)\n            if current_distance != distance[u]:\n                continue\n\n            for edge_index, (v, _, capacity, cost) in enumerate(graph[u]):\n                if not capacity:\n                    continue\n\n                candidate = (\n                    current_distance + cost + potential[u] - potential[v]\n                )\n                if candidate < distance[v]:\n                    distance[v] = candidate\n                    parent[v] = (u, edge_index)\n                    heapq.heappush(heap, (candidate, v))\n\n        for v in range(n):\n            if distance[v] != infinity:\n                potential[v] += distance[v]\n\n        v = n - 1\n        while v != 0:\n            u, edge_index = parent[v]\n            edge = graph[u][edge_index]\n            total_cost += edge[3]\n            edge[2] -= 1\n            graph[v][edge[1]][2] += 1\n            v = u\n\n    return -total_cost\n```",
+ "wall_s": 32.469440586006385,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

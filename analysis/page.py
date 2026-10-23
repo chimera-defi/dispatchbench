@@ -7,7 +7,8 @@ from analysis import luna_rescue
 from analysis.charts import FAMILY, MIN_PASS
 
 # Plot order and family colour (a CSS variable of the page). luna-high is the exploratory full-ladder run.
-ORDER = ["haiku-low", "haiku-medium", "sonnet-medium", "sol61-medium", "luna-high", "luna-medium", "luna-low"]
+ORDER = ["haiku-low", "haiku-medium", "sonnet-medium", "sol61-medium", "luna-high", "luna-medium", "luna-low", "luna-low-bare",
+         "astra-medium", "sol61-high", "sol56-high", "luna56-high", "luna56-low"]
 FAM = lambda c: "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex)"
 NS = 'xmlns="http://www.w3.org/2000/svg"'
 
@@ -114,7 +115,9 @@ NAME = {"luna-low": "luna-low", "luna-high-bare": "luna-high-bare", "haiku-low":
         "luna-low+haiku-review-all": "luna-low → Haiku fixes all", "luna-low+haiku-on-fail": "luna-low → Haiku if samples fail",
         "luna-high-bare+haiku-review-all": "luna-high-bare → Haiku fixes all", "luna-high-bare+haiku-on-fail": "luna-high-bare → Haiku if samples fail",
         "luna-high-bare+retry-on-fail": "luna-high-bare → retry if samples fail",
-        "haiku-low-plan+luna-low": "Haiku plan → luna-low", "haiku-low-plan+luna-high-bare": "Haiku plan → luna-high-bare"}
+        "haiku-low-plan+luna-low": "Haiku plan → luna-low", "haiku-low-plan+luna-high-bare": "Haiku plan → luna-high-bare",
+        "astra-medium": "astra-medium", "sol61-high": "sol61-high", "sol56-high": "sol56-high", "luna56-high": "luna56-high", "luna56-low": "luna56-low",
+        "sol61-high+haiku-on-fail": "sol61-high → Haiku if samples fail", "astra-medium+haiku-on-fail": "astra-medium → Haiku if samples fail"}
 # Hard-set points: every row of the results table except the plan-first pipelines (in the table, not plotted).
 HARD_PTS = [(c, n) for c, n in NAME.items() if not c.startswith("haiku-low-plan")]
 SHORT = lambda n: n.replace("luna-", "").replace(" → Haiku if samples fail", "→H fail").replace(" → Haiku fixes all", "→H all").replace(" → retry if samples fail", "→retry")
@@ -261,10 +264,13 @@ def verdict(c, v, need, E):
 HARD = list(NAME.items())
 
 
-def row(name, col, k, n, usd, sec, verdict, proxy=False):
+def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False):
     r = k / n; cls = "good" if r >= 0.95 else "warn" if r >= MIN_PASS else "bad"
     return (f'<tr><td><span class="dot" style="background:{col}"></span>{esc(name)}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
-            f'<td>{"~" if proxy else ""}${usd:.5f}</td><td>{sec:.1f}</td><td>{verdict}</td></tr>')
+            f'<td>{"~" if proxy else ""}${usd:.5f}</td><td>${cusd:.5f}</td><td>{sec:.1f}</td><td>{verdict}</td></tr>')
+
+
+CODEX = lambda c: any(x in c for x in ("luna", "sol", "astra"))
 
 
 def short_table(s, need):
@@ -272,17 +278,18 @@ def short_table(s, need):
     set. Passed reads "95% (57/60)" so it sorts by rate. Hard-set verdicts come from the numbers: never failed, the cheapest of
     those, or how many attempts missed."""
     E = every(s); a = luna_rescue.arms()
-    top = [row(c, FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], E[c]["latency_s"]["median"], verdict(c, E[c], need, E),
+    top = [row(c, FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], 0.0 if CODEX(c) else E[c]["usd_per_pass"],
+               E[c]["latency_s"]["median"], verdict(c, E[c], need, E),
                E[c]["cost_kind"] == "proxy") for c in ORDER]
     clean = [c for c, _ in HARD if a[c]["passes"] == a[c]["n"]]; need(clean, "some hard-set row never failed")
     best = min(clean, key=lambda c: a[c]["usd_per_pass"])
     need(best == "haiku-medium", "haiku-medium is the cheapest hard-set row with no miss")
     hv = lambda c: "0 misses, cheapest" if c == best else "0 misses" if c in clean else f"missed {a[c]['n'] - a[c]['passes']}"
-    hard = [row(name, "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], a[c]["median_s"], hv(c),
-                "luna" in c or "sol61" in c) for c, name in HARD]
-    grp = lambda t: f'<tr class="grp"><th colspan="5">{t}</th></tr>'
-    return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>$ per pass</th>'
-            '<th>median s</th><th>verdict</th></tr></thead>'
+    hard = [row(name, "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], a[c]["claude_usd_per_pass"],
+                a[c]["median_s"], hv(c), CODEX(c)) for c, name in HARD]
+    grp = lambda t: f'<tr class="grp"><th colspan="6">{t}</th></tr>'
+    return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>total $ per pass</th>'
+            '<th>Claude $ per pass</th><th>median s</th><th>verdict</th></tr></thead>'
             f'<tbody>{grp("All problems")}{"".join(top)}</tbody>'
             f'<tbody>{grp(f"Hard set: {a[HARD[0][0]]["n"]} attempts on {len(luna_rescue.PIDS)} problems chosen after round 1")}{"".join(hard)}</tbody></table></div>')
 

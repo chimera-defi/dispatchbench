@@ -1,0 +1,14 @@
+{
+ "in_tok": 15193,
+ "cached_tok": 12288,
+ "cache_write_tok": 0,
+ "out_tok": 1288,
+ "reasoning_tok": 910,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\nfrom math import gcd\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, value in enumerate(a):\n        prefix[i + 1] = prefix[i] + value\n\n    hull = []\n    best_num, best_den = -1, 1\n\n    for end in range(k, n + 1):\n        start = end - k\n\n        # Maintain the lower convex hull of eligible prefix points.\n        while len(hull) >= 2:\n            u, v = hull[-2], hull[-1]\n            if (\n                (prefix[v] - prefix[u]) * (start - v)\n                >= (prefix[start] - prefix[v]) * (v - u)\n            ):\n                hull.pop()\n            else:\n                break\n        hull.append(start)\n\n        # Slopes to the current endpoint are unimodal on this hull.\n        total = prefix[end]\n        lo, hi = 0, len(hull) - 1\n        while lo < hi:\n            mid = (lo + hi) // 2\n            u, v = hull[mid], hull[mid + 1]\n            if (total - prefix[u]) * (end - v) <= (\n                total - prefix[v]\n            ) * (end - u):\n                lo = mid + 1\n            else:\n                hi = mid\n\n        start = hull[lo]\n        num = total - prefix[start]\n        den = end - start\n        if num * best_den > best_num * den:\n            best_num, best_den = num, den\n\n    divisor = gcd(best_num, best_den)\n    return [best_num // divisor, best_den // divisor]\n```",
+ "wall_s": 32.65272699500201,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

@@ -1,0 +1,46 @@
+{
+ "key": "d811a6e7b8484fd0edb87b08d3d065e75e31f9bc88a2a4e5e89cd4959552c347",
+ "ts": "2026-10-23T18:31:11+00:00",
+ "track": "agentic",
+ "config": "sol61-high",
+ "cli": "codex",
+ "cli_version": "0.163.0",
+ "model": "gpt-6.1-sol",
+ "effort": "high",
+ "task": "t4_retry_queue",
+ "repeat": 2,
+ "lanes": 4,
+ "wall_s": 161.76024249799957,
+ "in_tok": 213737,
+ "cached_tok": 200320,
+ "cache_write_tok": 0,
+ "out_tok": 5509,
+ "reasoning_tok": 1104,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)",
+ "turns": 1,
+ "tool_calls": {
+  "command_execution": 15,
+  "file_change": 3
+ },
+ "is_error": false,
+ "error": null,
+ "delegate_calls": 3,
+ "visible_pass": true,
+ "visible": {
+  "ok": true,
+  "passed": 19,
+  "failed": 0,
+  "tail": "19 passed in 0.05s"
+ },
+ "hidden_pass": true,
+ "hidden": {
+  "ok": true,
+  "passed": 10,
+  "failed": 0,
+  "tail": "10 passed in 0.02s"
+ },
+ "own_tests": true,
+ "tests_tampered": [],
+ "diff_stat": " 4 files changed, 301 insertions(+), 8 deletions(-)"
+}

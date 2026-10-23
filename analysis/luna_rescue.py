@@ -1,7 +1,7 @@
 """Appendix: can prompt, harness or routing changes rescue luna-low on the problems it fails most? (exploratory, post hoc)
 
-Rows for arms B-E are in results/appendix/luna_rescue.jsonl; the baselines are the main run's rows for the same
-problems and repeats. Prints a markdown table. Run: python3 -m analysis.luna_rescue"""
+Rows for arms B-G are in results/appendix/luna_rescue.jsonl; the baselines are the main run's rows (and the exploratory
+configs' rows) for the same problems and repeats. Prints a markdown table. Run: python3 -m analysis.luna_rescue"""
 import json, os
 from analysis.summarize import cost, ROOT
 
@@ -20,30 +20,45 @@ ARMS = [("luna-low", "luna-low baseline"),
         ("luna-low+haiku-on-fail", "G: luna-low builds; haiku-low repairs only if the statement's examples fail"),
         ("luna-high-bare+haiku-review-all", "G: luna-high (stripped) builds; haiku-low reviews every answer, as in E"),
         ("luna-low+haiku-review-all", "G: luna-low builds; haiku-low reviews every answer (arm E rerun from committed code)"),
+        ("sol61-high+haiku-on-fail", "G: sol61-high builds; haiku-low repairs only if the statement's examples fail"),
+        ("astra-medium+haiku-on-fail", "G: astra-medium builds; haiku-low repairs only if the statement's examples fail"),
         ("haiku-low", "haiku-low"),
         ("haiku-medium", "haiku-medium"),
         ("sonnet-medium", "sonnet-medium"),
-        ("sol61-medium", "sol61-medium")]
+        ("sol61-medium", "sol61-medium"),
+        ("sol61-high", "sol61-high"),
+        ("astra-medium", "astra-medium"),
+        ("sol56-high", "sol56-high"),
+        ("luna56-high", "luna56-high"),
+        ("luna56-low", "luna56-low")]
+
+
+def claude_usd(r):
+    """The Claude-billed part of a row; Codex calls bill Codex, not Claude."""
+    if "haiku_cost_usd" in r: return r["haiku_cost_usd"]
+    if "repair_cost_usd" in r: return r["repair_cost_usd"] if "haiku" in r["config"] else 0.0
+    return r["cost_usd"] if r.get("cli") == "claude" else 0.0
 
 
 def arms():
     """Per arm: label, passes, n, $ per pass, median seconds, total $, and its rows."""
     main_rows = [json.loads(l) for l in open(os.path.join(ROOT, "results", "2026-10-22b-function.jsonl"))]
-    main_rows = [dict(r, cost_usd=cost(r)) for r in main_rows if r["phase"] == "main" and r["problem"] in PIDS]
+    main_rows = [dict(r, cost_usd=cost(r)) for r in main_rows if r["phase"] in ("main", "exploratory") and r["problem"] in PIDS]
     arm_rows = [json.loads(l) for l in open(os.path.join(ROOT, "results", "appendix", "luna_rescue.jsonl"))]
     out = {}
     for c, label in ARMS:
         rr = [r for r in main_rows + arm_rows if r["config"] == c and r["problem"] in PIDS and 1 <= r["repeat"] <= 5]
         assert len(rr) == 35, (c, len(rr))
         k = sum(r["passed"] for r in rr); w = sorted(r["wall_s"] for r in rr); usd = sum(r["cost_usd"] for r in rr)
-        out[c] = {"label": label, "passes": k, "n": len(rr), "usd_per_pass": usd / k, "median_s": w[17], "usd_total": usd, "rows": rr}
+        out[c] = {"label": label, "passes": k, "n": len(rr), "usd_per_pass": usd / k, "median_s": w[17], "usd_total": usd, "rows": rr,
+                  "claude_usd_per_pass": sum(claude_usd(r) for r in rr) / k}
     return out
 
 
 def table(a):
-    L = ["| config | passed | $ per pass | median s |", "|---|---|---|---|"]
+    L = ["| config | passed | $ per pass | Claude $ per pass | median s |", "|---|---|---|---|---|"]
     for v in a.values():
-        L.append(f"| {v['label']} | {v['passes']}/{v['n']} | {v['usd_per_pass']:.5f} | {v['median_s']:.1f} |")
+        L.append(f"| {v['label']} | {v['passes']}/{v['n']} | {v['usd_per_pass']:.5f} | {v['claude_usd_per_pass']:.5f} | {v['median_s']:.1f} |")
     return "\n".join(L)
 
 

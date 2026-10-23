@@ -1,24 +1,27 @@
 # model-routing-bench
 
-Which model and reasoning effort should a coding task be routed to? This repo measures 6 Claude Code and Codex CLI configs on 15 Python problems written after the models' training cutoff, plus 4 small repo tasks.
+Which model and reasoning effort should a coding task be routed to? This repo measures 6 Claude Code and Codex CLI configs, plus 5 Codex configs added on 2026-10-23, on 15 Python problems written after the models' training cutoff, plus 4 small repo tasks.
 
 ## The answer
 
-| Route to | Passed | $ per pass | Median s |
-|---|---|---|---|
-| **haiku-medium** (default) | 59/60 | $0.00149 | 13.0 |
-| haiku-low (tight budget) | 57/60 | $0.00112 | 10.0 |
-| luna-high (cheapest Codex) | 55/60 | $0.00105 | 12.2 |
-| sol61-medium | 58/60 | $0.01499 | 22.6 |
+Claude and Codex are billed separately, so the table shows both: Claude $ is what the Claude side pays; list $ prices every call, Codex included, at list rates.
+
+| Route to | When | Passed | Claude $ per pass | List $ per pass | Median s |
+|---|---|---|---|---|---|
+| **sol61-high**, haiku-low repairs only if a check fails | default while Codex has quota | 60/60 | $0 | $0.01861 | 27.4 |
+| astra-medium, same repair | faster, about 4.0× the list price (Codex usage assumed to track it) | 60/60 | $0 | $0.07526 | 20.9 |
+| haiku-low | Codex out | 57/60 | $0.00112 | $0.00112 | 10.0 |
+| haiku-medium | Codex out and a miss is costly | 59/60 | $0.00149 | $0.00149 | 13.0 |
 
 Main ladder: 12 problems × 5 attempts per config.
 
-- **Skip luna at low or medium effort.** It barely reasons there and misses easy problems.
-- **On luna's hardest problems** haiku-medium never missed (35/35, $0.00192 per pass). Stripped-harness luna-high with Haiku repairing only failed checks is cheaper ($0.00135) but passes 32/35.
-- **Other Codex models don't change this.** gpt-5.6-sol (high) and gpt-6-astra (medium) pass 60/60 and 60/60, at 28× and 51× haiku-medium's price per pass. gpt-5.6-luna is worse and dearer than gpt-6 luna.
-- **sonnet-medium never failed** (75/75) at about 8× haiku-medium's price.
+- **Trust first, then save.** A cheap model plus a Haiku reviewer costs more than haiku-medium alone, because Haiku redoes the work. Savings come only from a builder that is right on its own.
+- **sol61-high and astra-medium never failed**: every main-ladder attempt, every attempt on the hardest rung, and all 12 repo-task runs. With the Haiku repair gated on the statement's examples, they needed 0 and 0 repairs on luna's hardest problems (35/35 and 35/35).
+- **The price is time.** On the repo tasks they take 109 s and 85 s at the median, against about 28 s for haiku-low and sonnet-medium.
+- **Skip luna at low or medium effort.** It barely reasons there and misses easy problems. luna-high is the cheapest Codex config but misses some.
+- **sonnet-medium also never failed** (75/75); it is the cheapest of the three by list price.
 
-Total spend: $2.06 Claude, $11.95 Codex at list prices ($9.54 of it for the Codex models added on 2026-10-23).
+Total spend: $2.06 Claude, $19.12 Codex at list prices ($16.70 of it for the Codex models added on 2026-10-23).
 
 ## Read more
 

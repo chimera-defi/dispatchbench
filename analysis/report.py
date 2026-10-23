@@ -26,7 +26,7 @@ PAGE = os.path.join(RES, "report", "page.html")
 CHARTS = os.path.join(RES, "report", "charts")
 PAGE_DIR = os.path.join(ROOT, "docs", "page")
 QUALITY = os.path.join(RES, "quality.jsonl")
-NEW_CODEX = ("sol56-high", "astra-medium", "luna56-high", "luna56-low")  # exploratory Codex additions, see bench/run.py
+NEW_CODEX = ("sol61-high", "sol56-high", "astra-medium", "luna56-high", "luna56-low")  # exploratory Codex additions, see bench/run.py
 GROWTH_MARGIN = 0.3  # a fitted time exponent this far above the reference's counts as worse growth
 
 
@@ -123,8 +123,9 @@ def facts(s):
     for c, v in ag.items():
         k = c.replace("-", "_"); F[f"ag_{k}_usd"] = f"${v['usd_per_run']:.4f}" if v["usd_per_run"] < 0.01 else f"${v['usd_per_run']:.3f}"
         F[f"ag_{k}_med"] = f"{v['latency_s']['median']:.0f}"
-    usds = [v["usd_per_run"] for v in ag.values()]; F["ag_spread"] = f"{max(usds) / min(usds):.0f}×"
-    others = [v["latency_s"]["median"] for c, v in ag.items() if c != "sol61-medium"]
+    AG_BASE = ("luna-low", "haiku-low", "sonnet-medium", "sol61-medium")  # the four first run; sol61-high and astra-medium added 2026-10-23
+    usds = [ag[c]["usd_per_run"] for c in AG_BASE]; F["ag_spread"] = f"{max(usds) / min(usds):.0f}×"
+    others = [ag[c]["latency_s"]["median"] for c in AG_BASE if c != "sol61-medium"]
     need(max(others) - min(others) < 2, "the other three agentic medians are about equal"); F["ag_other_med"] = f"{statistics.mean(others):.0f}"
     at = json.load(open(os.path.join(RES, "agentic_tests.json")))
     for c in ("luna-low", "sol61-medium"):
@@ -224,8 +225,9 @@ def facts(s):
     F["growth_margin"] = str(GROWTH_MARGIN)
     F["n_solutions"] = str(sum(1 for _, _, fs in os.walk(os.path.join(RES, "solutions")) for f in fs if f.endswith(".py")))
     # Codex additions (exploratory, run after the report at the operator's request)
-    nr = [r for r in rows if r["config"] in NEW_CODEX]; F["new_date"] = min(r["ts"] for r in nr)[:10]
-    F["codex_new_usd"] = f"${sum(map(cost, nr)):.2f}"; F["codex_old_usd"] = f"${sp['codex_proxy_usd'] - sum(map(cost, nr)):.2f}"
+    nr = [r for r in rows if r["config"] in NEW_CODEX]; F["new_date"] = min(r["ts"] for r in nr)[:10]; F["n_new_codex"] = str(len(NEW_CODEX))
+    nu = sum(map(cost, nr + [r for r in agent if r["config"] in NEW_CODEX]))  # function and repo-task runs alike
+    F["codex_new_usd"] = f"${nu:.2f}"; F["codex_old_usd"] = f"${sp['codex_proxy_usd'] - nu:.2f}"
     for c in NEW_CODEX:
         k = "x_" + c.replace("-", "_"); e, h = ex[c], hard[c]
         F[k + "_k"] = f"{e['passes']}/{e['n']}"; F[k + "_upp"] = u(e["usd_per_pass"], 4); F[k + "_med"] = f"{e['latency_s']['median']:.1f}"
@@ -238,7 +240,20 @@ def facts(s):
     F["x_sol56_vs_hm"] = f"{ex['sol56-high']['usd_per_pass'] / cfg['haiku-medium']['usd_per_pass']:.0f}×"
     F["x_astra_vs_hm"] = f"{ex['astra-medium']['usd_per_pass'] / cfg['haiku-medium']['usd_per_pass']:.0f}×"
     sm_all = cfg["sonnet-medium"]["usd_per_pass"]; perfect = [c for c in list(cfg) + list(ex) if (cfg.get(c) or ex[c])["passes"] == (cfg.get(c) or ex[c])["n"] and c in hard and hard[c]["passes"] == hard[c]["n"]]
-    need(sorted(perfect) == ["astra-medium", "sonnet-medium"] and ex["astra-medium"]["usd_per_pass"] > sm_all, "sonnet-medium is the cheapest config with no miss anywhere; astra-medium the only other")
+    need(sorted(perfect) == ["astra-medium", "sol61-high", "sonnet-medium"] and min(ex[c]["usd_per_pass"] for c in ("astra-medium", "sol61-high")) > sm_all,
+         "sonnet-medium is the cheapest config with no miss anywhere; astra-medium and sol61-high the only others")
+    need(all(ag[c]["hidden_pass"] == ag[c]["n"] for c in ("astra-medium", "sol61-high")), "both trusted Codex configs passed every repo task")
+    F["x_s61h_vs_sm"] = x(ex["sol61-high"]["usd_per_pass"], sm_all)
+    # trusted Codex builders: who bills what. Codex calls bill the Codex subscription, so their Claude $ is zero by construction.
+    ah, sh = ex["astra-medium"], ex["sol61-high"]
+    F["x_astra_vs_s61h"] = x(ah["usd_per_pass"], sh["usd_per_pass"]); F["ag_astra_vs_s61h"] = x(ag["astra-medium"]["usd_per_run"], ag["sol61-high"]["usd_per_run"])
+    need(ah["latency_s"]["median"] < sh["latency_s"]["median"] and ag["astra-medium"]["latency_s"]["median"] < ag["sol61-high"]["latency_s"]["median"], "astra faster than sol61-high")
+    F["ag_n"] = str(ag["sol61-high"]["n"]); F["claude_zero"] = "$0"
+    F["ag_claude_med"] = f"{statistics.mean(ag[c]['latency_s']['median'] for c in ('haiku-low', 'sonnet-medium')):.0f}"
+    ga = luna_rescue.arms()
+    for c in ("sol61-high+haiku-on-fail", "astra-medium+haiku-on-fail"):
+        g = ga[c]; need(g["passes"] == g["n"], f"{c} never failed on the hard set"); F["g_" + c.split("-")[0] + "_repairs"] = str(sum(r["repaired"] for r in g["rows"]))
+        F["g_" + c.split("-")[0] + "_cupp"] = u(g["claude_usd_per_pass"])
     F["x_astra_vs_sm"] = f"{ex['astra-medium']['usd_per_pass'] / sm_all:.0f}×"
     F["x_l56_vs_lh"] = x(ex["luna56-high"]["usd_per_pass"], ex["luna-high"]["usd_per_pass"])
     return F

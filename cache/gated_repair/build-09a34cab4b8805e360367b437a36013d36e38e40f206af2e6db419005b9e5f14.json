@@ -1,0 +1,14 @@
+{
+ "in_tok": 15147,
+ "cached_tok": 12160,
+ "cache_write_tok": 0,
+ "out_tok": 382,
+ "reasoning_tok": 127,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\ndef taller_within(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    if k == 0:\n        return [0] * n\n\n    values = sorted(set(a))\n    rank = {value: i + 1 for i, value in enumerate(values)}\n    ranks = [rank[value] for value in a]\n    m = len(values)\n    tree = [0] * (m + 1)\n    result = [0] * n\n\n    for i, r in enumerate(ranks):\n        # The tree contains the previous min(i, k) heights.\n        less_or_equal = 0\n        p = r\n        while p > 0:\n            less_or_equal += tree[p]\n            p -= p & -p\n\n        result[i] = min(i, k) - less_or_equal\n\n        p = r\n        while p <= m:\n            tree[p] += 1\n            p += p & -p\n\n        if i >= k:\n            p = ranks[i - k]\n            while p <= m:\n                tree[p] -= 1\n                p += p & -p\n\n    return result\n```",
+ "wall_s": 15.821249529006309,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}
