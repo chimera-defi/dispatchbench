@@ -25,7 +25,7 @@ The main run was on 2026-10-22: $2.06 of measured Claude spend and $2.42 of Code
 | luna56-low (exploratory) | 80% (48/60) | 60%–97% | 9.2 | 17.4 | 0.00218 | 0.105 | proxy |
 | sol56-high (exploratory) | 100% (60/60) | ≥78% (all passed) | 14.5 | 48.4 | 0.04180 | 2.508 | proxy |
 
-Function track: 12 problems × 5 attempts per config. Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The two exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, and luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section).
+Function track: 12 problems × 5 attempts per config. Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other four are later Codex models (see "More Codex models").
 
 ## Can luna run on fewer tokens?
 
@@ -115,7 +115,7 @@ Medians are over each config's passing L1–L6 solutions, so a config that fails
 
 ## Harder rung (L7), added after the main run
 
-Three more problems, written and checked before any model saw them (PLAN.md, deviation 16), each harder than p12: a cellular automaton on a ring run for up to 10^18 steps (p13), exact expected turns on a board game with bounce-back and chained jumps (p14), and paint/erase operations on 10^9 cells (p15). Four configs, 5 attempts each. These rows are kept apart from L1–L6 and change no number above.
+Three more problems, written and checked before any model saw them (PLAN.md, deviation 16), each harder than p12: a cellular automaton on a ring run for up to 10^18 steps (p13), exact expected turns on a board game with bounce-back and chained jumps (p14), and paint/erase operations on 10^9 cells (p15). 5 attempts per config: the four original configs first, then the four later Codex models. These rows are kept apart from L1–L6 and change no number above.
 
 | config | passed | 95% CI | p13 | p14 | p15 | median s | mean reasoning tokens | $ per pass | $ kind |
 |---|---|---|---|---|---|---|---|---|---|
@@ -227,7 +227,7 @@ rebuilds every table, chart and number in this README and the page from the cach
 - **Latency is wall-clock through the CLI** on one host with up to 4 calls in flight. It includes CLI start-up and network time, and is not comparable to API time-to-first-token. The exploratory stripped-luna run used one lane at a different time of day, so its latency is not a clean comparison with luna-low.
 - **The cache key leaves out a few inputs.** The effort and model literals inside the trim probe are not hashed. The one-line system prompt and the grader's source are pinned by SHA-256 instead: the runners and the grader refuse to run if either file changes while cached results exist.
 - **The repo-task runs are not sandboxed alike.** Claude Code ran with permission prompts bypassed and no sandbox; Codex ran in its workspace-write sandbox. The hidden tests run the agent's code with pytest outside the grader's sandbox. All of it ran in throwaway directories on one host.
-- **L7 was not pre-registered either**, and has only three problems; it ran on four of the eight configs.
+- **L7 was not pre-registered either**, and has only three problems; it ran on only some of the configs (see the L7 table).
 - **luna-high on the full ladder was not pre-registered.** It was added because the reasoning-token gap made the low/medium comparison unfair to luna. Treat its row as exploratory.
 - **The quality columns are descriptive.** Growth exponents come from the fastest of three timings at each of four input sizes on a shared host, so small differences are noise; the threshold for "worse than reference" is in PLAN.md.
 - `make selftest` takes about 12 minutes; `make report` takes seconds.

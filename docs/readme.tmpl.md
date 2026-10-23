@@ -14,7 +14,7 @@ Which model and reasoning effort should a coding task be routed to? This repo me
 Main ladder: {{n_problems}} problems × {{repeats}} attempts per config.
 
 - **Skip luna at low or medium effort.** It barely reasons there and misses easy problems.
-- **On luna's hardest problems** haiku-medium never missed ({{r_haiku_medium_k}}, {{r_haiku_medium_upp}} per pass). luna-high with Haiku repairing only failed checks is cheaper ({{r_luna_high_bare_haiku_on_fail_upp}}) but passes {{r_luna_high_bare_haiku_on_fail_k}}.
+- **On luna's hardest problems** haiku-medium never missed ({{r_haiku_medium_k}}, {{r_haiku_medium_upp}} per pass). Stripped-harness luna-high with Haiku repairing only failed checks is cheaper ({{r_luna_high_bare_haiku_on_fail_upp}}) but passes {{r_luna_high_bare_haiku_on_fail_k}}.
 - **Other Codex models don't change this.** gpt-5.6-sol (high) and gpt-6-astra (medium) pass {{x_sol56_high_k}} and {{x_astra_medium_k}}, at {{x_sol56_vs_hm}} and {{x_astra_vs_hm}} haiku-medium's price per pass. gpt-5.6-luna is worse and dearer than gpt-6 luna.
 - **sonnet-medium never failed** ({{sm_all}}) at about {{sm_vs_hm_x}} haiku-medium's price.
 
