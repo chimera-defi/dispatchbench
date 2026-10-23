@@ -116,7 +116,7 @@ def rung_chart(s):
     cfg = s["configs"]; rungs = sorted({g for v in cfg.values() for g in v["by_rung"]}, key=lambda g: int(g[1:]))
     W, H, L, R, T, B = 760, 420, 60, 170, 50, 50
     X = lambda i: L + i / max(1, len(rungs) - 1) * (W - L - R); Y = lambda p: H - B - p * (H - T - B)
-    b = [text(L, 24, "Pass rate by difficulty rung (10 attempts per rung per config)", 14, weight="600")]
+    b = [text(L, 24, "Pass rate by difficulty rung, main-run configs (10 attempts per rung per config)", 14, weight="600")]
     for p in (0, 0.2, 0.4, 0.6, 0.8, 1.0):
         b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
     b.append(f"<line x1='{L}' x2='{W - R}' y1='{Y(0.4):.1f}' y2='{Y(0.4):.1f}' stroke='var(--bad,#b3261e)' stroke-dasharray='4 3'/>")
@@ -140,19 +140,26 @@ def rung_chart(s):
 
 
 def heatmap(s):
-    cfg = list(s["configs"]); probs = list(s["problems"])
-    cw, ch, L, T = 92, 24, 210, 70
-    W, H = L + cw * len(cfg) + 20, T + ch * len(probs) + 50
-    b = [text(12, 24, "Passes out of 5 per problem and config", 14, weight="600")]
-    for j, c in enumerate(cfg):
-        b.append(text(L + j * cw + cw / 2, T - 10, c, 11, "middle", MUTED))
+    """Main-run configs first, then exploratory ones (muted headers, after a gap); a dash where a config did not run a problem."""
+    ex = s.get("exploratory") or {}
+    cols = [(c, {p: v[c] for p, v in s["problems"].items()}, False) for c in s["configs"]] + [(c, v["by_problem"], True) for c, v in ex.items()]
+    probs = list(s["problems"]); cw, ch, L, T, gap = 50, 24, 190, 130, 14
+    X = lambda j: L + j * cw + (gap if cols[j][2] else 0)
+    W, H = X(len(cols) - 1) + cw + 20, T + ch * len(probs) + 40
+    b = [text(12, 24, "Passes out of 5 per problem and config", 14, weight="600"),
+         text(12, 42, "Left: main run. Right, muted: exploratory configs.", 11, fill=MUTED)]
+    for j, (c, _, x) in enumerate(cols):  # rotated headers so every config fits
+        b.append(text(X(j) + cw / 2 + 4, T - 8, c, 11, "start", MUTED if x else INK, rotate=-55))
     for i, p in enumerate(probs):
-        v = s["problems"][p]; y = T + i * ch
-        b.append(text(L - 10, y + ch / 2 + 4, f"L{v['rung']}  {p}", 11, "end", INK))
-        for j, c in enumerate(cfg):
-            k = v[c]; fill, op = ("var(--bad,#b3261e)", 0.35) if k == 0 else ("var(--good,#1c7c3c)", 0.1 + 0.09 * k)
-            b.append(f"<rect x='{L + j * cw + 1}' y='{y + 1}' width='{cw - 2}' height='{ch - 2}' fill='{fill}' opacity='{op:.2f}'/>")
-            b.append(text(L + j * cw + cw / 2, y + ch / 2 + 4, k, 11, "middle", INK))
+        y = T + i * ch
+        b.append(text(L - 10, y + ch / 2 + 4, f"L{s['problems'][p]['rung']}  {p}", 11, "end", INK))
+        for j, (c, bp, _) in enumerate(cols):
+            k = bp.get(p)
+            if k is None:
+                b.append(text(X(j) + cw / 2, y + ch / 2 + 4, "–", 11, "middle", MUTED)); continue
+            fill, op = ("var(--bad,#b3261e)", 0.35) if k == 0 else ("var(--good,#1c7c3c)", 0.1 + 0.09 * k)
+            b.append(f"<rect x='{X(j) + 1}' y='{y + 1}' width='{cw - 2}' height='{ch - 2}' fill='{fill}' opacity='{op:.2f}'/>")
+            b.append(text(X(j) + cw / 2, y + ch / 2 + 4, k, 11, "middle", INK))
     return svg(W, H, b)
 
 
@@ -178,7 +185,7 @@ def floor_chart(s):
 def agentic_chart(s):
     ag = s.get("agentic") or {}
     if not ag: return None
-    W, H, L, R, T, B = 760, 420, 80, 30, 50, 80
+    W, H, L, R, T, B = 760, 460, 80, 30, 100, 80
     xs = [v["usd_per_run"] for v in ag.values()]
     x0, x1 = min(xs) / 1.5, max(xs) * 1.5
     X = lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R); Y = lambda p: H - B - p * (H - T - B)
@@ -188,13 +195,18 @@ def agentic_chart(s):
     for v in log_ticks(x0, x1):
         b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{H - B}' stroke='{GRID}'/>", text(X(v), H - B + 18, fmt_usd(v), 11, "middle", MUTED)]
     b += [text((L + W - R) / 2, H - B + 38, "$ per run", 12, "middle", MUTED), text(20, (T + H - B) / 2, "runs passing all hidden tests", 12, "middle", MUTED, rotate=-90)]
+    lanes = {}  # label rows above the 100% line, filled left to right
     for i, (c, v) in enumerate(sorted(ag.items(), key=lambda kv: kv[1]["usd_per_run"])):
         x, y = X(v["usd_per_run"]), Y(v["hidden_pass_rate"]); lo, hi = v["ci95"]
         if v["hidden_pass"] == v["n"]: lo = 0.05 ** (1 / len(v["by_task"]))  # bootstrap collapses at 100%; one-sided bound over tasks, as in the tables
         b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(lo):.1f}' y2='{Y(hi):.1f}' stroke='{FAMILY(c)}' stroke-width='2' opacity='0.5'/>")
         b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='6' fill='{FAMILY(c)}'/>")
-        right = x > W - R - 150
-        b.append(text(x - 10 if right else x + 10, y - 8 if i % 2 == 0 else y + 18, anchor="end" if right else "start", s=f"{c} {v['hidden_pass']}/{v['n']}{' *' if v['cost_kind'] == 'proxy' else ''}", size=11))
+        lab = f"{c} {v['hidden_pass']}/{v['n']}{' *' if v['cost_kind'] == 'proxy' else ''}"; w = 6.3 * len(lab)
+        right = x + 8 + w > W - R; xl = x - 8 - w if right else x + 8
+        lane = next(k for k in range(20) if all(e < xl - 6 or s0 > xl + w + 6 for s0, e in lanes.setdefault(k, [])))  # first lane with room
+        lanes[lane].append((xl, xl + w)); ly = y - 12 - 15 * lane
+        if lane: b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{y - 7:.1f}' y2='{ly + 3:.1f}' stroke='{FAMILY(c)}' stroke-width='1' opacity='0.6'/>")
+        b.append(text(xl, ly, s=lab, size=11))
     b.append(text(L, H - 10, "All configs passed 12/12. Bars: one-sided 95% lower bound. * Codex cost is proxy.", 11, fill=MUTED))
     return svg(W, H, b)
 

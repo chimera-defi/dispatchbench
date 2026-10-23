@@ -257,6 +257,7 @@ def build():
                 blk["vs"].append({"b": base, "diff": round(d, 4), "ci95": [round(lo, 4), round(hi, 4)], "problems": n})
         er = [r for r in rr if r["passed"]]
         blk["usd_per_pass_uncached"] = round(sum(map(cost_uncached, rr)) / len(er), 6) if er else None
+        blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}  # heatmap columns
         s["exploratory"][c] = blk
     hr = [r for r in rows if r["phase"] == "hard"]
     s["hard"] = {}
