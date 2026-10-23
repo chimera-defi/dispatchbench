@@ -48,10 +48,10 @@
 <li>Purple line = best trade-offs: nothing is both cheaper and more accurate. Whiskers: 95% CI.</li>
 <li>luna-low and luna-medium are cheapest here but pass only {{luna_low_pass}} and {{luna_medium_pass}}.</li>
 </ul>
-<div class="chart"><h3>⏱️ Speed vs $ per pass</h3><p class="sub">Best trade-offs among configs passing at least {{min_pass}}.</p>{{w_speed_cost}}</div>
+<div class="chart"><h3>⏱️ Speed vs $ per pass</h3><p class="sub">Best trade-offs among configs passing at least {{min_pass}}. Dashed hollow = Codex pilot, default → ⚡ fast mode, on {{fast_problems}} well-known LeetCode problems; not on the frontier.</p>{{w_speed_cost}}</div>
 <ul class="tight small">
 <li>Best trade-offs: haiku-low and luna-high.</li>
-<li>Codex fast mode is not plotted: it only ran on {{fast_problems}} well-known LeetCode problems where every call passed. See Results.</li>
+<li>Codex fast mode is only on the speed chart: it ran on {{fast_problems}} well-known LeetCode problems where every call passed, so it has no comparable pass rate. See Results.</li>
 </ul>
 </div>
 <div class="tab tab-hard">
