@@ -32,7 +32,7 @@ NOTES = {
         "Build an Aho-Corasick automaton (at most 21 states), mark a state bad if it or any suffix-link ancestor ends a banned word, then raise the transition matrix to the n-th power. O(S^3 log n).",
         "Traps: banned words that contain others or repeat; the bad flag must propagate through failure links; n = 0 gives 1; linear DP over n cannot reach 10**18."]),
     "p11_best_average": ("Largest average over contiguous subarrays of length >= k, as an exact reduced fraction.", [
-        "Binary search or Dinkelbach iteration on the ratio, using prefix sums and a running minimum prefix at distance >= k; finish with exact integer or `Fraction` arithmetic. O(n log) or fewer iterations.",
+        "Dinkelbach iteration (or a binary search in exact integer or rational arithmetic, never floats) on the ratio, using prefix sums and a running minimum prefix at distance >= k; the search itself must be exact, not just the final fraction. O(n) per iteration.",
         "Traps: float comparison fails when two averages differ by < 1e-9; the fraction must be in lowest terms; the best subarray can be longer than k."]),
     "p12_sheet": ("Evaluate a spreadsheet of integers and formulas (SUM/MIN/MAX/IF, ranges) with #DIV/0! and #CYCLE! errors.", [
         "Recursive-descent formula parser plus memoised evaluation of cells with an in-progress marker; a reference to an in-progress cell yields #CYCLE!.",

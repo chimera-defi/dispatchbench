@@ -173,7 +173,7 @@ def fmt(v):
     return str(v)
 
 
-def main():
+def export():
     entries = []
     for f in sorted(os.listdir(CALLS)):
         if f.endswith(".json"):
@@ -305,7 +305,22 @@ def main():
     with open(os.path.join(OUT, "README.md"), "w") as fh:
         fh.write("\n".join(out) + "\n")
     counts = ", ".join(f"{k} {v}" for k, v in sorted(source_counts.items())) or "none"
-    print(f"exported {sum(phase_counts.values())} solutions ({ph}; exploratory: {counts}) for {len(rows)} problems -> {os.path.relpath(OUT, ROOT)}")
+    print(f"exported {sum(phase_counts.values())} solutions ({ph}; exploratory: {counts}) for {len(rows)} problems -> {os.path.relpath(FINAL, ROOT)}")
+
+
+FINAL = OUT
+
+
+def main():
+    """Build into a sibling folder and swap it in only when the whole export succeeded, so a failed check leaves the old one."""
+    global OUT
+    OUT = FINAL + ".new"
+    shutil.rmtree(OUT, ignore_errors=True)
+    try:
+        export()
+    except BaseException:
+        shutil.rmtree(OUT, ignore_errors=True); raise
+    shutil.rmtree(FINAL, ignore_errors=True); os.rename(OUT, FINAL)
 
 
 if __name__ == "__main__":
