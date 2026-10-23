@@ -79,7 +79,7 @@ gpt-5.6-terra at the smallest prompt costs $0.0080 per call on the pilot problem
 
 ## Code quality
 
-Pass/fail stays the headline. These columns describe the passing solutions only, measured by `make quality` with no model calls; every solution is on disk under [results/solutions/](../results/solutions/README.md) (797 files, one table per problem with links), so each number can be checked by hand. The factors and how they are measured are in PLAN.md (deviation 17). None of them is folded into a single score.
+Pass/fail stays the headline. These columns describe the passing solutions only, measured by `make quality` with no model calls; every solution is on disk under [results/solutions/](../results/solutions/README.md) (866 files, one table per problem with links), so each number can be checked by hand. The factors and how they are measured are in PLAN.md (deviation 17). None of them is folded into a single score.
 
 | config | passing solutions | median LOC | median max complexity | lint warnings per solution | median time vs reference | growth worse than reference | median peak memory vs reference |
 |---|---|---|---|---|---|---|---|
