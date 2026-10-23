@@ -47,20 +47,21 @@
 <div class="chart">{{w_pass_cost}}</div>
 <ul class="tight small">
 <li>Purple line = best trade-offs: nothing is both cheaper and more accurate. Whiskers: 95% CI.</li>
+<li>Dashed hollow = Codex pilot, default → ⚡ fast mode, on {{fast_problems}} easier well-known LeetCode problems (every call passed). Not comparable, never on the frontier.</li>
 <li>luna-low and luna-medium are cheapest here but pass only {{luna_low_pass}} and {{luna_medium_pass}}.</li>
 </ul>
 <div class="chart"><h3>⏱️ Speed vs $ per pass</h3><p class="sub">Best trade-offs among configs passing at least {{min_pass}}. Dashed hollow = Codex pilot, default → ⚡ fast mode, on {{fast_problems}} well-known LeetCode problems; not on the frontier.</p>{{w_speed_cost}}</div>
 <ul class="tight small">
-<li>Best trade-offs: haiku-low and luna-high.</li>
-<li>Codex fast mode is only on the speed chart: it ran on {{fast_problems}} well-known LeetCode problems where every call passed, so it has no comparable pass rate. See Results.</li>
+<li>Best trade-offs: {{w_front_speed}}.</li>
+<li>Pipelines ran only on the hard set: see the "Hard set + pipelines" tab.</li>
 </ul>
 </div>
 <div class="tab tab-hard">
-<div class="chart"><h3>Hard set: pass rate vs $ per pass</h3><p class="sub">{{rescue_n}} attempts on {{r_pids}} problems chosen after round 1 (luna-low fails them most). Single models: their main-run attempts. Purple = pipelines: low / high-bare is the luna build; →H all = Haiku fixes every answer; →H fail = Haiku only when sample tests fail; →retry = luna tries again. Small sample, no intervals.</p>{{w_hard_pass_cost}}</div>
+<div class="chart"><h3>Hard set: pass rate vs $ per pass</h3><p class="sub">{{rescue_n}} attempts on {{r_pids}} problems chosen after round 1 (luna-low fails them most). Single models: their main-run attempts. Purple = pipelines: low / high-bare is the luna build; plan→ = Haiku plans, luna builds; →H fail = Haiku fixes only when sample tests fail; →retry = luna tries again; →H all = Haiku fixes every answer. sol61-high and astra-medium →H fail sit on their own dots: the check never failed. Small sample, no intervals.</p>{{w_hard_pass_cost}}</div>
 <ul class="tight small">
 <li>Best trade-offs, cheapest first: {{w_hard_front_pass}}.</li>
 </ul>
-<div class="chart"><h3>⏱️ Hard set: speed vs $ per pass</h3><p class="sub">Best trade-offs among rows passing at least {{min_pass}}.</p>{{w_hard_speed_cost}}</div>
+<div class="chart"><h3>⏱️ Hard set: speed vs $ per pass</h3><p class="sub">Best trade-offs among rows passing at least {{min_pass}}. sol61-high and astra-medium →H fail: the check never failed, so these are separate runs of the model alone; their times differ by run.</p>{{w_hard_speed_cost}}</div>
 <ul class="tight small">
 <li>Best trade-offs: {{w_hard_front_speed}}.</li>
 </ul>
@@ -105,11 +106,12 @@
 </ul>
 </section>
 <section id="pipes">
-<h2><span class="num"></span>🔗 Pipelines: Haiku fixes luna's work</h2>
-<div class="chart floor"><h3>Hard set: passes, $ per pass, median seconds</h3><p class="sub">{{rescue_n}} attempts on {{r_pids}} problems chosen after round 1 (luna-low fails them most). Single models: their main-run attempts. Purple = luna builds, then Haiku reviews and fixes: H all = every answer; H fail = only when sample tests fail.</p>{{w_pipes}}</div>
+<h2><span class="num"></span>🔗 Pipelines: plan, check, fix</h2>
+<div class="chart floor"><h3>Hard set: passes, $ per pass, median seconds</h3><p class="sub">{{rescue_n}} attempts on {{r_pids}} problems chosen after round 1 (luna-low fails them most). Single models: their main-run attempts. Purple = pipelines. plan→ = Haiku plans, luna builds. →H fail = Haiku fixes only when sample tests fail. →retry = luna tries again. →H all = Haiku fixes every answer.</p>{{w_pipes}}</div>
 <ul class="tight small">
 <li>✅ Haiku fixing every luna-high-bare answer: {{r_luna_high_bare_haiku_review_all_k}}. But haiku-medium alone also had 0 misses, {{hm_vs_pipe_x}} cheaper.</li>
 <li>⚠️ Sample tests are a weak gate: they caught {{g_hi_fixed}} bad luna-high answers and missed {{g_hi_missed}}. luna-low fails them more often ({{g_lo_fixed}} repairs), so the gate helps it more.</li>
+<li>✅ sol61-high and astra-medium → Haiku if samples fail: {{r_sol61_high_haiku_on_fail_k}} and {{r_astra_medium_haiku_on_fail_k}}. The gate never fired ({{g_sol61_repairs}} and {{g_astra_repairs}} repairs): they passed alone.</li>
 <li>❌ A Haiku plan before luna helped less: luna-low {{r_haiku_low_plan_luna_low_k}}, luna-high {{r_haiku_low_plan_luna_high_bare_k}} (alone: {{r_luna_high_bare_k}}). Check after, don't plan first.</li>
 </ul>
 </section>

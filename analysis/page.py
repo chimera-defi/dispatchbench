@@ -1,7 +1,7 @@
 """Widgets for the page (results/report/page.html), all drawn from results/summary.json: the two Pareto scatters, the
 problem × config grid, the token-floor bars and the short result table. Inline SVG and HTML that take their colours
 from the page's CSS variables, so both themes work. Standard library only."""
-import html, json, math, os
+import html, json, math, os, re
 
 from analysis import luna_rescue
 from analysis.charts import FAMILY, MIN_PASS
@@ -47,10 +47,77 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
         if p["on"]: g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="12" fill="none" stroke="var(--frontier)" stroke-width="3"/>')
         fill = "var(--panel)" if p["hollow"] else col
         g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="6.5" fill="{fill}" stroke="{col}" stroke-width="2.5"{' stroke-dasharray="3 2"' if p.get("dash") else ""}><title>{esc(p["tip"])}</title></circle>')
-        dx, dy, a = labels.get(p["c"], (14, 4, "start"))
-        g.append(f'<text x="{px + dx:.1f}" y="{py + dy:.1f}" text-anchor="{a}" class="lbl{" on" if p["on"] else ""}">{esc(p.get("name", p["c"]))}</text>')
+    cx, cy = L + 10, T + 18 if corner.startswith("↖") else B - 10
+    walls = path_boxes(fr) + [(cx, cy - LH + 3, cx + CW * len(corner), cy + 3)]
+    for p, (x, y, a) in place(pts, X, Y, labels, (L, W - 2, T - 6, B - 2), walls):
+        if p["lead"]: g.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="var(--muted)" stroke-width="1"/>' % p["lead"])
+        g.append(f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{a}" class="lbl{" on" if p["on"] else ""}">{esc(p.get("name", p["c"]))}</text>')
     g.append("</svg>")
     return "".join(g)
+
+
+CW, LH = 9, 18  # label glyph width and height in chart units (13–14px monospace, 600 weight, with its outline)
+SPOTS = [(14, 5, "start"), (-14, 5, "end"), (0, -14, "middle"), (0, 26, "middle"), (14, -10, "start"), (14, 20, "start"),
+         (-14, -10, "end"), (-14, 20, "end")]
+# Far spots, joined to their dot by a thin leader line: rings at 45 and 75 units, every 30 degrees.
+FAR = [(round(r * math.cos(a)), round(r * math.sin(a)) + 5, "start" if math.cos(a) > .3 else "end" if math.cos(a) < -.3 else "middle")
+       for r in (45, 75) for a in (math.radians(d) for d in range(0, 360, 30))]
+
+
+def path_boxes(d):
+    """The frontier path (M x y, then H x / V y steps) as thin boxes, so labels keep off the line."""
+    out, x, y = [], 0.0, 0.0
+    for op, a, b in re.findall(r"([MHV])\s*([\d.]+)(?:\s+([\d.]+))?", d):
+        if op == "M": x, y = float(a), float(b); continue
+        nx, ny = (float(a), y) if op == "H" else (x, float(a))
+        out.append((min(x, nx) - 3, min(y, ny) - 3, max(x, nx) + 3, max(y, ny) + 3)); x, y = nx, ny
+    return out
+
+
+def place(pts, X, Y, labels, box, walls=()):
+    """Greedy label placement: frontier points first, each takes the first spot (its hand-set offset, then SPOTS) whose text
+    box stays inside the plot and clears every dot and every label already placed; if none is clear, the least-overlapping."""
+    x0, x1, y0, y1 = box
+    dots = [(X(p["x"]) - 8, Y(p["y"]) - 8, X(p["x"]) + 8, Y(p["y"]) + 8) for p in pts]
+    taken, out = list(walls), {}
+    def rect(px, py, dx, dy, a, n):
+        w = CW * len(n); l = px + dx - (w if a == "end" else w / 2 if a == "middle" else 0)
+        return (l, py + dy - LH + 4, l + w, py + dy + 4)
+    centres = [(X(p["x"]), Y(p["y"])) for p in pts]
+    def gap(r, x, y): return math.hypot(max(r[0] - x, 0, x - r[2]), max(r[1] - y, 0, y - r[3]))
+    def hit(r, q): return max(0, min(r[2], q[2]) - max(r[0], q[0])) * max(0, min(r[3], q[3]) - max(r[1], q[1]))
+    # A pipeline whose gate never fired sits on its single model's dot: label the dot once (the chart note says so).
+    nm = {id(p): p.get("name", p["c"]) for p in pts}; skip = set()
+    for i, p in enumerate(pts):
+        for q in pts[i + 1:]:
+            if abs(X(p["x"]) - X(q["x"])) < 4 and abs(Y(p["y"]) - Y(q["y"])) < 4 and nm[id(q)].startswith(nm[id(p)]):
+                skip.add(id(q))
+    def best(p, others):
+        px, py, n = X(p["x"]), Y(p["y"]), nm[id(p)]; top = None
+        for s in ([labels[p["c"]]] if p["c"] in labels else []) + SPOTS + FAR:
+            r = rect(px, py, *s, n); led = s in FAR
+            out_of = (max(0, x0 - r[0]) + max(0, r[2] - x1) + max(0, y0 - r[1]) + max(0, r[3] - y1)) * 1000
+            # text on text or on a dot is bad; an unled label closer to another dot than its own misnames it
+            mine = gap(r, px, py); near = not led and any(gap(r, *c) < mine - 2 for c in centres if c != (px, py))
+            cost = out_of + 4 * sum(hit(r, q) for q in dots + others) + 400 * near + mine + 80 * led
+            if top is None or cost < top[0]: top = (cost, s, r)
+        return top
+    order = [p for p in sorted(pts, key=lambda p: not p["on"]) if id(p) not in skip]; got = {}
+    for p in order:
+        got[id(p)] = best(p, taken + [g[2] for g in got.values()])
+    for _ in range(6):  # repair pass: any label that now overlaps something (even one placed clear earlier) is re-seated
+        for p in order:
+            others = taken + [g[2] for k, g in got.items() if k != id(p)]
+            if sum(hit(got[id(p)][2], q) for q in others) > 0 or sum(hit(got[id(p)][2], q) for q in dots) > 0:
+                got[id(p)] = best(p, others)
+    for p in order:
+        _, s, r = got[id(p)]; dx, dy, a = s; px, py = X(p["x"]), Y(p["y"])
+        lead = None
+        if s in FAR:  # line from the dot's edge to the nearest point of the label box
+            qx, qy = min(max(px, r[0]), r[2]), min(max(py, r[1]), r[3]); d = math.hypot(qx - px, qy - py) or 1
+            lead = (px + (qx - px) * 8 / d, py + (qy - py) * 8 / d, qx, qy)
+        out[id(p)] = (dict(p, name=nm[id(p)], lead=lead), (px + dx, py + dy, a))
+    return list(out.values())
 
 
 def logscale(lo, hi, a, b):
@@ -63,20 +130,37 @@ def tip(c, v):
             f"median {v['latency_s']['median']:.1f} s")
 
 
+def pilot(s, X, Y, y):
+    """Codex fast mode ran only in the pilot (other problems, every call passed, so $ per call = $ per pass): drawn dashed and
+    hollow, joined default → fast, never on a frontier. y(v) is the point's y value."""
+    pf = s["pilot_fast"]; pil = []
+    for k, v in pf.items():
+        c, tier = k.split("/"); nm = f"{c} {'⚡' if tier == 'fast' else 'pilot'}"; short = "pilot" if k == "luna-low/default" else nm  # its ⚡ twin, joined by the line, names it
+        pil.append({"c": k, "name": short, "x": v["median_s"] if y is None else v["usd_per_call"], "y": v["usd_per_call"] if y is None else y(v),
+                    "hollow": True, "dash": True, "on": False, "w": None, "col": "var(--codex)",
+                    "tip": f"{nm}: pilot, {v['passes']}/{v['n']} passed, ${v['usd_per_call']:.5f} per call, median {v['median_s']:.1f} s"})
+    xy = {q["c"]: (X(q["x"]), Y(q["y"])) for q in pil}
+    ex = "".join(f'<line x1="{xy[c + "/default"][0]:.1f}" y1="{xy[c + "/default"][1]:.1f}" x2="{xy[c + "/fast"][0]:.1f}" y2="{xy[c + "/fast"][1]:.1f}" '
+                 f'stroke="var(--codex)" stroke-width="2" stroke-dasharray="4 3" stroke-opacity=".6"/>' for c in dict.fromkeys(k.split("/")[0] for k in pf))
+    return pil, ex
+
+
 def pass_cost(s):
     """Pass rate (up is better) against $ per pass, log (left is better). Whiskers: 95% CI of the pass rate."""
     E = every(s); L, R, T, B, W = 84, 16, 14, 322, 560
-    X = logscale(5e-4, 3e-2, L, W - R); Y = lambda v: B - (v - 0.6) / 0.4 * (B - T)
+    X = logscale(5e-4, 1e-1, L, W - R); Y = lambda v: B - (v - 0.6) / 0.5 * (B - T)
     pts = [{"c": c, "x": E[c]["usd_per_pass"], "y": E[c]["pass_at_1"], "hollow": c == "luna-high", "tip": tip(c, E[c]),
             "w": ("y", max(0.6, E[c]["ci95"][0]), E[c]["ci95"][1])} for c in ORDER]
     fr = sorted(front(pts, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
     d = f"M{X(fr[0]['x']):.1f} {B} V{Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
-    xt = [(v, f"${v:g}") for v in (1e-3, 2e-3, 5e-3, 1e-2, 2e-2)]
+    xt = [(v, f"${v:g}") for v in (1e-3, 3e-3, 1e-2, 3e-2, 1e-1)]
     yt = [(v / 100, f"{v}%") for v in (60, 70, 80, 90, 100)]
+    pil, ex = pilot(s, X, Y, lambda v: v["passes"] / v["n"])
     lab = {"luna-low": (12, 16, "start"), "luna-medium": (12, -8, "start"), "luna-high": (12, 14, "start"), "haiku-low": (-14, 16, "end"),
-           "haiku-medium": (14, 22, "start"), "sonnet-medium": (-16, 4, "end"), "sol61-medium": (0, 26, "middle")}
-    return scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab), [p["c"] for p in fr]
+           "haiku-medium": (14, 22, "start"), "sonnet-medium": (-16, 4, "end"), "sol61-medium": (0, 26, "middle"),
+           "luna-low/default": (0, 26, "middle"), "luna-low/fast": (0, -14, "middle"), "sol61-low/default": (0, -14, "middle"), "sol61-low/fast": (0, 26, "middle")}
+    return scatter(pts + pil, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, extra=ex), [p["c"] for p in fr]
 
 
 def speed_cost(s):
@@ -89,15 +173,7 @@ def speed_cost(s):
     ok = [p for p in pts if E[p["c"]]["pass_at_1"] >= MIN_PASS]
     fr = sorted(front(ok, lambda a, b: a["x"] <= b["x"] and a["y"] <= b["y"]), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
-    # Codex fast mode ran only in the pilot (other problems, every call passed, so $ per call = $ per pass): drawn dashed and
-    # hollow, joined default → fast, never on the frontier.
-    pf = s["pilot_fast"]; pil = []
-    for k, v in pf.items():
-        c, tier = k.split("/"); nm = f"{c} {'⚡' if tier == 'fast' else 'pilot'}"; short = "pilot" if k == "luna-low/default" else nm  # its ⚡ twin, joined by the line, names it
-        pil.append({"c": k, "name": short, "x": v["median_s"], "y": v["usd_per_call"], "hollow": True, "dash": True, "on": False, "w": None, "col": "var(--codex)",
-                    "tip": f"{nm}: pilot, {v['passes']}/{v['n']} passed, ${v['usd_per_call']:.5f} per call, median {v['median_s']:.1f} s"})
-    ex = "".join(f'<line x1="{X(pf[c + "/default"]["median_s"]):.1f}" y1="{Y(pf[c + "/default"]["usd_per_call"]):.1f}" x2="{X(pf[c + "/fast"]["median_s"]):.1f}" '
-                 f'y2="{Y(pf[c + "/fast"]["usd_per_call"]):.1f}" stroke="var(--codex)" stroke-width="2" stroke-dasharray="4 3" stroke-opacity=".6"/>' for c in dict.fromkeys(k.split("/")[0] for k in pf))
+    pil, ex = pilot(s, X, Y, None)
     d = f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
     xt = [(v, f"{v} s") for v in (5, 10, 15, 20, 25)]
     yt = [(v, f"${v:g}") for v in (1e-3, 3e-3, 1e-2, 3e-2, 1e-1)]
@@ -118,9 +194,9 @@ NAME = {"luna-low": "luna-low", "luna-high-bare": "luna-high-bare", "haiku-low":
         "haiku-low-plan+luna-low": "Haiku plan → luna-low", "haiku-low-plan+luna-high-bare": "Haiku plan → luna-high-bare",
         "astra-medium": "astra-medium", "sol61-high": "sol61-high", "sol56-high": "sol56-high", "luna56-high": "luna56-high", "luna56-low": "luna56-low",
         "sol61-high+haiku-on-fail": "sol61-high → Haiku if samples fail", "astra-medium+haiku-on-fail": "astra-medium → Haiku if samples fail"}
-# Hard-set points: every row of the results table except the plan-first pipelines (in the table, not plotted).
-HARD_PTS = [(c, n) for c, n in NAME.items() if not c.startswith("haiku-low-plan")]
-SHORT = lambda n: n.replace("luna-", "").replace(" → Haiku if samples fail", "→H fail").replace(" → Haiku fixes all", "→H all").replace(" → retry if samples fail", "→retry")
+# Hard-set points: every row of the results table.
+HARD_PTS = list(NAME.items())
+SHORT = lambda n: n.replace("Haiku plan → luna-", "plan→").replace("luna-", "").replace(" → Haiku if samples fail", "→H fail").replace(" → Haiku fixes all", "→H all").replace(" → retry if samples fail", "→retry")
 
 
 def hard_pts():
@@ -133,33 +209,33 @@ def hard_pts():
 def hard_pass_cost():
     """Hard set: pass rate against $ per pass (log), single models and the Haiku pipelines; no intervals (n is small and post hoc)."""
     L, R, T, B, W = 84, 16, 14, 382, 560
-    X = logscale(5e-4, 3e-2, L, W - R); Y = lambda v: B - (v - 0.84) / 0.18 * (B - T)
+    X = logscale(5e-4, 1.5e-1, L, W - R); Y = lambda v: B - (v - 0.84) / 0.2 * (B - T)
     pts = [dict(p, x=p["usd"], y=p["k"]) for p in hard_pts() if p["k"] >= 0.84]; off = [p for p in hard_pts() if p["k"] < 0.84]
     fr = sorted(front(pts, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
     d = f"M{X(fr[0]['x']):.1f} {B} V{Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
-    xt = [(v, f"${v:g}") for v in (1e-3, 2e-3, 5e-3, 1e-2, 2e-2)]
+    xt = [(v, f"${v:g}") for v in (1e-3, 3e-3, 1e-2, 3e-2, 1e-1)]
     yt = [(v / 100, f"{v}%") for v in (85, 90, 95, 100)]
     lab = {"luna-high-bare": (14, 20, "start"), "haiku-low": (14, 5, "start"), "haiku-medium": (0, -16, "middle"),
            "sonnet-medium": (0, -14, "middle"), "sol61-medium": (0, 24, "middle"), "luna-high-bare+retry-on-fail": (-14, 5, "end"),
            "luna-high-bare+haiku-on-fail": (0, 24, "middle"), "luna-low+haiku-on-fail": (-14, 5, "end"),
            "luna-low+haiku-review-all": (14, 5, "start"), "luna-high-bare+haiku-review-all": (0, 22, "middle")}
     g = scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, H=440, B=B)
-    note = "".join(f'<text x="{W - R}" y="{B - 10}" text-anchor="end" class="axis">below the chart: {esc(p["name"])} {100 * p["k"]:.0f}%</text>' for p in off)
+    note = f'<text x="{W - R}" y="{B - 10}" text-anchor="end" class="axis">below the chart: {esc(", ".join(f"{p['name']} {100 * p['k']:.0f}%" for p in off))}</text>' if off else ""
     return g.replace("</svg>", note + "</svg>"), [p["c"] for p in fr]
 
 
 def hard_speed_cost():
     """Hard set: median seconds against $ per pass (log); frontier among rows passing at least MIN_PASS."""
     L, R, T, B, W = 84, 16, 14, 462, 560
-    X = lambda v: L + (v - 6) / 22 * (W - R - L); Y = logscale(8e-4, 2.5e-2, B, T)
+    X = lambda v: L + (v - 6) / 30 * (W - R - L); Y = logscale(8e-4, 1.5e-1, B, T)
     pts = [dict(p, x=p["sec"], y=p["usd"]) for p in hard_pts()]
     ok = [p for p in pts if p["k"] >= MIN_PASS]
     fr = sorted(front(ok, lambda a, b: a["x"] <= b["x"] and a["y"] <= b["y"]), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
     d = f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
-    xt = [(v, f"{v} s") for v in (10, 15, 20, 25)]
-    yt = [(v, f"${v:g}") for v in (1e-3, 2e-3, 5e-3, 1e-2, 2e-2)]
+    xt = [(v, f"{v} s") for v in (10, 15, 20, 25, 30, 35)]
+    yt = [(v, f"${v:g}") for v in (1e-3, 3e-3, 1e-2, 3e-2, 1e-1)]
     lab = {"luna-low": (-12, 5, "end"), "luna-high-bare": (14, 5, "start"), "haiku-low": (14, 1, "start"), "haiku-medium": (14, 5, "start"),
            "sonnet-medium": (14, 5, "start"), "sol61-medium": (-14, 4, "end"), "luna-high-bare+retry-on-fail": (-20, 28, "middle"),
            "luna-high-bare+haiku-on-fail": (12, 6, "start"), "luna-low+haiku-on-fail": (0, -16, "middle"),
@@ -205,12 +281,14 @@ def floor(s):
 
 
 def pipes():
-    """Hard set: single models next to the Haiku review and repair pipelines (plan-first rows are in the results table)."""
+    """Hard set: the single models, then every pipeline (plan first, check then fix, fix everything)."""
     a = luna_rescue.arms()
     bars = [(c, SHORT(NAME[c]) if "→" in NAME[c] else NAME[c], "var(--frontier)" if "→" in NAME[c] else FAM(c))
-            for c in ("luna-low", "luna-high-bare", "haiku-low", "luna-low+haiku-on-fail", "luna-high-bare+haiku-on-fail",
-                      "luna-low+haiku-review-all", "luna-high-bare+haiku-review-all", "haiku-medium", "sonnet-medium")]
-    W, BL, BR, H = 560, 150, 360, 16 + 40 * len(bars)
+            for c in ("luna-low", "luna-high-bare", "haiku-low", "haiku-medium", "sonnet-medium", "sol61-high", "astra-medium",
+                      "haiku-low-plan+luna-low", "haiku-low-plan+luna-high-bare", "luna-high-bare+retry-on-fail",
+                      "luna-low+haiku-on-fail", "luna-high-bare+haiku-on-fail", "sol61-high+haiku-on-fail", "astra-medium+haiku-on-fail",
+                      "luna-low+haiku-review-all", "luna-high-bare+haiku-review-all")]
+    W, BL, BR, H = 560, 186, 372, 16 + 40 * len(bars)
     g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Passes on the hard set: single models and the Haiku review and repair pipelines">']
     for i, (c, name, col) in enumerate(bars):
         v = a[c]; y = 8 + i * 40; w = v["passes"] / v["n"] * (BR - BL)
