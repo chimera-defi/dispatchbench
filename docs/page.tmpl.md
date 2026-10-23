@@ -119,7 +119,7 @@
 <ol class="recs">
 <li>Codex has quota: sol61-high, haiku-low repairs only on a failed check ({{claude_zero}} Claude).</li>
 <li>Faster, more Codex usage: astra-medium, same repair.</li>
-<li>Claude only: haiku-medium (<code>claude -p --tools ""</code>); haiku-low on a tight budget.</li>
+<li>Claude only (Codex out): haiku-low (<code>claude -p --tools ""</code>); haiku-medium on a failed check or when a miss is costly.</li>
 <li>Zero misses on the Claude side: sonnet-medium.</li>
 <li>Best luna + Haiku pipeline: also 0 misses, but {{hm_vs_pipe_x}} the cost of haiku-medium alone.</li>
 <li>Never luna-low or luna-medium alone.</li>

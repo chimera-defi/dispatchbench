@@ -9,7 +9,7 @@ Claude and Codex are billed separately, so the table shows both: Claude $ is wha
 | Route to | When | Passed | Claude $ per pass | List $ per pass | Median s |
 |---|---|---|---|---|---|
 | **sol61-high**, haiku-low repairs only if a check fails | default while Codex has quota | {{sol61_high_k}} | {{claude_zero}} | {{sol61_high_upp}} | {{sol61_high_med}} |
-| astra-medium, same repair | faster, about {{x_astra_vs_s61h}} the Codex usage | {{astra_medium_k}} | {{claude_zero}} | {{astra_medium_upp}} | {{astra_medium_med}} |
+| astra-medium, same repair | faster, about {{x_astra_vs_s61h}} the list price (Codex usage assumed to track it) | {{astra_medium_k}} | {{claude_zero}} | {{astra_medium_upp}} | {{astra_medium_med}} |
 | haiku-low | Codex out | {{haiku_low_k}} | {{haiku_low_upp}} | {{haiku_low_upp}} | {{haiku_low_med}} |
 | haiku-medium | Codex out and a miss is costly | {{haiku_medium_k}} | {{haiku_medium_upp}} | {{haiku_medium_upp}} | {{haiku_medium_med}} |
 

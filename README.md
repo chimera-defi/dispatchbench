@@ -9,7 +9,7 @@ Claude and Codex are billed separately, so the table shows both: Claude $ is wha
 | Route to | When | Passed | Claude $ per pass | List $ per pass | Median s |
 |---|---|---|---|---|---|
 | **sol61-high**, haiku-low repairs only if a check fails | default while Codex has quota | 60/60 | $0 | $0.01861 | 27.4 |
-| astra-medium, same repair | faster, about 4.0× the Codex usage | 60/60 | $0 | $0.07526 | 20.9 |
+| astra-medium, same repair | faster, about 4.0× the list price (Codex usage assumed to track it) | 60/60 | $0 | $0.07526 | 20.9 |
 | haiku-low | Codex out | 57/60 | $0.00112 | $0.00112 | 10.0 |
 | haiku-medium | Codex out and a miss is costly | 59/60 | $0.00149 | $0.00149 | 13.0 |
 
@@ -21,7 +21,7 @@ Main ladder: 12 problems × 5 attempts per config.
 - **Skip luna at low or medium effort.** It barely reasons there and misses easy problems. luna-high is the cheapest Codex config but misses some.
 - **sonnet-medium also never failed** (75/75); it is the cheapest of the three by list price.
 
-Total spend: $2.06 Claude, $19.12 Codex at list prices ($11.01 of it for the Codex models added on 2026-10-23).
+Total spend: $2.06 Claude, $19.12 Codex at list prices ($16.70 of it for the Codex models added on 2026-10-23).
 
 ## Read more
 
