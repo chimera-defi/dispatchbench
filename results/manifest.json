@@ -45,6 +45,26 @@
    "cli": "codex",
    "model": "gpt-6-luna",
    "effort": "low"
+  },
+  "sol56-high": {
+   "cli": "codex",
+   "model": "gpt-5.6-sol",
+   "effort": "high"
+  },
+  "luna56-low": {
+   "cli": "codex",
+   "model": "gpt-5.6-luna",
+   "effort": "low"
+  },
+  "luna56-high": {
+   "cli": "codex",
+   "model": "gpt-5.6-luna",
+   "effort": "high"
+  },
+  "astra-medium": {
+   "cli": "codex",
+   "model": "gpt-6-astra",
+   "effort": "medium"
   }
  },
  "flags": {
@@ -106,12 +126,12 @@
   4
  ],
  "first_call_utc": "2026-10-22T08:32:54+00:00",
- "last_call_utc": "2026-10-22T14:52:07+00:00",
+ "last_call_utc": "2026-10-23T16:49:09+00:00",
  "rows_by_phase": {
   "calibration": 30,
   "escalation": 15,
-  "exploratory": 105,
-  "hard": 60,
+  "exploratory": 345,
+  "hard": 120,
   "main": 360,
   "warmup": 6
  },
@@ -121,9 +141,9 @@
   "claude_measured_usd": 2.0588,
   "claude_function_usd": 1.354,
   "claude_agentic_usd": 0.7048,
-  "codex_proxy_usd": 2.4153,
+  "codex_proxy_usd": 11.9525,
   "calls": {
-   "function": 576,
+   "function": 876,
    "agentic": 48
   }
  },
@@ -298,5 +318,5 @@
    }
   }
  },
- "git_sha": "fac54d117b7c77d3319e60098063133eb4b09b86"
+ "git_sha": "7a816da84e2a050f9f2cead7d83bafe1a2d0bd6b"
 }

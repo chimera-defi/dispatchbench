@@ -11,8 +11,8 @@ FAMILY = lambda c: "var(--claude,#b4572e)" if c.startswith("haiku") else "var(--
 
 
 # Per-label vertical offsets so neighbouring points' labels do not collide.
-LABEL_DY = {"luna-low": 18, "luna-low-bare": 18}
-LABEL_LEFT = {"haiku-low"}  # left of the point, clear of luna-high
+LABEL_DY = {"luna-low": 18, "luna-low-bare": 18, "sol61-medium": 18, "sol56-high": 18}  # the 100% row holds three configs
+LABEL_LEFT = {"haiku-low", "sonnet-medium"}  # left of the point, clear of luna-high and the 100% row
 
 
 def svg(w, h, body):

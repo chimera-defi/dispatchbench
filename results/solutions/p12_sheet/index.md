@@ -4,6 +4,11 @@ Rung L6. Signature: `def sheet(cells: dict[str, str]) -> dict[str, int | str]:`
 
 | config | phase | rep | outcome | grade detail | LOC | lines | cc_max | lint | time exp (model vs ref) | mem ratio | file |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| astra-medium | exploratory | 1 | pass |  | 229 | 259 | - | - | - vs - | - | [exploratory-r1.py](astra-medium/exploratory-r1.py) |
+| astra-medium | exploratory | 2 | pass |  | 205 | 232 | - | - | - vs - | - | [exploratory-r2.py](astra-medium/exploratory-r2.py) |
+| astra-medium | exploratory | 3 | pass |  | 203 | 227 | - | - | - vs - | - | [exploratory-r3.py](astra-medium/exploratory-r3.py) |
+| astra-medium | exploratory | 4 | pass |  | 214 | 241 | - | - | - vs - | - | [exploratory-r4.py](astra-medium/exploratory-r4.py) |
+| astra-medium | exploratory | 5 | pass |  | 206 | 230 | - | - | - vs - | - | [exploratory-r5.py](astra-medium/exploratory-r5.py) |
 | haiku-low | main | 1 | crash | large case 0: RecursionError: maximum recursion depth exceeded | 239 | 268 | 30 | 0 | - vs - | - | [main-r1.py](haiku-low/main-r1.py) |
 | haiku-low | main | 2 | pass |  | 190 | 215 | 28 | 0 | 1.13 vs 1.13 | 0.25 | [main-r2.py](haiku-low/main-r2.py) |
 | haiku-low | main | 3 | pass |  | 198 | 222 | 29 | 2 | 1.18 vs 1.13 | 0.22 | [main-r3.py](haiku-low/main-r3.py) |
@@ -72,6 +77,21 @@ Rung L6. Signature: `def sheet(cells: dict[str, str]) -> dict[str, int | str]:`
 | luna-medium | main | 3 | crash | large case 0: RecursionError: maximum recursion depth exceeded | 184 | 207 | 29 | 0 | - vs - | - | [main-r3.py](luna-medium/main-r3.py) |
 | luna-medium | main | 4 | crash | small case 0: ValueError: Invalid formula | 183 | 202 | 19 | 0 | - vs - | - | [main-r4.py](luna-medium/main-r4.py) |
 | luna-medium | main | 5 | crash | small case 0: ValueError: Invalid atom | 200 | 230 | 28 | 0 | - vs - | - | [main-r5.py](luna-medium/main-r5.py) |
+| luna56-high | exploratory | 1 | pass |  | 193 | 238 | - | - | - vs - | - | [exploratory-r1.py](luna56-high/exploratory-r1.py) |
+| luna56-high | exploratory | 2 | pass |  | 222 | 269 | - | - | - vs - | - | [exploratory-r2.py](luna56-high/exploratory-r2.py) |
+| luna56-high | exploratory | 3 | pass |  | 236 | 288 | - | - | - vs - | - | [exploratory-r3.py](luna56-high/exploratory-r3.py) |
+| luna56-high | exploratory | 4 | crash | small case 18: TypeError: unsupported operand type(s) for +: 'int' ... | 225 | 278 | - | - | - vs - | - | [exploratory-r4.py](luna56-high/exploratory-r4.py) |
+| luna56-high | exploratory | 5 | crash | small case 25: TypeError: 'int' object is not subscriptable | 192 | 232 | - | - | - vs - | - | [exploratory-r5.py](luna56-high/exploratory-r5.py) |
+| luna56-low | exploratory | 1 | pass |  | 204 | 241 | - | - | - vs - | - | [exploratory-r1.py](luna56-low/exploratory-r1.py) |
+| luna56-low | exploratory | 2 | crash | small case 4: IndexError: list index out of range | 192 | 229 | - | - | - vs - | - | [exploratory-r2.py](luna56-low/exploratory-r2.py) |
+| luna56-low | exploratory | 3 | crash | small case 1: ValueError: | 202 | 245 | - | - | - vs - | - | [exploratory-r3.py](luna56-low/exploratory-r3.py) |
+| luna56-low | exploratory | 4 | wrong | small case 18 | 203 | 232 | - | - | - vs - | - | [exploratory-r4.py](luna56-low/exploratory-r4.py) |
+| luna56-low | exploratory | 5 | crash | small case 3: ValueError: | 201 | 224 | - | - | - vs - | - | [exploratory-r5.py](luna56-low/exploratory-r5.py) |
+| sol56-high | exploratory | 1 | pass |  | 211 | 258 | - | - | - vs - | - | [exploratory-r1.py](sol56-high/exploratory-r1.py) |
+| sol56-high | exploratory | 2 | pass |  | 217 | 260 | - | - | - vs - | - | [exploratory-r2.py](sol56-high/exploratory-r2.py) |
+| sol56-high | exploratory | 3 | pass |  | 212 | 255 | - | - | - vs - | - | [exploratory-r3.py](sol56-high/exploratory-r3.py) |
+| sol56-high | exploratory | 4 | pass |  | 222 | 267 | - | - | - vs - | - | [exploratory-r4.py](sol56-high/exploratory-r4.py) |
+| sol56-high | exploratory | 5 | pass |  | 299 | 369 | - | - | - vs - | - | [exploratory-r5.py](sol56-high/exploratory-r5.py) |
 | sol61-medium | main | 1 | pass |  | 215 | 244 | 42 | 0 | 0.87 vs 1.13 | 0.13 | [main-r1.py](sol61-medium/main-r1.py) |
 | sol61-medium | main | 2 | crash | small case 18: TypeError: unhashable type: 'list' | 220 | 246 | 46 | 0 | - vs - | - | [main-r2.py](sol61-medium/main-r2.py) |
 | sol61-medium | main | 3 | pass |  | 218 | 253 | 47 | 0 | 0.99 vs 1.13 | 0.13 | [main-r3.py](sol61-medium/main-r3.py) |

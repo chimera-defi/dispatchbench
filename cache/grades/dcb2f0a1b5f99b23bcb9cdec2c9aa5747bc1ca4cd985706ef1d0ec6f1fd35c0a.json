@@ -1,0 +1,1 @@
+{"outcome": "crash", "detail": "small case 18: TypeError: unsupported operand type(s) for +: 'int' and 'str'", "case": 18}

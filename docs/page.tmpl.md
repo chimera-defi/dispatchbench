@@ -1,7 +1,7 @@
 <header class="head">
 <span class="eyebrow">Run 2026-10-22b · {{n_problems}} problems × {{repeats}} attempts = {{n_calls}} calls per config · {{claude_usd}} Claude, {{codex_usd}} Codex (proxy), main + repo runs</span>
 <h1>Which model should a coding task go to?</h1>
-<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#method">How it was run</a><a href="#pareto">Cost vs accuracy</a><a href="#fail">Where they fail</a><a href="#results">Results</a><a href="#tokens">Token floor</a><a href="#pipes">Pipelines</a><a href="#conclusion">Conclusion</a><a href="#extras">More charts</a></nav>
+<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#method">How it was run</a><a href="#pareto">Cost vs accuracy</a><a href="#fail">Where they fail</a><a href="#results">Results</a><a href="#more-codex">More Codex</a><a href="#tokens">Token floor</a><a href="#pipes">Pipelines</a><a href="#conclusion">Conclusion</a><a href="#extras">More charts</a></nav>
 </header>
 <section class="verdict" id="winner">
 <span class="eyebrow"><span class="num"></span>🏆 WINNER</span>
@@ -13,7 +13,7 @@
 <ul class="tight">
 <li>✅ haiku-medium: {{haiku_medium_k}} on all problems, 0 misses on the hard set (its {{rescue_n}} main-run attempts on those problems, not a new run). {{haiku_medium_upp}} per pass, {{haiku_medium_med}}s. Measured $, not estimated.</li>
 <li>💸 haiku-low: {{haiku_low_k}} at {{haiku_low_upp}}. Misses: too slow or a crash, never a wrong answer.</li>
-<li>🛡️ sonnet-medium: {{sm_all}} including the hardest rung, at {{sm_vs_hm_x}} haiku-medium's cost.</li>
+<li>🛡️ sonnet-medium: {{sm_all}} including the hardest rung, at {{sm_vs_hm_x}} haiku-medium's cost. Only gpt-6-astra (added later) also never missed, at {{x_astra_vs_sm}} sonnet's cost.</li>
 <li>⚠️ haiku-medium was not run on the hardest rung (L7).</li>
 </ul>
 </section>
@@ -94,6 +94,15 @@
 <div class="chart floor"><h3>⚡ Codex fast mode: seconds and $ per call</h3><p class="sub">Pilot, {{fast_problems}} well-known LeetCode problems × {{fast_rounds}} rounds; every call passed. The main run used the default tier.</p>{{w_fast}}</div>
 <ul class="tight small">
 <li>Fast-mode $ = list price × {{fast_mult}}, the multiplier on the pricing page; not a measured bill. sol61-low got faster ({{fast_sol_def}}s → {{fast_sol_fast}}s); luna-low did not ({{fast_luna_def}}s → {{fast_luna_fast}}s).</li>
+</ul>
+</section>
+<section id="more-codex">
+<h2><span class="num"></span>🆕 More Codex models</h2>
+<p class="sub">Added {{new_date}} at the operator's request, after the main results. Same problems, stock harness, {{repeats}} attempts each. Codex $ = token counts × list price.</p>
+<div class="wrap"><table class="sortable"><thead><tr><th>config</th><th>main</th><th>$ per pass</th><th>median s</th><th>hard</th><th>hard $ per pass</th></tr></thead><tbody><tr><td>sol56-high <small>gpt-5.6-sol</small></td><td>{{x_sol56_high_k}}</td><td>{{x_sol56_high_upp}}</td><td>{{x_sol56_high_med}}</td><td>{{x_sol56_high_hk}}</td><td>{{x_sol56_high_hupp}}</td></tr><tr><td>astra-medium <small>gpt-6-astra</small></td><td>{{x_astra_medium_k}}</td><td>{{x_astra_medium_upp}}</td><td>{{x_astra_medium_med}}</td><td>{{x_astra_medium_hk}}</td><td>{{x_astra_medium_hupp}}</td></tr><tr><td>luna56-high <small>gpt-5.6-luna</small></td><td>{{x_luna56_high_k}}</td><td>{{x_luna56_high_upp}}</td><td>{{x_luna56_high_med}}</td><td>{{x_luna56_high_hk}}</td><td>{{x_luna56_high_hupp}}</td></tr><tr><td>luna56-low <small>gpt-5.6-luna</small></td><td>{{x_luna56_low_k}}</td><td>{{x_luna56_low_upp}}</td><td>{{x_luna56_low_med}}</td><td>{{x_luna56_low_hk}}</td><td>{{x_luna56_low_hupp}}</td></tr></tbody></table></div>
+<ul class="tight">
+<li>None changes the pick. gpt-5.6-sol and gpt-6-astra never miss on the main set, at {{x_sol56_vs_hm}} and {{x_astra_vs_hm}} haiku-medium's $ per pass.</li>
+<li>Older luna is worse and dearer: luna56-high passes {{x_luna56_high_hk}} on the hard set against luna-high's {{x_base_luna_high_hk}}, at {{x_l56_vs_lh}} the main-set $ per pass.</li>
 </ul>
 </section>
 <section id="tokens">

@@ -35,6 +35,18 @@
    "output": 12.0,
    "source": "https://developers.openai.com/api/docs/models/gpt-5.6-terra (pilot, same day)",
    "verified": "https://developers.openai.com/api/docs/models/gpt-5.6-terra, 2026-10-22: input $2, cached input $0.2, output $12"
+  },
+  "gpt-5.6-sol": {
+   "input": 4.0,
+   "cached_input": 0.4,
+   "output": 20.0,
+   "verified": "https://developers.openai.com/api/docs/models/gpt-5.6-sol, 2026-10-23: input $4, cached input $0.4, output $20"
+  },
+  "gpt-5.6-luna": {
+   "input": 0.2,
+   "cached_input": 0.02,
+   "output": 1.2,
+   "verified": "https://developers.openai.com/api/docs/models/gpt-5.6-luna, 2026-10-23: input $0.2, cached input $0.02, output $1.2"
   }
  },
  "claude": "not priced here: Claude rows use the CLI's measured total_cost_usd"

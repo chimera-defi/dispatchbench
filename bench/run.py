@@ -29,6 +29,9 @@ for fam, mid in [("luna", "gpt-6-luna"), ("sol61", "gpt-6.1-sol")]:
 # bench/trim_probe.py ("noshell": tool features, shell and base instructions stripped). See PLAN.md, Deviations.
 CONFIGS["luna-low-bare"] = ("codex", "gpt-6-luna", "low")
 TRIM_LEVEL = {"luna-low-bare": "noshell"}
+# Exploratory, 2026-10-23, at the operator's request: the previous Codex generation and the flagship, stock harness.
+CONFIGS.update({"sol56-high": ("codex", "gpt-5.6-sol", "high"), "luna56-low": ("codex", "gpt-5.6-luna", "low"),
+                "luna56-high": ("codex", "gpt-5.6-luna", "high"), "astra-medium": ("codex", "gpt-6-astra", "medium")})
 
 
 def codex_flags(config, portable=False):

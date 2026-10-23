@@ -426,8 +426,8 @@
  "phases": {
   "calibration": 30,
   "escalation": 15,
-  "exploratory": 105,
-  "hard": 60,
+  "exploratory": 345,
+  "hard": 120,
   "main": 360,
   "warmup": 6
  },
@@ -627,6 +627,104 @@
   }
  ],
  "exploratory": {
+  "astra-medium": {
+   "cli": "codex",
+   "model": "gpt-6-astra",
+   "effort": "medium",
+   "n": 60,
+   "passes": 60,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 10,
+     "n": 10
+    },
+    "L3": {
+     "passed": 10,
+     "n": 10
+    },
+    "L4": {
+     "passed": 10,
+     "n": 10
+    },
+    "L5": {
+     "passed": 10,
+     "n": 10
+    },
+    "L6": {
+     "passed": 10,
+     "n": 10
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 60
+   },
+   "latency_s": {
+    "median": 20.92,
+    "p25": 11.21,
+    "p75": 28.73,
+    "p90": 35.64,
+    "max": 103.21
+   },
+   "tokens_mean": {
+    "in_tok": 15319,
+    "cached_tok": 12207,
+    "out_tok": 639,
+    "reasoning_tok": 127
+   },
+   "input_floor": [
+    15122,
+    12160
+   ],
+   "usd_per_call": 0.075264,
+   "usd_total": 4.5158,
+   "usd_per_pass": 0.075264,
+   "usd_per_pass_L1_L2": 0.060925,
+   "pass_L1_L2": [
+    20,
+    20
+   ],
+   "cost_kind": "proxy",
+   "vs": [
+    {
+     "b": "luna-low",
+     "diff": 0.2333,
+     "ci95": [
+      0.05,
+      0.45
+     ],
+     "problems": 12
+    },
+    {
+     "b": "haiku-low",
+     "diff": 0.05,
+     "ci95": [
+      0.0,
+      0.15
+     ],
+     "problems": 12
+    },
+    {
+     "b": "luna-medium",
+     "diff": 0.2167,
+     "ci95": [
+      0.0333,
+      0.45
+     ],
+     "problems": 12
+    }
+   ],
+   "usd_per_pass_uncached": 0.185126
+  },
   "luna-high": {
    "cli": "codex",
    "model": "gpt-6-luna",
@@ -827,9 +925,361 @@
     }
    ],
    "usd_per_pass_uncached": 0.001198
+  },
+  "luna56-high": {
+   "cli": "codex",
+   "model": "gpt-5.6-luna",
+   "effort": "high",
+   "n": 60,
+   "passes": 56,
+   "pass_at_1": 0.9333,
+   "ci95": [
+    0.8333,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 9,
+     "n": 10
+    },
+    "L3": {
+     "passed": 9,
+     "n": 10
+    },
+    "L4": {
+     "passed": 10,
+     "n": 10
+    },
+    "L5": {
+     "passed": 10,
+     "n": 10
+    },
+    "L6": {
+     "passed": 8,
+     "n": 10
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 56,
+    "wrong": 2,
+    "crash": 2
+   },
+   "latency_s": {
+    "median": 11.41,
+    "p25": 7.28,
+    "p75": 25.93,
+    "p90": 35.49,
+    "max": 50.46
+   },
+   "tokens_mean": {
+    "in_tok": 12962,
+    "cached_tok": 10240,
+    "out_tok": 1693,
+    "reasoning_tok": 1147
+   },
+   "input_floor": [
+    12583,
+    10240
+   ],
+   "usd_per_call": 0.002781,
+   "usd_total": 0.1669,
+   "usd_per_pass": 0.00298,
+   "usd_per_pass_L1_L2": 0.001655,
+   "pass_L1_L2": [
+    19,
+    20
+   ],
+   "cost_kind": "proxy",
+   "vs": [
+    {
+     "b": "luna-low",
+     "diff": 0.1667,
+     "ci95": [
+      0.0,
+      0.35
+     ],
+     "problems": 12
+    },
+    {
+     "b": "haiku-low",
+     "diff": -0.0167,
+     "ci95": [
+      -0.1333,
+      0.1
+     ],
+     "problems": 12
+    },
+    {
+     "b": "luna-medium",
+     "diff": 0.15,
+     "ci95": [
+      0.0,
+      0.3333
+     ],
+     "problems": 12
+    }
+   ],
+   "usd_per_pass_uncached": 0.004955
+  },
+  "luna56-low": {
+   "cli": "codex",
+   "model": "gpt-5.6-luna",
+   "effort": "low",
+   "n": 60,
+   "passes": 48,
+   "pass_at_1": 0.8,
+   "ci95": [
+    0.6,
+    0.9667
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 9,
+     "n": 10
+    },
+    "L3": {
+     "passed": 6,
+     "n": 10
+    },
+    "L4": {
+     "passed": 8,
+     "n": 10
+    },
+    "L5": {
+     "passed": 9,
+     "n": 10
+    },
+    "L6": {
+     "passed": 6,
+     "n": 10
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 48,
+    "timeout": 1,
+    "wrong": 8,
+    "crash": 3
+   },
+   "latency_s": {
+    "median": 9.16,
+    "p25": 6.14,
+    "p75": 13.73,
+    "p90": 17.39,
+    "max": 20.4
+   },
+   "tokens_mean": {
+    "in_tok": 12965,
+    "cached_tok": 10281,
+    "out_tok": 835,
+    "reasoning_tok": 295
+   },
+   "input_floor": [
+    12583,
+    10240
+   ],
+   "usd_per_call": 0.001744,
+   "usd_total": 0.1046,
+   "usd_per_pass": 0.00218,
+   "usd_per_pass_L1_L2": 0.001371,
+   "pass_L1_L2": [
+    19,
+    20
+   ],
+   "cost_kind": "proxy",
+   "vs": [
+    {
+     "b": "luna-low",
+     "diff": 0.0333,
+     "ci95": [
+      -0.2,
+      0.25
+     ],
+     "problems": 12
+    },
+    {
+     "b": "haiku-low",
+     "diff": -0.15,
+     "ci95": [
+      -0.35,
+      0.0333
+     ],
+     "problems": 12
+    },
+    {
+     "b": "luna-medium",
+     "diff": 0.0167,
+     "ci95": [
+      -0.2167,
+      0.25
+     ],
+     "problems": 12
+    }
+   ],
+   "usd_per_pass_uncached": 0.004493
+  },
+  "sol56-high": {
+   "cli": "codex",
+   "model": "gpt-5.6-sol",
+   "effort": "high",
+   "n": 60,
+   "passes": 60,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 10,
+     "n": 10
+    },
+    "L3": {
+     "passed": 10,
+     "n": 10
+    },
+    "L4": {
+     "passed": 10,
+     "n": 10
+    },
+    "L5": {
+     "passed": 10,
+     "n": 10
+    },
+    "L6": {
+     "passed": 10,
+     "n": 10
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 60
+   },
+   "latency_s": {
+    "median": 14.47,
+    "p25": 7.27,
+    "p75": 34.5,
+    "p90": 48.44,
+    "max": 151.93
+   },
+   "tokens_mean": {
+    "in_tok": 14504,
+    "cached_tok": 11315,
+    "out_tok": 1226,
+    "reasoning_tok": 668
+   },
+   "input_floor": [
+    14098,
+    11264
+   ],
+   "usd_per_call": 0.041801,
+   "usd_total": 2.5081,
+   "usd_per_pass": 0.041801,
+   "usd_per_pass_L1_L2": 0.026352,
+   "pass_L1_L2": [
+    20,
+    20
+   ],
+   "cost_kind": "proxy",
+   "vs": [
+    {
+     "b": "luna-low",
+     "diff": 0.2333,
+     "ci95": [
+      0.05,
+      0.45
+     ],
+     "problems": 12
+    },
+    {
+     "b": "haiku-low",
+     "diff": 0.05,
+     "ci95": [
+      0.0,
+      0.15
+     ],
+     "problems": 12
+    },
+    {
+     "b": "luna-medium",
+     "diff": 0.2167,
+     "ci95": [
+      0.0333,
+      0.45
+     ],
+     "problems": 12
+    }
+   ],
+   "usd_per_pass_uncached": 0.082536
   }
  },
  "hard": {
+  "astra-medium": {
+   "cli": "codex",
+   "model": "gpt-6-astra",
+   "effort": "medium",
+   "n": 15,
+   "passes": 15,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L7": {
+     "passed": 15,
+     "n": 15
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 15
+   },
+   "latency_s": {
+    "median": 30.63,
+    "p25": 18.27,
+    "p75": 44.58,
+    "p90": 50.43,
+    "max": 60.61
+   },
+   "tokens_mean": {
+    "in_tok": 15287,
+    "cached_tok": 12160,
+    "out_tok": 791,
+    "reasoning_tok": 315
+   },
+   "input_floor": [
+    15234,
+    12160
+   ],
+   "usd_per_call": 0.082956,
+   "usd_total": 1.2443,
+   "usd_per_pass": 0.082956,
+   "usd_per_pass_L1_L2": null,
+   "pass_L1_L2": [
+    0,
+    0
+   ],
+   "cost_kind": "proxy",
+   "by_problem": {
+    "p13_xor_ring": 5,
+    "p14_bounce_board": 5,
+    "p15_paint_erase": 5
+   }
+  },
   "luna-high": {
    "cli": "codex",
    "model": "gpt-6-luna",
@@ -989,6 +1439,60 @@
     "p15_paint_erase": 5
    }
   },
+  "sol56-high": {
+   "cli": "codex",
+   "model": "gpt-5.6-sol",
+   "effort": "high",
+   "n": 15,
+   "passes": 13,
+   "pass_at_1": 0.8667,
+   "ci95": [
+    0.5333,
+    1.0
+   ],
+   "by_rung": {
+    "L7": {
+     "passed": 13,
+     "n": 15
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 13,
+    "crash": 2
+   },
+   "latency_s": {
+    "median": 41.01,
+    "p25": 25.82,
+    "p75": 48.78,
+    "p90": 54.78,
+    "max": 57.5
+   },
+   "tokens_mean": {
+    "in_tok": 14469,
+    "cached_tok": 11264,
+    "out_tok": 2103,
+    "reasoning_tok": 1435
+   },
+   "input_floor": [
+    14414,
+    11264
+   ],
+   "usd_per_call": 0.059392,
+   "usd_total": 0.8909,
+   "usd_per_pass": 0.06853,
+   "usd_per_pass_L1_L2": null,
+   "pass_L1_L2": [
+    0,
+    0
+   ],
+   "cost_kind": "proxy",
+   "by_problem": {
+    "p13_xor_ring": 5,
+    "p14_bounce_board": 3,
+    "p15_paint_erase": 5
+   }
+  },
   "haiku-low": {
    "cli": "claude",
    "model": "claude-haiku-5-5",
@@ -1042,6 +1546,116 @@
     "p14_bounce_board": 5,
     "p15_paint_erase": 2
    }
+  },
+  "luna56-high": {
+   "cli": "codex",
+   "model": "gpt-5.6-luna",
+   "effort": "high",
+   "n": 15,
+   "passes": 9,
+   "pass_at_1": 0.6,
+   "ci95": [
+    0.3333,
+    0.8667
+   ],
+   "by_rung": {
+    "L7": {
+     "passed": 9,
+     "n": 15
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 9,
+    "wrong": 2,
+    "crash": 4
+   },
+   "latency_s": {
+    "median": 20.72,
+    "p25": 16.42,
+    "p75": 36.9,
+    "p90": 47.69,
+    "max": 69.74
+   },
+   "tokens_mean": {
+    "in_tok": 12932,
+    "cached_tok": 10240,
+    "out_tok": 3259,
+    "reasoning_tok": 2605
+   },
+   "input_floor": [
+    12688,
+    10240
+   ],
+   "usd_per_call": 0.004654,
+   "usd_total": 0.0698,
+   "usd_per_pass": 0.007756,
+   "usd_per_pass_L1_L2": null,
+   "pass_L1_L2": [
+    0,
+    0
+   ],
+   "cost_kind": "proxy",
+   "by_problem": {
+    "p13_xor_ring": 4,
+    "p14_bounce_board": 2,
+    "p15_paint_erase": 3
+   }
+  },
+  "luna56-low": {
+   "cli": "codex",
+   "model": "gpt-5.6-luna",
+   "effort": "low",
+   "n": 15,
+   "passes": 8,
+   "pass_at_1": 0.5333,
+   "ci95": [
+    0.2667,
+    0.8
+   ],
+   "by_rung": {
+    "L7": {
+     "passed": 8,
+     "n": 15
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "wrong": 4,
+    "crash": 3,
+    "pass": 8
+   },
+   "latency_s": {
+    "median": 11.57,
+    "p25": 10.33,
+    "p75": 17.76,
+    "p90": 22.2,
+    "max": 24.92
+   },
+   "tokens_mean": {
+    "in_tok": 12947,
+    "cached_tok": 10240,
+    "out_tok": 1419,
+    "reasoning_tok": 761
+   },
+   "input_floor": [
+    12896,
+    10240
+   ],
+   "usd_per_call": 0.002449,
+   "usd_total": 0.0367,
+   "usd_per_pass": 0.004592,
+   "usd_per_pass_L1_L2": null,
+   "pass_L1_L2": [
+    0,
+    0
+   ],
+   "cost_kind": "proxy",
+   "by_problem": {
+    "p13_xor_ring": 3,
+    "p14_bounce_board": 2,
+    "p15_paint_erase": 3
+   }
   }
  },
  "failures": {
@@ -1080,6 +1694,11 @@
      "n": 5,
      "fails": {}
     },
+    "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "luna-high": {
      "passed": 5,
      "n": 5,
@@ -1092,6 +1711,21 @@
       "crash": 1,
       "wrong": 1
      }
+    },
+    "luna56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna56-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
     }
    }
   },
@@ -1134,6 +1768,11 @@
      "n": 5,
      "fails": {}
     },
+    "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "luna-high": {
      "passed": 5,
      "n": 5,
@@ -1145,6 +1784,25 @@
      "fails": {
       "wrong": 4
      }
+    },
+    "luna56-high": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "wrong": 1
+     }
+    },
+    "luna56-low": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "wrong": 1
+     }
+    },
+    "sol56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
     }
    }
   },
@@ -1183,6 +1841,11 @@
      "n": 5,
      "fails": {}
     },
+    "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "luna-high": {
      "passed": 4,
      "n": 5,
@@ -1191,6 +1854,158 @@
      }
     },
     "luna-low-bare": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna56-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    }
+   }
+  },
+  "p06_calc": {
+   "rung": 3,
+   "cells": {
+    "haiku-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sonnet-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low-bare": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna56-high": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "wrong": 1
+     }
+    },
+    "luna56-low": {
+     "passed": 1,
+     "n": 5,
+     "fails": {
+      "wrong": 4
+     }
+    },
+    "sol56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    }
+   }
+  },
+  "p07_weighted_distance_sums": {
+   "rung": 4,
+   "cells": {
+    "haiku-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sonnet-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-low-bare": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna56-low": {
+     "passed": 3,
+     "n": 5,
+     "fails": {
+      "timeout": 1,
+      "wrong": 1
+     }
+    },
+    "sol56-high": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -1232,6 +2047,11 @@
      "n": 5,
      "fails": {}
     },
+    "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "luna-high": {
      "passed": 5,
      "n": 5,
@@ -1243,6 +2063,21 @@
      "fails": {
       "timeout": 1
      }
+    },
+    "luna56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna56-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
     }
    }
   },
@@ -1284,6 +2119,11 @@
      "n": 5,
      "fails": {}
     },
+    "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "luna-high": {
      "passed": 4,
      "n": 5,
@@ -1292,6 +2132,21 @@
      }
     },
     "luna-low-bare": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna56-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol56-high": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -1331,6 +2186,11 @@
      "n": 5,
      "fails": {}
     },
+    "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "luna-high": {
      "passed": 4,
      "n": 5,
@@ -1344,6 +2204,23 @@
      "fails": {
       "wrong": 1
      }
+    },
+    "luna56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna56-low": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "wrong": 1
+     }
+    },
+    "sol56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
     }
    }
   },
@@ -1384,6 +2261,11 @@
      "n": 5,
      "fails": {}
     },
+    "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "luna-high": {
      "passed": 5,
      "n": 5,
@@ -1396,6 +2278,21 @@
       "wrong": 2,
       "crash": 1
      }
+    },
+    "luna56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna56-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
     }
    }
   },
@@ -1442,6 +2339,11 @@
       "crash": 2
      }
     },
+    "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "luna-high": {
      "passed": 3,
      "n": 5,
@@ -1455,6 +2357,126 @@
      "fails": {
       "crash": 4,
       "wrong": 1
+     }
+    },
+    "luna56-high": {
+     "passed": 3,
+     "n": 5,
+     "fails": {
+      "crash": 2
+     }
+    },
+    "luna56-low": {
+     "passed": 1,
+     "n": 5,
+     "fails": {
+      "crash": 3,
+      "wrong": 1
+     }
+    },
+    "sol56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    }
+   }
+  },
+  "p13_xor_ring": {
+   "rung": 7,
+   "cells": {
+    "haiku-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sonnet-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna56-high": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "crash": 1
+     }
+    },
+    "luna56-low": {
+     "passed": 3,
+     "n": 5,
+     "fails": {
+      "wrong": 2
+     }
+    },
+    "sol56-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    }
+   }
+  },
+  "p14_bounce_board": {
+   "rung": 7,
+   "cells": {
+    "haiku-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sonnet-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna56-high": {
+     "passed": 2,
+     "n": 5,
+     "fails": {
+      "crash": 3
+     }
+    },
+    "luna56-low": {
+     "passed": 2,
+     "n": 5,
+     "fails": {
+      "crash": 3
+     }
+    },
+    "sol56-high": {
+     "passed": 3,
+     "n": 5,
+     "fails": {
+      "crash": 2
      }
     }
    }
@@ -1479,7 +2501,31 @@
      "n": 5,
      "fails": {}
     },
+    "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "luna-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "luna56-high": {
+     "passed": 3,
+     "n": 5,
+     "fails": {
+      "wrong": 2
+     }
+    },
+    "luna56-low": {
+     "passed": 3,
+     "n": 5,
+     "fails": {
+      "wrong": 2
+     }
+    },
+    "sol56-high": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -2236,9 +3282,9 @@
   "claude_measured_usd": 2.0588,
   "claude_function_usd": 1.354,
   "claude_agentic_usd": 0.7048,
-  "codex_proxy_usd": 2.4153,
+  "codex_proxy_usd": 11.9525,
   "calls": {
-   "function": 576,
+   "function": 876,
    "agentic": 48
   }
  },
