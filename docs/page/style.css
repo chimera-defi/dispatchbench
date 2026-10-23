@@ -102,3 +102,9 @@ main{counter-reset:sec toc}
 .extras>figure>figcaption{display:none}
 tr.grp th{text-align:left;cursor:default;background:var(--bg);color:var(--muted);font-size:12px;font-weight:600;letter-spacing:.02em}
 tr.grp th::after{content:none}
+.tabs>input{position:absolute;opacity:0;pointer-events:none}
+.tabs>label{display:inline-block;margin:0 6px 10px 0;padding:4px 12px;border:1px solid var(--line);border-radius:99px;font-size:13px;cursor:pointer;color:var(--muted);background:var(--panel)}
+#pset-all:checked+label,#pset-hard:checked+label{color:var(--fg);border-color:var(--accent);font-weight:600}
+.tabs>input:focus-visible+label{outline:2px solid var(--accent);outline-offset:2px}
+.tab{display:none}
+#pset-all:checked~.tab-all,#pset-hard:checked~.tab-hard{display:block}

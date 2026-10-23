@@ -38,7 +38,7 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
     g.append(f'<text x="{L + 10}" y="{T + 18 if corner.startswith("↖") else B - 10}" class="better">{corner}</text>')
     g.append(f'<path d="{fr}" fill="none" stroke="var(--frontier)" stroke-width="4" stroke-dasharray="9 6" stroke-linejoin="round"/>')
     for p in pts:
-        px, py, col = X(p["x"]), Y(p["y"]), FAM(p["c"])
+        px, py, col = X(p["x"]), Y(p["y"]), p.get("col") or FAM(p["c"])
         if p["w"]:
             ax, lo, hi = p["w"]
             if ax == "x": g.append(f'<line x1="{X(lo):.1f}" x2="{X(hi):.1f}" y1="{py:.1f}" y2="{py:.1f}" stroke="{col}" stroke-width="2.5" stroke-opacity=".4"/>')
@@ -47,7 +47,7 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
         fill = "var(--panel)" if p["hollow"] else col
         g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="6.5" fill="{fill}" stroke="{col}" stroke-width="2.5"><title>{esc(p["tip"])}</title></circle>')
         dx, dy, a = labels.get(p["c"], (14, 4, "start"))
-        g.append(f'<text x="{px + dx:.1f}" y="{py + dy:.1f}" text-anchor="{a}" class="lbl{" on" if p["on"] else ""}">{esc(p["c"])}</text>')
+        g.append(f'<text x="{px + dx:.1f}" y="{py + dy:.1f}" text-anchor="{a}" class="lbl{" on" if p["on"] else ""}">{esc(p.get("name", p["c"]))}</text>')
     g.append("</svg>")
     return "".join(g)
 
@@ -94,6 +94,52 @@ def speed_cost(s):
     lab = {"luna-low": (-10, 20, "end"), "luna-medium": (8, 22, "start"), "haiku-low": (-14, -10, "end"), "luna-high": (6, 24, "start"),
            "haiku-medium": (14, -8, "start"), "sonnet-medium": (14, 4, "start"), "sol61-medium": (-14, -12, "end")}
     return scatter(pts, d, X, Y, xt, yt, "median seconds per call (bar: middle half of calls)", "$ per pass (log)", "↙ better", lab), [p["c"] for p in fr]
+
+
+# Hard-set points: the four single models and the four luna → Haiku pipelines of the pipelines chart.
+HARD_PTS = [("luna-low", "luna-low"), ("luna-high-bare", "luna-high"), ("haiku-low", "haiku-low"), ("sonnet-medium", "sonnet-medium"),
+            ("luna-low+haiku-on-fail", "luna-low → Haiku on fail"), ("luna-high-bare+haiku-on-fail", "luna-high → Haiku on fail"),
+            ("luna-low+haiku-review-all", "luna-low → Haiku all"), ("luna-high-bare+haiku-review-all", "luna-high → Haiku all")]
+
+
+def hard_pts():
+    a = luna_rescue.arms(); short = lambda n: n if "→" not in n else n.replace("luna-", "").replace(" → Haiku on fail", "→H fail").replace(" → Haiku all", "→H all")
+    return [{"c": c, "name": short(n), "col": "var(--frontier)" if "→" in n else FAM(c), "hollow": False, "w": None, "k": a[c]["passes"] / a[c]["n"],
+             "usd": a[c]["usd_per_pass"], "sec": a[c]["median_s"],
+             "tip": f"{n}: {a[c]['passes']}/{a[c]['n']} passed, ${a[c]['usd_per_pass']:.5f} per pass, median {a[c]['median_s']:.1f} s"} for c, n in HARD_PTS]
+
+
+def hard_pass_cost():
+    """Hard set: pass rate against $ per pass (log), single models and the Haiku pipelines; no intervals (n is small and post hoc)."""
+    L, R, T, B, W = 84, 16, 14, 382, 560
+    X = logscale(5e-4, 3e-2, L, W - R); Y = lambda v: B - (v - 0.55) / 0.47 * (B - T)
+    pts = [dict(p, x=p["usd"], y=p["k"]) for p in hard_pts()]
+    fr = sorted(front(pts, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
+    for p in pts: p["on"] = p in fr
+    d = f"M{X(fr[0]['x']):.1f} {B} V{Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
+    xt = [(v, f"${v:g}") for v in (5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2)]
+    yt = [(v / 100, f"{v}%") for v in (60, 70, 80, 90, 100)]
+    lab = {"luna-low": (14, 5, "start"), "luna-high-bare": (14, 22, "start"), "haiku-low": (14, 5, "start"), "sonnet-medium": (0, 50, "middle"),
+           "luna-high-bare+haiku-on-fail": (-14, -8, "end"), "luna-low+haiku-on-fail": (-14, 5, "end"),
+           "luna-low+haiku-review-all": (14, 5, "start"), "luna-high-bare+haiku-review-all": (-14, 5, "end")}
+    return scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, H=440, B=B), [p["c"] for p in fr]
+
+
+def hard_speed_cost():
+    """Hard set: median seconds against $ per pass (log); frontier among rows passing at least MIN_PASS."""
+    L, R, T, B, W = 84, 16, 14, 382, 560
+    X = lambda v: L + (v - 4) / 26 * (W - R - L); Y = logscale(5e-4, 3e-2, B, T)
+    pts = [dict(p, x=p["sec"], y=p["usd"]) for p in hard_pts()]
+    ok = [p for p in pts if p["k"] >= MIN_PASS]
+    fr = sorted(front(ok, lambda a, b: a["x"] <= b["x"] and a["y"] <= b["y"]), key=lambda p: p["x"])
+    for p in pts: p["on"] = p in fr
+    d = f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
+    xt = [(v, f"{v} s") for v in (5, 10, 15, 20, 25)]
+    yt = [(v, f"${v:g}") for v in (5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2)]
+    lab = {"luna-low": (-10, -10, "end"), "luna-high-bare": (14, 5, "start"), "haiku-low": (14, 5, "start"), "sonnet-medium": (14, 5, "start"),
+           "luna-high-bare+haiku-on-fail": (-14, 26, "end"), "luna-low+haiku-on-fail": (-14, -12, "end"),
+           "luna-low+haiku-review-all": (-14, 5, "end"), "luna-high-bare+haiku-review-all": (0, 28, "middle")}
+    return scatter(pts, d, X, Y, xt, yt, "median seconds per call", "$ per pass (log)", "↙ better", lab, H=440, B=B), [p["c"] for p in fr]
 
 
 def grid(s):
@@ -278,7 +324,8 @@ def method(s):
 
 
 def widgets(s, need):
-    a, fa = pass_cost(s); b, fb = speed_cost(s)
-    return {"pass_cost": a, "speed_cost": b, "grid": grid(s), "floor": floor(s), "pipes": pipes(), "fast": fast(s), "explorer": explorer(s), "short_table": short_table(s, need),
+    a, fa = pass_cost(s); b, fb = speed_cost(s); ha, hfa = hard_pass_cost(); hb, hfb = hard_speed_cost(); nm = dict(HARD_PTS)
+    return {"pass_cost": a, "speed_cost": b, "hard_pass_cost": ha, "hard_speed_cost": hb,
+            "hard_front_pass": ", ".join(nm[c] for c in hfa), "hard_front_speed": ", ".join(nm[c] for c in hfb), "grid": grid(s), "floor": floor(s), "pipes": pipes(), "fast": fast(s), "explorer": explorer(s), "short_table": short_table(s, need),
             "front_pass": ", ".join(fa), "front_speed": ", ".join(fb),
             "problems": method(s)[0], "flags": method(s)[1]}
