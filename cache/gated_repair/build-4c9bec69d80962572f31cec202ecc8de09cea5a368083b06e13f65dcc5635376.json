@@ -1,0 +1,14 @@
+{
+ "in_tok": 15578,
+ "cached_tok": 12160,
+ "cache_write_tok": 0,
+ "out_tok": 569,
+ "reasoning_tok": 29,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\nfrom datetime import date, timedelta\nfrom calendar import monthrange\n\n\ndef recur(start: str, rule: str, count: int) -> list[str]:\n    first = date.fromisoformat(start)\n    parts = rule.split()\n    kind, step = parts[0], int(parts[1])\n    weekdays = {name: i for i, name in enumerate(\n        (\"MO\", \"TU\", \"WE\", \"TH\", \"FR\", \"SA\", \"SU\")\n    )}\n    result = []\n\n    def add(candidate):\n        if candidate >= first:\n            result.append(candidate.isoformat())\n\n    if kind == \"DAILY\":\n        return [\n            (first + timedelta(days=i * step)).isoformat()\n            for i in range(count)\n        ]\n\n    if kind == \"WEEKLY\":\n        days = sorted(weekdays[name] for name in parts[2].split(\",\"))\n        monday = first - timedelta(days=first.weekday())\n        while len(result) < count:\n            for day in days:\n                add(monday + timedelta(days=day))\n                if len(result) == count:\n                    return result\n            monday += timedelta(weeks=step)\n\n    elif kind == \"MONTHLY\":\n        month_index = first.year * 12 + first.month - 1\n        while len(result) < count:\n            year, month_zero = divmod(month_index, 12)\n            month = month_zero + 1\n            first_weekday, length = monthrange(year, month)\n\n            if len(parts) == 3:\n                requested = int(parts[2])\n                day = length if requested == -1 else requested\n            else:\n                n = int(parts[2])\n                weekday = weekdays[parts[3]]\n                if n == -1:\n                    last_weekday = (first_weekday + length - 1) % 7\n                    day = length - (last_weekday - weekday) % 7\n                else:\n                    day = 1 + (weekday - first_weekday) % 7 + 7 * (n - 1)\n\n            if day <= length:\n                add(date(year, month, day))\n            if len(result) < count:\n                month_index += step\n\n    else:  # YEARLY\n        month, day = map(int, parts[2].split(\"-\"))\n        year = first.year\n        while len(result) < count:\n            if day <= monthrange(year, month)[1]:\n                add(date(year, month, day))\n            if len(result) < count:\n                year += step\n\n    return result\n```",
+ "wall_s": 15.071509557004902,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

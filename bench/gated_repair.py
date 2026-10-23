@@ -24,6 +24,8 @@ CONFIGS = {
     "luna-low+haiku-on-fail": ("gpt-6-luna", "low", CODEX_FLAGS, "haiku"),
     "luna-high-bare+haiku-review-all": ("gpt-6-luna", "high", codex_flags("luna-low-bare"), "review"),
     "luna-low+haiku-review-all": ("gpt-6-luna", "low", CODEX_FLAGS, "review"),
+    "astra-medium+haiku-on-fail": ("gpt-6-astra", "medium", CODEX_FLAGS, "haiku"),  # 2026-10-23, operator's proposed default
+    "sol61-high+haiku-on-fail": ("gpt-6.1-sol", "high", CODEX_FLAGS, "haiku"),
 }
 REPAIR = """{prompt}
 

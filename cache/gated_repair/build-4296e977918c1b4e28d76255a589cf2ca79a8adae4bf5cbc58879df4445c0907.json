@@ -1,0 +1,14 @@
+{
+ "in_tok": 15141,
+ "cached_tok": 12160,
+ "cache_write_tok": 0,
+ "out_tok": 343,
+ "reasoning_tok": 106,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\ndef taller_within(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    if k == 0:\n        return [0] * n\n\n    rank = {value: i + 1 for i, value in enumerate(sorted(set(a)))}\n    ranks = [rank[value] for value in a]\n    m = len(rank)\n    bit = [0] * (m + 1)\n    result = [0] * n\n\n    for i, r in enumerate(ranks):\n        if i > k:\n            p = ranks[i - k - 1]\n            while p <= m:\n                bit[p] -= 1\n                p += p & -p\n\n        not_taller = 0\n        p = r\n        while p:\n            not_taller += bit[p]\n            p -= p & -p\n\n        result[i] = min(i, k) - not_taller\n\n        p = r\n        while p <= m:\n            bit[p] += 1\n            p += p & -p\n\n    return result\n```",
+ "wall_s": 14.410444410998025,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

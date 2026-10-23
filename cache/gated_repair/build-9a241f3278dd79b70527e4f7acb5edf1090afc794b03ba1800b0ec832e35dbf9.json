@@ -1,0 +1,14 @@
+{
+ "in_tok": 15195,
+ "cached_tok": 12288,
+ "cache_write_tok": 0,
+ "out_tok": 1011,
+ "reasoning_tok": 624,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\nfrom math import gcd\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    prefix = [0] * (n + 1)\n    for i, value in enumerate(a, 1):\n        prefix[i] = prefix[i - 1] + value\n\n    hull = []\n    best_sum, best_length = 0, 1\n\n    for end in range(k, n + 1):\n        start = end - k\n\n        # Maintain the lower convex hull of eligible prefix points.\n        while len(hull) >= 2:\n            u, v = hull[-2], hull[-1]\n            if (\n                (prefix[v] - prefix[u]) * (start - v)\n                >= (prefix[start] - prefix[v]) * (v - u)\n            ):\n                hull.pop()\n            else:\n                break\n        hull.append(start)\n\n        # Find the hull point giving the maximum slope to this endpoint.\n        total = prefix[end]\n        left, right = 0, len(hull) - 1\n        while left < right:\n            mid = (left + right) // 2\n            u, v = hull[mid], hull[mid + 1]\n            if (\n                (total - prefix[u]) * (end - v)\n                <= (total - prefix[v]) * (end - u)\n            ):\n                left = mid + 1\n            else:\n                right = mid\n\n        start = hull[left]\n        current_sum = total - prefix[start]\n        current_length = end - start\n\n        if current_sum * best_length > best_sum * current_length:\n            best_sum, best_length = current_sum, current_length\n\n    divisor = gcd(best_sum, best_length)\n    return [best_sum // divisor, best_length // divisor]\n```",
+ "wall_s": 30.497109335992718,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

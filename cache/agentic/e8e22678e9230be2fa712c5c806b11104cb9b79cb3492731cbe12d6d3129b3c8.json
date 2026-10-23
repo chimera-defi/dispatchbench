@@ -1,0 +1,46 @@
+{
+ "key": "e8e22678e9230be2fa712c5c806b11104cb9b79cb3492731cbe12d6d3129b3c8",
+ "ts": "2026-10-23T18:09:00+00:00",
+ "track": "agentic",
+ "config": "astra-medium",
+ "cli": "codex",
+ "cli_version": "0.163.0",
+ "model": "gpt-6-astra",
+ "effort": "medium",
+ "task": "t4_retry_queue",
+ "repeat": 2,
+ "lanes": 4,
+ "wall_s": 83.21921149099944,
+ "in_tok": 137188,
+ "cached_tok": 131200,
+ "cache_write_tok": 0,
+ "out_tok": 3080,
+ "reasoning_tok": 217,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)",
+ "turns": 1,
+ "tool_calls": {
+  "command_execution": 6,
+  "file_change": 2
+ },
+ "is_error": false,
+ "error": null,
+ "delegate_calls": 0,
+ "visible_pass": true,
+ "visible": {
+  "ok": true,
+  "passed": 15,
+  "failed": 0,
+  "tail": "15 passed in 0.04s"
+ },
+ "hidden_pass": true,
+ "hidden": {
+  "ok": true,
+  "passed": 10,
+  "failed": 0,
+  "tail": "10 passed in 0.02s"
+ },
+ "own_tests": true,
+ "tests_tampered": [],
+ "diff_stat": " 4 files changed, 214 insertions(+), 8 deletions(-)"
+}

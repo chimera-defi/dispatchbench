@@ -1,0 +1,14 @@
+{
+ "in_tok": 15642,
+ "cached_tok": 12288,
+ "cache_write_tok": 0,
+ "out_tok": 1088,
+ "reasoning_tok": 516,
+ "tool_items": 0,
+ "error": null,
+ "text": "```python\nfrom calendar import monthrange\nfrom datetime import date, timedelta\n\n\ndef recur(start: str, rule: str, count: int) -> list[str]:\n    first = date.fromisoformat(start)\n    parts = rule.split()\n    kind = parts[0]\n    k = int(parts[1])\n    weekdays = {\n        \"MO\": 0, \"TU\": 1, \"WE\": 2, \"TH\": 3,\n        \"FR\": 4, \"SA\": 5, \"SU\": 6,\n    }\n\n    if kind == \"DAILY\":\n        return [\n            (first + timedelta(days=i * k)).isoformat()\n            for i in range(count)\n        ]\n\n    result = []\n\n    if kind == \"WEEKLY\":\n        selected = sorted(weekdays[wd] for wd in parts[2].split(\",\"))\n        week_start = first - timedelta(days=first.weekday())\n\n        while len(result) < count:\n            for wd in selected:\n                candidate = week_start + timedelta(days=wd)\n                if candidate >= first:\n                    result.append(candidate.isoformat())\n                    if len(result) == count:\n                        return result\n            week_start += timedelta(weeks=k)\n\n    elif kind == \"MONTHLY\":\n        month_index = first.year * 12 + first.month - 1\n        number = int(parts[2])\n        wd = weekdays[parts[3]] if len(parts) == 4 else None\n\n        while len(result) < count:\n            year, month_zero = divmod(month_index, 12)\n            month = month_zero + 1\n            last_day = monthrange(year, month)[1]\n\n            if wd is None:\n                day = last_day if number == -1 else number\n            elif number == -1:\n                last_weekday = date(year, month, last_day).weekday()\n                day = last_day - (last_weekday - wd) % 7\n            else:\n                first_weekday = date(year, month, 1).weekday()\n                day = 1 + (wd - first_weekday) % 7 + 7 * (number - 1)\n\n            if day <= last_day:\n                candidate = date(year, month, day)\n                if candidate >= first:\n                    result.append(candidate.isoformat())\n\n            month_index += k\n\n    elif kind == \"YEARLY\":\n        month, day = map(int, parts[2].split(\"-\"))\n        year = first.year\n\n        while len(result) < count:\n            if day <= monthrange(year, month)[1]:\n                candidate = date(year, month, day)\n                if candidate >= first:\n                    result.append(candidate.isoformat())\n            year += k\n\n    return result\n```",
+ "wall_s": 35.651571483002044,
+ "is_error": false,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)"
+}

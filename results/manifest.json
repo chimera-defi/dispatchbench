@@ -41,6 +41,11 @@
    "model": "gpt-6.1-sol",
    "effort": "medium"
   },
+  "sol61-high": {
+   "cli": "codex",
+   "model": "gpt-6.1-sol",
+   "effort": "high"
+  },
   "luna-low-bare": {
    "cli": "codex",
    "model": "gpt-6-luna",
@@ -126,25 +131,25 @@
   4
  ],
  "first_call_utc": "2026-10-22T08:32:54+00:00",
- "last_call_utc": "2026-10-23T16:49:09+00:00",
+ "last_call_utc": "2026-10-23T18:39:24+00:00",
  "rows_by_phase": {
   "calibration": 30,
   "escalation": 15,
-  "exploratory": 345,
-  "hard": 120,
+  "exploratory": 405,
+  "hard": 135,
   "main": 360,
   "warmup": 6
  },
- "agentic_runs": 48,
+ "agentic_runs": 72,
  "claude_budget_cap_usd": 8.0,
  "spend": {
   "claude_measured_usd": 2.0588,
   "claude_function_usd": 1.354,
   "claude_agentic_usd": 0.7048,
-  "codex_proxy_usd": 11.9525,
+  "codex_proxy_usd": 19.1193,
   "calls": {
-   "function": 876,
-   "agentic": 48
+   "function": 951,
+   "agentic": 72
   }
  },
  "errors": [],
@@ -283,11 +288,13 @@
   "results/appendix/luna_rescue.jsonl#G": {
    "file": "results/appendix/luna_rescue.jsonl",
    "configs": [
+    "astra-medium+haiku-on-fail",
     "luna-high-bare+haiku-on-fail",
     "luna-high-bare+haiku-review-all",
     "luna-high-bare+retry-on-fail",
     "luna-low+haiku-on-fail",
-    "luna-low+haiku-review-all"
+    "luna-low+haiku-review-all",
+    "sol61-high+haiku-on-fail"
    ],
    "producing_script": "bench/gated_repair.py",
    "cli_versions": [
@@ -314,9 +321,17 @@
     "luna-low+haiku-review-all": {
      "model": "gpt-6-luna",
      "effort": "low"
+    },
+    "astra-medium+haiku-on-fail": {
+     "model": "gpt-6-astra",
+     "effort": "medium"
+    },
+    "sol61-high+haiku-on-fail": {
+     "model": "gpt-6.1-sol",
+     "effort": "high"
     }
    }
   }
  },
- "git_sha": "7a816da84e2a050f9f2cead7d83bafe1a2d0bd6b"
+ "git_sha": "74e6af21471ca647e372fbb04aa8fc6f512ac615"
 }
