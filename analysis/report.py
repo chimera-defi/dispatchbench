@@ -241,9 +241,9 @@ def facts(s):
     F["growth_margin"] = str(GROWTH_MARGIN)
     F["n_solutions"] = str(sum(1 for _, _, fs in os.walk(os.path.join(RES, "solutions")) for f in fs if f.endswith(".py")))
     # Codex additions (exploratory, run after the report at the operator's request)
-    nr = [r for r in rows if r["config"] in NEW_CODEX]; F["new_date"] = min(r["ts"] for r in nr)[:10]; F["n_new_codex"] = str(len(NEW_CODEX))
+    nr = [r for r in rows if r["config"] in NEW_CODEX and r["phase"] != "fastmode"]; F["new_date"] = min(r["ts"] for r in nr)[:10]; F["n_new_codex"] = str(len(NEW_CODEX))
     nu = sum(map(cost, nr + [r for r in agent if r["config"] in NEW_CODEX]))  # function and repo-task runs alike
-    F["codex_new_usd"] = f"${nu:.2f}"; F["codex_old_usd"] = f"${sp['codex_proxy_usd'] - nu:.2f}"
+    F["codex_new_usd"] = f"${nu:.2f}"; F["codex_old_usd"] = f"${sp['codex_proxy_usd'] - nu - sp['codex_fastmode_usd']:.2f}"; F["fm_usd"] = f"${sp['codex_fastmode_usd']:.2f}"
     for c in NEW_CODEX:
         k = "x_" + c.replace("-", "_"); e, h = ex[c], hard[c]
         F[k + "_k"] = f"{e['passes']}/{e['n']}"; F[k + "_upp"] = u(e["usd_per_pass"], 4); F[k + "_med"] = f"{e['latency_s']['median']:.1f}"

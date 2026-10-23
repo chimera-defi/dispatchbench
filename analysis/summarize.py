@@ -179,6 +179,11 @@ def pilot_fast():
     return out
 
 
+def fast_mult(r):
+    """Priority-tier (fast mode) calls bill at the published multiplier."""
+    return json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"] if r["config"] == "sol61-high-fast" else 1
+
+
 def fastmode_block(rows):
     """sol61-high in fast mode (priority tier) and at xhigh effort on the hard set, against a default-tier sol61-high control run alongside them (repeats 6-10)."""
     mult = json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]; out = {}
@@ -272,7 +277,8 @@ def build():
     s["spend"] = {"claude_measured_usd": round(sum(r.get("cost_usd") or 0 for r in claude_all), 4),
                   "claude_function_usd": round(sum(r.get("cost_usd") or 0 for r in rows if r["cli"] == "claude"), 4),
                   "claude_agentic_usd": round(sum(r.get("cost_usd") or 0 for r in agent if r["cli"] == "claude"), 4),
-                  "codex_proxy_usd": round(sum(cost(r) for r in rows + agent if r["cli"] == "codex"), 4),
+                  "codex_proxy_usd": round(sum(cost(r) * fast_mult(r) for r in rows + agent if r["cli"] == "codex"), 4),
+                  "codex_fastmode_usd": round(sum(cost(r) * fast_mult(r) for r in rows if r["phase"] == "fastmode"), 4),
                   "calls": {"function": len(rows), "agentic": len(agent)}}
     s["hypotheses"] = hypotheses(s)
     return s, tables(s), manifest(rows, agent, s)

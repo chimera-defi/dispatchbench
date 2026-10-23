@@ -157,7 +157,8 @@
   "claude_measured_usd": 2.0588,
   "claude_function_usd": 1.354,
   "claude_agentic_usd": 0.7048,
-  "codex_proxy_usd": 21.7651,
+  "codex_proxy_usd": 22.5262,
+  "codex_fastmode_usd": 3.4069,
   "calls": {
    "function": 1056,
    "agentic": 72
@@ -344,5 +345,5 @@
    }
   }
  },
- "git_sha": "b0732874e0e6baeed8326a55fbe607fa62770dd4"
+ "git_sha": "78d9512f68a86a0284e9cc22e94cc3ba7307e39a"
 }
