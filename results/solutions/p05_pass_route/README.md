@@ -7,6 +7,6 @@
 - Dijkstra over states (stop, set of bought zones); at most 4 zones so 16 masks. Buying at a station is an edge to the same stop with a bigger mask. About 32k states.
 - Traps: a pass can only be bought while standing at its station; zone -1 is never free; parallel rides; buying a pass twice; unreachable gives -1.
 
-**Results:** 41 pass, 2 fail of 43 graded answers. Table and code: [index.md](index.md).
+**Results:** 61 pass, 2 fail of 63 graded answers. Table and code: [index.md](index.md).
 
 **To verify for yourself:** run it against the hidden tests: `python3 -m bench.grade p05_pass_route "$PWD/<file.py>"` (absolute path needed; prints JSON with `outcome`).

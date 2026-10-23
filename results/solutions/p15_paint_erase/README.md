@@ -7,6 +7,6 @@
 - Compress coordinates from all l and r+1, then a segment tree with lazy `chmax(c)` for paint and `assign blank` for erase; read the leaves at the end, weighting by segment length.
 - Traps: a plain interval map degrades to O(n^2) because higher colours are never removed; blank counts as lower than every colour; erase wins over earlier paint; n is too large for an array.
 
-**Results:** 17 pass, 3 fail of 20 graded answers. Table and code: [index.md](index.md).
+**Results:** 33 pass, 7 fail of 40 graded answers. Table and code: [index.md](index.md).
 
 **To verify for yourself:** run it against the hidden tests: `python3 -m bench.grade p15_paint_erase "$PWD/<file.py>"` (absolute path needed; prints JSON with `outcome`).

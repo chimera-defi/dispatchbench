@@ -7,6 +7,6 @@
 - Rerooting: compute S(0) and subtree weights once, then S(child) = S(parent) + W_total - 2 * sub[child]. O(n).
 - Traps: n = 200000 path breaks recursive DFS (use an iterative order); O(n^2) all-pairs is too slow.
 
-**Results:** 43 pass, 0 fail of 43 graded answers. Table and code: [index.md](index.md).
+**Results:** 61 pass, 2 fail of 63 graded answers. Table and code: [index.md](index.md).
 
 **To verify for yourself:** run it against the hidden tests: `python3 -m bench.grade p07_weighted_distance_sums "$PWD/<file.py>"` (absolute path needed; prints JSON with `outcome`).

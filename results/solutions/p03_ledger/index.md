@@ -4,6 +4,11 @@ Rung L2. Signature: `def ledger(ops: list[str]) -> tuple[dict[str, int], list[in
 
 | config | phase | rep | outcome | grade detail | LOC | lines | cc_max | lint | time exp (model vs ref) | mem ratio | file |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| astra-medium | exploratory | 1 | pass |  | 104 | 122 | - | - | - vs - | - | [exploratory-r1.py](astra-medium/exploratory-r1.py) |
+| astra-medium | exploratory | 2 | pass |  | 85 | 102 | - | - | - vs - | - | [exploratory-r2.py](astra-medium/exploratory-r2.py) |
+| astra-medium | exploratory | 3 | pass |  | 96 | 114 | - | - | - vs - | - | [exploratory-r3.py](astra-medium/exploratory-r3.py) |
+| astra-medium | exploratory | 4 | pass |  | 94 | 111 | - | - | - vs - | - | [exploratory-r4.py](astra-medium/exploratory-r4.py) |
+| astra-medium | exploratory | 5 | pass |  | 96 | 113 | - | - | - vs - | - | [exploratory-r5.py](astra-medium/exploratory-r5.py) |
 | haiku-low | calibration | 0 | pass |  | 76 | 88 | 45 | 0 | 0.84 vs 1.23 | 1.00 | [calibration-r0.py](haiku-low/calibration-r0.py) |
 | haiku-low | main | 1 | pass |  | 68 | 80 | 40 | 0 | 1.14 vs 1.23 | 1.00 | [main-r1.py](haiku-low/main-r1.py) |
 | haiku-low | main | 2 | pass |  | 77 | 89 | 44 | 0 | 1.11 vs 1.23 | 1.00 | [main-r2.py](haiku-low/main-r2.py) |
@@ -65,6 +70,21 @@ Rung L2. Signature: `def ledger(ops: list[str]) -> tuple[dict[str, int], list[in
 | luna-medium | main | 3 | pass |  | 79 | 89 | 45 | 0 | 0.75 vs 1.23 | 1.00 | [main-r3.py](luna-medium/main-r3.py) |
 | luna-medium | main | 4 | crash | small case 0: ValueError: too many values to unpack (expected 2) | 81 | 90 | 43 | 0 | - vs - | - | [main-r4.py](luna-medium/main-r4.py) |
 | luna-medium | main | 5 | pass |  | 84 | 95 | 55 | 0 | 1.15 vs 1.23 | 1.00 | [main-r5.py](luna-medium/main-r5.py) |
+| luna56-high | exploratory | 1 | pass |  | 92 | 105 | - | - | - vs - | - | [exploratory-r1.py](luna56-high/exploratory-r1.py) |
+| luna56-high | exploratory | 2 | pass |  | 100 | 111 | - | - | - vs - | - | [exploratory-r2.py](luna56-high/exploratory-r2.py) |
+| luna56-high | exploratory | 3 | pass |  | 98 | 112 | - | - | - vs - | - | [exploratory-r3.py](luna56-high/exploratory-r3.py) |
+| luna56-high | exploratory | 4 | pass |  | 90 | 105 | - | - | - vs - | - | [exploratory-r4.py](luna56-high/exploratory-r4.py) |
+| luna56-high | exploratory | 5 | pass |  | 92 | 106 | - | - | - vs - | - | [exploratory-r5.py](luna56-high/exploratory-r5.py) |
+| luna56-low | exploratory | 1 | pass |  | 100 | 113 | - | - | - vs - | - | [exploratory-r1.py](luna56-low/exploratory-r1.py) |
+| luna56-low | exploratory | 2 | pass |  | 102 | 114 | - | - | - vs - | - | [exploratory-r2.py](luna56-low/exploratory-r2.py) |
+| luna56-low | exploratory | 3 | pass |  | 98 | 112 | - | - | - vs - | - | [exploratory-r3.py](luna56-low/exploratory-r3.py) |
+| luna56-low | exploratory | 4 | pass |  | 101 | 115 | - | - | - vs - | - | [exploratory-r4.py](luna56-low/exploratory-r4.py) |
+| luna56-low | exploratory | 5 | pass |  | 105 | 119 | - | - | - vs - | - | [exploratory-r5.py](luna56-low/exploratory-r5.py) |
+| sol56-high | exploratory | 1 | pass |  | 92 | 105 | - | - | - vs - | - | [exploratory-r1.py](sol56-high/exploratory-r1.py) |
+| sol56-high | exploratory | 2 | pass |  | 88 | 101 | - | - | - vs - | - | [exploratory-r2.py](sol56-high/exploratory-r2.py) |
+| sol56-high | exploratory | 3 | pass |  | 97 | 110 | - | - | - vs - | - | [exploratory-r3.py](sol56-high/exploratory-r3.py) |
+| sol56-high | exploratory | 4 | pass |  | 83 | 96 | - | - | - vs - | - | [exploratory-r4.py](sol56-high/exploratory-r4.py) |
+| sol56-high | exploratory | 5 | pass |  | 99 | 112 | - | - | - vs - | - | [exploratory-r5.py](sol56-high/exploratory-r5.py) |
 | sol61-medium | calibration | 0 | pass |  | 88 | 105 | 24 | 0 | 1.01 vs 1.23 | 1.00 | [calibration-r0.py](sol61-medium/calibration-r0.py) |
 | sol61-medium | main | 1 | pass |  | 96 | 114 | 27 | 0 | 0.77 vs 1.23 | 1.00 | [main-r1.py](sol61-medium/main-r1.py) |
 | sol61-medium | main | 2 | pass |  | 99 | 117 | 33 | 0 | 1.06 vs 1.23 | 1.00 | [main-r2.py](sol61-medium/main-r2.py) |

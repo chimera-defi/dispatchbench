@@ -4,6 +4,11 @@ Rung L7. Signature: `def paint(n: int, ops: list[list[int]]) -> list[list[int]]:
 
 | config | phase | rep | outcome | grade detail | LOC | lines | cc_max | lint | time exp (model vs ref) | mem ratio | file |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| astra-medium | hard | 1 | pass |  | 40 | 52 | - | - | - vs - | - | [hard-r1.py](astra-medium/hard-r1.py) |
+| astra-medium | hard | 2 | pass |  | 39 | 51 | - | - | - vs - | - | [hard-r2.py](astra-medium/hard-r2.py) |
+| astra-medium | hard | 3 | pass |  | 49 | 60 | - | - | - vs - | - | [hard-r3.py](astra-medium/hard-r3.py) |
+| astra-medium | hard | 4 | pass |  | 56 | 69 | - | - | - vs - | - | [hard-r4.py](astra-medium/hard-r4.py) |
+| astra-medium | hard | 5 | pass |  | 37 | 49 | - | - | - vs - | - | [hard-r5.py](astra-medium/hard-r5.py) |
 | haiku-low | hard | 1 | pass |  | 81 | 94 | 7 | 4 | 1.08 vs 0.93 | 0.82 | [hard-r1.py](haiku-low/hard-r1.py) |
 | haiku-low | hard | 2 | timeout | large case 1: timeout | 58 | 71 | 17 | 4 | - vs - | - | [hard-r2.py](haiku-low/hard-r2.py) |
 | haiku-low | hard | 3 | timeout | large case 1: timeout | 44 | 59 | 16 | 2 | - vs - | - | [hard-r3.py](haiku-low/hard-r3.py) |
@@ -14,6 +19,21 @@ Rung L7. Signature: `def paint(n: int, ops: list[list[int]]) -> list[list[int]]:
 | luna-high | hard | 3 | pass |  | 86 | 100 | 10 | 0 | 1.25 vs 0.93 | 0.91 | [hard-r3.py](luna-high/hard-r3.py) |
 | luna-high | hard | 4 | pass |  | 115 | 133 | 8 | 0 | 1.12 vs 0.93 | 1.02 | [hard-r4.py](luna-high/hard-r4.py) |
 | luna-high | hard | 5 | pass |  | 66 | 74 | 8 | 0 | 1.11 vs 0.93 | 0.61 | [hard-r5.py](luna-high/hard-r5.py) |
+| luna56-high | hard | 1 | wrong | small case 1 | 108 | 131 | - | - | - vs - | - | [hard-r1.py](luna56-high/hard-r1.py) |
+| luna56-high | hard | 2 | pass |  | 119 | 147 | - | - | - vs - | - | [hard-r2.py](luna56-high/hard-r2.py) |
+| luna56-high | hard | 3 | wrong | small case 1 | 74 | 98 | - | - | - vs - | - | [hard-r3.py](luna56-high/hard-r3.py) |
+| luna56-high | hard | 4 | pass |  | 115 | 141 | - | - | - vs - | - | [hard-r4.py](luna56-high/hard-r4.py) |
+| luna56-high | hard | 5 | pass |  | 114 | 140 | - | - | - vs - | - | [hard-r5.py](luna56-high/hard-r5.py) |
+| luna56-low | hard | 1 | pass |  | 106 | 123 | - | - | - vs - | - | [hard-r1.py](luna56-low/hard-r1.py) |
+| luna56-low | hard | 2 | wrong | small case 0 | 112 | 130 | - | - | - vs - | - | [hard-r2.py](luna56-low/hard-r2.py) |
+| luna56-low | hard | 3 | wrong | small case 0 | 104 | 121 | - | - | - vs - | - | [hard-r3.py](luna56-low/hard-r3.py) |
+| luna56-low | hard | 4 | pass |  | 97 | 111 | - | - | - vs - | - | [hard-r4.py](luna56-low/hard-r4.py) |
+| luna56-low | hard | 5 | pass |  | 102 | 126 | - | - | - vs - | - | [hard-r5.py](luna56-low/hard-r5.py) |
+| sol56-high | hard | 1 | pass |  | 130 | 155 | - | - | - vs - | - | [hard-r1.py](sol56-high/hard-r1.py) |
+| sol56-high | hard | 2 | pass |  | 105 | 124 | - | - | - vs - | - | [hard-r2.py](sol56-high/hard-r2.py) |
+| sol56-high | hard | 3 | pass |  | 96 | 118 | - | - | - vs - | - | [hard-r3.py](sol56-high/hard-r3.py) |
+| sol56-high | hard | 4 | pass |  | 117 | 138 | - | - | - vs - | - | [hard-r4.py](sol56-high/hard-r4.py) |
+| sol56-high | hard | 5 | pass |  | 122 | 148 | - | - | - vs - | - | [hard-r5.py](sol56-high/hard-r5.py) |
 | sol61-medium | hard | 1 | pass |  | 37 | 48 | 12 | 0 | 1.19 vs 0.93 | 0.86 | [hard-r1.py](sol61-medium/hard-r1.py) |
 | sol61-medium | hard | 2 | pass |  | 67 | 80 | 11 | 0 | 1.04 vs 0.93 | 0.61 | [hard-r2.py](sol61-medium/hard-r2.py) |
 | sol61-medium | hard | 3 | pass |  | 67 | 82 | 7 | 0 | 1.04 vs 0.93 | 0.76 | [hard-r3.py](sol61-medium/hard-r3.py) |

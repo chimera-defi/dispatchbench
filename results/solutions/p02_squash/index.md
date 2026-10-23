@@ -4,6 +4,11 @@ Rung L1. Signature: `def squash(s: str) -> str:`
 
 | config | phase | rep | outcome | grade detail | LOC | lines | cc_max | lint | time exp (model vs ref) | mem ratio | file |
 |---|---|---|---|---|---|---|---|---|---|---|---|
+| astra-medium | exploratory | 1 | pass |  | 18 | 22 | - | - | - vs - | - | [exploratory-r1.py](astra-medium/exploratory-r1.py) |
+| astra-medium | exploratory | 2 | pass |  | 18 | 23 | - | - | - vs - | - | [exploratory-r2.py](astra-medium/exploratory-r2.py) |
+| astra-medium | exploratory | 3 | pass |  | 18 | 22 | - | - | - vs - | - | [exploratory-r3.py](astra-medium/exploratory-r3.py) |
+| astra-medium | exploratory | 4 | pass |  | 18 | 23 | - | - | - vs - | - | [exploratory-r4.py](astra-medium/exploratory-r4.py) |
+| astra-medium | exploratory | 5 | pass |  | 18 | 22 | - | - | - vs - | - | [exploratory-r5.py](astra-medium/exploratory-r5.py) |
 | haiku-low | calibration | 0 | pass |  | 20 | 21 | 5 | 0 | 1.11 vs 1.10 | 1.00 | [calibration-r0.py](haiku-low/calibration-r0.py) |
 | haiku-low | main | 1 | pass |  | 21 | 23 | 5 | 0 | 1.07 vs 1.10 | 1.47 | [main-r1.py](haiku-low/main-r1.py) |
 | haiku-low | main | 2 | pass |  | 17 | 17 | 6 | 0 | 1.18 vs 1.10 | 1.00 | [main-r2.py](haiku-low/main-r2.py) |
@@ -35,6 +40,21 @@ Rung L1. Signature: `def squash(s: str) -> str:`
 | luna-medium | main | 3 | pass |  | 18 | 23 | 7 | 0 | 0.87 vs 1.10 | 1.47 | [main-r3.py](luna-medium/main-r3.py) |
 | luna-medium | main | 4 | pass |  | 18 | 23 | 5 | 0 | 1.07 vs 1.10 | 1.46 | [main-r4.py](luna-medium/main-r4.py) |
 | luna-medium | main | 5 | pass |  | 21 | 27 | 6 | 0 | 1.34 vs 1.10 | 1.46 | [main-r5.py](luna-medium/main-r5.py) |
+| luna56-high | exploratory | 1 | pass |  | 20 | 26 | - | - | - vs - | - | [exploratory-r1.py](luna56-high/exploratory-r1.py) |
+| luna56-high | exploratory | 2 | pass |  | 18 | 23 | - | - | - vs - | - | [exploratory-r2.py](luna56-high/exploratory-r2.py) |
+| luna56-high | exploratory | 3 | pass |  | 17 | 22 | - | - | - vs - | - | [exploratory-r3.py](luna56-high/exploratory-r3.py) |
+| luna56-high | exploratory | 4 | pass |  | 20 | 26 | - | - | - vs - | - | [exploratory-r4.py](luna56-high/exploratory-r4.py) |
+| luna56-high | exploratory | 5 | pass |  | 18 | 23 | - | - | - vs - | - | [exploratory-r5.py](luna56-high/exploratory-r5.py) |
+| luna56-low | exploratory | 1 | pass |  | 18 | 23 | - | - | - vs - | - | [exploratory-r1.py](luna56-low/exploratory-r1.py) |
+| luna56-low | exploratory | 2 | pass |  | 20 | 26 | - | - | - vs - | - | [exploratory-r2.py](luna56-low/exploratory-r2.py) |
+| luna56-low | exploratory | 3 | pass |  | 20 | 26 | - | - | - vs - | - | [exploratory-r3.py](luna56-low/exploratory-r3.py) |
+| luna56-low | exploratory | 4 | pass |  | 20 | 26 | - | - | - vs - | - | [exploratory-r4.py](luna56-low/exploratory-r4.py) |
+| luna56-low | exploratory | 5 | pass |  | 20 | 26 | - | - | - vs - | - | [exploratory-r5.py](luna56-low/exploratory-r5.py) |
+| sol56-high | exploratory | 1 | pass |  | 18 | 23 | - | - | - vs - | - | [exploratory-r1.py](sol56-high/exploratory-r1.py) |
+| sol56-high | exploratory | 2 | pass |  | 18 | 23 | - | - | - vs - | - | [exploratory-r2.py](sol56-high/exploratory-r2.py) |
+| sol56-high | exploratory | 3 | pass |  | 18 | 23 | - | - | - vs - | - | [exploratory-r3.py](sol56-high/exploratory-r3.py) |
+| sol56-high | exploratory | 4 | pass |  | 18 | 23 | - | - | - vs - | - | [exploratory-r4.py](sol56-high/exploratory-r4.py) |
+| sol56-high | exploratory | 5 | pass |  | 17 | 22 | - | - | - vs - | - | [exploratory-r5.py](sol56-high/exploratory-r5.py) |
 | sol61-medium | calibration | 0 | pass |  | 18 | 22 | 7 | 0 | 0.96 vs 1.10 | 1.47 | [calibration-r0.py](sol61-medium/calibration-r0.py) |
 | sol61-medium | main | 1 | pass |  | 18 | 23 | 7 | 0 | 1.15 vs 1.10 | 1.47 | [main-r1.py](sol61-medium/main-r1.py) |
 | sol61-medium | main | 2 | pass |  | 18 | 22 | 7 | 0 | 0.96 vs 1.10 | 1.47 | [main-r2.py](sol61-medium/main-r2.py) |

@@ -26,6 +26,7 @@ PAGE = os.path.join(RES, "report", "page.html")
 CHARTS = os.path.join(RES, "report", "charts")
 PAGE_DIR = os.path.join(ROOT, "docs", "page")
 QUALITY = os.path.join(RES, "quality.jsonl")
+NEW_CODEX = ("sol56-high", "astra-medium", "luna56-high", "luna56-low")  # exploratory Codex additions, see bench/run.py
 GROWTH_MARGIN = 0.3  # a fitted time exponent this far above the reference's counts as worse growth
 
 
@@ -146,7 +147,8 @@ def facts(s):
     for c in ("luna-high", "sol61-medium", "sonnet-medium", "haiku-low"):
         F[f"l7_{c.replace('-', '_')}_upp"] = u(hard[c]["usd_per_pass"], 4); F[f"l7_{c.replace('-', '_')}_med"] = f"{hard[c]['latency_s']['median']:.0f}"
     lo, hi = sorted([hard["sol61-medium"]["usd_per_pass"], hard["sonnet-medium"]["usd_per_pass"]]); F["l7_dear"] = f"${lo:.3f}–{hi:.3f}"
-    need(min(hard, key=lambda c: hard[c]["latency_s"]["median"]) == "sonnet-medium", "sonnet-medium fastest on L7")
+    L7_BASE = ("luna-high", "sol61-medium", "sonnet-medium", "haiku-low")  # the pre-registered L7 configs; the 2026-10-23 Codex additions are reported apart
+    need(min(L7_BASE, key=lambda c: hard[c]["latency_s"]["median"]) == "sonnet-medium", "sonnet-medium fastest on L7")
     for c, base in (("haiku-low", cfg["haiku-low"]), ("luna-high", ex["luna-high"])):
         k = c.replace("-", "_"); a, b = base["tokens_mean"]["reasoning_tok"], hard[c]["tokens_mean"]["reasoning_tok"]
         F[f"l7_{k}_rsn_x"] = x(b, a); F[f"l7_{k}_rsn_a"] = n(a); F[f"l7_{k}_rsn_b"] = n(b)
@@ -221,6 +223,24 @@ def facts(s):
         need(len({r["config"] for r in slow}) > 1, "the slowest problem is slow across configs, not one config's outlier")
     F["growth_margin"] = str(GROWTH_MARGIN)
     F["n_solutions"] = str(sum(1 for _, _, fs in os.walk(os.path.join(RES, "solutions")) for f in fs if f.endswith(".py")))
+    # Codex additions (exploratory, run after the report at the operator's request)
+    nr = [r for r in rows if r["config"] in NEW_CODEX]; F["new_date"] = min(r["ts"] for r in nr)[:10]
+    F["codex_new_usd"] = f"${sum(map(cost, nr)):.2f}"; F["codex_old_usd"] = f"${sp['codex_proxy_usd'] - sum(map(cost, nr)):.2f}"
+    for c in NEW_CODEX:
+        k = "x_" + c.replace("-", "_"); e, h = ex[c], hard[c]
+        F[k + "_k"] = f"{e['passes']}/{e['n']}"; F[k + "_upp"] = u(e["usd_per_pass"], 4); F[k + "_med"] = f"{e['latency_s']['median']:.1f}"
+        F[k + "_hk"] = f"{h['passes']}/{h['n']}"; F[k + "_hupp"] = u(h["usd_per_pass"], 4)
+    for c in ("luna-high", "sol61-medium"):
+        F["x_base_" + c.replace("-", "_") + "_hk"] = f"{hard[c]['passes']}/{hard[c]['n']}" if c in hard else "–"
+    need(all(ex[c]["passes"] == ex[c]["n"] for c in ("sol56-high", "astra-medium")), "sol56-high and astra-medium never failed L1-L6")
+    need(hard["luna-high"]["passes"] > hard["luna56-high"]["passes"] and ex["luna56-high"]["usd_per_pass"] > ex["luna-high"]["usd_per_pass"], "gpt-6 luna-high beats 5.6 luna-high on L7 and costs less")
+    need(hard["astra-medium"]["passes"] == hard["astra-medium"]["n"] > hard["sol56-high"]["passes"], "astra perfect on L7, sol56-high not")
+    F["x_sol56_vs_hm"] = f"{ex['sol56-high']['usd_per_pass'] / cfg['haiku-medium']['usd_per_pass']:.0f}×"
+    F["x_astra_vs_hm"] = f"{ex['astra-medium']['usd_per_pass'] / cfg['haiku-medium']['usd_per_pass']:.0f}×"
+    sm_all = cfg["sonnet-medium"]["usd_per_pass"]; perfect = [c for c in list(cfg) + list(ex) if (cfg.get(c) or ex[c])["passes"] == (cfg.get(c) or ex[c])["n"] and c in hard and hard[c]["passes"] == hard[c]["n"]]
+    need(sorted(perfect) == ["astra-medium", "sonnet-medium"] and ex["astra-medium"]["usd_per_pass"] > sm_all, "sonnet-medium is the cheapest config with no miss anywhere; astra-medium the only other")
+    F["x_astra_vs_sm"] = f"{ex['astra-medium']['usd_per_pass'] / sm_all:.0f}×"
+    F["x_l56_vs_lh"] = x(ex["luna56-high"]["usd_per_pass"], ex["luna-high"]["usd_per_pass"])
     return F
 
 
