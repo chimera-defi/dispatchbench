@@ -160,11 +160,10 @@ def test_marker_styles_distinguish_fast_generation_and_luna_variants():
     assert len({draw(c) for c in ('luna-low', 'luna-medium', 'luna-high', 'luna-low-bare', 'luna56-low')}) == 5
 
 
-def test_floor_charts_fit_mobile_viewport(summary):
+def test_floor_charts_keep_natural_size(summary):
     for body in (page.floor(summary), page.fast(summary), page.pipes()):
         assert 'class="svgscroll"' in body
-        assert '--natural-width' not in body
-        assert 'viewBox="0 0 360 ' in body
+        assert '--natural-width:760px' in body
         assert 'Scroll sideways' in body
 
 

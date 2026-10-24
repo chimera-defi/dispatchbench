@@ -55,8 +55,7 @@
 </section>
 <section id="pareto">
 <h2><span class="num"></span>📊 Cost vs accuracy</h2>
-<p class="small">Haiku is cheap and accurate; Codex’s strongest configs trade more usage for reliable passes. Compare each set separately.</p>
-<p class="small">Config names: suffix = effort; -bare = Codex system prompt removed; ⚡ = fast mode.</p>
+<p class="small">Haiku is cheap and accurate; Codex’s strongest configs trade more usage for reliable passes.</p>
 <div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="ring"></span>Pareto frontier</span><span>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet · triangles luna (up = low, right = medium, down = high) · ◆ sol · ★ astra. Lighter blue = the {{older_generation}} generation; dashed edge = bare prompt. Solid = normal speed; hollow = fast mode; a thin line joins it to the same config at normal speed. ⚡ also marks fast mode.</span><span>Frontier points and selected pipeline triangles are labelled; hover, tap or focus a point or a key row for the rest.</span></div>
 <div class="tabs"><input type="radio" name="pset" id="pset-all" checked><label for="pset-all">Main ladder</label><input type="radio" name="pset" id="pset-hard"><label for="pset-hard">Rescue set + pipelines</label>
 <div class="tab tab-all">
@@ -83,6 +82,7 @@
 </ul>
 </div>
 </div>
+{{w_sets}}
 </section>
 <section id="fail">
 <h2><span class="num"></span>🟥 Where they fail</h2>
@@ -96,41 +96,50 @@
 <section id="results">
 <h2><span class="num"></span>📋 Results</h2>
 <p class="small">sol61-high is the Codex routing pick; haiku-high is the cheapest config with no misses across the main ladder, L7 and repo tasks.</p>
+{{w_short_table}}
 <ul class="tight small">
 <li>★ = a Winner pick (sol61-high on Codex, haiku-high on Claude); budget pick = cheapest config passing {{budget_pass}} or more.</li>
 <li><b>0 misses</b>: every attempt passed; “cheapest” compares those rows within the set. “one miss” or “missed N” counts failed attempts.</li>
 <li>beaten = another row is as cheap and passes as often; pricier, passes more = a trade-off; avoid = below {{min_pass}}.</li>
-<li>Purple dot = pipeline (two models); →retry uses the same model twice.</li>
-<li>On a phone, scroll the table sideways for the verdict.</li>
-</ul>
-{{w_short_table}}
-<p class="small">haiku-medium had 0 misses on the rescue set (its {{rescue_n}} main-run attempts on those problems, not a new run).</p>
-<ul class="tight small">
-<li>Click a header to sort. ~ = Codex $ estimated from token prices. → = a second step after the first. Claude $ = the part billed to the Claude CLI; Codex calls bill Codex.</li>
+<li>Purple dot = pipeline (two models); → = a second step; →retry uses the same model twice.</li>
+<li>~ / proxy = Codex $ estimated from tokens and list prices. Claude $ = the part billed to the Claude CLI; Codex calls bill Codex.</li>
+<li>Click a header to sort within each set; on a phone, scroll sideways for the verdict.</li>
+<li>haiku-medium had 0 misses on the rescue set (its {{rescue_n}} main-run attempts on those problems, not a new run).</li>
 </ul>
 <details><summary>Full table with intervals and tail latency</summary>
 {{table:result_detail}}
-<p class="small">pass@1 is the fraction of individual attempts passing all hidden tests; p90 is the time within which {{p90_percent}} of calls finished; proxy means Codex cost estimated from tokens and list prices. ≥N% (all passed) = lower {{ci_level}} bound when nothing failed.</p>
-</details>
-<div class="chart floor"><h3>⚡ Codex fast mode: seconds and $ per pass</h3><p class="sub">Each pair: normal speed, then fast mode (⚡, Codex's priority tier at about {{fm_mult}} the price). sol61-high and astra-medium, main ladder and L7 set. All passed.</p>{{w_fast}}</div>
 <ul class="tight small">
+<li>pass@1 is the fraction of individual attempts passing all hidden tests.</li>
+<li>p90 = time within which {{p90_percent}} of calls finished.</li>
+<li>≥N% (all passed) = lower {{ci_level}} bound when nothing failed.</li>
+</ul>
+</details>
+<div class="chart floor"><h3>⚡ Codex fast mode: seconds and $ per pass</h3>{{w_fast}}</div>
+<ul class="tight small">
+<li>Default → ⚡ pairs: sol61-high and astra-medium, main ladder and L7; same model and effort, default and priority service tiers. All passed.</li>
 <li>Fast-mode $ uses {{fm_mult}} the list price (the pricing-page multiplier, not a measured bill).</li>
 </ul>
 </section>
 <section id="tokens">
 <h2><span class="num"></span>🧱 Token floor: input tokens per call</h2>
-<p class="small">Codex's command-line app sends its own instructions (the 'harness') before every task. Stripping them cuts luna-low's input from {{luna_low_in}} to {{luna_low_bare_in}} tokens per call ({{in_cut}} less); haiku-low uses {{haiku_low_in}}. Bars show mean input per call, task included.</p>
+<p class="small">Trimming luna-low's Codex system prompt cuts input from {{luna_low_in}} to {{luna_low_bare_in}} tokens per call ({{in_cut}} less); haiku-low uses {{haiku_low_in}}.</p>
 <div class="chart floor">{{w_floor}}</div>
+<ul class="tight small">
+<li>Token floor = input added by Codex’s harness before the task.</li>
+<li>Bars show mean input per call, including the task, so prompt length counts.</li>
+<li>Solid = served from cache; faded = uncached.</li>
+</ul>
 </section>
 <section id="pipes">
 <h2><span class="num"></span>🔗 Pipelines: plan, check, fix</h2>
-<p class="small">Checking examples can catch some bad answers, but haiku-medium alone beat the best luna repair pipeline on cost with no rescue-set misses.</p>
-<div class="chart floor"><h3>Rescue set: passes, $ per pass, median seconds</h3><p class="sub">{{w_rescue_subtitle}}</p>{{w_pipes}}</div>
+<p class="small">haiku-medium had no rescue-set misses; the best luna repair pipeline cost {{hm_vs_pipe_x}} as much.</p>
+<div class="chart floor"><h3>Rescue set: passes, $ per pass, median seconds</h3>{{w_pipes}}</div>
+<p class="small">{{w_rescue_subtitle}}</p>
 <ul class="tight small">
-<li>✅ Haiku fixing every luna-high-bare answer: {{r_luna_high_bare_haiku_review_all_k}}. But haiku-medium alone also had 0 misses, {{hm_vs_pipe_x}} cheaper.</li>
-<li>The example check is leaky. In a fresh luna-high-bare run, {{g_hi_bad}} of {{rescue_n}} answers were wrong. The check flagged only {{g_hi_fixed}} of them (Haiku fixed {{g_hi_fixed_words}}) and let {{g_hi_missed}} through. For comparison, the earlier run with no check had {{r_luna_high_bare_miss}} wrong out of {{rescue_n}}.</li>
-<li>✅ sol61-high and astra-medium → Haiku if samples fail: {{r_sol61_high_haiku_on_fail_k}} and {{r_astra_medium_haiku_on_fail_k}}; no repairs fired. Fast-mode pipelines equal their builders because every example check passed (derived from cached answers).</li>
-<li>❌ A Haiku plan before luna helped luna-low ({{r_luna_low_k}} → {{r_haiku_low_plan_luna_low_k}}) but not luna-high-bare ({{r_luna_high_bare_k}} either way), and both cost more than Haiku checking after.</li>
+<li>Haiku reviewing every luna-high-bare answer: {{r_luna_high_bare_haiku_review_all_k}}.</li>
+<li>Example checks leak: a fresh luna-high-bare run had {{g_hi_bad}} bad answers; checks caught {{g_hi_fixed}} (Haiku fixed {{g_hi_fixed_words}}), missed {{g_hi_missed}}. Without checks: {{r_luna_high_bare_miss}} bad answers.</li>
+<li>Haiku on failed samples: sol61-high {{r_sol61_high_haiku_on_fail_k}}, astra-medium {{r_astra_medium_haiku_on_fail_k}}; no repairs fired. Fast-mode pipelines equal their builders.</li>
+<li>Planning first helped luna-low ({{r_luna_low_k}} → {{r_haiku_low_plan_luna_low_k}}), not luna-high-bare ({{r_luna_high_bare_k}} either way). Both Haiku-plan pipelines cost more than Haiku checking after.</li>
 </ul>
 </section>
 <section class="verdict conclusion" id="conclusion">

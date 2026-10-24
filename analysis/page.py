@@ -3,7 +3,7 @@ problem × config grid, the token-floor bars and the short result table. Inline 
 from the page's CSS variables, so both themes work. Standard library only."""
 import html, json, math, os, re
 
-from analysis import fast_gate, luna_rescue
+from analysis import dataset, fast_gate, luna_rescue
 from analysis.charts import FAMILY, MIN_PASS
 from analysis.labels import TESTS, DISP, pshort, plabel, plabel_html
 
@@ -165,7 +165,7 @@ def logscale(lo, hi, a, b):
 
 def tip(c, v):
     k = " (exploratory)" if c == "luna-high" else ""
-    return (f"{DISP(c)}{k}: {v['passes']}/{v['n']} passed, ${v['usd_per_pass']:.5f} per pass ({'estimated from tokens' if v['cost_kind'] == 'proxy' else 'measured bill'}), "
+    return (f"{DISP(c)}{k}: {v['passes']}/{v['n']} passed, {dataset.usd(v['usd_per_pass'])} per pass ({'estimated from tokens' if v['cost_kind'] == 'proxy' else 'measured bill'}), "
             f"median {v['latency_s']['median']:.1f} s")
 
 
@@ -254,7 +254,7 @@ def hard_pts():
     return [{"c": c, "name": SHORT(n) if "→" in n else n, "col": "var(--frontier)" if "→" in n else FAM(c), "hollow": "-fast" in c, "w": None, "k": a[c]["passes"] / a[c]["n"],
              "usd": a[c]["usd_per_pass"], "sec": a[c]["median_s"],
              "label": c in ("luna-high-bare+retry-on-fail", "luna-low+haiku-on-fail", "luna-high-bare+haiku-on-fail"),
-             "tip": f"{n}: {a[c]['passes']}/{a[c]['n']} passed, ${a[c]['usd_per_pass']:.5f} per pass, median {a[c]['median_s']:.1f} s" + (" (" + a[c]["derived"] + ")" if "derived" in a[c] else "")} for c, n in HARD_PTS]
+             "tip": f"{n}: {a[c]['passes']}/{a[c]['n']} passed, {dataset.usd(a[c]['usd_per_pass'])} per pass, median {a[c]['median_s']:.1f} s" + (" (" + a[c]["derived"] + ")" if "derived" in a[c] else "")} for c, n in HARD_PTS]
 
 
 def hard_pass_cost():
@@ -329,21 +329,18 @@ def scroll_chart(body, width=None):
 def floor(s):
     """Compact stacked labels and bars fit a phone; darker input was cached."""
     E = every(s)
-    bars = [("haiku-low", "haiku-low"), ("sonnet-medium", "sonnet-medium"),
-            ("luna-low", "luna-low · stock prompt"), ("luna-low-bare", "luna-low-bare · stripped prompt"),
-            ("sol61-medium", "sol61-medium")]
-    W, BL, BR, H = 360, 8, 344, 28 + 52 * len(bars)
-    top = max(E[c]["tokens_mean"]["in_tok"] for c, _ in bars)
+    bars = [("haiku-low", "haiku-low, tools off"), ("sonnet-medium", "sonnet-medium, tools off"),
+            ("luna-low", "luna-low, default Codex prompt"), ("luna-low-bare", "luna-low, Codex prompt trimmed"), ("sol61-medium", "sol61-medium, stock")]
+    W, BL, BR, H = 760, 360, 680, 16 + 40 * len(bars); top = max(E[c]["tokens_mean"]["in_tok"] for c, _ in bars)
     g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Mean input tokens per call by config">']
     for i, (c, name) in enumerate(bars):
-        t = E[c]["tokens_mean"]; y = 8 + i * 52
-        w = t["in_tok"] / top * (BR - BL); cw = t["cached_tok"] / top * (BR - BL)
-        g.append(f'<text x="{BL}" y="{y + 12}" class="lbl">{esc(name)}</text>')
-        g.append(f'<text x="{BR}" y="{y + 12}" text-anchor="end" class="lbl">{t["in_tok"]:,}</text>')
-        g.append(f'<rect x="{BL}" y="{y + 22}" width="{w:.1f}" height="12" rx="3" fill="{FAM(c)}" fill-opacity=".35"/>')
-        g.append(f'<rect x="{BL}" y="{y + 22}" width="{cw:.1f}" height="12" rx="3" fill="{FAM(c)}" fill-opacity=".9"/>')
-    g.append(f'<text x="{BL}" y="{H - 8}" class="axis">solid = cached · pale = uncached</text></svg>')
-    return scroll_chart("".join(g))
+        t = E[c]["tokens_mean"]; y = 8 + i * 40; w = t["in_tok"] / top * (BR - BL); cw = t["cached_tok"] / top * (BR - BL)
+        g.append(f'<text x="{BL - 10}" y="{y + 19}" text-anchor="end" class="lbl">{esc(name)}</text>')
+        g.append(f'<rect x="{BL}" y="{y}" width="{w:.1f}" height="28" rx="3" fill="{FAM(c)}" fill-opacity=".35"/>')
+        g.append(f'<rect x="{BL}" y="{y}" width="{cw:.1f}" height="28" rx="3" fill="{FAM(c)}" fill-opacity=".9"/>')
+        g.append(f'<text x="{BL + w + 8:.1f}" y="{y + 19}" class="lbl">{t["in_tok"] / 1000:.1f}k</text>')
+    g.append("</svg>")
+    return scroll_chart("".join(g), W)
 
 
 def pipes():
@@ -453,11 +450,11 @@ def verdict(c, v, need, E):
 HARD = list(NAME.items())
 
 
-def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived=""):
+def row(set_name, name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived=""):
     r = k / n; cls = "good" if r >= 0.95 else "warn" if r >= MIN_PASS else "bad"
     attr = f' title="{esc(derived)}"' if derived else ""
-    return (f'<tr{attr}><td><span class="dot" style="background:{col}"></span>{esc(name)}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
-            f'<td>{"~" if proxy else ""}${usd:.5f}</td><td>{"–" if cusd is None else f"${cusd:.5f}"}</td><td>{sec:.1f}</td><td class="verdict-cell">{verdict}</td></tr>')
+    return (f'<tr{attr}><td>{set_name}</td><td><span class="dot" style="background:{col}"></span>{esc(name)}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
+            f'<td>{"~" if proxy else ""}{dataset.usd(usd)}</td><td>{dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell">{verdict}</td></tr>')
 
 
 CODEX = lambda c: any(x in c for x in ("luna", "sol", "astra"))
@@ -468,21 +465,22 @@ def short_table(s, need):
     set. Passed reads "95% (57/60)" so it sorts by rate. Hard-set verdicts come from the numbers: never failed, the cheapest of
     those, or how many attempts missed."""
     E = every(s); a = rescue_arms()
-    top = [row(DISP(c) + (" †" if c in s["exploratory"] else ""), FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], None if CODEX(c) else E[c]["usd_per_pass"],
+    top = [row("Ladder", DISP(c), FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], None if CODEX(c) else E[c]["usd_per_pass"],
                E[c]["latency_s"]["median"], verdict(c, E[c], need, E),
                E[c]["cost_kind"] == "proxy") for c in ORDER]
     clean = [c for c, _ in HARD if a[c]["passes"] == a[c]["n"]]; need(clean, "some rescue-set row never failed")
     best = min(clean, key=lambda c: a[c]["usd_per_pass"])
     need(best == "haiku-medium", "haiku-medium is the cheapest rescue-set row with no miss")
     hv = lambda c: "0 misses, cheapest" if c == best else "0 misses" if c in clean else f"missed {a[c]['n'] - a[c]['passes']}"
-    hard = [row(name, "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], None if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
+    hard = [row("Rescue", name, "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], None if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
                 a[c]["median_s"], hv(c), CODEX(c), a[c].get("derived", "")) for c, name in HARD]
-    grp = lambda t: f'<tr class="grp"><th colspan="6">{t}</th></tr>'
-    return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>total $ per pass</th>'
+    problems = sorted(s["problems"]); rungs = [v["rung"] for v in s["problems"].values()]
+    return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>set</th><th>config</th><th>passed</th><th>total $ per pass</th>'
             '<th>Claude $ per pass</th><th>median s</th><th>verdict</th></tr></thead>'
-            f'<tbody>{grp(f"Main ladder: {len(s['problems'])} problems, p01–p12 (L1–L6)")}{"".join(top)}</tbody>'
-            f'<tbody>{grp(f"Rescue set: {a[HARD[0][0]]["n"]} attempts on {len(luna_rescue.PIDS)} problems")}{"".join(hard)}</tbody></table></div>'
-            f'<p class="small">Rescue set = the {len(luna_rescue.PIDS)} ladder problems luna missed most. {", ".join(plabel(q) for q in luna_rescue.PIDS)}.</p>')
+            f'<tbody>{"".join(top)}</tbody><tbody>{"".join(hard)}</tbody></table></div>'
+            '<ul class="tight small">'
+            f'<li>Ladder = {len(problems)} problems, {problems[0][:3]}–{problems[-1][:3]} (L{min(rungs)}–L{max(rungs)}).</li>'
+            f'<li>Rescue = {a[HARD[0][0]]["n"]} attempts on the {len(luna_rescue.PIDS)} ladder problems luna missed most: {", ".join(plabel(q) for q in luna_rescue.PIDS)}.</li></ul>')
 
 
 
@@ -570,17 +568,22 @@ def method(s):
 
 
 def sets_box(s):
-    """The key to the problem sets and rungs, shown before the first chart that uses them."""
+    """Collapsed reading guide below the cost/accuracy charts and their notes."""
+    from analysis.summarize import RES
     main, hard, per, l7 = set_definitions(s)
+    rungs = sorted({s["problems"][p]["rung"] for p in main})
+    fast_multiplier = json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]
     lab = lambda ps: ", ".join(f'<span class="pl" title="{esc(TESTS[p])}">{esc(plabel(p))}</span>' for p in ps)
     return ('<details class="sets"><summary>How to read the problems, rungs and sets</summary><ul class="tight small">'
-            '<li>A problem reads <span class="pl" title="spreadsheet evaluator with references, ranges, division and cycle errors">p12 sheet (L6)</span>: its number, its short name, its rung. Hover for a one-line description.</li>'
-            f'<li><b>Main ladder</b>: {len(main)} problems, p01–p12, rungs L1–L6. {per} problems per rung, rising difficulty (L1 easiest). Every config ran it.</li>'
-            f'<li><b>L7 set</b>: {len(hard)} problems, rung L7, scored separately; see How it was run.</li>'
-            f'<li><b>Rescue set</b>: {len(luna_rescue.PIDS)} main-ladder problems chosen after the main ladder where luna, at low or medium effort, stock or bare, missed most ({lab(luna_rescue.PIDS)}). The pipeline and repair charts use it. It is a subset of the main ladder, not the L7 set.</li>'
-            '<li>Easy, Medium and Hard badges are my guess at the closest LeetCode difficulty. The rungs are this bench\'s own order, so they need not agree.</li>'
-            '<li>Config names: haiku, sonnet = Claude; luna, sol, astra = Codex; suffix = effort; -bare = Codex CLI system prompt stripped; ⚡ fast marker = fast mode.</li>'
-            '<li>⚡ after a config = Codex fast mode (priority tier): same model and effort, about twice the price, joined to its default-tier twin by a thin line (visible in the speed chart; on the pass-rate chart both twins sit on the 100% line).</li>'
+            '<li>Compare each set separately.</li>'
+            f'<li>Problem labels show number, short name and rung: {lab([main[-1]])}. Hover for a one-line description.</li>'
+            f'<li><b>Main ladder</b>: {len(main)} problems, {main[0].split("_")[0]}–{main[-1].split("_")[0]}, rungs L{rungs[0]}–L{rungs[-1]} ({per} per rung, easiest first). Every config ran it.</li>'
+            f'<li><b>L7 set</b>: {len(hard)} extra-hard problems ({lab(hard)}), scored separately. Added after every strong config passed L{rungs[-1]} to seek a breaking point, with more than the usual {per} problems per rung.</li>'
+            f'<li>Later-run configs: {l7}.</li>'
+            f'<li><b>Rescue set</b>: {len(luna_rescue.PIDS)} main-ladder problems ({lab(luna_rescue.PIDS)}), selected afterwards for luna\'s most misses at low/medium effort, stock/bare. Used by pipeline and repair charts; distinct from the extra-hard set.</li>'
+            '<li>Easy/Medium/Hard badges estimate LeetCode difficulty; rungs use this bench\'s own order and may differ.</li>'
+            '<li>Config names: haiku/sonnet = Claude; luna/sol/astra = Codex; suffix = effort; -bare = stripped Codex CLI system prompt.</li>'
+            f'<li>⚡ = Codex fast mode (priority tier): same model and effort at {fast_multiplier:g}× the price. A thin line joins its default-tier twin in the speed chart; both overlap at full marks in the pass-rate chart.</li>'
             '</ul></details>')
 
 
@@ -594,7 +597,7 @@ def rescue_subtitle():
 
 def speed_frontier_text(s, names):
     E = every(s)
-    return ", ".join(f"{DISP(c)} ({E[c]['latency_s']['median']:.1f} s, ${E[c]['usd_per_pass']:.5f} per pass"
+    return ", ".join(f"{DISP(c)} ({E[c]['latency_s']['median']:.1f} s, {dataset.usd(E[c]['usd_per_pass'])} per pass"
                      + (f", {100 * E[c]['pass_at_1']:.1f}% passed" if E[c]['passes'] < E[c]['n'] else "") + ")" for c in names)
 
 

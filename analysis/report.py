@@ -416,8 +416,8 @@ def tables_md(s):
                            [[DISP(c) + (" †" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], nprob),
                              f"{v['latency_s']['median']:.1f}", f"{v['latency_s']['p90']:.1f}", f"{money(v['usd_per_pass'], 5)}", f"{money(v['usd_total'], 3)}", v["cost_kind"]]
                             for c, v in {**cfg, **ex}.items()])
-    T["result_detail"] = md_table(["config", "95% CI", "p90 s", f"total $ ({cfg['haiku-low']['n']} calls)", "$ kind"],
-                                  [[DISP(c) + (" †" if c in ex else ""), ci_text(v["passes"], v["n"], v["ci95"], nprob),
+    T["result_detail"] = md_table(["set", "config", "95% CI", "p90 s", f"total $ ({cfg['haiku-low']['n']} calls)", "$ kind"],
+                                  [["Ladder", DISP(c) + (" (exploratory)" if c in ex else ""), ci_text(v["passes"], v["n"], v["ci95"], nprob),
                                     f"{v['latency_s']['p90']:.1f}", money(v["usd_total"], 3), v["cost_kind"]]
                                    for c, v in {**cfg, **ex}.items()])
     T["tokens"] = md_table(["config", "mean input", "of which cached", "mean output", "of which reasoning", "$ per 1k tokens"],
