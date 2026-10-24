@@ -26,10 +26,24 @@ def esc(t):
     return html.escape(str(t))
 
 
-def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=84, R=16, T=14, B=322, extra=""):
-    """pts: dicts with c, x, y, w (whisker (axis, lo, hi) or None), tip, hollow. fr: frontier points in step order,
-    each step already a list of (x, y) pixel vertices."""
-    g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="{esc(ylab)} against {esc(xlab)}, Pareto frontier in purple">']
+# Marker shape by model (colour stays the vendor): read the chart without a label on every point.
+SHAPE = lambda c: "circle" if c.startswith("haiku") else "square" if c.startswith("sonnet") else "triangle" if c.startswith("luna") else "star" if c.startswith("astra") else "diamond"
+
+
+def marker(kind, x, y, fill, stroke, dash=False, k=1.0):
+    a = f' fill="{fill}" stroke="{stroke}" stroke-width="2.5"' + (' stroke-dasharray="3 2"' if dash else "")
+    if kind == "circle": return f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{6.5 * k:.1f}"{a}/>'
+    if kind == "square": return f'<rect x="{x - 6 * k:.1f}" y="{y - 6 * k:.1f}" width="{12 * k:.1f}" height="{12 * k:.1f}"{a}/>'
+    if kind == "triangle": v = [(0, -8.5), (7.5, 5.5), (-7.5, 5.5)]
+    elif kind == "diamond": v = [(0, -8.5), (8.5, 0), (0, 8.5), (-8.5, 0)]
+    else: v = [(r * math.sin(math.radians(36 * i)), -r * math.cos(math.radians(36 * i))) for i, r in enumerate([9.5, 4] * 5)]
+    return f'<polygon points="{" ".join(f"{x + dx * k:.1f},{y + dy * k:.1f}" for dx, dy in v)}"{a}/>'
+
+
+def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=84, R=16, T=14, B=322, extra="", stat=None):
+    """pts: dicts with c, x, y, w (whisker (axis, lo, hi) or None), tip, hollow. fr: the frontier path. Only frontier points
+    get a text label; every point is in the key beside the chart, and hovering (or tapping) a point or a key row shows its tip."""
+    g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="{esc(ylab)} against {esc(xlab)}, Pareto frontier in purple; the key lists every point">']
     for v, t in xt:
         g.append(f'<line x1="{X(v):.1f}" x2="{X(v):.1f}" y1="{T}" y2="{B}" stroke="var(--line)"/><text x="{X(v):.1f}" y="{B + 18}" text-anchor="middle" class="axis">{t}</text>')
     for v, t in yt:
@@ -38,22 +52,34 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
     g.append(f'<text x="16" y="{(T + B) / 2}" text-anchor="middle" class="axis" transform="rotate(-90 16 {(T + B) / 2})">{esc(ylab)}</text>')
     g.append(f'<text x="{L + 10}" y="{T + 18 if corner.startswith("↖") else B - 10}" class="better">{corner}</text>')
     g.append(f'<path d="{fr}" fill="none" stroke="var(--frontier)" stroke-width="4" stroke-dasharray="9 6" stroke-linejoin="round"/>' + extra)
-    for p in pts:
+    for p in sorted(pts, key=lambda p: p["on"]):  # frontier points drawn last, on top
         px, py, col = X(p["x"]), Y(p["y"]), p.get("col") or FAM(p["c"])
+        g.append(f'<g class="pt" data-c="{esc(p["c"])}" data-tip="{esc(p["tip"])}">')
         if p["w"]:
             ax, lo, hi = p["w"]
             if ax == "x": g.append(f'<line x1="{X(lo):.1f}" x2="{X(hi):.1f}" y1="{py:.1f}" y2="{py:.1f}" stroke="{col}" stroke-width="2.5" stroke-opacity=".4"/>')
             else: g.append(f'<line x1="{px:.1f}" x2="{px:.1f}" y1="{Y(lo):.1f}" y2="{Y(hi):.1f}" stroke="{col}" stroke-width="2" stroke-opacity=".3"/>')
-        if p["on"]: g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="12" fill="none" stroke="var(--frontier)" stroke-width="3"/>')
-        fill = "var(--panel)" if p["hollow"] else col
-        g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="6.5" fill="{fill}" stroke="{col}" stroke-width="2.5"{' stroke-dasharray="3 2"' if p.get("dash") else ""}><title>{esc(p["tip"])}</title></circle>')
+        if p["on"]: g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="13" fill="none" stroke="var(--frontier)" stroke-width="3"/>')
+        g.append(marker(SHAPE(p["c"]), px, py, "var(--panel)" if p["hollow"] else col, col, p.get("dash")))
+        g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="14" fill="transparent"/></g>')  # hover target
     cx, cy = L + 10, T + 18 if corner.startswith("↖") else B - 10
     walls = path_boxes(fr) + [(cx, cy - LH + 3, cx + CW * len(corner), cy + 3)]
-    for p, (x, y, a) in place(pts, X, Y, labels, (L, W - 2, T - 6, B - 2), walls):
+    for p, (x, y, a) in place([p for p in pts if p["on"]], X, Y, labels, (L, W - 2, T - 6, B - 2), walls, also=pts):
         if p["lead"]: g.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="var(--muted)" stroke-width="1"/>' % p["lead"])
-        g.append(f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{a}" class="lbl{" on" if p["on"] else ""}">{esc(p.get("name", p["c"]))}</text>')
+        g.append(f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{a}" class="lbl on">{esc(p.get("name", p["c"]))}</text>')
     g.append("</svg>")
-    return "".join(g)
+    return f'<div class="cwrap"><div class="cplot">{"".join(g)}</div>{key(pts, stat)}<div class="ctip" hidden></div></div>'
+
+
+def key(pts, stat):
+    """The chart's key: every point, cheapest first, with its shape, name and the two plotted values; frontier rows in purple."""
+    rows = []
+    for p in sorted(pts, key=lambda p: (p["x"] if stat == "speed" else 0, p.get("usd", p["x"] if stat != "speed" else p["y"]))):
+        col = p.get("col") or FAM(p["c"]); nm = p.get("lname") or p.get("name", p["c"])
+        v = (f'{p["x"]:.0f} s · ${p["y"]:.4f}' if stat == "speed" else f'{100 * p["y"]:.0f}% · ${p["x"]:.4f}') if stat else ""
+        ico = f'<svg viewBox="-10 -10 20 20" aria-hidden="true">{marker(SHAPE(p["c"]), 0, 0, "var(--panel)" if p["hollow"] else col, col, p.get("dash"), .8)}</svg>'
+        rows.append(f'<li tabindex="0" data-c="{esc(p["c"])}" data-tip="{esc(p["tip"])}"{" class=on" if p["on"] else ""}>{ico}<span class="n">{esc(nm)}</span><span class="v">{v}</span></li>')
+    return f'<ul class="ckey">{"".join(rows)}</ul>'
 
 
 CW, LH = 9, 18  # label glyph width and height in chart units (13–14px monospace, 600 weight, with its outline)
@@ -74,16 +100,16 @@ def path_boxes(d):
     return out
 
 
-def place(pts, X, Y, labels, box, walls=()):
+def place(pts, X, Y, labels, box, walls=(), also=()):
     """Greedy label placement: frontier points first, each takes the first spot (its hand-set offset, then SPOTS) whose text
     box stays inside the plot and clears every dot and every label already placed; if none is clear, the least-overlapping."""
     x0, x1, y0, y1 = box
-    dots = [(X(p["x"]) - 8, Y(p["y"]) - 8, X(p["x"]) + 8, Y(p["y"]) + 8) for p in pts]
+    dots = [(X(p["x"]) - 8, Y(p["y"]) - 8, X(p["x"]) + 8, Y(p["y"]) + 8) for p in list(also) or pts]
     taken, out = list(walls), {}
     def rect(px, py, dx, dy, a, n):
         w = CW * len(n); l = px + dx - (w if a == "end" else w / 2 if a == "middle" else 0)
         return (l, py + dy - LH + 4, l + w, py + dy + 4)
-    centres = [(X(p["x"]), Y(p["y"])) for p in pts]
+    centres = [(X(p["x"]), Y(p["y"])) for p in list(also) or pts]
     def gap(r, x, y): return math.hypot(max(r[0] - x, 0, x - r[2]), max(r[1] - y, 0, y - r[3]))
     def hit(r, q): return max(0, min(r[2], q[2]) - max(r[0], q[0])) * max(0, min(r[3], q[3]) - max(r[1], q[1]))
     # A pipeline whose gate never fired sits on its single model's dot: label the dot once (the chart note says so).
@@ -136,7 +162,7 @@ def pilot(s, X, Y, y):
     pf = s["pilot_fast"]; pil = []
     for k, v in pf.items():
         c, tier = k.split("/"); nm = f"{c} {'⚡' if tier == 'fast' else 'pilot'}"; short = "pilot" if k == "luna-low/default" else nm  # its ⚡ twin, joined by the line, names it
-        pil.append({"c": k, "name": short, "x": v["median_s"] if y is None else v["usd_per_call"], "y": v["usd_per_call"] if y is None else y(v),
+        pil.append({"c": k, "name": short, "lname": nm, "x": v["median_s"] if y is None else v["usd_per_call"], "y": v["usd_per_call"] if y is None else y(v),
                     "hollow": True, "dash": True, "on": False, "w": None, "col": "var(--codex)",
                     "tip": f"{nm}: pilot, {v['passes']}/{v['n']} passed, ${v['usd_per_call']:.5f} per call, median {v['median_s']:.1f} s"})
     xy = {q["c"]: (X(q["x"]), Y(q["y"])) for q in pil}
@@ -161,7 +187,7 @@ def pass_cost(s):
            "haiku-medium": (14, 22, "start"), "sonnet-medium": (-14, -10, "end"), "sol61-medium": (0, 26, "middle"),
            "haiku-high": (14, 20, "start"), "luna56-high": (14, 5, "start"),
            "luna-low/default": (0, 26, "middle"), "luna-low/fast": (0, -14, "middle"), "sol61-low/default": (0, -14, "middle"), "sol61-low/fast": (0, 26, "middle")}
-    return scatter(pts + pil, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, extra=ex), [p["c"] for p in fr]
+    return scatter(pts + pil, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, extra=ex, stat="pass"), [p["c"] for p in fr]
 
 
 def speed_cost(s):
@@ -182,7 +208,7 @@ def speed_cost(s):
            "luna-low": (0, -14, "middle"), "luna-medium": (14, 10, "start"), "haiku-low": (0, -20, "middle"), "luna-high": (14, -10, "start"),
            "haiku-medium": (14, 5, "start"), "sonnet-medium": (14, 4, "start"), "sol61-medium": (-14, -12, "end"),
            "luna56-high": (-14, 5, "end"), "luna56-low": (0, 26, "middle"), "haiku-high": (0, -14, "middle")}
-    g = scatter(pts + pil, d, X, Y, xt, yt, "median seconds per call (bar: middle half of calls)", "$ per pass (log)", "", lab, H=520, B=B, extra=ex)
+    g = scatter(pts + pil, d, X, Y, xt, yt, "median seconds per call (bar: middle half of calls)", "$ per pass (log)", "", lab, H=520, B=B, extra=ex, stat="speed")
     return g.replace("</svg>", f'<text x="{W - R - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>'), [p["c"] for p in fr]
 
 
@@ -222,7 +248,7 @@ def hard_pass_cost():
            "sonnet-medium": (0, -14, "middle"), "sol61-medium": (0, 24, "middle"), "luna-high-bare+retry-on-fail": (-14, 5, "end"),
            "luna-high-bare+haiku-on-fail": (0, 24, "middle"), "luna-low+haiku-on-fail": (-14, 5, "end"),
            "luna-low+haiku-review-all": (14, 5, "start"), "luna-high-bare+haiku-review-all": (0, 22, "middle")}
-    g = scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, H=440, B=B)
+    g = scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, H=440, B=B, stat="pass")
     note = f'<text x="{W - R}" y="{B - 10}" text-anchor="end" class="axis">below the chart: {esc(", ".join(f"{p['name']} {100 * p['k']:.0f}%" for p in off))}</text>' if off else ""
     return g.replace("</svg>", note + "</svg>"), [p["c"] for p in fr]
 
@@ -242,7 +268,7 @@ def hard_speed_cost():
            "sonnet-medium": (14, 5, "start"), "sol61-medium": (-14, 4, "end"), "luna-high-bare+retry-on-fail": (-20, 28, "middle"),
            "luna-high-bare+haiku-on-fail": (12, 6, "start"), "luna-low+haiku-on-fail": (0, -16, "middle"),
            "luna-low+haiku-review-all": (0, -14, "middle"), "luna-high-bare+haiku-review-all": (-14, 5, "end")}
-    g = scatter(pts, d, X, Y, xt, yt, "median seconds per call", "$ per pass (log)", "", lab, H=520, B=B)  # corner label goes top right: the bottom left is crowded
+    g = scatter(pts, d, X, Y, xt, yt, "median seconds per call", "$ per pass (log)", "", lab, H=520, B=B, stat="speed")  # corner label goes top right: the bottom left is crowded
     return g.replace("</svg>", f'<text x="{W - R - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>'), [p["c"] for p in fr]
 
 

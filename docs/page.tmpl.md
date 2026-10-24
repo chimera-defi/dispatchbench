@@ -41,7 +41,7 @@
 </section>
 <section id="pareto">
 <h2><span class="num"></span>📊 Cost vs accuracy</h2>
-<div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="dot hollow" style="color:var(--codex)"></span>exploratory</span><span><span class="ring"></span>Pareto frontier</span></div>
+<div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="dot hollow" style="color:var(--codex)"></span>exploratory</span><span><span class="ring"></span>Pareto frontier</span><span>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet · ▲ luna · ◆ sol · ★ astra.</span><span>Only frontier points are labelled; hover, tap or focus a point or a key row for the rest.</span></div>
 <div class="tabs"><input type="radio" name="pset" id="pset-all" checked><label for="pset-all">All problems</label><input type="radio" name="pset" id="pset-hard"><label for="pset-hard">Hard set + pipelines</label>
 <div class="tab tab-all">
 <div class="chart">{{w_pass_cost}}</div>
