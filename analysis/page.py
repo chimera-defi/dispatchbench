@@ -3,7 +3,7 @@ problem × config grid, the token-floor bars and the short result table. Inline 
 from the page's CSS variables, so both themes work. Standard library only."""
 import html, json, math, os, re
 
-from analysis import configs, dataset
+from analysis import charts, configs, dataset
 from html.parser import HTMLParser
 from analysis.charts import FAMILY, MIN_PASS
 from analysis.labels import TESTS, DISP, pshort, plabel, plabel_html
@@ -51,7 +51,7 @@ def config_marker(c, x, y, col=None, k=1.0):
 def point_category(c):
     if "+" in c: return "pipelines"
     if c.endswith("-fast"): return "fast"
-    return "exploratory" if c == "luna-high" or c not in ORDER else "main"
+    return "main" if configs.REGISTRY.get(("main", c), {}).get("category") == "main ladder" else "exploratory"
 
 
 def marker(kind, x, y, fill, stroke, dash=False, k=1.0):
@@ -75,7 +75,7 @@ def separate_points(pts, X, Y):
     groups = []
     for p in pts:
         xy = X(p["x"]), Y(p["y"])
-        group = next((g for g in groups if math.dist(xy, g[0]) < 4), None)
+        group = next((g for g in groups if math.dist(xy, g[0]) < 14), None)
         if group is None: groups.append((xy, [p]))
         else: group[1].append(p)
     for (x, y), group in groups:
@@ -202,7 +202,8 @@ def place(pts, X, Y, labels, box, walls=(), also=(), char_width=CW, label_height
     nm = {id(p): p.get("name", p["c"]) for p in pts}; skip = set()
     def best(p, others):
         px, py = plot_xy(p, X, Y); n = nm[id(p)]; top = None
-        for s in ([labels[p["c"]]] if p["c"] in labels else []) + SPOTS + FAR:
+        spots = [p["pin"]] if "pin" in p else ([labels[p["c"]]] if p["c"] in labels else []) + SPOTS + FAR
+        for s in spots:
             r = rect(px, py, *s, n); led = s in FAR or p.get("label", False)
             out_of = (max(0, x0 - r[0]) + max(0, r[2] - x1) + max(0, y0 - r[1]) + max(0, r[3] - y1)) * 1000
             # text on text or on a dot is bad; an unled label closer to another dot than its own misnames it
@@ -233,7 +234,7 @@ def logscale(lo, hi, a, b):
 
 
 def tip(c, v):
-    k = " (exploratory)" if c == "luna-high" else ""
+    k = " (exploratory)" if point_category(c) == "exploratory" else ""
     return (f"{DISP(c)}{k} [main ladder]: {v['passes']}/{v['n']} passed, {dataset.usd(v['usd_per_pass'])} per pass ({'estimated from tokens' if v['cost_kind'] == 'proxy' else 'measured bill'}), "
             f"median {v['latency_s']['median']:.1f} s")
 
@@ -245,7 +246,7 @@ def fast_pairs(pts, X, Y):
     """A thin line from each default-tier config to its fast-mode twin (same model and effort, priority tier), so the cost of speed reads off the chart."""
     by = {p["c"]: p for p in pts}
     return "".join(f'<line x1="{X(by[a]["x"]):.1f}" y1="{Y(by[a]["y"]):.1f}" x2="{X(by[b]["x"]):.1f}" y2="{Y(by[b]["y"]):.1f}" '
-                   f'data-cat="fast" data-from-cat="main" stroke="var(--codex)" stroke-width="1.5" stroke-opacity=".6"/>' for a, b in FAST_PAIRS if a in by and b in by)
+                   f'data-cat="fast" data-from-cat="{point_category(a)}" stroke="var(--codex)" stroke-width="1.5" stroke-opacity=".6"/>' for a, b in FAST_PAIRS if a in by and b in by)
 
 
 def frontier_caption(s):
@@ -258,8 +259,8 @@ def ladder_toggle(render, s):
     free, _ = render(s, free=True)
     rescue_normal, _ = render(s, free=False, problem_set="rescue")
     rescue_free, _ = render(s, free=True, problem_set="rescue")
-    note = ('<p class="repair-note">Savings per pass appear in the key and tooltip. '
-            'The log plot shows paid configs; free configs are ranked below it.</p>')
+    note = ('<p class="repair-note">Codex counted as free: its points move to a ranked list under the plot. '
+            'Each saving per pass is in the key and tooltip.</p>')
     main_categories = {point_category(c) for c in ORDER}
     filters = '<div class="category-filter" role="group" aria-label="Point categories">' + "".join(
         ('<label>' if cat in main_categories else f'<label class="disabled" title="only on the {configs.set_label("rescue set")}">')
@@ -269,12 +270,9 @@ def ladder_toggle(render, s):
     sets = (f'<div class="set-filter" role="group" aria-label="Problem set">'
             f'<label><input type="radio" name="{set_name}" value="main" checked> {configs.set_label("main ladder", capital=True)}</label>'
             f'<label><input type="radio" name="{set_name}" value="rescue"> {configs.set_label("rescue set", capital=True)} + pipelines</label></div>')
-    rescue_n = next(iter(rescue_arms(s).values()))["n"]
     return ('<div class="cwrap"><label class="cost-toggle"><input type="checkbox"> Codex is free (subscription quota)</label>'
             + sets + filters + note + '<div class="cset s-main">' + normal + free + (frontier_caption(s) if render is pass_cost else "") + '</div>'
-            + f'<div class="cset s-rescue"><p class="set-note">{configs.set_label("rescue set", capital=True)}: '
-            + f'{rescue_n} attempts, shown apart from the main ladder.</p>'
-            + f'<p class="set-note">{esc(rescue_subtitle(s))}</p>' + rescue_normal + rescue_free + '</div><div class="ctip" hidden></div></div>'), fr
+            + f'<div class="cset s-rescue"><p class="set-note">{esc(rescue_subtitle(s))}</p>' + rescue_normal + rescue_free + '</div><div class="ctip" hidden></div></div>'), fr
 
 
 def quota_tip(normal, free, saving):
@@ -285,8 +283,8 @@ def quota_tip(normal, free, saving):
 def ladder_repairs(free, stat, arms=None):
     """All rescue configs, including baselines measured on this same subset."""
     pts = []
-    for c, v in (arms if arms is not None else rescue_arms()).items():
-        name = DISP(c)
+    for c, name in NAME.items():
+        v = (arms if arms is not None else rescue_arms())[c]
         pipeline = "+" in c
         builder = c.split("+", 1)[-1] if c.startswith("haiku-low-plan+") else c.split("+", 1)[0]
         usd = v["claude_usd_per_pass"] if free else v["usd_per_pass"]
@@ -343,6 +341,10 @@ def pass_cost(s, free=None, problem_set="main"):
     lab = {"luna-low": (12, 16, "start"), "luna-medium": (12, -8, "start"), "luna-high": (12, 14, "start"), "haiku-low": (-14, 16, "end"),
            "haiku-medium": (14, 22, "start"), "sonnet-medium": (-14, -10, "end"), "sol61-medium": (0, 26, "middle"),
            "haiku-high": (14, 20, "start"), "luna56-high": (14, 5, "start")}
+    if problem_set == "main":
+        for p in pts:
+            if p["c"] == "haiku-low": p.update(pin=(-18, 36, "end"), label=True)
+            if p["c"] == "luna56-high": p["label"] = True
     return scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab,
                    extra=fast_pairs(pts, X, Y), stat="pass", variant="free" if free else "normal", free_pts=free_pts), [p["c"] for p in fr]
 
@@ -371,6 +373,9 @@ def speed_cost(s, free=None, problem_set="main"):
     lab = {"luna-low": (0, -14, "middle"), "luna-medium": (14, 10, "start"), "haiku-low": (0, -20, "middle"), "luna-high": (14, -10, "start"),
            "haiku-medium": (14, 5, "start"), "sonnet-medium": (14, 4, "start"), "sol61-medium": (-14, -12, "end"),
            "luna56-high": (-14, 5, "end"), "luna56-low": (0, 26, "middle"), "haiku-high": (0, -14, "middle")}
+    if problem_set == "main":
+        for p in pts:
+            if p["c"].startswith("luna") and p["y"] < every(s)["haiku-low"]["usd_per_pass"]: p["label"] = True
     g = scatter(pts, d, X, Y, xt, yt, "median seconds per call (bar: middle half of calls)", "$ per pass (log)", "", lab,
                 H=520, B=B, extra=fast_pairs(pts, X, Y), stat="speed", variant="free" if free else "normal", free_pts=free_pts)
     return g.replace("</svg>", f'<text x="{W - R - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>', 1), [p["c"] for p in fr]
@@ -415,7 +420,7 @@ def grid(s):
         if p == hard[0]: out.append(f'<div class="set-separator" style="grid-column:1 / -1">L7 set</div>')
         rung = s["problems"][p]["rung"] if p in main else 7
         out.append(f'<div class="m">{plabel_html(p, rung)}'
-                   f'<span class="lc {LC[p].lower()}" title="LeetCode level, my estimate">{LC[p][0]}</span></div>')
+                   f'<span class="lc {LC[p].lower()}" title="{LC[p]}: my LeetCode difficulty guess">{LC[p][0]}</span></div>')
         for c in ORDER:
             k, n = cell(p, c)
             if k is None:
@@ -432,64 +437,38 @@ def scroll_chart(body, width):
 
 
 def floor(s):
-    """Compact stacked labels and bars fit a phone; darker input was cached."""
+    """Input bars fit a phone; the darker share was cached."""
     E = every(s)
-    bars = [("haiku-low", "haiku-low"), ("sonnet-medium", "sonnet-medium"),
-            ("luna-low", "luna-low, stock prompt"), ("sol61-medium", "sol61-medium"), ("luna-low-bare", "luna-low, trimmed prompt")]
-    bars.sort(key=lambda row: configs.low_context(row[0]))
-    W, BL, BR, H = 760, 200, 600, 40 + 40 * len(bars); top = max(E[c]["tokens_mean"]["in_tok"] for c, _ in bars)
-    g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Mean input tokens per call by config">']
-    offset = 0
-    for i, (c, name) in enumerate(bars):
-        if configs.low_context(c) and not offset:
-            g.append(f'<text x="12" y="{20 + i * 40}" class="lbl">Low context</text>'); offset = 24
-        t = E[c]["tokens_mean"]; y = 8 + i * 40 + offset; w = t["in_tok"] / top * (BR - BL); cw = t["cached_tok"] / top * (BR - BL)
-        g.append(f'<text x="{BL - 10}" y="{y + 19}" text-anchor="end" class="lbl">{esc(name)}</text>')
-        g.append(f'<rect x="{BL}" y="{y}" width="{w:.1f}" height="28" rx="3" fill="{FAM(c)}" fill-opacity=".35"/>')
-        g.append(f'<rect x="{BL}" y="{y}" width="{cw:.1f}" height="28" rx="3" fill="{FAM(c)}" fill-opacity=".9"/>')
-        g.append(f'<text x="{BL + w + 8:.1f}" y="{y + 19}" class="lbl">{t["in_tok"]:,.0f}</text>')
-    g.append("</svg>")
-    return scroll_chart("".join(g), W)
+    names = [("haiku-low", "haiku-low"), ("sonnet-medium", "sonnet-medium"),
+             ("luna-low", "luna-low, stock prompt"), ("sol61-medium", "sol61-medium"),
+             ("luna-low-bare", "luna-low, trimmed prompt")]
+    names.sort(key=lambda row: configs.low_context(row[0]))
+    rows = [(name, E[c]["tokens_mean"]["in_tok"], FAM(c), False) for c, name in names]
+    low = next((i for i, (c, _) in enumerate(names) if configs.low_context(c)), None)
+    body = charts.bars("Mean input tokens per call", rows, lambda v: f"{v:,.0f}",
+                       "Solid = cached input. Faded = uncached input.", low_start=low,
+                       cached=[E[c]["tokens_mean"]["cached_tok"] / E[c]["tokens_mean"]["in_tok"] for c, _ in names])
+    return '<div class="compact-bars">' + body + '</div>'
 
 
 def pipes(arms=None):
-    """Rescue set: the single models, then every pipeline (plan first, check then fix, fix everything)."""
     a = arms if arms is not None else rescue_arms()
-    low = lambda c: configs.low_context(c, "rescue")
-    bars = sorted([(c, SHORT(n), "var(--frontier)" if "→" in n else FAM(c)) for c, n in HARD_PTS], key=lambda row: low(row[0]))
-    W, BL, BR, H = 760, 200, 580, 40 + 40 * len(bars)
-    g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Passes on the {configs.set_label("rescue set")}: single models and Haiku pipelines">']
-    offset = 0
-    for i, (c, name, col) in enumerate(bars):
-        if low(c) and not offset:
-            g.append(f'<text x="12" y="{20 + i * 40}" class="lbl">Low context</text>'); offset = 24
-        v = a[c]; y = 8 + i * 40 + offset; w = v["pass_rate"] * (BR - BL)
-        g.append(f'<g><title>{esc(NAME[c])}{" (" + v["derived_note"] + ")" if "derived_note" in v else ""}</title>')
-        g.append(f'<text x="{BL - 10}" y="{y + 19}" text-anchor="end" class="lbl">{esc(name)}</text>')
-        g.append(f'<rect x="{BL}" y="{y}" width="{BR - BL}" height="28" rx="3" fill="var(--line)"/>')
-        g.append(f'<rect x="{BL}" y="{y}" width="{w:.1f}" height="28" rx="3" fill="{col}"/>')
-        g.append(f'<text x="{BR + 8}" y="{y + 19}" class="lbl">{v["passes"]}/{v["n"]} · {dataset.usd(v["usd_per_pass"])} · {v["median_s"]:.0f}s</text>')
-        g.append("</g>")
-    g.append("</svg>")
-    return scroll_chart("".join(g), W)
+    entries = sorted(NAME.items(), key=lambda row: configs.low_context(row[0], "rescue"))
+    rows = [(name, a[c]["pass_rate"], "var(--frontier)" if "+" in c else FAM(c), "-fast" in c)
+            for c, name in entries]
+    values = [f"{a[c]['passes']}/{a[c]['n']} · {dataset.usd(a[c]['usd_per_pass'])} · {a[c]['median_s']:.0f}s" for c, _ in entries]
+    low = next((i for i, (c, _) in enumerate(entries) if configs.low_context(c, "rescue")), None)
+    return '<div class="compact-bars">' + charts.bars(
+        configs.set_label("rescue set", capital=True), rows, str, "", low_start=low, values=values) + '</div>'
 
 
 def fast(s):
-    """Default → fast twins on the main ladder and L7, never the pilot."""
-    rows = [(label, c, group[c]) for label, group in ((configs.set_label("main ladder"), every(s)), (configs.set_label("L7 set"), s["hard"]))
-            for pair in FAST_PAIRS for c in pair]
-    mx = max(v["latency_s"]["median"] for _, _, v in rows)
-    W, BL, BR, H = 760, 200, 600, 16 + 40 * len(rows)
-    g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Default to fast mode pairs on the main ladder and L7 set">']
-    for i, (label, c, v) in enumerate(rows):
-        y = 8 + i * 40; w = v["latency_s"]["median"] / mx * (BR - BL)
-        short_set = "L7" if label == configs.set_label("L7 set") else "ladder"
-        g.append(f'<text x="{BL - 10}" y="{y + 19}" text-anchor="end" class="lbl">{short_set} · {esc(DISP(c))}</text>')
-        g.append(f'<rect x="{BL}" y="{y}" width="{BR - BL}" height="28" rx="3" fill="var(--line)"/>')
-        g.append(f'<rect x="{BL}" y="{y}" width="{w:.1f}" height="28" rx="3" fill="var(--frontier)"/>')
-        g.append(f'<text x="{BR + 8}" y="{y + 19}" class="lbl">{v["latency_s"]["median"]:.1f}s · {dataset.usd(v["usd_per_pass"])}</text>')
-    g.append("</svg>")
-    return scroll_chart("".join(g), W)
+    entries = [(label, c, group[c]) for label, group in ((configs.set_label("main ladder"), every(s)),
+               (configs.set_label("L7 set"), s["hard"])) for pair in FAST_PAIRS for c in pair]
+    rows = [(f"{'L7' if label == configs.set_label('L7 set') else 'ladder'} · {DISP(c)}",
+             v["latency_s"]["median"], FAM(c), c.endswith("-fast")) for label, c, v in entries]
+    values = [f"{v['latency_s']['median']:.1f}s · {dataset.usd(v['usd_per_pass'])}" for _, _, v in entries]
+    return '<div class="compact-bars">' + charts.bars("Normal and fast mode", rows, str, "", values=values) + '</div>'
 
 
 def explorer(s):
@@ -566,11 +545,11 @@ def verdict(c, v, need, E, arms=None):
 HARD = list(NAME.items())
 
 
-def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, rate, claude_only=False):
+def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, rate, claude_only=False, key="", set_name=""):
     r = rate; cls = "good" if r >= 0.95 else "warn" if r >= MIN_PASS else "bad"
     attr = f' title="{esc(derived)}"' if derived else ""
     return (f'<tr{attr}><td><span class="dot" style="background:{col}"></span>{esc(name)}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
-            f'<td>{"~" if proxy else ""}{dataset.usd(usd)}</td><td>{"all" if claude_only else dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell" style="white-space:nowrap">{verdict}</td></tr>')
+            f'<td>{"~" if proxy else ""}{dataset.usd(usd)}</td><td>{"all" if claude_only else dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell" title="{esc(key)}" style="white-space:nowrap">{verdict}</td><td class="set-cell">{esc(set_name)}</td></tr>')
 
 
 CODEX = lambda c: any(x in c for x in ("luna", "sol", "astra"))
@@ -583,30 +562,33 @@ def short_table(s, need):
     E = every(s); a = rescue_arms(s)
     top = [(c, row(DISP(c), FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], None,
                E[c]["latency_s"]["median"], verdict(c, E[c], need, E, a),
-               E[c]["cost_kind"] == "proxy", rate=E[c]["pass_at_1"], claude_only=not CODEX(c))) for c in ORDER]
+               E[c]["cost_kind"] == "proxy", rate=E[c]["pass_at_1"], claude_only=not CODEX(c), key=s["facts"]["verdict_key"],
+               set_name=configs.set_label("main ladder") if configs.low_context(c) else "")) for c in ORDER]
     clean = [c for c, _ in HARD if a[c]["passes"] == a[c]["n"]]; need(clean, "some rescue-set row never failed")
     best = min(clean, key=lambda c: a[c]["usd_per_pass"])
     need(best == "haiku-medium", "haiku-medium is the cheapest rescue-set row with no miss")
     hv = lambda c: "0 misses ✓ pick" if c == best else "✓ pick" if c == "sol61-high" else "0 misses" if c in clean else f"missed {a[c]['misses']}"
-    duplicates = {c + "+haiku-on-fail" for pair in FAST_PAIRS for c in pair}
+    duplicates = set(configs.PLAIN_PIPELINE_DUPLICATES)
     hard = [(c, row(SHORT(name), "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], None if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
-                a[c]["median_s"], hv(c), CODEX(c), a[c].get("derived_note", ""), rate=a[c]["pass_rate"], claude_only=not CODEX(c))) for c, name in HARD if c not in duplicates]
+                a[c]["median_s"], hv(c), CODEX(c), a[c].get("derived_note", ""), rate=a[c]["pass_rate"], claude_only=not CODEX(c), key=s["facts"]["verdict_key"],
+                set_name=configs.set_label("rescue set") if configs.low_context(c, "rescue") else "")) for c, name in HARD if c not in duplicates]
     problems = sorted(s["problems"]); rungs = [v["rung"] for v in s["problems"].values()]
     def group(label, rows, source):
         regular = "".join(body for c, body in rows if not configs.low_context(c, source))
-        low = "".join(body for c, body in rows if configs.low_context(c, source))
-        return (f'<tbody><tr class="grp"><th colspan="6">{esc(label)}</th></tr>{regular}</tbody>'
-                + (f'<tbody class="low-context"><tr class="grp"><th colspan="6">Low context: trimmed prompt</th></tr>{low}</tbody>' if low else ""))
+        return f'<tbody><tr class="grp"><th colspan="7">{esc(label)}</th></tr>{regular}</tbody>'
+    low_rows = "".join(body for rows, source in ((top, "main"), (hard, "rescue"))
+                       for c, body in rows if configs.low_context(c, source))
+    low_group = ('<tbody class="low-context"><tr class="grp"><th colspan="7">'
+                 'Low context: trimmed prompt</th></tr>' + low_rows + '</tbody>')
     repeats = E[ORDER[0]]["n"] // len(problems)
     ladder_label = f'{configs.set_label("main ladder", capital=True)}: {len(problems)} problems × {repeats} tries = {E[ORDER[0]]["n"]} calls'
     subset_label = f'{configs.set_label("rescue set", capital=True)}: {len(s["design"]["rescue_problems"])} problems × {repeats} tries = {a[HARD[0][0]]["n"]} attempts'
     return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>$ per pass</th>'
-            '<th>Claude $</th><th>median s</th><th>verdict</th></tr></thead>'
-            + group(ladder_label, top, "main") + group(subset_label, hard, "rescue") + '</table></div>'
+            '<th>Claude $</th><th>median s</th><th>verdict</th><th>set</th></tr></thead>'
+            + group(ladder_label, top, "main") + group(subset_label, hard, "rescue") + low_group + '</table></div>'
             '<ul class="tight small">'
             f'<li>Ladder problems: {problems[0][:3]}–{problems[-1][:3]}.</li><li>Rungs: L{min(rungs)}–L{max(rungs)}.</li>'
-            f'<li>{configs.set_label("rescue set", capital=True)}: problems luna failed most, selected after the main run.</li>'
-            '<li>Subset problems:<ul>' + "".join(f'<li>{esc(plabel(q))}.</li>' for q in s["design"]["rescue_problems"]) + '</ul></li>'
+            f'<li>{configs.set_label("rescue set", capital=True)}: {s["facts"]["n_rescue_problems"]} problems, see How to read.</li>'
             '<li>Low-context rows use trimmed prompts. Other variants: Notes → Everything we tried.</li></ul>')
 
 
@@ -672,7 +654,7 @@ def l7_reason(s):
 
 def method(s):
     from bench.run import CLAUDE_FLAGS, codex_flags
-    lvl = lambda d: f'<span class="lc {d.lower()}" title="{d}">{d[0]}</span>'
+    lvl = lambda d: f'<span class="lc {d.lower()}" title="{d}: my LeetCode difficulty guess">{d[0]}</span>'
     like = lambda p: (f'<br><span class="like">like <a href="https://leetcode.com/problems/{ANALOGUE[p][1]}/" title="closest LeetCode analogue, not the source">{esc(ANALOGUE[p][0])}</a></span>'
                       if ANALOGUE.get(p) else '<br><span class="like">no close LeetCode analogue</span>')
     # Problem name includes its rung; the difficulty badge trails the name.
@@ -718,9 +700,8 @@ def sets_box(s):
     """Collapsed reading guide below the cost/accuracy charts and their notes."""
     main, hard, per, l7 = set_definitions(s)
     rungs = sorted({s["problems"][p]["rung"] for p in main})
-    l7_names = [DISP(c) for c in ORDER if c in s["hard"]]
-    l7_lines = " ".join((f'Ran the {configs.set_label("L7 set")}: ' if i == 0 else 'Also: ')
-                        + ", ".join(l7_names[i:i + 6]) + "." for i in range(0, len(l7_names), 6))
+    l7_lines = (f'{s["facts"]["l7_config_count"]} configs ran the {configs.set_label("L7 set")}; '
+                f'{s["facts"]["l7_absent"]} did not.')
     lab = lambda ps: ", ".join(f'<span class="pl" title="{esc(TESTS[p])}">{esc(plabel(p))}</span>' for p in ps)
     return ('<details class="sets"><summary>How to read the problems, rungs and sets</summary><ul class="tight small">'
             '<li>Compare each set separately.</li>'
@@ -731,7 +712,6 @@ def sets_box(s):
             f'<li><b>{configs.set_label("rescue set", capital=True)}</b>:<ul>'
             + "".join(f'<li>{lab([p])}.</li>' for p in s["design"]["rescue_problems"]) + '</ul></li>'
             '<li>Easy/Medium/Hard badges estimate LeetCode difficulty; rungs use this bench\'s own order and may differ.</li>'
-            '<li>Config names: haiku/sonnet = Claude; luna/sol/astra = Codex. Suffix = effort. -bare = stripped Codex CLI system prompt.</li>'
             '</ul></details>')
 
 
@@ -768,7 +748,8 @@ def notation_tooltips(body, ds):
         "low/medium/high": r"(?-i:\blow\s*/\s*medium\s*/\s*high\b|\b(?:low|medium|high|xhigh)\b)",
         "-bare": r"-bare\b|\bbare\b",
         "$0": r"\$0(?![\d.])",
-        "≥N%": r"≥(?:N|\d+(?:\.\d+)?)%",
+        "≥N%": r"≥N%|≥\d+% \(all passed\)",
+        "H": r"(?<=→)H\b|\bH (?:fail|all)\b",
         "L1–L7": r"\bL\d+(?:\s*(?:to|[–-])\s*L\d+)?\b",
         "noshell B1/B2": r"\bnoshell[- ]B[12]\b|\bB[12]\b",
         "–": r"(?<!\w)–(?!\w)",
@@ -869,7 +850,7 @@ def winner_table(ds, need):
          "Winner measured example-check pipeline passed without calling Haiku")
     choices = [
         ("Default", default, "Use Codex quota first"),
-        ("Budget", budget, f"Cheapest passing ≥{ds['facts']['budget_pass']}"),
+        ("Budget", budget, ds["facts"]["budget_why"]),
         ("Speed", speed, ds["facts"]["speed_why"]),
     ]
     head = ("Use case", "Pick", "Pass", "$ per pass", "Time", "Why")
@@ -879,7 +860,7 @@ def winner_table(ds, need):
         price = ("~" if r["cost_kind"] == "proxy" else "") + dataset.usd(r["usd_per_pass"])
         cells = (f"{i}. {use}", r["display"], f"{r['passes']}/{r['n']}", price, f"{r['median_s']:.1f} s", why)
         rows.append('<tr>' + "".join(
-            f'<td data-label="{esc(label)}">{esc(cell)}</td>' for label, cell in zip(head, cells)) + '</tr>')
+            f'<td data-label="{esc(label)}"><span>{esc(cell)}</span></td>' for label, cell in zip(head, cells)) + '</tr>')
     caption = ds["facts"]["winner_caption"]
     return ('<div class="tablewrap"><table class="winner-table">'
             f'<caption>{esc(caption)}</caption><thead><tr>{th}</tr></thead>'

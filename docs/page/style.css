@@ -122,6 +122,7 @@ tr.grp th::after{content:none}
 .cost-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--fg)}
 .cost-toggle input{accent-color:var(--accent);flex-shrink:0}
 .cost-toggle input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.cwrap:not(.free) .repair-note{display:none}
 .repair-note{margin:0;overflow-wrap:anywhere}
 .chart .repair-note svg{display:inline-block;width:18px;height:18px;vertical-align:middle;margin:0 4px 0 0}
 .category-filter,.set-filter{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;font-size:13px;min-width:0}
@@ -267,3 +268,9 @@ section.collapsible>.sec-body:not([hidden]){animation:sec-in var(--sec-dur,0s) e
  .winner-table td:last-child{max-width:none;min-width:0}
  .winner-table caption{display:block}
 }
+
+.set-cell{max-width:11ch;font-size:11px;white-space:normal}
+.winner-table td>span{min-width:0;overflow-wrap:anywhere}
+
+.compact-bars{min-width:0;max-width:100%}
+.compact-bars svg{display:block;width:100%;height:auto}

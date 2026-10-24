@@ -228,18 +228,31 @@ def agentic_chart(s):
     return svg(W, H, b)
 
 
-def bars(title, rows, fmt, note, W=760, L=200, R=110, low_start=None):
-    """Horizontal bars. rows: (label, value, colour, hollow). Labels sit left of the bars, values right of them."""
-    T, bh = 50, 20; H = T + len(rows) * (bh + 8) + 46 + (24 if low_start is not None else 0)
-    mx = max(r[1] for r in rows) * 1.02; X = lambda v: L + v / mx * (W - L - R)
-    b = [text(12, 24, title, 14, weight="600")]
+def bars(title, rows, fmt, note, W=360, L=None, R=8, low_start=None, values=None, cached=None):
+    """Phone-width bars with wrapped labels and values below each bar."""
+    import textwrap
+    label_lines = [textwrap.wrap(r[0], 20, break_long_words=True, break_on_hyphens=False) for r in rows]
+    L = min(140, max(90, max(len(line) for lines in label_lines for line in lines) * 6.2 + 12))
+    title_lines = textwrap.wrap(title, 45)
+    note_lines = textwrap.wrap(note, 55)
+    T, step, bh = 22 + 18 * len(title_lines), 62, 22
+    H = T + len(rows) * step + 18 * len(note_lines) + 12 + (24 if low_start is not None else 0)
+    mx = max(r[1] for r in rows) or 1
+    b = [text(8, 20 + i * 18, line, 13, weight="600") for i, line in enumerate(title_lines)]
     for i, (lab, v, col, hollow) in enumerate(rows):
         if i == low_start:
-            b.append(text(12, T + i * (bh + 8) + 12, "Low context", 11, fill=MUTED, weight="600"))
-        y = T + i * (bh + 8) + (24 if low_start is not None and i >= low_start else 0)
-        b += [f"<rect x='{L}' y='{y}' width='{max(1, X(v) - L):.1f}' height='{bh}' fill='{PLATE if hollow else col}' stroke='{col}' stroke-width='{2 if hollow else 0}'/>",
-              text(L - 8, y + 14, lab, 11, "end", MUTED if hollow else INK), text(X(v) + 6, y + 14, fmt(v), 11, fill=MUTED)]
-    b.append(text(12, H - 14, note, 10, fill=MUTED))
+            b.append(text(8, T + i * step + 12, "Low context", 11, fill=MUTED, weight="600"))
+        y = T + i * step + (24 if low_start is not None and i >= low_start else 0)
+        for j, line in enumerate(label_lines[i]):
+            b.append(text(8, y + 15 + j * 14, line, 11, fill=INK))
+        width = max(1, v / mx * (W - L - R))
+        opacity = " fill-opacity='.35'" if cached is not None else ""
+        b.append(f"<rect x='{L}' y='{y}' width='{width:.1f}' height='{bh}' fill='{PLATE if hollow else col}' stroke='{col}' stroke-width='{2 if hollow else 0}'{opacity}/>")
+        if cached is not None:
+            b.append(f"<rect x='{L}' y='{y}' width='{width * cached[i]:.1f}' height='{bh}' fill='{col}'/>")
+        b.append(text(L, y + 42, values[i] if values else fmt(v), 11, fill=INK))
+    start = H - 12 - (len(note_lines) - 1) * 16
+    b.extend(text(8, start + i * 16, line, 10, fill=MUTED) for i, line in enumerate(note_lines))
     return svg(W, H, b)
 
 
@@ -277,7 +290,7 @@ def token_in_chart(s, ds=None):
     rows = [(lab[c], allc[c]["tokens_in_mean"], FAMILY(c), "-fast" in c) for c in order]
     low_start = next((i for i, c in enumerate(order) if configs.low_context(c)), None)
     return bars(f'Mean input per call: {configs.set_label("main ladder")}', rows, lambda v: f"{v:,.0f}",
-                f"Includes cached input. Tools were off. Codex includes ~{HOST_AGENTS_MD} host AGENTS.md tokens.", R=80, low_start=low_start)
+                f"Includes cached input. Tools were off. Codex includes ~{HOST_AGENTS_MD} host AGENTS.md tokens.", low_start=low_start)
 
 
 def check_design(s):

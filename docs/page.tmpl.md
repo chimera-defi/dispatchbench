@@ -5,14 +5,14 @@
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
 <p><b>Use Codex first: on a subscription its calls cost {{claude_zero}} cash. Paying per call? Haiku is cheapest. Need speed? Sonnet.</b></p>
-<p class="small">{{winner_names}} Suffix = effort level. ⚡ = fast mode. →H fail = Haiku fixes answers whose worked examples fail.</p>
+<p class="small">⚡ = fast mode. →H fail = Haiku fixes answers whose worked examples fail.</p>
 {{w_winner}}
 <p class="small">{{s61_later_note}}</p>
 <details class="small names"><summary>Model names</summary>
 <ul class="tight small">
 <li>Claude models: haiku and sonnet.</li>
 <li>Codex models: luna, sol and astra (OpenAI).</li>
-<li>Suffix = effort: low / medium / high.</li>
+<li>Suffix = effort: low / medium / high / xhigh (a step above high).</li>
 <li>{{model_names}}.</li>
 </ul>
 </details>
@@ -34,7 +34,7 @@
 </details>
 <ul class="tight small">
 <li>Each config tries each problem {{repeats}} times, tools off.</li>
-<li>Total spend: {{claude_usd}} on Claude; estimated {{codex_usd}} of Codex quota.</li>
+<li>Main benchmark + repo tasks: {{claude_usd}} on Claude; estimated {{codex_usd}} of Codex quota. Pilot, harness-bias and trim runs excluded (see Notes → Everything we tried).</li>
 <li>Sets:<ul>
 <li>{{main_set_label}}: {{n_problems}} problems, {{repeats}} tries each. Total: {{n_calls}} calls.</li>
 <li>{{l7_set_label}}: {{n_l7}} problems, {{repeats}} tries each. Total: {{l7_n}} calls.</li>
@@ -65,10 +65,7 @@
 <p class="small">Harness = program that sends the problem to the model and grades the answer.</p>
 <p class="small"><b>Q: Does our one-shot runner make Codex look bad?</b></p>
 <ul class="tight small">
-<li><b>A: {{hb_answer}}</b></li>
-<li>{{hb_takeaway}}</li>
-<li>{{hb_detail}}</li>
-<li>{{hb_uncertainty}}</li>
+<li title="{{hb_summary}}">{{hb_qa}}</li>
 <li>Codex built and finished the agent-CLI comparison. It had {{hb_errors}} harness errors and no timeouts.</li>
 </ul>
 <table><caption>Passed / attempted on {{hb_n_problems}} hard problems × {{hb_repeats}} repeats (not the {{main_set_label}})</caption><thead><tr><th>Model</th><th>our one-shot runner</th><th>vendor agent CLI (runs code, retries)</th></tr></thead><tbody>
@@ -82,7 +79,7 @@
 <section id="pareto">
 <h2><span class="num"></span>📊 Cost vs accuracy</h2>
 <p class="small">haiku-high passes {{haiku_high_pass}} at {{haiku_high_upp}} per pass. sol61-high also passes {{sol61_high_pass}} at ~{{sol61_high_upp}}. On quota, it costs {{claude_zero}}. luna-low and luna-medium cost less but miss about {{cheap_miss_words}}.</p>
-<div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="ring"></span>Pareto frontier</span><span>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet. Triangles = luna · ◆ sol · ★ astra. Luna triangle direction = effort: up low, right medium, down high. Lighter blue = the {{older_generation}} generation.</span><span>Filled = normal speed. Hollow (⚡) = fast mode, joined by a thin line to its normal-speed point. Dashed edge = bare prompt.</span><span>Only frontier points and chosen pipelines carry labels. Hover, tap or focus a point or key row for the rest.</span></div>
+<div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="ring"></span>Pareto frontier</span><span>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet. Triangles = luna · ◆ sol · ★ astra. Luna triangle direction = effort: up low, right medium, down high. Lighter blue = the older gpt-{{older_generation}} models (luna56, sol56).</span><span>Filled = normal speed. Hollow (⚡) = fast mode, joined by a thin line to its normal-speed point. Dashed edge = bare prompt.</span><span>Only frontier points and chosen pipelines carry labels. Hover, tap or focus a point or key row for the rest.</span></div>
 <ul class="tight small">
 <li>Purple line = best trade-offs: nothing is both cheaper and more accurate.</li>
 <li>Whiskers: {{ci_level}} confidence interval (bootstrap).</li>
@@ -118,18 +115,14 @@
 <section id="results">
 <h2><span class="num"></span>📋 Results</h2>
 <p class="small">sol61-high is the Codex pick. haiku-high is the cheapest config without misses across the ladder, L7 and repo tasks.</p>
+<p class="small">Verdict key: {{verdict_key}}</p>
 {{w_short_table}}
 <ul class="tight small">
-<li>✓ pick = Winner pick, or cheapest row without misses in its group.</li>
-<li>Budget pick = cheapest at {{budget_pass}}+. Avoid = below {{min_pass}}.</li>
-<li>Beaten = another row is as cheap and passes as often. Trade-off = pricier, passes more.</li>
 <li>Claude $ column: all = every dollar of that row went to Claude.</li>
 <li>Pipeline rows show only the Haiku share.</li>
 <li>Click a header to sort within a group. <a href="#notation">Symbols: see Notation.</a></li>
 <li>haiku-medium's {{set_label}} row reuses its {{rescue_n}} main-run attempts.</li>
-<li>Not listed here: sol61-high →H fail and astra-medium →H fail.</li>
-<li>They equal the plain rows (see Pipelines).</li>
-<li>They remain in Pipelines and the {{set_label_title}} pipelines view.</li>
+<li>Not listed here: {{dropped_pipelines}} equal their plain rows; see Pipelines.</li>
 </ul>
 <details><summary>Full table: intervals and p90</summary>
 <p class="small">Intervals show pass-rate uncertainty. p90 covers slower calls.</p>
@@ -140,7 +133,6 @@
 <li>p90 = time within which {{p90_percent}} of calls finished.</li>
 <li>≥N% (all passed) = lower {{ci_level}} bound when nothing failed.</li>
 </ul>
-<p class="small">Fast mode passed everything on both sets.</p>
 <div class="chart floor"><h3>⚡ Codex fast mode: seconds and $ per pass</h3>{{w_fast}}</div>
 <ul class="tight small">
 <li>Pairs compare sol61-high and astra-medium at normal speed and ⚡.</li>
@@ -179,22 +171,19 @@
 <ol class="tight">
 <li>Send the task to sol61-high ({{claude_zero}} on quota).</li>
 <li>Run the worked examples.</li>
-<li>If one fails, hand it to haiku-low.</li>
+<li>If one fails, hand it to haiku-low. {{default_route_scope}} Repair never fired: {{r_sol61_high_haiku_on_fail_k}} on the {{set_label}}.</li>
 </ol>
-<p class="small">{{default_route_scope}} The repair step never fired: sol61-high passed {{r_sol61_high_haiku_on_fail_k}} on the {{set_label}}.</p>
 <ul class="tight">
 <li>Paying per call? haiku-low is cheapest at {{budget_pass}}+ passing.</li>
 <li>Need no misses? Choose haiku-high.</li>
-<li>sonnet-medium: no misses, {{sonnet_medium_med}} s per call vs {{haiku_high_med}} s for haiku-high.</li>
-<li>Sonnet costs {{sm_vs_hh_x}} more per pass.</li>
-<li>Per-pass prices: Sonnet {{sonnet_medium_upp}} versus Haiku {{haiku_high_upp}}.</li>
-<li>Both vendor CLIs helped; the gap moved {{hb_diff_points}} points, under our {{hb_bar_points}}-point bias bar.</li>
-<li>See <a href="#method">How it was run</a>.</li>
+<li>Speed: sonnet-medium {{sonnet_medium_med}} s vs haiku-high {{haiku_high_med}} s. Per pass: {{sonnet_medium_upp}} vs {{haiku_high_upp}} ({{sm_vs_hh_x}}).</li>
+<li>Both models improved inside their vendor tools (Codex CLI, Claude Code). The luna-low/haiku-low pass-rate gap moved {{hb_diff_points}} points. That is under our {{hb_bar_points}}-point bar for calling our runner biased.</li>
 <li>Avoid luna-low or luna-medium alone.</li>
 </ul>
 </section>
 <section class="extras" id="extras">
 <h2><span class="num"></span>🔍 More charts</h2>
+<p class="small">Explorer plots any two measures. The rung chart shows where luna breaks: {{rung_breaks}}. Repo tasks all passed {{ag_k}}; costs ranged from {{ag_luna_low_usd}} to {{ag_astra_medium_usd}}.</p>
 <details><summary>🎛️ Explorer and more charts</summary>
 <div class="chart"><h3>🎛️ Explorer</h3>{{w_explorer}}</div>
 {{chart:pass_by_rung.svg|Pass rate by difficulty rung}}
@@ -205,6 +194,7 @@
 </section>
 <section class="notes" id="notes">
 <h2><span class="num"></span>Notes: caveats, code quality, appendix</h2>
+<p class="small">Small sample: read the intervals first. {{n_exploratory}} configs were added after the main run (†), including the winning sol61-high. Sonnet's code read worst in a blind review.</p>
 <details><summary>⚠️ Caveats</summary>
 <ul class="tight">
 <li>Small sample: read the intervals before the point estimates.</li>
@@ -238,14 +228,15 @@
 </ul>
 </details>
 <details><summary>⚡ Codex fast mode and xhigh</summary>
-<p class="small">Fast mode: same passes, {{fm_faster}} faster per call. Median times: {{fm_fast_s}} s vs {{fm_ctrl_s}} s. Price: {{fm_mult}} list. xhigh: same passes, {{fm_x_cost}} the cost, slower.</p>
+<p class="small">Fast mode: same passes, {{fm_faster}} faster per call. Median times: {{fm_fast_s}} s vs {{fm_ctrl_s}} s. Price: {{fm_mult}} list. xhigh effort (above high): same passes, {{fm_x_cost}} the cost, slower.</p>
 {{table:fastmode}}
 <p class="small">The default-tier control is a separate {{fm_n}}-try run. Its {{fm_ctrl_s}} s differs from the Results row.</p>
-<p class="small">Blind read of {{bl_n}} solutions: a code-only reviewer would block (refuse to merge) {{bl_blocks}} solutions. All {{bl_blocks}} were sonnet-medium. It scored {{bl_sonnet_score}}. Other configs scored {{bl_other_scores}}. They had {{bl_other_blocks}} blocked.</p>
+<p class="small">Blind read of {{bl_n}} solutions: a code-only reviewer would block (refuse to merge) {{bl_blocks}}, all sonnet-medium. It scored {{bl_sonnet_score}}; other configs scored {{bl_other_scores}} with none blocked.</p>
 <p class="small">{{blind_caption}}</p>
 {{table:blind}}
 </details>
 <details id="appendix"><summary>📎 Appendix</summary>
+<p class="small">Headline numbers: see <a href="#method">How it was run</a>.</p>
 <h3>Harnesses: which model does better at what?</h3>
 <ul class="tight small">
 <li>{{hb_accuracy}}</li>
@@ -262,11 +253,7 @@
 <li>Both runners tested luna-low and haiku-low.</li>
 <li>Paired comparison: {{hb_n_problems}} hard problems × {{hb_repeats}} repeats.</li>
 <li>Bias means a change in the gap between the models' pass rates.</li>
-<li>{{hb_detail}}</li>
-<li>{{hb_uncertainty}}</li>
-<li>noshell B1 removes shell context and asks for edge cases.</li>
-<li>B2 also requests a detailed reasoning summary.</li>
-<li>The agent-CLI run had {{hb_errors}} harness errors and no timeouts.</li>
+<li>Two more luna-low variants are listed under Everything we tried. luna-low-noshell-B1 removes shell context and asks for edge cases first. luna-low-noshell-B2 also asks for a detailed reasoning summary. {{noshell_comparison}}</li>
 <li>It took about {{hb_minutes}} minutes of wall time for the recorded calls.</li>
 <li>Codex also answered through its own CLI in the main benchmark.</li>
 <li>We ignored personal settings and disabled tools.</li>

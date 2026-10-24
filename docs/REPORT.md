@@ -293,9 +293,9 @@ Asked after the main run: can fan-outs use sol61-high in fast mode (the priority
 
 | config | passed | median s | median output tokens | $ per pass (proxy) | median LOC | median max complexity | lint per solution | time vs ref |
 |---|---|---|---|---|---|---|---|---|
-| sol61-high, default tier (separate control run, repeats 6-10) | 35/35 | 30.1 | 1,092 | $0.021 | 63 | 22 | 0.00 | 0.73 |
-| sol61-high ⚡ | 35/35 | 18.9 | 1,063 | $0.043 | 62 | 22 | 0.09 | 0.71 |
-| sol61-xhigh, default tier | 35/35 | 44.3 | 1,662 | $0.033 | 64 | 23 | 0.00 | 0.72 |
+| sol61-high, default tier (separate control run, repeats 6-10) | 35/35 | 30.1 | 1,092 | $0.0212 | 63 | 22 | 0.00 | 0.73 |
+| sol61-high ⚡ | 35/35 | 18.9 | 1,063 | $0.0435 | 62 | 22 | 0.09 | 0.71 |
+| sol61-xhigh, default tier | 35/35 | 44.3 | 1,662 | $0.0326 | 64 | 23 | 0.00 | 0.72 |
 
 - **Fast mode is the same answers, sooner.** Every attempt passed, the code measures the same, and the median call took 18.9 s against 30.1 s (37% faster), at 2× the list price.
 - **Fast mode on the whole main ladder and the L7 set (added 2026-10-24).** Both trusted Codex builders also ran in fast mode on all 12 main-ladder problems and the 3 L7 problems, 5 attempts each, and none missed. sol61-high ⚡: 60/60 and 15/15 on L7, $0.036 per pass and 17.4 s against $0.019 and 27.4 s at the default tier (37% quicker, 1.9× the cost per pass). astra-medium ⚡: 60/60 and 15/15, $0.15 and 9.9 s against $0.075 and 20.9 s (53% quicker, 2.0× the cost per pass). The ⚡ rows are in every table and chart beside their default-tier twin; spend on them: $12.88.

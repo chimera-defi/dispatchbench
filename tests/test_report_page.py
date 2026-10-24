@@ -102,7 +102,7 @@ def test_chart_free_strip_and_set_attribution(summary, render, stat, problem_set
         rank = lambda c: values[c]["latency_s"]["median"] if stat == "speed" else -values[c]["pass_at_1"]
         assert set(points) | set(configs) == set(page.ORDER)
     else:
-        values = page.rescue_arms()
+        values = {c: page.rescue_arms()[c] for c in page.NAME}
         expected = [c for c, v in values.items() if v["claude_usd_per_pass"] == 0]
         rank = lambda c: values[c]["median_s"] if stat == "speed" else -values[c]["passes"] / values[c]["n"]
         assert set(points) | set(configs) == set(values)
@@ -210,12 +210,11 @@ def test_frontier_caption_uses_computed_costs(summary):
     values = page.every(summary)
     medium, low = values["luna-medium"], values["luna-low"]
     caption = page.frontier_caption(summary)
-    assert 'luna-low is not a best trade-off.' in caption
-    assert f'luna-medium costs the same ({dataset.usd(medium["usd_per_pass"], sig=1)} per pass).' in caption
+    assert 'luna-low is not a best trade-off:' in caption
+    assert f'luna-medium costs the same, {dataset.usd(medium["usd_per_pass"], sig=1)} per pass.' in caption
     assert dataset.usd(low["usd_per_pass"], sig=1) == dataset.usd(medium["usd_per_pass"], sig=1)
-    assert f'It passes {medium["passes"]}/{medium["n"]}.' in caption
-    assert f'luna-low passes {low["passes"]}/{low["n"]}.' in caption
-    assert 'main ladder only' in caption
+    assert page.esc(f"It passes {medium['passes']}/{medium['n']} to luna-low's {low['passes']}/{low['n']}.") in caption
+    assert 'Main ladder only' in caption
     assert page.pass_cost(summary)[0].count('class="frontier-note"') == 1
     assert 'class="frontier-note"' not in page.speed_cost(summary)[0]
 
@@ -304,10 +303,12 @@ def test_fairness_qa_renders_counts_and_runtime_from_appendix():
     assert 'no timeouts' in method
     comparison = harness_bias.pass_summary(rows)
     lo, hi = comparison['ci']
-    assert 'Slightly.' in method
-    assert f"The pass-rate gap moved by {100 * comparison['diff']:.0f} points." in method
-    assert 'We pre-set 15 points as the bar for calling it bias.' in method
-    assert f'Its range, {100 * lo:.0f} to {100 * hi:.0f} points, permits a larger tilt.' in appendix
+    assert 'Slightly, and possibly more.' in method
+    assert f"The gap between them moved {100 * comparison['diff']:.0f} points." in method
+    assert 'We set 15 points as the bar for calling our runner biased.' in method
+    assert f'The 95% range is {100 * lo:.0f} to {100 * hi:.0f} points' in method
+    assert 'Headline numbers: see' in appendix
+    assert dataset.read()['facts']['hb_summary'] not in appendix
     assert method.index('Harness =') < method.index('Q: Does')
 
 
@@ -369,19 +370,21 @@ def test_marker_styles_distinguish_fast_generation_and_luna_variants():
     assert len({draw(c) for c in ('luna-low', 'luna-medium', 'luna-high', 'luna-low-bare', 'luna56-low')}) == 5
 
 
-def test_floor_charts_keep_natural_size(summary):
+def test_bar_charts_fit_phone_without_scrolling(summary):
     for body in (page.floor(summary), page.fast(summary), page.pipes()):
-        assert 'class="svgscroll"' in body
-        assert '--natural-width:760px' in body
-        assert 'Scroll sideways' in body
+        assert 'svgscroll' not in body
+        assert 'Scroll sideways' not in body
+        svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', body, re.S)[0])
+        assert float(svg.get('viewBox').split()[2]) <= 390
+        for label in svg.findall('s:text', NS):
+            assert 0 <= float(label.get('x')) < 390
 
 
 def test_quality_fast_coverage_keeps_main_and_separate_rescue_runs_apart(summary, monkeypatch):
     note = dataset.read()["facts"]["quality_fast_note"]
-    assert 'sol61-high ⚡: main-ladder solutions not scored' in note
+    assert 'sol61-high ⚡ and astra-medium ⚡: main-ladder solutions not scored' in note
     assert f'{dataset.read()["rescue"]["sol61-high"]["n"]}-attempt luna-miss run' in note
-    assert 'astra-medium ⚡: main-ladder solutions not scored' in note
-    assert 'No separate luna-miss-run quality scores' in note
+    assert 'astra-medium ⚡ has no luna-miss scores' in note
     scored = next(r for r in dataset.quality_rows() if r['config'] == 'sol61-high-fast' and r['outcome'] == 'pass')
     main = dict(scored, phase='exploratory')
     monkeypatch.setattr(dataset, 'quality_rows', lambda: [scored, main])
@@ -488,7 +491,7 @@ def test_luna_miss_views_share_points_and_separate_coincident_models(summary):
             pipeline = builder + '+haiku-on-fail'
             assert targets[builder] != targets[pipeline]
             assert {configs.display(builder), configs.display(pipeline)} <= labels
-        assert set(targets) == set(page.rescue_arms(summary))
+        assert set(targets) == set(page.NAME)
 
 
 def test_winner_has_three_rows_and_metric_columns_before_why():
@@ -510,3 +513,94 @@ def test_failure_copy_keeps_main_and_l7_counts_separate():
     assert int(facts['hl_main_timeouts']) + int(facts['hl_main_crashes']) == int(facts['hl_main_misses'])
     assert int(facts['hl_main_timeouts']) + int(facts['l7_hl_fail']) == int(facts['hl_timeouts'])
     assert int(facts['hl_main_crashes']) == int(facts['hl_crashes'])
+
+
+def test_conclusion_is_short_and_has_one_route_scope():
+    template = (ROOT / "docs/page.tmpl.md").read_text()
+    section = re.search(r'<section class="verdict conclusion".*?</section>', template, re.S)[0]
+    steps, bullets = re.search(r'<ol.*?</ol>', section, re.S)[0], re.search(r'<ul.*?</ul>', section, re.S)[0]
+    assert steps.count('<li>') == 3
+    assert bullets.count('<li>') <= 5
+    assert '{{default_route_scope}}' in steps
+    assert 'See <a' not in bullets
+    assert bullets.count('{{sonnet_medium_med}}') == 1
+    assert bullets.count('{{sm_vs_hh_x}}') == 1
+
+
+def test_badges_and_thresholds_have_distinct_meanings():
+    ds = dataset.read()
+    body = ('<section><span class="lc hard" title="Hard: my LeetCode difficulty guess">H</span>'
+            '<p>E/M/H = my LeetCode difficulty guess. Cheapest at ≥95%.</p>'
+            '<p>≥N% and ≥95% (all passed). luna→H fail</p></section>')
+    rendered = page.notation_tooltips(body, ds)
+    assert '>H</span>' in rendered
+    assert 'E/M/H = my' in rendered
+    assert 'Cheapest at ≥95%.' in rendered
+    assert rendered.count('data-notation="≥N%"') == 1
+    assert 'title="Hard: my LeetCode difficulty guess"' in rendered
+    assert 'data-notation="→H fail"' in rendered
+
+
+def test_winner_cells_have_one_content_element():
+    from html.parser import HTMLParser
+    class Cells(HTMLParser):
+        def __init__(self):
+            super().__init__(); self.depth = 0; self.children = []; self.text = []
+        def handle_starttag(self, tag, attrs):
+            if tag == 'td': self.depth = 1; self.children.append([])
+            elif self.depth:
+                if self.depth == 1: self.children[-1].append(tag)
+                self.depth += 1
+        def handle_endtag(self, tag):
+            if self.depth: self.depth -= 1
+    parser = Cells(); parser.feed(page.winner_table(dataset.read(), dataset.need))
+    assert parser.children == [['span']] * 18
+
+
+def test_low_context_has_one_final_group_and_a_set_column(summary):
+    body = page.short_table(summary, dataset.need)
+    groups = re.findall(r'<tbody[^>]*>(.*?)</tbody>', body, re.S)
+    assert len(groups) == 3
+    assert body.count('Low context: trimmed prompt') == 1
+    assert 'luna-low-bare' in groups[-1] and 'luna-high-bare' in groups[-1]
+    assert configs.set_label('main ladder') in groups[-1]
+    assert configs.set_label('rescue set') in groups[-1]
+    assert all('luna-low-bare' not in group and '</span>luna-high-bare</td>' not in group for group in groups[:-1])
+    titles = re.findall(r'class="verdict-cell" title="([^"]+)"', body)
+    assert titles and all(title == page.esc(summary['facts']['verdict_key']) for title in titles)
+
+
+def test_scatter_categories_follow_registry_and_shared_rescue_names(summary):
+    for c in page.ORDER:
+        if c.endswith('-fast'):
+            assert page.point_category(c) == 'fast'
+        else:
+            expected = 'main' if configs.REGISTRY['main', c]['category'] == 'main ladder' else 'exploratory'
+            assert page.point_category(c) == expected
+    points = page.ladder_repairs(False, 'pass', page.rescue_arms(summary))
+    assert {p['c'] for p in points} == set(page.NAME)
+    assert all(p['name'] == configs.RESCUE_NAMES[p['c']] for p in points)
+    assert 'luna-low+haiku-low-repair' not in {p['c'] for p in points}
+
+
+def test_close_points_are_separated_and_labelled():
+    points = [dict(c='luna-low', x=100, y=20), dict(c='luna-medium', x=108, y=24)]
+    page.separate_points(points, lambda v: v, lambda v: v)
+    assert all(p['label'] for p in points)
+    assert abs(points[0]['plot_x'] - points[1]['plot_x']) >= 14
+
+
+def test_pilot_display_names_preserve_run_ids():
+    for old in ('codex-low', 'codex-medium', 'codex-low-lean', 'codex-bare'):
+        assert configs.display(old).startswith('sol61-')
+        assert configs.entry('pilot', old)['id'] == 'pilot/' + old
+    assert configs.display('codex-low') != configs.display('sol61-low-prio')
+
+
+def test_monetary_ratios_match_printed_prices(summary):
+    facts = summary['facts']
+    price = lambda name: float(facts[name].replace('$', '').replace(',', ''))
+    assert facts['sm_vs_hh_x'] == f"{price('sonnet_medium_upp') / price('haiku_high_upp'):.1f}×"
+    table = dataset.read()['tables']['fastmode']['rows']
+    a, b = (float(table[i][4].replace('$', '')) for i in (2, 0))
+    assert facts['fm_x_cost'] == f"{a / b:.1f}×"

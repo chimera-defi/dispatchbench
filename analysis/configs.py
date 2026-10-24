@@ -112,6 +112,11 @@ assert len(REGISTRY) == len(R), "duplicate registry entry"
 
 def display(c):
     """Display name of a config: fast mode (priority tier) gets a lightning suffix."""
+    pilot_names = {"codex-low": "sol61-low-prio (pilot first run)",
+                   "codex-medium": "sol61-medium-prio",
+                   "codex-low-lean": "sol61-low-prio-lean",
+                   "codex-bare": "sol61-low-prio-bare"}
+    if c in pilot_names: return pilot_names[c]
     if c in globals().get("RESCUE_NAMES", {}): return RESCUE_NAMES[c]
     if ' / ' in c:
         model, harness = c.split(' / ', 1)
@@ -140,6 +145,10 @@ for builder in ("sol61-high", "astra-medium", "luna-low", "luna-high-bare"):
 RESCUE_NAMES.update({"haiku-low-plan+luna-low": "plan→luna-low", "haiku-low-plan+luna-high-bare": "plan→luna-high-bare",
              "luna-high-bare+retry-on-fail": "luna-high-bare→retry",
              "luna-low+haiku-review-all": "luna-low→H all", "luna-high-bare+haiku-review-all": "luna-high-bare→H all"})
+
+
+PLAIN_PIPELINE_DUPLICATES = tuple(builder + "+haiku-on-fail" for builder in (
+    "sol61-high", "astra-medium", "sol61-high-fast", "astra-medium-fast"))
 
 
 def entry(source, name):

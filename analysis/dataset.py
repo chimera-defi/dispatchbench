@@ -208,7 +208,9 @@ def n(v):
     return f"{v:,}"
 
 
-def x(a, b, d=1):
+def x(a, b, d=1, *, money=False, sig=2):
+    if money:
+        a, b = (float(usd(v, sig=sig).replace('$', '').replace(',', '')) for v in (a, b))
     return f"{a / b:.{d}f}×"
 
 
@@ -283,13 +285,23 @@ def fairness_facts():
         facts[f'hb_{key}_change'] = f"{sum(r['passed'] for r in one)}→{sum(r['passed'] for r in agent)}"
         facts[f'hb_{key}_n'] = str(len(one))
     if lo > 0:
-        facts['hb_uncertainty'] = (f"Point estimate: {facts['hb_diff_points']} points. "
-                                   f"The confidence level is {95}%. "
-                                   f"Its range, {facts['hb_range_points']} points, permits a larger tilt.")
-        facts['hb_takeaway'] = (f"Inside its own agent CLI, luna-low gained {facts['hb_luna_low_gain']} passes. "
-                               f"It moved {facts['hb_luna_low_change']}. Each config had {facts['hb_luna_low_n']} attempts. "
-                               f"haiku-low gained {facts['hb_haiku_low_gain']} passes. "
-                               f"It moved {facts['hb_haiku_low_change']}. Each config had {facts['hb_haiku_low_n']} attempts.")
+        facts['hb_answer'] = "Slightly, and possibly more."
+        facts['hb_takeaway'] = (
+            f"luna-low: {facts['hb_luna_low_change']} of {facts['hb_luna_low_n']} inside Codex CLI. "
+            f"haiku-low: {facts['hb_haiku_low_change']} of {facts['hb_haiku_low_n']} inside Claude Code.")
+        facts['hb_detail'] = (
+            f"Gap moved {facts['hb_diff_points']} points "
+            f"({95}% range {facts['hb_range_points']}); bias bar was {facts['hb_bar_points']}.")
+        facts['hb_uncertainty'] = "A bigger bias is possible."
+    facts['hb_summary'] = " ".join(facts[k] for k in ('hb_takeaway', 'hb_detail'))
+    facts['hb_qa'] = (f"A: {facts['hb_answer']} "
+        f"Inside Codex CLI, luna-low went from {facts['hb_claude_luna_low'].split('/')[0]} "
+        f"to {facts['hb_codex_luna_low'].split('/')[0]} passes out of {facts['hb_luna_low_n']}. "
+        f"haiku-low went from {facts['hb_claude_haiku_low'].split('/')[0]} "
+        f"to {facts['hb_codex_haiku_low'].split('/')[0]}. "
+        f"The gap between them moved {facts['hb_diff_points']} points. "
+        f"We set {facts['hb_bar_points']} points as the bar for calling our runner biased. "
+        f"The {95}% range is {facts['hb_range_points']} points. A bigger bias is possible.") if lo > 0 else facts['hb_answer']
     facts['hb_conclusion'] = ("Vendor agent CLIs improved both models." if improved
                               else "The runner comparison uses paired attempts.")
     codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
@@ -454,7 +466,7 @@ def _facts(s, arms):
     need(hv["passes"] == hv["n"] == sm["passes"], "luna-high + Haiku review and sonnet-medium never failed on the rescue set")
     hm = a["haiku-medium"]; need(hm["passes"] == hm["n"] and hm["usd_per_pass"] < hv["usd_per_pass"], "haiku-medium alone: no miss, cheaper than the pipeline")
     F["hm_vs_pipe_x"] = x(hv["usd_per_pass"], hm["usd_per_pass"]); F["r_pids"] = ", ".join(plabel(q) for q in luna_rescue.PIDS)
-    F["sm_vs_hh_x"] = x(cfg["sonnet-medium"]["usd_per_pass"], ex["haiku-high"]["usd_per_pass"])
+    F["sm_vs_hh_x"] = x(cfg["sonnet-medium"]["usd_per_pass"], ex["haiku-high"]["usd_per_pass"], money=True)
     F["sm_vs_hm_x"] = f"{cfg['sonnet-medium']['usd_per_pass'] / cfg['haiku-medium']['usd_per_pass']:.0f}×"
     hm7 = hard["haiku-medium"]; F["hm_l7_k"] = f"{hm7['passes']}/{hm7['n']}"
     F["hm_l7_miss"] = " and ".join(f"{v} {k}" for k, v in sorted(hm7["outcomes"].items()) if k != "pass") or "none"
@@ -502,7 +514,7 @@ def _facts(s, arms):
         F["fm_ctrl_s"] = f"{c0['median_s']:.1f}"; F["fm_fast_s"] = f"{cf['median_s']:.1f}"; F["fm_x_s"] = f"{cx['median_s']:.1f}"
         F["fm_faster"] = f"{(1 - cf['median_s'] / c0['median_s']) * 100:.0f}%"
         F["fm_mult"] = f"{json.load(open(os.path.join(RES, 'prices.json')))['fast_mode_multiplier']:g}×"
-        F["fm_x_cost"] = f"{cx['usd_per_pass'] / c0['usd_per_pass']:.1f}×"; F["fm_x_out"] = f"{cx['out_median'] / c0['out_median']:.1f}×"
+        F["fm_x_cost"] = x(cx["usd_per_pass"], c0["usd_per_pass"], money=True, sig=3); F["fm_x_out"] = f"{cx['out_median'] / c0['out_median']:.1f}×"
         b = json.load(open(BLIND)) if os.path.exists(BLIND) else None
         if b:
             F["bl_n"] = str(len(b["items"])); F["bl_probs"] = str(len({i["problem"] for i in b["items"]})); F["bl_cfgs"] = str(len({i["config"] for i in b["items"]}))
@@ -512,8 +524,8 @@ def _facts(s, arms):
             counts = {c: sum(i["config"] == c for i in b["items"]) for c in {i["config"] for i in b["items"]}}
             need(len(set(counts.values())) == 1, "blind read has the same sample size per config")
             sentence_case = lambda t: ". ".join(part[0].upper() + part[1:] for part in t.split("; "))
-            method = b['method'].replace("; the reviewer saw code only", "; code only").replace("A-E", "A–E")
-            scale = b['scale'].replace("1-10", "1–10").replace("block =", "would block =")
+            method = b['method'].replace("; the reviewer saw code only", "").replace("A-E", "A–E")
+            scale = re.sub(r";?\s*block =[^;]*", "", b["scale"]).replace("1-10", "1–10")
             F["blind_caption"] = (f"Reader: {b['reviewer']}. Method: {sentence_case(method)}. "
                                   f"Score: {sentence_case(scale)}. {next(iter(counts.values()))} solutions per config.")
             scores = {c: statistics.mean(i['score'] for i in b['items'] if i['config'] == c) for c in counts}
@@ -521,6 +533,7 @@ def _facts(s, arms):
             F['bl_sonnet_score'] = f"{scores['sonnet-medium']:.1f}/{10}"
             F['bl_other_scores'] = f"{min(others):g}–{max(others):g}"
             F['bl_other_blocks'] = str(sum(i['block'] for i in b['items'] if i['config'] != 'sonnet-medium'))
+            need(scores['sonnet-medium'] < min(others), 'Sonnet scored lowest in the blind read')
     # fast mode on the main ladder and L7 (exploratory, 2026-10-24): same model and effort, priority tier
     for k, (b0, b1) in {"s61": ("sol61-high", "sol61-high-fast"), "ast": ("astra-medium", "astra-medium-fast")}.items():
         d, f = ex[b0], ex[b1]; dh, fh = hard[b0], hard[b1]
@@ -615,26 +628,43 @@ def _facts(s, arms):
          "luna-medium dominates luna-low")
     need(usd(medium['usd_per_pass'], sig=1) == usd(low['usd_per_pass'], sig=1), "luna prices round identically")
     F['frontier_caption'] = (
-        f"luna-low is not a best trade-off. luna-medium costs the same ({usd(medium['usd_per_pass'], sig=1)} per pass). "
-        f"It passes {medium['passes']}/{medium['n']}. luna-low passes {low['passes']}/{low['n']}. "
-        f"This note covers the {configs.set_label('main ladder')} only. Hollow and exploratory points are excluded there.")
-    F['winner_names'] = f"sol61 = OpenAI {ex['sol61-high']['model']} (Codex). haiku / sonnet = Claude."
+        f"luna-low is not a best trade-off: luna-medium costs the same, {usd(medium['usd_per_pass'], sig=1)} per pass. "
+        f"It passes {medium['passes']}/{medium['n']} to luna-low's {low['passes']}/{low['n']}. "
+        f"{configs.set_label('main ladder', capital=True)} only; hollow and exploratory points excluded.")
     F['winner_caption'] = (
         f"Numbers: the {nprob}-problem {configs.set_label('main ladder')}, {hl['n']} tries per config. "
-        f"The Codex → Haiku route uses the {len(luna_rescue.PIDS)}-problem {configs.set_label('rescue set')}. "
-        f"It has {a['sol61-high+haiku-on-fail']['n']} tries. Time = median seconds. "
-        "~ = estimated from tokens; Claude costs are measured.")
-    F['winner_other_routes'] = (f"Fast mode: {F['fm_mult']} list price. "
-                               "Codex → Haiku: check examples, repair failures. Safety: haiku-high.")
+        "Time = median seconds. ~ = estimated from tokens; Claude costs are measured.")
+    F['winner_other_routes'] = (
+        f"Other routes. Fast mode (⚡): same answers, about {F['fm_mult']} list price, faster. "
+        "Codex → Haiku: run the worked examples; Haiku fixes only failures. "
+        f"It passed {F['r_sol61_high_haiku_on_fail_k']} on the "
+        f"{len(luna_rescue.PIDS)}-problem {configs.set_label('rescue set')} and never needed Haiku. "
+        f"No misses when paying per call: haiku-high, {F['hh_upp']} per pass.")
     gap = round(cfg['sonnet-medium']['latency_s']['median'], 1) - round(hl['latency_s']['median'], 1)
     need(gap > 0, "haiku-low is slightly faster than sonnet-medium")
-    F['speed_why'] = (f"Fastest with no misses; its code read worst in a blind review. "
-                      f"haiku-low is {gap:.1f} s faster but misses {hl['n'] - hl['passes']}. "
-                      f"luna is faster but misses {F['cheap_miss_words']}.")
-    F['s61_later_note'] = (f"sol61-high was added after the main run (†). "
-                            f"Its {F['sol61_high_k']} held on the {configs.set_label('main ladder')}, L7 and repo tasks.")
-    F['default_route_scope'] = (f"No misses on {ex['sol61-high']['n']} {configs.set_label('main ladder')} tries. "
-                                f"No misses on {hard['sol61-high']['n']} L7 tries or {ag['sol61-high']['n']} repo tries.")
+    F['speed_why'] = (
+        f"No misses, and only {gap:.1f} s behind haiku-low (which misses {hl['n'] - hl['passes']} of {hl['n']}). "
+        f"luna is faster but misses {F['cheap_miss_words']}. "
+        "Its code scored lowest in a code-only readability review (see Notes).")
+    F['budget_why'] = f"Cheapest pick that passes {F['budget_pass']} or more"
+    F['model_names'] += (f", luna56 = {ex['luna56-high']['model']}, "
+                         f"sol56 = {ex['sol56-high']['model']} (older generation)")
+    need(a['luna-low-noshell-B1']['passes'] > a['luna-low']['passes'] > a['luna-low-noshell-B2']['passes'], "B1 improves over plain luna-low; B2 passes less often")
+    F['noshell_comparison'] = "B1 passed more often than plain luna-low. B2 passed less often."
+    F['verdict_key'] = (
+        f"pick = best in its group · budget pick = cheapest at {F['budget_pass']}+ · "
+        "beaten = another row is as cheap and passes as often · "
+        f"trade-off = pricier but passes more · avoid = below {F['min_pass'] }.")
+    F['dropped_pipelines'] = ", ".join(map(configs.display, configs.PLAIN_PIPELINE_DUPLICATES))
+    F['l7_config_count'] = str(len(hard))
+    absent = [DISP(c) for c in every if c not in hard]
+    F['l7_absent'] = ", ".join(absent[:-1]) + " and " + absent[-1] if len(absent) > 1 else "".join(absent)
+    F['rung_breaks'] = " and ".join(sorted({lb['breaking_point'], ll['breaking_point']}))
+    cluster = [v['latency_s']['median'] for c, v in every.items() if c.startswith('luna') and v['usd_per_pass'] < hl['usd_per_pass']]
+    F['speed_luna_cluster'] = f"luna ×{len(cluster)} ({min(cluster):.0f}–{max(cluster):.0f} s)"
+    F['s61_later_note'] = "sol61-high was added after the main run (†)."
+    F['default_route_scope'] = (f"Passed {F['sol61_high_k']} main, {F['x_sol61_high_hk']} L7, and "
+                                f"{ag['sol61-high']['hidden_pass']}/{ag['sol61-high']['n']} repo tries.")
     F['l7_set_description'] = (f"{configs.set_label('L7 set')}: " + ", ".join(pshort(p) for p in probs)
                                + f"; scored separately. Added after every strong config passed L{max(v['rung'] for v in s['problems'].values())}.")
     return F
@@ -727,18 +757,17 @@ def quality_rows():
 
 
 def quality_fast_parts(s):
-    """Short list items describing quality coverage by phase."""
+    """Keep main-ladder and separate subset scores apart."""
     q = [r for r in quality_rows() if r.get("outcome") == "pass"]
-    parts = []
-    for c in ("sol61-high-fast", "astra-medium-fast"):
-        main = [r for r in q if r["config"] == c and r["phase"] in ("main", "exploratory", "escalation")]
-        parts.append(f"{DISP(c)}: {len(main)} main-ladder passing solutions scored in this table." if main else f"{DISP(c)}: main-ladder solutions not scored.")
-        rescue = [r for r in q if r["config"] == c and r["phase"] == "fastmode"]
-        if rescue:
-            parts.append(f"Its separate {len(rescue)}-attempt {configs.set_label('rescue set').removesuffix(' set')} run has quality scores below.")
-        else:
-            parts.append(f"No separate {configs.set_label('rescue set').removesuffix(' set')}-run quality scores are available.")
-    return parts
+    names = ("sol61-high-fast", "astra-medium-fast")
+    main = {c: sum(r["config"] == c and r["phase"] in ("main", "exploratory", "escalation") for r in q) for c in names}
+    subset = {c: sum(r["config"] == c and r["phase"] == "fastmode" for r in q) for c in names}
+    first = (f"{DISP(names[0])} and {DISP(names[1])}: main-ladder solutions not scored."
+             if not any(main.values()) else " ".join(f"{DISP(c)}: {main[c]} main-ladder solutions scored." for c in names))
+    short = configs.set_label('rescue set').removesuffix(' set')
+    second = " ".join(f"{DISP(c)}'s {subset[c]}-attempt {short} run is scored below;" if subset[c]
+                      else f"{DISP(c)} has no {short} scores." for c in names)
+    return [first, second]
 
 
 def quality_fast_note(s):
@@ -774,7 +803,7 @@ def fastmode_tables(s):
     for c, v in fm.items():
         rr = [r for r in q if r["config"] == c]; need(len(rr) == v["passes"], f"quality rows cover every passing fast-mode {c} solution")
         tr = [r["time_ratio"] for r in rr if r.get("time_ratio") is not None]
-        out.append([FM_LABEL[c].format(lo=min(v["repeats"]), hi=max(v["repeats"])), f"{v['passes']}/{v['n']}", f"{v['median_s']:.1f}", n(v["out_median"]), f"{usd(v['usd_per_pass'])}",
+        out.append([FM_LABEL[c].format(lo=min(v["repeats"]), hi=max(v["repeats"])), f"{v['passes']}/{v['n']}", f"{v['median_s']:.1f}", n(v["out_median"]), f"{usd(v['usd_per_pass'], sig=3)}",
                     f"{statistics.median(r['loc'] for r in rr):.0f}", f"{statistics.median(r['cc_max'] for r in rr):.0f}",
                     f"{sum(r['lint_warnings'] for r in rr) / len(rr):.2f}", f"{statistics.median(tr):.2f}" if tr else "–"])
     t1 = md_table(["config", "passed", "median s", "median output tokens", "$ per pass (proxy)", "median LOC", "median max complexity",
