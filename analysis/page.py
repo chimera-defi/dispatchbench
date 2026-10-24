@@ -823,10 +823,61 @@ def notation_tooltips(body, ds):
     return "".join(parser.out)
 
 
+def winner_table(ds, need):
+    """Six routing choices; pipeline metrics retain their separately measured scope."""
+    ladder = lambda c: dataset.get(ds, c, "main ladder")
+    default, budget, speed, fast, safety = map(ladder, (
+        "sol61-high", "haiku-low", "sonnet-medium", "sol61-high-fast", "haiku-high"))
+    pipeline = dataset.get(ds, "sol61-high+haiku-on-fail", "rescue arms", "rescue")
+    threshold = float(ds["facts"]["budget_pass"].rstrip("%")) / 100
+    eligible = [r for r in ds["rows"] if r["set"] == "main ladder" and r["pass_rate"] >= threshold]
+    need(budget["usd_per_pass"] == min(r["usd_per_pass"] for r in eligible),
+         "Winner budget pick is cheapest at the stated pass threshold")
+    for pick in (default, speed, safety):
+        for set_, source in (("main ladder", "main"), ("L7 set", "main"), ("repo tasks", "agentic")):
+            r = dataset.get(ds, pick["config"], set_, source)
+            need(r["passes"] == r["n"], f"Winner {pick['config']} never missed on {set_}")
+    need(speed["median_s"] < safety["median_s"], "Winner speed pick is faster than the safety pick")
+    need(fast["passes"] == fast["n"] and fast["median_s"] < default["median_s"],
+         "Winner fast mode preserves passes and reduces time")
+    need(fast["tokens_in_mean"] == default["tokens_in_mean"]
+         and fast["tokens_out_mean"] <= default["tokens_out_mean"],
+         "Winner fast-mode premium does not come from more tokens")
+    need(pipeline["passes"] == pipeline["n"] and pipeline["spend_claude"] == 0,
+         "Winner measured example-check pipeline passed without calling Haiku")
+    choices = [
+        ("Default", default, "Use Codex quota first"),
+        ("Budget", budget, f"Cheapest passing ≥{ds['facts']['budget_pass']}"),
+        ("Speed", speed, "Faster than haiku-high; no misses"),
+        ("Fast mode", fast, f"Faster Codex; {ds['facts']['fm_mult']} list price"),
+        ("Codex → Haiku", pipeline, "Fix failed examples; no fixes needed"),
+        ("Safety / fallback", safety, "Cheapest with no misses across sets"),
+    ]
+    head = ("Use case", "Pick", "Why", "Pass", "$ per pass", "Time")
+    widths = (16, 22, 26, 10, 15, 11)
+    th = "".join(f'<th scope="col" style="width:{width}%;text-align:left">{esc(name)}</th>'
+                 for name, width in zip(head, widths))
+    rows = []
+    for use, r, why in choices:
+        pick = r["display"] if r is not pipeline else f"{default['display']} →H fail"
+        price = ("~" if r["cost_kind"] == "proxy" else "") + dataset.usd(r["usd_per_pass"])
+        cells = (use, pick, why, f"{r['passes']}/{r['n']}", price, f"{r['median_s']:.1f} s")
+        rows.append('<tr>' + "".join(
+            f'<td style="white-space:normal;text-align:left;padding:7px 8px;vertical-align:top">{esc(cell)}</td>'
+            for cell in cells) + '</tr>')
+    caption = (f'{configs.set_label("main ladder", capital=True)} except pipeline '
+               f'({configs.set_label("rescue set")}). Time = median seconds. '
+               '~ = estimated from tokens; Claude costs are measured.')
+    return ('<div class="tablewrap"><table class="winner-table" style="table-layout:fixed;min-width:720px;font-size:13px">'
+            f'<caption style="caption-side:bottom;text-align:left;padding:8px">{esc(caption)}</caption>'
+            f'<thead><tr>{th}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>')
+
+
 def widgets(s, need, ds=None):
     arms = rescue_arms(ds or s)
     a, fa = pass_cost(s); b, fb = speed_cost(s); ha, hfa = hard_pass_cost(arms); hb, hfb = hard_speed_cost(arms); nm = dict(HARD_PTS)
     return {"pass_cost": a, "speed_cost": b, "hard_pass_cost": ha, "hard_speed_cost": hb,
             "hard_front_pass": ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": ", ".join(SHORT(nm[c]) for c in hfb), "sets": sets_box(s), "grid": grid(s), "floor": floor(s), "pipes": pipes(arms), "fast": fast(s), "explorer": explorer(s), "short_table": short_table(s, need),
             "front_pass": ", ".join(map(DISP, fa)), "front_speed": speed_frontier_text(s, fb),
+            "winner": winner_table(ds or dataset.read(), need),
             "legend": legend(ds or dataset.read()), "rescue_subtitle": rescue_subtitle(s), "problems": method(s)[0], "flags": method(s)[1]}

@@ -385,7 +385,7 @@ def test_rescue_label_leaders_start_at_the_named_point():
 
 def test_winner_and_conclusion_agree_and_sets_are_collapsed(summary):
     template = (ROOT / "docs/page.tmpl.md").read_text()
-    verdict = "Use sol61-high when Codex has quota. Use haiku-low when it does not; use haiku-high when a miss would be costly or you need speed."
+    verdict = "Use Codex quota first. Choose Haiku for savings, Sonnet for speed."
     assert template.count(verdict) == 2
     assert '<details class="sets"><summary>' in page.sets_box(summary)
     assert ' open' not in page.sets_box(summary).split('>')[0]

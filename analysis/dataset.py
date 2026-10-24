@@ -250,13 +250,17 @@ def fairness_facts():
         answer = "Slightly, but below the 0.15 we set as the bias threshold."
         detail = (f"Codex's harness helped luna-low more than haiku-low: the gap between them changed by {diff:+.3f}. "
                   "The confidence interval excludes zero but stays below 0.15, so we do not call it bias.")
-    facts = dict(hb_answer=answer, hb_detail=detail, hb_ci=f"{lo:+.3f} to {hi:+.3f}",
+    facts = dict(hb_answer=answer, hb_detail=detail, hb_diff=f"{diff:+.3f}", hb_ci=f"{lo:+.3f} to {hi:+.3f}",
                  hb_n_problems=str(len({r['problem'] for r in rows})),
                  hb_repeats=str(len({r['repeat'] for r in rows})))
     for harness, prefix in (('claude-one-shot', 'claude'), ('codex-tool-loop', 'codex')):
         for config in harness_bias.CFGS:
             cell = [r for r in rows if (r['harness'], r['config']) == (harness, config)]
             facts[f"hb_{prefix}_{config.replace('-', '_')}"] = f"{sum(r['passed'] for r in cell)}/{len(cell)}"
+    improved = all(int(facts[f"hb_codex_{c.replace('-', '_')}"].split('/')[0]) >
+                   int(facts[f"hb_claude_{c.replace('-', '_')}"].split('/')[0]) for c in harness_bias.CFGS)
+    facts['hb_conclusion'] = ("Vendor agent CLIs improved both models." if improved
+                              else "The runner comparison uses paired attempts.")
     codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
     facts['hb_errors'] = str(sum(r['outcome'] == 'harness_error' for r in codex))
     need(not any(r['outcome'] == 'timeout' or re.search(r'timeout|timed out|exceeded', r.get('error') or '', re.I)
@@ -281,6 +285,7 @@ def _facts(s, arms):
     attributed = (r for path in sorted(glob.glob(os.path.join(RES, "**", "*.jsonl"), recursive=True)) for r in load(path))
     F["codex_orchestrator_status"] = codex_orchestrator_status(attributed)
     F.update(fairness_facts())
+    F.update(main_set_label=configs.set_label("main ladder"), l7_set_label=configs.set_label("L7 set"))
     F["l7_n"] = str(len({p for v in hard.values() for p in v["by_problem"]}) * int(F["repeats"]))
     F["n_rescue_problems"] = str(len(luna_rescue.PIDS))
     F["older_generation"] = "5.6"

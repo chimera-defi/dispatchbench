@@ -4,18 +4,17 @@
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
-<p><b>Use sol61-high when Codex has quota. Use haiku-low when it does not; use haiku-high when a miss would be costly or you need speed.</b></p>
-<p class="small names">Names: haiku and sonnet are Claude; luna, sol and astra are Codex (OpenAI). Suffix = effort (low / medium / high). {{model_names}}. Symbols: see Notation below.</p>
-{{w_legend}}
-<ol class="recs">
-<li>Codex has quota? sol61-high at normal speed (not fast mode). After it answers, run the problem's worked examples. If any fail, haiku-low fixes the answer. In this run no fix was ever needed. {{claude_zero}} on the Claude bill.</li>
-<li>Codex out? haiku-low: passed {{haiku_low_passes}} of {{n_calls}}, {{haiku_low_upp}} per pass; haiku-high when a miss is costly: passed {{hh_passes}} of {{n_calls}}, {{hh_upp}} per pass.</li>
-<li>Need speed? haiku-high: {{hh_med}} s, never missed, {{hh_upp}} per pass.</li>
-</ol>
-<p><b>Why:</b></p>
+<p><b>Use Codex quota first. Choose Haiku for savings, Sonnet for speed.</b></p>
+{{w_winner}}
+<details class="small names"><summary>Model names</summary>
 <ul class="tight small">
-<li>haiku-high: never missed — {{hh_k}} main ladder, {{hh_hk}} L7, {{ag_hh_k}} repo tasks. {{hh_upp}} per pass, {{hh_med}} s. Measured $.</li>
+<li>Claude models: haiku and sonnet.</li>
+<li>Codex models: luna, sol and astra (OpenAI).</li>
+<li>Suffix = effort: low / medium / high.</li>
+<li>{{model_names}}.</li>
 </ul>
+</details>
+{{w_legend}}
 </section>
 <section class="method" id="method">
 <h2><span class="num"></span>❓ How it was run</h2>
@@ -155,17 +154,14 @@
 </section>
 <section class="verdict conclusion" id="conclusion">
 <h2 class="eyebrow"><span class="num"></span>✅ CONCLUSION</h2>
-<b>Use sol61-high when Codex has quota. Use haiku-low when it does not; use haiku-high when a miss would be costly or you need speed.</b>
-<ol class="recs">
-<li>Codex has quota: sol61-high. Run the worked examples after; haiku-low fixes only if they fail ({{claude_zero}} Claude).</li>
-<li>Claude only (Codex out): haiku-low first. If its answer fails the problem's worked examples, or a wrong answer would be costly, use haiku-high instead.</li>
-<li>Need it faster than sol61-high ({{x_sol61_high_med}} s)? haiku-high: {{hh_med}} s, never missed, {{hh_upp}} per pass.</li>
-<li>Must stay on Codex and need speed? sol61-high fast mode: {{ff_s61_med}} s, {{ff_s61_upp}} per pass, about {{ff_s61_x}} the Codex usage.</li>
-<li>Fastest at any price? astra-medium fast mode: {{ff_ast_med}} s, {{ff_ast_upp}} per pass.</li>
-<li>Want a bigger Claude model with zero misses? sonnet-medium: also never missed, {{sonnet_medium_med}} s, but {{sm_vs_hh_x}} haiku-high's cost per pass.</li>
-<li>Best luna + Haiku pipeline: luna-high-bare → Haiku reviews every answer; passed {{r_luna_high_bare_haiku_review_all_k}}, but cost {{hm_vs_pipe_x}} as much as haiku-medium alone.</li>
-<li>Never luna-low or luna-medium alone.</li>
-</ol>
+<b>Use Codex quota first. Choose Haiku for savings, Sonnet for speed.</b>
+<ul class="tight">
+<li>sol61-high never missed on the {{main_set_label}}, {{l7_set_label}} or repo tasks. With subscription quota, its cost per pass is {{claude_zero}}. Its Claude bill stays {{claude_zero}}. Check worked examples; haiku-low fixes failures. On the {{set_label}}, Haiku never ran: {{r_sol61_high_haiku_on_fail_k}}.</li>
+<li>Codex out? haiku-low is cheapest at {{budget_pass}}+ passing. A costly miss? Choose haiku-high. It passed {{hh_k}} on the {{main_set_label}}. It passed {{hh_hk}} on the {{l7_set_label}}. Repo tasks: {{ag_hh_k}}. Claude costs come from the CLI.</li>
+<li>sonnet-medium never missed across these sets. Its cost per pass is {{sm_vs_hh_x}} haiku-high's. sol61-high ⚡ charges {{fm_mult}} list price without increasing token counts.</li>
+<li>{{hb_conclusion}} luna-low: {{hb_claude_luna_low}} in our one-shot runner. Codex CLI: {{hb_codex_luna_low}}. haiku-low: {{hb_claude_haiku_low}} in our one-shot runner. Claude Code: {{hb_codex_haiku_low}}. Gap shift: {{hb_diff}}, below the pre-set bar. Supported range: {{hb_ci}}.</li>
+<li>Avoid luna-low or luna-medium alone. The best luna fix is luna-high-bare →H all. It passed {{r_luna_high_bare_haiku_review_all_k}} on the {{set_label}}. It costs {{hm_vs_pipe_x}} as much as haiku-medium alone.</li>
+</ul>
 </section>
 <section class="extras" id="extras">
 <h2><span class="num"></span>🔍 More charts</h2>
