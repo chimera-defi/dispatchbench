@@ -4623,27 +4623,27 @@
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
    ],
-   "passes": 17,
-   "n": 18,
-   "pass_rate": 0.9444,
+   "passes": 57,
+   "n": 60,
+   "pass_rate": 0.95,
    "ci95": [
-    0.7778,
+    0.85,
     1.0
    ],
    "groups": 6,
-   "usd_per_pass": 0.002617,
-   "claude_usd_per_pass": 0.002617,
+   "usd_per_pass": 0.002518,
+   "claude_usd_per_pass": 0.002518,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.002471,
-   "spend": 0.044483,
-   "spend_claude": 0.044483,
+   "usd_per_call": 0.002392,
+   "spend": 0.143533,
+   "spend_claude": 0.143533,
    "spend_codex": 0.0,
    "unknown_usd": 0,
-   "median_s": 15.05,
-   "p25_s": 11.31,
-   "p75_s": 16.88,
-   "tokens_in_mean": 4545,
-   "tokens_out_mean": 3372,
+   "median_s": 13.62,
+   "p25_s": 10.57,
+   "p75_s": 17.2,
+   "tokens_in_mean": 4551,
+   "tokens_out_mean": 3280,
    "by_rung": {},
    "cost_kind": "measured"
   },
@@ -4661,40 +4661,40 @@
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
    ],
-   "passes": 48,
-   "n": 48,
+   "passes": 126,
+   "n": 126,
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 6,
-   "usd_per_pass": 0.002602,
-   "claude_usd_per_pass": 0.002602,
+   "usd_per_pass": 0.002654,
+   "claude_usd_per_pass": 0.002654,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.002602,
-   "spend": 0.124905,
-   "spend_claude": 0.124905,
+   "usd_per_call": 0.002654,
+   "spend": 0.334442,
+   "spend_claude": 0.334442,
    "spend_codex": 0.0,
    "unknown_usd": 0,
-   "median_s": 14.48,
-   "p25_s": 11.64,
-   "p75_s": 16.62,
-   "tokens_in_mean": 19856,
-   "tokens_out_mean": 3435,
+   "median_s": 13.57,
+   "p25_s": 11.5,
+   "p75_s": 17.93,
+   "tokens_in_mean": 19766,
+   "tokens_out_mean": 3558,
    "by_rung": {
     "L2": [
-     16,
-     16
+     42,
+     42
     ],
     "L4": [
-     9,
-     9
+     22,
+     22
     ],
     "L5": [
-     7,
-     7
+     20,
+     20
     ],
     "L6": [
-     16,
-     16
+     42,
+     42
     ]
    },
    "cost_kind": "measured"
@@ -4713,27 +4713,27 @@
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
    ],
-   "passes": 11,
-   "n": 18,
-   "pass_rate": 0.6111,
+   "passes": 36,
+   "n": 60,
+   "pass_rate": 0.6,
    "ci95": [
-    0.2222,
-    1.0
+    0.2667,
+    0.9
    ],
    "groups": 6,
-   "usd_per_pass": 0.001289,
+   "usd_per_pass": 0.001303,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.001289,
-   "usd_per_call": 0.000787,
-   "spend": 0.014174,
+   "codex_usd_per_pass": 0.001303,
+   "usd_per_call": 0.000782,
+   "spend": 0.046896,
    "spend_claude": 0.0,
-   "spend_codex": 0.014174,
+   "spend_codex": 0.046896,
    "unknown_usd": 0,
-   "median_s": 7.3,
-   "p25_s": 5.69,
-   "p75_s": 8.05,
-   "tokens_in_mean": 14780,
-   "tokens_out_mean": 692,
+   "median_s": 7.49,
+   "p25_s": 5.33,
+   "p75_s": 8.94,
+   "tokens_in_mean": 14781,
+   "tokens_out_mean": 681,
    "by_rung": {},
    "cost_kind": "proxy"
   },
@@ -4751,43 +4751,43 @@
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
    ],
-   "passes": 33,
-   "n": 42,
+   "passes": 99,
+   "n": 126,
    "pass_rate": 0.7857,
    "ci95": [
-    0.4524,
-    1.0
+    0.4603,
+    0.9921
    ],
    "groups": 6,
    "usd_per_pass": null,
    "claude_usd_per_pass": null,
    "codex_usd_per_pass": null,
    "usd_per_call": null,
-   "spend": 0.06532,
+   "spend": 0.18699,
    "spend_claude": 0.0,
-   "spend_codex": 0.06532,
-   "unknown_usd": 24,
-   "median_s": 21.5,
-   "p25_s": 18.8,
-   "p75_s": 35.7,
-   "tokens_in_mean": 78786,
-   "tokens_out_mean": 2944,
+   "spend_codex": 0.18699,
+   "unknown_usd": 66,
+   "median_s": 21.14,
+   "p25_s": 17.68,
+   "p75_s": 26.91,
+   "tokens_in_mean": 69769,
+   "tokens_out_mean": 2752,
    "by_rung": {
     "L2": [
-     12,
-     14
+     38,
+     42
     ],
     "L4": [
-     7,
-     7
+     21,
+     21
     ],
     "L5": [
-     7,
-     7
+     21,
+     21
     ],
     "L6": [
-     7,
-     14
+     19,
+     42
     ]
    },
    "cost_kind": "proxy"
@@ -7868,27 +7868,27 @@
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
    ],
-   "passes": 17,
-   "n": 18,
-   "pass_rate": 0.9444,
+   "passes": 57,
+   "n": 60,
+   "pass_rate": 0.95,
    "ci95": [
-    0.7778,
+    0.85,
     1.0
    ],
    "groups": 6,
-   "usd_per_pass": 0.002617,
-   "claude_usd_per_pass": 0.002617,
+   "usd_per_pass": 0.002518,
+   "claude_usd_per_pass": 0.002518,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.002471,
-   "spend": 0.044483,
-   "spend_claude": 0.044483,
+   "usd_per_call": 0.002392,
+   "spend": 0.143533,
+   "spend_claude": 0.143533,
    "spend_codex": 0.0,
    "unknown_usd": 0,
-   "median_s": 15.05,
-   "p25_s": 11.31,
-   "p75_s": 16.88,
-   "tokens_in_mean": 4545,
-   "tokens_out_mean": 3372,
+   "median_s": 13.62,
+   "p25_s": 10.57,
+   "p75_s": 17.2,
+   "tokens_in_mean": 4551,
+   "tokens_out_mean": 3280,
    "by_rung": {},
    "cost_kind": "measured"
   },
@@ -7906,40 +7906,40 @@
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
    ],
-   "passes": 48,
-   "n": 48,
+   "passes": 126,
+   "n": 126,
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 6,
-   "usd_per_pass": 0.002602,
-   "claude_usd_per_pass": 0.002602,
+   "usd_per_pass": 0.002654,
+   "claude_usd_per_pass": 0.002654,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.002602,
-   "spend": 0.124905,
-   "spend_claude": 0.124905,
+   "usd_per_call": 0.002654,
+   "spend": 0.334442,
+   "spend_claude": 0.334442,
    "spend_codex": 0.0,
    "unknown_usd": 0,
-   "median_s": 14.48,
-   "p25_s": 11.64,
-   "p75_s": 16.62,
-   "tokens_in_mean": 19856,
-   "tokens_out_mean": 3435,
+   "median_s": 13.57,
+   "p25_s": 11.5,
+   "p75_s": 17.93,
+   "tokens_in_mean": 19766,
+   "tokens_out_mean": 3558,
    "by_rung": {
     "L2": [
-     16,
-     16
+     42,
+     42
     ],
     "L4": [
-     9,
-     9
+     22,
+     22
     ],
     "L5": [
-     7,
-     7
+     20,
+     20
     ],
     "L6": [
-     16,
-     16
+     42,
+     42
     ]
    },
    "cost_kind": "measured"
@@ -7958,27 +7958,27 @@
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
    ],
-   "passes": 11,
-   "n": 18,
-   "pass_rate": 0.6111,
+   "passes": 36,
+   "n": 60,
+   "pass_rate": 0.6,
    "ci95": [
-    0.2222,
-    1.0
+    0.2667,
+    0.9
    ],
    "groups": 6,
-   "usd_per_pass": 0.001289,
+   "usd_per_pass": 0.001303,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.001289,
-   "usd_per_call": 0.000787,
-   "spend": 0.014174,
+   "codex_usd_per_pass": 0.001303,
+   "usd_per_call": 0.000782,
+   "spend": 0.046896,
    "spend_claude": 0.0,
-   "spend_codex": 0.014174,
+   "spend_codex": 0.046896,
    "unknown_usd": 0,
-   "median_s": 7.3,
-   "p25_s": 5.69,
-   "p75_s": 8.05,
-   "tokens_in_mean": 14780,
-   "tokens_out_mean": 692,
+   "median_s": 7.49,
+   "p25_s": 5.33,
+   "p75_s": 8.94,
+   "tokens_in_mean": 14781,
+   "tokens_out_mean": 681,
    "by_rung": {},
    "cost_kind": "proxy"
   },
@@ -7996,43 +7996,43 @@
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
    ],
-   "passes": 33,
-   "n": 42,
+   "passes": 99,
+   "n": 126,
    "pass_rate": 0.7857,
    "ci95": [
-    0.4524,
-    1.0
+    0.4603,
+    0.9921
    ],
    "groups": 6,
    "usd_per_pass": null,
    "claude_usd_per_pass": null,
    "codex_usd_per_pass": null,
    "usd_per_call": null,
-   "spend": 0.06532,
+   "spend": 0.18699,
    "spend_claude": 0.0,
-   "spend_codex": 0.06532,
-   "unknown_usd": 24,
-   "median_s": 21.5,
-   "p25_s": 18.8,
-   "p75_s": 35.7,
-   "tokens_in_mean": 78786,
-   "tokens_out_mean": 2944,
+   "spend_codex": 0.18699,
+   "unknown_usd": 66,
+   "median_s": 21.14,
+   "p25_s": 17.68,
+   "p75_s": 26.91,
+   "tokens_in_mean": 69769,
+   "tokens_out_mean": 2752,
    "by_rung": {
     "L2": [
-     12,
-     14
+     38,
+     42
     ],
     "L4": [
-     7,
-     7
+     21,
+     21
     ],
     "L5": [
-     7,
-     7
+     21,
+     21
     ],
     "L6": [
-     7,
-     14
+     19,
+     42
     ]
    },
    "cost_kind": "proxy"
