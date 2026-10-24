@@ -6,14 +6,13 @@ show every entry. Add new rows here when a new run lands. Standard library only,
 
 Entry: (source, name, category, what). Family comes from the name (Claude: haiku/sonnet; Codex: everything else).
 A source is one results file; the same name in two sources is two entries (a pilot haiku-low is not the main-run haiku-low)."""
-import html, json, os, re, statistics
+import html, os, re
 
-RES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results")  # summarize imports labels imports this module: no import of summarize at load time
 
-SOURCES = {  # source id -> (file under results/, how a row is graded)
-    "main": "2026-10-22b-function.jsonl", "agentic": "2026-10-22b-agentic.jsonl", "trim": "2026-10-22b-trim.jsonl",
-    "rescue": "appendix/luna_rescue.jsonl", "pilot": "2026-10-22-pilot.jsonl", "pilot-agentic": "2026-10-22-pilot-agentic.jsonl",
-    "harness-bias": "appendix/harness_bias.jsonl"}
+SOURCES = {  # source id -> files under results/ that hold its rows
+    "main": ["2026-10-22b-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
+    "rescue": ["appendix/luna_rescue.jsonl"], "pilot": ["2026-10-22-pilot.jsonl"], "pilot-agentic": ["2026-10-22-pilot-agentic.jsonl"],
+    "harness-bias": ["appendix/harness_bias.jsonl", "appendix/codex_harness.jsonl"]}  # the last two land with the codex-own-harness branch
 CATEGORIES = ["main ladder", "exploratory", "fast mode and xhigh", "rescue pipeline", "repo tasks", "trim", "pilot", "harness-bias"]
 
 R = []
@@ -81,62 +80,32 @@ def family(name):
     return "Claude" if name.split("-")[0] in ("haiku", "sonnet") or name.startswith("pipeline C") else "Codex"
 
 
-def _fast(r):
-    return json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"] if str(r.get("service_tier", "")).startswith("priority") else 1
+def entry(source, name):
+    """Registry entry plus derived fields: id, display, family, files."""
+    e = REGISTRY[(source, name)]
+    return dict(e, id=f"{source}/{name}", display=display(name), family=family(name), files=["results/" + f for f in SOURCES[source]])
 
 
-def _rows():
-    """{(source, name): [(passed, usd or None, seconds)]} from every results file. Warmup rows are not counted."""
-    from analysis.summarize import PRICES, cost, load
-    out = {}
-    def put(src, name, ok, usd, sec): out.setdefault((src, name), []).append((bool(ok), usd, sec))
-    for src in ("main", "agentic", "trim", "pilot"):
-        for r in load(os.path.join(RES, SOURCES[src])):
-            if r.get("phase") == "warmup": continue
-            c = r.get("cost_usd") if str(r.get("model", "")).startswith("claude") else cost(r); c = c * _fast(r) if c is not None and src == "pilot" else c
-            put(src, r["config"], r.get("passed", r.get("hidden_pass")), c, r["wall_s"])
-    for r in load(os.path.join(RES, SOURCES["rescue"])):
-        put("rescue", r["config"], r["passed"], r.get("cost_usd"), r["wall_s"])
-    for r in load(os.path.join(RES, SOURCES["pilot-agentic"])):
-        c = r.get("builder_cost_usd")
-        if c is None and r["builder_kind"] == "codex":
-            p = PRICES[r["builder"]]; c = ((r["builder_in"] - r["builder_cached"]) * p["input"] + r["builder_cached"] * p["cached_input"] + r["builder_out"] * p["output"]) / 1e6
-        rv = (r.get("review") or {}).get("cost_usd") or 0
-        put("pilot-agentic", f"pipeline {r['pipeline']}", r["hidden_pass"], None if c is None else c + rv, r["builder_wall_s"])
-    for r in load(os.path.join(RES, SOURCES["harness-bias"])):
-        put("harness-bias", r.get("config") or r.get("harness"), r.get("passed"), r.get("cost_usd"), r.get("wall_s") or 0)
-    return out
-
-
-def stats():
-    """One dict per registry entry with its rows: pass x/n, $ per pass, median seconds, spend."""
-    rows = _rows(); out = []
-    for key, rr in rows.items():
-        e = dict(REGISTRY.get(key, {"source": key[0], "name": key[1], "category": "?", "what": "(not in analysis/configs.py)"}))
-        k = sum(p for p, _, _ in rr); known = [u for _, u, _ in rr if u is not None]
-        e.update(passes=k, n=len(rr), spend=sum(known), unknown_usd=len(rr) - len(known), median_s=statistics.median(s for _, _, s in rr),
-                 usd_per_pass=(sum(known) / k if k and not len(known) < len(rr) else None), file="results/" + SOURCES[key[0]], family=family(key[1]))
-        out.append(e)
-    return out
-
-
-def check_registry():
-    """Failures: a config with rows but no entry, or an entry with no rows."""
-    have = set(_rows()); fails = [f"configs: {s}/{n} has rows in results/{SOURCES[s]} but is not in analysis/configs.py" for s, n in sorted(have - set(REGISTRY))]
-    return fails + [f"configs: registry entry {s}/{n} has no rows" for s, n in sorted(set(REGISTRY) - have)]
+def check_registry(keys):
+    """keys = {(source, name)} that have rows (dataset.keys()). Failures: rows but no entry, or an entry with no rows."""
+    fails = [f"configs: {s}/{n} has rows in results/ but is not in analysis/configs.py" for s, n in sorted(set(keys) - set(REGISTRY))]
+    return fails + [f"configs: registry entry {s}/{n} has no rows" for s, n in sorted(set(REGISTRY) - set(keys))]
 
 
 def _seen(text, name):
     return re.search(r"(?<![\w/+→-])" + re.escape(display(name)) + r"(?![\w/]|-\w)", text) is not None
 
 
-def where(e, rest):
-    """Where the page shows this entry outside the section: the page text is searched for its display name, but only main, agentic and
-    rescue entries can match (pilot and trim names collide with main-run names, so they are never claimed as shown elsewhere)."""
-    if e["source"] in ("main", "agentic") and _seen(rest, e["name"]): return "charts and tables"
+def where(e, rest, root):
+    """Where the page shows this config outside the section, decided by source: main-run names are searched in the page text, repo-task
+    names in the agentic chart, rescue arms by their page label. Pilot, trim and harness-bias configs are never claimed elsewhere."""
+    if e["source"] == "main" and _seen(rest, e["config"]): return "charts and tables"
+    if e["source"] == "agentic":
+        f = os.path.join(root, "results", "report", "charts", "agentic.svg")
+        return "repo-task chart" if os.path.exists(f) and e["config"] in open(f).read() else "only here"
     if e["source"] == "rescue":
         from analysis import page  # lazy: page imports labels, which imports this module
-        shown = page.NAME.get(e["name"])
+        shown = page.NAME.get(e["config"])
         if shown and shown in rest: return "charts and tables"
     return "only here"
 
@@ -145,22 +114,23 @@ def money(v):
     return "–" if v is None else f"${v:,.2f}" if v >= 1 else f"${v:.4f}"
 
 
-def section(rest):
-    """The collapsible "Everything we tried" block. rest = the page's HTML without this block, used for the 'where' column."""
-    st = stats(); by = {}
-    for e in st: by.setdefault(e["category"], []).append(e)
+def section(rest, ds, root):
+    """The collapsible "Everything we tried" block, one row per config from the dataset's all-runs roll-up. rest = the page HTML without
+    this block, used for the 'where it appears' column."""
+    by = {}
+    for r in ds["rows"]:
+        if r["set"] == "all runs": by.setdefault(r["category"], []).append(r)
     head = "".join(f"<th>{h}</th>" for h in ("name", "what it was", "pass", "$ per pass", "median s", "spend", "where it appears"))
-    out = ["<details><summary>Everything we tried</summary>", "<p class=\"small\">Every config with rows in results/, grouped by kind. Codex $ are list-price proxies; ~ = some rows have no cost. "
-           "Source file per group is in the first row's tooltip.</p>"]
+    out = ["<details><summary>Everything we tried</summary>", "<p class=\"small\">Every config with rows in results/, grouped by kind, all of its runs together. Codex $ are list-price proxies; ~ = some rows have no cost. "
+           "The tooltip on a name is the file its rows are in.</p>"]
     for cat in CATEGORIES:
         es = by.pop(cat, [])
         if not es: continue
-        tot = sum(e["spend"] for e in es)
-        out.append(f"<details><summary>{html.escape(cat)}: {len(es)} configs, {money(tot)} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
+        out.append(f"<details><summary>{html.escape(cat)}: {len(es)} configs, {money(sum(e['spend'] for e in es))} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
         for e in es:
-            wh = where(e, rest); tilde = "~" if e["unknown_usd"] else ""
-            out.append(f"<tr><td title=\"{html.escape(e['file'])}\">{html.escape(display(e['name']))}</td><td>{html.escape(e['what'])}</td><td>{e['passes']}/{e['n']}</td>"
-                       f"<td>{tilde}{money(e['usd_per_pass'])}</td><td>{e['median_s']:.1f}</td><td>{tilde}{money(e['spend'])}</td><td>{wh}</td></tr>")
+            tilde = "~" if e["unknown_usd"] else ""
+            out.append(f"<tr><td title=\"{html.escape(', '.join(e['files']))}\">{html.escape(e['display'])}</td><td>{html.escape(e['what'])}</td><td>{e['passes']}/{e['n']}</td>"
+                       f"<td>{tilde}{money(e['usd_per_pass'])}</td><td>{e['median_s']:.1f}</td><td>{tilde}{money(e['spend'])}</td><td>{where(e, rest, root)}</td></tr>")
         out.append("</tbody></table></div></details>")
-    out += [f"<details><summary>unregistered</summary><p>{html.escape(display(e['name']))} ({e['source']})</p></details>" for es in by.values() for e in es]
+    out += [f"<details><summary>unregistered</summary><p>{html.escape(r['display'])} ({r['source']})</p></details>" for es in by.values() for r in es]
     return "\n".join(out + ["</details>"])

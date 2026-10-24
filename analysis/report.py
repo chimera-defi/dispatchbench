@@ -13,7 +13,7 @@ Template syntax:
 """
 import glob, html, json, os, re, statistics
 
-from analysis import configs, fast_gate, luna_rescue, page as pagew
+from analysis import configs, dataset, fast_gate, luna_rescue, page as pagew
 from analysis.labels import pshort, plabel, DISP
 from analysis.charts import HOST_AGENTS_MD, MIN_PASS
 from analysis.summarize import FAST_CONFIGS, ROOT, RES, FUNC, AGENT, ci_text, cost, cost_uncached, load, pct, money, scale
@@ -557,7 +557,7 @@ def render():
     W = pagew.widgets(s, need)
     page_tmpl = open(PAGE_TEMPLATE).read()
     body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}, "w_everything": ""}), T, "page")  # first pass: the page without the section
-    W["everything"] = configs.section(body)  # every registered config, with 'where it appears' read from that first pass
+    W["everything"] = configs.section(body, dataset.read(), ROOT)  # every registered config, with 'where it appears' read from that first pass
     body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}}), T, "page")
     shell = open(os.path.join(PAGE_DIR, "shell.html")).read()
     page = shell.replace("__CSS__", open(os.path.join(PAGE_DIR, "style.css")).read().strip()).replace("__BODY__", body).replace("__JS__", open(os.path.join(PAGE_DIR, "sort.js")).read().strip())
