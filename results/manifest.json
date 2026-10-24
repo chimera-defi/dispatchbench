@@ -16,6 +16,11 @@
    "model": "claude-haiku-5-5",
    "effort": "medium"
   },
+  "haiku-high": {
+   "cli": "claude",
+   "model": "claude-haiku-5-5",
+   "effort": "high"
+  },
   "sonnet-medium": {
    "cli": "claude",
    "model": "claude-sonnet-5-5",
@@ -137,31 +142,32 @@
  },
  "lanes": [
   1,
+  2,
   3,
   4
  ],
  "first_call_utc": "2026-10-22T08:32:54+00:00",
- "last_call_utc": "2026-10-23T20:34:12+00:00",
+ "last_call_utc": "2026-10-24T00:20:14+00:00",
  "rows_by_phase": {
   "calibration": 30,
   "escalation": 15,
-  "exploratory": 405,
+  "exploratory": 465,
   "fastmode": 105,
-  "hard": 135,
+  "hard": 165,
   "main": 360,
   "warmup": 6
  },
- "agentic_runs": 72,
+ "agentic_runs": 84,
  "claude_budget_cap_usd": 8.0,
  "spend": {
-  "claude_measured_usd": 2.0588,
-  "claude_function_usd": 1.354,
-  "claude_agentic_usd": 0.7048,
+  "claude_measured_usd": 2.4624,
+  "claude_function_usd": 1.6128,
+  "claude_agentic_usd": 0.8496,
   "codex_proxy_usd": 22.5262,
   "codex_fastmode_usd": 3.4069,
   "calls": {
-   "function": 1056,
-   "agentic": 72
+   "function": 1146,
+   "agentic": 84
   }
  },
  "errors": [],
@@ -345,5 +351,5 @@
    }
   }
  },
- "git_sha": "78d9512f68a86a0284e9cc22e94cc3ba7307e39a"
+ "git_sha": "38ca5ba74d49d552fdaaff0391485b8a1ddc5ca8"
 }

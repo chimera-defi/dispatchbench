@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-23T20:46:45+00:00",
+ "generated": "2026-10-24T00:05:12+00:00",
  "tools": {
   "python": "3.12.3",
   "radon": "6.0.1",
@@ -13,7 +13,7 @@
  "slow_first_run_s": 2.0,
  "mem_wall_s": 60.0,
  "mem_size_factor": "4 * n0",
- "rows": 1050,
+ "rows": 1140,
  "n0": {
   "p01_overlap_minutes": 12500,
   "p02_squash": 25000,

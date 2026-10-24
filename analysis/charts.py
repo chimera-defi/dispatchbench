@@ -100,7 +100,7 @@ def cost_time_chart(s):
           text(26, (T + H - B) / 2, "median seconds per call", 12, "middle", MUTED, rotate=-90)]
     if len(front) > 1:
         b.append(f"<polyline points='{' '.join(f'{X(pts[c][0]):.1f},{Y(pts[c][1]):.1f}' for c in front)}' fill='none' stroke='{PURPLE}' stroke-width='2.5' stroke-dasharray='6 4'/>")
-    dy = {"luna-low": 16, "sonnet-medium": 16, "haiku-low": -12, "luna-medium": 4}; left = {"luna-high", "luna-low-bare"}
+    dy = {"luna-low": 16, "sonnet-medium": 16, "haiku-low": -12, "luna-medium": 4, "luna-high": 4, "haiku-medium": -10}; left = {"luna-high", "luna-low-bare", "haiku-medium"}
     for c, (x, t) in pts.items():
         hollow = c not in s["configs"]; px, py = X(x), Y(t)
         col = FAMILY(c)

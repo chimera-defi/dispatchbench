@@ -18,6 +18,7 @@
 | G: astra-medium builds; haiku-low repairs only if the statement's examples fail | 35/35 | 0.08680 | 0.00000 | 21.4 |
 | haiku-low | 32/35 | 0.00157 | 0.00157 | 13.1 |
 | haiku-medium | 35/35 | 0.00192 | 0.00192 | 14.8 |
+| haiku-high | 35/35 | 0.00347 | 0.00347 | 17.4 |
 | sonnet-medium | 35/35 | 0.01530 | 0.01530 | 11.4 |
 | sol61-medium | 33/35 | 0.01785 | 0.00000 | 25.6 |
 | sol61-high | 35/35 | 0.02218 | 0.00000 | 33.4 |
