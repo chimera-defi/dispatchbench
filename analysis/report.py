@@ -13,7 +13,7 @@ Template syntax:
 """
 import html, json, os, re, statistics
 
-from analysis import luna_rescue, page as pagew
+from analysis import fast_gate, luna_rescue, page as pagew
 from analysis.labels import pshort, plabel, DISP
 from analysis.charts import HOST_AGENTS_MD, MIN_PASS
 from analysis.summarize import FAST_CONFIGS, ROOT, RES, FUNC, AGENT, ci_text, cost, cost_uncached, load, pct, money, scale
@@ -106,6 +106,7 @@ def facts(s):
     for p in ("p04_taller_within", "p11_best_average", "p12_sheet"):
         F[f"{p[:3]}_luna"] = f"{s['problems'][p]['luna-low'] + s['problems'][p]['luna-medium']}/{2 * cfg['luna-low']['n'] // nprob}"
     e = next(e for e in s["escalation"] if e["config"] == "luna-high")
+    F["esc_problems"] = ", ".join(plabel(p) for p in e["problems"])
     F["esc_k"] = f"{e['passes']}/{e['n']}"; F["esc_base"] = f"{e['base_passes']}/{e['base_n']}"; F["esc_vs"] = e["vs"]
     d = vs(s, "luna-high", "luna-medium"); F["lh_vs_lm"] = p1(d["diff"]); F["lh_vs_lm_ci"] = ci_pts(d["ci95"])
     # finding 3 and the token callout: stripped harness
@@ -165,6 +166,13 @@ def facts(s):
     F["p04_wrong"] = str(len(w04)); F["p04_wrong_ex1"] = str(sum(r["grade_detail"] == "small case 0" for r in w04))
     hl_all = [r for r in rows if r["config"] == "haiku-low" and r["phase"] in ("main", "hard")]
     oc = {k: sum(r["outcome"] == k for r in hl_all) for k in ("timeout", "crash", "wrong")}; need(oc["wrong"] == 0, "haiku-low never wrong")
+    for name, phase in (("main", "main"), ("l7", "hard")):
+        rr = [r for r in hl_all if r["phase"] == phase]
+        F[f"hl_{name}_failures"] = f"{sum(r['outcome'] == 'timeout' for r in rr)} too slow, {sum(r['outcome'] == 'crash' for r in rr)} crash, {sum(r['outcome'] == 'wrong' for r in rr)} wrong outputs in {len(rr)} tries"
+    worst = max(s["failures"], key=lambda p: sum(v["passed"] < v["n"] for v in s["failures"][p]["cells"].values()))
+    misses = sum(v["passed"] < v["n"] for v in s["failures"][worst]["cells"].values())
+    need(misses > 0 and worst in s["problems"], "the worst failure problem belongs to the main ladder")
+    F["worst_failure"] = f"{plabel(worst)} has misses in {misses} of {len(every)} configs"
     F["hl_timeouts"] = str(oc["timeout"]); F["hl_crashes"] = str(oc["crash"]); F["hl_attempts"] = str(len(hl_all))
     hm = [r for r in main_rows if r["config"] == "haiku-medium" and not r["passed"]]
     need(len(hm) == 1 and hm[0]["outcome"] == "wrong" and hm[0]["problem"].startswith("p05"), "haiku-medium's one miss")
@@ -193,11 +201,16 @@ def facts(s):
     hr, lr, hv, sm = a["luna-high-bare+haiku-on-fail"], a["luna-low+haiku-on-fail"], a["luna-high-bare+haiku-review-all"], a["sonnet-medium"]
     need(hv["passes"] == hv["n"] == sm["passes"], "luna-high + Haiku review and sonnet-medium never failed on the rescue set")
     hm = a["haiku-medium"]; need(hm["passes"] == hm["n"] and hm["usd_per_pass"] < hv["usd_per_pass"], "haiku-medium alone: no miss, cheaper than the pipeline")
-    F["hm_vs_pipe_x"] = x(hv["usd_per_pass"], hm["usd_per_pass"]); F["r_pids"] = ", ".join(pshort(q) for q in luna_rescue.PIDS)
+    F["hm_vs_pipe_x"] = x(hv["usd_per_pass"], hm["usd_per_pass"]); F["r_pids"] = ", ".join(plabel(q) for q in luna_rescue.PIDS)
     F["sm_vs_hm_x"] = f"{cfg['sonnet-medium']['usd_per_pass'] / cfg['haiku-medium']['usd_per_pass']:.0f}×"
     hm7 = hard["haiku-medium"]; F["hm_l7_k"] = f"{hm7['passes']}/{hm7['n']}"
     F["hm_l7_miss"] = " and ".join(f"{v} {k}" for k, v in sorted(hm7["outcomes"].items()) if k != "pass") or "none"
     F["g_vs_sm_x"] = x(sm["usd_per_pass"], hv["usd_per_pass"]); F["g_hi_fixed"] = str(sum(r["repaired"] for r in hr["rows"]))
+    need(all(r["passed"] for r in hr["rows"] if r["repaired"]), "Haiku fixed every answer whose sample tests failed")
+    F["g_hi_bad"] = str(sum(r["repaired"] for r in hr["rows"]) + hr["n"] - hr["passes"])
+    need(a["haiku-low-plan+luna-high-bare"]["passes"] == a["luna-high-bare"]["passes"], "plan first leaves luna-high-bare passes unchanged")
+    need(a["haiku-low-plan+luna-low"]["passes"] > a["luna-low"]["passes"], "planning helps luna-low")
+    need(all(a["haiku-low-plan+" + c]["usd_per_pass"] > a[c + "+haiku-on-fail"]["usd_per_pass"] for c in ("luna-low", "luna-high-bare")), "both plan-first arms cost more than their corresponding check-after arms")
     F["g_hi_missed"] = str(hr["n"] - hr["passes"]); F["g_lo_fixed"] = str(sum(r["repaired"] for r in lr["rows"]))
     # appendix: the pilot (results/2026-10-22-pilot.jsonl) and the trim probe's pair step on three of its problems
     pl = s["pilot"]; prow = load(os.path.join(RES, "2026-10-22-pilot.jsonl"))
@@ -217,9 +230,10 @@ def facts(s):
     F["pilot_luna_call"] = u(pr["luna/noshell"]["usd_per_call"]); F["pilot_haiku_call"] = u(pr["haiku"]["usd_per_call"])
     F["pilot_luna_k"] = f"{pr['luna/noshell']['passes']}/{pr['luna/noshell']['n']}"; F["pilot_haiku_k"] = f"{pr['haiku']['passes']}/{pr['haiku']['n']}"
     q = [r for r in quality_rows() if r["outcome"] == "pass" and r["phase"] in ("main", "exploratory", "escalation") and r.get("time_ratio") is not None]
+    F["q_rows"] = str(len([r for r in quality_rows() if r["outcome"] == "pass" and r["phase"] in ("main", "exploratory", "escalation")]))
     if q:
         w = max(q, key=lambda r: r["time_ratio"])
-        F["q_worst_x"] = f"{w['time_ratio']:.0f}×"; F["q_worst_problem"] = w["problem"].split("_")[0]
+        F["q_worst_x"] = f"{w['time_ratio']:.0f}×"; F["q_worst_problem"] = plabel(w["problem"]); F["q_worst_cfg"] = DISP(w["config"])
         slow = [r for r in q if r["problem"] == w["problem"] and r["time_ratio"] >= 10]  # 10x: one config's extreme outlier must not hide the rest
         F["q_slow_n"] = str(len(slow)); F["q_slow_cfgs"] = str(len({r["config"] for r in slow})); F["q_slow_lo"] = f"{min(r['time_ratio'] for r in slow):.0f}×"
         need(w["ref_time_exp"] < 0.2, "the slowest problem's reference is near constant time"); F["q_worst_ref_exp"] = f"{w['ref_time_exp']:.2f}"
@@ -240,6 +254,9 @@ def facts(s):
             blk = {i["config"] for i in b["items"] if i["block"]}
             need(blk == {"sonnet-medium"}, "every solution the blind reader would block came from sonnet-medium")
             F["bl_blocks"] = str(sum(i["block"] for i in b["items"]))
+            counts = {c: sum(i["config"] == c for i in b["items"]) for c in {i["config"] for i in b["items"]}}
+            need(len(set(counts.values())) == 1, "blind read has the same sample size per config")
+            F["blind_caption"] = f"Reader: {b['reviewer']}. Method: {b['method']}. Score: {b['scale'].replace('block =', 'would block =')}. {next(iter(counts.values()))} solutions per config."
     # fast mode on the main ladder and L7 (exploratory, 2026-10-24): same model and effort, priority tier
     for k, (b0, b1) in {"s61": ("sol61-high", "sol61-high-fast"), "ast": ("astra-medium", "astra-medium-fast")}.items():
         d, f = ex[b0], ex[b1]; dh, fh = hard[b0], hard[b1]
@@ -250,6 +267,23 @@ def facts(s):
         F[f"ff_{k}_upp"] = u(f["usd_per_pass"], 4); F[f"ff_{k}_dupp"] = u(d["usd_per_pass"], 4)
         F[f"ff_{k}_med"] = f"{f['latency_s']['median']:.1f}"; F[f"ff_{k}_dmed"] = f"{d['latency_s']['median']:.1f}"
         F[f"ff_{k}_faster"] = f"{(1 - f['latency_s']['median'] / d['latency_s']['median']) * 100:.0f}%"; F[f"ff_{k}_x"] = x(f["usd_per_pass"], d["usd_per_pass"])
+        # Cached statement-example replay is the evidence for this counterfactual pipeline.
+        checked = fast_gate.summary()
+        for c in (b0, b1):
+            need(checked[c]["all"]["failures"] == 0, f"{c} pipeline would need a Haiku call and was not run")
+        pm, ph = checked[b1]["main"]["pipeline"], checked[b1]["hard"]["pipeline"]
+        dm = checked[b0]["main"]["pipeline"]
+        for source, derived in ((f, pm), (fh, ph), (d, dm)):
+            need(source["passes"] == derived["passes"] and source["n"] == derived["n"]
+                 and source["usd_per_pass"] == round(derived["usd_per_pass"], 6)
+                 and source["latency_s"]["median"] == round(derived["median_s"], 2), "derived pipeline equals its builder's ff numbers")
+        F[f"pf_{k}_k"] = f"{pm['passes']}/{pm['n']}"; F[f"pf_{k}_hk"] = f"{ph['passes']}/{ph['n']}"
+        F[f"pf_{k}_upp"] = u(pm["usd_per_pass"], 4); F[f"pf_{k}_med"] = f"{pm['median_s']:.1f}"
+        F[f"pf_{k}_dupp"] = u(dm["usd_per_pass"], 4); F[f"pf_{k}_dmed"] = f"{dm['median_s']:.1f}"
+        F[f"pf_{k}_fails"] = str(checked[b1]["all"]["failures"])
+        F[f"pf_{k}_n_all"] = str(checked[b1]["main"]["n"] + checked[b1]["hard"]["n"])
+        F[f"pf_{k}_status"] = checked[b1]["all"]["status"]
+        need(all(F[f"pf_{k}_{field}"] == F[f"ff_{k}_{field}"] for field in ("k", "hk", "upp", "med", "dupp", "dmed")), "pf facts equal ff facts")
     F["growth_margin"] = str(GROWTH_MARGIN)
     F["n_solutions"] = str(sum(1 for _, _, fs in os.walk(os.path.join(RES, "solutions")) for f in fs if f.endswith(".py")))
     # Codex additions (exploratory, run after the report at the operator's request)
@@ -295,10 +329,21 @@ def facts(s):
     F["ag_claude_med"] = f"{statistics.mean(ag[c]['latency_s']['median'] for c in ('haiku-low', 'sonnet-medium')):.0f}"
     ga = luna_rescue.arms()
     for c in ("sol61-high+haiku-on-fail", "astra-medium+haiku-on-fail"):
-        g = ga[c]; need(g["passes"] == g["n"], f"{c} never failed on the rescue set"); F["g_" + c.split("-")[0] + "_repairs"] = str(sum(r["repaired"] for r in g["rows"]))
+        g = ga[c]; need(g["passes"] == g["n"] and not any(r["repaired"] for r in g["rows"]), f"{c} never failed and never called Haiku on the rescue set"); F["g_" + c.split("-")[0] + "_repairs"] = str(sum(r["repaired"] for r in g["rows"]))
         F["g_" + c.split("-")[0] + "_cupp"] = u(g["claude_usd_per_pass"])
     F["x_astra_vs_sm"] = f"{ex['astra-medium']['usd_per_pass'] / sm_all:.0f}×"
     F["x_l56_vs_lh"] = x(ex["luna56-high"]["usd_per_pass"], ex["luna-high"]["usd_per_pass"])
+    F["ag_sm_k"] = f"{ag['sonnet-medium']['hidden_pass']}/{ag['sonnet-medium']['n']}"
+    for k, c in (("hl", "haiku-low"), ("sm", "sonnet-medium")):
+        F[f"l7_{k}_k"] = f"{hard[c]['passes']}/{hard[c]['n']}"
+    F["ci_level"] = "95%"
+    F["repeat_lo"] = str(min(r["repeat"] for r in main_rows))
+    F["r_luna_high_bare_miss"] = str(a["luna-high-bare"]["n"] - a["luna-high-bare"]["passes"])
+    F["n_exploratory"] = str(len(ex)); F["exploratory_names"] = ", ".join(map(DISP, ex))
+    expected = lambda rung: "Easy" if rung == 1 else "Medium" if rung <= 3 else "Hard"
+    disagree = [p for p, v in s["problems"].items() if pagew.LC[p] != expected(v["rung"])]
+    need(disagree, "some LeetCode badges disagree with rung order")
+    F["badge_disagreements"] = ", ".join(f"{plabel(p, s['problems'][p]['rung'])} is {pagew.LC[p]}" for p in disagree)
     return F
 
 
@@ -309,11 +354,11 @@ def md_table(head, rows, bold=None):
 def tables_md(s):
     T = {}; cfg, ex = s["configs"], s["exploratory"]; nprob = len(s["problems"])
     T["result"] = md_table(["config", "pass@1", "95% CI", "median s", "p90 s", "$ per pass", f"total $ ({cfg['haiku-low']['n']} calls)", "$ kind"],
-                           [[c + (" (exploratory)" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], nprob),
+                           [[DISP(c) + (" (exploratory)" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], nprob),
                              f"{v['latency_s']['median']:.1f}", f"{v['latency_s']['p90']:.1f}", f"{money(v['usd_per_pass'], 5)}", f"{money(v['usd_total'], 3)}", v["cost_kind"]]
                             for c, v in {**cfg, **ex}.items()])
     T["tokens"] = md_table(["config", "mean input", "of which cached", "mean output", "of which reasoning", "$ per 1k tokens"],
-                           [[c + (" (exploratory)" if c in ex else ""), n(v["tokens_mean"]["in_tok"]), n(v["tokens_mean"]["cached_tok"]), n(v["tokens_mean"]["out_tok"]),
+                           [[DISP(c) + (" (exploratory)" if c in ex else ""), n(v["tokens_mean"]["in_tok"]), n(v["tokens_mean"]["cached_tok"]), n(v["tokens_mean"]["out_tok"]),
                              n(v["tokens_mean"]["reasoning_tok"]), money(scale(v["usd_per_call"], 1000 / (v["tokens_mean"]["in_tok"] + v["tokens_mean"]["out_tok"])))]
                             for c, v in {**cfg, **ex}.items()])
     from bench.trim_probe import LEVELS
@@ -368,14 +413,14 @@ def quality_table(s):
         need(len(rr) == (s["configs"].get(c) or s["exploratory"][c])["passes"], f"quality rows cover every passing {c} solution")
         tr = [r["time_ratio"] for r in rr if r.get("time_ratio") is not None]; mr = [r["mem_ratio"] for r in rr if r.get("mem_ratio") is not None]
         slow = sum(1 for r in rr if r.get("time_exp") is not None and r.get("ref_time_exp") is not None and r["time_exp"] - r["ref_time_exp"] > GROWTH_MARGIN)
-        out.append([c, str(len(rr)), f"{med([r['loc'] for r in rr]):.0f}", f"{med([r['cc_max'] for r in rr]):.0f}",
+        out.append([DISP(c), str(len(rr)), f"{med([r['loc'] for r in rr]):.0f}", f"{med([r['cc_max'] for r in rr]):.0f}",
                     f"{sum(r['lint_warnings'] for r in rr) / len(rr):.2f}", f"{med(tr):.2f}" if tr else "–", f"{slow}", f"{med(mr):.2f}" if mr else "–"])
-    return md_table(["config", "passing solutions", "median LOC", "median max complexity", "lint warnings per solution", "median time vs reference",
-                     "growth worse than reference", "median peak memory vs reference"], out)
+    return md_table(["config", "passing solutions", "median LOC", "median max complexity", "lint warnings per solution", "time vs ref",
+                     "worse growth", "mem vs ref"], out)
 
 
 BLIND = os.path.join(ROOT, "results", "appendix", "blind_readability.json")
-FM_LABEL = {"sol61-high": "sol61-high, default tier (control)", "sol61-high-fast": "sol61-high, fast mode", "sol61-xhigh": "sol61-xhigh, default tier"}
+FM_LABEL = {"sol61-high": "sol61-high, default tier (separate control run, repeats {lo}-{hi})", "sol61-high-fast": "sol61-high ⚡", "sol61-xhigh": "sol61-xhigh, default tier"}
 
 
 def fastmode_tables(s):
@@ -385,11 +430,11 @@ def fastmode_tables(s):
     for c, v in fm.items():
         rr = [r for r in q if r["config"] == c]; need(len(rr) == v["passes"], f"quality rows cover every passing fast-mode {c} solution")
         tr = [r["time_ratio"] for r in rr if r.get("time_ratio") is not None]
-        out.append([FM_LABEL[c], f"{v['passes']}/{v['n']}", f"{v['median_s']:.1f}", n(v["out_median"]), f"{money(v['usd_per_pass'], 4)}",
+        out.append([FM_LABEL[c].format(lo=min(v["repeats"]), hi=max(v["repeats"])), f"{v['passes']}/{v['n']}", f"{v['median_s']:.1f}", n(v["out_median"]), f"{money(v['usd_per_pass'], 4)}",
                     f"{statistics.median(r['loc'] for r in rr):.0f}", f"{statistics.median(r['cc_max'] for r in rr):.0f}",
                     f"{sum(r['lint_warnings'] for r in rr) / len(rr):.2f}", f"{statistics.median(tr):.2f}" if tr else "–"])
     t1 = md_table(["config", "passed", "median s", "median output tokens", "$ per pass (proxy)", "median LOC", "median max complexity",
-                   "lint warnings per solution", "median time vs reference"], out)
+                   "lint per solution", "time vs ref"], out)
     b = json.load(open(BLIND)) if os.path.exists(BLIND) else None
     if not b: return t1, "_no blind read yet._"
     cs = sorted({i["config"] for i in b["items"]}, key=lambda c: -statistics.mean(i["score"] for i in b["items"] if i["config"] == c))
@@ -410,7 +455,9 @@ def fill(text, F, T, mode):
         if k.startswith("chart:"):
             f, cap = k[6:].split("|", 1)
             if mode == "readme": return f"![{cap}](results/report/charts/{f})"
-            return f"<figure>{open(os.path.join(CHARTS, f)).read().strip()}<figcaption>{html.escape(cap)}</figcaption></figure>"
+            body = open(os.path.join(CHARTS, f)).read().strip()
+            width = re.search(r"\bwidth=['\"](\d+)['\"]", body).group(1)
+            return f'<figure><div class="svgscroll" style="--natural-width:{width}px">{body}</div><figcaption>{html.escape(cap)}</figcaption></figure>'
         return F[k]
     lines = []
     for line in text.split("\n"):
@@ -464,7 +511,7 @@ def to_html(md):
             head, body = cells[0], cells[2:]
             th = "".join(f"<th>{inline(c)}</th>" for c in head)
             trs = "".join("<tr>" + "".join(f"<td>{inline(c)}</td>" for c in r) + "</tr>" for r in body)
-            out.append(f"<div class=\"wrap\"><table class=\"sortable\"><thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table></div>"); i = j; continue
+            out.append(f"<div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table></div>"); i = j; continue
         if line.startswith("> "):
             j = i; buf = []
             while j < len(L) and L[j].startswith(">"): buf.append(L[j][1:].strip()); j += 1

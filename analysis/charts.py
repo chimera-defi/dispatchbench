@@ -48,7 +48,7 @@ def pareto_chart(s):
     x0, x1 = min(xs) / 1.6, max(xs) * 1.6; y0 = 0.6
     X = lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R)
     Y = lambda p: H - B - (p - y0) / (1 - y0) * (H - T - B)
-    b = [text(L, 24, "Pass rate vs cost per passing solution (function track, x log)", 14, weight="600")]
+    b = [text(L, 24, "Pass rate vs cost per passing solution (main ladder p01-p12, x log)", 14, weight="600")]
     for p in (0.6, 0.7, 0.8, 0.9, 1.0):
         b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
     for v in log_ticks(x0, x1):
@@ -92,7 +92,7 @@ def cost_time_chart(s):
     y1 = math.ceil(max(p[1] for p in pts.values()) / 5) * 5 + 5
     X = lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R)
     Y = lambda t: H - B - t / y1 * (H - T - B)
-    b = [text(L, 24, "Cost per passing solution vs median latency (function track, x log)", 14, weight="600")]
+    b = [text(L, 24, "Cost per passing solution vs median latency (main ladder p01-p12, x log)", 14, weight="600")]
     for t in range(0, int(y1) + 1, 5):
         b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(t):.1f}' y2='{Y(t):.1f}' stroke='{GRID}'/>", text(L - 8, Y(t) + 4, f"{t} s", 11, "end", MUTED)]
     for v in log_ticks(x0, x1):
@@ -101,14 +101,18 @@ def cost_time_chart(s):
           text(26, (T + H - B) / 2, "median seconds per call", 12, "middle", MUTED, rotate=-90)]
     if len(front) > 1:
         b.append(f"<polyline points='{' '.join(f'{X(pts[c][0]):.1f},{Y(pts[c][1]):.1f}' for c in front)}' fill='none' stroke='{PURPLE}' stroke-width='2.5' stroke-dasharray='6 4'/>")
-    dy = {"luna-low": 16, "sonnet-medium": 16, "haiku-low": -12, "luna-medium": 4, "luna-high": 4, "haiku-medium": -10}; left = {"luna-high", "luna-low-bare", "haiku-medium"}
-    for c, (x, t) in pts.items():
+    lanes = {}
+    for c, (x, t) in sorted(pts.items(), key=lambda item: item[1][0]):
         hollow = c not in s["configs"]; px, py = X(x), Y(t)
         col = FAMILY(c)
         b.append(f"<circle cx='{px:.1f}' cy='{py:.1f}' r='6' fill='{PLATE if hollow else col}' stroke='{PURPLE if c in front else col if hollow else PLATE}' stroke-width='{3 if c in front else 2 if hollow else 1.5}'/>")
-        right = px > W - R - 170 or c in left
-        lab = f"{DISP(c)} ({100 * allc[c]['pass_at_1']:.0f}%){' *' if allc[c]['cost_kind'] == 'proxy' else ''}"
-        b.append(text(px - 10 if right else px + 10, py + dy.get(c, -8), lab, 11, "end" if right else "start", MUTED if hollow else INK))
+        lab = f"{DISP(c)} ({100 * allc[c]['pass_at_1']:.0f}%){' *' if allc[c]['cost_kind'] == 'proxy' else ''}"; w = 6.3 * len(lab)
+        xl = px - 10 - w if px + 10 + w > W - R else px + 10
+        lane = next(k for k in range(30) if all(abs(ly - (py - 12 - 16 * k)) >= 15 or e < xl - 6 or s0 > xl + w + 6 for s0, e, ly in lanes.setdefault(0, [])))
+        ly = py - 12 - 16 * lane
+        lanes[0].append((xl, xl + w, ly))
+        if lane: b.append(f"<line x1='{px:.1f}' x2='{px:.1f}' y1='{py - 7:.1f}' y2='{ly + 3:.1f}' stroke='{col}' stroke-width='1' opacity='0.6'/>")
+        b.append(text(xl, ly, lab, 11, fill=MUTED if hollow else INK))
     b.append(text(L, H - 10, f"Purple ring: frontier, pass@1 ≥ {100 * MIN_PASS:.0f}%, then cost and time. Hollow: exploratory. * Codex cost is proxy.", 10, fill=MUTED))
     return svg(W, H, b)
 
@@ -117,10 +121,10 @@ def rung_chart(s):
     ex = s.get("exploratory") or {}
     cfg = {**s["configs"], **{c: ex[c] for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex}}  # fast mode beside its default tier
     rungs = sorted({g for v in cfg.values() for g in v["by_rung"]}, key=lambda g: int(g[1:]))
-    W, H, L, R, T, B = 760, 420, 60, 170, 50, 50
+    W, H, L, R, T, B = 760, 420, 60, 190, 70, 62
     X = lambda i: L + i / max(1, len(rungs) - 1) * (W - L - R); Y = lambda p: H - B - p * (H - T - B)
-    b = [text(L, 24, "Pass rate by difficulty rung (10 attempts per rung per config; 2 problems per rung)", 14, weight="600"),
-         text(L, 40, "Main-run configs plus sol61-high and astra-medium, each beside its ⚡ fast-mode twin. Main ladder p01–p12 only; L7 not shown.", 10.5, fill=MUTED)]
+    b = [text(L, 24, "Pass rate by difficulty rung (main ladder p01-p12)", 14, weight="600"),
+         text(L, 46, "Main run + sol61-high / astra-medium + ⚡ twins; L7 excluded.", 10.5, fill=MUTED)]
     for p in (0, 0.2, 0.4, 0.6, 0.8, 1.0):
         b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
     b.append(f"<line x1='{L}' x2='{W - R}' y1='{Y(0.4):.1f}' y2='{Y(0.4):.1f}' stroke='var(--bad,#b3261e)' stroke-dasharray='4 3'/>")
@@ -128,7 +132,7 @@ def rung_chart(s):
     for i, g in enumerate(rungs):
         b.append(text(X(i), H - B + 18, g, 11, "middle", MUTED))
         b.append(text(X(i), H - B + 31, " ".join(q[:3] for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g), 9.5, "middle", MUTED))
-    b.append(text((L + W - R) / 2, H - 12, "rung (L1 easiest; the problems on each rung are listed under it)", 12, "middle", MUTED))
+    b.append(text((L + W - R) / 2, H - 8, "rung (L1 easiest; the problems on each rung are listed under it)", 12, "middle", MUTED))
     n = len(cfg); labels = []; seen = {}
     for k, (c, v) in enumerate(cfg.items()):
         off = (k - (n - 1) / 2) * 3  # small horizontal jitter so overlapping lines stay visible
@@ -139,7 +143,7 @@ def rung_chart(s):
         labels.append((pts[-1][1], c))
     labels.sort(); last = -1e9
     for y, c in labels:  # spread end labels so they don't collide
-        y = max(y, last + 14); last = y
+        y = max(y, last + 21); last = y
         b.append(text(W - R + 6, y + 4, DISP(c), 11, fill=FAMILY(c)))
     return svg(W, H, b)
 
@@ -169,8 +173,8 @@ def heatmap(s):
 
 
 def floor_chart(s):
-    rows = [(c, "function", v["input_floor"][0], v["input_floor"][1]) for c, v in s["configs"].items()]
-    rows += [(c, "agentic", v["input_floor"][0], v["input_floor"][1]) for c, v in (s.get("agentic") or {}).items()]
+    rows = [(c, "main ladder p01-p12", v["input_floor"][0], v["input_floor"][1]) for c, v in s["configs"].items()]
+    rows += [(c, "Repo tasks (4 tasks x 3 runs, with tools)", v["input_floor"][0], v["input_floor"][1]) for c, v in (s.get("agentic") or {}).items()]
     W, L, R, T, bh = 760, 190, 90, 50, 20
     H = T + len(rows) * (bh + 8) + 70
     mx = max(r[2] for r in rows) * 1.05; X = lambda v: L + v / mx * (W - L - R)
@@ -178,7 +182,7 @@ def floor_chart(s):
     y = T; last = None
     for c, track, tot, cached in rows:
         if track != last:
-            b.append(text(12, y + 12, f"{track} track", 11, fill=MUTED, weight="600")); y += 18; last = track
+            b.append(text(12, y + 12, track, 11, fill=MUTED, weight="600")); y += 18; last = track
         b += [f"<rect x='{L}' y='{y}' width='{X(tot) - L:.1f}' height='{bh}' fill='{FAMILY(c)}' opacity='0.35'/>",
               f"<rect x='{L}' y='{y}' width='{X(cached) - L:.1f}' height='{bh}' fill='{FAMILY(c)}'/>",
               text(L - 8, y + 14, c, 11, "end"), text(X(tot) + 6, y + 14, f"{tot:,}", 11, fill=MUTED)]
@@ -194,7 +198,7 @@ def agentic_chart(s):
     xs = [v["usd_per_run"] for v in ag.values()]
     x0, x1 = min(xs) / 1.5, max(xs) * 1.5
     X = lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R); Y = lambda p: H - B - p * (H - T - B)
-    b = [text(L, 24, "Agentic track: hidden-test pass rate vs $ per run (x log)", 14, weight="600")]
+    b = [text(L, 24, "Repo tasks (4 tasks x 3 runs, with tools): pass rate vs $ per run", 14, weight="600")]
     for p in (0, 0.25, 0.5, 0.75, 1.0):
         b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
     for v in log_ticks(x0, x1):
@@ -212,7 +216,7 @@ def agentic_chart(s):
         lanes[lane].append((xl, xl + w)); ly = y - 12 - 15 * lane
         if lane: b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{y - 7:.1f}' y2='{ly + 3:.1f}' stroke='{FAMILY(c)}' stroke-width='1' opacity='0.6'/>")
         b.append(text(xl, ly, s=lab, size=11))
-    b.append(text(L, H - 10, "All configs passed 12/12. Bars: one-sided 95% lower bound. * Codex cost is proxy.", 11, fill=MUTED))
+    b.append(text(L, H - 10, "All configs: 12/12. Bars: lower 95% bound. * Estimated from tokens.", 11, fill=MUTED))
     return svg(W, H, b)
 
 
@@ -239,7 +243,7 @@ def cost_tokens_chart(s):
     tot = [(DISP(c) + (" *" if v["cost_kind"] == "proxy" else ""), v["usd_total"], FAMILY(c), x) for c, v, x in rows]
     per = [(DISP(c) + (" *" if v["cost_kind"] == "proxy" else ""), 1000 * v["usd_per_call"] / (v["tokens_mean"]["in_tok"] + v["tokens_mean"]["out_tok"]), FAMILY(c), x)
            for c, v, x in rows]
-    a = bars("Total $ for the 60 function-track calls (L1–L6)", tot, lambda v: f"${v:.3f}", "Hollow: exploratory. * Codex cost is proxy; Claude is measured.")
+    a = bars("Total $ for the main ladder p01-p12", tot, lambda v: f"${v:.3f}", "Hollow: exploratory. * Codex cost is proxy; Claude is measured.")
     b = bars("$ per 1,000 tokens processed (input + output, mean per call)", per, lambda v: f"${v:.5f}",
                 "Cached input costs less per token. * Codex cost is proxy.")
     return a, b
@@ -252,7 +256,7 @@ def token_in_chart(s):
     allc = {c: v for c, v, _ in all_configs(s)}
     lab = {"luna-low": "luna-low, stock Codex", "luna-low-bare": "luna-low, stripped Codex", "haiku-low": "haiku-low, tools off", "sonnet-medium": "sonnet-medium, tools off"}
     rows = [(lab[c], allc[c]["tokens_mean"]["in_tok"], FAMILY(c), c not in s["configs"]) for c in TOKEN_IN if c in allc]
-    return bars("Mean input tokens per call (function track, 60 calls each)", rows, lambda v: f"{v:,}",
+    return bars("Mean input tokens per call (main ladder p01-p12)", rows, lambda v: f"{v:,}",
                 f"Includes cached input. Codex includes ~{HOST_AGENTS_MD} host AGENTS.md tokens.", L=200, R=80)
 
 

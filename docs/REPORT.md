@@ -19,7 +19,7 @@ The main run was on 2026-10-22: $2.46 of Claude CLI-reported spend (function + a
 | luna-medium | 78% (47/60) | 57%–97% | 8.2 | 11.8 | 0.00089 | 0.042 | proxy |
 | sol61-medium | 97% (58/60) | 87%–100% | 22.6 | 36.2 | 0.01499 | 0.869 | proxy |
 | astra-medium (exploratory) | 100% (60/60) | ≥78% (all passed) | 20.9 | 35.6 | 0.07526 | 4.516 | proxy |
-| astra-medium-fast (exploratory) | 100% (60/60) | ≥78% (all passed) | 9.9 | 13.6 | 0.15202 | 9.121 | proxy |
+| astra-medium ⚡ (exploratory) | 100% (60/60) | ≥78% (all passed) | 9.9 | 13.6 | 0.15202 | 9.121 | proxy |
 | haiku-high (exploratory) | 100% (60/60) | ≥78% (all passed) | 14.7 | 37.6 | 0.00282 | 0.169 | measured |
 | luna-high (exploratory) | 92% (55/60) | 82%–100% | 12.2 | 22.9 | 0.00105 | 0.058 | proxy |
 | luna-low-bare (exploratory) | 73% (44/60) | 52%–92% | 6.8 | 11.1 | 0.00080 | 0.035 | proxy |
@@ -27,7 +27,7 @@ The main run was on 2026-10-22: $2.46 of Claude CLI-reported spend (function + a
 | luna56-low (exploratory) | 80% (48/60) | 60%–97% | 9.2 | 17.4 | 0.00218 | 0.105 | proxy |
 | sol56-high (exploratory) | 100% (60/60) | ≥78% (all passed) | 14.5 | 48.4 | 0.04180 | 2.508 | proxy |
 | sol61-high (exploratory) | 100% (60/60) | ≥78% (all passed) | 27.4 | 50.2 | 0.01861 | 1.117 | proxy |
-| sol61-high-fast (exploratory) | 100% (60/60) | ≥78% (all passed) | 17.4 | 27.9 | 0.03587 | 2.152 | proxy |
+| sol61-high ⚡ (exploratory) | 100% (60/60) | ≥78% (all passed) | 17.4 | 27.9 | 0.03587 | 2.152 | proxy |
 
 Function track: 12 problems × 5 attempts per config. Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
 
@@ -67,7 +67,7 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 | luna-medium | 14,688 | 11,520 | 530 | 7 | 0.00005 |
 | sol61-medium | 15,380 | 12,346 | 718 | 209 | 0.00090 |
 | astra-medium (exploratory) | 15,319 | 12,207 | 639 | 127 | 0.00472 |
-| astra-medium-fast (exploratory) | 15,316 | 12,160 | 646 | 136 | 0.00952 |
+| astra-medium ⚡ (exploratory) | 15,316 | 12,160 | 646 | 136 | 0.00952 |
 | haiku-high (exploratory) | 4,418 | 649 | 4,123 | 3,353 | 0.00033 |
 | luna-high (exploratory) | 14,688 | 11,520 | 1,060 | 526 | 0.00006 |
 | luna-low-bare (exploratory) | 6,144 | 3,255 | 528 | 0 | 0.00009 |
@@ -75,7 +75,7 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 | luna56-low (exploratory) | 12,965 | 10,281 | 835 | 295 | 0.00013 |
 | sol56-high (exploratory) | 14,504 | 11,315 | 1,226 | 668 | 0.00266 |
 | sol61-high (exploratory) | 15,380 | 12,083 | 1,081 | 565 | 0.00113 |
-| sol61-high-fast (exploratory) | 15,380 | 12,288 | 1,052 | 541 | 0.00218 |
+| sol61-high ⚡ (exploratory) | 15,380 | 12,288 | 1,052 | 541 | 0.00218 |
 
 ![Pass rate by difficulty rung, 10 attempts per rung per config.](../results/report/charts/pass_by_rung.svg)
 
@@ -101,7 +101,7 @@ gpt-5.6-terra at the smallest prompt costs $0.0080 per call on the pilot problem
 
 Pass/fail stays the headline. These columns describe the passing solutions only, measured by `make quality` with no model calls; every solution is on disk under [results/solutions/](../results/solutions/README.md) (1166 files, one table per problem with links), so each number can be checked by hand. The factors and how they are measured are in PLAN.md (deviation 17). None of them is folded into a single score.
 
-| config | passing solutions | median LOC | median max complexity | lint warnings per solution | median time vs reference | growth worse than reference | median peak memory vs reference |
+| config | passing solutions | median LOC | median max complexity | lint warnings per solution | time vs ref | worse growth | mem vs ref |
 |---|---|---|---|---|---|---|---|
 | haiku-low | 57 | 38 | 11 | 0.11 | 1.13 | 3 | 1.00 |
 | haiku-medium | 59 | 46 | 10 | 0.15 | 1.10 | 2 | 1.00 |
@@ -118,7 +118,7 @@ Pass/fail stays the headline. These columns describe the passing solutions only,
 | sol56-high | 60 | 46 | 14 | 0.03 | 0.83 | 1 | 1.00 |
 | sol61-high | 60 | 51 | 16 | 0.03 | 0.72 | 0 | 1.00 |
 
-Medians are over each config's passing L1–L6 solutions, so a config that fails p12 sheet, whose solutions are the longest, has a smaller median LOC for that reason alone. "Growth worse than reference" counts solutions whose fitted time exponent is more than 0.3 above the reference's on the same inputs. The medians hide per-problem patterns: on p08, 11 passing solutions from 7 configs run 29× to 2453× slower than the reference at the largest size, because the reference runs in near-constant time (fitted exponent 0.03) and theirs grow with the input. Per-problem rows are in each problem's table under results/solutions/.
+Medians are over each config's passing L1–L6 solutions, so a config that fails p12 sheet, whose solutions are the longest, has a smaller median LOC for that reason alone. "Growth worse than reference" counts solutions whose fitted time exponent is more than 0.3 above the reference's on the same inputs. The medians hide per-problem patterns: on p08 recur (L4), 11 passing solutions from 7 configs run 29× to 2453× slower than the reference at the largest size, because the reference runs in near-constant time (fitted exponent 0.03) and theirs grow with the input. Per-problem rows are in each problem's table under results/solutions/.
 
 **Repo tasks.** Every task asked for a regression test. Whether the requested test file exists is checked by the harness after each run. The function counts come from the agents' own transcripts; Codex logs list the test files it touched but not always their contents, so its function counts are lower bounds.
 
@@ -291,10 +291,10 @@ After the main run, several changes were tried on the seven problems luna-low fa
 
 Asked after the main run: can fan-outs use sol61-high in fast mode (the priority service tier, same model and effort), and does sol61 at xhigh write better or worse code? Both ran on the rescue set, 35 attempts each, with a default-tier sol61-high control run at the same time (repeats 6 to 10, so the earlier sol61-high rows stay as they were). These rows are kept apart and change no number above. Fast-mode dollars use the published 2× multiplier.
 
-| config | passed | median s | median output tokens | $ per pass (proxy) | median LOC | median max complexity | lint warnings per solution | median time vs reference |
+| config | passed | median s | median output tokens | $ per pass (proxy) | median LOC | median max complexity | lint per solution | time vs ref |
 |---|---|---|---|---|---|---|---|---|
-| sol61-high, default tier (control) | 35/35 | 30.1 | 1,092 | 0.0212 | 63 | 22 | 0.00 | 0.73 |
-| sol61-high, fast mode | 35/35 | 18.9 | 1,063 | 0.0435 | 62 | 22 | 0.09 | 0.71 |
+| sol61-high, default tier (separate control run, repeats 6-10) | 35/35 | 30.1 | 1,092 | 0.0212 | 63 | 22 | 0.00 | 0.73 |
+| sol61-high ⚡ | 35/35 | 18.9 | 1,063 | 0.0435 | 62 | 22 | 0.09 | 0.71 |
 | sol61-xhigh, default tier | 35/35 | 44.3 | 1,662 | 0.0326 | 64 | 23 | 0.00 | 0.72 |
 
 - **Fast mode is the same answers, sooner.** Every attempt passed, the code measures the same, and the median call took 18.9 s against 30.1 s (37% faster), at 2× the list price.

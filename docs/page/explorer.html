@@ -2,7 +2,7 @@
 <div class="ctl">
 <label>x <select id="ex"></select></label> <label><input type="checkbox" id="lx"> log</label>
 <label>y <select id="ey"></select></label> <label><input type="checkbox" id="ly"> log</label>
-<label>frontier over <select id="fl"><option value="0">all shown</option><option value="0.75">pass@1 ≥ 75%</option><option value="0.9">pass@1 ≥ 90%</option></select></label>
+<label>frontier over <select id="fl"><option value="0">all shown</option><option value="0.75">pass rate ≥ 75%</option><option value="0.9">pass rate ≥ 90%</option></select></label>
 </div>
 <div class="ctl" id="cf"></div>
 <figure id="xfig"><div id="xplot"></div><div id="tip" hidden></div>
@@ -11,7 +11,7 @@
 (function(){
 var D=__DATA__;
 function tf(k,v){if(k=="pass")return (100*v).toFixed(0)+"%";var t=+v.toPrecision(3);if(k=="usd")return "$"+t;if(k=="med")return t+" s";return t>=1000?(t/1000)+"k":String(t)}
-var M={pass:{l:"pass@1",f:function(v){return (100*v).toFixed(0)+"%"},up:1},
+var M={pass:{l:"pass rate",f:function(v){return (100*v).toFixed(0)+"%"},up:1},
  usd:{l:"$ per pass",f:function(v){return "$"+v.toPrecision(2)}},
  med:{l:"median seconds",f:function(v){return v.toFixed(1)+" s"}},
  inp:{l:"input tokens per call",f:function(v){return Math.round(v).toLocaleString()}},
@@ -22,7 +22,7 @@ var ex=document.getElementById("ex"),ey=document.getElementById("ey");
 for(var k in M){ex.add(new Option(M[k].l,k));ey.add(new Option(M[k].l,k))}
 var fl=document.getElementById("fl");fl.value=st.fl;fl.onchange=function(){st.fl=fl.value;draw()};ex.value=st.x;ey.value=st.y;document.getElementById("lx").checked=st.lx;document.getElementById("ly").checked=st.ly;
 var cf=document.getElementById("cf");
-D.forEach(function(d){var l=document.createElement("label");l.innerHTML='<input type="checkbox"'+(st.off[d.c]?"":" checked")+'> <i style="background:'+d.col+'"></i>'+d.c;
+D.forEach(function(d){var l=document.createElement("label");l.innerHTML='<input type="checkbox"'+(st.off[d.c]?"":" checked")+'> <i style="background:'+d.col+'"></i>'+d.d;
  l.firstChild.onchange=function(e){st.off[d.c]=!e.target.checked;draw()};cf.appendChild(l)});
 ex.onchange=function(){st.x=ex.value;draw()};ey.onchange=function(){st.y=ey.value;draw()};
 document.getElementById("lx").onchange=function(e){st.lx=e.target.checked;draw()};
@@ -54,14 +54,14 @@ function draw(){try{localStorage.setItem("rb-x2",JSON.stringify(st))}catch(e){}
  var placed=[];
  pts.forEach(function(p,i){var x=sx.f(p[st.x]),y=sy.f(p[st.y]),onf=fr.indexOf(p)>=0;
   g.push('<circle data-i="'+D.indexOf(p)+'" cx="'+x+'" cy="'+y+'" r="7" fill="'+(p.exp?"var(--panel)":p.col)+'" stroke="'+(onf?"var(--frontier)":p.col)+'" stroke-width="'+(onf?3:2)+'" style="cursor:pointer"/>')});
- pts.slice().sort(function(a,b){return sy.f(a[st.y])-sy.f(b[st.y])}).forEach(function(p){var x=sx.f(p[st.x]),y=sy.f(p[st.y]),w=p.c.length*(small?5.6:6.4)+4;
+ pts.slice().sort(function(a,b){return sy.f(a[st.y])-sy.f(b[st.y])}).forEach(function(p){var x=sx.f(p[st.x]),y=sy.f(p[st.y]),w=p.d.length*(small?5.6:6.4)+4;
   var right=x+12+w>W-R,lx=right?x-12-w:x+12,ly=y+4;
   function hit(){return placed.some(function(r){return Math.abs(r[1]-ly)<13&&lx<r[0]+r[2]&&r[0]<lx+w})}
   for(var n=0;n<8&&hit();n++)ly+=(n%2?-1:1)*13*(n+1);
-  if(ly>H-B-4){ly=H-B-4;for(n=0;n<8&&hit();n++)ly-=13}placed.push([lx,ly,w]);g.push('<text x="'+lx+'" y="'+ly+'" style="fill:'+(p.exp?"var(--muted)":"var(--fg)")+'" pointer-events="none">'+esc(p.c)+'</text>')});
+  if(ly>H-B-4){ly=H-B-4;for(n=0;n<8&&hit();n++)ly-=13}placed.push([lx,ly,w]);g.push('<text x="'+lx+'" y="'+ly+'" style="fill:'+(p.exp?"var(--muted)":"var(--fg)")+'" pointer-events="none">'+esc(p.d)+'</text>')});
  box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="'+(small?11:12)+'" role="img" aria-label="'+M[st.y].l+' against '+M[st.x].l+'">'+g.join("")+'</svg>';
  box.querySelectorAll("circle").forEach(function(c){function show(){var d=D[+c.getAttribute("data-i")],t=document.getElementById("tip");
-   t.innerHTML='<b>'+esc(d.c)+'</b>'+(d.exp?' <span class="tag">exploratory</span>':'')+'<br>'+Object.keys(M).map(function(k){return M[k].l+': '+M[k].f(d[k])}).join("<br>")+'<br>$ kind: '+d.kind;
+   t.innerHTML='<b>'+esc(d.d)+'</b>'+(d.exp?' <span class="tag">exploratory</span>':'')+'<br>'+Object.keys(M).map(function(k){return M[k].l+': '+M[k].f(d[k])}).join("<br>")+'<br>$ kind: '+d.kind;
    t.hidden=false;var bx=box.getBoundingClientRect(),cx=+c.getAttribute("cx"),cy=+c.getAttribute("cy");
    t.style.left=Math.min(cx+12,bx.width-t.offsetWidth-4)+"px";t.style.top=Math.max(0,cy-t.offsetHeight-10)+"px"}
   c.onmouseenter=show;c.onclick=show;c.onmouseleave=function(){document.getElementById("tip").hidden=true}})}

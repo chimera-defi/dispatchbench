@@ -24,7 +24,7 @@ h2{font:700 13px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;col
 .tablewrap,.wrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
 table{border-collapse:collapse;width:100%;font:14px var(--mono);font-variant-numeric:tabular-nums}
 th,td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
-th{font:700 12px var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+th{white-space:normal;font:700 12px var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 th:first-child,td:first-child{text-align:left}
 tr:last-child td{border-bottom:0}
 table.sortable th{cursor:pointer;user-select:none}
@@ -139,3 +139,46 @@ tr.grp th::after{content:none}
 @media (max-width:640px){.method li.round>ul>li.prow{grid-template-columns:62px 28px 1fr}.prow .pd{grid-column:1/-1;padding-left:2px;color:var(--muted)}}
 .grid .h.fast{color:var(--frontier,#7b3fe4)}
 .grid .m{overflow-wrap:anywhere}
+
+/* Keep all key rows visible at desktop widths; tables wrap their headings. */
+@media (min-width:1000px){.ckey{max-height:1100px}}
+.svgscroll{max-width:100%;overflow-x:auto}
+@media (max-width:640px){
+ .extras figure .svgscroll svg{min-width:max(760px,var(--natural-width,760px))}
+ .extras figure svg text{font-size:16px}
+}
+.grid .set-separator{font-weight:700;text-align:left;background:var(--line)}
+.notes .tablewrap th{letter-spacing:0;font-size:11px}
+.notes .tablewrap td{padding:8px 6px;font-size:12px;white-space:normal}
+.notes .tablewrap td:first-child{max-width:240px}
+
+.chart.floor svg{max-width:none}
+@media (max-width:640px){
+ .chart.floor{overflow-x:auto}
+ .chart.floor svg{min-width:760px}
+}
+
+.head .eyebrow{text-wrap:balance}
+
+/* Section controls exist only after the JavaScript enhancement. */
+section.collapsible > h2 > .sec-toggle{
+ border:0;background:none;padding:0;min-height:32px;font:inherit;color:inherit;
+ text-transform:inherit;letter-spacing:inherit;cursor:pointer;width:100%;text-align:left;
+ display:flex;gap:.5em;align-items:center;
+}
+section.collapsible .sec-chevron{color:var(--muted);margin-left:auto;flex-shrink:0}
+section.collapsible > h2 > .sec-toggle > .num{white-space:nowrap}
+section.collapsible > .sec-body{min-width:0}
+section.collapsible > .sec-body[hidden]{display:none}
+.sec-toggle-all{
+ justify-self:start;font:600 13px var(--body);color:var(--fg);background:var(--panel);
+ border:1px solid var(--line);border-radius:99px;padding:4px 12px;min-height:32px;cursor:pointer;
+}
+.sec-toggle-all:hover{border-color:var(--accent);color:var(--accent)}
+section.collapsible > h2 > .sec-toggle:focus-visible,.sec-toggle-all:focus-visible{
+ outline:2px solid var(--accent);outline-offset:3px;
+}
+@media print{
+ section.collapsible > .sec-body[hidden]{display:block!important}
+ section.collapsible .sec-chevron,.sec-toggle-all{display:none}
+}
