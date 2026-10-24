@@ -70,7 +70,7 @@ add("main", "exploratory",
     ("luna56-low", "gpt-5.6-luna, low effort"), ("luna56-high", "gpt-5.6-luna, high effort"), ("sol56-high", "gpt-5.6-sol, high effort"),
     ("sol61-high", "gpt-6.1-sol, high effort (default tier)"), ("astra-medium", "gpt-6-astra, medium effort"))
 add("main", "fast mode and xhigh",
-    ("sol61-high-fast", "sol61-high on the Codex priority tier (fast mode): same model and effort, about twice the price"),
+    ("sol61-high-fast", "sol61-high on Codex priority tier (fast mode). Same model and effort, about twice the price."),
     ("astra-medium-fast", "astra-medium on the Codex priority tier (fast mode)"), ("sol61-xhigh", "gpt-6.1-sol at xhigh effort"))
 add("rescue", "rescue pipeline",
     ("luna-low-noshell-B1", "Arm B1: luna-low without shell, nudged to list edge cases and trace the examples first"),
@@ -109,11 +109,11 @@ add("pilot-agentic", "pilot",
     ("pipeline A", "Pilot repo task: gpt-6.1-sol builds, a reviewer checks"), ("pipeline B", "Pilot repo task: gpt-6-luna builds, a reviewer checks"),
     ("pipeline C", "Pilot repo task: Claude Sonnet builds, no review"))
 add("harness-bias", "harness-bias",
-    ("haiku-low / Claude harness", "Harness-bias check: haiku-low on the hard problems through the Claude-built harness"),
-    ("haiku-low / Codex harness", "Harness-bias check: haiku-low through the harness Codex built"),
-    ("luna-low / Claude harness", "Harness-bias check: luna-low through the Claude-built harness"),
-    ("luna-low / Codex harness", "Harness-bias check: luna-low through the harness Codex built"),
-    ("sol61-medium / Codex harness", "Harness-bias check: sol61-medium through the harness Codex built"))
+    ("haiku-low / Claude harness", "Harness-bias check: haiku-low on hard problems through our one-shot runner"),
+    ("haiku-low / Codex harness", "Harness-bias check: haiku-low in Claude Code (Codex-built runner)"),
+    ("luna-low / Claude harness", "Harness-bias check: luna-low through our one-shot runner"),
+    ("luna-low / Codex harness", "Harness-bias check: luna-low in Codex CLI (Codex-built runner)"),
+    ("sol61-medium / Codex harness", "Harness-bias check: sol61-medium in Codex CLI (Codex-built runner)"))
 LOW_CONTEXT = {("main", "luna-low-bare"),
                *(("rescue", c) for c in ("luna-medium-bare", "luna-high-bare", "luna-low-noshell-B1", "luna-low-noshell-B2")),
                *(("trim", f"{model}/{variant}") for model in ("luna", "terra")
@@ -125,6 +125,11 @@ assert len(REGISTRY) == len(R), "duplicate registry entry"
 
 def display(c):
     """Display name of a config: fast mode (priority tier) gets a lightning suffix."""
+    if ' / ' in c:
+        model, harness = c.split(' / ', 1)
+        if harness == 'Claude harness': return model + ' / our one-shot runner'
+        if harness == 'Codex harness':
+            return model + (' / Claude Code (agent)' if model.startswith('haiku') else ' / Codex CLI (agent)')
     return c[:-5] + " ⚡" if c.endswith("-fast") else c
 
 
@@ -182,8 +187,10 @@ def section(rest, ds, root, chart_bodies=None):
     for r in catalog_rows(ds):
         by.setdefault(r["category"], []).append(r)
     head = "".join(f"<th>{h}</th>" for h in ("name", "what it was", "pass", "$ per pass", "median s", "spend", "where it appears"))
-    out = ["<details><summary>Everything we tried</summary>", "<p class=\"small\">Every config with rows in results/, grouped by kind, all of its runs together. Codex $ are list-price proxies; ~ = some rows have no cost. "
-           "The tooltip on a name is the file its rows are in.</p>"]
+    out = ["<details><summary>Everything we tried</summary>", "<ul class=\"tight small\"><li>Every config with rows in results/, grouped by kind.</li>"
+           "<li>Each row combines that config's runs within its category.</li>"
+           "<li>Codex $ are list-price estimates. ~ here means some rows have no cost.</li>"
+           "<li>Hover over a name for its source file.</li></ul>"]
     for cat in CATEGORIES:
         es = by.pop(cat, [])
         if not es: continue

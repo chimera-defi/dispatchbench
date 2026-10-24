@@ -271,12 +271,15 @@ def test_fairness_qa_renders_counts_and_runtime_from_appendix():
     rows = [json.loads(line) for line in (ROOT / 'results/appendix/harness_bias.jsonl').read_text().splitlines()]
     rendered = report.render()[2]
     method = re.search(r'<section\b[^>]*\bid="method"[^>]*>(.*?)</section>', rendered, re.S).group(1)
-    assert "Q: Does Claude's harness make Codex look bad?" in method
+    assert "Q: Does our one-shot runner make Codex look bad?" in method
+    assert '<th>our one-shot runner</th>' in method
+    assert '<th>vendor agent CLI (runs code, retries)</th>' in method
+    appendix = re.search(r'<details id="appendix">(.*?)</details>', rendered, re.S).group(1)
     assert 'the program that sends the problem to the model and grades the answer' in method
-    assert 'one-shot' in method and 'tool loop' in method
-    assert 'not just in who built them' in method
+    assert 'one-shot' in method and 'tool loop' in appendix
+    assert 'not just in who built them' in appendix
     assert 'A separate run with Codex managing the benchmark' not in method
-    assert f"{len({r['problem'] for r in rows})} hard problems × {len({r['repeat'] for r in rows})} repeats" in method
+    assert f"{len({r['problem'] for r in rows})} hard problems × {len({r['repeat'] for r in rows})} repeats" in appendix
     for config in ('luna-low', 'haiku-low'):
         counts = []
         for harness in ('claude-one-shot', 'codex-tool-loop'):
@@ -287,12 +290,13 @@ def test_fairness_qa_renders_counts_and_runtime_from_appendix():
     start = min(datetime.fromisoformat(r['ts']).timestamp() for r in codex)
     end = max(datetime.fromisoformat(r['ts']).timestamp() + r['wall_s'] for r in codex)
     assert f"{sum(r['outcome'] == 'harness_error' for r in codex)} harness errors" in method
-    assert f"about {(end - start) / 60:.0f} minutes of wall time for the recorded calls" in method
+    assert f"about {(end - start) / 60:.0f} minutes of wall time for the recorded calls" in appendix
     assert 'no timeouts' in method
     comparison = harness_bias.pass_summary(rows)
     lo, hi = comparison['ci']
-    assert 'Slightly, but below the 0.15' in method and 'we do not call it bias' in method
-    assert f'{lo:+.3f} to {hi:+.3f}' in method
+    assert 'The estimated tilt is below our 0.15 bias threshold.' in method and 'we do not call it bias' in method
+    assert f'{lo:+.3f} to {hi:+.3f}' in appendix
+    assert 'It also permits bias above our threshold.' in appendix
 
 
 def test_fairness_qa_updates_when_appendix_data_change(monkeypatch):
@@ -390,7 +394,7 @@ def test_winner_and_conclusion_agree_and_sets_are_collapsed(summary):
     assert '<details class="sets"><summary>' in page.sets_box(summary)
     assert ' open' not in page.sets_box(summary).split('>')[0]
     assert template.index('{{w_sets}}') > template.index('{{w_pass_cost}}')
-    assert page.method(summary)[0].count('L7 has') == 1
+    assert page.method(summary)[0].count('We added L7 to find a breaking point.') == 1
     assert 'L7 has' not in page.sets_box(summary)
     problems = page.method(summary)[0]
     assert 'p01 overlap_minutes (L1)' in problems

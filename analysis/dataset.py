@@ -245,12 +245,25 @@ def fairness_facts():
     if lo <= 0 <= hi:
         answer = f"No bias of about {max(abs(lo), abs(hi)):.1f} or more was detectable."
         detail = "The confidence interval contains zero."
+        takeaway = "The data do not establish a change in the models' pass-rate gap."
+        uncertainty = "The interval includes zero bias."
     else:
         need(0 < lo and 0 < diff < 0.15, "harness-bias result is a positive tilt below the 0.15 bias threshold")
-        answer = "Slightly, but below the 0.15 we set as the bias threshold."
-        detail = (f"Codex's harness helped luna-low more than haiku-low: the gap between them changed by {diff:+.3f}. "
-                  "The confidence interval excludes zero but stays below 0.15, so we do not call it bias.")
-    facts = dict(hb_answer=answer, hb_detail=detail, hb_ci=f"{lo:+.3f} to {hi:+.3f}",
+        answer = "Slightly. The estimated tilt is below our 0.15 bias threshold."
+        lifts = {}
+        for config in harness_bias.CFGS:
+            rates = {}
+            for harness in ('claude-one-shot', 'codex-tool-loop'):
+                cell = [r for r in rows if (r['harness'], r['config']) == (harness, config)]
+                rates[harness] = sum(r['passed'] for r in cell) / len(cell)
+            lifts[config] = rates['codex-tool-loop'] - rates['claude-one-shot']
+        need(all(v > 0 for v in lifts.values()) and lifts['luna-low'] > lifts['haiku-low'],
+             "both agent loops beat the one-shot runner, luna more")
+        takeaway = "Both vendor agent CLIs improved pass rates. Codex CLI helped luna-low more."
+        detail = f"The gap changed by {diff:+.3f}. Below our threshold, so we do not call it bias."
+        uncertainty = "The interval excludes zero. " + (
+            "It also permits bias above our threshold." if hi > 0.15 else "It stays below our threshold.")
+    facts = dict(hb_answer=answer, hb_detail=detail, hb_takeaway=takeaway, hb_uncertainty=uncertainty, hb_ci=f"{lo:+.3f} to {hi:+.3f}",
                  hb_n_problems=str(len({r['problem'] for r in rows})),
                  hb_repeats=str(len({r['repeat'] for r in rows})))
     for harness, prefix in (('claude-one-shot', 'claude'), ('codex-tool-loop', 'codex')):
@@ -260,7 +273,7 @@ def fairness_facts():
     codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
     facts['hb_errors'] = str(sum(r['outcome'] == 'harness_error' for r in codex))
     need(not any(r['outcome'] == 'timeout' or re.search(r'timeout|timed out|exceeded', r.get('error') or '', re.I)
-                 for r in codex), "Codex harness had no timeouts")
+                 for r in codex), "agent-CLI run had no timeouts")
     # Codex harness ts is recorded before invocation; wall_s is that invocation's duration.
     start = min(datetime.fromisoformat(r['ts']).timestamp() for r in codex)
     end = max(datetime.fromisoformat(r['ts']).timestamp() + r['wall_s'] for r in codex)
@@ -285,6 +298,9 @@ def _facts(s, arms):
     F["n_rescue_problems"] = str(len(luna_rescue.PIDS))
     F["older_generation"] = "5.6"
     F["quality_fast_note"] = quality_fast_note(s)
+    F["quality_fast_items"] = "".join(f"<li>{part}</li>" for part in quality_fast_parts(s))
+    F["exploratory_items"] = "".join(f"<li>{DISP(c)}</li>" for c in ex)
+    F["l7_problem_items"] = "".join(f"<li>{pshort(p)}</li>" for p in sorted({p for v in hard.values() for p in v["by_problem"]}))
     F["budget_pass"] = pct(0.95); F["p90_percent"] = pct(0.90)
     F["host_agents_md"] = HOST_AGENTS_MD; F["min_pass"] = pct(MIN_PASS)
     F["rung_attempts"] = str(cfg["haiku-low"]["by_rung"]["L1"]["n"])
@@ -318,6 +334,7 @@ def _facts(s, arms):
         F[f"{p[:3]}_luna"] = f"{s['problems'][p]['luna-low'] + s['problems'][p]['luna-medium']}/{2 * cfg['luna-low']['n'] // nprob}"
     e = next(e for e in s["escalation"] if e["config"] == "luna-high")
     F["esc_problems"] = ", ".join(plabel(p) for p in e["problems"])
+    F["escalation_problem_items"] = "".join(f"<li>{pshort(p)}</li>" for p in e["problems"])
     F["esc_k"] = f"{e['passes']}/{e['n']}"; F["esc_base"] = f"{e['base_passes']}/{e['base_n']}"; F["esc_vs"] = e["vs"]
     d = vs(s, "luna-high", "luna-medium"); F["lh_vs_lm"] = p1(d["diff"]); F["lh_vs_lm_ci"] = ci_pts(d["ci95"])
     # finding 3 and the token callout: stripped harness
@@ -378,7 +395,7 @@ def _facts(s, arms):
     oc = {k: sum(r["outcome"] == k for r in hl_all) for k in ("timeout", "crash", "wrong")}; need(oc["wrong"] == 0, "haiku-low never wrong")
     for name, phase in (("main", "main"), ("l7", "hard")):
         rr = [r for r in hl_all if r["phase"] == phase]
-        F[f"hl_{name}_failures"] = f"{sum(r['outcome'] == 'timeout' for r in rr)} too slow, {sum(r['outcome'] == 'crash' for r in rr)} crash, {sum(r['outcome'] == 'wrong' for r in rr)} wrong outputs in {len(rr)} tries"
+        F[f"hl_{name}_failures"] = f"{sum(r['outcome'] == 'timeout' for r in rr)} too slow, {sum(r['outcome'] == 'crash' for r in rr)} crash in {len(rr)} tries"
     worst = max(s["failures"], key=lambda p: sum(v["passed"] < v["n"] for v in s["failures"][p]["cells"].values()))
     misses = sum(v["passed"] < v["n"] for v in s["failures"][worst]["cells"].values())
     need(misses > 0 and worst in s["problems"], "the worst failure problem belongs to the main ladder")
@@ -468,7 +485,7 @@ def _facts(s, arms):
             F["bl_blocks"] = str(sum(i["block"] for i in b["items"]))
             counts = {c: sum(i["config"] == c for i in b["items"]) for c in {i["config"] for i in b["items"]}}
             need(len(set(counts.values())) == 1, "blind read has the same sample size per config")
-            F["blind_caption"] = f"Reader: {b['reviewer']}. Method: {b['method']}. Score: {b['scale'].replace('block =', 'would block =')}. {next(iter(counts.values()))} solutions per config."
+            F["blind_caption"] = f"Reader: {b['reviewer']}. Method: {b['method'].replace('; ', '. ')}. Score: {b['scale'].replace('block =', 'would block =')}. {next(iter(counts.values()))} solutions per config."
     # fast mode on the main ladder and L7 (exploratory, 2026-10-24): same model and effort, priority tier
     for k, (b0, b1) in {"s61": ("sol61-high", "sol61-high-fast"), "ast": ("astra-medium", "astra-medium-fast")}.items():
         d, f = ex[b0], ex[b1]; dh, fh = hard[b0], hard[b1]
@@ -557,6 +574,7 @@ def _facts(s, arms):
     disagree = [p for p, v in s["problems"].items() if configs.LC[p] != expected(v["rung"])]
     need(disagree, "some LeetCode badges disagree with rung order")
     F["badge_disagreements"] = ", ".join(f"{plabel(p, s['problems'][p]['rung'])} is {configs.LC[p]}" for p in disagree)
+    F["badge_disagreement_items"] = "".join(f"<li>{plabel(p, s['problems'][p]['rung'])} is {configs.LC[p]}.</li>" for p in disagree)
     return F
 
 
@@ -615,12 +633,39 @@ def _tables(s, arms):
     return T
 
 
+def method_appendix(ds):
+    """Pooled harness outcomes and failure counts, with their scopes stated on the page."""
+    rows = [r for r in ds['rows'] if r['set'] == 'harness bias']
+    cells = []
+    runners = {}
+    for r in rows:
+        model, runner = r['config'].split(' / ')
+        label = 'our one-shot runner' if runner == 'Claude harness' else ('Claude Code' if model.startswith('haiku') else 'Codex CLI')
+        runners[model, runner] = r
+        cells.append([model, label, f"{r['passes']}/{r['n']}", f"{r['median_s']:.1f}"])
+    ds['tables']['harness_strengths'] = md_table(['model', 'runner', 'passed', 'median s'], cells)
+    for runner in ('Claude harness', 'Codex harness'):
+        need(runners['haiku-low', runner]['pass_rate'] > runners['luna-low', runner]['pass_rate'],
+             'haiku-low passes more often in both runners')
+    need(runners['luna-low', 'Claude harness']['median_s'] < runners['haiku-low', 'Claude harness']['median_s'],
+         'luna-low answers faster in the one-shot runner')
+    ds['facts']['hb_accuracy'] = 'haiku-low passed more often than luna-low in both runners.'
+    ds['facts']['hb_speed'] = 'luna-low answered faster than haiku-low in our one-shot runner.'
+    s = ds['report']
+    counts = []
+    for key, label in (('configs', 'main ladder'), ('hard', 'L7 set')):
+        v = s[key]['haiku-low']
+        counts.append([configs.set_label(label), v['n'], v['outcomes'].get('timeout', 0),
+                       v['outcomes'].get('crash', 0), v['outcomes'].get('wrong', 0)])
+    ds['tables']['haiku_failures'] = md_table(['set', 'tries', 'too slow', 'crashes', 'wrong outputs'], counts)
+
+
 def quality_rows():
     return [json.loads(l) for l in open(QUALITY)] if os.path.exists(QUALITY) else []
 
 
-def quality_fast_note(s):
-    """Describe quality coverage by phase, without confusing the two fast runs."""
+def quality_fast_parts(s):
+    """Short list items describing quality coverage by phase."""
     q = [r for r in quality_rows() if r.get("outcome") == "pass"]
     parts = []
     for c in ("sol61-high-fast", "astra-medium-fast"):
@@ -628,10 +673,14 @@ def quality_fast_note(s):
         parts.append(f"{DISP(c)}: {len(main)} main-ladder passing solutions scored in this table." if main else f"{DISP(c)}: main-ladder solutions not scored.")
         rescue = [r for r in q if r["config"] == c and r["phase"] == "fastmode"]
         if rescue:
-            parts.append(f"Its separate {len(rescue)}-attempt {configs.set_label("rescue set").removesuffix(" set")} run is scored in the ‘Codex fast mode and xhigh’ table below.")
+            parts.append(f"Its separate {len(rescue)}-attempt {configs.set_label('rescue set').removesuffix(' set')} run has quality scores below.")
         else:
             parts.append(f"No separate {configs.set_label('rescue set').removesuffix(' set')}-run quality scores are available.")
-    return " ".join(parts)
+    return parts
+
+
+def quality_fast_note(s):
+    return " ".join(quality_fast_parts(s))
 
 
 def quality_table(s):
@@ -758,6 +807,7 @@ def _currency_ticks(values):
 
 
 def build(summary=None):
+    from bench.problems.p13_xor_ring import STATEMENT as xor_statement
     ds = _base()
     if summary is None: summary, _, _ = summarize.build()
     s = _project(ds, summary)
@@ -767,6 +817,7 @@ def build(summary=None):
     ds["design"] = {"rescue_problems": PIDS, "per_rung": len(s["problems"]) // len(s["configs"]["haiku-low"]["by_rung"]),
                     "fast_mode_multiplier": json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"],
                     "host_agents_md": HOST_AGENTS_MD, "min_pass": MIN_PASS,
+                    "xor_time_bound": re.search(r"0 <= t <= ([^`]+)", xor_statement).group(1).replace("**", "^"),
                     "usd_ticks": _currency_ticks([v["usd_per_pass"] for v in {**s["configs"], **s["exploratory"]}.values()])}
     s["design"] = ds["design"]
     ds["categories"] = {cat: {"n_configs": len(rr), "spend": sum(r["spend"] for r in rr)}
@@ -775,6 +826,7 @@ def build(summary=None):
     ds["report"] = s
     ds["facts"] = _facts(s, arms)
     ds["tables"] = _tables(s, arms)
+    method_appendix(ds)
     return ds
 
 
