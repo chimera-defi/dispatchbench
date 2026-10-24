@@ -32,7 +32,7 @@
 <li>Pass = every hidden test passes (fixed, random vs the reference solution, large for speed).</li>
 <li>Sample tests = the worked examples in the problem text. Cheap to run, and the model can see them.</li>
 <li>Claude $ from the CLI. Codex $ = tokens × list price (marked ~). Intervals: bootstrap, {{n_boot}} resamples.</li>
-<li>Run by a {{orchestrator}} orchestrator. It is not one of the configs tested.</li>
+<li>Run by Wren, a {{orchestrator}} orchestrator. It is not one of the configs tested.</li>
 </ul>
 <details><summary>Exact commands</summary>
 <ul class="tight small cmds">
