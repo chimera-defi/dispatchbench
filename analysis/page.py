@@ -242,7 +242,7 @@ def frontier_caption(s):
         d = min(dominators, key=lambda p: (p["y"], p["x"]))["c"]; q = E[d]
         relation = "costs about the same" if math.isclose(q["usd_per_pass"], v["usd_per_pass"], rel_tol=.05) else "costs less"
         reason = (f'{DISP(c)} is off the frontier: {DISP(d)} {relation} '
-                  f'({dataset.usd(q["usd_per_pass"])} vs {dataset.usd(v["usd_per_pass"])}) and passes more '
+                  f'({dataset.usd(q["usd_per_pass"], sig=3)} vs {dataset.usd(v["usd_per_pass"], sig=3)}) and passes more '
                   f'({q["passes"]}/{q["n"]} vs {v["passes"]}/{v["n"]}).')
     else:
         reason = f'{DISP(c)} has no cost/pass-rate dominator on the eligible frontier'

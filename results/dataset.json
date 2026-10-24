@@ -142,7 +142,7 @@
      0.4,
      1.0
     ],
-    "usd_text": "$0.002302",
+    "usd_text": "$0.0023",
     "claude_usd_per_pass": 0.002302,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.0002373952288845906
@@ -267,7 +267,7 @@
      0.6667,
      1.0
     ],
-    "usd_text": "$0.002996",
+    "usd_text": "$0.003",
     "claude_usd_per_pass": 0.002996,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.00032208436724565754
@@ -385,7 +385,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.0180",
+    "usd_text": "$0.018",
     "claude_usd_per_pass": 0.017952,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.003526222746022392
@@ -503,7 +503,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.0170",
+    "usd_text": "$0.017",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.017032,
     "usd_per_1k_tokens": 0.0010436914026594767
@@ -1015,7 +1015,7 @@
      0.85,
      1.0
     ],
-    "usd_text": "$0.001122",
+    "usd_text": "$0.0011",
     "claude_usd_per_pass": 0.001122,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.0001691258131048707
@@ -1189,7 +1189,7 @@
      0.9333,
      1.0
     ],
-    "usd_text": "$0.001490",
+    "usd_text": "$0.0015",
     "claude_usd_per_pass": 0.00149,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.00020584515947730784
@@ -1358,7 +1358,7 @@
      0.7790778080544442,
      1.0
     ],
-    "usd_text": "$0.0124",
+    "usd_text": "$0.012",
     "claude_usd_per_pass": 0.012438,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.0026559897501601537
@@ -1536,7 +1536,7 @@
      0.5333,
      0.95
     ],
-    "usd_text": "$0.000899",
+    "usd_text": "$0.0009",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.000899,
     "usd_per_1k_tokens": 4.53229838179187e-05
@@ -1714,7 +1714,7 @@
      0.5667,
      0.9667
     ],
-    "usd_text": "$0.000890",
+    "usd_text": "$0.00089",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.00089,
     "usd_per_1k_tokens": 4.5801025101853075e-05
@@ -1888,7 +1888,7 @@
      0.8667,
      1.0
     ],
-    "usd_text": "$0.0150",
+    "usd_text": "$0.015",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.014986,
     "usd_per_1k_tokens": 0.000899925456578457
@@ -2594,7 +2594,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.003368",
+    "usd_text": "$0.0034",
     "claude_usd_per_pass": 0.003368,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.00035068721366097457
@@ -2712,7 +2712,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.001544",
+    "usd_text": "$0.0015",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.001544,
     "usd_per_1k_tokens": 9.142045118124223e-05
@@ -2837,7 +2837,7 @@
      0.2667,
      0.8
     ],
-    "usd_text": "$0.004592",
+    "usd_text": "$0.0046",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.004592,
     "usd_per_1k_tokens": 0.00017047194765418348
@@ -2962,7 +2962,7 @@
      0.3333,
      0.8667
     ],
-    "usd_text": "$0.007756",
+    "usd_text": "$0.0078",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.007756,
     "usd_per_1k_tokens": 0.0002874436415292446
@@ -3085,7 +3085,7 @@
      0.5333,
      1.0
     ],
-    "usd_text": "$0.0685",
+    "usd_text": "$0.069",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.06853,
     "usd_per_1k_tokens": 0.00358387641805455
@@ -3203,7 +3203,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.0236",
+    "usd_text": "$0.024",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.023603,
     "usd_per_1k_tokens": 0.001390374646559849
@@ -3321,7 +3321,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.0830",
+    "usd_text": "$0.083",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.082956,
     "usd_per_1k_tokens": 0.0051595969647966165
@@ -3630,7 +3630,7 @@
      0.7790778080544442,
      1.0
     ],
-    "usd_text": "$0.002822",
+    "usd_text": "$0.0028",
     "claude_usd_per_pass": 0.002822,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.0003304062756117551
@@ -3850,7 +3850,7 @@
      0.8167,
      1.0
     ],
-    "usd_text": "$0.001049",
+    "usd_text": "$0.001",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.001049,
     "usd_per_1k_tokens": 6.108712217424435e-05
@@ -4072,7 +4072,7 @@
      0.5167,
      0.9167
     ],
-    "usd_text": "$0.000798",
+    "usd_text": "$0.0008",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.000798,
     "usd_per_1k_tokens": 8.767985611510791e-05
@@ -4294,7 +4294,7 @@
      0.6,
      0.9667
     ],
-    "usd_text": "$0.002180",
+    "usd_text": "$0.0022",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.00218,
     "usd_per_1k_tokens": 0.0001263768115942029
@@ -4514,7 +4514,7 @@
      0.8333,
      1.0
     ],
-    "usd_text": "$0.002980",
+    "usd_text": "$0.003",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.00298,
     "usd_per_1k_tokens": 0.00018976458546571137
@@ -4727,7 +4727,7 @@
      0.7790778080544442,
      1.0
     ],
-    "usd_text": "$0.0418",
+    "usd_text": "$0.042",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.041801,
     "usd_per_1k_tokens": 0.0026574062301335027
@@ -4940,7 +4940,7 @@
      0.7790778080544442,
      1.0
     ],
-    "usd_text": "$0.0186",
+    "usd_text": "$0.019",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.018615,
     "usd_per_1k_tokens": 0.0011308547475852014
@@ -5153,7 +5153,7 @@
      0.7790778080544442,
      1.0
     ],
-    "usd_text": "$0.0753",
+    "usd_text": "$0.075",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.075264,
     "usd_per_1k_tokens": 0.004716380498809374
@@ -6035,7 +6035,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.0440",
+    "usd_text": "$0.044",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.044008,
     "usd_per_1k_tokens": 0.002617031398667935
@@ -6153,7 +6153,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.1644",
+    "usd_text": "$0.16",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.1644,
     "usd_per_1k_tokens": 0.01023533806499813
@@ -6366,7 +6366,7 @@
      0.7790778080544442,
      1.0
     ],
-    "usd_text": "$0.0359",
+    "usd_text": "$0.036",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.035868,
     "usd_per_1k_tokens": 0.002182814021421616
@@ -6579,7 +6579,7 @@
      0.7790778080544442,
      1.0
     ],
-    "usd_text": "$0.1520",
+    "usd_text": "$0.15",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.152024,
     "usd_per_1k_tokens": 0.00952411978448816
@@ -8325,7 +8325,7 @@
      1.0
     ],
     "usd_per_pass": 0.005071,
-    "usd_text": "$0.005071",
+    "usd_text": "$0.0051",
     "usd_per_call": 0.005071,
     "claude_usd_per_pass": 0.005071,
     "usd_saved_per_pass": 0.0,
@@ -8470,7 +8470,7 @@
      1.0
     ],
     "usd_per_pass": 0.012068,
-    "usd_text": "$0.0121",
+    "usd_text": "$0.012",
     "usd_per_call": 0.012068,
     "claude_usd_per_pass": 0.012068,
     "usd_saved_per_pass": 0.0,
@@ -8615,7 +8615,7 @@
      1.0
     ],
     "usd_per_pass": 0.053662,
-    "usd_text": "$0.0537",
+    "usd_text": "$0.054",
     "usd_per_call": 0.053662,
     "claude_usd_per_pass": 0.053662,
     "usd_saved_per_pass": 0.0,
@@ -8760,7 +8760,7 @@
      1.0
     ],
     "usd_per_pass": 0.003994,
-    "usd_text": "$0.003994",
+    "usd_text": "$0.004",
     "usd_per_call": 0.003994,
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.003994,
@@ -8905,7 +8905,7 @@
      1.0
     ],
     "usd_per_pass": 0.075229,
-    "usd_text": "$0.0752",
+    "usd_text": "$0.075",
     "usd_per_call": 0.075229,
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.075229,
@@ -9050,7 +9050,7 @@
      1.0
     ],
     "usd_per_pass": 0.094819,
-    "usd_text": "$0.0948",
+    "usd_text": "$0.095",
     "usd_per_call": 0.094819,
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.094819,
@@ -9195,7 +9195,7 @@
      1.0
     ],
     "usd_per_pass": 0.379841,
-    "usd_text": "$0.3798",
+    "usd_text": "$0.38",
     "usd_per_call": 0.379841,
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.379841,
@@ -14073,4247 +14073,6 @@
     ]
    },
    "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/luna-low-noshell-B1",
-   "source": "rescue",
-   "config": "luna-low-noshell-B1",
-   "display": "luna-low-noshell-B1",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm B1: luna-low without shell, nudged to list edge cases and trace the examples first",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 25,
-   "n": 35,
-   "pass_rate": 0.7143,
-   "ci95": [
-    0.4,
-    0.9714
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.000973,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000973,
-   "usd_per_call": 0.000695,
-   "spend": 0.02433,
-   "spend_claude": 0.0,
-   "spend_codex": 0.02433,
-   "unknown_usd": 0,
-   "median_s": 8.6,
-   "p25_s": 7.42,
-   "p75_s": 11.03,
-   "tokens_in_mean": 6217,
-   "tokens_out_mean": 787,
-   "tokens_cached_mean": 3558,
-   "tokens_reasoning_mean": 7,
-   "input_floor": [
-    5976,
-    3456
-   ],
-   "p90_s": 11.88,
-   "max_s": 20.36,
-   "by_group": {
-    "p04_taller_within": {
-     "passes": 3,
-     "n": 5
-    },
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 2,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 0,
-     "n": 5
-    }
-   },
-   "misses": 10,
-   "ci95_plot": [
-    0.4,
-    0.9714
-   ],
-   "usd_saved_per_pass": 0.000973,
-   "usd_per_1k_tokens": 9.922901199314677e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/luna-low-noshell-B2",
-   "source": "rescue",
-   "config": "luna-low-noshell-B2",
-   "display": "luna-low-noshell-B2",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm B2: B1 plus a detailed reasoning summary",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 19,
-   "n": 35,
-   "pass_rate": 0.5429,
-   "ci95": [
-    0.2,
-    0.8571
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.001163,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.001163,
-   "usd_per_call": 0.000631,
-   "spend": 0.022096,
-   "spend_claude": 0.0,
-   "spend_codex": 0.022096,
-   "unknown_usd": 0,
-   "median_s": 8.9,
-   "p25_s": 7.81,
-   "p75_s": 11.05,
-   "tokens_in_mean": 6217,
-   "tokens_out_mean": 777,
-   "tokens_cached_mean": 4209,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    5976,
-    3456
-   ],
-   "p90_s": 13.12,
-   "max_s": 31.63,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 2,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 2,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 0,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 0,
-     "n": 5
-    }
-   },
-   "misses": 16,
-   "ci95_plot": [
-    0.2,
-    0.8571
-   ],
-   "usd_saved_per_pass": 0.001163,
-   "usd_per_1k_tokens": 9.022018873319989e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/luna-low-selftest",
-   "source": "rescue",
-   "config": "luna-low-selftest",
-   "display": "luna-low-selftest",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm C: luna-low with shell on, told to test its code first",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 29,
-   "n": 35,
-   "pass_rate": 0.8286,
-   "ci95": [
-    0.5429,
-    1.0
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.003644,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.003644,
-   "usd_per_call": 0.003019,
-   "spend": 0.105679,
-   "spend_claude": 0.0,
-   "spend_codex": 0.105679,
-   "unknown_usd": 0,
-   "median_s": 21.88,
-   "p25_s": 19.29,
-   "p75_s": 31.75,
-   "tokens_in_mean": 81011,
-   "tokens_out_mean": 2632,
-   "tokens_cached_mean": 71084,
-   "tokens_reasoning_mean": 29,
-   "input_floor": [
-    47744,
-    39040
-   ],
-   "p90_s": 45.5,
-   "max_s": 101.19,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 4,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 0,
-     "n": 5
-    }
-   },
-   "misses": 6,
-   "ci95_plot": [
-    0.5429,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.003644,
-   "usd_per_1k_tokens": 3.609387515990579e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/luna-medium-bare",
-   "source": "rescue",
-   "config": "luna-medium-bare",
-   "display": "luna-medium-bare",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm D: luna-medium, stripped harness",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 21,
-   "n": 35,
-   "pass_rate": 0.6,
-   "ci95": [
-    0.3143,
-    0.8857
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.001199,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.001199,
-   "usd_per_call": 0.000719,
-   "spend": 0.025179,
-   "spend_claude": 0.0,
-   "spend_codex": 0.025179,
-   "unknown_usd": 0,
-   "median_s": 8.43,
-   "p25_s": 7.28,
-   "p75_s": 10.3,
-   "tokens_in_mean": 6196,
-   "tokens_out_mean": 684,
-   "tokens_cached_mean": 2692,
-   "tokens_reasoning_mean": 6,
-   "input_floor": [
-    5955,
-    0
-   ],
-   "p90_s": 12.07,
-   "max_s": 17.0,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 3,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 1,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 4,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 3,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 0,
-     "n": 5
-    }
-   },
-   "misses": 14,
-   "ci95_plot": [
-    0.3143,
-    0.8857
-   ],
-   "usd_saved_per_pass": 0.001199,
-   "usd_per_1k_tokens": 0.00010450581395348837,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/luna-high-bare",
-   "source": "rescue",
-   "config": "luna-high-bare",
-   "display": "luna-high-bare",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm D: luna-high, stripped harness",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 31,
-   "n": 35,
-   "pass_rate": 0.8857,
-   "ci95": [
-    0.6857,
-    1.0
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.00105,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.00105,
-   "usd_per_call": 0.00093,
-   "spend": 0.032543,
-   "spend_claude": 0.0,
-   "spend_codex": 0.032543,
-   "unknown_usd": 0,
-   "median_s": 13.2,
-   "p25_s": 10.48,
-   "p75_s": 15.87,
-   "tokens_in_mean": 6196,
-   "tokens_out_mean": 1188,
-   "tokens_cached_mean": 3152,
-   "tokens_reasoning_mean": 522,
-   "input_floor": [
-    5955,
-    3456
-   ],
-   "p90_s": 22.46,
-   "max_s": 25.94,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 4,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 2,
-     "n": 5
-    }
-   },
-   "misses": 4,
-   "ci95_plot": [
-    0.6857,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.00105,
-   "usd_per_1k_tokens": 0.00012594799566630554,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/luna-low+haiku-low-repair",
-   "source": "rescue",
-   "config": "luna-low+haiku-low-repair",
-   "display": "luna-low+haiku-low-repair",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm E (original run, prompt not kept): luna-low answers, haiku-low reviews and repairs",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 35,
-   "n": 35,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 7,
-   "usd_per_pass": 0.003481,
-   "claude_usd_per_pass": 0.002709,
-   "codex_usd_per_pass": 0.000772,
-   "usd_per_call": 0.003481,
-   "spend": 0.121837,
-   "spend_claude": 0.094808,
-   "spend_codex": 0.02703,
-   "unknown_usd": 0,
-   "median_s": 27.44,
-   "p25_s": 23.91,
-   "p75_s": 32.27,
-   "tokens_in_mean": 20299,
-   "tokens_out_mean": 4987,
-   "tokens_cached_mean": 14474,
-   "tokens_reasoning_mean": 3277,
-   "input_floor": [
-    18901,
-    14542
-   ],
-   "p90_s": 47.81,
-   "max_s": 78.52,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 5,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 5,
-     "n": 5
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.6518363448688391,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.000772,
-   "usd_per_1k_tokens": 0.00013766511112868783,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/haiku-low-plan+luna-low",
-   "source": "rescue",
-   "config": "haiku-low-plan+luna-low",
-   "display": "haiku-low-plan+luna-low",
-   "family": "Claude",
-   "category": "rescue pipeline",
-   "what": "Arm F: haiku-low writes a plan, luna-low builds from it",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 30,
-   "n": 35,
-   "pass_rate": 0.8571,
-   "ci95": [
-    0.6857,
-    0.9714
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.003361,
-   "claude_usd_per_pass": 0.002309,
-   "codex_usd_per_pass": 0.001053,
-   "usd_per_call": 0.002881,
-   "spend": 0.100837,
-   "spend_claude": 0.069256,
-   "spend_codex": 0.031581,
-   "unknown_usd": 0,
-   "median_s": 22.1,
-   "p25_s": 19.51,
-   "p75_s": 26.84,
-   "tokens_in_mean": 20328,
-   "tokens_out_mean": 3273,
-   "tokens_cached_mean": 12594,
-   "tokens_reasoning_mean": 1025,
-   "input_floor": [
-    19381,
-    12169
-   ],
-   "p90_s": 28.33,
-   "max_s": 61.57,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 4,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 4,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 3,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 5,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 4,
-     "n": 5
-    }
-   },
-   "misses": 5,
-   "ci95_plot": [
-    0.6857,
-    0.9714
-   ],
-   "usd_saved_per_pass": 0.001053,
-   "usd_per_1k_tokens": 0.0001220710986822592,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/haiku-low-plan+luna-high-bare",
-   "source": "rescue",
-   "config": "haiku-low-plan+luna-high-bare",
-   "display": "haiku-low-plan+luna-high-bare",
-   "family": "Claude",
-   "category": "rescue pipeline",
-   "what": "Arm F: haiku-low plans, luna-high (stripped) builds",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 31,
-   "n": 35,
-   "pass_rate": 0.8857,
-   "ci95": [
-    0.7143,
-    1.0
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.003571,
-   "claude_usd_per_pass": 0.002234,
-   "codex_usd_per_pass": 0.001337,
-   "usd_per_call": 0.003163,
-   "spend": 0.11071,
-   "spend_claude": 0.069256,
-   "spend_codex": 0.041454,
-   "unknown_usd": 0,
-   "median_s": 27.4,
-   "p25_s": 22.71,
-   "p75_s": 32.17,
-   "tokens_in_mean": 11785,
-   "tokens_out_mean": 3771,
-   "tokens_cached_mean": 2735,
-   "tokens_reasoning_mean": 1534,
-   "input_floor": [
-    10837,
-    649
-   ],
-   "p90_s": 37.4,
-   "max_s": 65.56,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 3,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 3,
-     "n": 5
-    }
-   },
-   "misses": 4,
-   "ci95_plot": [
-    0.7143,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.001337,
-   "usd_per_1k_tokens": 0.00020332990485986114,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/luna-high-bare+haiku-on-fail",
-   "source": "rescue",
-   "config": "luna-high-bare+haiku-on-fail",
-   "display": "luna-high-bare+haiku-on-fail",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm G: luna-high builds; haiku-low repairs only if the statement's examples fail",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 32,
-   "n": 35,
-   "pass_rate": 0.9143,
-   "ci95": [
-    0.7143,
-    1.0
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.001354,
-   "claude_usd_per_pass": 0.000305,
-   "codex_usd_per_pass": 0.001049,
-   "usd_per_call": 0.001238,
-   "spend": 0.043329,
-   "spend_claude": 0.009746,
-   "spend_codex": 0.033583,
-   "unknown_usd": 0,
-   "median_s": 10.64,
-   "p25_s": 9.54,
-   "p75_s": 12.5,
-   "tokens_in_mean": 6632,
-   "tokens_out_mean": 1534,
-   "tokens_cached_mean": 2579,
-   "tokens_reasoning_mean": 756,
-   "input_floor": [
-    5955,
-    0
-   ],
-   "p90_s": 18.31,
-   "max_s": 55.79,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 2,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 5,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 5,
-     "n": 5
-    }
-   },
-   "misses": 3,
-   "ci95_plot": [
-    0.7143,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.001049,
-   "usd_per_1k_tokens": 0.00015160421258878277,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/luna-high-bare+retry-on-fail",
-   "source": "rescue",
-   "config": "luna-high-bare+retry-on-fail",
-   "display": "luna-high-bare+retry-on-fail",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm G: luna-high builds; luna-high retries only if the examples fail",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 32,
-   "n": 35,
-   "pass_rate": 0.9143,
-   "ci95": [
-    0.7143,
-    1.0
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.001146,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.001146,
-   "usd_per_call": 0.001048,
-   "spend": 0.036682,
-   "spend_claude": 0.0,
-   "spend_codex": 0.036682,
-   "unknown_usd": 0,
-   "median_s": 10.64,
-   "p25_s": 9.54,
-   "p75_s": 12.5,
-   "tokens_in_mean": 6672,
-   "tokens_out_mean": 1255,
-   "tokens_cached_mean": 2739,
-   "tokens_reasoning_mean": 515,
-   "input_floor": [
-    5955,
-    0
-   ],
-   "p90_s": 18.31,
-   "max_s": 37.74,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 2,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 5,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 5,
-     "n": 5
-    }
-   },
-   "misses": 3,
-   "ci95_plot": [
-    0.7143,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.001146,
-   "usd_per_1k_tokens": 0.00013220638324713008,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/luna-low+haiku-on-fail",
-   "source": "rescue",
-   "config": "luna-low+haiku-on-fail",
-   "display": "luna-low+haiku-on-fail",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm G: luna-low builds; haiku-low repairs only if the examples fail",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 34,
-   "n": 35,
-   "pass_rate": 0.9714,
-   "ci95": [
-    0.8857,
-    1.0
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.002161,
-   "claude_usd_per_pass": 0.001335,
-   "codex_usd_per_pass": 0.000826,
-   "usd_per_call": 0.002099,
-   "spend": 0.07347,
-   "spend_claude": 0.0454,
-   "spend_codex": 0.02807,
-   "unknown_usd": 0,
-   "median_s": 7.88,
-   "p25_s": 7.14,
-   "p75_s": 17.47,
-   "tokens_in_mean": 17326,
-   "tokens_out_mean": 2538,
-   "tokens_cached_mean": 12171,
-   "tokens_reasoning_mean": 1406,
-   "input_floor": [
-    14497,
-    11520
-   ],
-   "p90_s": 39.29,
-   "max_s": 82.59,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 5,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 4,
-     "n": 5
-    }
-   },
-   "misses": 1,
-   "ci95_plot": [
-    0.8857,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.000826,
-   "usd_per_1k_tokens": 0.0001056685461135723,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/astra-medium+haiku-on-fail",
-   "source": "rescue",
-   "config": "astra-medium+haiku-on-fail",
-   "display": "astra-medium+haiku-on-fail",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm G: astra-medium builds; haiku-low repairs only if the examples fail",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 35,
-   "n": 35,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 7,
-   "usd_per_pass": 0.086803,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.086803,
-   "usd_per_call": 0.086803,
-   "spend": 3.03809,
-   "spend_claude": 0.0,
-   "spend_codex": 3.03809,
-   "unknown_usd": 0,
-   "median_s": 21.35,
-   "p25_s": 18.21,
-   "p75_s": 25.76,
-   "tokens_in_mean": 15369,
-   "tokens_out_mean": 851,
-   "tokens_cached_mean": 12160,
-   "tokens_reasoning_mean": 184,
-   "input_floor": [
-    15125,
-    12160
-   ],
-   "p90_s": 58.55,
-   "max_s": 72.4,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 5,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 5,
-     "n": 5
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.6518363448688391,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.086803,
-   "usd_per_1k_tokens": 0.005351602959309495,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/sol61-high+haiku-on-fail",
-   "source": "rescue",
-   "config": "sol61-high+haiku-on-fail",
-   "display": "sol61-high+haiku-on-fail",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm G: sol61-high builds; haiku-low repairs only if the examples fail",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 35,
-   "n": 35,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 7,
-   "usd_per_pass": 0.021812,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.021812,
-   "usd_per_call": 0.021812,
-   "spend": 0.763424,
-   "spend_claude": 0.0,
-   "spend_codex": 0.763424,
-   "unknown_usd": 0,
-   "median_s": 32.73,
-   "p25_s": 27.89,
-   "p75_s": 39.74,
-   "tokens_in_mean": 15432,
-   "tokens_out_mean": 1430,
-   "tokens_cached_mean": 12288,
-   "tokens_reasoning_mean": 745,
-   "input_floor": [
-    15191,
-    12288
-   ],
-   "p90_s": 84.36,
-   "max_s": 140.62,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 5,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 5,
-     "n": 5
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.6518363448688391,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.021812,
-   "usd_per_1k_tokens": 0.0012935594828608708,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/luna-high-bare+haiku-review-all",
-   "source": "rescue",
-   "config": "luna-high-bare+haiku-review-all",
-   "display": "luna-high-bare+haiku-review-all",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm G: luna-high builds; haiku-low reviews every answer",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 35,
-   "n": 35,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 7,
-   "usd_per_pass": 0.003484,
-   "claude_usd_per_pass": 0.002525,
-   "codex_usd_per_pass": 0.00096,
-   "usd_per_call": 0.003484,
-   "spend": 0.121957,
-   "spend_claude": 0.088374,
-   "spend_codex": 0.033583,
-   "unknown_usd": 0,
-   "median_s": 26.07,
-   "p25_s": 23.16,
-   "p75_s": 30.24,
-   "tokens_in_mean": 11689,
-   "tokens_out_mean": 4237,
-   "tokens_cached_mean": 3191,
-   "tokens_reasoning_mean": 2627,
-   "input_floor": [
-    10463,
-    3081
-   ],
-   "p90_s": 42.99,
-   "max_s": 56.16,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 5,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 5,
-     "n": 5
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.6518363448688391,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.00096,
-   "usd_per_1k_tokens": 0.00021876177320105487,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/luna-low+haiku-review-all",
-   "source": "rescue",
-   "config": "luna-low+haiku-review-all",
-   "display": "luna-low+haiku-review-all",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm G: luna-low builds; haiku-low reviews every answer (arm E rerun from committed code)",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 34,
-   "n": 35,
-   "pass_rate": 0.9714,
-   "ci95": [
-    0.8857,
-    1.0
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.003905,
-   "claude_usd_per_pass": 0.00308,
-   "codex_usd_per_pass": 0.000826,
-   "usd_per_call": 0.003794,
-   "spend": 0.13278,
-   "spend_claude": 0.104709,
-   "spend_codex": 0.02807,
-   "unknown_usd": 0,
-   "median_s": 23.1,
-   "p25_s": 21.46,
-   "p75_s": 27.16,
-   "tokens_in_mean": 20760,
-   "tokens_out_mean": 4709,
-   "tokens_cached_mean": 12579,
-   "tokens_reasoning_mean": 2937,
-   "input_floor": [
-    19024,
-    12169
-   ],
-   "p90_s": 41.26,
-   "max_s": 90.66,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 5,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 4,
-     "n": 5
-    }
-   },
-   "misses": 1,
-   "ci95_plot": [
-    0.8857,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.000826,
-   "usd_per_1k_tokens": 0.0001489654089285013,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "agentic/haiku-low",
-   "source": "agentic",
-   "config": "haiku-low",
-   "display": "haiku-low",
-   "family": "Claude",
-   "category": "repo tasks",
-   "what": "Repo tasks with tools: Claude Haiku, low",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-agentic.jsonl"
-   ],
-   "passes": 12,
-   "n": 12,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 4,
-   "usd_per_pass": 0.005071,
-   "claude_usd_per_pass": 0.005071,
-   "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.005071,
-   "spend": 0.06085,
-   "spend_claude": 0.06085,
-   "spend_codex": 0.0,
-   "unknown_usd": 0,
-   "median_s": 28.29,
-   "p25_s": 20.71,
-   "p75_s": 38.06,
-   "tokens_in_mean": 61533,
-   "tokens_out_mean": 5122,
-   "tokens_cached_mean": 51557,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    31760,
-    23993
-   ],
-   "p90_s": 43.39,
-   "max_s": 44.52,
-   "by_group": {
-    "t1_discount": {
-     "passes": 3,
-     "n": 3
-    },
-    "t2_cache_bugs": {
-     "passes": 3,
-     "n": 3
-    },
-    "t3_config_refs": {
-     "passes": 3,
-     "n": 3
-    },
-    "t4_retry_queue": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.4728708045015879,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 7.607831370489835e-05,
-   "by_rung": {},
-   "cost_kind": "measured"
-  },
-  {
-   "id": "agentic/haiku-high",
-   "source": "agentic",
-   "config": "haiku-high",
-   "display": "haiku-high",
-   "family": "Claude",
-   "category": "repo tasks",
-   "what": "Repo tasks: Claude Haiku, high",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-agentic.jsonl"
-   ],
-   "passes": 12,
-   "n": 12,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 4,
-   "usd_per_pass": 0.012068,
-   "claude_usd_per_pass": 0.012068,
-   "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.012068,
-   "spend": 0.144813,
-   "spend_claude": 0.144813,
-   "spend_codex": 0.0,
-   "unknown_usd": 0,
-   "median_s": 58.43,
-   "p25_s": 40.56,
-   "p75_s": 101.36,
-   "tokens_in_mean": 170728,
-   "tokens_out_mean": 13533,
-   "tokens_cached_mean": 151802,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    61331,
-    50681
-   ],
-   "p90_s": 106.43,
-   "max_s": 113.74,
-   "by_group": {
-    "t1_discount": {
-     "passes": 3,
-     "n": 3
-    },
-    "t2_cache_bugs": {
-     "passes": 3,
-     "n": 3
-    },
-    "t3_config_refs": {
-     "passes": 3,
-     "n": 3
-    },
-    "t4_retry_queue": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.4728708045015879,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 6.549405462903165e-05,
-   "by_rung": {},
-   "cost_kind": "measured"
-  },
-  {
-   "id": "agentic/sonnet-medium",
-   "source": "agentic",
-   "config": "sonnet-medium",
-   "display": "sonnet-medium",
-   "family": "Claude",
-   "category": "repo tasks",
-   "what": "Repo tasks: Claude Sonnet, medium",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-agentic.jsonl"
-   ],
-   "passes": 12,
-   "n": 12,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 4,
-   "usd_per_pass": 0.053662,
-   "claude_usd_per_pass": 0.053662,
-   "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.053662,
-   "spend": 0.643943,
-   "spend_claude": 0.643943,
-   "spend_codex": 0.0,
-   "unknown_usd": 0,
-   "median_s": 27.73,
-   "p25_s": 20.9,
-   "p75_s": 36.06,
-   "tokens_in_mean": 29728,
-   "tokens_out_mean": 2611,
-   "tokens_cached_mean": 23422,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    27425,
-    22098
-   ],
-   "p90_s": 38.98,
-   "max_s": 41.63,
-   "by_group": {
-    "t1_discount": {
-     "passes": 3,
-     "n": 3
-    },
-    "t2_cache_bugs": {
-     "passes": 3,
-     "n": 3
-    },
-    "t3_config_refs": {
-     "passes": 3,
-     "n": 3
-    },
-    "t4_retry_queue": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.4728708045015879,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.00165935866909923,
-   "by_rung": {},
-   "cost_kind": "measured"
-  },
-  {
-   "id": "agentic/luna-low",
-   "source": "agentic",
-   "config": "luna-low",
-   "display": "luna-low",
-   "family": "Codex",
-   "category": "repo tasks",
-   "what": "Repo tasks: gpt-6-luna, low",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-agentic.jsonl"
-   ],
-   "passes": 12,
-   "n": 12,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 4,
-   "usd_per_pass": 0.003994,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.003994,
-   "usd_per_call": 0.003994,
-   "spend": 0.047922,
-   "spend_claude": 0.0,
-   "spend_codex": 0.047922,
-   "unknown_usd": 0,
-   "median_s": 28.5,
-   "p25_s": 23.33,
-   "p75_s": 43.57,
-   "tokens_in_mean": 150943,
-   "tokens_out_mean": 2269,
-   "tokens_cached_mean": 135947,
-   "tokens_reasoning_mean": 9,
-   "input_floor": [
-    92906,
-    79104
-   ],
-   "p90_s": 48.54,
-   "max_s": 51.11,
-   "by_group": {
-    "t1_discount": {
-     "passes": 3,
-     "n": 3
-    },
-    "t2_cache_bugs": {
-     "passes": 3,
-     "n": 3
-    },
-    "t3_config_refs": {
-     "passes": 3,
-     "n": 3
-    },
-    "t4_retry_queue": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.4728708045015879,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.003994,
-   "usd_per_1k_tokens": 2.606845416808083e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "agentic/sol61-medium",
-   "source": "agentic",
-   "config": "sol61-medium",
-   "display": "sol61-medium",
-   "family": "Codex",
-   "category": "repo tasks",
-   "what": "Repo tasks: gpt-6.1-sol, medium",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-agentic.jsonl"
-   ],
-   "passes": 12,
-   "n": 12,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 4,
-   "usd_per_pass": 0.075229,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.075229,
-   "usd_per_call": 0.075229,
-   "spend": 0.902749,
-   "spend_claude": 0.0,
-   "spend_codex": 0.902749,
-   "unknown_usd": 0,
-   "median_s": 89.04,
-   "p25_s": 70.68,
-   "p75_s": 117.89,
-   "tokens_in_mean": 162787,
-   "tokens_out_mean": 2901,
-   "tokens_cached_mean": 147029,
-   "tokens_reasoning_mean": 300,
-   "input_floor": [
-    116924,
-    101504
-   ],
-   "p90_s": 121.61,
-   "max_s": 138.77,
-   "by_group": {
-    "t1_discount": {
-     "passes": 3,
-     "n": 3
-    },
-    "t2_cache_bugs": {
-     "passes": 3,
-     "n": 3
-    },
-    "t3_config_refs": {
-     "passes": 3,
-     "n": 3
-    },
-    "t4_retry_queue": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.4728708045015879,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.075229,
-   "usd_per_1k_tokens": 0.0004540401236058133,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "agentic/sol61-high",
-   "source": "agentic",
-   "config": "sol61-high",
-   "display": "sol61-high",
-   "family": "Codex",
-   "category": "repo tasks",
-   "what": "Repo tasks: gpt-6.1-sol, high",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-agentic.jsonl"
-   ],
-   "passes": 12,
-   "n": 12,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 4,
-   "usd_per_pass": 0.094819,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.094819,
-   "usd_per_call": 0.094819,
-   "spend": 1.137826,
-   "spend_claude": 0.0,
-   "spend_codex": 1.137826,
-   "unknown_usd": 0,
-   "median_s": 108.58,
-   "p25_s": 102.91,
-   "p75_s": 130.41,
-   "tokens_in_mean": 213735,
-   "tokens_out_mean": 4090,
-   "tokens_cached_mean": 196608,
-   "tokens_reasoning_mean": 886,
-   "input_floor": [
-    162168,
-    142592
-   ],
-   "p90_s": 158.68,
-   "max_s": 188.49,
-   "by_group": {
-    "t1_discount": {
-     "passes": 3,
-     "n": 3
-    },
-    "t2_cache_bugs": {
-     "passes": 3,
-     "n": 3
-    },
-    "t3_config_refs": {
-     "passes": 3,
-     "n": 3
-    },
-    "t4_retry_queue": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.4728708045015879,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.094819,
-   "usd_per_1k_tokens": 0.00043529897853781705,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "agentic/astra-medium",
-   "source": "agentic",
-   "config": "astra-medium",
-   "display": "astra-medium",
-   "family": "Codex",
-   "category": "repo tasks",
-   "what": "Repo tasks: gpt-6-astra, medium",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-agentic.jsonl"
-   ],
-   "passes": 12,
-   "n": 12,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 4,
-   "usd_per_pass": 0.379841,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.379841,
-   "usd_per_call": 0.379841,
-   "spend": 4.558088,
-   "spend_claude": 0.0,
-   "spend_codex": 4.558088,
-   "unknown_usd": 0,
-   "median_s": 85.22,
-   "p25_s": 67.31,
-   "p75_s": 97.58,
-   "tokens_in_mean": 160564,
-   "tokens_out_mean": 2481,
-   "tokens_cached_mean": 149984,
-   "tokens_reasoning_mean": 135,
-   "input_floor": [
-    98876,
-    88064
-   ],
-   "p90_s": 99.49,
-   "max_s": 101.21,
-   "by_group": {
-    "t1_discount": {
-     "passes": 3,
-     "n": 3
-    },
-    "t2_cache_bugs": {
-     "passes": 3,
-     "n": 3
-    },
-    "t3_config_refs": {
-     "passes": 3,
-     "n": 3
-    },
-    "t4_retry_queue": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.4728708045015879,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.379841,
-   "usd_per_1k_tokens": 0.0023296697230825846,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/luna/base",
-   "source": "trim",
-   "config": "luna/base",
-   "display": "luna/base",
-   "family": "Codex",
-   "category": "trim",
-   "what": "Codex harness floor probe: luna, stock harness",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.00047,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.00047,
-   "usd_per_call": 0.00047,
-   "spend": 0.004232,
-   "spend_claude": 0.0,
-   "spend_codex": 0.004232,
-   "unknown_usd": 0,
-   "median_s": 4.23,
-   "p25_s": 3.92,
-   "p75_s": 5.53,
-   "tokens_in_mean": 14406,
-   "tokens_out_mean": 133,
-   "tokens_cached_mean": 11520,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    14389,
-    11520
-   ],
-   "p90_s": 6.23,
-   "max_s": 8.21,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.00047,
-   "usd_per_1k_tokens": 3.232684503748538e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/luna/nofeat",
-   "source": "trim",
-   "config": "luna/nofeat",
-   "display": "luna/nofeat",
-   "family": "Codex",
-   "category": "trim",
-   "what": "luna, tool features stripped",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.000985,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000985,
-   "usd_per_call": 0.000985,
-   "spend": 0.008867,
-   "spend_claude": 0.0,
-   "spend_codex": 0.008867,
-   "unknown_usd": 0,
-   "median_s": 4.41,
-   "p25_s": 3.85,
-   "p75_s": 6.0,
-   "tokens_in_mean": 9945,
-   "tokens_out_mean": 132,
-   "tokens_cached_mean": 839,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    9930,
-    0
-   ],
-   "p90_s": 6.24,
-   "max_s": 6.83,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.000985,
-   "usd_per_1k_tokens": 9.774734544011114e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/luna/noshell",
-   "source": "trim",
-   "config": "luna/noshell",
-   "display": "luna/noshell",
-   "family": "Codex",
-   "category": "trim",
-   "what": "luna, features, shell and base instructions stripped",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.000296,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000296,
-   "usd_per_call": 0.000296,
-   "spend": 0.002664,
-   "spend_claude": 0.0,
-   "spend_codex": 0.002664,
-   "unknown_usd": 0,
-   "median_s": 3.76,
-   "p25_s": 3.52,
-   "p75_s": 4.12,
-   "tokens_in_mean": 5860,
-   "tokens_out_mean": 132,
-   "tokens_cached_mean": 3954,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    5845,
-    3456
-   ],
-   "p90_s": 4.49,
-   "max_s": 5.22,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.000296,
-   "usd_per_1k_tokens": 4.939919893190921e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/luna/mininst",
-   "source": "trim",
-   "config": "luna/mininst",
-   "display": "luna/mininst",
-   "family": "Codex",
-   "category": "trim",
-   "what": "luna, minimal instructions (one call)",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 1,
-   "n": 1,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 1,
-   "usd_per_pass": 0.000329,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000329,
-   "usd_per_call": 0.000329,
-   "spend": 0.000329,
-   "spend_claude": 0.0,
-   "spend_codex": 0.000329,
-   "unknown_usd": 0,
-   "median_s": 6.48,
-   "p25_s": 6.48,
-   "p75_s": 6.48,
-   "tokens_in_mean": 6485,
-   "tokens_out_mean": 98,
-   "tokens_cached_mean": 4096,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    6485,
-    4096
-   ],
-   "p90_s": 6.48,
-   "max_s": 6.48,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 1,
-     "n": 1
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.05,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.000329,
-   "usd_per_1k_tokens": 4.997721403615372e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/luna/noctx",
-   "source": "trim",
-   "config": "luna/noctx",
-   "display": "luna/noctx",
-   "family": "Codex",
-   "category": "trim",
-   "what": "luna, no project context (one call)",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 1,
-   "n": 1,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 1,
-   "usd_per_pass": 0.000433,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000433,
-   "usd_per_call": 0.000433,
-   "spend": 0.000433,
-   "spend_claude": 0.0,
-   "spend_codex": 0.000433,
-   "unknown_usd": 0,
-   "median_s": 7.0,
-   "p25_s": 7.0,
-   "p75_s": 7.0,
-   "tokens_in_mean": 14210,
-   "tokens_out_mean": 98,
-   "tokens_cached_mean": 11520,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    14210,
-    11520
-   ],
-   "p90_s": 7.0,
-   "max_s": 7.0,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 1,
-     "n": 1
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.05,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.000433,
-   "usd_per_1k_tokens": 3.026279004752586e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/luna/nodoc",
-   "source": "trim",
-   "config": "luna/nodoc",
-   "display": "luna/nodoc",
-   "family": "Codex",
-   "category": "trim",
-   "what": "luna, no docs (one call)",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 1,
-   "n": 1,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 1,
-   "usd_per_pass": 0.000451,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000451,
-   "usd_per_call": 0.000451,
-   "spend": 0.000451,
-   "spend_claude": 0.0,
-   "spend_codex": 0.000451,
-   "unknown_usd": 0,
-   "median_s": 5.88,
-   "p25_s": 5.88,
-   "p75_s": 5.88,
-   "tokens_in_mean": 14389,
-   "tokens_out_mean": 98,
-   "tokens_cached_mean": 11520,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    14389,
-    11520
-   ],
-   "p90_s": 5.88,
-   "max_s": 5.88,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 1,
-     "n": 1
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.05,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.000451,
-   "usd_per_1k_tokens": 3.1131359149582386e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/terra/base",
-   "source": "trim",
-   "config": "terra/base",
-   "display": "terra/base",
-   "family": "Codex",
-   "category": "trim",
-   "what": "terra, stock harness",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.010161,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.010161,
-   "usd_per_call": 0.010161,
-   "spend": 0.091448,
-   "spend_claude": 0.0,
-   "spend_codex": 0.091448,
-   "unknown_usd": 0,
-   "median_s": 5.65,
-   "p25_s": 4.49,
-   "p75_s": 6.69,
-   "tokens_in_mean": 14214,
-   "tokens_out_mean": 129,
-   "tokens_cached_mean": 11008,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    14197,
-    11008
-   ],
-   "p90_s": 6.96,
-   "max_s": 7.54,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.010161,
-   "usd_per_1k_tokens": 0.0007084291989123614,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/terra/nofeat",
-   "source": "trim",
-   "config": "terra/nofeat",
-   "display": "terra/nofeat",
-   "family": "Codex",
-   "category": "trim",
-   "what": "terra, tool features stripped",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.020505,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.020505,
-   "usd_per_call": 0.020505,
-   "spend": 0.184542,
-   "spend_claude": 0.0,
-   "spend_codex": 0.184542,
-   "unknown_usd": 0,
-   "median_s": 5.18,
-   "p25_s": 4.01,
-   "p75_s": 6.02,
-   "tokens_in_mean": 9484,
-   "tokens_out_mean": 128,
-   "tokens_cached_mean": 0,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    9469,
-    0
-   ],
-   "p90_s": 6.24,
-   "max_s": 6.61,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.020505,
-   "usd_per_1k_tokens": 0.002133270911360799,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/terra/noshell",
-   "source": "trim",
-   "config": "terra/noshell",
-   "display": "terra/noshell",
-   "family": "Codex",
-   "category": "trim",
-   "what": "terra, features and shell stripped",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.007982,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.007982,
-   "usd_per_call": 0.007982,
-   "spend": 0.071839,
-   "spend_claude": 0.0,
-   "spend_codex": 0.071839,
-   "unknown_usd": 0,
-   "median_s": 6.8,
-   "p25_s": 3.63,
-   "p75_s": 8.66,
-   "tokens_in_mean": 5303,
-   "tokens_out_mean": 127,
-   "tokens_cached_mean": 2304,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    5288,
-    0
-   ],
-   "p90_s": 10.07,
-   "max_s": 10.69,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.007982,
-   "usd_per_1k_tokens": 0.0014699815837937384,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/terra/mininst",
-   "source": "trim",
-   "config": "terra/mininst",
-   "display": "terra/mininst",
-   "family": "Codex",
-   "category": "trim",
-   "what": "terra, minimal instructions (one call)",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 1,
-   "n": 1,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 1,
-   "usd_per_pass": 0.012864,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.012864,
-   "usd_per_call": 0.012864,
-   "spend": 0.012864,
-   "spend_claude": 0.0,
-   "spend_codex": 0.012864,
-   "unknown_usd": 0,
-   "median_s": 4.81,
-   "p25_s": 4.81,
-   "p75_s": 4.81,
-   "tokens_in_mean": 5928,
-   "tokens_out_mean": 84,
-   "tokens_cached_mean": 0,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    5928,
-    0
-   ],
-   "p90_s": 4.81,
-   "max_s": 4.81,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 1,
-     "n": 1
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.05,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.012864,
-   "usd_per_1k_tokens": 0.0021397205588822355,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/terra/noctx",
-   "source": "trim",
-   "config": "terra/noctx",
-   "display": "terra/noctx",
-   "family": "Codex",
-   "category": "trim",
-   "what": "terra, no project context (one call)",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 1,
-   "n": 1,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 1,
-   "usd_per_pass": 0.009234,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.009234,
-   "usd_per_call": 0.009234,
-   "spend": 0.009234,
-   "spend_claude": 0.0,
-   "spend_codex": 0.009234,
-   "unknown_usd": 0,
-   "median_s": 5.13,
-   "p25_s": 5.13,
-   "p75_s": 5.13,
-   "tokens_in_mean": 14020,
-   "tokens_out_mean": 84,
-   "tokens_cached_mean": 11008,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    14020,
-    11008
-   ],
-   "p90_s": 5.13,
-   "max_s": 5.13,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 1,
-     "n": 1
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.05,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.009234,
-   "usd_per_1k_tokens": 0.0006547078842881452,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/terra/nodoc",
-   "source": "trim",
-   "config": "terra/nodoc",
-   "display": "terra/nodoc",
-   "family": "Codex",
-   "category": "trim",
-   "what": "terra, no docs (one call)",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 1,
-   "n": 1,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 1,
-   "usd_per_pass": 0.009588,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.009588,
-   "usd_per_call": 0.009588,
-   "spend": 0.009588,
-   "spend_claude": 0.0,
-   "spend_codex": 0.009588,
-   "unknown_usd": 0,
-   "median_s": 4.87,
-   "p25_s": 4.87,
-   "p75_s": 4.87,
-   "tokens_in_mean": 14197,
-   "tokens_out_mean": 84,
-   "tokens_cached_mean": 11008,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    14197,
-    11008
-   ],
-   "p90_s": 4.87,
-   "max_s": 4.87,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 1,
-     "n": 1
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.05,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.009588,
-   "usd_per_1k_tokens": 0.0006713815559134514,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/haiku",
-   "source": "trim",
-   "config": "haiku",
-   "display": "haiku",
-   "family": "Claude",
-   "category": "trim",
-   "what": "haiku-low through the same probe, tools off (reference)",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.000277,
-   "claude_usd_per_pass": 0.000277,
-   "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.000277,
-   "spend": 0.002492,
-   "spend_claude": 0.002492,
-   "spend_codex": 0.0,
-   "unknown_usd": 0,
-   "median_s": 5.0,
-   "p25_s": 4.53,
-   "p75_s": 5.41,
-   "tokens_in_mean": 4114,
-   "tokens_out_mean": 186,
-   "tokens_cached_mean": 3362,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    4095,
-    3514
-   ],
-   "p90_s": 5.73,
-   "max_s": 6.13,
-   "by_group": {
-    "candy": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 6.441860465116279e-05,
-   "by_rung": {},
-   "cost_kind": "measured"
-  },
-  {
-   "id": "pilot/haiku-low",
-   "source": "pilot",
-   "config": "haiku-low",
-   "display": "haiku-low",
-   "family": "Claude",
-   "category": "pilot",
-   "what": "Pilot (well-known problems): Claude Haiku, low",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 19,
-   "n": 19,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 6,
-   "usd_per_pass": 0.000368,
-   "claude_usd_per_pass": 0.000368,
-   "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.000368,
-   "spend": 0.006986,
-   "spend_claude": 0.006986,
-   "spend_codex": 0.0,
-   "unknown_usd": 0,
-   "median_s": 4.85,
-   "p25_s": 4.53,
-   "p75_s": 5.37,
-   "tokens_in_mean": 5032,
-   "tokens_out_mean": 198,
-   "tokens_cached_mean": 3882,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    4006,
-    3037
-   ],
-   "p90_s": 5.66,
-   "max_s": 5.97,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 4,
-     "n": 4
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    },
-    "itinerary": {
-     "passes": 3,
-     "n": 3
-    },
-    "minwindow": {
-     "passes": 3,
-     "n": 3
-    },
-    "wildcard": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.6069622310029172,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 7.036328871892925e-05,
-   "by_rung": {},
-   "cost_kind": "measured"
-  },
-  {
-   "id": "pilot/haiku-medium",
-   "source": "pilot",
-   "config": "haiku-medium",
-   "display": "haiku-medium",
-   "family": "Claude",
-   "category": "pilot",
-   "what": "Pilot: Claude Haiku, medium",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 19,
-   "n": 19,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 6,
-   "usd_per_pass": 0.000409,
-   "claude_usd_per_pass": 0.000409,
-   "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.000409,
-   "spend": 0.007769,
-   "spend_claude": 0.007769,
-   "spend_codex": 0.0,
-   "unknown_usd": 0,
-   "median_s": 5.28,
-   "p25_s": 4.66,
-   "p75_s": 6.02,
-   "tokens_in_mean": 5620,
-   "tokens_out_mean": 220,
-   "tokens_cached_mean": 4341,
-   "tokens_reasoning_mean": 23,
-   "input_floor": [
-    4009,
-    3419
-   ],
-   "p90_s": 6.31,
-   "max_s": 6.93,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 4,
-     "n": 4
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    },
-    "itinerary": {
-     "passes": 3,
-     "n": 3
-    },
-    "minwindow": {
-     "passes": 3,
-     "n": 3
-    },
-    "wildcard": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.6069622310029172,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 7.003424657534247e-05,
-   "by_rung": {},
-   "cost_kind": "measured"
-  },
-  {
-   "id": "pilot/sonnet-low",
-   "source": "pilot",
-   "config": "sonnet-low",
-   "display": "sonnet-low",
-   "family": "Claude",
-   "category": "pilot",
-   "what": "Pilot: Claude Sonnet, low",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 10,
-   "n": 10,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.008563,
-   "claude_usd_per_pass": 0.008563,
-   "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.008563,
-   "spend": 0.085631,
-   "spend_claude": 0.085631,
-   "spend_codex": 0.0,
-   "unknown_usd": 0,
-   "median_s": 5.7,
-   "p25_s": 5.28,
-   "p75_s": 6.18,
-   "tokens_in_mean": 5123,
-   "tokens_out_mean": 178,
-   "tokens_cached_mean": 3515,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    3250,
-    649
-   ],
-   "p90_s": 6.47,
-   "max_s": 7.25,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 4,
-     "n": 4
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.0016153555932842858,
-   "by_rung": {},
-   "cost_kind": "measured"
-  },
-  {
-   "id": "pilot/sonnet-medium",
-   "source": "pilot",
-   "config": "sonnet-medium",
-   "display": "sonnet-medium",
-   "family": "Claude",
-   "category": "pilot",
-   "what": "Pilot: Claude Sonnet, medium",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 19,
-   "n": 19,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 6,
-   "usd_per_pass": 0.00599,
-   "claude_usd_per_pass": 0.00599,
-   "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.00599,
-   "spend": 0.113814,
-   "spend_claude": 0.113814,
-   "spend_codex": 0.0,
-   "unknown_usd": 0,
-   "median_s": 5.85,
-   "p25_s": 5.16,
-   "p75_s": 6.42,
-   "tokens_in_mean": 4059,
-   "tokens_out_mean": 198,
-   "tokens_cached_mean": 3133,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    3230,
-    2257
-   ],
-   "p90_s": 6.67,
-   "max_s": 7.37,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 4,
-     "n": 4
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    },
-    "itinerary": {
-     "passes": 3,
-     "n": 3
-    },
-    "minwindow": {
-     "passes": 3,
-     "n": 3
-    },
-    "wildcard": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.6069622310029172,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.001407094197791872,
-   "by_rung": {},
-   "cost_kind": "measured"
-  },
-  {
-   "id": "pilot/haiku-low-agent",
-   "source": "pilot",
-   "config": "haiku-low-agent",
-   "display": "haiku-low-agent",
-   "family": "Claude",
-   "category": "pilot",
-   "what": "Pilot: Haiku low with tools on",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 10,
-   "n": 10,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.001989,
-   "claude_usd_per_pass": 0.001989,
-   "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.001989,
-   "spend": 0.01989,
-   "spend_claude": 0.01989,
-   "spend_codex": 0.0,
-   "unknown_usd": 0,
-   "median_s": 7.03,
-   "p25_s": 6.55,
-   "p75_s": 7.3,
-   "tokens_in_mean": 37845,
-   "tokens_out_mean": 188,
-   "tokens_cached_mean": 29862,
-   "tokens_reasoning_mean": 6,
-   "input_floor": [
-    37809,
-    23750
-   ],
-   "p90_s": 7.86,
-   "max_s": 8.27,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 4,
-     "n": 4
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 5.229668971682486e-05,
-   "by_rung": {},
-   "cost_kind": "measured"
-  },
-  {
-   "id": "pilot/sonnet-medium-agent",
-   "source": "pilot",
-   "config": "sonnet-medium-agent",
-   "display": "sonnet-medium-agent",
-   "family": "Claude",
-   "category": "pilot",
-   "what": "Pilot: Sonnet medium with tools on",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.037162,
-   "claude_usd_per_pass": 0.037162,
-   "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.037162,
-   "spend": 0.334457,
-   "spend_claude": 0.334457,
-   "spend_codex": 0.0,
-   "unknown_usd": 0,
-   "median_s": 8.58,
-   "p25_s": 7.19,
-   "p75_s": 10.83,
-   "tokens_in_mean": 37074,
-   "tokens_out_mean": 182,
-   "tokens_cached_mean": 28962,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    37053,
-    30952
-   ],
-   "p90_s": 10.99,
-   "max_s": 11.28,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.0009974769164698303,
-   "by_rung": {},
-   "cost_kind": "measured"
-  },
-  {
-   "id": "pilot/codex-low",
-   "source": "pilot",
-   "config": "codex-low",
-   "display": "codex-low",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot: gpt-6.1-sol, low, priority tier",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 10,
-   "n": 10,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.037513,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.037513,
-   "usd_per_call": 0.037513,
-   "spend": 0.375133,
-   "spend_claude": 0.0,
-   "spend_codex": 0.375133,
-   "unknown_usd": 0,
-   "median_s": 4.71,
-   "p25_s": 4.33,
-   "p75_s": 5.33,
-   "tokens_in_mean": 28079,
-   "tokens_out_mean": 129,
-   "tokens_cached_mean": 12288,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    27273,
-    12288
-   ],
-   "p90_s": 5.48,
-   "max_s": 5.7,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 4,
-     "n": 4
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.037513,
-   "usd_per_1k_tokens": 0.0013298709585933069,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot/codex-medium",
-   "source": "pilot",
-   "config": "codex-medium",
-   "display": "codex-medium",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot: gpt-6.1-sol, medium, priority tier",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 10,
-   "n": 10,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.029756,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.029756,
-   "usd_per_call": 0.029756,
-   "spend": 0.297558,
-   "spend_claude": 0.0,
-   "spend_codex": 0.297558,
-   "unknown_usd": 0,
-   "median_s": 5.36,
-   "p25_s": 4.91,
-   "p75_s": 5.66,
-   "tokens_in_mean": 28279,
-   "tokens_out_mean": 134,
-   "tokens_cached_mean": 16602,
-   "tokens_reasoning_mean": 7,
-   "input_floor": [
-    28265,
-    12288
-   ],
-   "p90_s": 5.74,
-   "max_s": 5.76,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 4,
-     "n": 4
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.029756,
-   "usd_per_1k_tokens": 0.001047267096047584,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot/codex-low-lean",
-   "source": "pilot",
-   "config": "codex-low-lean",
-   "display": "codex-low-lean",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot: gpt-6.1-sol low with --ignore-user-config only",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.026915,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.026915,
-   "usd_per_call": 0.026915,
-   "spend": 0.242237,
-   "spend_claude": 0.0,
-   "spend_codex": 0.242237,
-   "unknown_usd": 0,
-   "median_s": 6.96,
-   "p25_s": 5.97,
-   "p75_s": 8.15,
-   "tokens_in_mean": 24450,
-   "tokens_out_mean": 136,
-   "tokens_cached_mean": 12288,
-   "tokens_reasoning_mean": 4,
-   "input_floor": [
-    23397,
-    12288
-   ],
-   "p90_s": 9.04,
-   "max_s": 9.87,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.026915,
-   "usd_per_1k_tokens": 0.0010947287073944522,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot/codex-bare",
-   "source": "pilot",
-   "config": "codex-bare",
-   "display": "codex-bare",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot: gpt-6.1-sol low, stripped harness, priority tier",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.01536,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.01536,
-   "usd_per_call": 0.01536,
-   "spend": 0.13824,
-   "spend_claude": 0.0,
-   "spend_codex": 0.13824,
-   "unknown_usd": 0,
-   "median_s": 5.4,
-   "p25_s": 5.11,
-   "p75_s": 5.84,
-   "tokens_in_mean": 14523,
-   "tokens_out_mean": 126,
-   "tokens_cached_mean": 7865,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    14508,
-    8064
-   ],
-   "p90_s": 6.57,
-   "max_s": 8.54,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.01536,
-   "usd_per_1k_tokens": 0.001048535736227729,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot/astra-low",
-   "source": "pilot",
-   "config": "astra-low",
-   "display": "astra-low",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot: gpt-6-astra, low",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.118902,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.118902,
-   "usd_per_call": 0.118902,
-   "spend": 1.070118,
-   "spend_claude": 0.0,
-   "spend_codex": 1.070118,
-   "unknown_usd": 0,
-   "median_s": 5.62,
-   "p25_s": 4.89,
-   "p75_s": 6.17,
-   "tokens_in_mean": 24361,
-   "tokens_out_mean": 132,
-   "tokens_cached_mean": 14592,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    24346,
-    12160
-   ],
-   "p90_s": 6.97,
-   "max_s": 10.14,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.118902,
-   "usd_per_1k_tokens": 0.004854529865675907,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot/luna-low",
-   "source": "pilot",
-   "config": "luna-low",
-   "display": "luna-low",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot: gpt-6-luna, low, priority tier",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 18,
-   "n": 18,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 6,
-   "usd_per_pass": 0.001056,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.001056,
-   "usd_per_call": 0.001056,
-   "spend": 0.019012,
-   "spend_claude": 0.0,
-   "spend_codex": 0.019012,
-   "unknown_usd": 0,
-   "median_s": 4.36,
-   "p25_s": 4.13,
-   "p75_s": 5.81,
-   "tokens_in_mean": 23740,
-   "tokens_out_mean": 150,
-   "tokens_cached_mean": 15474,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    23715,
-    11520
-   ],
-   "p90_s": 7.07,
-   "max_s": 7.42,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    },
-    "itinerary": {
-     "passes": 3,
-     "n": 3
-    },
-    "minwindow": {
-     "passes": 3,
-     "n": 3
-    },
-    "wildcard": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.6069622310029172,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.001056,
-   "usd_per_1k_tokens": 4.4202595228128926e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot/luna-low-defa",
-   "source": "pilot",
-   "config": "luna-low-defa",
-   "display": "luna-low-defa",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot: gpt-6-luna low, default tier",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.000888,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000888,
-   "usd_per_call": 0.000888,
-   "spend": 0.007993,
-   "spend_claude": 0.0,
-   "spend_codex": 0.007993,
-   "unknown_usd": 0,
-   "median_s": 4.45,
-   "p25_s": 3.86,
-   "p75_s": 6.63,
-   "tokens_in_mean": 23733,
-   "tokens_out_mean": 132,
-   "tokens_cached_mean": 17237,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    23718,
-    11520
-   ],
-   "p90_s": 7.04,
-   "max_s": 7.32,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.000888,
-   "usd_per_1k_tokens": 3.7209302325581394e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot/luna-high-prio",
-   "source": "pilot",
-   "config": "luna-high-prio",
-   "display": "luna-high-prio",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot: gpt-6-luna high, priority tier",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.001199,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.001199,
-   "usd_per_call": 0.001199,
-   "spend": 0.010791,
-   "spend_claude": 0.0,
-   "spend_codex": 0.010791,
-   "unknown_usd": 0,
-   "median_s": 4.76,
-   "p25_s": 4.45,
-   "p75_s": 5.98,
-   "tokens_in_mean": 23702,
-   "tokens_out_mean": 169,
-   "tokens_cached_mean": 13952,
-   "tokens_reasoning_mean": 35,
-   "input_floor": [
-    23439,
-    11520
-   ],
-   "p90_s": 6.63,
-   "max_s": 6.9,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.001199,
-   "usd_per_1k_tokens": 5.0228310502283106e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot/terra56-low-prio",
-   "source": "pilot",
-   "config": "terra56-low-prio",
-   "display": "terra56-low-prio",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot: gpt-5.6-terra low, priority tier",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.024279,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.024279,
-   "usd_per_call": 0.024279,
-   "spend": 0.218508,
-   "spend_claude": 0.0,
-   "spend_codex": 0.218508,
-   "unknown_usd": 0,
-   "median_s": 4.76,
-   "p25_s": 4.2,
-   "p75_s": 6.66,
-   "tokens_in_mean": 23543,
-   "tokens_out_mean": 126,
-   "tokens_cached_mean": 13511,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    23528,
-    11008
-   ],
-   "p90_s": 7.45,
-   "max_s": 10.01,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.024279,
-   "usd_per_1k_tokens": 0.0010257721069753685,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot/sol6-low-prio",
-   "source": "pilot",
-   "config": "sol6-low-prio",
-   "display": "sol6-low-prio",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot: gpt-6-sol low, priority tier",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.01249,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.01249,
-   "usd_per_call": 0.01249,
-   "spend": 0.112409,
-   "spend_claude": 0.0,
-   "spend_codex": 0.112409,
-   "unknown_usd": 0,
-   "median_s": 4.78,
-   "p25_s": 4.5,
-   "p75_s": 5.06,
-   "tokens_in_mean": 23912,
-   "tokens_out_mean": 132,
-   "tokens_cached_mean": 20366,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    23897,
-    11776
-   ],
-   "p90_s": 5.32,
-   "max_s": 5.51,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.01249,
-   "usd_per_1k_tokens": 0.0005194643154217268,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot/sol61-low-prio",
-   "source": "pilot",
-   "config": "sol61-low-prio",
-   "display": "sol61-low-prio",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot: gpt-6.1-sol low, priority tier",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.034518,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.034518,
-   "usd_per_call": 0.034518,
-   "spend": 0.310661,
-   "spend_claude": 0.0,
-   "spend_codex": 0.310661,
-   "unknown_usd": 0,
-   "median_s": 5.15,
-   "p25_s": 4.94,
-   "p75_s": 5.89,
-   "tokens_in_mean": 28280,
-   "tokens_out_mean": 130,
-   "tokens_cached_mean": 12288,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    28265,
-    12288
-   ],
-   "p90_s": 6.19,
-   "max_s": 6.42,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.034518,
-   "usd_per_1k_tokens": 0.0012149947201689547,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot/sol61-low-defa",
-   "source": "pilot",
-   "config": "sol61-low-defa",
-   "display": "sol61-low-defa",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot: gpt-6.1-sol low, default tier (the fast-mode control)",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.03455,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.03455,
-   "usd_per_call": 0.03455,
-   "spend": 0.310951,
-   "spend_claude": 0.0,
-   "spend_codex": 0.310951,
-   "unknown_usd": 0,
-   "median_s": 7.43,
-   "p25_s": 6.73,
-   "p75_s": 7.8,
-   "tokens_in_mean": 28280,
-   "tokens_out_mean": 134,
-   "tokens_cached_mean": 12288,
-   "tokens_reasoning_mean": 1,
-   "input_floor": [
-    28265,
-    12288
-   ],
-   "p90_s": 7.92,
-   "max_s": 8.34,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.03455,
-   "usd_per_1k_tokens": 0.001215949883860069,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot-agentic/pipeline A",
-   "source": "pilot-agentic",
-   "config": "pipeline A",
-   "display": "pipeline A",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot repo task: gpt-6.1-sol builds, a reviewer checks",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot-agentic.jsonl"
-   ],
-   "passes": 2,
-   "n": 2,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 2,
-   "usd_per_pass": 0.051126,
-   "claude_usd_per_pass": 0.001332,
-   "codex_usd_per_pass": 0.049794,
-   "usd_per_call": 0.051126,
-   "spend": 0.102252,
-   "spend_claude": 0.002665,
-   "spend_codex": 0.099587,
-   "unknown_usd": 0,
-   "median_s": 61.48,
-   "p25_s": 46.82,
-   "p75_s": 76.14,
-   "tokens_in_mean": 100980,
-   "tokens_out_mean": 1674,
-   "tokens_cached_mean": 88896,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    100694,
-    85248
-   ],
-   "p90_s": 69.3,
-   "max_s": 71.25,
-   "by_group": {
-    "round 1": {
-     "passes": 1,
-     "n": 1
-    },
-    "round 2": {
-     "passes": 1,
-     "n": 1
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.22360679774997896,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.049794,
-   "usd_per_1k_tokens": 0.0004980419662166111,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot-agentic/pipeline B",
-   "source": "pilot-agentic",
-   "config": "pipeline B",
-   "display": "pipeline B",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot repo task: gpt-6-luna builds, a reviewer checks",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot-agentic.jsonl"
-   ],
-   "passes": 2,
-   "n": 2,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 2,
-   "usd_per_pass": 0.005434,
-   "claude_usd_per_pass": 0.001547,
-   "codex_usd_per_pass": 0.003886,
-   "usd_per_call": 0.005434,
-   "spend": 0.010867,
-   "spend_claude": 0.003095,
-   "spend_codex": 0.007773,
-   "unknown_usd": 0,
-   "median_s": 20.3,
-   "p25_s": 19.85,
-   "p75_s": 20.74,
-   "tokens_in_mean": 136182,
-   "tokens_out_mean": 1687,
-   "tokens_cached_mean": 117504,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    135986,
-    117760
-   ],
-   "p90_s": 20.54,
-   "max_s": 20.6,
-   "by_group": {
-    "round 1": {
-     "passes": 1,
-     "n": 1
-    },
-    "round 2": {
-     "passes": 1,
-     "n": 1
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.22360679774997896,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.003886,
-   "usd_per_1k_tokens": 3.9414226548390134e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot-agentic/pipeline C",
-   "source": "pilot-agentic",
-   "config": "pipeline C",
-   "display": "pipeline C",
-   "family": "Claude",
-   "category": "pilot",
-   "what": "Pilot repo task: Claude Sonnet builds, no review",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot-agentic.jsonl"
-   ],
-   "passes": 2,
-   "n": 2,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 2,
-   "usd_per_pass": 0.091654,
-   "claude_usd_per_pass": 0.091654,
-   "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.091654,
-   "spend": 0.183307,
-   "spend_claude": 0.183307,
-   "spend_codex": 0.0,
-   "unknown_usd": 0,
-   "median_s": 23.05,
-   "p25_s": 14.09,
-   "p75_s": 32.01,
-   "tokens_in_mean": 115018,
-   "tokens_out_mean": 1866,
-   "tokens_cached_mean": 99247,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    114877,
-    99166
-   ],
-   "p90_s": 27.83,
-   "max_s": 29.02,
-   "by_group": {
-    "round 1": {
-     "passes": 1,
-     "n": 1
-    },
-    "round 2": {
-     "passes": 1,
-     "n": 1
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.22360679774997896,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.000784144964238048,
-   "by_rung": {},
-   "cost_kind": "measured"
-  },
-  {
-   "id": "harness-bias/haiku-low / Claude harness",
-   "source": "harness-bias",
-   "config": "haiku-low / Claude harness",
-   "display": "haiku-low / Claude harness",
-   "family": "Claude",
-   "category": "harness-bias",
-   "what": "Harness-bias check: haiku-low on the hard problems through the Claude-built harness",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/harness_bias.jsonl",
-    "results/appendix/codex_harness.jsonl"
-   ],
-   "passes": 57,
-   "n": 60,
-   "pass_rate": 0.95,
-   "ci95": [
-    0.85,
-    1.0
-   ],
-   "groups": 6,
-   "usd_per_pass": 0.002518,
-   "claude_usd_per_pass": 0.002518,
-   "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.002392,
-   "spend": 0.143533,
-   "spend_claude": 0.143533,
-   "spend_codex": 0.0,
-   "unknown_usd": 0,
-   "median_s": 13.62,
-   "p25_s": 10.57,
-   "p75_s": 17.2,
-   "tokens_in_mean": 4551,
-   "tokens_out_mean": 3280,
-   "tokens_cached_mean": 829,
-   "tokens_reasoning_mean": 2297,
-   "input_floor": [
-    4147,
-    649
-   ],
-   "p90_s": 39.44,
-   "max_s": 55.54,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 10,
-     "n": 10
-    },
-    "p04_taller_within": {
-     "passes": 9,
-     "n": 10
-    },
-    "p08_recur": {
-     "passes": 10,
-     "n": 10
-    },
-    "p09_k_machine_schedule": {
-     "passes": 8,
-     "n": 10
-    },
-    "p11_best_average": {
-     "passes": 10,
-     "n": 10
-    },
-    "p12_sheet": {
-     "passes": 10,
-     "n": 10
-    }
-   },
-   "misses": 3,
-   "ci95_plot": [
-    0.85,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.00030545268803473374,
-   "by_rung": {},
-   "cost_kind": "measured"
-  },
-  {
-   "id": "harness-bias/haiku-low / Codex harness",
-   "source": "harness-bias",
-   "config": "haiku-low / Codex harness",
-   "display": "haiku-low / Codex harness",
-   "family": "Claude",
-   "category": "harness-bias",
-   "what": "Harness-bias check: haiku-low through the harness Codex built",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/harness_bias.jsonl",
-    "results/appendix/codex_harness.jsonl"
-   ],
-   "passes": 126,
-   "n": 126,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 6,
-   "usd_per_pass": 0.002654,
-   "claude_usd_per_pass": 0.002654,
-   "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.002654,
-   "spend": 0.334442,
-   "spend_claude": 0.334442,
-   "spend_codex": 0.0,
-   "unknown_usd": 0,
-   "median_s": 13.57,
-   "p25_s": 11.5,
-   "p75_s": 17.93,
-   "tokens_in_mean": 19766,
-   "tokens_out_mean": 3558,
-   "tokens_cached_mean": 16196,
-   "tokens_reasoning_mean": 1659,
-   "input_floor": [
-    13607,
-    11039
-   ],
-   "p90_s": 36.56,
-   "max_s": 48.27,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 22,
-     "n": 22
-    },
-    "p04_taller_within": {
-     "passes": 20,
-     "n": 20
-    },
-    "p08_recur": {
-     "passes": 22,
-     "n": 22
-    },
-    "p09_k_machine_schedule": {
-     "passes": 20,
-     "n": 20
-    },
-    "p11_best_average": {
-     "passes": 22,
-     "n": 22
-    },
-    "p12_sheet": {
-     "passes": 20,
-     "n": 20
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.6069622310029172,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.00011378837249185388,
-   "by_rung": {
-    "L2": [
-     42,
-     42
-    ],
-    "L4": [
-     22,
-     22
-    ],
-    "L5": [
-     20,
-     20
-    ],
-    "L6": [
-     42,
-     42
-    ]
-   },
-   "cost_kind": "measured"
-  },
-  {
-   "id": "harness-bias/luna-low / Claude harness",
-   "source": "harness-bias",
-   "config": "luna-low / Claude harness",
-   "display": "luna-low / Claude harness",
-   "family": "Codex",
-   "category": "harness-bias",
-   "what": "Harness-bias check: luna-low through the Claude-built harness",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/harness_bias.jsonl",
-    "results/appendix/codex_harness.jsonl"
-   ],
-   "passes": 36,
-   "n": 60,
-   "pass_rate": 0.6,
-   "ci95": [
-    0.2667,
-    0.9
-   ],
-   "groups": 6,
-   "usd_per_pass": 0.001303,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.001303,
-   "usd_per_call": 0.000782,
-   "spend": 0.046896,
-   "spend_claude": 0.0,
-   "spend_codex": 0.046896,
-   "unknown_usd": 0,
-   "median_s": 7.49,
-   "p25_s": 5.33,
-   "p75_s": 8.94,
-   "tokens_in_mean": 14781,
-   "tokens_out_mean": 681,
-   "tokens_cached_mean": 11520,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    14499,
-    11520
-   ],
-   "p90_s": 11.6,
-   "max_s": 13.92,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 8,
-     "n": 10
-    },
-    "p04_taller_within": {
-     "passes": 1,
-     "n": 10
-    },
-    "p08_recur": {
-     "passes": 10,
-     "n": 10
-    },
-    "p09_k_machine_schedule": {
-     "passes": 9,
-     "n": 10
-    },
-    "p11_best_average": {
-     "passes": 8,
-     "n": 10
-    },
-    "p12_sheet": {
-     "passes": 0,
-     "n": 10
-    }
-   },
-   "misses": 24,
-   "ci95_plot": [
-    0.2667,
-    0.9
-   ],
-   "usd_saved_per_pass": 0.001303,
-   "usd_per_1k_tokens": 5.057560470831717e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "harness-bias/luna-low / Codex harness",
-   "source": "harness-bias",
-   "config": "luna-low / Codex harness",
-   "display": "luna-low / Codex harness",
-   "family": "Codex",
-   "category": "harness-bias",
-   "what": "Harness-bias check: luna-low through the harness Codex built",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/harness_bias.jsonl",
-    "results/appendix/codex_harness.jsonl"
-   ],
-   "passes": 99,
-   "n": 126,
-   "pass_rate": 0.7857,
-   "ci95": [
-    0.4603,
-    0.9921
-   ],
-   "groups": 6,
-   "usd_per_pass": null,
-   "claude_usd_per_pass": null,
-   "codex_usd_per_pass": null,
-   "usd_per_call": null,
-   "spend": 0.18699,
-   "spend_claude": 0.0,
-   "spend_codex": 0.18699,
-   "unknown_usd": 66,
-   "median_s": 21.14,
-   "p25_s": 17.68,
-   "p75_s": 26.91,
-   "tokens_in_mean": 69769,
-   "tokens_out_mean": 2752,
-   "tokens_cached_mean": 57894,
-   "tokens_reasoning_mean": 61,
-   "input_floor": [
-    21820,
-    19712
-   ],
-   "p90_s": 53.27,
-   "max_s": 109.21,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 21,
-     "n": 21
-    },
-    "p04_taller_within": {
-     "passes": 17,
-     "n": 21
-    },
-    "p08_recur": {
-     "passes": 21,
-     "n": 21
-    },
-    "p09_k_machine_schedule": {
-     "passes": 21,
-     "n": 21
-    },
-    "p11_best_average": {
-     "passes": 19,
-     "n": 21
-    },
-    "p12_sheet": {
-     "passes": 0,
-     "n": 21
-    }
-   },
-   "misses": 27,
-   "ci95_plot": [
-    0.4603,
-    0.9921
-   ],
-   "usd_saved_per_pass": null,
-   "usd_per_1k_tokens": null,
-   "by_rung": {
-    "L2": [
-     38,
-     42
-    ],
-    "L4": [
-     21,
-     21
-    ],
-    "L5": [
-     21,
-     21
-    ],
-    "L6": [
-     19,
-     42
-    ]
-   },
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "harness-bias/sol61-medium / Codex harness",
-   "source": "harness-bias",
-   "config": "sol61-medium / Codex harness",
-   "display": "sol61-medium / Codex harness",
-   "family": "Codex",
-   "category": "harness-bias",
-   "what": "Harness-bias check: sol61-medium through the harness Codex built",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/appendix/harness_bias.jsonl",
-    "results/appendix/codex_harness.jsonl"
-   ],
-   "passes": 6,
-   "n": 6,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": null,
-   "claude_usd_per_pass": null,
-   "codex_usd_per_pass": null,
-   "usd_per_call": null,
-   "spend": 0,
-   "spend_claude": 0,
-   "spend_codex": 0,
-   "unknown_usd": 6,
-   "median_s": 57.85,
-   "p25_s": 53.68,
-   "p75_s": 65.73,
-   "tokens_in_mean": 67342,
-   "tokens_out_mean": 2414,
-   "tokens_cached_mean": 51051,
-   "tokens_reasoning_mean": 332,
-   "input_floor": [
-    56243,
-    45184
-   ],
-   "p90_s": 66.93,
-   "max_s": 69.34,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 2,
-     "n": 2
-    },
-    "p08_recur": {
-     "passes": 2,
-     "n": 2
-    },
-    "p11_best_average": {
-     "passes": 2,
-     "n": 2
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": null,
-   "usd_per_1k_tokens": null,
-   "by_rung": {
-    "L2": [
-     2,
-     2
-    ],
-    "L4": [
-     2,
-     2
-    ],
-    "L6": [
-     2,
-     2
-    ]
-   },
-   "cost_kind": "proxy"
   }
  ],
  "rescue": {
@@ -18539,22 +14298,22 @@
   },
   "luna-low+haiku-on-fail": {
    "label": "G: luna-low builds; haiku-low repairs only if the statement's examples fail",
-   "passes": 21,
+   "passes": 34,
    "n": 35,
-   "usd_per_pass": 0.001287,
-   "median_s": 8.53,
-   "usd_total": 0.02703,
-   "claude_usd_per_pass": 0.0,
-   "pass_rate": 0.6,
-   "p25_s": 6.32,
-   "p75_s": 10.7,
-   "misses": 14,
-   "usd_saved_per_pass": 0.001287,
-   "derived": true,
+   "usd_per_pass": 0.002161,
+   "median_s": 7.88,
+   "usd_total": 0.07347,
+   "claude_usd_per_pass": 0.001335,
+   "pass_rate": 0.9714,
+   "p25_s": 7.14,
+   "p75_s": 17.47,
+   "misses": 1,
+   "usd_saved_per_pass": 0.000826,
+   "derived": false,
    "metrics_from": {
-    "source": "main",
-    "config": "luna-low",
-    "set": "rescue set"
+    "source": "rescue",
+    "config": "luna-low+haiku-on-fail",
+    "set": "rescue arms"
    }
   },
   "luna-high-bare+haiku-review-all": {
@@ -18601,40 +14360,40 @@
    "label": "G: sol61-high builds; haiku-low repairs only if the statement's examples fail",
    "passes": 35,
    "n": 35,
-   "usd_per_pass": 0.022185,
-   "median_s": 33.36,
-   "usd_total": 0.776472,
+   "usd_per_pass": 0.021812,
+   "median_s": 32.73,
+   "usd_total": 0.763424,
    "claude_usd_per_pass": 0.0,
    "pass_rate": 1.0,
-   "p25_s": 25.34,
-   "p75_s": 46.93,
+   "p25_s": 27.89,
+   "p75_s": 39.74,
    "misses": 0,
-   "usd_saved_per_pass": 0.022185,
-   "derived": true,
+   "usd_saved_per_pass": 0.021812,
+   "derived": false,
    "metrics_from": {
-    "source": "main",
-    "config": "sol61-high",
-    "set": "rescue set"
+    "source": "rescue",
+    "config": "sol61-high+haiku-on-fail",
+    "set": "rescue arms"
    }
   },
   "astra-medium+haiku-on-fail": {
    "label": "G: astra-medium builds; haiku-low repairs only if the statement's examples fail",
    "passes": 35,
    "n": 35,
-   "usd_per_pass": 0.086416,
-   "median_s": 25.99,
-   "usd_total": 3.024546,
+   "usd_per_pass": 0.086803,
+   "median_s": 21.35,
+   "usd_total": 3.03809,
    "claude_usd_per_pass": 0.0,
    "pass_rate": 1.0,
-   "p25_s": 20.1,
-   "p75_s": 30.74,
+   "p25_s": 18.21,
+   "p75_s": 25.76,
    "misses": 0,
-   "usd_saved_per_pass": 0.086416,
-   "derived": true,
+   "usd_saved_per_pass": 0.086803,
+   "derived": false,
    "metrics_from": {
-    "source": "main",
-    "config": "astra-medium",
-    "set": "rescue set"
+    "source": "rescue",
+    "config": "astra-medium+haiku-on-fail",
+    "set": "rescue arms"
    }
   },
   "haiku-low": {
@@ -19153,355 +14912,355 @@
    ],
    [
     0.00075,
-    "$0.000750"
+    "$0.00075"
    ],
    [
     0.0008,
-    "$0.000800"
+    "$0.0008"
    ],
    [
     0.00082,
-    "$0.000820"
+    "$0.00082"
    ],
    [
     0.000825,
-    "$0.000825"
+    "$0.00082"
    ],
    [
     0.00084,
-    "$0.000840"
+    "$0.00084"
    ],
    [
     0.00085,
-    "$0.000850"
+    "$0.00085"
    ],
    [
     0.00086,
-    "$0.000860"
+    "$0.00086"
    ],
    [
     0.000875,
-    "$0.000875"
+    "$0.00088"
    ],
    [
     0.00088,
-    "$0.000880"
+    "$0.00088"
    ],
    [
     0.00089,
-    "$0.000890"
+    "$0.00089"
    ],
    [
     0.000892,
-    "$0.000892"
+    "$0.00089"
    ],
    [
     0.000894,
-    "$0.000894"
+    "$0.00089"
    ],
    [
     0.000896,
-    "$0.000896"
+    "$0.0009"
    ],
    [
     0.000898,
-    "$0.000898"
+    "$0.0009"
    ],
    [
     0.0009,
-    "$0.000900"
+    "$0.0009"
    ],
    [
     0.00095,
-    "$0.000950"
+    "$0.00095"
    ],
    [
     0.001,
-    "$0.001000"
+    "$0.001"
    ],
    [
     0.00105,
-    "$0.001050"
+    "$0.001"
    ],
    [
     0.00106,
-    "$0.001060"
+    "$0.0011"
    ],
    [
     0.00108,
-    "$0.001080"
+    "$0.0011"
    ],
    [
     0.0011,
-    "$0.001100"
+    "$0.0011"
    ],
    [
     0.00112,
-    "$0.001120"
+    "$0.0011"
    ],
    [
     0.00115,
-    "$0.001150"
+    "$0.0011"
    ],
    [
     0.0012,
-    "$0.001200"
+    "$0.0012"
    ],
    [
     0.00125,
-    "$0.001250"
+    "$0.0013"
    ],
    [
     0.0013,
-    "$0.001300"
+    "$0.0013"
    ],
    [
     0.0014,
-    "$0.001400"
+    "$0.0014"
    ],
    [
     0.0015,
-    "$0.001500"
+    "$0.0015"
    ],
    [
     0.0016,
-    "$0.001600"
+    "$0.0016"
    ],
    [
     0.00175,
-    "$0.001750"
+    "$0.0018"
    ],
    [
     0.0018,
-    "$0.001800"
+    "$0.0018"
    ],
    [
     0.002,
-    "$0.002000"
+    "$0.002"
    ],
    [
     0.0021,
-    "$0.002100"
+    "$0.0021"
    ],
    [
     0.0022,
-    "$0.002200"
+    "$0.0022"
    ],
    [
     0.00225,
-    "$0.002250"
+    "$0.0022"
    ],
    [
     0.0023,
-    "$0.002300"
+    "$0.0023"
    ],
    [
     0.0024,
-    "$0.002400"
+    "$0.0024"
    ],
    [
     0.0025,
-    "$0.002500"
+    "$0.0025"
    ],
    [
     0.0026,
-    "$0.002600"
+    "$0.0026"
    ],
    [
     0.0028,
-    "$0.002800"
+    "$0.0028"
    ],
    [
     0.00285,
-    "$0.002850"
+    "$0.0029"
    ],
    [
     0.0029,
-    "$0.002900"
+    "$0.0029"
    ],
    [
     0.00295,
-    "$0.002950"
+    "$0.0029"
    ],
    [
     0.003,
-    "$0.003000"
+    "$0.003"
    ],
    [
     0.0032,
-    "$0.003200"
+    "$0.0032"
    ],
    [
     0.004,
-    "$0.004000"
+    "$0.004"
    ],
    [
     0.005,
-    "$0.005000"
+    "$0.005"
    ],
    [
     0.006,
-    "$0.006000"
+    "$0.006"
    ],
    [
     0.0075,
-    "$0.007500"
+    "$0.0075"
    ],
    [
     0.008,
-    "$0.008000"
+    "$0.008"
    ],
    [
     0.01,
-    "$0.0100"
+    "$0.01"
    ],
    [
     0.011,
-    "$0.0110"
+    "$0.011"
    ],
    [
     0.0115,
-    "$0.0115"
+    "$0.011"
    ],
    [
     0.012,
-    "$0.0120"
+    "$0.012"
    ],
    [
     0.0125,
-    "$0.0125"
+    "$0.013"
    ],
    [
     0.013,
-    "$0.0130"
+    "$0.013"
    ],
    [
     0.0135,
-    "$0.0135"
+    "$0.013"
    ],
    [
     0.014,
-    "$0.0140"
+    "$0.014"
    ],
    [
     0.015,
-    "$0.0150"
+    "$0.015"
    ],
    [
     0.016,
-    "$0.0160"
+    "$0.016"
    ],
    [
     0.017,
-    "$0.0170"
+    "$0.017"
    ],
    [
     0.018,
-    "$0.0180"
+    "$0.018"
    ],
    [
     0.019,
-    "$0.0190"
+    "$0.019"
    ],
    [
     0.02,
-    "$0.0200"
+    "$0.02"
    ],
    [
     0.025,
-    "$0.0250"
+    "$0.025"
    ],
    [
     0.03,
-    "$0.0300"
+    "$0.03"
    ],
    [
     0.032,
-    "$0.0320"
+    "$0.032"
    ],
    [
     0.034,
-    "$0.0340"
+    "$0.034"
    ],
    [
     0.035,
-    "$0.0350"
+    "$0.035"
    ],
    [
     0.036,
-    "$0.0360"
+    "$0.036"
    ],
    [
     0.038,
-    "$0.0380"
+    "$0.038"
    ],
    [
     0.04,
-    "$0.0400"
+    "$0.04"
    ],
    [
     0.042,
-    "$0.0420"
+    "$0.042"
    ],
    [
     0.044,
-    "$0.0440"
+    "$0.044"
    ],
    [
     0.046,
-    "$0.0460"
+    "$0.046"
    ],
    [
     0.05,
-    "$0.0500"
+    "$0.05"
    ],
    [
     0.06,
-    "$0.0600"
+    "$0.06"
    ],
    [
     0.07,
-    "$0.0700"
+    "$0.07"
    ],
    [
     0.075,
-    "$0.0750"
+    "$0.075"
    ],
    [
     0.08,
-    "$0.0800"
+    "$0.08"
    ],
    [
     0.1,
-    "$0.1000"
+    "$0.1"
    ],
    [
     0.12,
-    "$0.1200"
+    "$0.12"
    ],
    [
     0.125,
-    "$0.1250"
+    "$0.12"
    ],
    [
     0.14,
-    "$0.1400"
+    "$0.14"
    ],
    [
     0.15,
-    "$0.1500"
+    "$0.15"
    ],
    [
     0.16,
-    "$0.1600"
+    "$0.16"
    ],
    [
     0.17,
-    "$0.1700"
+    "$0.17"
    ],
    [
     0.2,
-    "$0.2000"
+    "$0.2"
    ]
   ]
  },
@@ -19619,7 +15378,7 @@
      0.85,
      1.0
     ],
-    "usd_text": "$0.001122",
+    "usd_text": "$0.0011",
     "claude_usd_per_pass": 0.001122,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.0001691258131048707,
@@ -19747,7 +15506,7 @@
      0.9333,
      1.0
     ],
-    "usd_text": "$0.001490",
+    "usd_text": "$0.0015",
     "claude_usd_per_pass": 0.00149,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.00020584515947730784,
@@ -19874,7 +15633,7 @@
      0.7790778080544442,
      1.0
     ],
-    "usd_text": "$0.0124",
+    "usd_text": "$0.012",
     "claude_usd_per_pass": 0.012438,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.0026559897501601537,
@@ -20004,7 +15763,7 @@
      0.5333,
      0.95
     ],
-    "usd_text": "$0.000899",
+    "usd_text": "$0.0009",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.000899,
     "usd_per_1k_tokens": 4.53229838179187e-05,
@@ -20134,7 +15893,7 @@
      0.5667,
      0.9667
     ],
-    "usd_text": "$0.000890",
+    "usd_text": "$0.00089",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.00089,
     "usd_per_1k_tokens": 4.5801025101853075e-05,
@@ -20262,7 +16021,7 @@
      0.8667,
      1.0
     ],
-    "usd_text": "$0.0150",
+    "usd_text": "$0.015",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.014986,
     "usd_per_1k_tokens": 0.000899925456578457,
@@ -20639,7 +16398,7 @@
      0.7790778080544442,
      1.0
     ],
-    "usd_text": "$0.0753",
+    "usd_text": "$0.075",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.075264,
     "usd_per_1k_tokens": 0.004716380498809374,
@@ -20810,7 +16569,7 @@
      0.7790778080544442,
      1.0
     ],
-    "usd_text": "$0.1520",
+    "usd_text": "$0.15",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.152024,
     "usd_per_1k_tokens": 0.00952411978448816,
@@ -20981,7 +16740,7 @@
      0.7790778080544442,
      1.0
     ],
-    "usd_text": "$0.002822",
+    "usd_text": "$0.0028",
     "claude_usd_per_pass": 0.002822,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.0003304062756117551,
@@ -21154,7 +16913,7 @@
      0.8167,
      1.0
     ],
-    "usd_text": "$0.001049",
+    "usd_text": "$0.001",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.001049,
     "usd_per_1k_tokens": 6.108712217424435e-05,
@@ -21328,7 +17087,7 @@
      0.5167,
      0.9167
     ],
-    "usd_text": "$0.000798",
+    "usd_text": "$0.0008",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.000798,
     "usd_per_1k_tokens": 8.767985611510791e-05,
@@ -21501,7 +17260,7 @@
      0.8333,
      1.0
     ],
-    "usd_text": "$0.002980",
+    "usd_text": "$0.003",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.00298,
     "usd_per_1k_tokens": 0.00018976458546571137,
@@ -21675,7 +17434,7 @@
      0.6,
      0.9667
     ],
-    "usd_text": "$0.002180",
+    "usd_text": "$0.0022",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.00218,
     "usd_per_1k_tokens": 0.0001263768115942029,
@@ -21846,7 +17605,7 @@
      0.7790778080544442,
      1.0
     ],
-    "usd_text": "$0.0418",
+    "usd_text": "$0.042",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.041801,
     "usd_per_1k_tokens": 0.0026574062301335027,
@@ -22017,7 +17776,7 @@
      0.7790778080544442,
      1.0
     ],
-    "usd_text": "$0.0186",
+    "usd_text": "$0.019",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.018615,
     "usd_per_1k_tokens": 0.0011308547475852014,
@@ -22188,7 +17947,7 @@
      0.7790778080544442,
      1.0
     ],
-    "usd_text": "$0.0359",
+    "usd_text": "$0.036",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.035868,
     "usd_per_1k_tokens": 0.002182814021421616,
@@ -22302,7 +18061,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.0830",
+    "usd_text": "$0.083",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.082956,
     "usd_per_1k_tokens": 0.0051595969647966165,
@@ -22378,7 +18137,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.1644",
+    "usd_text": "$0.16",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.1644,
     "usd_per_1k_tokens": 0.01023533806499813,
@@ -22454,7 +18213,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.003368",
+    "usd_text": "$0.0034",
     "claude_usd_per_pass": 0.003368,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.00035068721366097457,
@@ -22530,7 +18289,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.001544",
+    "usd_text": "$0.0015",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.001544,
     "usd_per_1k_tokens": 9.142045118124223e-05,
@@ -22606,7 +18365,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.0236",
+    "usd_text": "$0.024",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.023603,
     "usd_per_1k_tokens": 0.001390374646559849,
@@ -22682,7 +18441,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.0440",
+    "usd_text": "$0.044",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.044008,
     "usd_per_1k_tokens": 0.002617031398667935,
@@ -22758,7 +18517,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.0170",
+    "usd_text": "$0.017",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.017032,
     "usd_per_1k_tokens": 0.0010436914026594767,
@@ -22834,7 +18593,7 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.0180",
+    "usd_text": "$0.018",
     "claude_usd_per_pass": 0.017952,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.003526222746022392,
@@ -22912,7 +18671,7 @@
      0.6667,
      1.0
     ],
-    "usd_text": "$0.002996",
+    "usd_text": "$0.003",
     "claude_usd_per_pass": 0.002996,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.00032208436724565754,
@@ -22989,7 +18748,7 @@
      0.5333,
      1.0
     ],
-    "usd_text": "$0.0685",
+    "usd_text": "$0.069",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.06853,
     "usd_per_1k_tokens": 0.00358387641805455,
@@ -23066,7 +18825,7 @@
      0.4,
      1.0
     ],
-    "usd_text": "$0.002302",
+    "usd_text": "$0.0023",
     "claude_usd_per_pass": 0.002302,
     "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.0002373952288845906,
@@ -23144,7 +18903,7 @@
      0.3333,
      0.8667
     ],
-    "usd_text": "$0.007756",
+    "usd_text": "$0.0078",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.007756,
     "usd_per_1k_tokens": 0.0002874436415292446,
@@ -23222,7 +18981,7 @@
      0.2667,
      0.8
     ],
-    "usd_text": "$0.004592",
+    "usd_text": "$0.0046",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.004592,
     "usd_per_1k_tokens": 0.00017047194765418348,
@@ -24451,7 +20210,7 @@
      1.0
     ],
     "usd_per_pass": 0.379841,
-    "usd_text": "$0.3798",
+    "usd_text": "$0.38",
     "usd_per_call": 0.379841,
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.379841,
@@ -24559,7 +20318,7 @@
      1.0
     ],
     "usd_per_pass": 0.012068,
-    "usd_text": "$0.0121",
+    "usd_text": "$0.012",
     "usd_per_call": 0.012068,
     "claude_usd_per_pass": 0.012068,
     "usd_saved_per_pass": 0.0,
@@ -24667,7 +20426,7 @@
      1.0
     ],
     "usd_per_pass": 0.005071,
-    "usd_text": "$0.005071",
+    "usd_text": "$0.0051",
     "usd_per_call": 0.005071,
     "claude_usd_per_pass": 0.005071,
     "usd_saved_per_pass": 0.0,
@@ -24775,7 +20534,7 @@
      1.0
     ],
     "usd_per_pass": 0.003994,
-    "usd_text": "$0.003994",
+    "usd_text": "$0.004",
     "usd_per_call": 0.003994,
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.003994,
@@ -24883,7 +20642,7 @@
      1.0
     ],
     "usd_per_pass": 0.094819,
-    "usd_text": "$0.0948",
+    "usd_text": "$0.095",
     "usd_per_call": 0.094819,
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.094819,
@@ -24991,7 +20750,7 @@
      1.0
     ],
     "usd_per_pass": 0.075229,
-    "usd_text": "$0.0752",
+    "usd_text": "$0.075",
     "usd_per_call": 0.075229,
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.075229,
@@ -25099,7 +20858,7 @@
      1.0
     ],
     "usd_per_pass": 0.053662,
-    "usd_text": "$0.0537",
+    "usd_text": "$0.054",
     "usd_per_call": 0.053662,
     "claude_usd_per_pass": 0.053662,
     "usd_saved_per_pass": 0.0,
@@ -25714,355 +21473,355 @@
     ],
     [
      0.00075,
-     "$0.000750"
+     "$0.00075"
     ],
     [
      0.0008,
-     "$0.000800"
+     "$0.0008"
     ],
     [
      0.00082,
-     "$0.000820"
+     "$0.00082"
     ],
     [
      0.000825,
-     "$0.000825"
+     "$0.00082"
     ],
     [
      0.00084,
-     "$0.000840"
+     "$0.00084"
     ],
     [
      0.00085,
-     "$0.000850"
+     "$0.00085"
     ],
     [
      0.00086,
-     "$0.000860"
+     "$0.00086"
     ],
     [
      0.000875,
-     "$0.000875"
+     "$0.00088"
     ],
     [
      0.00088,
-     "$0.000880"
+     "$0.00088"
     ],
     [
      0.00089,
-     "$0.000890"
+     "$0.00089"
     ],
     [
      0.000892,
-     "$0.000892"
+     "$0.00089"
     ],
     [
      0.000894,
-     "$0.000894"
+     "$0.00089"
     ],
     [
      0.000896,
-     "$0.000896"
+     "$0.0009"
     ],
     [
      0.000898,
-     "$0.000898"
+     "$0.0009"
     ],
     [
      0.0009,
-     "$0.000900"
+     "$0.0009"
     ],
     [
      0.00095,
-     "$0.000950"
+     "$0.00095"
     ],
     [
      0.001,
-     "$0.001000"
+     "$0.001"
     ],
     [
      0.00105,
-     "$0.001050"
+     "$0.001"
     ],
     [
      0.00106,
-     "$0.001060"
+     "$0.0011"
     ],
     [
      0.00108,
-     "$0.001080"
+     "$0.0011"
     ],
     [
      0.0011,
-     "$0.001100"
+     "$0.0011"
     ],
     [
      0.00112,
-     "$0.001120"
+     "$0.0011"
     ],
     [
      0.00115,
-     "$0.001150"
+     "$0.0011"
     ],
     [
      0.0012,
-     "$0.001200"
+     "$0.0012"
     ],
     [
      0.00125,
-     "$0.001250"
+     "$0.0013"
     ],
     [
      0.0013,
-     "$0.001300"
+     "$0.0013"
     ],
     [
      0.0014,
-     "$0.001400"
+     "$0.0014"
     ],
     [
      0.0015,
-     "$0.001500"
+     "$0.0015"
     ],
     [
      0.0016,
-     "$0.001600"
+     "$0.0016"
     ],
     [
      0.00175,
-     "$0.001750"
+     "$0.0018"
     ],
     [
      0.0018,
-     "$0.001800"
+     "$0.0018"
     ],
     [
      0.002,
-     "$0.002000"
+     "$0.002"
     ],
     [
      0.0021,
-     "$0.002100"
+     "$0.0021"
     ],
     [
      0.0022,
-     "$0.002200"
+     "$0.0022"
     ],
     [
      0.00225,
-     "$0.002250"
+     "$0.0022"
     ],
     [
      0.0023,
-     "$0.002300"
+     "$0.0023"
     ],
     [
      0.0024,
-     "$0.002400"
+     "$0.0024"
     ],
     [
      0.0025,
-     "$0.002500"
+     "$0.0025"
     ],
     [
      0.0026,
-     "$0.002600"
+     "$0.0026"
     ],
     [
      0.0028,
-     "$0.002800"
+     "$0.0028"
     ],
     [
      0.00285,
-     "$0.002850"
+     "$0.0029"
     ],
     [
      0.0029,
-     "$0.002900"
+     "$0.0029"
     ],
     [
      0.00295,
-     "$0.002950"
+     "$0.0029"
     ],
     [
      0.003,
-     "$0.003000"
+     "$0.003"
     ],
     [
      0.0032,
-     "$0.003200"
+     "$0.0032"
     ],
     [
      0.004,
-     "$0.004000"
+     "$0.004"
     ],
     [
      0.005,
-     "$0.005000"
+     "$0.005"
     ],
     [
      0.006,
-     "$0.006000"
+     "$0.006"
     ],
     [
      0.0075,
-     "$0.007500"
+     "$0.0075"
     ],
     [
      0.008,
-     "$0.008000"
+     "$0.008"
     ],
     [
      0.01,
-     "$0.0100"
+     "$0.01"
     ],
     [
      0.011,
-     "$0.0110"
+     "$0.011"
     ],
     [
      0.0115,
-     "$0.0115"
+     "$0.011"
     ],
     [
      0.012,
-     "$0.0120"
+     "$0.012"
     ],
     [
      0.0125,
-     "$0.0125"
+     "$0.013"
     ],
     [
      0.013,
-     "$0.0130"
+     "$0.013"
     ],
     [
      0.0135,
-     "$0.0135"
+     "$0.013"
     ],
     [
      0.014,
-     "$0.0140"
+     "$0.014"
     ],
     [
      0.015,
-     "$0.0150"
+     "$0.015"
     ],
     [
      0.016,
-     "$0.0160"
+     "$0.016"
     ],
     [
      0.017,
-     "$0.0170"
+     "$0.017"
     ],
     [
      0.018,
-     "$0.0180"
+     "$0.018"
     ],
     [
      0.019,
-     "$0.0190"
+     "$0.019"
     ],
     [
      0.02,
-     "$0.0200"
+     "$0.02"
     ],
     [
      0.025,
-     "$0.0250"
+     "$0.025"
     ],
     [
      0.03,
-     "$0.0300"
+     "$0.03"
     ],
     [
      0.032,
-     "$0.0320"
+     "$0.032"
     ],
     [
      0.034,
-     "$0.0340"
+     "$0.034"
     ],
     [
      0.035,
-     "$0.0350"
+     "$0.035"
     ],
     [
      0.036,
-     "$0.0360"
+     "$0.036"
     ],
     [
      0.038,
-     "$0.0380"
+     "$0.038"
     ],
     [
      0.04,
-     "$0.0400"
+     "$0.04"
     ],
     [
      0.042,
-     "$0.0420"
+     "$0.042"
     ],
     [
      0.044,
-     "$0.0440"
+     "$0.044"
     ],
     [
      0.046,
-     "$0.0460"
+     "$0.046"
     ],
     [
      0.05,
-     "$0.0500"
+     "$0.05"
     ],
     [
      0.06,
-     "$0.0600"
+     "$0.06"
     ],
     [
      0.07,
-     "$0.0700"
+     "$0.07"
     ],
     [
      0.075,
-     "$0.0750"
+     "$0.075"
     ],
     [
      0.08,
-     "$0.0800"
+     "$0.08"
     ],
     [
      0.1,
-     "$0.1000"
+     "$0.1"
     ],
     [
      0.12,
-     "$0.1200"
+     "$0.12"
     ],
     [
      0.125,
-     "$0.1250"
+     "$0.12"
     ],
     [
      0.14,
-     "$0.1400"
+     "$0.14"
     ],
     [
      0.15,
-     "$0.1500"
+     "$0.15"
     ],
     [
      0.16,
-     "$0.1600"
+     "$0.16"
     ],
     [
      0.17,
-     "$0.1700"
+     "$0.17"
     ],
     [
      0.2,
-     "$0.2000"
+     "$0.2"
     ]
    ]
   }
@@ -26104,55 +21863,55 @@
   "codex_usd": "$35.40",
   "haiku_low_pass": "95%",
   "haiku_low_k": "57/60",
-  "haiku_low_upp": "$0.001122",
+  "haiku_low_upp": "$0.0011",
   "haiku_low_med": "10.0",
   "haiku_low_rsn": "1,027",
   "haiku_low_rsn10": "1,030",
   "haiku_low_in": "4,498",
-  "haiku_low_total": "$0.0639",
+  "haiku_low_total": "$0.064",
   "haiku_medium_pass": "98%",
   "haiku_medium_k": "59/60",
-  "haiku_medium_upp": "$0.001490",
+  "haiku_medium_upp": "$0.0015",
   "haiku_medium_med": "13.0",
   "haiku_medium_rsn": "1,836",
   "haiku_medium_rsn10": "1,840",
   "haiku_medium_in": "4,497",
-  "haiku_medium_total": "$0.0879",
+  "haiku_medium_total": "$0.088",
   "sonnet_medium_pass": "100%",
   "sonnet_medium_k": "60/60",
-  "sonnet_medium_upp": "$0.0124",
+  "sonnet_medium_upp": "$0.012",
   "sonnet_medium_med": "10.1",
   "sonnet_medium_rsn": "292",
   "sonnet_medium_rsn10": "290",
   "sonnet_medium_in": "3,719",
-  "sonnet_medium_total": "$0.7463",
+  "sonnet_medium_total": "$0.75",
   "luna_low_pass": "77%",
   "luna_low_k": "46/60",
-  "luna_low_upp": "$0.000899",
+  "luna_low_upp": "$0.0009",
   "luna_low_med": "7.2",
   "luna_low_rsn": "0",
   "luna_low_rsn10": "0",
   "luna_low_in": "14,688",
-  "luna_low_total": "$0.0414",
+  "luna_low_total": "$0.041",
   "luna_medium_pass": "78%",
   "luna_medium_k": "47/60",
-  "luna_medium_upp": "$0.000890",
+  "luna_medium_upp": "$0.00089",
   "luna_medium_med": "8.2",
   "luna_medium_rsn": "7",
   "luna_medium_rsn10": "10",
   "luna_medium_in": "14,688",
-  "luna_medium_total": "$0.0418",
+  "luna_medium_total": "$0.042",
   "sol61_medium_pass": "97%",
   "sol61_medium_k": "58/60",
-  "sol61_medium_upp": "$0.0150",
+  "sol61_medium_upp": "$0.015",
   "sol61_medium_med": "22.6",
   "sol61_medium_rsn": "209",
   "sol61_medium_rsn10": "210",
   "sol61_medium_in": "15,380",
-  "sol61_medium_total": "$0.8692",
+  "sol61_medium_total": "$0.87",
   "astra_medium_pass": "100%",
   "astra_medium_k": "60/60",
-  "astra_medium_upp": "$0.0753",
+  "astra_medium_upp": "$0.075",
   "astra_medium_med": "20.9",
   "astra_medium_rsn": "127",
   "astra_medium_rsn10": "130",
@@ -26160,7 +21919,7 @@
   "astra_medium_total": "$4.52",
   "astra_medium_fast_pass": "100%",
   "astra_medium_fast_k": "60/60",
-  "astra_medium_fast_upp": "$0.1520",
+  "astra_medium_fast_upp": "$0.15",
   "astra_medium_fast_med": "9.9",
   "astra_medium_fast_rsn": "136",
   "astra_medium_fast_rsn10": "140",
@@ -26168,47 +21927,47 @@
   "astra_medium_fast_total": "$9.12",
   "haiku_high_pass": "100%",
   "haiku_high_k": "60/60",
-  "haiku_high_upp": "$0.002822",
+  "haiku_high_upp": "$0.0028",
   "haiku_high_med": "14.7",
   "haiku_high_rsn": "3,353",
   "haiku_high_rsn10": "3,350",
   "haiku_high_in": "4,418",
-  "haiku_high_total": "$0.1693",
+  "haiku_high_total": "$0.17",
   "luna_high_pass": "92%",
   "luna_high_k": "55/60",
-  "luna_high_upp": "$0.001049",
+  "luna_high_upp": "$0.001",
   "luna_high_med": "12.2",
   "luna_high_rsn": "526",
   "luna_high_rsn10": "530",
   "luna_high_in": "14,688",
-  "luna_high_total": "$0.0577",
+  "luna_high_total": "$0.058",
   "luna_low_bare_pass": "73%",
   "luna_low_bare_k": "44/60",
-  "luna_low_bare_upp": "$0.000798",
+  "luna_low_bare_upp": "$0.0008",
   "luna_low_bare_med": "6.8",
   "luna_low_bare_rsn": "0",
   "luna_low_bare_rsn10": "0",
   "luna_low_bare_in": "6,144",
-  "luna_low_bare_total": "$0.0351",
+  "luna_low_bare_total": "$0.035",
   "luna56_high_pass": "93%",
   "luna56_high_k": "56/60",
-  "luna56_high_upp": "$0.002980",
+  "luna56_high_upp": "$0.003",
   "luna56_high_med": "11.4",
   "luna56_high_rsn": "1,147",
   "luna56_high_rsn10": "1,150",
   "luna56_high_in": "12,962",
-  "luna56_high_total": "$0.1669",
+  "luna56_high_total": "$0.17",
   "luna56_low_pass": "80%",
   "luna56_low_k": "48/60",
-  "luna56_low_upp": "$0.002180",
+  "luna56_low_upp": "$0.0022",
   "luna56_low_med": "9.2",
   "luna56_low_rsn": "295",
   "luna56_low_rsn10": "300",
   "luna56_low_in": "12,965",
-  "luna56_low_total": "$0.1046",
+  "luna56_low_total": "$0.1",
   "sol56_high_pass": "100%",
   "sol56_high_k": "60/60",
-  "sol56_high_upp": "$0.0418",
+  "sol56_high_upp": "$0.042",
   "sol56_high_med": "14.5",
   "sol56_high_rsn": "668",
   "sol56_high_rsn10": "670",
@@ -26216,7 +21975,7 @@
   "sol56_high_total": "$2.51",
   "sol61_high_pass": "100%",
   "sol61_high_k": "60/60",
-  "sol61_high_upp": "$0.0186",
+  "sol61_high_upp": "$0.019",
   "sol61_high_med": "27.4",
   "sol61_high_rsn": "565",
   "sol61_high_rsn10": "560",
@@ -26224,7 +21983,7 @@
   "sol61_high_total": "$1.12",
   "sol61_high_fast_pass": "100%",
   "sol61_high_fast_k": "60/60",
-  "sol61_high_fast_upp": "$0.0359",
+  "sol61_high_fast_upp": "$0.036",
   "sol61_high_fast_med": "17.4",
   "sol61_high_fast_rsn": "541",
   "sol61_high_fast_rsn10": "540",
@@ -26254,23 +22013,23 @@
   "lb_vs_hl_ci": "−43.3 to 0.0",
   "lb_vs_ll": "−3.3",
   "lb_vs_ll_ci": "−20.0 to +13.3",
-  "lb_upp_nocache": "$0.001198",
+  "lb_upp_nocache": "$0.0012",
   "lb_nocache_above": "7%",
   "ag_k": "12/12",
   "ag_runs": "84",
-  "ag_astra_medium_usd": "$0.3798",
+  "ag_astra_medium_usd": "$0.38",
   "ag_astra_medium_med": "85",
-  "ag_haiku_high_usd": "$0.0121",
+  "ag_haiku_high_usd": "$0.012",
   "ag_haiku_high_med": "58",
-  "ag_haiku_low_usd": "$0.005071",
+  "ag_haiku_low_usd": "$0.0051",
   "ag_haiku_low_med": "28",
-  "ag_luna_low_usd": "$0.003994",
+  "ag_luna_low_usd": "$0.004",
   "ag_luna_low_med": "28",
-  "ag_sol61_high_usd": "$0.0948",
+  "ag_sol61_high_usd": "$0.095",
   "ag_sol61_high_med": "109",
-  "ag_sol61_medium_usd": "$0.0752",
+  "ag_sol61_medium_usd": "$0.075",
   "ag_sol61_medium_med": "89",
-  "ag_sonnet_medium_usd": "$0.0537",
+  "ag_sonnet_medium_usd": "$0.054",
   "ag_sonnet_medium_med": "28",
   "ag_spread": "19×",
   "ag_other_med": "28",
@@ -26280,20 +22039,20 @@
   "shell_sol61_medium": "97",
   "sm_all": "75/75",
   "sm_vs_hl_x": "11×",
-  "terra_call": "$0.007982",
+  "terra_call": "$0.008",
   "terra_x": "29×",
   "l7_bound": "37%",
   "l7_hl_fail": "3",
   "l7_hl_pass_p15": "2",
-  "l7_luna_high_upp": "$0.001544",
+  "l7_luna_high_upp": "$0.0015",
   "l7_luna_high_med": "24",
-  "l7_sol61_medium_upp": "$0.0170",
+  "l7_sol61_medium_upp": "$0.017",
   "l7_sol61_medium_med": "35",
-  "l7_sonnet_medium_upp": "$0.0180",
+  "l7_sonnet_medium_upp": "$0.018",
   "l7_sonnet_medium_med": "15",
-  "l7_haiku_low_upp": "$0.002302",
+  "l7_haiku_low_upp": "$0.0023",
   "l7_haiku_low_med": "16",
-  "l7_dear": "$0.0170–$0.0180",
+  "l7_dear": "$0.017–$0.018",
   "l7_haiku_low_rsn_x": "2.4×",
   "l7_haiku_low_rsn_a": "1,027",
   "l7_haiku_low_rsn_b": "2,506",
@@ -26322,88 +22081,88 @@
   "lanes": "4",
   "rescue_n": "35",
   "r_luna_low_k": "21/35",
-  "r_luna_low_upp": "$0.001287",
+  "r_luna_low_upp": "$0.0013",
   "r_luna_low_s": "9s",
   "r_luna_low_noshell_B1_k": "25/35",
-  "r_luna_low_noshell_B1_upp": "$0.000973",
+  "r_luna_low_noshell_B1_upp": "$0.00097",
   "r_luna_low_noshell_B1_s": "9s",
   "r_luna_low_noshell_B2_k": "19/35",
-  "r_luna_low_noshell_B2_upp": "$0.001163",
+  "r_luna_low_noshell_B2_upp": "$0.0012",
   "r_luna_low_noshell_B2_s": "9s",
   "r_luna_low_selftest_k": "29/35",
-  "r_luna_low_selftest_upp": "$0.003644",
+  "r_luna_low_selftest_upp": "$0.0036",
   "r_luna_low_selftest_s": "22s",
   "r_luna_medium_bare_k": "21/35",
-  "r_luna_medium_bare_upp": "$0.001199",
+  "r_luna_medium_bare_upp": "$0.0012",
   "r_luna_medium_bare_s": "8s",
   "r_luna_high_bare_k": "31/35",
-  "r_luna_high_bare_upp": "$0.001050",
+  "r_luna_high_bare_upp": "$0.001",
   "r_luna_high_bare_s": "13s",
   "r_luna_low_haiku_low_repair_k": "35/35",
-  "r_luna_low_haiku_low_repair_upp": "$0.003481",
+  "r_luna_low_haiku_low_repair_upp": "$0.0035",
   "r_luna_low_haiku_low_repair_s": "27s",
   "r_haiku_low_plan_luna_low_k": "30/35",
-  "r_haiku_low_plan_luna_low_upp": "$0.003361",
+  "r_haiku_low_plan_luna_low_upp": "$0.0034",
   "r_haiku_low_plan_luna_low_s": "22s",
   "r_haiku_low_plan_luna_high_bare_k": "31/35",
-  "r_haiku_low_plan_luna_high_bare_upp": "$0.003571",
+  "r_haiku_low_plan_luna_high_bare_upp": "$0.0036",
   "r_haiku_low_plan_luna_high_bare_s": "27s",
   "r_luna_high_bare_haiku_on_fail_k": "32/35",
-  "r_luna_high_bare_haiku_on_fail_upp": "$0.001354",
+  "r_luna_high_bare_haiku_on_fail_upp": "$0.0014",
   "r_luna_high_bare_haiku_on_fail_s": "11s",
   "r_luna_high_bare_retry_on_fail_k": "32/35",
-  "r_luna_high_bare_retry_on_fail_upp": "$0.001146",
+  "r_luna_high_bare_retry_on_fail_upp": "$0.0011",
   "r_luna_high_bare_retry_on_fail_s": "11s",
   "r_luna_low_haiku_on_fail_k": "34/35",
-  "r_luna_low_haiku_on_fail_upp": "$0.002161",
+  "r_luna_low_haiku_on_fail_upp": "$0.0022",
   "r_luna_low_haiku_on_fail_s": "8s",
   "r_luna_high_bare_haiku_review_all_k": "35/35",
-  "r_luna_high_bare_haiku_review_all_upp": "$0.003484",
+  "r_luna_high_bare_haiku_review_all_upp": "$0.0035",
   "r_luna_high_bare_haiku_review_all_s": "26s",
   "r_luna_low_haiku_review_all_k": "34/35",
-  "r_luna_low_haiku_review_all_upp": "$0.003905",
+  "r_luna_low_haiku_review_all_upp": "$0.0039",
   "r_luna_low_haiku_review_all_s": "23s",
   "r_sol61_high_haiku_on_fail_k": "35/35",
-  "r_sol61_high_haiku_on_fail_upp": "$0.0218",
+  "r_sol61_high_haiku_on_fail_upp": "$0.022",
   "r_sol61_high_haiku_on_fail_s": "33s",
   "r_astra_medium_haiku_on_fail_k": "35/35",
-  "r_astra_medium_haiku_on_fail_upp": "$0.0868",
+  "r_astra_medium_haiku_on_fail_upp": "$0.087",
   "r_astra_medium_haiku_on_fail_s": "21s",
   "r_haiku_low_k": "32/35",
-  "r_haiku_low_upp": "$0.001568",
+  "r_haiku_low_upp": "$0.0016",
   "r_haiku_low_s": "13s",
   "r_haiku_medium_k": "35/35",
-  "r_haiku_medium_upp": "$0.001919",
+  "r_haiku_medium_upp": "$0.0019",
   "r_haiku_medium_s": "15s",
   "r_haiku_high_k": "35/35",
-  "r_haiku_high_upp": "$0.003473",
+  "r_haiku_high_upp": "$0.0035",
   "r_haiku_high_s": "17s",
   "r_sonnet_medium_k": "35/35",
-  "r_sonnet_medium_upp": "$0.0153",
+  "r_sonnet_medium_upp": "$0.015",
   "r_sonnet_medium_s": "11s",
   "r_sol61_medium_k": "33/35",
-  "r_sol61_medium_upp": "$0.0179",
+  "r_sol61_medium_upp": "$0.018",
   "r_sol61_medium_s": "26s",
   "r_sol61_high_k": "35/35",
-  "r_sol61_high_upp": "$0.0222",
+  "r_sol61_high_upp": "$0.022",
   "r_sol61_high_s": "33s",
   "r_sol61_high_fast_k": "35/35",
-  "r_sol61_high_fast_upp": "$0.0435",
+  "r_sol61_high_fast_upp": "$0.043",
   "r_sol61_high_fast_s": "19s",
   "r_astra_medium_k": "35/35",
-  "r_astra_medium_upp": "$0.0864",
+  "r_astra_medium_upp": "$0.086",
   "r_astra_medium_s": "26s",
   "r_astra_medium_fast_k": "35/35",
-  "r_astra_medium_fast_upp": "$0.1749",
+  "r_astra_medium_fast_upp": "$0.17",
   "r_astra_medium_fast_s": "11s",
   "r_sol56_high_k": "35/35",
-  "r_sol56_high_upp": "$0.0507",
+  "r_sol56_high_upp": "$0.051",
   "r_sol56_high_s": "19s",
   "r_luna56_high_k": "32/35",
-  "r_luna56_high_upp": "$0.003603",
+  "r_luna56_high_upp": "$0.0036",
   "r_luna56_high_s": "14s",
   "r_luna56_low_k": "29/35",
-  "r_luna56_low_upp": "$0.002483",
+  "r_luna56_low_upp": "$0.0025",
   "r_luna56_low_s": "12s",
   "r_b1_gain": "4",
   "r_b2_loss": "6",
@@ -26438,8 +22197,8 @@
   "pair_problems": "3",
   "nofeat_nocache": "8",
   "nofeat_calls": "9",
-  "pilot_luna_call": "$0.000296",
-  "pilot_haiku_call": "$0.000277",
+  "pilot_luna_call": "$0.0003",
+  "pilot_haiku_call": "$0.00028",
   "pilot_luna_k": "9/9",
   "q_rows": "770",
   "q_worst_x": "2453×",
@@ -26466,34 +22225,34 @@
   "blind_caption": "Reader: claude-fable-5-1, one blind pass, 2026-10-23. Method: one passing solution per config per problem, shuffled and labelled A-E (seed 7); the reviewer saw code only. Score: 1-10 readability and maintainability; would block = would not merge as is. 4 solutions per config.",
   "ff_s61_k": "60/60",
   "ff_s61_hk": "15/15",
-  "ff_s61_upp": "$0.0359",
-  "ff_s61_dupp": "$0.0186",
+  "ff_s61_upp": "$0.036",
+  "ff_s61_dupp": "$0.019",
   "ff_s61_med": "17.4",
   "ff_s61_dmed": "27.4",
   "ff_s61_faster": "37%",
   "ff_s61_x": "1.9×",
   "pf_s61_k": "60/60",
   "pf_s61_hk": "15/15",
-  "pf_s61_upp": "$0.0359",
+  "pf_s61_upp": "$0.036",
   "pf_s61_med": "17.4",
-  "pf_s61_dupp": "$0.0186",
+  "pf_s61_dupp": "$0.019",
   "pf_s61_dmed": "27.4",
   "pf_s61_fails": "0",
   "pf_s61_n_all": "75",
   "pf_s61_status": "derived: check never failed",
   "ff_ast_k": "60/60",
   "ff_ast_hk": "15/15",
-  "ff_ast_upp": "$0.1520",
-  "ff_ast_dupp": "$0.0753",
+  "ff_ast_upp": "$0.15",
+  "ff_ast_dupp": "$0.075",
   "ff_ast_med": "9.9",
   "ff_ast_dmed": "20.9",
   "ff_ast_faster": "53%",
   "ff_ast_x": "2.0×",
   "pf_ast_k": "60/60",
   "pf_ast_hk": "15/15",
-  "pf_ast_upp": "$0.1520",
+  "pf_ast_upp": "$0.15",
   "pf_ast_med": "9.9",
-  "pf_ast_dupp": "$0.0753",
+  "pf_ast_dupp": "$0.075",
   "pf_ast_dmed": "20.9",
   "pf_ast_fails": "0",
   "pf_ast_n_all": "75",
@@ -26507,37 +22266,37 @@
   "ff_usd": "$12.88",
   "fm_usd": "$3.41",
   "x_sol61_high_k": "60/60",
-  "x_sol61_high_upp": "$0.0186",
+  "x_sol61_high_upp": "$0.019",
   "x_sol61_high_med": "27.4",
   "x_sol61_high_hk": "15/15",
-  "x_sol61_high_hupp": "$0.0236",
+  "x_sol61_high_hupp": "$0.024",
   "x_sol56_high_k": "60/60",
-  "x_sol56_high_upp": "$0.0418",
+  "x_sol56_high_upp": "$0.042",
   "x_sol56_high_med": "14.5",
   "x_sol56_high_hk": "13/15",
-  "x_sol56_high_hupp": "$0.0685",
+  "x_sol56_high_hupp": "$0.069",
   "x_astra_medium_k": "60/60",
-  "x_astra_medium_upp": "$0.0753",
+  "x_astra_medium_upp": "$0.075",
   "x_astra_medium_med": "20.9",
   "x_astra_medium_hk": "15/15",
-  "x_astra_medium_hupp": "$0.0830",
+  "x_astra_medium_hupp": "$0.083",
   "x_luna56_high_k": "56/60",
-  "x_luna56_high_upp": "$0.002980",
+  "x_luna56_high_upp": "$0.003",
   "x_luna56_high_med": "11.4",
   "x_luna56_high_hk": "9/15",
-  "x_luna56_high_hupp": "$0.007756",
+  "x_luna56_high_hupp": "$0.0078",
   "x_luna56_low_k": "48/60",
-  "x_luna56_low_upp": "$0.002180",
+  "x_luna56_low_upp": "$0.0022",
   "x_luna56_low_med": "9.2",
   "x_luna56_low_hk": "8/15",
-  "x_luna56_low_hupp": "$0.004592",
+  "x_luna56_low_hupp": "$0.0046",
   "x_base_luna_high_hk": "15/15",
   "x_base_sol61_medium_hk": "15/15",
   "x_sol56_vs_hm": "28×",
   "hh_k": "60/60",
   "hh_hk": "15/15",
-  "hh_upp": "$0.002822",
-  "hh_hupp": "$0.003368",
+  "hh_upp": "$0.0028",
+  "hh_hupp": "$0.0034",
   "hh_med": "14.7",
   "hh_p90": "38",
   "hh_hmed": "27",
@@ -26593,8 +22352,8 @@
      "85%–100%",
      "10.0",
      "16.0",
-     "$0.001122",
-     "$0.0639",
+     "$0.0011",
+     "$0.064",
      "measured"
     ],
     [
@@ -26603,8 +22362,8 @@
      "93%–100%",
      "13.0",
      "26.8",
-     "$0.001490",
-     "$0.0879",
+     "$0.0015",
+     "$0.088",
      "measured"
     ],
     [
@@ -26613,8 +22372,8 @@
      "≥78% (all passed)",
      "10.1",
      "18.1",
-     "$0.0124",
-     "$0.7463",
+     "$0.012",
+     "$0.75",
      "measured"
     ],
     [
@@ -26623,8 +22382,8 @@
      "53%–95%",
      "7.2",
      "11.6",
-     "$0.000899",
-     "$0.0414",
+     "$0.0009",
+     "$0.041",
      "proxy"
     ],
     [
@@ -26633,8 +22392,8 @@
      "57%–97%",
      "8.2",
      "11.8",
-     "$0.000890",
-     "$0.0418",
+     "$0.00089",
+     "$0.042",
      "proxy"
     ],
     [
@@ -26643,8 +22402,8 @@
      "87%–100%",
      "22.6",
      "36.2",
-     "$0.0150",
-     "$0.8692",
+     "$0.015",
+     "$0.87",
      "proxy"
     ],
     [
@@ -26653,7 +22412,7 @@
      "≥78% (all passed)",
      "20.9",
      "35.6",
-     "$0.0753",
+     "$0.075",
      "$4.52",
      "proxy"
     ],
@@ -26663,7 +22422,7 @@
      "≥78% (all passed)",
      "9.9",
      "13.6",
-     "$0.1520",
+     "$0.15",
      "$9.12",
      "proxy"
     ],
@@ -26673,8 +22432,8 @@
      "≥78% (all passed)",
      "14.7",
      "37.6",
-     "$0.002822",
-     "$0.1693",
+     "$0.0028",
+     "$0.17",
      "measured"
     ],
     [
@@ -26683,8 +22442,8 @@
      "82%–100%",
      "12.2",
      "22.9",
-     "$0.001049",
-     "$0.0577",
+     "$0.001",
+     "$0.058",
      "proxy"
     ],
     [
@@ -26693,8 +22452,8 @@
      "52%–92%",
      "6.8",
      "11.1",
-     "$0.000798",
-     "$0.0351",
+     "$0.0008",
+     "$0.035",
      "proxy"
     ],
     [
@@ -26703,8 +22462,8 @@
      "83%–100%",
      "11.4",
      "35.5",
-     "$0.002980",
-     "$0.1669",
+     "$0.003",
+     "$0.17",
      "proxy"
     ],
     [
@@ -26713,8 +22472,8 @@
      "60%–97%",
      "9.2",
      "17.4",
-     "$0.002180",
-     "$0.1046",
+     "$0.0022",
+     "$0.1",
      "proxy"
     ],
     [
@@ -26723,7 +22482,7 @@
      "≥78% (all passed)",
      "14.5",
      "48.4",
-     "$0.0418",
+     "$0.042",
      "$2.51",
      "proxy"
     ],
@@ -26733,7 +22492,7 @@
      "≥78% (all passed)",
      "27.4",
      "50.2",
-     "$0.0186",
+     "$0.019",
      "$1.12",
      "proxy"
     ],
@@ -26743,7 +22502,7 @@
      "≥78% (all passed)",
      "17.4",
      "27.9",
-     "$0.0359",
+     "$0.036",
      "$2.15",
      "proxy"
     ]
@@ -26764,7 +22523,7 @@
      "haiku-low",
      "85%–100%",
      "16.0",
-     "$0.0639",
+     "$0.064",
      "measured"
     ],
     [
@@ -26772,7 +22531,7 @@
      "haiku-medium",
      "93%–100%",
      "26.8",
-     "$0.0879",
+     "$0.088",
      "measured"
     ],
     [
@@ -26780,7 +22539,7 @@
      "sonnet-medium",
      "≥78% (all passed)",
      "18.1",
-     "$0.7463",
+     "$0.75",
      "measured"
     ],
     [
@@ -26788,7 +22547,7 @@
      "luna-low",
      "53%–95%",
      "11.6",
-     "$0.0414",
+     "$0.041",
      "proxy"
     ],
     [
@@ -26796,7 +22555,7 @@
      "luna-medium",
      "57%–97%",
      "11.8",
-     "$0.0418",
+     "$0.042",
      "proxy"
     ],
     [
@@ -26804,7 +22563,7 @@
      "sol61-medium",
      "87%–100%",
      "36.2",
-     "$0.8692",
+     "$0.87",
      "proxy"
     ],
     [
@@ -26828,7 +22587,7 @@
      "haiku-high (exploratory)",
      "≥78% (all passed)",
      "37.6",
-     "$0.1693",
+     "$0.17",
      "measured"
     ],
     [
@@ -26836,7 +22595,7 @@
      "luna-high (exploratory)",
      "82%–100%",
      "22.9",
-     "$0.0577",
+     "$0.058",
      "proxy"
     ],
     [
@@ -26844,7 +22603,7 @@
      "luna-low-bare (exploratory)",
      "52%–92%",
      "11.1",
-     "$0.0351",
+     "$0.035",
      "proxy"
     ],
     [
@@ -26852,7 +22611,7 @@
      "luna56-high (exploratory)",
      "83%–100%",
      "35.5",
-     "$0.1669",
+     "$0.17",
      "proxy"
     ],
     [
@@ -26860,7 +22619,7 @@
      "luna56-low (exploratory)",
      "60%–97%",
      "17.4",
-     "$0.1046",
+     "$0.1",
      "proxy"
     ],
     [
@@ -26905,7 +22664,7 @@
      "3,875",
      "1,805",
      "1,027",
-     "$0.000169"
+     "$0.00017"
     ],
     [
      "haiku-medium",
@@ -26913,7 +22672,7 @@
      "3,915",
      "2,620",
      "1,836",
-     "$0.000206"
+     "$0.00021"
     ],
     [
      "sonnet-medium",
@@ -26921,7 +22680,7 @@
      "3,095",
      "964",
      "292",
-     "$0.002656"
+     "$0.0027"
     ],
     [
      "luna-low",
@@ -26945,7 +22704,7 @@
      "12,346",
      "718",
      "209",
-     "$0.000900"
+     "$0.0009"
     ],
     [
      "astra-medium †",
@@ -26953,7 +22712,7 @@
      "12,207",
      "639",
      "127",
-     "$0.004716"
+     "$0.0047"
     ],
     [
      "astra-medium ⚡ †",
@@ -26961,7 +22720,7 @@
      "12,160",
      "646",
      "136",
-     "$0.009524"
+     "$0.0095"
     ],
     [
      "haiku-high †",
@@ -26969,7 +22728,7 @@
      "649",
      "4,123",
      "3,353",
-     "$0.000330"
+     "$0.00033"
     ],
     [
      "luna-high †",
@@ -26993,7 +22752,7 @@
      "10,240",
      "1,693",
      "1,147",
-     "$0.000190"
+     "$0.00019"
     ],
     [
      "luna56-low †",
@@ -27001,7 +22760,7 @@
      "10,281",
      "835",
      "295",
-     "$0.000126"
+     "$0.00013"
     ],
     [
      "sol56-high †",
@@ -27009,7 +22768,7 @@
      "11,315",
      "1,226",
      "668",
-     "$0.002657"
+     "$0.0027"
     ],
     [
      "sol61-high †",
@@ -27017,7 +22776,7 @@
      "12,083",
      "1,081",
      "565",
-     "$0.001131"
+     "$0.0011"
     ],
     [
      "sol61-high ⚡ †",
@@ -27025,7 +22784,7 @@
      "12,288",
      "1,052",
      "541",
-     "$0.002183"
+     "$0.0022"
     ]
    ]
   },
@@ -27083,7 +22842,7 @@
      "5/5",
      "30.6",
      "315",
-     "$0.0830",
+     "$0.083",
      "proxy"
     ],
     [
@@ -27095,7 +22854,7 @@
      "5/5",
      "15.4",
      "327",
-     "$0.1644",
+     "$0.16",
      "proxy"
     ],
     [
@@ -27107,7 +22866,7 @@
      "5/5",
      "27.4",
      "4,483",
-     "$0.003368",
+     "$0.0034",
      "measured"
     ],
     [
@@ -27119,7 +22878,7 @@
      "5/5",
      "24.0",
      "1,569",
-     "$0.001544",
+     "$0.0015",
      "proxy"
     ],
     [
@@ -27131,7 +22890,7 @@
      "5/5",
      "52.7",
      "1,151",
-     "$0.0236",
+     "$0.024",
      "proxy"
     ],
     [
@@ -27143,7 +22902,7 @@
      "5/5",
      "29.4",
      "1,015",
-     "$0.0440",
+     "$0.044",
      "proxy"
     ],
     [
@@ -27155,7 +22914,7 @@
      "5/5",
      "35.2",
      "482",
-     "$0.0170",
+     "$0.017",
      "proxy"
     ],
     [
@@ -27167,7 +22926,7 @@
      "5/5",
      "15.0",
      "806",
-     "$0.0180",
+     "$0.018",
      "measured"
     ],
     [
@@ -27179,7 +22938,7 @@
      "4/5",
      "21.2",
      "2,916",
-     "$0.002996",
+     "$0.003",
      "measured"
     ],
     [
@@ -27191,7 +22950,7 @@
      "5/5",
      "41.0",
      "1,435",
-     "$0.0685",
+     "$0.069",
      "proxy"
     ],
     [
@@ -27203,7 +22962,7 @@
      "2/5",
      "16.5",
      "2,506",
-     "$0.002302",
+     "$0.0023",
      "measured"
     ],
     [
@@ -27215,7 +22974,7 @@
      "3/5",
      "20.7",
      "2,605",
-     "$0.007756",
+     "$0.0078",
      "proxy"
     ],
     [
@@ -27227,7 +22986,7 @@
      "3/5",
      "11.6",
      "761",
-     "$0.004592",
+     "$0.0046",
      "proxy"
     ]
    ]
@@ -27521,7 +23280,7 @@
      "12/12",
      "≥5",
      "28.5",
-     "$0.003994",
+     "$0.004",
      "proxy"
     ],
     [
@@ -27531,7 +23290,7 @@
      "12/12",
      "114",
      "28.3",
-     "$0.005071",
+     "$0.0051",
      "measured"
     ],
     [
@@ -27541,7 +23300,7 @@
      "12/12",
      "no transcripts",
      "58.4",
-     "$0.0121",
+     "$0.012",
      "measured"
     ],
     [
@@ -27551,7 +23310,7 @@
      "12/12",
      "77",
      "27.7",
-     "$0.0537",
+     "$0.054",
      "measured"
     ],
     [
@@ -27561,7 +23320,7 @@
      "12/12",
      "≥8",
      "89.0",
-     "$0.0752",
+     "$0.075",
      "proxy"
     ],
     [
@@ -27571,7 +23330,7 @@
      "12/12",
      "no transcripts",
      "108.6",
-     "$0.0948",
+     "$0.095",
      "proxy"
     ],
     [
@@ -27581,7 +23340,7 @@
      "12/12",
      "no transcripts",
      "85.2",
-     "$0.3798",
+     "$0.38",
      "proxy"
     ]
    ]
@@ -27597,169 +23356,169 @@
     [
      "luna-low baseline",
      "21/35",
-     "$0.001287",
+     "$0.0013",
      "8.5"
     ],
     [
      "B1: no shell, plus a \"list edge cases and trace the examples first\" nudge",
      "25/35",
-     "$0.000973",
+     "$0.00097",
      "8.6"
     ],
     [
      "B2: B1 plus a detailed reasoning summary",
      "19/35",
-     "$0.001163",
+     "$0.0012",
      "8.9"
     ],
     [
      "C: shell on, told to test its code before answering",
      "29/35",
-     "$0.003644",
+     "$0.0036",
      "21.9"
     ],
     [
      "D: luna-medium, stripped harness",
      "21/35",
-     "$0.001199",
+     "$0.0012",
      "8.4"
     ],
     [
      "D: luna-high, stripped harness",
      "31/35",
-     "$0.001050",
+     "$0.001",
      "13.2"
     ],
     [
      "E (original run, prompt not kept): luna-low answer, then haiku-low reviews and repairs it",
      "35/35",
-     "$0.003481",
+     "$0.0035",
      "27.4"
     ],
     [
      "F: haiku-low writes a plan, luna-low builds from it",
      "30/35",
-     "$0.003361",
+     "$0.0034",
      "22.1"
     ],
     [
      "F: haiku-low writes a plan, luna-high (stripped harness) builds from it",
      "31/35",
-     "$0.003571",
+     "$0.0036",
      "27.4"
     ],
     [
      "G: luna-high (stripped) builds; haiku-low repairs only if the statement's examples fail",
      "32/35",
-     "$0.001354",
+     "$0.0014",
      "10.6"
     ],
     [
      "G: luna-high (stripped) builds; luna-high retries only if the statement's examples fail",
      "32/35",
-     "$0.001146",
+     "$0.0011",
      "10.6"
     ],
     [
      "G: luna-low builds; haiku-low repairs only if the statement's examples fail",
      "34/35",
-     "$0.002161",
+     "$0.0022",
      "7.9"
     ],
     [
      "G: luna-high (stripped) builds; haiku-low reviews every answer, as in E",
      "35/35",
-     "$0.003484",
+     "$0.0035",
      "26.1"
     ],
     [
      "G: luna-low builds; haiku-low reviews every answer (arm E rerun from committed code)",
      "34/35",
-     "$0.003905",
+     "$0.0039",
      "23.1"
     ],
     [
      "G: sol61-high builds; haiku-low repairs only if the statement's examples fail",
      "35/35",
-     "$0.0218",
+     "$0.022",
      "32.7"
     ],
     [
      "G: astra-medium builds; haiku-low repairs only if the statement's examples fail",
      "35/35",
-     "$0.0868",
+     "$0.087",
      "21.4"
     ],
     [
      "haiku-low",
      "32/35",
-     "$0.001568",
+     "$0.0016",
      "13.1"
     ],
     [
      "haiku-medium",
      "35/35",
-     "$0.001919",
+     "$0.0019",
      "14.8"
     ],
     [
      "haiku-high",
      "35/35",
-     "$0.003473",
+     "$0.0035",
      "17.4"
     ],
     [
      "sonnet-medium",
      "35/35",
-     "$0.0153",
+     "$0.015",
      "11.4"
     ],
     [
      "sol61-medium",
      "33/35",
-     "$0.0179",
+     "$0.018",
      "25.6"
     ],
     [
      "sol61-high",
      "35/35",
-     "$0.0222",
+     "$0.022",
      "33.4"
     ],
     [
      "sol61-high, fast mode",
      "35/35",
-     "$0.0435",
+     "$0.043",
      "18.9"
     ],
     [
      "astra-medium",
      "35/35",
-     "$0.0864",
+     "$0.086",
      "26.0"
     ],
     [
      "astra-medium, fast mode",
      "35/35",
-     "$0.1749",
+     "$0.17",
      "10.9"
     ],
     [
      "sol56-high",
      "35/35",
-     "$0.0507",
+     "$0.051",
      "19.5"
     ],
     [
      "luna56-high",
      "32/35",
-     "$0.003603",
+     "$0.0036",
      "14.1"
     ],
     [
      "luna56-low",
      "29/35",
-     "$0.002483",
+     "$0.0025",
      "12.3"
     ]
    ]
@@ -27779,7 +23538,7 @@
      "9/9",
      "4,100",
      "5.0",
-     "$0.000277",
+     "$0.00028",
      "measured"
     ],
     [
@@ -27787,7 +23546,7 @@
      "9/9",
      "14,400",
      "4.2",
-     "$0.000470",
+     "$0.00047",
      "proxy"
     ],
     [
@@ -27795,7 +23554,7 @@
      "9/9",
      "9,939",
      "4.4",
-     "$0.000985",
+     "$0.00098",
      "proxy"
     ],
     [
@@ -27803,7 +23562,7 @@
      "9/9",
      "5,854",
      "3.8",
-     "$0.000296",
+     "$0.0003",
      "proxy"
     ]
    ]
@@ -27980,7 +23739,7 @@
      "35/35",
      "30.1",
      "1,092",
-     "$0.0212",
+     "$0.021",
      "63",
      "22",
      "0.00",
@@ -27991,7 +23750,7 @@
      "35/35",
      "18.9",
      "1,063",
-     "$0.0435",
+     "$0.043",
      "62",
      "22",
      "0.09",
@@ -28002,7 +23761,7 @@
      "35/35",
      "44.3",
      "1,662",
-     "$0.0326",
+     "$0.033",
      "64",
      "23",
      "0.00",

@@ -128,13 +128,13 @@ def where(e, rest, chart_bodies):
 
 
 def section(rest, ds, root, chart_bodies=None):
-    """The collapsible "Everything we tried" block, one row per config from the dataset's all-runs roll-up. rest = the page HTML without
+    """The collapsible "Everything we tried" block, one row per registry entry from the dataset catalog. rest = the page HTML without
     this block, used for the 'where it appears' column."""
-    from analysis.dataset import usd as money
+    from analysis.dataset import catalog_rows, usd as money
     chart_bodies = chart_bodies or {}
     by = {}
-    for r in ds["rows"]:
-        if r["set"] == "all runs": by.setdefault(r["category"], []).append(r)
+    for r in catalog_rows(ds):
+        by.setdefault(r["category"], []).append(r)
     head = "".join(f"<th>{h}</th>" for h in ("name", "what it was", "pass", "$ per pass", "median s", "spend", "where it appears"))
     out = ["<details><summary>Everything we tried</summary>", "<p class=\"small\">Every config with rows in results/, grouped by kind, all of its runs together. Codex $ are list-price proxies; ~ = some rows have no cost. "
            "The tooltip on a name is the file its rows are in.</p>"]

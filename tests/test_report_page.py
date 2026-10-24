@@ -153,9 +153,23 @@ def test_frontier_caption_uses_computed_costs(summary):
     medium, low = values["luna-medium"], values["luna-low"]
     caption = page.frontier_caption(summary)
     assert (f'luna-low is off the frontier: luna-medium costs about the same '
-            f'({dataset.usd(medium["usd_per_pass"])} vs {dataset.usd(low["usd_per_pass"])}) '
+            f'({dataset.usd(medium["usd_per_pass"], sig=3)} vs {dataset.usd(low["usd_per_pass"], sig=3)}) '
             f'and passes more ({medium["passes"]}/{medium["n"]} vs {low["passes"]}/{low["n"]}).') in caption
     assert 'shown precision' not in caption
+    assert '($0.00089 vs $0.000899)' in caption
+
+
+def test_measured_luna_rescue_keeps_its_own_page_metrics(summary):
+    arm = page.rescue_arms(summary)["luna-low+haiku-on-fail"]
+    assert (arm["passes"], arm["n"]) == (34, 35)
+    assert (arm["usd_per_pass"], arm["claude_usd_per_pass"], arm["median_s"]) == (.002161, .001335, 7.88)
+    assert arm["derived"] is False
+    assert arm["metrics_from"] == {"source": "rescue", "config": "luna-low+haiku-on-fail", "set": "rescue arms"}
+    for render in (page.pass_cost, page.speed_cost):
+        output, _ = render(summary, free=False, problem_set="rescue")
+        points = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
+        point = next(p for p in points.findall("s:g", NS) if p.get("data-c") == "luna-low+haiku-on-fail")
+        assert '34/35 passed' in point.get("data-tip")
 
 
 def test_rung_series_have_distinct_keys_past_all_endpoints(summary):

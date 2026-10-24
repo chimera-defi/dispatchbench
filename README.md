@@ -8,10 +8,10 @@ Claude and Codex are billed separately, so the table shows both: Claude $ is Cla
 
 | Route to | When | Passed | Claude $ per pass | List $ per pass | Median s |
 |---|---|---|---|---|---|
-| **sol61-high**, haiku-low repairs only if a check fails | default while Codex has quota | 60/60 | $0 | $0.0186 | 27.4 |
-| astra-medium, same repair | faster, about 4.0× the list price (Codex usage assumed to track it) | 60/60 | $0 | $0.0753 | 20.9 |
-| haiku-low | Codex out | 57/60 | $0.001122 | $0.001122 | 10.0 |
-| haiku-high | Codex out and a miss is costly (exploratory) | 60/60 | $0.002822 | $0.002822 | 14.7 |
+| **sol61-high**, haiku-low repairs only if a check fails | default while Codex has quota | 60/60 | $0 | $0.019 | 27.4 |
+| astra-medium, same repair | faster, about 4.0× the list price (Codex usage assumed to track it) | 60/60 | $0 | $0.075 | 20.9 |
+| haiku-low | Codex out | 57/60 | $0.0011 | $0.0011 | 10.0 |
+| haiku-high | Codex out and a miss is costly (exploratory) | 60/60 | $0.0028 | $0.0028 | 14.7 |
 
 Main ladder: 12 problems × 5 attempts per config.
 
@@ -20,7 +20,7 @@ Main ladder: 12 problems × 5 attempts per config.
 - **The price is time.** On the repo tasks they take 109 s and 85 s at the median, against about 28 s for haiku-low and sonnet-medium.
 - **Skip luna at low or medium effort.** It barely reasons there and misses easy problems. luna-high is the cheapest Codex config but misses some.
 - **Fast mode (⚡) keeps the passes and costs about twice as much per pass.** sol61-high ⚡: 60/60, 17.4 s against 27.4 s; astra-medium ⚡: 60/60, 9.9 s against 20.9 s. Neither missed on L7 (15/15, 15/15).
-- **haiku-high and sonnet-medium also never failed.** haiku-high: 60/60, 15/15 on L7 and 12/12 repo tasks at $0.002822 per pass, 7× cheaper than sol61-high and faster (14.7 s against 27.4 s). haiku-medium still misses (13/15 on L7). sonnet-medium: 75/75, the fastest of them.
+- **haiku-high and sonnet-medium also never failed.** haiku-high: 60/60, 15/15 on L7 and 12/12 repo tasks at $0.0028 per pass, 7× cheaper than sol61-high and faster (14.7 s against 27.4 s). haiku-medium still misses (13/15 on L7). sonnet-medium: 75/75, the fastest of them.
 
 Function + agentic spend only (auxiliary runs and pilot excluded): $2.46 Claude, $35.40 Codex at list prices ($16.70 of it for the Codex models added on 2026-10-23, $3.41 for the fast-mode and xhigh runs).
 

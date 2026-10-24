@@ -26,6 +26,7 @@ PATH = os.path.join(RES, "dataset.json")
 import glob, re, copy, math
 from datetime import datetime
 from fractions import Fraction
+from decimal import Decimal
 from analysis import fast_gate, harness_bias, luna_rescue, summarize
 from analysis.labels import pshort, plabel, DISP
 from analysis.summarize import FAST_CONFIGS, FUNC, AGENT, ci_text, cost_uncached, pct
@@ -38,6 +39,10 @@ GROWTH_MARGIN = 0.3
 
 REPORT_PROBLEMS = 12; REPEATS = 5
 DERIVED = ("rescue set",)  # slices of rows that are also in another set; never summed into "all runs"
+# "all runs" pools only function-run sets: main/partial ladder, extra repeats,
+# L7 set and calibration. Repo tasks, pilot, rescue arms, trim and harness-bias
+# retain their own set names; the overlapping derived rescue set is excluded.
+ALL_RUN_SETS = ("main ladder", "partial ladder", "extra repeats", "L7 set", "calibration")
 
 
 def _mult(r):
@@ -142,15 +147,22 @@ def _base():
     rows = [_row(src, name, st, rr) for (src, name, st), rr in groups.items()]
     allr = defaultdict(list)
     for (src, name, st), rr in groups.items():
-        if st not in DERIVED: allr[(src, name)] += rr
+        if src == "main" and st in ALL_RUN_SETS: allr[(src, name)] += rr
     rows += [_row(src, name, "all runs", rr) for (src, name), rr in allr.items()]
+    row_keys = [(r["config"], r["set"]) for r in rows]
+    assert len(row_keys) == len(set(row_keys)), "duplicate (config, set) keys"
     order = {c: i for i, c in enumerate(configs.CATEGORIES)}
     rows.sort(key=lambda r: (r["set"] == "all runs", order.get(r["category"], 99), r["source"], r["set"], list(configs.REGISTRY).index((r["source"], r["config"])) if (r["source"], r["config"]) in configs.REGISTRY else 999))
     return {"generated_from": sorted({f for r in rows for f in r["files"]}), "sets": sorted({r["set"] for r in rows}), "rows": rows}
 
 
 def keys(ds):
-    return {(r["source"], r["config"]) for r in ds["rows"] if r["set"] == "all runs"}
+    return {(r["source"], r["config"]) for r in ds["rows"]}
+
+
+def catalog_rows(ds):
+    """One row per registry entry: function roll-ups, other sources' named sets."""
+    return [r for r in ds["rows"] if r["set"] == "all runs" or r["source"] != "main" and not r["derived"]]
 
 
 def get(ds, config, set_, source="main"):
@@ -158,11 +170,16 @@ def get(ds, config, set_, source="main"):
     return next(r for r in ds["rows"] if r["source"] == source and r["config"] == config and r["set"] == set_)
 
 
-def usd(v):
-    """The one cost formatter for charts and tables built on the dataset: None is a dash, 0 is $0, then 2 decimals from $1, 4 from $0.01, 6 below
-    (so $0.0009 and $0.00097 never sit side by side)."""
+def usd(v, sig=2):
+    """Two decimals from $1; otherwise significant figures without zero padding.
+
+    Use sig=3 explicitly when a textual comparison needs the extra distinction.
+    """
     if v is None: return "–"
-    return "$0" if v == 0 else f"${v:,.2f}" if v >= 1 else f"${v:.4f}" if v >= 0.01 else f"${v:.6f}"
+    if v == 0: return "$0"
+    if v >= 1: return f"${v:,.2f}"
+    value = format(Decimal(f"{v:.{sig}g}"), "f")
+    return "$" + (value.rstrip("0").rstrip(".") if "." in value else value)
 
 
 
@@ -690,13 +707,7 @@ def _project(ds, summary):
 
 
 def _rescue(ds, arms, checked):
-    """Materialize the page's existing rescue slices and their explicit source keys.
-
-    Keep measured appendix arms on their own rows for the appendix facts/table.
-    The page historically selects a main-run rescue slice when that builder
-    exists. Preserve that selection here, rather than changing displayed results
-    during an architecture refactor. metrics_from makes the distinction inspectable.
-    """
+    """Keep measured arms on their own rows; only derived fast arms use a builder slice."""
     out = {}
     for c, a in arms.items():
         source, set_ = ("rescue", "rescue arms") if ("rescue", c) in configs.REGISTRY else ("main", "rescue set")
@@ -704,19 +715,9 @@ def _rescue(ds, arms, checked):
         a.update({k: r[k] for k in ("passes", "n", "pass_rate", "usd_per_pass", "claude_usd_per_pass", "median_s",
                                   "p25_s", "p75_s", "misses", "usd_saved_per_pass")})
         a["usd_total"] = r["spend"]
+        a["derived"] = r["derived"]
+        a["metrics_from"] = {"source": source, "config": c, "set": set_}
         out[c] = {k: v for k, v in a.items() if k != "rows"}
-    for c, a in out.items():
-        builder = c.split("+")[0] if c.endswith("+haiku-on-fail") else c
-        matches = [r for r in ds["rows"] if (r["source"], r["config"], r["set"]) == ("main", builder, "rescue set")]
-        if matches:
-            r = matches[0]
-            a.update({k: r[k] for k in ("passes", "n", "pass_rate", "usd_per_pass", "claude_usd_per_pass", "median_s", "p25_s", "p75_s", "misses", "usd_saved_per_pass")})
-            a["usd_total"] = r["spend"]
-            a["derived"] = True
-            a["metrics_from"] = {"source": "main", "config": builder, "set": "rescue set"}
-        else:
-            a["derived"] = False
-            a["metrics_from"] = {"source": "rescue", "config": c, "set": "rescue arms"}
     for c in ("sol61-high-fast", "astra-medium-fast"):
         evidence = checked[c]
         need(evidence["all"]["failures"] == 0, f"{c} would need a Haiku call; pipeline was not run")
@@ -770,7 +771,7 @@ def build(summary=None):
     s["design"] = ds["design"]
     ds["categories"] = {cat: {"n_configs": len(rr), "spend": sum(r["spend"] for r in rr)}
                         for cat in configs.CATEGORIES
-                        if (rr := [r for r in ds["rows"] if r["set"] == "all runs" and r["category"] == cat])}
+                        if (rr := [r for r in catalog_rows(ds) if r["category"] == cat])}
     ds["report"] = s
     ds["facts"] = _facts(s, arms)
     ds["tables"] = _tables(s, arms)
