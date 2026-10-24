@@ -96,7 +96,7 @@ document.querySelectorAll("main > section").forEach(function(section,i){
  section.appendChild(body);section.classList.add("collapsible");
  var item={section:section,button:button,chevron:chevron,body:body};sections.push(item);
  setOpen(item,collapsed.indexOf(section.id)===-1);
- button.addEventListener("click",function(){setOpen(item,body.hidden);updateAll();persist()})
+ button.addEventListener("click",function(){document.documentElement.classList.add("sec-anim");setOpen(item,body.hidden);updateAll();persist()})
 });
 if(!sections.length)return;
 var toc=document.querySelector("main nav.toc"),allButton;
@@ -104,7 +104,7 @@ if(toc){
  allButton=document.createElement("button");allButton.type="button";allButton.className="sec-toggle-all";
  toc.insertAdjacentElement("afterend",allButton);
  allButton.addEventListener("click",function(){
-  var open=sections.some(function(item){return item.body.hidden});
+  document.documentElement.classList.add("sec-anim");var open=sections.some(function(item){return item.body.hidden});
   sections.forEach(function(item){setOpen(item,open)});updateAll();persist()
  });
  toc.addEventListener("click",function(ev){
