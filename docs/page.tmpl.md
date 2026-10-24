@@ -66,7 +66,7 @@
 <ul class="tight small">
 <li>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet. Triangles = luna · ◆ sol · ★ astra. Luna triangle direction = effort: up low, right medium, down high. Alternate Codex colour = the older gpt-{{older_generation}} models (luna56, sol56).</li>
 <li>Filled = normal speed. Hollow (⚡) = fast mode, joined by a thin line to its normal-speed point. Dashed edge = bare prompt.</li>
-<li>Labels mark frontier points, the picks named above, and older-generation and fast-mode points. Pipeline views label frontier points and pipelines. Hover, tap or focus a point or key row for the rest.</li>
+<li>Labels mark frontier points, the picks named above, and older-generation and fast-mode points. Pipeline views label frontier points and pipelines. In the {{claude_zero}} lane only the picks keep a label. Hover, tap or focus a point or key row for the rest.</li>
 <li>Purple line = best trade-offs: nothing is both cheaper and more accurate.</li>
 <li>Whiskers: {{ci_level}} confidence interval (bootstrap).</li>
 <li>The three cheapest points miss about {{cheap_miss_words}}.</li>
