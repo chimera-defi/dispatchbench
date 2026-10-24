@@ -41,7 +41,7 @@
 <li>luna-low-bare and luna-high-bare add the stripped harness (the Codex CLI’s own system prompt and tool text, trimmed by bench/trim_probe.py). Every luna-high row on the rescue set uses it.</li>
 </ul>
 </details>
-<p class="small"><b>Q: Does Claude's harness make Codex look bad?</b><br><b>A: No bias of about {{hb_limit}} or more was detectable.</b> The confidence interval contains zero; this small subset is not proof of no bias.</p>
+<p class="small"><b>Q: Does Claude's harness make Codex look bad?</b><br><b>A: {{hb_answer}}</b> {{hb_detail}}</p>
 <p class="small">We had Codex build its own harness: the program that sends the problem to the model and grades the answer. We ran luna-low and haiku-low on both harnesses ({{hb_n_problems}} hard problems × {{hb_repeats}} repeats).</p>
 <table><caption>Passed / attempted</caption><thead><tr><th>Model</th><th>Claude harness</th><th>Codex harness</th></tr></thead><tbody>
 <tr><td>luna-low</td><td>{{hb_claude_luna_low}}</td><td>{{hb_codex_luna_low}}</td></tr>

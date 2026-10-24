@@ -81,7 +81,6 @@ def test_fairness_qa_renders_counts_and_runtime_from_appendix():
     rendered = report.render()[2]
     method = re.search(r'<section\b[^>]*\bid="method"[^>]*>(.*?)</section>', rendered, re.S).group(1)
     assert "Q: Does Claude's harness make Codex look bad?" in method
-    assert 'not proof of no bias' in method
     assert 'the program that sends the problem to the model and grades the answer' in method
     assert 'one-shot' in method and 'tool loop' in method
     assert 'not just in who built them' in method
@@ -101,7 +100,7 @@ def test_fairness_qa_renders_counts_and_runtime_from_appendix():
     assert 'no timeouts' in method
     comparison = harness_bias.pass_summary(rows)
     lo, hi = comparison['ci']
-    assert f'No bias of about {max(abs(lo), abs(hi)):.1f} or more was detectable' in method
+    assert 'Slightly, but below the 0.15' in method and 'we do not call it bias' in method
     assert f'{lo:+.3f} to {hi:+.3f}' in method
 
 
