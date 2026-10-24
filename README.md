@@ -11,7 +11,7 @@ Claude and Codex are billed separately, so the table shows both: Claude $ is wha
 | **sol61-high**, haiku-low repairs only if a check fails | default while Codex has quota | 60/60 | $0 | $0.01861 | 27.4 |
 | astra-medium, same repair | faster, about 4.0× the list price (Codex usage assumed to track it) | 60/60 | $0 | $0.07526 | 20.9 |
 | haiku-low | Codex out | 57/60 | $0.00112 | $0.00112 | 10.0 |
-| haiku-medium | Codex out and a miss is costly | 59/60 | $0.00149 | $0.00149 | 13.0 |
+| haiku-high | Codex out and a miss is costly (exploratory) | 60/60 | $0.0028 | $0.0028 | 14.7 |
 
 Main ladder: 12 problems × 5 attempts per config.
 
@@ -19,9 +19,9 @@ Main ladder: 12 problems × 5 attempts per config.
 - **sol61-high and astra-medium never failed**: every main-ladder attempt, every attempt on the hardest rung, and all 12 repo-task runs. With the Haiku repair gated on the statement's examples, they needed 0 and 0 repairs on luna's hardest problems (35/35 and 35/35).
 - **The price is time.** On the repo tasks they take 109 s and 85 s at the median, against about 28 s for haiku-low and sonnet-medium.
 - **Skip luna at low or medium effort.** It barely reasons there and misses easy problems. luna-high is the cheapest Codex config but misses some.
-- **sonnet-medium also never failed** (75/75); it is the cheapest of the three by list price.
+- **haiku-high and sonnet-medium also never failed.** haiku-high: 60/60, 15/15 on L7 and 12/12 repo tasks at $0.0028 per pass, 7× cheaper than sol61-high and faster (14.7 s against 27.4 s). haiku-medium still misses (13/15 on L7). sonnet-medium: 75/75, the fastest of them.
 
-Total spend: $2.06 Claude, $22.53 Codex at list prices ($16.70 of it for the Codex models added on 2026-10-23, $3.41 for the fast-mode and xhigh runs).
+Total spend: $2.46 Claude, $22.53 Codex at list prices ($16.70 of it for the Codex models added on 2026-10-23, $3.41 for the fast-mode and xhigh runs).
 
 ## Read more
 

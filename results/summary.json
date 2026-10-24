@@ -426,9 +426,9 @@
  "phases": {
   "calibration": 30,
   "escalation": 15,
-  "exploratory": 405,
+  "exploratory": 465,
   "fastmode": 105,
-  "hard": 135,
+  "hard": 165,
   "main": 360,
   "warmup": 6
  },
@@ -724,7 +724,133 @@
      "problems": 12
     }
    ],
-   "usd_per_pass_uncached": 0.185126
+   "usd_per_pass_uncached": 0.185126,
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 5,
+    "p05_pass_route": 5,
+    "p06_calc": 5,
+    "p07_weighted_distance_sums": 5,
+    "p08_recur": 5,
+    "p09_k_machine_schedule": 5,
+    "p10_avoid_count": 5,
+    "p11_best_average": 5,
+    "p12_sheet": 5
+   }
+  },
+  "haiku-high": {
+   "cli": "claude",
+   "model": "claude-haiku-5-5",
+   "effort": "high",
+   "n": 60,
+   "passes": 60,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 10,
+     "n": 10
+    },
+    "L3": {
+     "passed": 10,
+     "n": 10
+    },
+    "L4": {
+     "passed": 10,
+     "n": 10
+    },
+    "L5": {
+     "passed": 10,
+     "n": 10
+    },
+    "L6": {
+     "passed": 10,
+     "n": 10
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 60
+   },
+   "latency_s": {
+    "median": 14.74,
+    "p25": 10.56,
+    "p75": 23.27,
+    "p90": 37.62,
+    "max": 92.45
+   },
+   "tokens_mean": {
+    "in_tok": 4418,
+    "cached_tok": 649,
+    "out_tok": 4123,
+    "reasoning_tok": 3353
+   },
+   "input_floor": [
+    4141,
+    649
+   ],
+   "usd_per_call": 0.002822,
+   "usd_total": 0.1693,
+   "usd_per_pass": 0.002822,
+   "usd_per_pass_L1_L2": 0.00175,
+   "pass_L1_L2": [
+    20,
+    20
+   ],
+   "cost_kind": "measured",
+   "vs": [
+    {
+     "b": "luna-low",
+     "diff": 0.2333,
+     "ci95": [
+      0.05,
+      0.45
+     ],
+     "problems": 12
+    },
+    {
+     "b": "haiku-low",
+     "diff": 0.05,
+     "ci95": [
+      0.0,
+      0.15
+     ],
+     "problems": 12
+    },
+    {
+     "b": "luna-medium",
+     "diff": 0.2167,
+     "ci95": [
+      0.0333,
+      0.45
+     ],
+     "problems": 12
+    }
+   ],
+   "usd_per_pass_uncached": 0.002822,
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 5,
+    "p05_pass_route": 5,
+    "p06_calc": 5,
+    "p07_weighted_distance_sums": 5,
+    "p08_recur": 5,
+    "p09_k_machine_schedule": 5,
+    "p10_avoid_count": 5,
+    "p11_best_average": 5,
+    "p12_sheet": 5
+   }
   },
   "luna-high": {
    "cli": "codex",
@@ -824,7 +950,21 @@
      "problems": 12
     }
    ],
-   "usd_per_pass_uncached": 0.00218
+   "usd_per_pass_uncached": 0.00218,
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 5,
+    "p05_pass_route": 4,
+    "p06_calc": 5,
+    "p07_weighted_distance_sums": 5,
+    "p08_recur": 5,
+    "p09_k_machine_schedule": 4,
+    "p10_avoid_count": 4,
+    "p11_best_average": 5,
+    "p12_sheet": 3
+   }
   },
   "luna-low-bare": {
    "cli": "codex",
@@ -925,7 +1065,21 @@
      "problems": 12
     }
    ],
-   "usd_per_pass_uncached": 0.001198
+   "usd_per_pass_uncached": 0.001198,
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 3,
+    "p04_taller_within": 1,
+    "p05_pass_route": 5,
+    "p06_calc": 5,
+    "p07_weighted_distance_sums": 5,
+    "p08_recur": 4,
+    "p09_k_machine_schedule": 5,
+    "p10_avoid_count": 4,
+    "p11_best_average": 2,
+    "p12_sheet": 0
+   }
   },
   "luna56-high": {
    "cli": "codex",
@@ -1025,7 +1179,21 @@
      "problems": 12
     }
    ],
-   "usd_per_pass_uncached": 0.004955
+   "usd_per_pass_uncached": 0.004955,
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 4,
+    "p05_pass_route": 5,
+    "p06_calc": 4,
+    "p07_weighted_distance_sums": 5,
+    "p08_recur": 5,
+    "p09_k_machine_schedule": 5,
+    "p10_avoid_count": 5,
+    "p11_best_average": 5,
+    "p12_sheet": 3
+   }
   },
   "luna56-low": {
    "cli": "codex",
@@ -1126,7 +1294,21 @@
      "problems": 12
     }
    ],
-   "usd_per_pass_uncached": 0.004493
+   "usd_per_pass_uncached": 0.004493,
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 4,
+    "p05_pass_route": 5,
+    "p06_calc": 1,
+    "p07_weighted_distance_sums": 3,
+    "p08_recur": 5,
+    "p09_k_machine_schedule": 5,
+    "p10_avoid_count": 4,
+    "p11_best_average": 5,
+    "p12_sheet": 1
+   }
   },
   "sol56-high": {
    "cli": "codex",
@@ -1224,7 +1406,21 @@
      "problems": 12
     }
    ],
-   "usd_per_pass_uncached": 0.082536
+   "usd_per_pass_uncached": 0.082536,
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 5,
+    "p05_pass_route": 5,
+    "p06_calc": 5,
+    "p07_weighted_distance_sums": 5,
+    "p08_recur": 5,
+    "p09_k_machine_schedule": 5,
+    "p10_avoid_count": 5,
+    "p11_best_average": 5,
+    "p12_sheet": 5
+   }
   },
   "sol61-high": {
    "cli": "codex",
@@ -1322,7 +1518,21 @@
      "problems": 12
     }
    ],
-   "usd_per_pass_uncached": 0.041573
+   "usd_per_pass_uncached": 0.041573,
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 5,
+    "p05_pass_route": 5,
+    "p06_calc": 5,
+    "p07_weighted_distance_sums": 5,
+    "p08_recur": 5,
+    "p09_k_machine_schedule": 5,
+    "p10_avoid_count": 5,
+    "p11_best_average": 5,
+    "p12_sheet": 5
+   }
   }
  },
  "hard": {
@@ -1373,6 +1583,59 @@
     0
    ],
    "cost_kind": "proxy",
+   "by_problem": {
+    "p13_xor_ring": 5,
+    "p14_bounce_board": 5,
+    "p15_paint_erase": 5
+   }
+  },
+  "haiku-high": {
+   "cli": "claude",
+   "model": "claude-haiku-5-5",
+   "effort": "high",
+   "n": 15,
+   "passes": 15,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L7": {
+     "passed": 15,
+     "n": 15
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 15
+   },
+   "latency_s": {
+    "median": 27.45,
+    "p25": 21.12,
+    "p75": 33.65,
+    "p90": 34.37,
+    "max": 40.49
+   },
+   "tokens_mean": {
+    "in_tok": 4368,
+    "cached_tok": 649,
+    "out_tok": 5236,
+    "reasoning_tok": 4483
+   },
+   "input_floor": [
+    4299,
+    649
+   ],
+   "usd_per_call": 0.003368,
+   "usd_total": 0.0505,
+   "usd_per_pass": 0.003368,
+   "usd_per_pass_L1_L2": null,
+   "pass_L1_L2": [
+    0,
+    0
+   ],
+   "cost_kind": "measured",
    "by_problem": {
     "p13_xor_ring": 5,
     "p14_bounce_board": 5,
@@ -1589,6 +1852,61 @@
     "p13_xor_ring": 5,
     "p14_bounce_board": 5,
     "p15_paint_erase": 5
+   }
+  },
+  "haiku-medium": {
+   "cli": "claude",
+   "model": "claude-haiku-5-5",
+   "effort": "medium",
+   "n": 15,
+   "passes": 13,
+   "pass_at_1": 0.8667,
+   "ci95": [
+    0.6667,
+    1.0
+   ],
+   "by_rung": {
+    "L7": {
+     "passed": 13,
+     "n": 15
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 13,
+    "crash": 1,
+    "timeout": 1
+   },
+   "latency_s": {
+    "median": 21.24,
+    "p25": 15.98,
+    "p75": 25.2,
+    "p90": 26.44,
+    "max": 28.7
+   },
+   "tokens_mean": {
+    "in_tok": 4366,
+    "cached_tok": 649,
+    "out_tok": 3694,
+    "reasoning_tok": 2916
+   },
+   "input_floor": [
+    4297,
+    649
+   ],
+   "usd_per_call": 0.002596,
+   "usd_total": 0.0389,
+   "usd_per_pass": 0.002996,
+   "usd_per_pass_L1_L2": null,
+   "pass_L1_L2": [
+    0,
+    0
+   ],
+   "cost_kind": "measured",
+   "by_problem": {
+    "p13_xor_ring": 5,
+    "p14_bounce_board": 4,
+    "p15_paint_erase": 4
    }
   },
   "sol56-high": {
@@ -1851,6 +2169,11 @@
      "n": 5,
      "fails": {}
     },
+    "haiku-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "luna-high": {
      "passed": 5,
      "n": 5,
@@ -1926,6 +2249,11 @@
      "fails": {}
     },
     "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-high": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -2008,6 +2336,11 @@
      "n": 5,
      "fails": {}
     },
+    "haiku-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "luna-high": {
      "passed": 4,
      "n": 5,
@@ -2076,6 +2409,11 @@
      "fails": {}
     },
     "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-high": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -2154,6 +2492,11 @@
      "n": 5,
      "fails": {}
     },
+    "haiku-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "luna-high": {
      "passed": 5,
      "n": 5,
@@ -2225,6 +2568,11 @@
      "fails": {}
     },
     "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-high": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -2306,6 +2654,11 @@
      "n": 5,
      "fails": {}
     },
+    "haiku-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "luna-high": {
      "passed": 4,
      "n": 5,
@@ -2374,6 +2727,11 @@
      "fails": {}
     },
     "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-high": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -2454,6 +2812,11 @@
      "fails": {}
     },
     "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-high": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -2541,6 +2904,11 @@
      "n": 5,
      "fails": {}
     },
+    "haiku-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "luna-high": {
      "passed": 3,
      "n": 5,
@@ -2591,6 +2959,11 @@
      "n": 5,
      "fails": {}
     },
+    "haiku-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "sonnet-medium": {
      "passed": 5,
      "n": 5,
@@ -2602,6 +2975,11 @@
      "fails": {}
     },
     "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-high": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -2645,6 +3023,13 @@
      "n": 5,
      "fails": {}
     },
+    "haiku-medium": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "crash": 1
+     }
+    },
     "sonnet-medium": {
      "passed": 5,
      "n": 5,
@@ -2656,6 +3041,11 @@
      "fails": {}
     },
     "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-high": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -2703,6 +3093,13 @@
       "timeout": 3
      }
     },
+    "haiku-medium": {
+     "passed": 4,
+     "n": 5,
+     "fails": {
+      "timeout": 1
+     }
+    },
     "sonnet-medium": {
      "passed": 5,
      "n": 5,
@@ -2714,6 +3111,11 @@
      "fails": {}
     },
     "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "haiku-high": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -2827,6 +3229,77 @@
    "usd_total": 4.5581,
    "usd_per_hidden_pass": 0.37984,
    "cost_kind": "proxy"
+  },
+  "haiku-high": {
+   "cli": "claude",
+   "model": "claude-haiku-5-5",
+   "n": 12,
+   "hidden_pass": 12,
+   "hidden_pass_rate": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "visible_pass": 12,
+   "own_tests_written": 12,
+   "tests_tampered_runs": 0,
+   "delegate_calls": 0,
+   "errors": 0,
+   "by_task": {
+    "t1_discount": {
+     "hidden_pass": 3,
+     "n": 3,
+     "hidden_tests": [
+      "7/7",
+      "7/7",
+      "7/7"
+     ]
+    },
+    "t2_cache_bugs": {
+     "hidden_pass": 3,
+     "n": 3,
+     "hidden_tests": [
+      "6/6",
+      "6/6",
+      "6/6"
+     ]
+    },
+    "t3_config_refs": {
+     "hidden_pass": 3,
+     "n": 3,
+     "hidden_tests": [
+      "8/8",
+      "8/8",
+      "8/8"
+     ]
+    },
+    "t4_retry_queue": {
+     "hidden_pass": 3,
+     "n": 3,
+     "hidden_tests": [
+      "10/10",
+      "10/10",
+      "10/10"
+     ]
+    }
+   },
+   "latency_s": {
+    "median": 58.4,
+    "p90": 106.4
+   },
+   "input_floor": [
+    61331,
+    50681
+   ],
+   "tokens_mean": {
+    "in_tok": 170728,
+    "cached_tok": 151802,
+    "out_tok": 13533
+   },
+   "usd_per_run": 0.01207,
+   "usd_total": 0.1448,
+   "usd_per_hidden_pass": 0.01207,
+   "cost_kind": "measured"
   },
   "haiku-low": {
    "cli": "claude",
@@ -3685,14 +4158,14 @@
   }
  },
  "spend": {
-  "claude_measured_usd": 2.0588,
-  "claude_function_usd": 1.354,
-  "claude_agentic_usd": 0.7048,
+  "claude_measured_usd": 2.4624,
+  "claude_function_usd": 1.6128,
+  "claude_agentic_usd": 0.8496,
   "codex_proxy_usd": 22.5262,
   "codex_fastmode_usd": 3.4069,
   "calls": {
-   "function": 1056,
-   "agentic": 72
+   "function": 1146,
+   "agentic": 84
   }
  },
  "hypotheses": {

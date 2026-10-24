@@ -11,7 +11,7 @@ Claude and Codex are billed separately, so the table shows both: Claude $ is wha
 | **sol61-high**, haiku-low repairs only if a check fails | default while Codex has quota | {{sol61_high_k}} | {{claude_zero}} | {{sol61_high_upp}} | {{sol61_high_med}} |
 | astra-medium, same repair | faster, about {{x_astra_vs_s61h}} the list price (Codex usage assumed to track it) | {{astra_medium_k}} | {{claude_zero}} | {{astra_medium_upp}} | {{astra_medium_med}} |
 | haiku-low | Codex out | {{haiku_low_k}} | {{haiku_low_upp}} | {{haiku_low_upp}} | {{haiku_low_med}} |
-| haiku-medium | Codex out and a miss is costly | {{haiku_medium_k}} | {{haiku_medium_upp}} | {{haiku_medium_upp}} | {{haiku_medium_med}} |
+| haiku-high | Codex out and a miss is costly (exploratory) | {{hh_k}} | {{hh_upp}} | {{hh_upp}} | {{hh_med}} |
 
 Main ladder: {{n_problems}} problems × {{repeats}} attempts per config.
 
@@ -19,7 +19,7 @@ Main ladder: {{n_problems}} problems × {{repeats}} attempts per config.
 - **sol61-high and astra-medium never failed**: every main-ladder attempt, every attempt on the hardest rung, and all {{ag_n}} repo-task runs. With the Haiku repair gated on the statement's examples, they needed {{g_sol61_repairs}} and {{g_astra_repairs}} repairs on luna's hardest problems ({{r_sol61_high_haiku_on_fail_k}} and {{r_astra_medium_haiku_on_fail_k}}).
 - **The price is time.** On the repo tasks they take {{ag_sol61_high_med}} s and {{ag_astra_medium_med}} s at the median, against about {{ag_claude_med}} s for haiku-low and sonnet-medium.
 - **Skip luna at low or medium effort.** It barely reasons there and misses easy problems. luna-high is the cheapest Codex config but misses some.
-- **sonnet-medium also never failed** ({{sm_all}}); it is the cheapest of the three by list price.
+- **haiku-high and sonnet-medium also never failed.** haiku-high: {{hh_k}}, {{hh_hk}} on L7 and {{ag_hh_k}} repo tasks at {{hh_upp}} per pass, {{hh_s61h_x}} cheaper than sol61-high and faster ({{hh_med}} s against {{sol61_high_med}} s). haiku-medium still misses ({{hm_l7_k}} on L7). sonnet-medium: {{sm_all}}, the fastest of them.
 
 Total spend: {{claude_usd}} Claude, {{codex_usd}} Codex at list prices ({{codex_new_usd}} of it for the Codex models added on {{new_date}}, {{fm_usd}} for the fast-mode and xhigh runs).
 

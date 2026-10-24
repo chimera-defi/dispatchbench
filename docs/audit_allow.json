@@ -34,6 +34,7 @@
  {"context": "alone also had 0 misses", "literals": ["0"], "reason": "haiku-medium hard-set result; checked by need() in analysis/report.py"},
  {"context": "pipeline: also 0 misses, but", "literals": ["0"], "reason": "luna-high-bare + Haiku fixes all had no hard-set miss; checked by need() in analysis/report.py"},
  {"context": "finding 5", "literals": ["5"], "reason": "cross-reference to finding 5 in docs/REPORT.md"},
+ {"context": "finding 7", "literals": ["7"], "reason": "cross-reference to finding 7 in docs/REPORT.md"},
  {"context": "Findings 5 and 6 are exploratory", "literals": ["5", "6"], "reason": "cross-reference to findings 5 and 6"},
  {"context": "6. **The other later Codex", "literals": ["6"], "reason": "list number of finding 6"}
 ]

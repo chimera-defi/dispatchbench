@@ -7,7 +7,7 @@
 <span class="eyebrow"><span class="num"></span>🏆 WINNER</span>
 <ol class="recs">
 <li><b>Codex has quota? sol61-high.</b> Haiku repairs only if a check fails. {{claude_zero}} on the Claude bill.</li>
-<li>Codex out? haiku-low; haiku-medium if a miss is costly.</li>
+<li>Codex out? haiku-low; haiku-high if a miss is costly: never missed, {{hh_upp}} per pass.</li>
 <li>Need it faster? astra-medium: also never missed, about {{x_astra_vs_s61h}} the Codex usage.</li>
 </ol>
 <ul class="tight">
@@ -15,7 +15,7 @@
 <li>💸 haiku-low: {{haiku_low_k}} at {{haiku_low_upp}}. Misses: too slow or a crash, never a wrong answer.</li>
 <li>🛡️ Never missed (main set, hardest rung, all {{ag_n}} repo tasks): sol61-high {{x_sol61_high_med}}s and astra-medium {{x_astra_medium_med}}s median, both billed to Codex. sonnet-medium never missed either ({{sm_all}}), at {{sm_vs_hm_x}} haiku-medium's cost.</li>
 <li>🐢 The Codex picks are slow on repo tasks: {{ag_sol61_high_med}}s and {{ag_astra_medium_med}}s median against about {{ag_claude_med}}s for a Claude builder.</li>
-<li>⚠️ haiku-medium was not run on the hardest rung (L7).</li>
+<li>🎯 Parity starts at haiku-high: {{hh_k}}, {{hh_hk}} on L7, {{ag_hh_k}} repo tasks. {{hh_upp}} per pass, {{hh_med}}s median: {{hh_s61h_x}} cheaper than sol61-high, {{hh_astra_x}} cheaper than astra-medium, and faster than both. haiku-medium missed {{hm_l7_miss}} on L7 ({{hm_l7_k}}).</li>
 </ul>
 </section>
 <section class="method" id="method">
@@ -121,7 +121,7 @@
 <ol class="recs">
 <li>Codex has quota: sol61-high, haiku-low repairs only on a failed check ({{claude_zero}} Claude).</li>
 <li>Faster, more Codex usage: astra-medium, same repair.</li>
-<li>Claude only (Codex out): haiku-low (<code>claude -p --tools ""</code>); haiku-medium on a failed check or when a miss is costly.</li>
+<li>Claude only (Codex out): haiku-low (<code>claude -p --tools ""</code>); haiku-high on a failed check or when a miss is costly.</li>
 <li>Zero misses on the Claude side: sonnet-medium.</li>
 <li>Best luna + Haiku pipeline: also 0 misses, but {{hm_vs_pipe_x}} the cost of haiku-medium alone.</li>
 <li>Never luna-low or luna-medium alone.</li>

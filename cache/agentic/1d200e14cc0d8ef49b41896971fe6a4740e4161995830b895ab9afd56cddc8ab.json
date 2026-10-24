@@ -1,0 +1,46 @@
+{
+ "key": "1d200e14cc0d8ef49b41896971fe6a4740e4161995830b895ab9afd56cddc8ab",
+ "ts": "2026-10-24T00:14:05+00:00",
+ "track": "agentic",
+ "config": "haiku-high",
+ "cli": "claude",
+ "cli_version": "2.1.308",
+ "model": "claude-haiku-5-5",
+ "effort": "high",
+ "task": "t3_config_refs",
+ "repeat": 2,
+ "lanes": 4,
+ "wall_s": 79.60635010099213,
+ "in_tok": 159660,
+ "cached_tok": 136922,
+ "cache_write_tok": 22722,
+ "out_tok": 17124,
+ "cost_usd": 0.014477219999999997,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 9,
+ "tool_calls": {
+  "Bash": 4,
+  "Edit": 2,
+  "Write": 2
+ },
+ "is_error": false,
+ "error": null,
+ "delegate_calls": 0,
+ "visible_pass": true,
+ "visible": {
+  "ok": true,
+  "passed": 20,
+  "failed": 0,
+  "tail": "20 passed in 0.03s"
+ },
+ "hidden_pass": true,
+ "hidden": {
+  "ok": true,
+  "passed": 8,
+  "failed": 0,
+  "tail": "8 passed in 0.02s"
+ },
+ "own_tests": true,
+ "tests_tampered": [],
+ "diff_stat": " 3 files changed, 174 insertions(+), 4 deletions(-)"
+}

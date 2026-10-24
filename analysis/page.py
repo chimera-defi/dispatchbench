@@ -7,7 +7,7 @@ from analysis import luna_rescue
 from analysis.charts import FAMILY, MIN_PASS
 
 # Plot order and family colour (a CSS variable of the page). luna-high is the exploratory full-ladder run.
-ORDER = ["haiku-low", "haiku-medium", "sonnet-medium", "sol61-medium", "luna-high", "luna-medium", "luna-low", "luna-low-bare",
+ORDER = ["haiku-low", "haiku-medium", "haiku-high", "sonnet-medium", "sol61-medium", "luna-high", "luna-medium", "luna-low", "luna-low-bare",
          "astra-medium", "sol61-high", "sol56-high", "luna56-high", "luna56-low"]
 FAM = lambda c: "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex)"
 NS = 'xmlns="http://www.w3.org/2000/svg"'
@@ -158,7 +158,8 @@ def pass_cost(s):
     yt = [(v / 100, f"{v}%") for v in (60, 70, 80, 90, 100)]
     pil, ex = pilot(s, X, Y, lambda v: v["passes"] / v["n"])
     lab = {"luna-low": (12, 16, "start"), "luna-medium": (12, -8, "start"), "luna-high": (12, 14, "start"), "haiku-low": (-14, 16, "end"),
-           "haiku-medium": (14, 22, "start"), "sonnet-medium": (-16, 4, "end"), "sol61-medium": (0, 26, "middle"),
+           "haiku-medium": (14, 22, "start"), "sonnet-medium": (-14, -10, "end"), "sol61-medium": (0, 26, "middle"),
+           "haiku-high": (14, 20, "start"), "luna56-high": (14, 5, "start"),
            "luna-low/default": (0, 26, "middle"), "luna-low/fast": (0, -14, "middle"), "sol61-low/default": (0, -14, "middle"), "sol61-low/fast": (0, 26, "middle")}
     return scatter(pts + pil, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, extra=ex), [p["c"] for p in fr]
 
@@ -179,14 +180,15 @@ def speed_cost(s):
     yt = [(v, f"${v:g}") for v in (1e-3, 3e-3, 1e-2, 3e-2, 1e-1)]
     lab = {"luna-low/default": (-8, 26, "start"), "luna-low/fast": (14, 5, "start"), "sol61-low/default": (14, 5, "start"), "sol61-low/fast": (14, 5, "start"),
            "luna-low": (0, -14, "middle"), "luna-medium": (14, 10, "start"), "haiku-low": (0, -20, "middle"), "luna-high": (14, -10, "start"),
-           "haiku-medium": (14, -8, "start"), "sonnet-medium": (14, 4, "start"), "sol61-medium": (-14, -12, "end")}
+           "haiku-medium": (14, 5, "start"), "sonnet-medium": (14, 4, "start"), "sol61-medium": (-14, -12, "end"),
+           "luna56-high": (-14, 5, "end"), "luna56-low": (0, 26, "middle"), "haiku-high": (0, -14, "middle")}
     g = scatter(pts + pil, d, X, Y, xt, yt, "median seconds per call (bar: middle half of calls)", "$ per pass (log)", "", lab, H=520, B=B, extra=ex)
     return g.replace("</svg>", f'<text x="{W - R - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>'), [p["c"] for p in fr]
 
 
 # Display names for hard-set rows, used by every chart and table so a pipeline reads the same everywhere. luna-high on the hard
 # set is the stripped harness (luna-high-bare); the name says so. Haiku in a pipeline reviews the answer and rewrites it if wrong.
-NAME = {"luna-low": "luna-low", "luna-high-bare": "luna-high-bare", "haiku-low": "haiku-low", "haiku-medium": "haiku-medium",
+NAME = {"luna-low": "luna-low", "luna-high-bare": "luna-high-bare", "haiku-low": "haiku-low", "haiku-medium": "haiku-medium", "haiku-high": "haiku-high",
         "sonnet-medium": "sonnet-medium", "sol61-medium": "sol61-medium",
         "luna-low+haiku-review-all": "luna-low → Haiku fixes all", "luna-low+haiku-on-fail": "luna-low → Haiku if samples fail",
         "luna-high-bare+haiku-review-all": "luna-high-bare → Haiku fixes all", "luna-high-bare+haiku-on-fail": "luna-high-bare → Haiku if samples fail",
@@ -284,7 +286,7 @@ def pipes():
     """Hard set: the single models, then every pipeline (plan first, check then fix, fix everything)."""
     a = luna_rescue.arms()
     bars = [(c, SHORT(NAME[c]) if "→" in NAME[c] else NAME[c], "var(--frontier)" if "→" in NAME[c] else FAM(c))
-            for c in ("luna-low", "luna-high-bare", "haiku-low", "haiku-medium", "sonnet-medium", "sol61-high", "astra-medium",
+            for c in ("luna-low", "luna-high-bare", "haiku-low", "haiku-medium", "haiku-high", "sonnet-medium", "sol61-high", "astra-medium",
                       "haiku-low-plan+luna-low", "haiku-low-plan+luna-high-bare", "luna-high-bare+retry-on-fail",
                       "luna-low+haiku-on-fail", "luna-high-bare+haiku-on-fail", "sol61-high+haiku-on-fail", "astra-medium+haiku-on-fail",
                       "luna-low+haiku-review-all", "luna-high-bare+haiku-review-all")]
@@ -328,7 +330,10 @@ def verdict(c, v, need, E):
     """One word per config; each is checked against the data so the table cannot drift from it."""
     if c == "haiku-medium":
         need(v["passes"] == v["n"] - 1 and luna_rescue.arms()[c]["passes"] == luna_rescue.arms()[c]["n"], "haiku-medium: one miss, none on the hard set")
-        return "★ pick"
+        return "one miss"
+    if c == "haiku-high":
+        need(v["passes"] == v["n"] and v["usd_per_pass"] == min(E[d]["usd_per_pass"] for d in ORDER if E[d]["passes"] == E[d]["n"]), "haiku-high is the cheapest with 0 misses")
+        return "★ 0 misses, cheapest"
     if c == "haiku-low":
         need(v["usd_per_pass"] == min(E[d]["usd_per_pass"] for d in ORDER if E[d]["pass_at_1"] >= 0.95), "haiku-low is the cheapest at 95%+")
         return "budget pick"
