@@ -676,8 +676,7 @@ def _facts(s, arms):
     need(every['haiku-high']['usd_per_pass'] < min(every[c]['usd_per_pass'] for c in ('sol61-high', 'sol61-high-fast', 'sonnet-medium')), "haiku-high is the cheapest of these")
     need(all(v['passes'] == v['n'] for v in (every['sol61-high-fast'], hard['sol61-high-fast'])), "sol61-high ⚡ passes every main and L7 try")
     F['winner_line'] = (f"sol61-high (normal and ⚡), haiku-high and sonnet-medium passed every try. "
-                        f"haiku-high is cheapest of these at {F['hh_upp']} per pass. "
-                        f"With Codex quota, sol61-high ⚡ costs {F['claude_zero']} cash.")
+                        f"haiku-high is cheapest of these at {F['hh_upp']} per pass.")
     F['budget_why'] = f"Cheapest with no misses. haiku-low costs less but misses {hl['n'] - hl['passes']} of {hl['n']}"
     F['model_names'] += (f", luna56 = {ex['luna56-high']['model']}, "
                          f"sol56 = {ex['sol56-high']['model']} (older generation)")

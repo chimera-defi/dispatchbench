@@ -22421,7 +22421,7 @@
    "⚡ = fast mode: same answers, about 2× list price, faster."
   ],
   "speed_why": "No misses. 4.6 s faster than haiku-high.",
-  "winner_line": "sol61-high (normal and ⚡), haiku-high and sonnet-medium passed every try. haiku-high is cheapest of these at $0.0028 per pass. With Codex quota, sol61-high ⚡ costs $0 cash.",
+  "winner_line": "sol61-high (normal and ⚡), haiku-high and sonnet-medium passed every try. haiku-high is cheapest of these at $0.0028 per pass.",
   "budget_why": "Cheapest with no misses. haiku-low costs less but misses 3 of 60",
   "noshell_comparison": "B1 passed more often than plain luna-low. B2 passed less often.",
   "verdict_key": "✓ pick = a Winner pick. 0 misses / missed N = raw miss count, no ranking. beaten = another row is as cheap and passes as often. trade-off = pricier but passes more. avoid = below 90%.",
