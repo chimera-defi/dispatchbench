@@ -9,7 +9,8 @@ export const meta = {
 }
 
 const A = args || {}
-const REPO = A.repo || '<repo>'
+const REPO = A.repo
+if (!REPO) throw new Error('pass args.repo: the bench checkout path')
 const URL = A.url || 'http://127.0.0.1:8765/page.html'
 const OUT = A.scratch || `${REPO}/.review/converge`
 const LEDGER = A.ledger
@@ -65,7 +66,7 @@ for (let round = 1; round <= MAX && clean < 2; round++) {
     `Steer Codex to fix these report-page findings in ${REPO}; you guide and verify, you do not write the fixes.\nFindings (JSON):\n${JSON.stringify(found)}\n
 Write a numbered brief to ${OUT}/brief-r${round}.md. Run \`cd ${REPO} && codex exec -m gpt-6.1-sol -c model_reasoning_effort=high -c service_tier=priority -s workspace-write --skip-git-repo-check --json - < brief\`; later turns use \`codex exec resume <thread> -c sandbox_mode=workspace-write ... --json - < nudge\`. At most ${TURNS} turns.
 Codex must not call models or touch results/*.jsonl or cache/. After each turn: \`make report\`, \`python3 -m analysis.audit\` (must print OK), \`python3 -m pytest -q tests\`.
-Then commit yourself with the trailers "Co-authored-by: Chimera <<operator-email>>" and "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>".
+Then commit yourself with the repo's configured author and the trailer "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>".
 Return: the commit hash, each finding as fixed/partial/not fixed, and one line on how Codex behaved.`,
     { label: `r${round}:fix`, phase: 'Fix', agentType: 'builder' })
   log2.push({ round, fix })

@@ -12,6 +12,8 @@ from unittest.mock import patch
 
 from bench import codex_harness as H
 
+HOST_HOME = str(Path.home())  # the sandbox must not see the operator's home
+
 
 class HarnessTests(unittest.TestCase):
     def test_installed_codex_package_helpers_run_inside_isolation(self):
@@ -35,7 +37,7 @@ class HarnessTests(unittest.TestCase):
                       "assert (root/manifest['resourcesDir']/'bwrap').is_file(); "
                       "assert (root/manifest['pathDir']/'rg').is_file(); "
                       "assert shutil.which('rg') == str(root/'codex-path/rg'); "
-                      "assert not Path('~').exists(); "
+                      f"assert not Path({HOST_HOME!r}).exists(); "
                       "subprocess.run(['rg','--version'],check=True,stdout=subprocess.DEVNULL); "
                       "subprocess.run(['node','--version'],check=True,stdout=subprocess.DEVNULL); "
                       "subprocess.run([str(root/'codex-resources/bwrap'),'--version'],check=True,stdout=subprocess.DEVNULL); "
@@ -192,7 +194,7 @@ import json, sys
 from pathlib import Path
 assert '-p' in sys.argv
 assert '<submission>' in sys.stdin.read()
-assert not Path('~').exists()
+assert not Path(''' + repr(HOST_HOME) + ''').exists()
 assert not Path('/home/codex/.claude/CLAUDE.md').exists()
 assert not Path('/home/codex/.codex/auth.json').exists()
 Path('/work/solution.py').write_text('def f(): return "```python literal"\\n')
@@ -301,7 +303,7 @@ print(json.dumps(result))
             script = (
                 "from pathlib import Path; import ssl; "
                 f"assert not Path({str(H.ROOT)!r}).exists(); "
-                "assert not Path('~').exists(); "
+                f"assert not Path({HOST_HOME!r}).exists(); "
                 "assert not Path('/home/codex/.codex/AGENTS.md').exists(); "
                 "assert Path('/etc/resolv.conf').is_file(), 'resolver symlink is broken'; "
                 "assert ssl.create_default_context().get_ca_certs(), 'no trusted CA certificates'; "

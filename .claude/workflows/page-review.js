@@ -12,7 +12,8 @@ export const meta = {
 
 // Defaults match model-routing-bench; override any of them via args.
 const A = args || {}
-const REPO = A.repo || '<repo>'
+const REPO = A.repo
+if (!REPO) throw new Error('pass args.repo: the bench checkout path')
 const URL = A.url || 'http://127.0.0.1:8765/page.html'
 const OUT = A.scratch || `${REPO}/.review`
 const TURNS = A.codexTurns || 5
@@ -89,7 +90,7 @@ const fix = await agent(
 Turn 1: \`cd ${REPO} && codex exec -m gpt-6.1-sol -c model_reasoning_effort=high -c service_tier=priority -s workspace-write --skip-git-repo-check --json - < ${OUT}/fix-brief.md > ${OUT}/codex-t1.jsonl 2>&1\`; find the thread id in the log;
 later turns: \`codex exec resume <thread> -c sandbox_mode=workspace-write ... --json - < nudge.md\`. At most ${TURNS} Codex turns.
 After each turn: read git diff, run make report, the audit, the tests; nudge only on real gaps with exact output. Never assert a quota block without the exact error text.
-When done, commit yourself (Codex cannot write git metadata) with trailers "Co-authored-by: Chimera <<operator-email>>" and "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>".
+When done, commit yourself (Codex cannot write git metadata) as the repo's configured author with the trailer "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>".
 Return: turns used, commit hash, each brief item fixed/partial/not fixed with evidence.`,
   { label: 'fix:codex', phase: 'Fix', agentType: 'builder' })
 
