@@ -66,8 +66,10 @@ def usd(values, divisor=1, digits=6):
     return round(total, digits) if digits is not None else total
 
 
-def money(value, digits=5):
-    return "unknown" if value is None else f"{value:.{digits}f}"
+def money(value):
+    """The page's one $ format (analysis.dataset.usd); imported late because dataset imports this module."""
+    from analysis.dataset import usd
+    return usd(value)
 
 
 def scale(value, factor):
@@ -441,7 +443,7 @@ def tables(s):
     L += ["## Function track, main run", "", "| config | pass@1 | 95% CI | breaking point | median s | p90 s | $/call | $/pass | $ kind |", "|---|---|---|---|---|---|---|---|---|"]
     for c, v in s["configs"].items():
         L.append(f"| {c} | {pct(v['pass_at_1'])} ({v['passes']}/{v['n']}) | {ci_text(v['passes'], v['n'], v['ci95'], len(s['problems']))} | {v['breaking_point'] or 'none ≤ L6'} | "
-                 f"{v['latency_s']['median']} | {v['latency_s']['p90']} | {money(v['usd_per_call'], 5)} | {money(v['usd_per_pass'], 5)} | {v['cost_kind']} |")
+                 f"{v['latency_s']['median']} | {v['latency_s']['p90']} | {money(v['usd_per_call'])} | {money(v['usd_per_pass'])} | {v['cost_kind']} |")
     ex = s.get("exploratory") or {}
     fast_cols = {c: ex[c] for c in FAST_COLS if c in ex}  # the Codex pairs: default tier next to fast mode
     L += ["", "## Fast mode (⚡, Codex priority tier) against the default tier: same model and effort", "",
@@ -449,8 +451,8 @@ def tables(s):
           "| config | main ladder passed | $/pass | median s | L7 set passed | $/pass | median s |", "|---|---|---|---|---|---|---|"]
     for c, v in fast_cols.items():
         h = s["hard"].get(c)
-        L.append(f"| {DISP(c)} | {v['passes']}/{v['n']} | {money(v['usd_per_pass'], 5)} | {v['latency_s']['median']} | "
-                 + (f"{h['passes']}/{h['n']} | {money(h['usd_per_pass'], 5)} | {h['latency_s']['median']} |" if h else "not run | – | – |"))
+        L.append(f"| {DISP(c)} | {v['passes']}/{v['n']} | {money(v['usd_per_pass'])} | {v['latency_s']['median']} | "
+                 + (f"{h['passes']}/{h['n']} | {money(h['usd_per_pass'])} | {h['latency_s']['median']} |" if h else "not run | – | – |"))
     rungs = sorted({g for v in s["configs"].values() for g in v["by_rung"]})
     byrung = {**s["configs"], **fast_cols}
     L += ["", "## Passes by rung (out of 10: 2 problems × 5 repeats)", "", "| config | " + " | ".join(rungs) + " |", "|---|" + "---|" * len(rungs)]
@@ -481,7 +483,7 @@ def tables(s):
               "By rung: " + ", ".join(f"{g} {b['passed']}/{b['n']}" for g, b in v["by_rung"].items()), "",
               "| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |", "|---|---|---|---|---|---|---|---|---|---|---|",
               f"| {DISP(c)} | {pct(v['pass_at_1'])} ({v['passes']}/{v['n']}) | {ci_text(v['passes'], v['n'], v['ci95'], len(s['problems']))} | {v['breaking_point'] or 'none ≤ L6'} | "
-              f"{v['latency_s']['median']} | {v['latency_s']['p90']} | {v['tokens_mean']['in_tok']} | {money(v['usd_per_call'], 5)} | {money(v['usd_per_pass'], 5)} | {money(v['usd_per_pass_uncached'], 5)} | {v['cost_kind']} |", "",
+              f"{v['latency_s']['median']} | {v['latency_s']['p90']} | {v['tokens_mean']['in_tok']} | {money(v['usd_per_call'])} | {money(v['usd_per_pass'])} | {money(v['usd_per_pass_uncached'])} | {v['cost_kind']} |", "",
               "| a | b | diff | 95% CI |", "|---|---|---|---|"]
         for d in v["vs"]:
             L.append(f"| {DISP(c)} | {d['b']} | {100 * d['diff']:+.1f} pts | {100 * d['ci95'][0]:+.1f} to {100 * d['ci95'][1]:+.1f} |")
@@ -495,8 +497,8 @@ def tables(s):
             oc = ", ".join(f"{k} {n}" for k, n in sorted(v["outcomes"].items()))
             L.append(f"| {DISP(c)} | {pct(v['pass_at_1'])} ({v['passes']}/{v['n']}) | {ci_text(v['passes'], v['n'], v['ci95'], len(probs))} | "
                      + " | ".join(f"{v['by_problem'].get(p, 0)}/5" for p in probs)
-                     + f" | {oc} | {v['latency_s']['median']} | {v['latency_s']['p90']} | {v['tokens_mean']['reasoning_tok']} | {money(v['usd_per_call'], 5)} | "
-                     + (money(v["usd_per_pass"], 5) if v["passes"] else "no pass") + f" | {v['cost_kind']} |")
+                     + f" | {oc} | {v['latency_s']['median']} | {v['latency_s']['p90']} | {v['tokens_mean']['reasoning_tok']} | {money(v['usd_per_call'])} | "
+                     + (money(v["usd_per_pass"]) if v["passes"] else "no pass") + f" | {v['cost_kind']} |")
     if s.get("failures"):
         cfgs = list(dict.fromkeys(c for f in s["failures"].values() for c in f["cells"]))
         L += ["", "## Where they fail", "",
@@ -514,7 +516,7 @@ def tables(s):
         L += ["", "## Agentic track (hidden tests)", "", "| config | hidden pass | 95% CI | visible suite, incl. agent's own tests | complete task | median s | input floor | $/run | $ kind |", "|---|---|---|---|---|---|---|---|---|"]
         for c, v in s["agentic"].items():
             L.append(f"| {c} | {v['hidden_pass']}/{v['n']} | {ci_text(v['hidden_pass'], v['n'], v['ci95'], len(v['by_task']))} | {v['visible_pass']}/{v['n']} | {v['task_complete']}/{v['n']} | {v['latency_s']['median']} | "
-                     f"{v['input_floor'][0]} | {money(v['usd_per_run'], 4)} | {v['cost_kind']} |")
+                     f"{v['input_floor'][0]} | {money(v['usd_per_run'])} | {v['cost_kind']} |")
         tasks = sorted({t for v in s["agentic"].values() for t in v["by_task"]})
         L += ["", "| config | " + " | ".join(tasks) + " |", "|---|" + "---|" * len(tasks)]
         for c, v in s["agentic"].items():
@@ -535,7 +537,7 @@ def tables(s):
               "| config | level | passes | median input | of which cached | min input | median output | median s | p90 s | $/call | $ kind |", "|---|---|---|---|---|---|---|---|---|---|---|"]
         for c, v in t["pair"].items():
             L.append(f"| {c} | {v['level'] or '–'} | {v['passes']}/{v['n']} | {v['in_median']:,} | {v['cached_median']:,} | {v['in_min']:,} | {v['out_median']:,} | {v['median_s']} | {v['p90_s']} | "
-                     f"{money(v['usd_per_call'], 5)} | {v['cost_kind']} |")
+                     f"{money(v['usd_per_call'])} | {v['cost_kind']} |")
     if s.get("pilot"):
         L += ["", "## Pilot (2026-10-22), for reference", "",
               "Well-known problems, so every config passed everything. Cells show passes/runs; † marks a cell whose n is not 9, so it does not read as a 9/9 equivalent. "
@@ -543,7 +545,7 @@ def tables(s):
               "| config | model | effort | passes | problems | tier | input floor | median s | $/call |", "|---|---|---|---|---|---|---|---|---|"]
         for c, v in s["pilot"].items():
             L.append(f"| {c} | {v['model']} | {v['effort']} | {v['passes']}/{v['n']}{'' if v['n'] == 9 else ' †'} | {v['problems']} | {v['service_tier']} | "
-                     f"{v['input_floor']:,} | {v['median_s']} | {money(v['usd_per_call'], 5)} |")
+                     f"{v['input_floor']:,} | {v['median_s']} | {money(v['usd_per_call'])} |")
         L += ["", "† n ≠ 9: these configs ran a different number of rounds or problems (3 problems × 3 rounds = 9 is the common cell).", "",
               "The pilot's Codex ladder records only the levels that were actually tested. Every model passed at low effort, so nothing escalated, "
               "and the ladder is not an intelligence ranking."]
@@ -552,8 +554,8 @@ def tables(s):
         verdict = {True: "holds", False: "does not hold", None: "not testable"}[v["holds"]]
         L.append(f"- {k} ({v['claim']}): {verdict}. Data: `{json.dumps(v['data'])}`" + (f" {v['note']}." if v.get("note") else ""))
     sp = s["spend"]
-    L += ["", "## Spend", "", "Auxiliary runs and pilot excluded from the function + agentic totals.", "", f"- Claude CLI-reported cost (list basis), function + agentic only: ${money(sp['claude_measured_usd'], 2)} (function ${money(sp['claude_function_usd'], 2)}, agentic ${money(sp['claude_agentic_usd'], 2)}).",
-          f"- Codex token-price estimate, function + agentic only: ${money(sp['codex_proxy_usd'], 2)}.",
+    L += ["", "## Spend", "", "Auxiliary runs and pilot excluded from the function + agentic totals.", "", f"- Claude CLI-reported cost (list basis), function + agentic only: {money(sp['claude_measured_usd'])} (function {money(sp['claude_function_usd'])}, agentic {money(sp['claude_agentic_usd'])}).",
+          f"- Codex token-price estimate, function + agentic only: {money(sp['codex_proxy_usd'])}.",
           f"- Pilot repricing: {s['pilot_reprice']['rows']} priority-tier Codex rows cost {dataset_usd(s['pilot_reprice']['usd_at_1_5x'])} at the pilot's 1.5× and {dataset_usd(s['pilot_reprice']['usd_at_2x'])} at the published 2×.", ""]
     return "\n".join(L)
 

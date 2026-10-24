@@ -422,9 +422,9 @@ def test_winner_and_conclusion_agree_and_sets_are_collapsed(summary):
 def test_winner_verdict_and_luna_high_tradeoff(summary):
     E = page.every(summary)
     verdicts = {c: page.verdict(c, E[c], report.need, E) for c in page.ORDER}
-    assert verdicts['haiku-high'] == f"{E['haiku-high']['n'] - E['haiku-high']['passes']} misses"
-    assert verdicts['sol61-high'] == '✓ pick'
-    assert verdicts['haiku-low'] == '✓ pick (budget)'
+    assert verdicts['haiku-low'] == 'trade-off'
+    assert verdicts['sol61-high-fast'] == '✓ pick'
+    assert verdicts['haiku-high'] == '✓ pick (budget)'
     assert verdicts['sonnet-medium'] == '✓ pick (speed)'
     assert verdicts['luna-high'] == 'trade-off'
     winner = page.winner_table(dataset.read(), report.need)
@@ -526,7 +526,7 @@ def test_winner_has_three_rows_and_metric_columns_before_why():
     assert 'table-layout:fixed' not in output and 'min-width:720px' not in output
     for label in head:
         assert body.count(f'data-label="{label}"') == 3
-    assert 'Numbers:' in output and 'luna-miss set' in output
+    assert 'Numbers:' in output and 'luna-miss set' not in output  # pipelines are not Winner picks
     assert ds['facts']['speed_why'] in output
 
 
@@ -583,7 +583,8 @@ def test_low_context_has_one_final_group_and_a_set_column(summary):
     body = page.short_table(summary, dataset.need)
     groups = re.findall(r'<tbody[^>]*>(.*?)</tbody>', body, re.S)
     assert len(groups) == 3
-    assert body.count('Low context: trimmed prompt') == 1
+    assert body.count('Low context (trimmed prompt):') == 1
+    assert groups[-1].count('<tr') == 1  # one line, not one row per config
     assert 'luna-low-bare' in groups[-1] and 'luna-high-bare' in groups[-1]
     assert configs.set_label('main ladder') in groups[-1]
     assert configs.set_label('rescue set') in groups[-1]

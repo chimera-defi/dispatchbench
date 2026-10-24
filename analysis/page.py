@@ -11,7 +11,7 @@ from analysis.labels import TESTS, DISP, pshort, plabel, plabel_html
 # Plot order and family colour (a CSS variable of the page). luna-high is the exploratory full-ladder run.
 ORDER = ["haiku-low", "haiku-medium", "haiku-high", "sonnet-medium", "sol61-medium", "luna-high", "luna-medium", "luna-low", "luna-low-bare",
          "astra-medium", "astra-medium-fast", "sol61-high", "sol61-high-fast", "sol56-high", "luna56-high", "luna56-low"]
-WINNER_PICKS = {"sol61-high": "default", "haiku-low": "budget", "sonnet-medium": "speed"}
+WINNER_PICKS = {"sol61-high-fast": "default", "haiku-high": "budget", "sonnet-medium": "speed"}
 FAM = lambda c: "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex56)" if c.startswith(("sol56", "luna56")) else "var(--codex)"
 NS = 'xmlns="http://www.w3.org/2000/svg"'
 
@@ -533,13 +533,10 @@ def verdict(c, v, need, E, arms=None):
         return f"missed {v['n'] - v['passes']}"
     if c == "haiku-high":
         need(v["passes"] == v["n"] and v["usd_per_pass"] == min(E[d]["usd_per_pass"] for d in ORDER if E[d]["passes"] == E[d]["n"]), "haiku-high is the cheapest with 0 misses")
-        return "0 misses"
-    if c == "sol61-high":
-        need(v["passes"] == v["n"] == 60, "Winner sol61-high passed every main-ladder answer")
-        return "✓ pick"
-    if c == "haiku-low":
-        need(v["usd_per_pass"] == min(E[d]["usd_per_pass"] for d in ORDER if E[d]["pass_at_1"] >= 0.95), "haiku-low is the cheapest at 95%+")
         return "✓ pick (budget)"
+    if c == "sol61-high-fast":
+        need(v["passes"] == v["n"] == 60, "Winner sol61-high ⚡ passed every main-ladder answer")
+        return "✓ pick"
     if c == "sonnet-medium":
         need(v["passes"] == v["n"], "Winner speed pick has no misses")
         return "✓ pick (speed)"
@@ -586,10 +583,11 @@ def short_table(s, need):
     def group(label, rows, source):
         regular = "".join(body for c, body in rows if not configs.low_context(c, source))
         return f'<tbody><tr class="grp"><th colspan="6">{esc(label)}</th></tr>{regular}</tbody>'
-    low_rows = "".join(body for rows, source in ((top, "main"), (hard, "rescue"))
-                       for c, body in rows if configs.low_context(c, source))
+    low = ([f"{DISP(c)} passed {E[c]['passes']}/{E[c]['n']} on the {configs.set_label('main ladder')}." for c in ORDER if configs.low_context(c)]
+           + [f"{SHORT(name)} passed {a[c]['passes']}/{a[c]['n']} on the {configs.set_label('rescue set')}." for c, name in HARD
+              if c not in duplicates and configs.low_context(c, "rescue")])
     low_group = ('<tbody class="low-context"><tr class="grp"><th colspan="6">'
-                 'Low context: trimmed prompt</th></tr>' + low_rows + '</tbody>')
+                 + esc("Low context (trimmed prompt): " + " ".join(low)) + '</th></tr></tbody>')
     repeats = E[ORDER[0]]["n"] // len(problems)
     ladder_label = f'{configs.set_label("main ladder", capital=True)}: {len(problems)} problems × {repeats} tries = {E[ORDER[0]]["n"]} calls'
     subset_label = f'{configs.set_label("rescue set", capital=True)}: {len(s["design"]["rescue_problems"])} problems × {repeats} tries = {a[HARD[0][0]]["n"]} attempts'
@@ -839,26 +837,22 @@ def notation_tooltips(body, ds):
 def winner_table(ds, need):
     """Three primary choices; secondary routes retain their separately measured scope."""
     ladder = lambda c: dataset.get(ds, c, "main ladder")
-    default, budget, speed, fast, safety = map(ladder, (
-        "sol61-high", "haiku-low", "sonnet-medium", "sol61-high-fast", "haiku-high"))
+    plain, budget, speed, default = map(ladder, ("sol61-high", "haiku-high", "sonnet-medium", "sol61-high-fast"))
     pipeline = dataset.get(ds, "sol61-high+haiku-on-fail", "rescue arms", "rescue")
-    threshold = float(ds["facts"]["budget_pass"].rstrip("%")) / 100
-    eligible = [r for r in ds["rows"] if r["set"] == "main ladder" and r["pass_rate"] >= threshold]
-    need(budget["usd_per_pass"] == min(r["usd_per_pass"] for r in eligible),
-         "Winner budget pick is cheapest at the stated pass threshold")
-    for pick in (default, speed, safety):
-        for set_, source in (("main ladder", "main"), ("L7 set", "main"), ("repo tasks", "agentic")):
+    clean = [r for r in ds["rows"] if r["set"] == "main ladder" and r["passes"] == r["n"]]
+    need(budget["usd_per_pass"] == min(r["usd_per_pass"] for r in clean), "Winner budget pick is the cheapest with no misses")
+    for pick in (plain, budget, speed, default):  # sol61-high ⚡ has no repo-task run; plain sol61-high covers that model
+        for set_, source in (("main ladder", "main"), ("L7 set", "main"), ("repo tasks", "agentic"))[:2 if pick is default else 3]:
             r = dataset.get(ds, pick["config"], set_, source)
             need(r["passes"] == r["n"], f"Winner {pick['config']} never missed on {set_}")
-    need(speed["median_s"] < safety["median_s"], "Winner speed pick is faster than the safety pick")
-    need(fast["passes"] == fast["n"] and fast["median_s"] < default["median_s"],
-         "Winner fast mode preserves passes and reduces time")
-    need(fast["tokens_in_mean"] == default["tokens_in_mean"]
-         and fast["tokens_out_mean"] <= default["tokens_out_mean"],
+    need(speed["median_s"] < budget["median_s"], "Winner speed pick is faster than the budget pick")
+    need(default["median_s"] < plain["median_s"], "Winner fast mode reduces time")
+    need(default["tokens_in_mean"] == plain["tokens_in_mean"]
+         and default["tokens_out_mean"] <= plain["tokens_out_mean"],
          "Winner fast-mode premium does not come from more tokens")
     need(pipeline["passes"] == pipeline["n"] and pipeline["spend_claude"] == 0,
          "Winner measured example-check pipeline passed without calling Haiku")
-    why = {"default": "Ties the others. Free on Codex quota", "budget": ds["facts"]["budget_why"], "speed": ds["facts"]["speed_why"]}
+    why = {"default": f"No misses. Free on Codex quota. ⚡ saves {plain['median_s'] - default['median_s']:.0f} s", "budget": ds["facts"]["budget_why"], "speed": ds["facts"]["speed_why"]}
     choices = [(use.title(), ladder(c), why[use]) for c, use in WINNER_PICKS.items()]
     head = ("Use case", "Pick", "Pass", "$ per pass", "Time", "Why")
     th = "".join(f'<th scope="col">{esc(name)}</th>' for name in head)

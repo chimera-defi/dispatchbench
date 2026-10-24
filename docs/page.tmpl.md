@@ -179,12 +179,12 @@
 <b>{{winner_line}}</b>
 <p>Route with Codex quota:</p>
 <ol class="tight">
-<li>Send the task to sol61-high ({{claude_zero}} on quota). {{default_route_scope}}</li>
+<li>Send the task to sol61-high ⚡ ({{claude_zero}} on quota). {{default_route_scope}}</li>
 <li>Run the worked examples.</li>
 <li>If one fails, hand it to haiku-low.</li>
 </ol>
 <ul class="tight">
-<li>Paying per call? haiku-low is cheapest at {{budget_pass}}+ passing. Choose haiku-high for no misses. For speed, pick sonnet-medium: {{sonnet_medium_med}} s against haiku-high's {{haiku_high_med}} s. It costs {{sm_vs_hh_x}} as much per pass. Avoid luna-low or luna-medium alone.</li>
+<li>Paying per call? haiku-high is cheapest with no misses. haiku-low is cheaper but misses some. For speed, pick sonnet-medium: {{sonnet_medium_med}} s against haiku-high's {{haiku_high_med}} s. It costs {{sm_vs_hh_x}} as much per pass. Avoid luna-low or luna-medium alone.</li>
 <li>{{hb_conclusion_copy}}</li>
 </ul>
 </section>

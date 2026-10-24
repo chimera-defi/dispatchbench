@@ -645,22 +645,19 @@ def _facts(s, arms):
         "Time = median seconds. ~ = estimated from tokens; Claude costs are measured.")
     F['winner_other_routes'] = [
         f"⚡ = fast mode: same answers, about {F['fm_mult']} list price, faster.",
-        "Codex → Haiku (→H fail = Haiku fixes answers whose worked examples fail). "
-        f"It passed {F['r_sol61_high_haiku_on_fail_k']} on the "
-        f"{len(luna_rescue.PIDS)}-problem {configs.set_label('rescue set')}; Haiku never ran.",
-        f"No misses when paying per call: haiku-high, {F['hh_upp']} per pass."]
-    gap = cfg['sonnet-medium']['latency_s']['median'] - hl['latency_s']['median']
-    need(gap > 0, "haiku-low is slightly faster than sonnet-medium")
-    F['speed_why'] = (f"No misses. It trails haiku-low by {gap:.1f} s. "
-                      f"haiku-low misses {hl['n'] - hl['passes']} of {hl['n']}.")
+]
+    gap = every['haiku-high']['latency_s']['median'] - cfg['sonnet-medium']['latency_s']['median']
+    need(gap > 0, "sonnet-medium is faster than the budget pick haiku-high")
+    F['speed_why'] = f"No misses. {gap:.1f} s faster than haiku-high."
     tied = ('sol61-high', 'haiku-high', 'sonnet-medium')
     need(all(every[c]['passes'] == every[c]['n'] and hard[c]['passes'] == hard[c]['n'] and ag[c]['hidden_pass'] == ag[c]['n'] for c in tied),
          "sol61-high, haiku-high and sonnet-medium pass every main, L7 and repo try")
     need(every['haiku-high']['usd_per_pass'] < min(every[c]['usd_per_pass'] for c in ('sol61-high', 'sonnet-medium')), "haiku-high is the cheapest of the three")
-    F['winner_line'] = (f"sol61-high, haiku-high and sonnet-medium passed every try. "
+    need(all(v['passes'] == v['n'] for v in (every['sol61-high-fast'], hard['sol61-high-fast'])), "sol61-high ⚡ passes every main and L7 try")
+    F['winner_line'] = (f"sol61-high (normal and ⚡), haiku-high and sonnet-medium passed every try. "
                         f"haiku-high is cheapest of the three at {F['hh_upp']} per pass. "
-                        f"With Codex quota, sol61-high costs {F['claude_zero']} cash.")
-    F['budget_why'] = f"Cheapest pick that passes {F['budget_pass']} or more"
+                        f"With Codex quota, sol61-high ⚡ costs {F['claude_zero']} cash.")
+    F['budget_why'] = f"Cheapest with no misses. haiku-low costs less but misses {hl['n'] - hl['passes']} of {hl['n']}"
     F['model_names'] += (f", luna56 = {ex['luna56-high']['model']}, "
                          f"sol56 = {ex['sol56-high']['model']} (older generation)")
     need(a['luna-low-noshell-B1']['passes'] > a['luna-low']['passes'] > a['luna-low-noshell-B2']['passes'], "B1 improves over plain luna-low; B2 passes less often")
@@ -685,10 +682,10 @@ def _facts(s, arms):
                           "Text by each bar = passes · $ per pass · median seconds.")
     cluster = [v['latency_s']['median'] for c, v in every.items() if c.startswith('luna') and v['usd_per_pass'] < hl['usd_per_pass']]
     F['speed_luna_cluster'] = f"luna ×{len(cluster)} ({min(cluster):.0f}–{max(cluster):.0f} s)"
-    F['default_route_scope'] = (f"sol61-high passed every main try ({F['sol61_high_k']}). "
-                                f"It passed every L7 try ({F['x_sol61_high_hk']}). "
-                                f"It passed every repo try ({ag['sol61-high']['hidden_pass']}/{ag['sol61-high']['n']}). "
-                                f"On the {configs.set_label('rescue set')}, it passed {F['r_sol61_high_haiku_on_fail_k']}. "
+    sf, hf = every['sol61-high-fast'], hard['sol61-high-fast']
+    F['default_route_scope'] = (f"sol61-high ⚡ passed every main try ({sf['passes']}/{sf['n']}). "
+                                f"It passed every L7 try ({hf['passes']}/{hf['n']}). "
+                                f"The Haiku check ran at normal speed: {F['r_sol61_high_haiku_on_fail_k']} on the {configs.set_label('rescue set')}. "
                                 "Haiku never ran.")
     F['hb_conclusion_copy'] = ("Codex's own CLI helped luna-low a little more than Claude Code helped haiku-low. "
                                "No pick changes.")
