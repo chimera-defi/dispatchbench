@@ -9,11 +9,52 @@ A source is one results file; the same name in two sources is two entries (a pil
 import html, os, re
 
 
+SET_LABELS = {"rescue set": "luna-miss set", "rescue arms": "luna-miss pipelines",
+              "rescue pipeline": "luna-miss pipeline", "main ladder": "main ladder", "L7 set": "L7 set"}
+
+
+def set_label(key, capital=False):
+    label = SET_LABELS.get(key, key)
+    return label[0].upper() + label[1:] if capital else label
+
+
+# Meanings may interpolate existing dataset facts; prose and tooltips share them.
+NOTATION = {
+    "low/medium/high": "The effort setting after the model name.",
+    "⚡": "Codex priority tier costs {fm_mult} list price at the same model and effort.",
+    "-bare": "Codex's system prompt and tool text are trimmed.",
+    "→": "A second step in a pipeline.",
+    "H": "Haiku at low effort (haiku-low).",
+    "→H fail": "Haiku fixes answers only when the problem's worked examples fail.",
+    "→H all": "Haiku checks and fixes every answer.",
+    "→retry": "The same model tries again if the examples fail.",
+    "retry": "The same model tries again if the examples fail.",
+    "plan→": "Haiku writes a plan before the named model answers.",
+    "†": "An exploratory config added after the main run.",
+    "★": "A Winner pick. Star-shaped chart markers identify astra.",
+    "~": "Codex cost estimated from tokens and list prices.",
+    "–": "No Claude step in this row. In failure grids, the config was not run.",
+    "$0": "The Haiku step never ran, or subscription quota covers the Codex call.",
+    "≥N%": "The lower {ci_level} bound when every attempt passed.",
+    "pass@1": "The share of attempts passing every hidden test on the first answer.",
+    "p90": "The time within which {p90_percent} of calls finished.",
+    "L1–L7": "Difficulty rungs run from easiest to hardest. The hardest rung uses a separate set.",
+    "noshell B1/B2": "Luna prompt variants remove shell context. The latter adds a detailed reasoning summary.",
+    "purple dot": "A pipeline using two models.",
+    "family dots": "Dot colours distinguish Haiku, Sonnet and Codex.",
+    "●": "Haiku's chart marker.",
+    "■": "Sonnet's chart marker.",
+    "▲": "Luna's chart marker. Triangle direction indicates effort.",
+    "◆": "Sol's chart marker.",
+    "E/M/H": "Estimated LeetCode difficulty: Easy, Medium or Hard.",
+}
+
+
 SOURCES = {  # source id -> files under results/ that hold its rows
     "main": ["2026-10-22b-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
     "rescue": ["appendix/luna_rescue.jsonl"], "pilot": ["2026-10-22-pilot.jsonl"], "pilot-agentic": ["2026-10-22-pilot-agentic.jsonl"],
     "harness-bias": ["appendix/harness_bias.jsonl", "appendix/codex_harness.jsonl"]}  # the last two land with the codex-own-harness branch
-CATEGORIES = ["main ladder", "exploratory", "fast mode and xhigh", "rescue pipeline", "repo tasks", "trim", "pilot", "harness-bias"]
+CATEGORIES = ["main ladder", "exploratory", "fast mode and xhigh", "rescue pipeline", "repo tasks", "trim", "pilot", "harness-bias", "low context"]
 
 R = []
 def add(source, category, *pairs):
@@ -73,7 +114,12 @@ add("harness-bias", "harness-bias",
     ("luna-low / Claude harness", "Harness-bias check: luna-low through the Claude-built harness"),
     ("luna-low / Codex harness", "Harness-bias check: luna-low through the harness Codex built"),
     ("sol61-medium / Codex harness", "Harness-bias check: sol61-medium through the harness Codex built"))
-REGISTRY = {(s, n): {"source": s, "name": n, "category": c, "what": w} for s, n, c, w in R}
+LOW_CONTEXT = {("main", "luna-low-bare"),
+               *(("rescue", c) for c in ("luna-medium-bare", "luna-high-bare", "luna-low-noshell-B1", "luna-low-noshell-B2")),
+               *(("trim", f"{model}/{variant}") for model in ("luna", "terra")
+                 for variant in ("nofeat", "noshell", "mininst", "noctx", "nodoc")),
+               ("pilot", "codex-low-lean"), ("pilot", "codex-bare")}
+REGISTRY = {(s, n): {"source": s, "name": n, "category": "low context" if (s, n) in LOW_CONTEXT else c, "what": w} for s, n, c, w in R}
 assert len(REGISTRY) == len(R), "duplicate registry entry"
 
 
@@ -141,7 +187,8 @@ def section(rest, ds, root, chart_bodies=None):
     for cat in CATEGORIES:
         es = by.pop(cat, [])
         if not es: continue
-        out.append(f"<details><summary>{html.escape(cat)}: {ds['categories'][cat]['n_configs']} configs, {money(ds['categories'][cat]['spend'])} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
+        label = "Low context (prompt or tool text trimmed)" if cat == "low context" else set_label(cat)
+        out.append(f"<details><summary>{html.escape(label)}: {ds['categories'][cat]['n_configs']} configs, {money(ds['categories'][cat]['spend'])} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
         for e in es:
             tilde = "~" if e["unknown_usd"] else ""
             out.append(f"<tr><td title=\"{html.escape(', '.join(e['files']))}\">{html.escape(e['display'])}</td><td>{html.escape(e['what'])}</td><td>{e['passes']}/{e['n']}</td>"

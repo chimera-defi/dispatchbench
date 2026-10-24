@@ -3,7 +3,8 @@ problem × config grid, the token-floor bars and the short result table. Inline 
 from the page's CSS variables, so both themes work. Standard library only."""
 import html, json, math, os, re
 
-from analysis import dataset
+from analysis import configs, dataset
+from html.parser import HTMLParser
 from analysis.charts import FAMILY, MIN_PASS
 from analysis.labels import TESTS, DISP, pshort, plabel, plabel_html
 
@@ -258,18 +259,18 @@ def ladder_toggle(render, s):
             'Savings per pass appear in the key and tooltip. The log plot shows paid configs; free configs are ranked below it.</p>')
     main_categories = {point_category(c) for c in ORDER}
     filters = '<div class="category-filter" role="group" aria-label="Point categories">' + "".join(
-        ('<label>' if cat in main_categories else '<label class="disabled" title="only on the rescue set">')
+        ('<label>' if cat in main_categories else f'<label class="disabled" title="only on the {configs.set_label("rescue set")}">')
         + f'<input type="checkbox" data-cat="{cat}" checked' + ('' if cat in main_categories else ' disabled')
         + f'> {cat}</label>' for cat in ("main", "fast", "pipelines", "exploratory")) + '</div>'
     set_name = render.__name__ + "-set"
     sets = (f'<div class="set-filter" role="group" aria-label="Problem set">'
             f'<label><input type="radio" name="{set_name}" value="main" checked> Main ladder</label>'
-            f'<label><input type="radio" name="{set_name}" value="rescue"> Rescue set</label></div>')
+            f'<label><input type="radio" name="{set_name}" value="rescue"> {configs.set_label("rescue set", capital=True)}</label></div>')
     rescue_n = next(iter(rescue_arms(s).values()))["n"]
     return ('<div class="cwrap"><label class="cost-toggle"><input type="checkbox"> Codex is free (subscription quota)</label>'
             + sets + filters + note + '<div class="cset s-main">' + normal + free + frontier_caption(s) + '</div>'
-            + '<div class="cset s-rescue"><p class="set-note">Rescue set: '
-            + f'{rescue_n} calls on the post hoc hard subset; these points are shown separately from the main ladder.</p>'
+            + f'<div class="cset s-rescue"><p class="set-note">{configs.set_label("rescue set", capital=True)}: '
+            + f'{rescue_n} attempts, shown apart from the main ladder.</p>'
             + rescue_normal + rescue_free + '</div><div class="ctip" hidden></div></div>'), fr
 
 
@@ -290,7 +291,7 @@ def ladder_repairs(free, stat, arms=None):
                     "y": usd if stat == "speed" else v["pass_rate"], "rate": v["pass_rate"], "hollow": pipeline,
                     "shape": SHAPE(builder), "w": None, "on": False, "free_mode": free,
                     "saved_usd": v["usd_saved_per_pass"], "normal_usd": v["usd_per_pass"], "free_usd": v["claude_usd_per_pass"],
-                    "tip": f"{name}: {v['passes']}/{v['n']} passed, {dataset.usd(usd)} per pass, median {v['median_s']:.1f} s; rescue set, not the full ladder. "
+                    "tip": f"{name}: {v['passes']}/{v['n']} passed. {dataset.usd(usd)} per pass. Median {v['median_s']:.1f} s. {configs.set_label('rescue set', capital=True)} only. "
                     + quota_tip(v["usd_per_pass"], v["claude_usd_per_pass"], v["usd_saved_per_pass"])
                     + (" (" + v["derived_note"] + ")" if "derived_note" in v else "")})
     return pts
@@ -372,7 +373,6 @@ def speed_cost(s, free=None, problem_set="main"):
 from analysis.configs import RESCUE_NAMES as NAME
 HARD_PTS = list(NAME.items())
 SHORT = lambda n: n.replace("Haiku plan → ", "plan→").replace(" → Haiku if samples fail", "→H fail").replace(" → Haiku fixes all", "→H all").replace(" → retry if samples fail", "→retry")
-DECODER = "plan→ = Haiku plan; →H fail = Haiku fixes if examples fail; →retry = same-model retry; →H all = Haiku checks every answer."
 
 
 def rescue_arms(ds=None):
@@ -384,7 +384,7 @@ def hard_pts(arms=None):
     a = arms if arms is not None else rescue_arms()
     return [{"c": c, "name": SHORT(n) if "→" in n else n, "set": "rescue", "col": "var(--frontier)" if "→" in n else FAM(c), "hollow": False, "w": None, "k": a[c]["pass_rate"],
              "usd": a[c]["usd_per_pass"], "sec": a[c]["median_s"],
-             "tip": f"{n} [rescue set]: {a[c]['passes']}/{a[c]['n']} passed, {dataset.usd(a[c]['usd_per_pass'])} per pass, median {a[c]['median_s']:.1f} s" + (" (" + a[c]["derived_note"] + ")" if "derived_note" in a[c] else "")} for c, n in HARD_PTS]
+             "tip": f"{n} [{configs.set_label('rescue set')}]: {a[c]['passes']}/{a[c]['n']} passed. {dataset.usd(a[c]['usd_per_pass'])} per pass. Median {a[c]['median_s']:.1f} s" + (" (" + a[c]["derived_note"] + ")" if "derived_note" in a[c] else "")} for c, n in HARD_PTS]
 
 
 def hard_pass_cost(arms=None):
@@ -477,7 +477,7 @@ def pipes(arms=None):
     a = arms if arms is not None else rescue_arms()
     bars = [(c, SHORT(n), "var(--frontier)" if "→" in n else FAM(c)) for c, n in HARD_PTS]
     W, BL, BR, H = 760, 330, 530, 16 + 40 * len(bars)
-    g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Passes on the rescue set: single models and the Haiku review and repair pipelines">']
+    g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Passes on the {configs.set_label("rescue set")}: single models and Haiku pipelines">']
     for i, (c, name, col) in enumerate(bars):
         v = a[c]; y = 8 + i * 40; w = v["pass_rate"] * (BR - BL)
         g.append(f'<g><title>{esc(NAME[c])}{" (" + v["derived_note"] + ")" if "derived_note" in v else ""}</title>')
@@ -602,7 +602,7 @@ def short_table(s, need):
     best = min(clean, key=lambda c: a[c]["usd_per_pass"])
     need(best == "haiku-medium", "haiku-medium is the cheapest rescue-set row with no miss")
     hv = lambda c: "0 misses, cheapest" if c == best else "0 misses" if c in clean else f"missed {a[c]['misses']}"
-    hard = [row("Rescue", name, "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], None if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
+    hard = [row(configs.set_label("rescue set", capital=True), name, "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], None if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
                 a[c]["median_s"], hv(c), CODEX(c), a[c].get("derived_note", ""), rate=a[c]["pass_rate"]) for c, name in HARD]
     problems = sorted(s["problems"]); rungs = [v["rung"] for v in s["problems"].values()]
     return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>set</th><th>config</th><th>passed</th><th>total $ per pass</th>'
@@ -610,7 +610,8 @@ def short_table(s, need):
             f'<tbody>{"".join(top)}</tbody><tbody>{"".join(hard)}</tbody></table></div>'
             '<ul class="tight small">'
             f'<li>Ladder = {len(problems)} problems, {problems[0][:3]}–{problems[-1][:3]} (L{min(rungs)}–L{max(rungs)}).</li>'
-            f'<li>Rescue = {a[HARD[0][0]]["n"]} attempts on the {len(s["design"]["rescue_problems"])} ladder problems luna missed most: {", ".join(plabel(q) for q in s["design"]["rescue_problems"])}.</li></ul>')
+            f'<li>{configs.set_label("rescue set", capital=True)}: {a[HARD[0][0]]["n"]} attempts per row.</li>'
+            f'<li>Problems: {", ".join(plabel(q) for q in s["design"]["rescue_problems"])}.</li></ul>')
 
 
 
@@ -698,7 +699,6 @@ def sets_box(s):
     """Collapsed reading guide below the cost/accuracy charts and their notes."""
     main, hard, per, l7 = set_definitions(s)
     rungs = sorted({s["problems"][p]["rung"] for p in main})
-    fast_multiplier = s["design"]["fast_mode_multiplier"]
     lab = lambda ps: ", ".join(f'<span class="pl" title="{esc(TESTS[p])}">{esc(plabel(p))}</span>' for p in ps)
     return ('<details class="sets"><summary>How to read the problems, rungs and sets</summary><ul class="tight small">'
             '<li>Compare each set separately.</li>'
@@ -706,20 +706,20 @@ def sets_box(s):
             f'<li><b>Main ladder</b>: {len(main)} problems, {main[0].split("_")[0]}–{main[-1].split("_")[0]}, rungs L{rungs[0]}–L{rungs[-1]} ({per} per rung, easiest first). Every config ran it.</li>'
             f'<li><b>L7 set</b>: {len(hard)} extra-hard problems ({lab(hard)}), scored separately. Added after every strong config passed L{rungs[-1]} to seek a breaking point, with more than the usual {per} problems per rung.</li>'
             f'<li>Later-run configs: {l7}.</li>'
-            f'<li><b>Rescue set</b>: {len(s["design"]["rescue_problems"])} main-ladder problems ({lab(s["design"]["rescue_problems"])}), selected afterwards for luna\'s most misses at low/medium effort, stock/bare. Used by pipeline and repair charts; distinct from the extra-hard set.</li>'
+            f'<li><b>{configs.set_label("rescue set", capital=True)}</b>: {lab(s["design"]["rescue_problems"])}.</li>'
             '<li>Easy/Medium/Hard badges estimate LeetCode difficulty; rungs use this bench\'s own order and may differ.</li>'
             '<li>Config names: haiku/sonnet = Claude; luna/sol/astra = Codex; suffix = effort; -bare = stripped Codex CLI system prompt.</li>'
-            f'<li>⚡ = Codex fast mode (priority tier): same model and effort at {fast_multiplier:g}× the price. A thin line joins its default-tier twin in the speed chart; both overlap at full marks in the pass-rate chart.</li>'
             '</ul></details>')
 
 
 def rescue_subtitle(s=None):
     s = s or dataset.view(dataset.read())
     attempts = rescue_arms(s)["sol61-high"]["n"]
-    return (f'Rescue set = the {len(s["design"]["rescue_problems"])} ladder problems luna missed most. Purple = pipelines.<br>'
-            + esc(DECODER) + '<br>'
-            f'Examples never failed for sol61-high and astra-medium (normal: separate runs; ⚡: cached answers). '
-            f'{attempts} attempts per row, no intervals.')
+    return (f'{configs.set_label("rescue set", capital=True)}: {attempts} attempts per row, no intervals. '
+            'Purple marks pipelines.<br>'
+            'sol61-high and astra-medium never failed an example. '
+            'Their →H fail rows equal the model alone. '
+            'Normal speed uses separate runs. ⚡ rows replay cached answers.')
 
 
 def speed_frontier_text(s, names):
@@ -728,10 +728,105 @@ def speed_frontier_text(s, names):
                      + (f", {100 * E[c]['pass_at_1']:.1f}% passed" if E[c]['passes'] < E[c]['n'] else "") + ")" for c in names)
 
 
+def notation_meanings(ds):
+    """Resolve the registry's prose using the cached dataset facts."""
+    return {symbol: meaning.format_map(ds["facts"]) for symbol, meaning in configs.NOTATION.items()}
+
+
+def legend(ds):
+    items = "".join(f'<dt>{esc(symbol)}</dt><dd>{esc(meaning)}</dd>'
+                    for symbol, meaning in notation_meanings(ds).items())
+    return f'<details class="legend" id="notation"><summary>Notation</summary><dl>{items}</dl></details>'
+
+
+def notation_tooltips(body, ds):
+    """Explain the first use per section without editing attributes, scripts or source text."""
+    meanings = notation_meanings(ds)
+    aliases = {
+        "low/medium/high": r"(?-i:\blow\s*/\s*medium\s*/\s*high\b|\b(?:low|medium|high|xhigh)\b)",
+        "-bare": r"-bare\b|\bbare\b",
+        "$0": r"\$0(?![\d.])",
+        "≥N%": r"≥(?:N|\d+(?:\.\d+)?)%",
+        "L1–L7": r"\bL\d+(?:\s*(?:to|[–-])\s*L\d+)?\b",
+        "noshell B1/B2": r"\bnoshell[- ]B[12]\b|\bB[12]\b",
+        "–": r"(?<!\w)–(?!\w)",
+    }
+    patterns = []
+    symbols = sorted(meanings, key=len, reverse=True)
+    for i, symbol in enumerate(symbols):
+        pattern = aliases.get(symbol, re.escape(symbol))
+        if symbol in ("H", "retry", "p90", "pass@1"):
+            pattern = r"(?<!\w)" + pattern + r"(?!\w)"
+        patterns.append(f"(?P<n{i}>{pattern})")
+    match_symbol = re.compile("|".join(patterns), re.I)
+
+    class Annotator(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=False)
+            self.out = []
+            self.stack = []
+            self.seen = set()
+
+        def handle_starttag(self, tag, attrs):
+            if tag == "section":
+                self.seen = set()
+            raw = self.get_starttag_text()
+            values = dict(attrs)
+            if "dot" in values.get("class", "").split():
+                symbol = "purple dot" if "--frontier" in values.get("style", "") else "family dots"
+                if symbol not in self.seen:
+                    self.seen.add(symbol)
+                    raw = raw[:-1] + f' data-notation="{symbol}" title="{esc(meanings[symbol])}">'
+            if tag not in ("area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"):
+                self.stack.append((tag, dict(attrs)))
+            self.out.append(raw)
+
+        def handle_startendtag(self, tag, attrs):
+            self.out.append(self.get_starttag_text())
+
+        def handle_endtag(self, tag):
+            for i in range(len(self.stack) - 1, -1, -1):
+                if self.stack[i][0] == tag:
+                    del self.stack[i:]
+                    break
+            self.out.append(f"</{tag}>")
+
+        def handle_data(self, data):
+            if any(tag in ("script", "style", "title", "option", "textarea") or attrs.get("id") == "notation"
+                   for tag, attrs in self.stack):
+                self.out.append(data)
+                return
+            wrapper = "tspan" if any(tag == "svg" for tag, _ in self.stack) else "abbr"
+
+            def explain(match):
+                symbol = symbols[int(match.lastgroup[1:])]
+                if symbol in self.seen:
+                    return match[0]
+                self.seen.add(symbol)
+                return (f'<{wrapper} class="notation-use" data-notation="{esc(symbol)}" '
+                        f'title="{esc(meanings[symbol])}">{match[0]}</{wrapper}>')
+
+            self.out.append(match_symbol.sub(explain, data))
+
+        def handle_entityref(self, name):
+            self.out.append(f"&{name};")
+
+        def handle_charref(self, name):
+            self.out.append(f"&#{name};")
+
+        def handle_comment(self, data):
+            self.out.append(f"<!--{data}-->")
+
+    parser = Annotator()
+    parser.feed(body)
+    parser.close()
+    return "".join(parser.out)
+
+
 def widgets(s, need, ds=None):
     arms = rescue_arms(ds or s)
     a, fa = pass_cost(s); b, fb = speed_cost(s); ha, hfa = hard_pass_cost(arms); hb, hfb = hard_speed_cost(arms); nm = dict(HARD_PTS)
     return {"pass_cost": a, "speed_cost": b, "hard_pass_cost": ha, "hard_speed_cost": hb,
             "hard_front_pass": ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": ", ".join(SHORT(nm[c]) for c in hfb), "sets": sets_box(s), "grid": grid(s), "floor": floor(s), "pipes": pipes(arms), "fast": fast(s), "explorer": explorer(s), "short_table": short_table(s, need),
             "front_pass": ", ".join(map(DISP, fa)), "front_speed": speed_frontier_text(s, fb),
-            "decoder": DECODER, "rescue_subtitle": rescue_subtitle(s), "problems": method(s)[0], "flags": method(s)[1]}
+            "legend": legend(ds or dataset.read()), "rescue_subtitle": rescue_subtitle(s), "problems": method(s)[0], "flags": method(s)[1]}

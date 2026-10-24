@@ -3857,228 +3857,6 @@
    }
   },
   {
-   "id": "main/luna-low-bare",
-   "source": "main",
-   "config": "luna-low-bare",
-   "display": "luna-low-bare",
-   "family": "Codex",
-   "category": "exploratory",
-   "what": "luna-low with the Codex system prompt and tool features stripped (trim level noshell)",
-   "set": "main ladder",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-function.jsonl"
-   ],
-   "passes": 44,
-   "n": 60,
-   "pass_rate": 0.7333,
-   "ci95": [
-    0.5167,
-    0.9167
-   ],
-   "groups": 12,
-   "usd_per_pass": 0.000798,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000798,
-   "usd_per_call": 0.000585,
-   "spend": 0.035117,
-   "spend_claude": 0.0,
-   "spend_codex": 0.035117,
-   "unknown_usd": 0,
-   "median_s": 6.81,
-   "p25_s": 5.24,
-   "p75_s": 8.06,
-   "tokens_in_mean": 6144,
-   "tokens_out_mean": 528,
-   "tokens_cached_mean": 3255,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    5950,
-    3456
-   ],
-   "p90_s": 11.1,
-   "max_s": 17.73,
-   "by_group": {
-    "p01_overlap_minutes": {
-     "passes": 5,
-     "n": 5
-    },
-    "p02_squash": {
-     "passes": 5,
-     "n": 5
-    },
-    "p03_ledger": {
-     "passes": 3,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 1,
-     "n": 5
-    },
-    "p05_pass_route": {
-     "passes": 5,
-     "n": 5
-    },
-    "p06_calc": {
-     "passes": 5,
-     "n": 5
-    },
-    "p07_weighted_distance_sums": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 4,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 4,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 2,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 0,
-     "n": 5
-    }
-   },
-   "misses": 16,
-   "ci95_plot": [
-    0.5167,
-    0.9167
-   ],
-   "usd_saved_per_pass": 0.000798,
-   "usd_per_1k_tokens": 8.767985611510791e-05,
-   "by_rung": {
-    "L1": [
-     10,
-     10
-    ],
-    "L2": [
-     4,
-     10
-    ],
-    "L3": [
-     10,
-     10
-    ],
-    "L4": [
-     9,
-     10
-    ],
-    "L5": [
-     9,
-     10
-    ],
-    "L6": [
-     2,
-     10
-    ]
-   },
-   "cost_kind": "proxy",
-   "cli": "codex",
-   "model": "gpt-6-luna",
-   "effort": "low",
-   "outcomes": {
-    "pass": 44,
-    "crash": 6,
-    "wrong": 9,
-    "timeout": 1
-   },
-   "breaking_point": "L2",
-   "details": {
-    "cli": "codex",
-    "model": "gpt-6-luna",
-    "effort": "low",
-    "n": 60,
-    "passes": 44,
-    "pass_at_1": 0.7333,
-    "ci95": [
-     0.5167,
-     0.9167
-    ],
-    "breaking_point": "L2",
-    "outcomes": {
-     "pass": 44,
-     "crash": 6,
-     "wrong": 9,
-     "timeout": 1
-    },
-    "input_floor": [
-     5950,
-     3456
-    ],
-    "usd_per_call": 0.000585,
-    "usd_total": 0.035117,
-    "usd_per_pass": 0.000798,
-    "usd_per_pass_L1_L2": 0.000696,
-    "pass_L1_L2": [
-     14,
-     20
-    ],
-    "cost_kind": "proxy",
-    "vs": [
-     {
-      "b": "luna-low",
-      "diff": -0.0333,
-      "ci95": [
-       -0.2,
-       0.1333
-      ],
-      "problems": 12
-     },
-     {
-      "b": "haiku-low",
-      "diff": -0.2167,
-      "ci95": [
-       -0.4333,
-       0.0
-      ],
-      "problems": 12
-     },
-     {
-      "b": "luna-medium",
-      "diff": -0.05,
-      "ci95": [
-       -0.1667,
-       0.05
-      ],
-      "problems": 12
-     }
-    ],
-    "usd_per_pass_uncached": 0.001198,
-    "by_problem": {
-     "p01_overlap_minutes": 5,
-     "p02_squash": 5,
-     "p03_ledger": 3,
-     "p04_taller_within": 1,
-     "p05_pass_route": 5,
-     "p06_calc": 5,
-     "p07_weighted_distance_sums": 5,
-     "p08_recur": 4,
-     "p09_k_machine_schedule": 5,
-     "p10_avoid_count": 4,
-     "p11_best_average": 2,
-     "p12_sheet": 0
-    },
-    "misses": 16,
-    "ci95_plot": [
-     0.5167,
-     0.9167
-    ],
-    "usd_text": "$0.0008",
-    "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.000798,
-    "usd_per_1k_tokens": 8.767985611510791e-05
-   }
-  },
-  {
    "id": "main/luna56-low",
    "source": "main",
    "config": "luna56-low",
@@ -5333,105 +5111,6 @@
     ],
     "L5": [
      8,
-     10
-    ]
-   },
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "main/luna-low-bare",
-   "source": "main",
-   "config": "luna-low-bare",
-   "display": "luna-low-bare",
-   "family": "Codex",
-   "category": "exploratory",
-   "what": "luna-low with the Codex system prompt and tool features stripped (trim level noshell)",
-   "set": "rescue set",
-   "derived": true,
-   "files": [
-    "results/2026-10-22b-function.jsonl"
-   ],
-   "passes": 19,
-   "n": 35,
-   "pass_rate": 0.5429,
-   "ci95": [
-    0.2571,
-    0.8
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.00125,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.00125,
-   "usd_per_call": 0.000679,
-   "spend": 0.023758,
-   "spend_claude": 0.0,
-   "spend_codex": 0.023758,
-   "unknown_usd": 0,
-   "median_s": 7.78,
-   "p25_s": 6.77,
-   "p75_s": 10.29,
-   "tokens_in_mean": 6196,
-   "tokens_out_mean": 687,
-   "tokens_cached_mean": 3160,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    5955,
-    3456
-   ],
-   "p90_s": 12.06,
-   "max_s": 17.73,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 3,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 1,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 4,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 4,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 2,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 0,
-     "n": 5
-    }
-   },
-   "misses": 16,
-   "ci95_plot": [
-    0.2571,
-    0.8
-   ],
-   "usd_saved_per_pass": 0.00125,
-   "usd_per_1k_tokens": 9.864884498038646e-05,
-   "by_rung": {
-    "L2": [
-     4,
-     10
-    ],
-    "L4": [
-     4,
-     5
-    ],
-    "L5": [
-     9,
-     10
-    ],
-    "L6": [
-     2,
      10
     ]
    },
@@ -6970,170 +6649,6 @@
    "cost_kind": "proxy"
   },
   {
-   "id": "rescue/luna-low-noshell-B1",
-   "source": "rescue",
-   "config": "luna-low-noshell-B1",
-   "display": "luna-low-noshell-B1",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm B1: luna-low without shell, nudged to list edge cases and trace the examples first",
-   "set": "rescue arms",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 25,
-   "n": 35,
-   "pass_rate": 0.7143,
-   "ci95": [
-    0.4,
-    0.9714
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.000973,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000973,
-   "usd_per_call": 0.000695,
-   "spend": 0.02433,
-   "spend_claude": 0.0,
-   "spend_codex": 0.02433,
-   "unknown_usd": 0,
-   "median_s": 8.6,
-   "p25_s": 7.42,
-   "p75_s": 11.03,
-   "tokens_in_mean": 6217,
-   "tokens_out_mean": 787,
-   "tokens_cached_mean": 3558,
-   "tokens_reasoning_mean": 7,
-   "input_floor": [
-    5976,
-    3456
-   ],
-   "p90_s": 11.88,
-   "max_s": 20.36,
-   "by_group": {
-    "p04_taller_within": {
-     "passes": 3,
-     "n": 5
-    },
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 2,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 0,
-     "n": 5
-    }
-   },
-   "misses": 10,
-   "ci95_plot": [
-    0.4,
-    0.9714
-   ],
-   "usd_saved_per_pass": 0.000973,
-   "usd_per_1k_tokens": 9.922901199314677e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/luna-low-noshell-B2",
-   "source": "rescue",
-   "config": "luna-low-noshell-B2",
-   "display": "luna-low-noshell-B2",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm B2: B1 plus a detailed reasoning summary",
-   "set": "rescue arms",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 19,
-   "n": 35,
-   "pass_rate": 0.5429,
-   "ci95": [
-    0.2,
-    0.8571
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.001163,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.001163,
-   "usd_per_call": 0.000631,
-   "spend": 0.022096,
-   "spend_claude": 0.0,
-   "spend_codex": 0.022096,
-   "unknown_usd": 0,
-   "median_s": 8.9,
-   "p25_s": 7.81,
-   "p75_s": 11.05,
-   "tokens_in_mean": 6217,
-   "tokens_out_mean": 777,
-   "tokens_cached_mean": 4209,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    5976,
-    3456
-   ],
-   "p90_s": 13.12,
-   "max_s": 31.63,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 2,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 2,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 0,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 0,
-     "n": 5
-    }
-   },
-   "misses": 16,
-   "ci95_plot": [
-    0.2,
-    0.8571
-   ],
-   "usd_saved_per_pass": 0.001163,
-   "usd_per_1k_tokens": 9.022018873319989e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
    "id": "rescue/luna-low-selftest",
    "source": "rescue",
    "config": "luna-low-selftest",
@@ -7212,170 +6727,6 @@
    ],
    "usd_saved_per_pass": 0.003644,
    "usd_per_1k_tokens": 3.609387515990579e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/luna-medium-bare",
-   "source": "rescue",
-   "config": "luna-medium-bare",
-   "display": "luna-medium-bare",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm D: luna-medium, stripped harness",
-   "set": "rescue arms",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 21,
-   "n": 35,
-   "pass_rate": 0.6,
-   "ci95": [
-    0.3143,
-    0.8857
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.001199,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.001199,
-   "usd_per_call": 0.000719,
-   "spend": 0.025179,
-   "spend_claude": 0.0,
-   "spend_codex": 0.025179,
-   "unknown_usd": 0,
-   "median_s": 8.43,
-   "p25_s": 7.28,
-   "p75_s": 10.3,
-   "tokens_in_mean": 6196,
-   "tokens_out_mean": 684,
-   "tokens_cached_mean": 2692,
-   "tokens_reasoning_mean": 6,
-   "input_floor": [
-    5955,
-    0
-   ],
-   "p90_s": 12.07,
-   "max_s": 17.0,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 3,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 1,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 4,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 3,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 0,
-     "n": 5
-    }
-   },
-   "misses": 14,
-   "ci95_plot": [
-    0.3143,
-    0.8857
-   ],
-   "usd_saved_per_pass": 0.001199,
-   "usd_per_1k_tokens": 0.00010450581395348837,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "rescue/luna-high-bare",
-   "source": "rescue",
-   "config": "luna-high-bare",
-   "display": "luna-high-bare",
-   "family": "Codex",
-   "category": "rescue pipeline",
-   "what": "Arm D: luna-high, stripped harness",
-   "set": "rescue arms",
-   "derived": false,
-   "files": [
-    "results/appendix/luna_rescue.jsonl"
-   ],
-   "passes": 31,
-   "n": 35,
-   "pass_rate": 0.8857,
-   "ci95": [
-    0.6857,
-    1.0
-   ],
-   "groups": 7,
-   "usd_per_pass": 0.00105,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.00105,
-   "usd_per_call": 0.00093,
-   "spend": 0.032543,
-   "spend_claude": 0.0,
-   "spend_codex": 0.032543,
-   "unknown_usd": 0,
-   "median_s": 13.2,
-   "p25_s": 10.48,
-   "p75_s": 15.87,
-   "tokens_in_mean": 6196,
-   "tokens_out_mean": 1188,
-   "tokens_cached_mean": 3152,
-   "tokens_reasoning_mean": 522,
-   "input_floor": [
-    5955,
-    3456
-   ],
-   "p90_s": 22.46,
-   "max_s": 25.94,
-   "by_group": {
-    "p03_ledger": {
-     "passes": 5,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 5,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 5,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 4,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 2,
-     "n": 5
-    }
-   },
-   "misses": 4,
-   "ci95_plot": [
-    0.6857,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.00105,
-   "usd_per_1k_tokens": 0.00012594799566630554,
    "by_rung": {},
    "cost_kind": "proxy"
   },
@@ -9266,297 +8617,6 @@
    "cost_kind": "proxy"
   },
   {
-   "id": "trim/luna/nofeat",
-   "source": "trim",
-   "config": "luna/nofeat",
-   "display": "luna/nofeat",
-   "family": "Codex",
-   "category": "trim",
-   "what": "luna, tool features stripped",
-   "set": "trim probe",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.000985,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000985,
-   "usd_per_call": 0.000985,
-   "spend": 0.008867,
-   "spend_claude": 0.0,
-   "spend_codex": 0.008867,
-   "unknown_usd": 0,
-   "median_s": 4.41,
-   "p25_s": 3.85,
-   "p75_s": 6.0,
-   "tokens_in_mean": 9945,
-   "tokens_out_mean": 132,
-   "tokens_cached_mean": 839,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    9930,
-    0
-   ],
-   "p90_s": 6.24,
-   "max_s": 6.83,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.000985,
-   "usd_per_1k_tokens": 9.774734544011114e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/luna/noshell",
-   "source": "trim",
-   "config": "luna/noshell",
-   "display": "luna/noshell",
-   "family": "Codex",
-   "category": "trim",
-   "what": "luna, features, shell and base instructions stripped",
-   "set": "trim probe",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.000296,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000296,
-   "usd_per_call": 0.000296,
-   "spend": 0.002664,
-   "spend_claude": 0.0,
-   "spend_codex": 0.002664,
-   "unknown_usd": 0,
-   "median_s": 3.76,
-   "p25_s": 3.52,
-   "p75_s": 4.12,
-   "tokens_in_mean": 5860,
-   "tokens_out_mean": 132,
-   "tokens_cached_mean": 3954,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    5845,
-    3456
-   ],
-   "p90_s": 4.49,
-   "max_s": 5.22,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.000296,
-   "usd_per_1k_tokens": 4.939919893190921e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/luna/mininst",
-   "source": "trim",
-   "config": "luna/mininst",
-   "display": "luna/mininst",
-   "family": "Codex",
-   "category": "trim",
-   "what": "luna, minimal instructions (one call)",
-   "set": "trim probe",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 1,
-   "n": 1,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 1,
-   "usd_per_pass": 0.000329,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000329,
-   "usd_per_call": 0.000329,
-   "spend": 0.000329,
-   "spend_claude": 0.0,
-   "spend_codex": 0.000329,
-   "unknown_usd": 0,
-   "median_s": 6.48,
-   "p25_s": 6.48,
-   "p75_s": 6.48,
-   "tokens_in_mean": 6485,
-   "tokens_out_mean": 98,
-   "tokens_cached_mean": 4096,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    6485,
-    4096
-   ],
-   "p90_s": 6.48,
-   "max_s": 6.48,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 1,
-     "n": 1
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.05,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.000329,
-   "usd_per_1k_tokens": 4.997721403615372e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/luna/noctx",
-   "source": "trim",
-   "config": "luna/noctx",
-   "display": "luna/noctx",
-   "family": "Codex",
-   "category": "trim",
-   "what": "luna, no project context (one call)",
-   "set": "trim probe",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 1,
-   "n": 1,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 1,
-   "usd_per_pass": 0.000433,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000433,
-   "usd_per_call": 0.000433,
-   "spend": 0.000433,
-   "spend_claude": 0.0,
-   "spend_codex": 0.000433,
-   "unknown_usd": 0,
-   "median_s": 7.0,
-   "p25_s": 7.0,
-   "p75_s": 7.0,
-   "tokens_in_mean": 14210,
-   "tokens_out_mean": 98,
-   "tokens_cached_mean": 11520,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    14210,
-    11520
-   ],
-   "p90_s": 7.0,
-   "max_s": 7.0,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 1,
-     "n": 1
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.05,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.000433,
-   "usd_per_1k_tokens": 3.026279004752586e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/luna/nodoc",
-   "source": "trim",
-   "config": "luna/nodoc",
-   "display": "luna/nodoc",
-   "family": "Codex",
-   "category": "trim",
-   "what": "luna, no docs (one call)",
-   "set": "trim probe",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 1,
-   "n": 1,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 1,
-   "usd_per_pass": 0.000451,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000451,
-   "usd_per_call": 0.000451,
-   "spend": 0.000451,
-   "spend_claude": 0.0,
-   "spend_codex": 0.000451,
-   "unknown_usd": 0,
-   "median_s": 5.88,
-   "p25_s": 5.88,
-   "p75_s": 5.88,
-   "tokens_in_mean": 14389,
-   "tokens_out_mean": 98,
-   "tokens_cached_mean": 11520,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    14389,
-    11520
-   ],
-   "p90_s": 5.88,
-   "max_s": 5.88,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 1,
-     "n": 1
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.05,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.000451,
-   "usd_per_1k_tokens": 3.1131359149582386e-05,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
    "id": "trim/terra/base",
    "source": "trim",
    "config": "terra/base",
@@ -9616,297 +8676,6 @@
    ],
    "usd_saved_per_pass": 0.010161,
    "usd_per_1k_tokens": 0.0007084291989123614,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/terra/nofeat",
-   "source": "trim",
-   "config": "terra/nofeat",
-   "display": "terra/nofeat",
-   "family": "Codex",
-   "category": "trim",
-   "what": "terra, tool features stripped",
-   "set": "trim probe",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.020505,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.020505,
-   "usd_per_call": 0.020505,
-   "spend": 0.184542,
-   "spend_claude": 0.0,
-   "spend_codex": 0.184542,
-   "unknown_usd": 0,
-   "median_s": 5.18,
-   "p25_s": 4.01,
-   "p75_s": 6.02,
-   "tokens_in_mean": 9484,
-   "tokens_out_mean": 128,
-   "tokens_cached_mean": 0,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    9469,
-    0
-   ],
-   "p90_s": 6.24,
-   "max_s": 6.61,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.020505,
-   "usd_per_1k_tokens": 0.002133270911360799,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/terra/noshell",
-   "source": "trim",
-   "config": "terra/noshell",
-   "display": "terra/noshell",
-   "family": "Codex",
-   "category": "trim",
-   "what": "terra, features and shell stripped",
-   "set": "trim probe",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.007982,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.007982,
-   "usd_per_call": 0.007982,
-   "spend": 0.071839,
-   "spend_claude": 0.0,
-   "spend_codex": 0.071839,
-   "unknown_usd": 0,
-   "median_s": 6.8,
-   "p25_s": 3.63,
-   "p75_s": 8.66,
-   "tokens_in_mean": 5303,
-   "tokens_out_mean": 127,
-   "tokens_cached_mean": 2304,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    5288,
-    0
-   ],
-   "p90_s": 10.07,
-   "max_s": 10.69,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.007982,
-   "usd_per_1k_tokens": 0.0014699815837937384,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/terra/mininst",
-   "source": "trim",
-   "config": "terra/mininst",
-   "display": "terra/mininst",
-   "family": "Codex",
-   "category": "trim",
-   "what": "terra, minimal instructions (one call)",
-   "set": "trim probe",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 1,
-   "n": 1,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 1,
-   "usd_per_pass": 0.012864,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.012864,
-   "usd_per_call": 0.012864,
-   "spend": 0.012864,
-   "spend_claude": 0.0,
-   "spend_codex": 0.012864,
-   "unknown_usd": 0,
-   "median_s": 4.81,
-   "p25_s": 4.81,
-   "p75_s": 4.81,
-   "tokens_in_mean": 5928,
-   "tokens_out_mean": 84,
-   "tokens_cached_mean": 0,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    5928,
-    0
-   ],
-   "p90_s": 4.81,
-   "max_s": 4.81,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 1,
-     "n": 1
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.05,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.012864,
-   "usd_per_1k_tokens": 0.0021397205588822355,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/terra/noctx",
-   "source": "trim",
-   "config": "terra/noctx",
-   "display": "terra/noctx",
-   "family": "Codex",
-   "category": "trim",
-   "what": "terra, no project context (one call)",
-   "set": "trim probe",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 1,
-   "n": 1,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 1,
-   "usd_per_pass": 0.009234,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.009234,
-   "usd_per_call": 0.009234,
-   "spend": 0.009234,
-   "spend_claude": 0.0,
-   "spend_codex": 0.009234,
-   "unknown_usd": 0,
-   "median_s": 5.13,
-   "p25_s": 5.13,
-   "p75_s": 5.13,
-   "tokens_in_mean": 14020,
-   "tokens_out_mean": 84,
-   "tokens_cached_mean": 11008,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    14020,
-    11008
-   ],
-   "p90_s": 5.13,
-   "max_s": 5.13,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 1,
-     "n": 1
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.05,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.009234,
-   "usd_per_1k_tokens": 0.0006547078842881452,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "trim/terra/nodoc",
-   "source": "trim",
-   "config": "terra/nodoc",
-   "display": "terra/nodoc",
-   "family": "Codex",
-   "category": "trim",
-   "what": "terra, no docs (one call)",
-   "set": "trim probe",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-trim.jsonl"
-   ],
-   "passes": 1,
-   "n": 1,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 1,
-   "usd_per_pass": 0.009588,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.009588,
-   "usd_per_call": 0.009588,
-   "spend": 0.009588,
-   "spend_claude": 0.0,
-   "spend_codex": 0.009588,
-   "unknown_usd": 0,
-   "median_s": 4.87,
-   "p25_s": 4.87,
-   "p75_s": 4.87,
-   "tokens_in_mean": 14197,
-   "tokens_out_mean": 84,
-   "tokens_cached_mean": 11008,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    14197,
-    11008
-   ],
-   "p90_s": 4.87,
-   "max_s": 4.87,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 1,
-     "n": 1
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.05,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.009588,
-   "usd_per_1k_tokens": 0.0006713815559134514,
    "by_rung": {},
    "cost_kind": "proxy"
   },
@@ -10510,132 +9279,6 @@
    ],
    "usd_saved_per_pass": 0.029756,
    "usd_per_1k_tokens": 0.001047267096047584,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot/codex-low-lean",
-   "source": "pilot",
-   "config": "codex-low-lean",
-   "display": "codex-low-lean",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot: gpt-6.1-sol low with --ignore-user-config only",
-   "set": "pilot",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.026915,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.026915,
-   "usd_per_call": 0.026915,
-   "spend": 0.242237,
-   "spend_claude": 0.0,
-   "spend_codex": 0.242237,
-   "unknown_usd": 0,
-   "median_s": 6.96,
-   "p25_s": 5.97,
-   "p75_s": 8.15,
-   "tokens_in_mean": 24450,
-   "tokens_out_mean": 136,
-   "tokens_cached_mean": 12288,
-   "tokens_reasoning_mean": 4,
-   "input_floor": [
-    23397,
-    12288
-   ],
-   "p90_s": 9.04,
-   "max_s": 9.87,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.026915,
-   "usd_per_1k_tokens": 0.0010947287073944522,
-   "by_rung": {},
-   "cost_kind": "proxy"
-  },
-  {
-   "id": "pilot/codex-bare",
-   "source": "pilot",
-   "config": "codex-bare",
-   "display": "codex-bare",
-   "family": "Codex",
-   "category": "pilot",
-   "what": "Pilot: gpt-6.1-sol low, stripped harness, priority tier",
-   "set": "pilot",
-   "derived": false,
-   "files": [
-    "results/2026-10-22-pilot.jsonl"
-   ],
-   "passes": 9,
-   "n": 9,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 3,
-   "usd_per_pass": 0.01536,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.01536,
-   "usd_per_call": 0.01536,
-   "spend": 0.13824,
-   "spend_claude": 0.0,
-   "spend_codex": 0.13824,
-   "unknown_usd": 0,
-   "median_s": 5.4,
-   "p25_s": 5.11,
-   "p75_s": 5.84,
-   "tokens_in_mean": 14523,
-   "tokens_out_mean": 126,
-   "tokens_cached_mean": 7865,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    14508,
-    8064
-   ],
-   "p90_s": 6.57,
-   "max_s": 8.54,
-   "by_group": {
-    "fizzbuzz": {
-     "passes": 3,
-     "n": 3
-    },
-    "course2": {
-     "passes": 3,
-     "n": 3
-    },
-    "candy": {
-     "passes": 3,
-     "n": 3
-    }
-   },
-   "misses": 0,
-   "ci95_plot": [
-    0.3684031498640387,
-    1.0
-   ],
-   "usd_saved_per_pass": 0.01536,
-   "usd_per_1k_tokens": 0.001048535736227729,
    "by_rung": {},
    "cost_kind": "proxy"
   },
@@ -11757,6 +10400,1363 @@
    "cost_kind": "proxy"
   },
   {
+   "id": "main/luna-low-bare",
+   "source": "main",
+   "config": "luna-low-bare",
+   "display": "luna-low-bare",
+   "family": "Codex",
+   "category": "low context",
+   "what": "luna-low with the Codex system prompt and tool features stripped (trim level noshell)",
+   "set": "main ladder",
+   "derived": false,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 44,
+   "n": 60,
+   "pass_rate": 0.7333,
+   "ci95": [
+    0.5167,
+    0.9167
+   ],
+   "groups": 12,
+   "usd_per_pass": 0.000798,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.000798,
+   "usd_per_call": 0.000585,
+   "spend": 0.035117,
+   "spend_claude": 0.0,
+   "spend_codex": 0.035117,
+   "unknown_usd": 0,
+   "median_s": 6.81,
+   "p25_s": 5.24,
+   "p75_s": 8.06,
+   "tokens_in_mean": 6144,
+   "tokens_out_mean": 528,
+   "tokens_cached_mean": 3255,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    5950,
+    3456
+   ],
+   "p90_s": 11.1,
+   "max_s": 17.73,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 3,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 1,
+     "n": 5
+    },
+    "p05_pass_route": {
+     "passes": 5,
+     "n": 5
+    },
+    "p06_calc": {
+     "passes": 5,
+     "n": 5
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 5,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 4,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 4,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 2,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 0,
+     "n": 5
+    }
+   },
+   "misses": 16,
+   "ci95_plot": [
+    0.5167,
+    0.9167
+   ],
+   "usd_saved_per_pass": 0.000798,
+   "usd_per_1k_tokens": 8.767985611510791e-05,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     4,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     9,
+     10
+    ],
+    "L5": [
+     9,
+     10
+    ],
+    "L6": [
+     2,
+     10
+    ]
+   },
+   "cost_kind": "proxy",
+   "cli": "codex",
+   "model": "gpt-6-luna",
+   "effort": "low",
+   "outcomes": {
+    "pass": 44,
+    "crash": 6,
+    "wrong": 9,
+    "timeout": 1
+   },
+   "breaking_point": "L2",
+   "details": {
+    "cli": "codex",
+    "model": "gpt-6-luna",
+    "effort": "low",
+    "n": 60,
+    "passes": 44,
+    "pass_at_1": 0.7333,
+    "ci95": [
+     0.5167,
+     0.9167
+    ],
+    "breaking_point": "L2",
+    "outcomes": {
+     "pass": 44,
+     "crash": 6,
+     "wrong": 9,
+     "timeout": 1
+    },
+    "input_floor": [
+     5950,
+     3456
+    ],
+    "usd_per_call": 0.000585,
+    "usd_total": 0.035117,
+    "usd_per_pass": 0.000798,
+    "usd_per_pass_L1_L2": 0.000696,
+    "pass_L1_L2": [
+     14,
+     20
+    ],
+    "cost_kind": "proxy",
+    "vs": [
+     {
+      "b": "luna-low",
+      "diff": -0.0333,
+      "ci95": [
+       -0.2,
+       0.1333
+      ],
+      "problems": 12
+     },
+     {
+      "b": "haiku-low",
+      "diff": -0.2167,
+      "ci95": [
+       -0.4333,
+       0.0
+      ],
+      "problems": 12
+     },
+     {
+      "b": "luna-medium",
+      "diff": -0.05,
+      "ci95": [
+       -0.1667,
+       0.05
+      ],
+      "problems": 12
+     }
+    ],
+    "usd_per_pass_uncached": 0.001198,
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 3,
+     "p04_taller_within": 1,
+     "p05_pass_route": 5,
+     "p06_calc": 5,
+     "p07_weighted_distance_sums": 5,
+     "p08_recur": 4,
+     "p09_k_machine_schedule": 5,
+     "p10_avoid_count": 4,
+     "p11_best_average": 2,
+     "p12_sheet": 0
+    },
+    "misses": 16,
+    "ci95_plot": [
+     0.5167,
+     0.9167
+    ],
+    "usd_text": "$0.0008",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.000798,
+    "usd_per_1k_tokens": 8.767985611510791e-05
+   }
+  },
+  {
+   "id": "main/luna-low-bare",
+   "source": "main",
+   "config": "luna-low-bare",
+   "display": "luna-low-bare",
+   "family": "Codex",
+   "category": "low context",
+   "what": "luna-low with the Codex system prompt and tool features stripped (trim level noshell)",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 19,
+   "n": 35,
+   "pass_rate": 0.5429,
+   "ci95": [
+    0.2571,
+    0.8
+   ],
+   "groups": 7,
+   "usd_per_pass": 0.00125,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.00125,
+   "usd_per_call": 0.000679,
+   "spend": 0.023758,
+   "spend_claude": 0.0,
+   "spend_codex": 0.023758,
+   "unknown_usd": 0,
+   "median_s": 7.78,
+   "p25_s": 6.77,
+   "p75_s": 10.29,
+   "tokens_in_mean": 6196,
+   "tokens_out_mean": 687,
+   "tokens_cached_mean": 3160,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    5955,
+    3456
+   ],
+   "p90_s": 12.06,
+   "max_s": 17.73,
+   "by_group": {
+    "p03_ledger": {
+     "passes": 3,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 1,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 4,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 4,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 2,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 0,
+     "n": 5
+    }
+   },
+   "misses": 16,
+   "ci95_plot": [
+    0.2571,
+    0.8
+   ],
+   "usd_saved_per_pass": 0.00125,
+   "usd_per_1k_tokens": 9.864884498038646e-05,
+   "by_rung": {
+    "L2": [
+     4,
+     10
+    ],
+    "L4": [
+     4,
+     5
+    ],
+    "L5": [
+     9,
+     10
+    ],
+    "L6": [
+     2,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "pilot/codex-low-lean",
+   "source": "pilot",
+   "config": "codex-low-lean",
+   "display": "codex-low-lean",
+   "family": "Codex",
+   "category": "low context",
+   "what": "Pilot: gpt-6.1-sol low with --ignore-user-config only",
+   "set": "pilot",
+   "derived": false,
+   "files": [
+    "results/2026-10-22-pilot.jsonl"
+   ],
+   "passes": 9,
+   "n": 9,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 3,
+   "usd_per_pass": 0.026915,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.026915,
+   "usd_per_call": 0.026915,
+   "spend": 0.242237,
+   "spend_claude": 0.0,
+   "spend_codex": 0.242237,
+   "unknown_usd": 0,
+   "median_s": 6.96,
+   "p25_s": 5.97,
+   "p75_s": 8.15,
+   "tokens_in_mean": 24450,
+   "tokens_out_mean": 136,
+   "tokens_cached_mean": 12288,
+   "tokens_reasoning_mean": 4,
+   "input_floor": [
+    23397,
+    12288
+   ],
+   "p90_s": 9.04,
+   "max_s": 9.87,
+   "by_group": {
+    "fizzbuzz": {
+     "passes": 3,
+     "n": 3
+    },
+    "course2": {
+     "passes": 3,
+     "n": 3
+    },
+    "candy": {
+     "passes": 3,
+     "n": 3
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.3684031498640387,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.026915,
+   "usd_per_1k_tokens": 0.0010947287073944522,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "pilot/codex-bare",
+   "source": "pilot",
+   "config": "codex-bare",
+   "display": "codex-bare",
+   "family": "Codex",
+   "category": "low context",
+   "what": "Pilot: gpt-6.1-sol low, stripped harness, priority tier",
+   "set": "pilot",
+   "derived": false,
+   "files": [
+    "results/2026-10-22-pilot.jsonl"
+   ],
+   "passes": 9,
+   "n": 9,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 3,
+   "usd_per_pass": 0.01536,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.01536,
+   "usd_per_call": 0.01536,
+   "spend": 0.13824,
+   "spend_claude": 0.0,
+   "spend_codex": 0.13824,
+   "unknown_usd": 0,
+   "median_s": 5.4,
+   "p25_s": 5.11,
+   "p75_s": 5.84,
+   "tokens_in_mean": 14523,
+   "tokens_out_mean": 126,
+   "tokens_cached_mean": 7865,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    14508,
+    8064
+   ],
+   "p90_s": 6.57,
+   "max_s": 8.54,
+   "by_group": {
+    "fizzbuzz": {
+     "passes": 3,
+     "n": 3
+    },
+    "course2": {
+     "passes": 3,
+     "n": 3
+    },
+    "candy": {
+     "passes": 3,
+     "n": 3
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.3684031498640387,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.01536,
+   "usd_per_1k_tokens": 0.001048535736227729,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "rescue/luna-low-noshell-B1",
+   "source": "rescue",
+   "config": "luna-low-noshell-B1",
+   "display": "luna-low-noshell-B1",
+   "family": "Codex",
+   "category": "low context",
+   "what": "Arm B1: luna-low without shell, nudged to list edge cases and trace the examples first",
+   "set": "rescue arms",
+   "derived": false,
+   "files": [
+    "results/appendix/luna_rescue.jsonl"
+   ],
+   "passes": 25,
+   "n": 35,
+   "pass_rate": 0.7143,
+   "ci95": [
+    0.4,
+    0.9714
+   ],
+   "groups": 7,
+   "usd_per_pass": 0.000973,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.000973,
+   "usd_per_call": 0.000695,
+   "spend": 0.02433,
+   "spend_claude": 0.0,
+   "spend_codex": 0.02433,
+   "unknown_usd": 0,
+   "median_s": 8.6,
+   "p25_s": 7.42,
+   "p75_s": 11.03,
+   "tokens_in_mean": 6217,
+   "tokens_out_mean": 787,
+   "tokens_cached_mean": 3558,
+   "tokens_reasoning_mean": 7,
+   "input_floor": [
+    5976,
+    3456
+   ],
+   "p90_s": 11.88,
+   "max_s": 20.36,
+   "by_group": {
+    "p04_taller_within": {
+     "passes": 3,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 2,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 5,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 0,
+     "n": 5
+    }
+   },
+   "misses": 10,
+   "ci95_plot": [
+    0.4,
+    0.9714
+   ],
+   "usd_saved_per_pass": 0.000973,
+   "usd_per_1k_tokens": 9.922901199314677e-05,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "rescue/luna-low-noshell-B2",
+   "source": "rescue",
+   "config": "luna-low-noshell-B2",
+   "display": "luna-low-noshell-B2",
+   "family": "Codex",
+   "category": "low context",
+   "what": "Arm B2: B1 plus a detailed reasoning summary",
+   "set": "rescue arms",
+   "derived": false,
+   "files": [
+    "results/appendix/luna_rescue.jsonl"
+   ],
+   "passes": 19,
+   "n": 35,
+   "pass_rate": 0.5429,
+   "ci95": [
+    0.2,
+    0.8571
+   ],
+   "groups": 7,
+   "usd_per_pass": 0.001163,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.001163,
+   "usd_per_call": 0.000631,
+   "spend": 0.022096,
+   "spend_claude": 0.0,
+   "spend_codex": 0.022096,
+   "unknown_usd": 0,
+   "median_s": 8.9,
+   "p25_s": 7.81,
+   "p75_s": 11.05,
+   "tokens_in_mean": 6217,
+   "tokens_out_mean": 777,
+   "tokens_cached_mean": 4209,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    5976,
+    3456
+   ],
+   "p90_s": 13.12,
+   "max_s": 31.63,
+   "by_group": {
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 2,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 2,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 0,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 0,
+     "n": 5
+    }
+   },
+   "misses": 16,
+   "ci95_plot": [
+    0.2,
+    0.8571
+   ],
+   "usd_saved_per_pass": 0.001163,
+   "usd_per_1k_tokens": 9.022018873319989e-05,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "rescue/luna-medium-bare",
+   "source": "rescue",
+   "config": "luna-medium-bare",
+   "display": "luna-medium-bare",
+   "family": "Codex",
+   "category": "low context",
+   "what": "Arm D: luna-medium, stripped harness",
+   "set": "rescue arms",
+   "derived": false,
+   "files": [
+    "results/appendix/luna_rescue.jsonl"
+   ],
+   "passes": 21,
+   "n": 35,
+   "pass_rate": 0.6,
+   "ci95": [
+    0.3143,
+    0.8857
+   ],
+   "groups": 7,
+   "usd_per_pass": 0.001199,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.001199,
+   "usd_per_call": 0.000719,
+   "spend": 0.025179,
+   "spend_claude": 0.0,
+   "spend_codex": 0.025179,
+   "unknown_usd": 0,
+   "median_s": 8.43,
+   "p25_s": 7.28,
+   "p75_s": 10.3,
+   "tokens_in_mean": 6196,
+   "tokens_out_mean": 684,
+   "tokens_cached_mean": 2692,
+   "tokens_reasoning_mean": 6,
+   "input_floor": [
+    5955,
+    0
+   ],
+   "p90_s": 12.07,
+   "max_s": 17.0,
+   "by_group": {
+    "p03_ledger": {
+     "passes": 3,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 1,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 4,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 5,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 3,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 0,
+     "n": 5
+    }
+   },
+   "misses": 14,
+   "ci95_plot": [
+    0.3143,
+    0.8857
+   ],
+   "usd_saved_per_pass": 0.001199,
+   "usd_per_1k_tokens": 0.00010450581395348837,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "rescue/luna-high-bare",
+   "source": "rescue",
+   "config": "luna-high-bare",
+   "display": "luna-high-bare",
+   "family": "Codex",
+   "category": "low context",
+   "what": "Arm D: luna-high, stripped harness",
+   "set": "rescue arms",
+   "derived": false,
+   "files": [
+    "results/appendix/luna_rescue.jsonl"
+   ],
+   "passes": 31,
+   "n": 35,
+   "pass_rate": 0.8857,
+   "ci95": [
+    0.6857,
+    1.0
+   ],
+   "groups": 7,
+   "usd_per_pass": 0.00105,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.00105,
+   "usd_per_call": 0.00093,
+   "spend": 0.032543,
+   "spend_claude": 0.0,
+   "spend_codex": 0.032543,
+   "unknown_usd": 0,
+   "median_s": 13.2,
+   "p25_s": 10.48,
+   "p75_s": 15.87,
+   "tokens_in_mean": 6196,
+   "tokens_out_mean": 1188,
+   "tokens_cached_mean": 3152,
+   "tokens_reasoning_mean": 522,
+   "input_floor": [
+    5955,
+    3456
+   ],
+   "p90_s": 22.46,
+   "max_s": 25.94,
+   "by_group": {
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 5,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 5,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 4,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 2,
+     "n": 5
+    }
+   },
+   "misses": 4,
+   "ci95_plot": [
+    0.6857,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.00105,
+   "usd_per_1k_tokens": 0.00012594799566630554,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "trim/luna/nofeat",
+   "source": "trim",
+   "config": "luna/nofeat",
+   "display": "luna/nofeat",
+   "family": "Codex",
+   "category": "low context",
+   "what": "luna, tool features stripped",
+   "set": "trim probe",
+   "derived": false,
+   "files": [
+    "results/2026-10-22b-trim.jsonl"
+   ],
+   "passes": 9,
+   "n": 9,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 3,
+   "usd_per_pass": 0.000985,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.000985,
+   "usd_per_call": 0.000985,
+   "spend": 0.008867,
+   "spend_claude": 0.0,
+   "spend_codex": 0.008867,
+   "unknown_usd": 0,
+   "median_s": 4.41,
+   "p25_s": 3.85,
+   "p75_s": 6.0,
+   "tokens_in_mean": 9945,
+   "tokens_out_mean": 132,
+   "tokens_cached_mean": 839,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    9930,
+    0
+   ],
+   "p90_s": 6.24,
+   "max_s": 6.83,
+   "by_group": {
+    "fizzbuzz": {
+     "passes": 3,
+     "n": 3
+    },
+    "candy": {
+     "passes": 3,
+     "n": 3
+    },
+    "course2": {
+     "passes": 3,
+     "n": 3
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.3684031498640387,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.000985,
+   "usd_per_1k_tokens": 9.774734544011114e-05,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "trim/luna/noshell",
+   "source": "trim",
+   "config": "luna/noshell",
+   "display": "luna/noshell",
+   "family": "Codex",
+   "category": "low context",
+   "what": "luna, features, shell and base instructions stripped",
+   "set": "trim probe",
+   "derived": false,
+   "files": [
+    "results/2026-10-22b-trim.jsonl"
+   ],
+   "passes": 9,
+   "n": 9,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 3,
+   "usd_per_pass": 0.000296,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.000296,
+   "usd_per_call": 0.000296,
+   "spend": 0.002664,
+   "spend_claude": 0.0,
+   "spend_codex": 0.002664,
+   "unknown_usd": 0,
+   "median_s": 3.76,
+   "p25_s": 3.52,
+   "p75_s": 4.12,
+   "tokens_in_mean": 5860,
+   "tokens_out_mean": 132,
+   "tokens_cached_mean": 3954,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    5845,
+    3456
+   ],
+   "p90_s": 4.49,
+   "max_s": 5.22,
+   "by_group": {
+    "fizzbuzz": {
+     "passes": 3,
+     "n": 3
+    },
+    "candy": {
+     "passes": 3,
+     "n": 3
+    },
+    "course2": {
+     "passes": 3,
+     "n": 3
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.3684031498640387,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.000296,
+   "usd_per_1k_tokens": 4.939919893190921e-05,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "trim/luna/mininst",
+   "source": "trim",
+   "config": "luna/mininst",
+   "display": "luna/mininst",
+   "family": "Codex",
+   "category": "low context",
+   "what": "luna, minimal instructions (one call)",
+   "set": "trim probe",
+   "derived": false,
+   "files": [
+    "results/2026-10-22b-trim.jsonl"
+   ],
+   "passes": 1,
+   "n": 1,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 1,
+   "usd_per_pass": 0.000329,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.000329,
+   "usd_per_call": 0.000329,
+   "spend": 0.000329,
+   "spend_claude": 0.0,
+   "spend_codex": 0.000329,
+   "unknown_usd": 0,
+   "median_s": 6.48,
+   "p25_s": 6.48,
+   "p75_s": 6.48,
+   "tokens_in_mean": 6485,
+   "tokens_out_mean": 98,
+   "tokens_cached_mean": 4096,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    6485,
+    4096
+   ],
+   "p90_s": 6.48,
+   "max_s": 6.48,
+   "by_group": {
+    "fizzbuzz": {
+     "passes": 1,
+     "n": 1
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.05,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.000329,
+   "usd_per_1k_tokens": 4.997721403615372e-05,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "trim/luna/noctx",
+   "source": "trim",
+   "config": "luna/noctx",
+   "display": "luna/noctx",
+   "family": "Codex",
+   "category": "low context",
+   "what": "luna, no project context (one call)",
+   "set": "trim probe",
+   "derived": false,
+   "files": [
+    "results/2026-10-22b-trim.jsonl"
+   ],
+   "passes": 1,
+   "n": 1,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 1,
+   "usd_per_pass": 0.000433,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.000433,
+   "usd_per_call": 0.000433,
+   "spend": 0.000433,
+   "spend_claude": 0.0,
+   "spend_codex": 0.000433,
+   "unknown_usd": 0,
+   "median_s": 7.0,
+   "p25_s": 7.0,
+   "p75_s": 7.0,
+   "tokens_in_mean": 14210,
+   "tokens_out_mean": 98,
+   "tokens_cached_mean": 11520,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    14210,
+    11520
+   ],
+   "p90_s": 7.0,
+   "max_s": 7.0,
+   "by_group": {
+    "fizzbuzz": {
+     "passes": 1,
+     "n": 1
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.05,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.000433,
+   "usd_per_1k_tokens": 3.026279004752586e-05,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "trim/luna/nodoc",
+   "source": "trim",
+   "config": "luna/nodoc",
+   "display": "luna/nodoc",
+   "family": "Codex",
+   "category": "low context",
+   "what": "luna, no docs (one call)",
+   "set": "trim probe",
+   "derived": false,
+   "files": [
+    "results/2026-10-22b-trim.jsonl"
+   ],
+   "passes": 1,
+   "n": 1,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 1,
+   "usd_per_pass": 0.000451,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.000451,
+   "usd_per_call": 0.000451,
+   "spend": 0.000451,
+   "spend_claude": 0.0,
+   "spend_codex": 0.000451,
+   "unknown_usd": 0,
+   "median_s": 5.88,
+   "p25_s": 5.88,
+   "p75_s": 5.88,
+   "tokens_in_mean": 14389,
+   "tokens_out_mean": 98,
+   "tokens_cached_mean": 11520,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    14389,
+    11520
+   ],
+   "p90_s": 5.88,
+   "max_s": 5.88,
+   "by_group": {
+    "fizzbuzz": {
+     "passes": 1,
+     "n": 1
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.05,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.000451,
+   "usd_per_1k_tokens": 3.1131359149582386e-05,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "trim/terra/nofeat",
+   "source": "trim",
+   "config": "terra/nofeat",
+   "display": "terra/nofeat",
+   "family": "Codex",
+   "category": "low context",
+   "what": "terra, tool features stripped",
+   "set": "trim probe",
+   "derived": false,
+   "files": [
+    "results/2026-10-22b-trim.jsonl"
+   ],
+   "passes": 9,
+   "n": 9,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 3,
+   "usd_per_pass": 0.020505,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.020505,
+   "usd_per_call": 0.020505,
+   "spend": 0.184542,
+   "spend_claude": 0.0,
+   "spend_codex": 0.184542,
+   "unknown_usd": 0,
+   "median_s": 5.18,
+   "p25_s": 4.01,
+   "p75_s": 6.02,
+   "tokens_in_mean": 9484,
+   "tokens_out_mean": 128,
+   "tokens_cached_mean": 0,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    9469,
+    0
+   ],
+   "p90_s": 6.24,
+   "max_s": 6.61,
+   "by_group": {
+    "fizzbuzz": {
+     "passes": 3,
+     "n": 3
+    },
+    "candy": {
+     "passes": 3,
+     "n": 3
+    },
+    "course2": {
+     "passes": 3,
+     "n": 3
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.3684031498640387,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.020505,
+   "usd_per_1k_tokens": 0.002133270911360799,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "trim/terra/noshell",
+   "source": "trim",
+   "config": "terra/noshell",
+   "display": "terra/noshell",
+   "family": "Codex",
+   "category": "low context",
+   "what": "terra, features and shell stripped",
+   "set": "trim probe",
+   "derived": false,
+   "files": [
+    "results/2026-10-22b-trim.jsonl"
+   ],
+   "passes": 9,
+   "n": 9,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 3,
+   "usd_per_pass": 0.007982,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.007982,
+   "usd_per_call": 0.007982,
+   "spend": 0.071839,
+   "spend_claude": 0.0,
+   "spend_codex": 0.071839,
+   "unknown_usd": 0,
+   "median_s": 6.8,
+   "p25_s": 3.63,
+   "p75_s": 8.66,
+   "tokens_in_mean": 5303,
+   "tokens_out_mean": 127,
+   "tokens_cached_mean": 2304,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    5288,
+    0
+   ],
+   "p90_s": 10.07,
+   "max_s": 10.69,
+   "by_group": {
+    "fizzbuzz": {
+     "passes": 3,
+     "n": 3
+    },
+    "candy": {
+     "passes": 3,
+     "n": 3
+    },
+    "course2": {
+     "passes": 3,
+     "n": 3
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.3684031498640387,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.007982,
+   "usd_per_1k_tokens": 0.0014699815837937384,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "trim/terra/mininst",
+   "source": "trim",
+   "config": "terra/mininst",
+   "display": "terra/mininst",
+   "family": "Codex",
+   "category": "low context",
+   "what": "terra, minimal instructions (one call)",
+   "set": "trim probe",
+   "derived": false,
+   "files": [
+    "results/2026-10-22b-trim.jsonl"
+   ],
+   "passes": 1,
+   "n": 1,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 1,
+   "usd_per_pass": 0.012864,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.012864,
+   "usd_per_call": 0.012864,
+   "spend": 0.012864,
+   "spend_claude": 0.0,
+   "spend_codex": 0.012864,
+   "unknown_usd": 0,
+   "median_s": 4.81,
+   "p25_s": 4.81,
+   "p75_s": 4.81,
+   "tokens_in_mean": 5928,
+   "tokens_out_mean": 84,
+   "tokens_cached_mean": 0,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    5928,
+    0
+   ],
+   "p90_s": 4.81,
+   "max_s": 4.81,
+   "by_group": {
+    "fizzbuzz": {
+     "passes": 1,
+     "n": 1
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.05,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.012864,
+   "usd_per_1k_tokens": 0.0021397205588822355,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "trim/terra/noctx",
+   "source": "trim",
+   "config": "terra/noctx",
+   "display": "terra/noctx",
+   "family": "Codex",
+   "category": "low context",
+   "what": "terra, no project context (one call)",
+   "set": "trim probe",
+   "derived": false,
+   "files": [
+    "results/2026-10-22b-trim.jsonl"
+   ],
+   "passes": 1,
+   "n": 1,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 1,
+   "usd_per_pass": 0.009234,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.009234,
+   "usd_per_call": 0.009234,
+   "spend": 0.009234,
+   "spend_claude": 0.0,
+   "spend_codex": 0.009234,
+   "unknown_usd": 0,
+   "median_s": 5.13,
+   "p25_s": 5.13,
+   "p75_s": 5.13,
+   "tokens_in_mean": 14020,
+   "tokens_out_mean": 84,
+   "tokens_cached_mean": 11008,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    14020,
+    11008
+   ],
+   "p90_s": 5.13,
+   "max_s": 5.13,
+   "by_group": {
+    "fizzbuzz": {
+     "passes": 1,
+     "n": 1
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.05,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.009234,
+   "usd_per_1k_tokens": 0.0006547078842881452,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "trim/terra/nodoc",
+   "source": "trim",
+   "config": "terra/nodoc",
+   "display": "terra/nodoc",
+   "family": "Codex",
+   "category": "low context",
+   "what": "terra, no docs (one call)",
+   "set": "trim probe",
+   "derived": false,
+   "files": [
+    "results/2026-10-22b-trim.jsonl"
+   ],
+   "passes": 1,
+   "n": 1,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 1,
+   "usd_per_pass": 0.009588,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.009588,
+   "usd_per_call": 0.009588,
+   "spend": 0.009588,
+   "spend_claude": 0.0,
+   "spend_codex": 0.009588,
+   "unknown_usd": 0,
+   "median_s": 4.87,
+   "p25_s": 4.87,
+   "p75_s": 4.87,
+   "tokens_in_mean": 14197,
+   "tokens_out_mean": 84,
+   "tokens_cached_mean": 11008,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    14197,
+    11008
+   ],
+   "p90_s": 4.87,
+   "max_s": 4.87,
+   "by_group": {
+    "fizzbuzz": {
+     "passes": 1,
+     "n": 1
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.05,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.009588,
+   "usd_per_1k_tokens": 0.0006713815559134514,
+   "by_rung": {},
+   "cost_kind": "proxy"
+  },
+  {
    "id": "main/haiku-low",
    "source": "main",
    "config": "haiku-low",
@@ -12863,133 +12863,6 @@
    "cost_kind": "proxy"
   },
   {
-   "id": "main/luna-low-bare",
-   "source": "main",
-   "config": "luna-low-bare",
-   "display": "luna-low-bare",
-   "family": "Codex",
-   "category": "exploratory",
-   "what": "luna-low with the Codex system prompt and tool features stripped (trim level noshell)",
-   "set": "all runs",
-   "derived": false,
-   "files": [
-    "results/2026-10-22b-function.jsonl"
-   ],
-   "passes": 44,
-   "n": 60,
-   "pass_rate": 0.7333,
-   "ci95": [
-    0.5167,
-    0.9167
-   ],
-   "groups": 12,
-   "usd_per_pass": 0.000798,
-   "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000798,
-   "usd_per_call": 0.000585,
-   "spend": 0.035117,
-   "spend_claude": 0.0,
-   "spend_codex": 0.035117,
-   "unknown_usd": 0,
-   "median_s": 6.81,
-   "p25_s": 5.24,
-   "p75_s": 8.06,
-   "tokens_in_mean": 6144,
-   "tokens_out_mean": 528,
-   "tokens_cached_mean": 3255,
-   "tokens_reasoning_mean": 0,
-   "input_floor": [
-    5950,
-    3456
-   ],
-   "p90_s": 11.1,
-   "max_s": 17.73,
-   "by_group": {
-    "p01_overlap_minutes": {
-     "passes": 5,
-     "n": 5
-    },
-    "p02_squash": {
-     "passes": 5,
-     "n": 5
-    },
-    "p03_ledger": {
-     "passes": 3,
-     "n": 5
-    },
-    "p04_taller_within": {
-     "passes": 1,
-     "n": 5
-    },
-    "p05_pass_route": {
-     "passes": 5,
-     "n": 5
-    },
-    "p06_calc": {
-     "passes": 5,
-     "n": 5
-    },
-    "p07_weighted_distance_sums": {
-     "passes": 5,
-     "n": 5
-    },
-    "p08_recur": {
-     "passes": 4,
-     "n": 5
-    },
-    "p09_k_machine_schedule": {
-     "passes": 5,
-     "n": 5
-    },
-    "p10_avoid_count": {
-     "passes": 4,
-     "n": 5
-    },
-    "p11_best_average": {
-     "passes": 2,
-     "n": 5
-    },
-    "p12_sheet": {
-     "passes": 0,
-     "n": 5
-    }
-   },
-   "misses": 16,
-   "ci95_plot": [
-    0.5167,
-    0.9167
-   ],
-   "usd_saved_per_pass": 0.000798,
-   "usd_per_1k_tokens": 8.767985611510791e-05,
-   "by_rung": {
-    "L1": [
-     10,
-     10
-    ],
-    "L2": [
-     4,
-     10
-    ],
-    "L3": [
-     10,
-     10
-    ],
-    "L4": [
-     9,
-     10
-    ],
-    "L5": [
-     9,
-     10
-    ],
-    "L6": [
-     2,
-     10
-    ]
-   },
-   "cost_kind": "proxy"
-  },
-  {
    "id": "main/luna56-low",
    "source": "main",
    "config": "luna56-low",
@@ -14069,6 +13942,133 @@
     ],
     "L6": [
      10,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/luna-low-bare",
+   "source": "main",
+   "config": "luna-low-bare",
+   "display": "luna-low-bare",
+   "family": "Codex",
+   "category": "low context",
+   "what": "luna-low with the Codex system prompt and tool features stripped (trim level noshell)",
+   "set": "all runs",
+   "derived": false,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 44,
+   "n": 60,
+   "pass_rate": 0.7333,
+   "ci95": [
+    0.5167,
+    0.9167
+   ],
+   "groups": 12,
+   "usd_per_pass": 0.000798,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.000798,
+   "usd_per_call": 0.000585,
+   "spend": 0.035117,
+   "spend_claude": 0.0,
+   "spend_codex": 0.035117,
+   "unknown_usd": 0,
+   "median_s": 6.81,
+   "p25_s": 5.24,
+   "p75_s": 8.06,
+   "tokens_in_mean": 6144,
+   "tokens_out_mean": 528,
+   "tokens_cached_mean": 3255,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    5950,
+    3456
+   ],
+   "p90_s": 11.1,
+   "max_s": 17.73,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 3,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 1,
+     "n": 5
+    },
+    "p05_pass_route": {
+     "passes": 5,
+     "n": 5
+    },
+    "p06_calc": {
+     "passes": 5,
+     "n": 5
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 5,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 4,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 4,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 2,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 0,
+     "n": 5
+    }
+   },
+   "misses": 16,
+   "ci95_plot": [
+    0.5167,
+    0.9167
+   ],
+   "usd_saved_per_pass": 0.000798,
+   "usd_per_1k_tokens": 8.767985611510791e-05,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     4,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     9,
+     10
+    ],
+    "L5": [
+     9,
+     10
+    ],
+    "L6": [
+     2,
      10
     ]
    },
@@ -15270,32 +15270,36 @@
    "spend": 2.718465
   },
   "exploratory": {
-   "n_configs": 8,
-   "spend": 12.08729
+   "n_configs": 7,
+   "spend": 12.052173
   },
   "fast mode and xhigh": {
    "n_configs": 3,
    "spend": 15.540884
   },
   "rescue pipeline": {
-   "n_configs": 15,
-   "spend": 4.752943
+   "n_configs": 11,
+   "spend": 4.648795
   },
   "repo tasks": {
    "n_configs": 7,
    "spend": 7.496191
   },
   "trim": {
-   "n_configs": 13,
-   "spend": 0.39898300000000003
+   "n_configs": 3,
+   "spend": 0.098172
   },
   "pilot": {
-   "n_configs": 21,
-   "spend": 3.9785839999999997
+   "n_configs": 19,
+   "spend": 3.5981069999999997
   },
   "harness-bias": {
    "n_configs": 5,
    "spend": 0.711861
+  },
+  "low context": {
+   "n_configs": 17,
+   "spend": 0.820553
   }
  },
  "report": {
@@ -21853,7 +21857,7 @@
   "l7_n": "15",
   "n_rescue_problems": "7",
   "older_generation": "5.6",
-  "quality_fast_note": "sol61-high ⚡: main-ladder solutions not scored. Its separate 35-attempt rescue run is scored in the ‘Codex fast mode and xhigh’ table below. astra-medium ⚡: main-ladder solutions not scored. No separate rescue-run quality scores are available.",
+  "quality_fast_note": "sol61-high ⚡: main-ladder solutions not scored. Its separate 35-attempt luna-miss run is scored in the ‘Codex fast mode and xhigh’ table below. astra-medium ⚡: main-ladder solutions not scored. No separate luna-miss-run quality scores are available.",
   "budget_pass": "95%",
   "p90_percent": "90%",
   "host_agents_md": "1.3k",

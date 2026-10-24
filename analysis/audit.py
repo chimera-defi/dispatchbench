@@ -63,9 +63,11 @@ def main():
 
     checked += same("dataset", dataset.text(ds), dataset.PATH, fails)  # the cached table equals what the rows give
     fails += configs.check_registry(dataset.keys(ds))  # every config with rows is registered, and every entry has rows
+    # Tooltip wrappers preserve the original catalog cell text and values.
+    catalog_page = re.sub(r'<(abbr|tspan) class="notation-use"[^>]*>(.*?)</\1>', r'\2', page)
     for e in dataset.catalog_rows(ds):  # ... and the page shows every registry entry with its dataset numbers
         cell = f">{html.escape(e['display'])}</td><td>{html.escape(e['what'])}</td><td>{e['passes']}/{e['n']}</td>"
-        if cell not in page: fails.append(f"page: {e['id']} is missing from the page's Everything we tried section, or its pass count differs from the dataset")
+        if cell not in catalog_page: fails.append(f"page: {e['id']} is missing from the page's Everything we tried section, or its pass count differs from the dataset")
     checked += 1
 
     allow = json.load(open(ALLOW))

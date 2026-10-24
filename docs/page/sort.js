@@ -27,7 +27,7 @@ document.querySelectorAll(".cwrap").forEach(function(w){
   w.querySelectorAll('.category-filter input').forEach(function(input){
    var empty=!w.querySelector('.s-'+set+' .key-group[data-cat="'+input.getAttribute("data-cat")+'"]'),label=input.parentNode;
    input.disabled=empty;label.classList.toggle("disabled",empty);
-   if(empty)label.title=set==="main"?"only on the rescue set":"only on the main ladder";
+   if(empty)label.title=set==="main"?"only on the "+__RESCUE_SET_LABEL__:"only on the main ladder";
    else label.removeAttribute("title")
   })
  }

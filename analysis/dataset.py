@@ -628,9 +628,9 @@ def quality_fast_note(s):
         parts.append(f"{DISP(c)}: {len(main)} main-ladder passing solutions scored in this table." if main else f"{DISP(c)}: main-ladder solutions not scored.")
         rescue = [r for r in q if r["config"] == c and r["phase"] == "fastmode"]
         if rescue:
-            parts.append(f"Its separate {len(rescue)}-attempt rescue run is scored in the ‘Codex fast mode and xhigh’ table below.")
+            parts.append(f"Its separate {len(rescue)}-attempt {configs.set_label("rescue set").removesuffix(" set")} run is scored in the ‘Codex fast mode and xhigh’ table below.")
         else:
-            parts.append("No separate rescue-run quality scores are available.")
+            parts.append(f"No separate {configs.set_label('rescue set').removesuffix(' set')}-run quality scores are available.")
     return " ".join(parts)
 
 

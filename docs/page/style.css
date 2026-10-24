@@ -48,6 +48,12 @@ svg .better{font:700 14px var(--body);fill:var(--accent)}
 ol.recs,ul.tight,ol.tight{margin:0;padding-left:22px;display:grid;gap:4px;max-width:72ch}
 .small{font-size:14px}
 .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+details.legend{display:block}
+details.legend dl{display:grid;grid-template-columns:max-content 1fr;gap:8px 16px}
+details.legend dt{font-weight:600}
+details.legend dd{margin:0}
+.notation-use{text-decoration:none;cursor:help}
+@media(max-width:600px){details.legend dl{grid-template-columns:1fr}details.legend dd{margin-bottom:8px}}
 a{color:var(--accent)}
 code{font:13px var(--mono)}
 .grid{display:grid;gap:4px;font:13px var(--mono);overflow-x:auto;margin-bottom:10px}

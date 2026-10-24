@@ -7,10 +7,61 @@ from xml.etree import ElementTree as ET
 
 import pytest
 
-from analysis import charts, dataset, harness_bias, page, report
+from analysis import charts, configs, dataset, harness_bias, page, report
 
 ROOT = Path(__file__).resolve().parents[1]
 NS = {"s": "http://www.w3.org/2000/svg"}
+
+
+def test_reader_set_labels_and_complete_notation_legend():
+    from html import unescape
+    from html.parser import HTMLParser
+
+    class Reader(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.hidden = 0
+            self.text = []
+            self.titles = []
+            self.section = None
+            self.uses = []
+
+        def handle_starttag(self, tag, attrs):
+            attrs = dict(attrs)
+            if tag == "section":
+                self.section = attrs.get("id")
+            if tag in ("script", "style"):
+                self.hidden += 1
+            self.titles.extend(v for k, v in attrs.items() if k in ("title", "aria-label", "data-tip"))
+            if "data-notation" in attrs:
+                self.uses.append((self.section, attrs["data-notation"], attrs["title"]))
+
+        def handle_endtag(self, tag):
+            if tag in ("script", "style"):
+                self.hidden -= 1
+
+        def handle_data(self, data):
+            if not self.hidden:
+                self.text.append(data)
+
+    output = report.render()[2]
+    reader = Reader()
+    reader.feed(output)
+    assert not re.search(r"rescue[ -]set", "".join(reader.text + reader.titles), re.I)
+    assert output.count('<details class="legend" id="notation">') == 1
+    legend = output.split('<details class="legend" id="notation">', 1)[1].split('</details>', 1)[0]
+    listed = [unescape(s) for s in re.findall(r'<dt>(.*?)</dt>', legend)]
+    assert listed == list(configs.NOTATION)
+    ds = dataset.read()
+    meanings = page.notation_meanings(ds)
+    for meaning in meanings.values():
+        assert meaning in unescape(re.sub(r'<[^>]+>', '', legend))
+    assert reader.uses
+    assert {'purple dot', 'family dots'} <= {symbol for _, symbol, _ in reader.uses}
+    assert len(reader.uses) == len({(section, symbol) for section, symbol, _ in reader.uses})
+    assert all(title == meanings[symbol] for _, symbol, title in reader.uses)
+    assert {section for section, _, _ in reader.uses} == set(re.findall(r'<section[^>]*id="([^"]+)"', output))
+    assert {(r['source'], r['config']) for r in dataset.catalog_rows(ds) if r['category'] == 'low context'} == configs.LOW_CONTEXT
 
 
 @pytest.fixture(scope="module")
@@ -52,7 +103,7 @@ def test_chart_free_strip_and_set_attribution(summary, render, stat, problem_set
         expected = [c for c, v in values.items() if v["claude_usd_per_pass"] == 0]
         rank = lambda c: values[c]["median_s"] if stat == "speed" else -values[c]["passes"] / values[c]["n"]
         assert set(points) | set(configs) == set(values)
-        assert "[rescue set]" not in strip
+        assert "[luna-miss set]" not in strip
     assert set(configs) == set(expected)
     assert [rank(c) for c in configs] == sorted(rank(c) for c in configs)
     assert set(points).isdisjoint(configs)
@@ -64,7 +115,7 @@ def test_chart_free_strip_and_set_attribution(summary, render, stat, problem_set
     assert "log" in output
     for point in points.values():
         assert point.get("data-set") == problem_set
-        assert ("rescue set" if problem_set == "rescue" else "main ladder") in point.get("data-tip")
+        assert ("luna-miss set" if problem_set == "rescue" else "main ladder") in point.get("data-tip").lower()
     # The strip preserves the exact marker used for the same config in paid mode.
     normal_svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', normal, re.S)[0])
     normal_points = {g.get("data-c"): g for g in normal_svg.findall("s:g[@class='pt']", NS)}
@@ -80,7 +131,7 @@ def test_chart_free_strip_and_set_attribution(summary, render, stat, problem_set
 def test_chart_set_toggle_and_grouped_keys(summary, render):
     output, _ = render(summary)
     assert 'Codex is free (subscription quota)</label>' in output
-    assert 'Main ladder' in output and '> Rescue set</label>' in output
+    assert 'Main ladder' in output and '> Luna-miss set</label>' in output
     for cat in ("main", "fast", "pipelines", "exploratory"):
         assert f'data-cat="{cat}" checked' in output
         groups = re.findall(r'<details class="key-group" data-cat="' + cat + r'"([^>]*)>(.*?)</details>', output, re.S)
@@ -91,7 +142,7 @@ def test_chart_set_toggle_and_grouped_keys(summary, render):
             assert "(0)" not in body
     pipeline_chip = re.search(r'<label[^>]*><input[^>]*data-cat="pipelines"[^>]*> pipelines</label>', output)[0]
     assert "disabled" in pipeline_chip
-    assert 'title="only on the rescue set"' in pipeline_chip
+    assert 'title="only on the luna-miss set"' in pipeline_chip
     assert output.count('class="cset s-main"') == 1
     assert output.count('class="cset s-rescue"') == 1
 
@@ -139,7 +190,7 @@ def test_scatter_ticks_use_dataset_usd_and_mobile_endpoint_fits(summary, render,
 @pytest.mark.parametrize("free", [False, True])
 def test_rescue_labels_and_markers_are_clean(summary, render, free):
     output, _ = render(summary, free=free, problem_set="rescue")
-    assert "[rescue set]" not in output
+    assert "[luna-miss set]" not in output
     svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
     for point in svg.findall("s:g[@class='pt']", NS):
         marker = point[-2]
@@ -201,7 +252,8 @@ def test_agentic_leaders_stop_before_all_label_boxes(summary):
 
 def test_every_toc_target_has_a_direct_toggle_heading():
     template = (ROOT / "docs/page.tmpl.md").read_text()
-    targets = re.findall(r'<a href="#([^\"]+)">', template)
+    toc = re.search(r'<nav class="toc"[^>]*>(.*?)</nav>', template, re.S)[1]
+    targets = re.findall(r'<a href="#([^\"]+)">', toc)
     assert len(targets) == 10
     for target in targets:
         assert re.search(r'<section\b[^>]*\bid="' + target + r'"[^>]*>\s*<h2\b', template)
@@ -309,9 +361,9 @@ def test_floor_charts_keep_natural_size(summary):
 def test_quality_fast_coverage_keeps_main_and_separate_rescue_runs_apart(summary, monkeypatch):
     note = dataset.read()["facts"]["quality_fast_note"]
     assert 'sol61-high ⚡: main-ladder solutions not scored' in note
-    assert '35-attempt rescue run' in note
+    assert f'{dataset.read()["rescue"]["sol61-high"]["n"]}-attempt luna-miss run' in note
     assert 'astra-medium ⚡: main-ladder solutions not scored' in note
-    assert 'No separate rescue-run quality scores' in note
+    assert 'No separate luna-miss-run quality scores' in note
     scored = next(r for r in dataset.quality_rows() if r['config'] == 'sol61-high-fast' and r['outcome'] == 'pass')
     main = dict(scored, phase='exploratory')
     monkeypatch.setattr(dataset, 'quality_rows', lambda: [scored, main])

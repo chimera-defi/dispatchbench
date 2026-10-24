@@ -2,7 +2,7 @@
 
 All numeric facts and table cells are prepared by analysis.dataset; this module only formats markup.
 """
-import html, os, re
+import html, json, os, re
 from analysis import charts, configs, dataset, page as pagew
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -121,6 +121,7 @@ def render():
     """(README text, full report text, page HTML), all rendered from the dataset and the templates."""
     ds = dataset.read(); s = dataset.view(ds)
     F = facts(ds); T = tables_md(ds); chart_bodies = charts.build(ds)
+    F.update(set_label=configs.set_label("rescue set"), set_label_title=configs.set_label("rescue set", capital=True))
     readme = fill(open(README_TEMPLATE).read(), F, T, "readme", chart_bodies).strip() + "\n"
     up = lambda m: m.group(0) if re.match(r"https?:|#|mailto:", m.group(2)) else f"{m.group(1)}(../{m.group(2)})"
     report = re.sub(r"(\]|!\[[^\]]*\])\(([^)\s]+)\)", up, fill(open(TEMPLATE).read(), F, T, "readme", chart_bodies).strip() + "\n")  # it lives in docs/
@@ -129,8 +130,10 @@ def render():
     body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}, "w_everything": ""}), T, "page", chart_bodies)  # first pass: the page without the section
     W["everything"] = configs.section(body, ds, ROOT, chart_bodies)  # every registered config, with 'where it appears' read from that first pass
     body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}}), T, "page", chart_bodies)
+    body = pagew.notation_tooltips(body, ds)
     shell = open(os.path.join(PAGE_DIR, "shell.html")).read()
-    page = shell.replace("__CSS__", open(os.path.join(PAGE_DIR, "style.css")).read().strip()).replace("__BODY__", body).replace("__JS__", open(os.path.join(PAGE_DIR, "sort.js")).read().strip())
+    script = open(os.path.join(PAGE_DIR, "sort.js")).read().strip().replace("__RESCUE_SET_LABEL__", json.dumps(configs.set_label("rescue set")))
+    page = shell.replace("__CSS__", open(os.path.join(PAGE_DIR, "style.css")).read().strip()).replace("__BODY__", body).replace("__JS__", script)
     return readme, report, page
 
 
