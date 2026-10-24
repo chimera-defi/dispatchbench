@@ -113,10 +113,12 @@
 </section>
 <section id="tokens">
 <h2><span class="num"></span>🧱 Token floor: input tokens per call</h2>
-<p class="small">Codex’s harness adds input before the task itself: this is the token floor. Bars show mean input per call, including the task, so they also capture prompt length.</p>
+<p class="small">Trimming luna-low's Codex system prompt cuts input from {{luna_low_in}} to {{luna_low_bare_in}} tokens per call ({{in_cut}} less); haiku-low uses {{haiku_low_in}}.</p>
 <div class="chart floor">{{w_floor}}</div>
 <ul class="tight small">
-<li>Stripping Codex's own system prompt cuts luna-low's input from {{luna_low_in}} to {{luna_low_bare_in}} tokens per call ({{in_cut}} less). haiku-low uses {{haiku_low_in}}.</li>
+<li>Token floor = input added by Codex’s harness before the task.</li>
+<li>Bars show mean input per call, including the task, so prompt length counts.</li>
+<li>Solid = served from cache; faded = uncached.</li>
 </ul>
 </section>
 <section id="pipes">
