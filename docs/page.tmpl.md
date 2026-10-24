@@ -1,6 +1,6 @@
 <header class="head">
 <h1>Which model should a coding task go to?</h1>
-<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#method">How it was run</a><a href="#pareto">Cost vs accuracy</a><a href="#fail">Where they fail</a><a href="#results">Results</a><a href="#tokens">Token floor</a><a href="#pipes">Pipelines</a><a href="#fair">Codex in its own CLI</a><a href="#conclusion">Conclusion</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#equiv">Codex vs Claude</a></nav>
+<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#method">How it was run</a><a href="#pareto">Cost vs accuracy</a><a href="#fail">Where they fail</a><a href="#results">Results</a><a href="#tokens">Token floor</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#equiv">Codex vs Claude</a></nav>
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
@@ -144,32 +144,36 @@
 </ul>
 </section>
 <section id="fair">
-<h2><span class="num"></span>⚖️ Does Codex do better in its own CLI?</h2>
-<p class="small"><b>{{hb_answer}} haiku-low still led in both runners, so no pick changes.</b></p>
+<h2><span class="num"></span>⚖️ Claude's bench vs Codex's bench</h2>
+<p class="small"><b>Does a Codex-built bench favour Codex models? {{hb_answer}} haiku-low still led on both, so no pick changes.</b></p>
 {{chart:harness_bias.svg|{{hb_n_problems}} hard problems, {{hb_repeats}} tries each}}
 <details class="small"><summary>What we tested and what we found</summary>
 <ul class="tight small">
-<li>Question: does our one-shot runner make Codex look bad?</li>
-<li>Our runner answers once, tools off.</li>
-<li>Codex built a second runner: each model inside its vendor's agent CLI.</li>
+<li>Claude designed this bench. Each model answers once, tools off.</li>
+<li>Codex designed a second bench. Each model runs inside its vendor's agent CLI.</li>
 <li>luna-low ran in Codex CLI. haiku-low ran in Claude Code.</li>
 <li>That loop runs code and retries.</li>
-<li>Codex finished every run: {{hb_errors}} harness errors, no timeouts.</li>
-<li>Calls took about {{hb_minutes}} minutes of wall time.</li>
+<li>luna-low went {{hb_luna_low_change}}. haiku-low went {{hb_haiku_low_change}}.</li>
 <li>Why luna-low gained: wrong answers fell from {{hb_luna_wrong_one}} to {{hb_luna_wrong_agent}} once it could run code.</li>
+<li>{{hb_luna_cost}}</li>
+<li>Running code, not who built the bench, may explain the gain.</li>
 <li>The gap moved {{hb_diff_points}} points, below our {{hb_bar_points}}-point bias bar.</li>
 <li>The range is {{hb_range_points}} points, so a larger bias is possible.</li>
-<li>sol61-high already passed every try in our runner. A better runner cannot raise it.</li>
-</ul>
-</details>
-<details class="small"><summary>Pooled numbers and prompt variants</summary>
-<ul class="tight small">
-<li>{{hb_accuracy}}</li>
-<li>{{hb_speed}}</li>
-<li>These pooled calls include extra runs beyond the paired comparison.</li>
+<li>sol61-high already passed every try on our bench. A better bench cannot raise it.</li>
 <li>Two more luna-low variants are listed under Everything we tried. luna-low-noshell-B1 removes shell context and asks for edge cases first. luna-low-noshell-B2 also asks for a detailed reasoning summary. {{noshell_comparison}}</li>
 </ul>
 {{table:harness_strengths}}
+</details>
+<details class="small"><summary>How Codex built its bench</summary>
+<ul class="tight small">
+<li>gpt-6.1-sol high designed and wrote it in five turns.</li>
+<li>Its own dry runs missed two sandbox bugs.</li>
+<li>We found both with a live test call. Codex fixed each when shown.</li>
+<li>A final "plan and reorient" nudge changed no code.</li>
+<li>{{hb_subset}}</li>
+<li>We lifted its repeat cap, a two-line change, then ran the full test.</li>
+<li>It finished with {{hb_errors}} harness errors and no timeouts, in about {{hb_minutes}} minutes.</li>
+</ul>
 </details>
 </section>
 <section class="verdict conclusion" id="conclusion">
@@ -209,6 +213,7 @@
 <li>Latency is CLI wall clock.</li>
 <li>We ran up to {{lanes}} calls at once on one host.</li>
 <li>One run in time; hosted models change.</li>
+<li>Codex needed our help to build its bench: <a href="#fair">see Whose bench?</a></li>
 </ul>
 </details>
 <details><summary>🧪 Code quality</summary>

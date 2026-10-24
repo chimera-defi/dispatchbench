@@ -96,11 +96,11 @@ add("pilot-agentic", "pilot",
     ("pipeline A", "Pilot repo task: gpt-6.1-sol builds, a reviewer checks"), ("pipeline B", "Pilot repo task: gpt-6-luna builds, a reviewer checks"),
     ("pipeline C", "Pilot repo task: Claude Sonnet builds, no review"))
 add("harness-bias", "harness-bias",
-    ("haiku-low / Claude harness", "Harness-bias check: haiku-low on hard problems through our one-shot runner"),
-    ("haiku-low / Codex harness", "Harness-bias check: haiku-low in Claude Code (Codex-built runner)"),
-    ("luna-low / Claude harness", "Harness-bias check: luna-low through our one-shot runner"),
-    ("luna-low / Codex harness", "Harness-bias check: luna-low in Codex CLI (Codex-built runner)"),
-    ("sol61-medium / Codex harness", "Harness-bias check: sol61-medium in Codex CLI (Codex-built runner)"))
+    ("haiku-low / Claude harness", "Harness-bias check: haiku-low on hard problems on Claude's one-shot bench"),
+    ("haiku-low / Codex harness", "Harness-bias check: haiku-low in Claude Code (Codex's bench)"),
+    ("luna-low / Claude harness", "Harness-bias check: luna-low on Claude's one-shot bench"),
+    ("luna-low / Codex harness", "Harness-bias check: luna-low in Codex CLI (Codex's bench)"),
+    ("sol61-medium / Codex harness", "Harness-bias check: sol61-medium in Codex CLI (Codex's bench)"))
 LOW_CONTEXT = {("main", "luna-low-bare"),
                *(("rescue", c) for c in ("luna-medium-bare", "luna-high-bare", "luna-low-noshell-B1", "luna-low-noshell-B2")),
                *(("trim", f"{model}/{variant}") for model in ("luna", "terra")
@@ -120,9 +120,9 @@ def display(c):
     if c in globals().get("RESCUE_NAMES", {}): return RESCUE_NAMES[c]
     if ' / ' in c:
         model, harness = c.split(' / ', 1)
-        if harness == 'Claude harness': return model + ' / our one-shot runner'
+        if harness == 'Claude harness': return model + " / Claude's bench"
         if harness == 'Codex harness':
-            return model + (' / Claude Code (agent)' if model.startswith('haiku') else ' / Codex CLI (agent)')
+            return model + (" / Codex's bench (Claude Code)" if model.startswith('haiku') else " / Codex's bench (Codex CLI)")
     return c[:-5] + " ⚡" if c.endswith("-fast") else c
 
 

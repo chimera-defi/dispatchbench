@@ -308,7 +308,7 @@ section.collapsible>.sec-body:not([hidden]){animation:sec-in var(--sec-dur,0s) e
 </style></head><body><main>
 <header class="head">
 <h1>Which model should a coding task go to?</h1>
-<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#method">How it was run</a><a href="#pareto">Cost vs accuracy</a><a href="#fail">Where they fail</a><a href="#results">Results</a><a href="#tokens">Token floor</a><a href="#pipes">Pipelines</a><a href="#fair">Codex in its own CLI</a><a href="#conclusion">Conclusion</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#equiv">Codex vs Claude</a></nav>
+<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#method">How it was run</a><a href="#pareto">Cost vs accuracy</a><a href="#fail">Where they fail</a><a href="#results">Results</a><a href="#tokens">Token floor</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#equiv">Codex vs Claude</a></nav>
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
@@ -455,32 +455,36 @@ section.collapsible>.sec-body:not([hidden]){animation:sec-in var(--sec-dur,0s) e
 </ul>
 </section>
 <section id="fair">
-<h2><span class="num"></span>⚖️ Does Codex do better in its own CLI?</h2>
-<p class="small"><b>Slightly, and possibly more. haiku-low still led in both runners, so no pick changes.</b></p>
-<figure><div class="svgscroll" style="--natural-width:350px"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 350 280' width='350' height='280' font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, sans-serif' font-size='12'><rect width='350' height='280' fill='var(--panel,#ffffff)'/><text x='8.0' y='24.0' font-size='14' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='600'>Same models, two runners: passes out of 60</text><line x1='44' x2='248' y1='230.0' y2='230.0' stroke='var(--line,#dde2de)'/><text x='36.0' y='234.0' font-size='11' text-anchor='end' style='fill:var(--muted,#5d6763)' font-weight='normal'>50%</text><line x1='44' x2='248' y1='140.0' y2='140.0' stroke='var(--line,#dde2de)'/><text x='36.0' y='144.0' font-size='11' text-anchor='end' style='fill:var(--muted,#5d6763)' font-weight='normal'>75%</text><line x1='44' x2='248' y1='50.0' y2='50.0' stroke='var(--line,#dde2de)'/><text x='36.0' y='54.0' font-size='11' text-anchor='end' style='fill:var(--muted,#5d6763)' font-weight='normal'>100%</text><text x='86.0' y='252.0' font-size='12' text-anchor='middle' style='fill:var(--muted,#5d6763)' font-weight='normal'>our one-shot runner</text><text x='218.0' y='252.0' font-size='12' text-anchor='middle' style='fill:var(--muted,#5d6763)' font-weight='normal'>vendor agent CLI</text><line x1='86.0' y1='68.0' x2='218.0' y2='50.0' stroke='var(--claude,#b4572e)' stroke-width='3'/><circle cx='86.0' cy='68.0' r='6' fill='var(--claude,#b4572e)'/><text x='74.0' y='72.0' font-size='12' text-anchor='end' style='fill:var(--fg,#1d2321)' font-weight='600'>57</text><circle cx='218.0' cy='50.0' r='6' fill='var(--claude,#b4572e)'/><text x='230.0' y='54.0' font-size='12' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='600'>60</text><text x='250.0' y='54.0' font-size='12' text-anchor='start' style='fill:var(--claude,#b4572e)' font-weight='600'>haiku-low (+3)</text><line x1='86.0' y1='194.0' x2='218.0' y2='128.0' stroke='var(--codex,#3a5bb8)' stroke-width='3'/><circle cx='86.0' cy='194.0' r='6' fill='var(--codex,#3a5bb8)'/><text x='74.0' y='198.0' font-size='12' text-anchor='end' style='fill:var(--fg,#1d2321)' font-weight='600'>36</text><circle cx='218.0' cy='128.0' r='6' fill='var(--codex,#3a5bb8)'/><text x='230.0' y='132.0' font-size='12' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='600'>47</text><text x='250.0' y='132.0' font-size='12' text-anchor='start' style='fill:var(--codex,#3a5bb8)' font-weight='600'>luna-low (+11)</text></svg></div><figcaption>6 hard problems, 10 tries each. <span class="scroll-hint">Scroll sideways on narrow screens.</span></figcaption></figure>
+<h2><span class="num"></span>⚖️ Claude's bench vs Codex's bench</h2>
+<p class="small"><b>Does a Codex-built bench favour Codex models? Slightly, and possibly more. haiku-low still led on both, so no pick changes.</b></p>
+<figure><div class="svgscroll" style="--natural-width:350px"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 350 280' width='350' height='280' font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, sans-serif' font-size='12'><rect width='350' height='280' fill='var(--panel,#ffffff)'/><text x='8.0' y='24.0' font-size='14' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='600'>Same models, two benches: passes out of 60</text><line x1='44' x2='248' y1='230.0' y2='230.0' stroke='var(--line,#dde2de)'/><text x='36.0' y='234.0' font-size='11' text-anchor='end' style='fill:var(--muted,#5d6763)' font-weight='normal'>50%</text><line x1='44' x2='248' y1='140.0' y2='140.0' stroke='var(--line,#dde2de)'/><text x='36.0' y='144.0' font-size='11' text-anchor='end' style='fill:var(--muted,#5d6763)' font-weight='normal'>75%</text><line x1='44' x2='248' y1='50.0' y2='50.0' stroke='var(--line,#dde2de)'/><text x='36.0' y='54.0' font-size='11' text-anchor='end' style='fill:var(--muted,#5d6763)' font-weight='normal'>100%</text><text x='86.0' y='252.0' font-size='12' text-anchor='middle' style='fill:var(--muted,#5d6763)' font-weight='normal'>Claude's bench</text><text x='218.0' y='252.0' font-size='12' text-anchor='middle' style='fill:var(--muted,#5d6763)' font-weight='normal'>Codex's bench</text><line x1='86.0' y1='68.0' x2='218.0' y2='50.0' stroke='var(--claude,#b4572e)' stroke-width='3'/><circle cx='86.0' cy='68.0' r='6' fill='var(--claude,#b4572e)'/><text x='74.0' y='72.0' font-size='12' text-anchor='end' style='fill:var(--fg,#1d2321)' font-weight='600'>57</text><circle cx='218.0' cy='50.0' r='6' fill='var(--claude,#b4572e)'/><text x='230.0' y='54.0' font-size='12' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='600'>60</text><text x='250.0' y='54.0' font-size='12' text-anchor='start' style='fill:var(--claude,#b4572e)' font-weight='600'>haiku-low (+3)</text><line x1='86.0' y1='194.0' x2='218.0' y2='128.0' stroke='var(--codex,#3a5bb8)' stroke-width='3'/><circle cx='86.0' cy='194.0' r='6' fill='var(--codex,#3a5bb8)'/><text x='74.0' y='198.0' font-size='12' text-anchor='end' style='fill:var(--fg,#1d2321)' font-weight='600'>36</text><circle cx='218.0' cy='128.0' r='6' fill='var(--codex,#3a5bb8)'/><text x='230.0' y='132.0' font-size='12' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='600'>47</text><text x='250.0' y='132.0' font-size='12' text-anchor='start' style='fill:var(--codex,#3a5bb8)' font-weight='600'>luna-low (+11)</text></svg></div><figcaption>6 hard problems, 10 tries each. <span class="scroll-hint">Scroll sideways on narrow screens.</span></figcaption></figure>
 <details class="small"><summary>What we tested and what we found</summary>
 <ul class="tight small">
-<li>Question: does our one-shot runner make Codex look bad?</li>
-<li>Our runner answers once, tools off.</li>
-<li>Codex built a second runner: each model inside its vendor's agent CLI.</li>
+<li>Claude designed this bench. Each model answers once, tools off.</li>
+<li>Codex designed a second bench. Each model runs inside its vendor's agent CLI.</li>
 <li>luna-low ran in Codex CLI. haiku-low ran in Claude Code.</li>
 <li>That loop runs code and retries.</li>
-<li>Codex finished every run: 0 harness errors, no timeouts.</li>
-<li>Calls took about 74 minutes of wall time.</li>
+<li>luna-low went 36→47. haiku-low went 57→60.</li>
 <li>Why luna-low gained: wrong answers fell from 14 to 6 once it could run code.</li>
+<li>luna-low cost 4× more and took 3× longer there.</li>
+<li>Running code, not who built the bench, may explain the gain.</li>
 <li>The gap moved 13 points, below our 15-point bias bar.</li>
 <li>The range is 3 to 23 points, so a larger bias is possible.</li>
-<li>sol61-high already passed every try in our runner. A better runner cannot raise it.</li>
-</ul>
-</details>
-<details class="small"><summary>Pooled numbers and prompt variants</summary>
-<ul class="tight small">
-<li>haiku-low passed more often than luna-low in both runners.</li>
-<li>luna-low answered faster than haiku-low in our one-shot runner.</li>
-<li>These pooled calls include extra runs beyond the paired comparison.</li>
+<li>sol61-high already passed every try on our bench. A better bench cannot raise it.</li>
 <li>Two more luna-low variants are listed under Everything we tried. luna-low-noshell-B1 removes shell context and asks for edge cases first. luna-low-noshell-B2 also asks for a detailed reasoning summary. B1 passed more often than plain luna-low. B2 passed less often.</li>
 </ul>
-<div class="tablewrap"><table class="sortable"><thead><tr><th>model</th><th>runner</th><th>passed</th><th>median s</th></tr></thead><tbody><tr><td>haiku-low</td><td>our one-shot runner</td><td>57/60</td><td>13.6</td></tr><tr><td>haiku-low</td><td>Claude Code</td><td>126/126</td><td>13.6</td></tr><tr><td>luna-low</td><td>our one-shot runner</td><td>36/60</td><td>7.5</td></tr><tr><td>luna-low</td><td>Codex CLI</td><td>99/126</td><td>21.1</td></tr><tr><td>sol61-medium</td><td>Codex CLI</td><td>6/6</td><td>57.9</td></tr></tbody></table></div>
+<div class="tablewrap"><table class="sortable"><thead><tr><th>model</th><th>bench</th><th>passed</th><th>$ total</th><th>median s</th></tr></thead><tbody><tr><td>luna-low</td><td>Claude's bench</td><td>36/60</td><td><abbr class="notation-use" data-notation="~" title="Codex cost estimated from tokens and list prices.">~</abbr>$0.047</td><td>7</td></tr><tr><td>luna-low</td><td>Codex's bench (Codex CLI)</td><td>47/60</td><td>~$0.19</td><td>21</td></tr><tr><td>haiku-low</td><td>Claude's bench</td><td>57/60</td><td>$0.14</td><td>14</td></tr><tr><td>haiku-low</td><td>Codex's bench (Claude Code)</td><td>60/60</td><td>$0.16</td><td>14</td></tr></tbody></table></div>
+</details>
+<details class="small"><summary>How Codex built its bench</summary>
+<ul class="tight small">
+<li>gpt-6.1-sol high designed and wrote it in five turns.</li>
+<li>Its own dry runs missed two sandbox bugs.</li>
+<li>We found both with a live test call. Codex fixed each when shown.</li>
+<li>A final "plan and reorient" nudge changed no code.</li>
+<li>It first replayed 12 of our haiku-low and sol61-medium results. All passed on both.</li>
+<li>We lifted its repeat cap, a two-line change, then ran the full test.</li>
+<li>It finished with 0 harness errors and no timeouts, in about 74 minutes.</li>
+</ul>
 </details>
 </section>
 <section class="verdict conclusion" id="conclusion">
@@ -605,6 +609,7 @@ var rt,lw=0,bx=document.getElementById("xplot");function re(){var w=bx.clientWid
 <li>Latency is CLI wall clock.</li>
 <li>We ran up to 4 calls at once on one host.</li>
 <li>One run in time; hosted models change.</li>
+<li>Codex needed our help to build its bench: <a href="#fair">see Whose bench?</a></li>
 </ul>
 </details>
 <details><summary>🧪 Code quality</summary>
@@ -787,11 +792,11 @@ var rt,lw=0,bx=document.getElementById("xplot");function re(){var w=bx.clientWid
 <tr><td title="results/2026-10-22-pilot-agentic.jsonl">pipeline C</td><td>Pilot repo task: Claude Sonnet builds, no review</td><td>2/2</td><td>$0.092</td><td>23.1</td><td>$0.18</td><td>only here</td></tr>
 </tbody></table></div></details>
 <details><summary>harness-bias: 5 configs, $0.71 spent</summary><div class="tablewrap"><table class="sortable"><thead><tr><th>name</th><th>what it was</th><th>pass</th><th>$ per pass</th><th>median s</th><th>spend</th><th>where it appears</th></tr></thead><tbody>
-<tr><td title="results/appendix/harness_bias.jsonl, results/appendix/codex_harness.jsonl">haiku-low / our one-shot runner</td><td>Harness-bias check: haiku-low on hard problems through our one-shot runner</td><td>57/60</td><td>$0.0025</td><td>13.6</td><td>$0.14</td><td>only here</td></tr>
-<tr><td title="results/appendix/harness_bias.jsonl, results/appendix/codex_harness.jsonl">haiku-low / Claude Code (agent)</td><td>Harness-bias check: haiku-low in Claude Code (Codex-built runner)</td><td>126/126</td><td>$0.0027</td><td>13.6</td><td>$0.33</td><td>only here</td></tr>
-<tr><td title="results/appendix/harness_bias.jsonl, results/appendix/codex_harness.jsonl">luna-low / our one-shot runner</td><td>Harness-bias check: luna-low through our one-shot runner</td><td>36/60</td><td>$0.0013</td><td>7.5</td><td>$0.047</td><td>only here</td></tr>
-<tr><td title="results/appendix/harness_bias.jsonl, results/appendix/codex_harness.jsonl">luna-low / Codex CLI (agent)</td><td>Harness-bias check: luna-low in Codex CLI (Codex-built runner)</td><td>99/126</td><td><abbr class="notation-use" data-notation="–" title="No Claude step, unavailable cost, or an unrun failure-grid cell.">–</abbr></td><td>21.1</td><td>–</td><td>only here</td></tr>
-<tr><td title="results/appendix/harness_bias.jsonl, results/appendix/codex_harness.jsonl">sol61-medium / Codex CLI (agent)</td><td>Harness-bias check: sol61-medium in Codex CLI (Codex-built runner)</td><td>6/6</td><td>–</td><td>57.9</td><td>–</td><td>only here</td></tr>
+<tr><td title="results/appendix/harness_bias.jsonl, results/appendix/codex_harness.jsonl">haiku-low / Claude&#x27;s bench</td><td>Harness-bias check: haiku-low on hard problems on Claude&#x27;s one-shot bench</td><td>57/60</td><td>$0.0025</td><td>13.6</td><td>$0.14</td><td>only here</td></tr>
+<tr><td title="results/appendix/harness_bias.jsonl, results/appendix/codex_harness.jsonl">haiku-low / Codex&#x27;s bench (Claude Code)</td><td>Harness-bias check: haiku-low in Claude Code (Codex&#x27;s bench)</td><td>126/126</td><td>$0.0027</td><td>13.6</td><td>$0.33</td><td>only here</td></tr>
+<tr><td title="results/appendix/harness_bias.jsonl, results/appendix/codex_harness.jsonl">luna-low / Claude&#x27;s bench</td><td>Harness-bias check: luna-low on Claude&#x27;s one-shot bench</td><td>36/60</td><td>$0.0013</td><td>7.5</td><td>$0.047</td><td>only here</td></tr>
+<tr><td title="results/appendix/harness_bias.jsonl, results/appendix/codex_harness.jsonl">luna-low / Codex&#x27;s bench (Codex CLI)</td><td>Harness-bias check: luna-low in Codex CLI (Codex&#x27;s bench)</td><td>99/126</td><td><abbr class="notation-use" data-notation="–" title="No Claude step, unavailable cost, or an unrun failure-grid cell.">–</abbr></td><td>21.1</td><td>–</td><td>only here</td></tr>
+<tr><td title="results/appendix/harness_bias.jsonl, results/appendix/codex_harness.jsonl">sol61-medium / Codex&#x27;s bench (Codex CLI)</td><td>Harness-bias check: sol61-medium in Codex CLI (Codex&#x27;s bench)</td><td>6/6</td><td>–</td><td>57.9</td><td>–</td><td>only here</td></tr>
 </tbody></table></div></details>
 <details><summary>Low context (prompt or tool text trimmed): 17 configs, $0.82 spent</summary><div class="tablewrap"><table class="sortable"><thead><tr><th>name</th><th>what it was</th><th>pass</th><th>$ per pass</th><th>median s</th><th>spend</th><th>where it appears</th></tr></thead><tbody>
 <tr><td title="results/2026-10-22-pilot.jsonl">sol61-low-prio-lean</td><td>Pilot: gpt-6.1-sol low with --ignore-user-config only</td><td>9/9</td><td>$0.027</td><td>7.0</td><td>$0.24</td><td>only here</td></tr>

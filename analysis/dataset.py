@@ -754,22 +754,26 @@ def _tables(s, arms):
 
 def method_appendix(ds):
     """Pooled harness outcomes and failure counts, with their scopes stated on the page."""
-    rows = [r for r in ds['rows'] if r['set'] == 'harness bias']
-    cells = []
-    runners = {}
-    for r in rows:
-        model, runner = r['config'].split(' / ')
-        label = 'our one-shot runner' if runner == 'Claude harness' else ('Claude Code' if model.startswith('haiku') else 'Codex CLI')
-        runners[model, runner] = r
-        cells.append([model, label, f"{r['passes']}/{r['n']}", f"{r['median_s']:.1f}"])
-    ds['tables']['harness_strengths'] = md_table(['model', 'runner', 'passed', 'median s'], cells)
-    for runner in ('Claude harness', 'Codex harness'):
-        need(runners['haiku-low', runner]['pass_rate'] > runners['luna-low', runner]['pass_rate'],
-             'haiku-low passes more often in both runners')
-    need(runners['luna-low', 'Claude harness']['median_s'] < runners['haiku-low', 'Claude harness']['median_s'],
-         'luna-low answers faster in the one-shot runner')
-    ds['facts']['hb_accuracy'] = 'haiku-low passed more often than luna-low in both runners.'
-    ds['facts']['hb_speed'] = 'luna-low answered faster than haiku-low in our one-shot runner.'
+    # The paired run only (60 tries per cell), so both benches compare like for like.
+    rows = load(os.path.join(RES, "appendix", "harness_bias.jsonl"))
+    bench = {'claude-one-shot': "Claude's bench", 'codex-tool-loop': "Codex's bench"}
+    cell, cells = {}, []
+    for c in harness_bias.CFGS:
+        for h, name in bench.items():
+            rs = [r for r in rows if (r['harness'], r['config']) == (h, c)]
+            cell[c, h] = dict(usd=sum(r['cost_usd'] for r in rs), s=statistics.median(r['wall_s'] for r in rs))
+            cli = '' if h == 'claude-one-shot' else (' (Claude Code)' if c.startswith('haiku') else ' (Codex CLI)')
+            cells.append([c, name + cli, f"{sum(r['passed'] for r in rs)}/{len(rs)}", ('~' if c.startswith('luna') else '') + usd(cell[c, h]['usd']), f"{cell[c, h]['s']:.0f}"])
+    ds['tables']['harness_strengths'] = md_table(['model', 'bench', 'passed', '$ total', 'median s'], cells)
+    one, loop = cell['luna-low', 'claude-one-shot'], cell['luna-low', 'codex-tool-loop']
+    need(loop['usd'] > 2 * one['usd'] and loop['s'] > 2 * one['s'], "Codex's bench costs luna-low over 2x in $ and time")
+    # Codex's first step: replay a subset of our main-run cells before the paired run.
+    sub = [r for r in load(os.path.join(RES, "appendix", "codex_harness.jsonl")) if r['repeat'] <= 2]
+    ours = {(r['config'], r['problem'], r['repeat']): r['passed'] for r in load(FUNC) if r['phase'] == 'main'}
+    need(sub and all(r['passed'] and ours[r['config'], r['problem'], r['repeat']] for r in sub),
+         "every subset cell passed on both benches")
+    ds['facts']['hb_subset'] = f"It first replayed {len(sub)} of our {' and '.join(sorted({r['config'] for r in sub}))} results. All passed on both."
+    ds['facts']['hb_luna_cost'] = f"luna-low cost {loop['usd'] / one['usd']:.0f}× more and took {loop['s'] / one['s']:.0f}× longer there."
     s = ds['report']
     counts = []
     for key, label in (('configs', 'main ladder'), ('hard', 'L7 set')):

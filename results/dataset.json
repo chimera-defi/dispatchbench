@@ -9979,10 +9979,10 @@
    "id": "harness-bias/haiku-low / Claude harness",
    "source": "harness-bias",
    "config": "haiku-low / Claude harness",
-   "display": "haiku-low / our one-shot runner",
+   "display": "haiku-low / Claude's bench",
    "family": "Claude",
    "category": "harness-bias",
-   "what": "Harness-bias check: haiku-low on hard problems through our one-shot runner",
+   "what": "Harness-bias check: haiku-low on hard problems on Claude's one-shot bench",
    "set": "harness bias",
    "derived": false,
    "files": [
@@ -10058,10 +10058,10 @@
    "id": "harness-bias/haiku-low / Codex harness",
    "source": "harness-bias",
    "config": "haiku-low / Codex harness",
-   "display": "haiku-low / Claude Code (agent)",
+   "display": "haiku-low / Codex's bench (Claude Code)",
    "family": "Claude",
    "category": "harness-bias",
-   "what": "Harness-bias check: haiku-low in Claude Code (Codex-built runner)",
+   "what": "Harness-bias check: haiku-low in Claude Code (Codex's bench)",
    "set": "harness bias",
    "derived": false,
    "files": [
@@ -10151,10 +10151,10 @@
    "id": "harness-bias/luna-low / Claude harness",
    "source": "harness-bias",
    "config": "luna-low / Claude harness",
-   "display": "luna-low / our one-shot runner",
+   "display": "luna-low / Claude's bench",
    "family": "Codex",
    "category": "harness-bias",
-   "what": "Harness-bias check: luna-low through our one-shot runner",
+   "what": "Harness-bias check: luna-low on Claude's one-shot bench",
    "set": "harness bias",
    "derived": false,
    "files": [
@@ -10230,10 +10230,10 @@
    "id": "harness-bias/luna-low / Codex harness",
    "source": "harness-bias",
    "config": "luna-low / Codex harness",
-   "display": "luna-low / Codex CLI (agent)",
+   "display": "luna-low / Codex's bench (Codex CLI)",
    "family": "Codex",
    "category": "harness-bias",
-   "what": "Harness-bias check: luna-low in Codex CLI (Codex-built runner)",
+   "what": "Harness-bias check: luna-low in Codex CLI (Codex's bench)",
    "set": "harness bias",
    "derived": false,
    "files": [
@@ -10326,10 +10326,10 @@
    "id": "harness-bias/sol61-medium / Codex harness",
    "source": "harness-bias",
    "config": "sol61-medium / Codex harness",
-   "display": "sol61-medium / Codex CLI (agent)",
+   "display": "sol61-medium / Codex's bench (Codex CLI)",
    "family": "Codex",
    "category": "harness-bias",
-   "what": "Harness-bias check: sol61-medium in Codex CLI (Codex-built runner)",
+   "what": "Harness-bias check: sol61-medium in Codex CLI (Codex's bench)",
    "set": "harness bias",
    "derived": false,
    "files": [
@@ -22436,8 +22436,8 @@
   "equiv_takeaway": "Every Claude config has a Codex match. haiku-high and sonnet-medium hit 100%; sol61-high matches them. Each match costs more at list price and runs slower.",
   "equiv_fastest": "Fastest Codex at 100%: astra-medium ⚡, 10 s. It costs $0.15 per pass.",
   "equiv_near": "At haiku-low's price, the best Codex is luna-high: 92% to 95%.",
-  "hb_accuracy": "haiku-low passed more often than luna-low in both runners.",
-  "hb_speed": "luna-low answered faster than haiku-low in our one-shot runner."
+  "hb_subset": "It first replayed 12 of our haiku-low and sol61-medium results. All passed on both.",
+  "hb_luna_cost": "luna-low cost 4× more and took 3× longer there."
  },
  "tables": {
   "result": {
@@ -23984,40 +23984,39 @@
   "harness_strengths": {
    "head": [
     "model",
-    "runner",
+    "bench",
     "passed",
+    "$ total",
     "median s"
    ],
    "rows": [
     [
-     "haiku-low",
-     "our one-shot runner",
-     "57/60",
-     "13.6"
-    ],
-    [
-     "haiku-low",
-     "Claude Code",
-     "126/126",
-     "13.6"
-    ],
-    [
      "luna-low",
-     "our one-shot runner",
+     "Claude's bench",
      "36/60",
-     "7.5"
+     "~$0.047",
+     "7"
     ],
     [
      "luna-low",
-     "Codex CLI",
-     "99/126",
-     "21.1"
+     "Codex's bench (Codex CLI)",
+     "47/60",
+     "~$0.19",
+     "21"
     ],
     [
-     "sol61-medium",
-     "Codex CLI",
-     "6/6",
-     "57.9"
+     "haiku-low",
+     "Claude's bench",
+     "57/60",
+     "$0.14",
+     "14"
+    ],
+    [
+     "haiku-low",
+     "Codex's bench (Claude Code)",
+     "60/60",
+     "$0.16",
+     "14"
     ]
    ]
   },

@@ -324,14 +324,14 @@ def check_design(s):
 
 
 def harness_chart(s):
-    """Slope chart: the same two configs in our one-shot runner and in their vendor agent CLI."""
+    """Slope chart: the same two configs on Claude's one-shot bench and on Codex's bench (vendor agent CLIs)."""
     f = s.get("facts") or {}
     if "hb_claude_luna_low" not in f: return None
     W, H, L, R, T, B = 350, 280, 44, 112, 50, 50
-    cols = [(L + 42, "our one-shot runner"), (W - R - 20, "vendor agent CLI")]
+    cols = [(L + 42, "Claude's bench"), (W - R - 20, "Codex's bench")]
     cells = {c: [tuple(map(int, f[f"hb_{h}_{c.replace('-', '_')}"].split("/"))) for h in ("claude", "codex")] for c in ("haiku-low", "luna-low")}
     Y = lambda p: H - B - (p - 0.5) / 0.5 * (H - T - B)
-    b = [text(8, 24, f"Same models, two runners: passes out of {cells['luna-low'][0][1]}", 14, weight="600")]
+    b = [text(8, 24, f"Same models, two benches: passes out of {cells['luna-low'][0][1]}", 14, weight="600")]
     for p in (0.5, 0.75, 1.0):
         b += [f"<line x1='{L}' x2='{W - R + 10}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
     for x, lab in cols:

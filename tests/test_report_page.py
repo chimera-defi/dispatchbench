@@ -303,12 +303,12 @@ def test_fairness_qa_renders_counts_and_runtime_from_appendix():
     codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
     start = min(datetime.fromisoformat(r['ts']).timestamp() for r in codex)
     end = max(datetime.fromisoformat(r['ts']).timestamp() + r['wall_s'] for r in codex)
-    assert f"{sum(r['outcome'] == 'harness_error' for r in codex)} harness errors, no timeouts" in fair
+    assert f"{sum(r['outcome'] == 'harness_error' for r in codex)} harness errors and no timeouts" in fair
     assert facts['hb_minutes'] == f"{(end - start) / 60:.0f}"
-    assert f"Calls took about {facts['hb_minutes']} minutes of wall time." in fair
+    assert f"in about {facts['hb_minutes']} minutes." in fair
     comparison = harness_bias.pass_summary(rows)
     lo, hi = comparison['ci']
-    assert f"<b>{facts['hb_answer']} haiku-low still led in both runners" in fair
+    assert f"{facts['hb_answer']} haiku-low still led on both" in fair
     assert (f"<li>The gap moved {100 * comparison['diff']:.0f} points, "
             f"below our {facts['hb_bar_points']}-point bias bar.</li>") in fair
     assert f"range is {100 * lo:.0f} to {100 * hi:.0f} points, so a larger bias is possible." in fair
