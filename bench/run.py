@@ -36,7 +36,9 @@ CONFIGS.update({"sol56-high": ("codex", "gpt-5.6-sol", "high"), "luna56-low": ("
 # Exploratory, 2026-10-23, at the operator's request: sol61-high in fast mode (priority tier, same model and effort) as a
 # fan-out default, and sol61 at xhigh effort for the "does more effort write worse code" question. Hard set only.
 CONFIGS.update({"sol61-high-fast": ("codex", "gpt-6.1-sol", "high"), "sol61-xhigh": ("codex", "gpt-6.1-sol", "xhigh")})
-TIER = {"sol61-high-fast": "priority"}
+# Exploratory, 2026-10-24, at the operator's request: both trusted Codex builders in fast mode on the main ladder and L7.
+CONFIGS["astra-medium-fast"] = ("codex", "gpt-6-astra", "medium")
+TIER = {"sol61-high-fast": "priority", "astra-medium-fast": "priority"}
 
 
 def codex_flags(config, portable=False):

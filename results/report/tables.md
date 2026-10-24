@@ -85,6 +85,20 @@ By rung: L1 10/10, L2 10/10, L3 10/10, L4 10/10, L5 10/10, L6 10/10
 | astra-medium | haiku-low | +5.0 pts | +0.0 to +15.0 |
 | astra-medium | luna-medium | +21.7 pts | +3.3 to +45.0 |
 
+## Exploratory, not pre-registered: astra-medium-fast (stock harness, full ladder)
+
+By rung: L1 6/6, L2 6/6, L3 6/6, L4 6/6, L5 5/5, L6 4/4
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| astra-medium-fast | 100% (33/33) | ≥78% (all passed) | none ≤ L6 | 9.91 | 13.38 | 15309 | 0.07396 | 0.07396 | 0.18340 | proxy |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| astra-medium-fast | luna-low | +23.3 pts | +5.0 to +45.0 |
+| astra-medium-fast | haiku-low | +5.0 pts | +0.0 to +15.0 |
+| astra-medium-fast | luna-medium | +21.7 pts | +3.3 to +43.3 |
+
 ## Exploratory, not pre-registered: haiku-high (stock harness, full ladder)
 
 By rung: L1 10/10, L2 10/10, L3 10/10, L4 10/10, L5 10/10, L6 10/10
@@ -183,6 +197,20 @@ By rung: L1 10/10, L2 10/10, L3 10/10, L4 10/10, L5 10/10, L6 10/10
 | sol61-high | haiku-low | +5.0 pts | +0.0 to +15.0 |
 | sol61-high | luna-medium | +21.7 pts | +3.3 to +45.0 |
 
+## Exploratory, not pre-registered: sol61-high-fast (stock harness, full ladder)
+
+By rung: L1 10/10, L3 10/10, L4 5/5
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| sol61-high-fast | 100% (25/25) | ≥78% (all passed) | none ≤ L6 | 9.55 | 19.9 | 15307 | 0.01260 | 0.01260 | 0.03594 | proxy |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| sol61-high-fast | luna-low | +0.0 pts | +0.0 to +0.0 |
+| sol61-high-fast | haiku-low | +0.0 pts | +0.0 to +0.0 |
+| sol61-high-fast | luna-medium | +0.0 pts | +0.0 to +0.0 |
+
 ## L7, added after the main run (3 problems × 5 attempts)
 
 Not pre-registered (PLAN.md, deviation 16), so it is reported apart from L1–L6 and does not change any number above.
@@ -205,21 +233,21 @@ Not pre-registered (PLAN.md, deviation 16), so it is reported apart from L1–L6
 
 Every problem on which at least one config failed at least once, over all phases (main, escalation, exploratory, L7). Cells show passes/attempts and, for the failures, the outcome: w = wrong answer, c = crash, t = timeout, n = no code. A dash means not run.
 
-| problem | rung | haiku-low | haiku-medium | sonnet-medium | luna-low | luna-medium | sol61-medium | astra-medium | haiku-high | luna-high | luna-low-bare | luna56-high | luna56-low | sol56-high | sol61-high |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| p03_ledger | L2 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 5/5 | 5/5 | 5/5 | 5/5 | 3/5 (1c 1w) | 5/5 | 5/5 | 5/5 | 5/5 |
-| p04_taller_within | L2 | 5/5 | 5/5 | 5/5 | 1/5 (2t 2w) | 1/5 (1t 3w) | 5/5 | 5/5 | 5/5 | 5/5 | 1/5 (4w) | 4/5 (1w) | 4/5 (1w) | 5/5 | 5/5 |
-| p05_pass_route | L3 | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 |
-| p06_calc | L3 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 1/5 (4w) | 5/5 | 5/5 |
-| p07_weighted_distance_sums | L4 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 3/5 (1t 1w) | 5/5 | 5/5 |
-| p08_recur | L4 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1t) | 5/5 | 5/5 | 5/5 | 5/5 |
-| p09_k_machine_schedule | L5 | 3/5 (2t) | 5/5 | 5/5 | 2/5 (2t 1w) | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 |
-| p10_avoid_count | L5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 4/5 (1w) | 5/5 | 4/5 (1w) | 5/5 | 5/5 |
-| p11_best_average | L6 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 2/5 (3w) | 5/5 | 5/5 | 5/5 | 5/5 | 2/5 (1c 2w) | 5/5 | 5/5 | 5/5 | 5/5 |
-| p12_sheet | L6 | 4/5 (1c) | 5/5 | 5/5 | 0/5 (4c 1w) | 0/5 (4c 1w) | 3/5 (2c) | 5/5 | 5/5 | 3/5 (2c) | 0/5 (4c 1w) | 3/5 (2c) | 1/5 (3c 1w) | 5/5 | 5/5 |
-| p13_xor_ring | L7 | 5/5 | 5/5 | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | – | 4/5 (1c) | 3/5 (2w) | 5/5 | 5/5 |
-| p14_bounce_board | L7 | 5/5 | 4/5 (1c) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | – | 2/5 (3c) | 2/5 (3c) | 3/5 (2c) | 5/5 |
-| p15_paint_erase | L7 | 2/5 (3t) | 4/5 (1t) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | – | 3/5 (2w) | 3/5 (2w) | 5/5 | 5/5 |
+| problem | rung | haiku-low | haiku-medium | sonnet-medium | luna-low | luna-medium | sol61-medium | astra-medium | astra-medium-fast | haiku-high | luna-high | luna-low-bare | luna56-high | luna56-low | sol56-high | sol61-high | sol61-high-fast |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| p03_ledger | L2 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 5/5 | 5/5 | 3/3 | 5/5 | 5/5 | 3/5 (1c 1w) | 5/5 | 5/5 | 5/5 | 5/5 | – |
+| p04_taller_within | L2 | 5/5 | 5/5 | 5/5 | 1/5 (2t 2w) | 1/5 (1t 3w) | 5/5 | 5/5 | 3/3 | 5/5 | 5/5 | 1/5 (4w) | 4/5 (1w) | 4/5 (1w) | 5/5 | 5/5 | – |
+| p05_pass_route | L3 | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 3/3 | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 |
+| p06_calc | L3 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 3/3 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 1/5 (4w) | 5/5 | 5/5 | 5/5 |
+| p07_weighted_distance_sums | L4 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 3/3 | 5/5 | 5/5 | 5/5 | 5/5 | 3/5 (1t 1w) | 5/5 | 5/5 | 5/5 |
+| p08_recur | L4 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 3/3 | 5/5 | 5/5 | 4/5 (1t) | 5/5 | 5/5 | 5/5 | 5/5 | – |
+| p09_k_machine_schedule | L5 | 3/5 (2t) | 5/5 | 5/5 | 2/5 (2t 1w) | 5/5 | 5/5 | 5/5 | 3/3 | 5/5 | 4/5 (1c) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – |
+| p10_avoid_count | L5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 2/2 | 5/5 | 4/5 (1c) | 4/5 (1w) | 5/5 | 4/5 (1w) | 5/5 | 5/5 | – |
+| p11_best_average | L6 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 2/5 (3w) | 5/5 | 5/5 | 2/2 | 5/5 | 5/5 | 2/5 (1c 2w) | 5/5 | 5/5 | 5/5 | 5/5 | – |
+| p12_sheet | L6 | 4/5 (1c) | 5/5 | 5/5 | 0/5 (4c 1w) | 0/5 (4c 1w) | 3/5 (2c) | 5/5 | 2/2 | 5/5 | 3/5 (2c) | 0/5 (4c 1w) | 3/5 (2c) | 1/5 (3c 1w) | 5/5 | 5/5 | – |
+| p13_xor_ring | L7 | 5/5 | 5/5 | 5/5 | – | – | 5/5 | 5/5 | – | 5/5 | 5/5 | – | 4/5 (1c) | 3/5 (2w) | 5/5 | 5/5 | – |
+| p14_bounce_board | L7 | 5/5 | 4/5 (1c) | 5/5 | – | – | 5/5 | 5/5 | – | 5/5 | 5/5 | – | 2/5 (3c) | 2/5 (3c) | 3/5 (2c) | 5/5 | – |
+| p15_paint_erase | L7 | 2/5 (3t) | 4/5 (1t) | 5/5 | – | – | 5/5 | 5/5 | – | 5/5 | 5/5 | – | 3/5 (2w) | 3/5 (2w) | 5/5 | 5/5 | – |
 
 ## Agentic track (hidden tests)
 
@@ -304,5 +332,5 @@ The pilot's Codex ladder records only the levels that were actually tested. Ever
 ## Spend
 
 - Claude, measured: $2.46 (function $1.61, agentic $0.85).
-- Codex, proxy at list price: $22.53.
+- Codex, proxy at list price: $25.60.
 - Pilot repricing: 83 priority-tier Codex rows cost $3.5190 at the pilot's 1.5× and $4.6920 at the published 2×.

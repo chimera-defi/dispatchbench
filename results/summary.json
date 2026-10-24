@@ -426,7 +426,7 @@
  "phases": {
   "calibration": 30,
   "escalation": 15,
-  "exploratory": 465,
+  "exploratory": 523,
   "fastmode": 105,
   "hard": 165,
   "main": 360,
@@ -738,6 +738,118 @@
     "p10_avoid_count": 5,
     "p11_best_average": 5,
     "p12_sheet": 5
+   }
+  },
+  "astra-medium-fast": {
+   "cli": "codex",
+   "model": "gpt-6-astra",
+   "effort": "medium",
+   "n": 33,
+   "passes": 33,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 6,
+     "n": 6
+    },
+    "L2": {
+     "passed": 6,
+     "n": 6
+    },
+    "L3": {
+     "passed": 6,
+     "n": 6
+    },
+    "L4": {
+     "passed": 6,
+     "n": 6
+    },
+    "L5": {
+     "passed": 5,
+     "n": 5
+    },
+    "L6": {
+     "passed": 4,
+     "n": 4
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 33
+   },
+   "latency_s": {
+    "median": 9.91,
+    "p25": 6.01,
+    "p75": 11.58,
+    "p90": 13.38,
+    "max": 33.76
+   },
+   "tokens_mean": {
+    "in_tok": 15309,
+    "cached_tok": 12160,
+    "out_tok": 606,
+    "reasoning_tok": 126
+   },
+   "input_floor": [
+    15118,
+    12160
+   ],
+   "usd_per_call": 0.073959,
+   "usd_total": 2.4406,
+   "usd_per_pass": 0.073959,
+   "usd_per_pass_L1_L2": 0.06123,
+   "pass_L1_L2": [
+    12,
+    12
+   ],
+   "cost_kind": "proxy",
+   "vs": [
+    {
+     "b": "luna-low",
+     "diff": 0.2333,
+     "ci95": [
+      0.05,
+      0.45
+     ],
+     "problems": 12
+    },
+    {
+     "b": "haiku-low",
+     "diff": 0.05,
+     "ci95": [
+      0.0,
+      0.15
+     ],
+     "problems": 12
+    },
+    {
+     "b": "luna-medium",
+     "diff": 0.2167,
+     "ci95": [
+      0.0333,
+      0.4333
+     ],
+     "problems": 12
+    }
+   ],
+   "usd_per_pass_uncached": 0.183399,
+   "by_problem": {
+    "p01_overlap_minutes": 3,
+    "p02_squash": 3,
+    "p03_ledger": 3,
+    "p04_taller_within": 3,
+    "p05_pass_route": 3,
+    "p06_calc": 3,
+    "p07_weighted_distance_sums": 3,
+    "p08_recur": 3,
+    "p09_k_machine_schedule": 3,
+    "p10_avoid_count": 2,
+    "p11_best_average": 2,
+    "p12_sheet": 2
    }
   },
   "haiku-high": {
@@ -1533,6 +1645,99 @@
     "p11_best_average": 5,
     "p12_sheet": 5
    }
+  },
+  "sol61-high-fast": {
+   "cli": "codex",
+   "model": "gpt-6.1-sol",
+   "effort": "high",
+   "n": 25,
+   "passes": 25,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L3": {
+     "passed": 10,
+     "n": 10
+    },
+    "L4": {
+     "passed": 5,
+     "n": 5
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 25
+   },
+   "latency_s": {
+    "median": 9.55,
+    "p25": 6.11,
+    "p75": 11.42,
+    "p90": 19.9,
+    "max": 24.59
+   },
+   "tokens_mean": {
+    "in_tok": 15307,
+    "cached_tok": 12288,
+    "out_tok": 533,
+    "reasoning_tok": 237
+   },
+   "input_floor": [
+    15184,
+    12288
+   ],
+   "usd_per_call": 0.012597,
+   "usd_total": 0.3149,
+   "usd_per_pass": 0.012597,
+   "usd_per_pass_L1_L2": 0.009333,
+   "pass_L1_L2": [
+    10,
+    10
+   ],
+   "cost_kind": "proxy",
+   "vs": [
+    {
+     "b": "luna-low",
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "problems": 5
+    },
+    {
+     "b": "haiku-low",
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "problems": 5
+    },
+    {
+     "b": "luna-medium",
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "problems": 5
+    }
+   ],
+   "usd_per_pass_uncached": 0.035944,
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p05_pass_route": 5,
+    "p06_calc": 5,
+    "p07_weighted_distance_sums": 5
+   }
   }
  },
  "hard": {
@@ -2169,6 +2374,11 @@
      "n": 5,
      "fails": {}
     },
+    "astra-medium-fast": {
+     "passed": 3,
+     "n": 3,
+     "fails": {}
+    },
     "haiku-high": {
      "passed": 5,
      "n": 5,
@@ -2251,6 +2461,11 @@
     "astra-medium": {
      "passed": 5,
      "n": 5,
+     "fails": {}
+    },
+    "astra-medium-fast": {
+     "passed": 3,
+     "n": 3,
      "fails": {}
     },
     "haiku-high": {
@@ -2336,6 +2551,11 @@
      "n": 5,
      "fails": {}
     },
+    "astra-medium-fast": {
+     "passed": 3,
+     "n": 3,
+     "fails": {}
+    },
     "haiku-high": {
      "passed": 5,
      "n": 5,
@@ -2369,6 +2589,11 @@
      "fails": {}
     },
     "sol61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-high-fast": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -2413,6 +2638,11 @@
      "n": 5,
      "fails": {}
     },
+    "astra-medium-fast": {
+     "passed": 3,
+     "n": 3,
+     "fails": {}
+    },
     "haiku-high": {
      "passed": 5,
      "n": 5,
@@ -2448,6 +2678,11 @@
      "fails": {}
     },
     "sol61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-high-fast": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -2492,6 +2727,11 @@
      "n": 5,
      "fails": {}
     },
+    "astra-medium-fast": {
+     "passed": 3,
+     "n": 3,
+     "fails": {}
+    },
     "haiku-high": {
      "passed": 5,
      "n": 5,
@@ -2526,6 +2766,11 @@
      "fails": {}
     },
     "sol61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-high-fast": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -2570,6 +2815,11 @@
     "astra-medium": {
      "passed": 5,
      "n": 5,
+     "fails": {}
+    },
+    "astra-medium-fast": {
+     "passed": 3,
+     "n": 3,
      "fails": {}
     },
     "haiku-high": {
@@ -2654,6 +2904,11 @@
      "n": 5,
      "fails": {}
     },
+    "astra-medium-fast": {
+     "passed": 3,
+     "n": 3,
+     "fails": {}
+    },
     "haiku-high": {
      "passed": 5,
      "n": 5,
@@ -2729,6 +2984,11 @@
     "astra-medium": {
      "passed": 5,
      "n": 5,
+     "fails": {}
+    },
+    "astra-medium-fast": {
+     "passed": 2,
+     "n": 2,
      "fails": {}
     },
     "haiku-high": {
@@ -2814,6 +3074,11 @@
     "astra-medium": {
      "passed": 5,
      "n": 5,
+     "fails": {}
+    },
+    "astra-medium-fast": {
+     "passed": 2,
+     "n": 2,
      "fails": {}
     },
     "haiku-high": {
@@ -2902,6 +3167,11 @@
     "astra-medium": {
      "passed": 5,
      "n": 5,
+     "fails": {}
+    },
+    "astra-medium-fast": {
+     "passed": 2,
+     "n": 2,
      "fails": {}
     },
     "haiku-high": {
@@ -4161,10 +4431,10 @@
   "claude_measured_usd": 2.4624,
   "claude_function_usd": 1.6128,
   "claude_agentic_usd": 0.8496,
-  "codex_proxy_usd": 22.5262,
+  "codex_proxy_usd": 25.5967,
   "codex_fastmode_usd": 3.4069,
   "calls": {
-   "function": 1146,
+   "function": 1204,
    "agentic": 84
   }
  },
