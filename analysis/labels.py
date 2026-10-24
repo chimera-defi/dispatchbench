@@ -8,6 +8,8 @@ Sets (use these names everywhere):
                used for the pipeline and repair arms"""
 import html
 
+from analysis import configs
+
 # What each problem tests, one line each. Used as the hover text wherever a problem is named.
 TESTS = {
     "p01_overlap_minutes": "minutes with at least k meetings at once; half-open intervals, sweep line",
@@ -50,7 +52,7 @@ def plabel_html(p, rung=None):
 
 def DISP(c):
     """Display name of a config: fast mode (priority tier) gets a lightning suffix."""
-    return c[:-5] + " ⚡" if c.endswith("-fast") else c
+    return configs.display(c)
 
 
 # Rung of each problem: 2 per rung, p01-p12 on L1-L6, then p13-p15 on L7.

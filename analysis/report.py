@@ -13,7 +13,7 @@ Template syntax:
 """
 import glob, html, json, os, re, statistics
 
-from analysis import fast_gate, luna_rescue, page as pagew
+from analysis import configs, fast_gate, luna_rescue, page as pagew
 from analysis.labels import pshort, plabel, DISP
 from analysis.charts import HOST_AGENTS_MD, MIN_PASS
 from analysis.summarize import FAST_CONFIGS, ROOT, RES, FUNC, AGENT, ci_text, cost, cost_uncached, load, pct, money, scale
@@ -133,7 +133,6 @@ def facts(s):
     need(lb["usd_per_pass"] < hl["usd_per_pass"] < lb["usd_per_pass_uncached"], "stripped luna cheaper than haiku only with the cache")
     F["lb_upp_nocache"] = u(lb["usd_per_pass_uncached"]); F["lb_nocache_above"] = pct(lb["usd_per_pass_uncached"] / hl["usd_per_pass"] - 1)
     tr = s["trim"]["floor"]
-    F["floor_stock"] = n(tr["luna/base"]["in_tok"]); F["floor_min"] = n(tr["luna/noshell"]["in_tok"])
     # finding 4: agentic
     need(all(v["hidden_pass"] == v["n"] for v in ag.values()), "every agentic run passed")
     F["ag_k"] = f"{ag['luna-low']['hidden_pass']}/{ag['luna-low']['n']}"; F["ag_runs"] = str(sum(v["n"] for v in ag.values()))
@@ -211,7 +210,6 @@ def facts(s):
     need(sc["usd_per_pass"] > a["haiku-low"]["usd_per_pass"] and sc["passes"] < a["haiku-low"]["passes"], "self-test costs more than haiku for fewer passes")
     F["r_e_luna"] = f"{sum(r['luna_passed'] for r in ee['rows'])}/{ee['n']}"; F["r_e_changed"] = str(sum(r["haiku_changed"] for r in ee["rows"]))
     F["r_e_haiku_share"] = pct(sum(r["haiku_cost_usd"] for r in ee["rows"]) / ee["usd_total"])
-    F["r_e_vs_hl_x"] = x(ee["usd_per_pass"], a["haiku-low"]["usd_per_pass"]); F["r_e_more"] = str(ee["passes"] - a["haiku-low"]["passes"])
     F["orchestrator"] = "Claude Opus 5.5"  # the model that designed, ran and checked this benchmark; not a measured config
     hr, lr, hv, sm = a["luna-high-bare+haiku-on-fail"], a["luna-low+haiku-on-fail"], a["luna-high-bare+haiku-review-all"], a["sonnet-medium"]
     need(hv["passes"] == hv["n"] == sm["passes"], "luna-high + Haiku review and sonnet-medium never failed on the rescue set")
@@ -220,7 +218,7 @@ def facts(s):
     F["sm_vs_hm_x"] = f"{cfg['sonnet-medium']['usd_per_pass'] / cfg['haiku-medium']['usd_per_pass']:.0f}×"
     hm7 = hard["haiku-medium"]; F["hm_l7_k"] = f"{hm7['passes']}/{hm7['n']}"
     F["hm_l7_miss"] = " and ".join(f"{v} {k}" for k, v in sorted(hm7["outcomes"].items()) if k != "pass") or "none"
-    F["g_vs_sm_x"] = x(sm["usd_per_pass"], hv["usd_per_pass"]); F["g_hi_fixed"] = str(sum(r["repaired"] for r in hr["rows"]))
+    F["g_hi_fixed"] = str(sum(r["repaired"] for r in hr["rows"]))
     need(all(r["passed"] for r in hr["rows"] if r["repaired"]), "Haiku fixed every answer whose sample tests failed")
     F["g_hi_bad"] = str(sum(r["repaired"] for r in hr["rows"]) + hr["n"] - hr["passes"])
     need(a["haiku-low-plan+luna-high-bare"]["passes"] == a["luna-high-bare"]["passes"], "plan first leaves luna-high-bare passes unchanged")
@@ -243,7 +241,7 @@ def facts(s):
     F["nofeat_nocache"] = str(nf["uncached_calls"]); F["nofeat_calls"] = str(nf["n"])
     need(all(cfg[c]["by_rung"]["L1"]["passed"] == cfg[c]["by_rung"]["L1"]["n"] > cfg[c]["by_rung"]["L2"]["passed"] for c in ("luna-low", "luna-medium")), "luna low/medium pass L1 and already fail at L2")
     F["pilot_luna_call"] = u(pr["luna/noshell"]["usd_per_call"]); F["pilot_haiku_call"] = u(pr["haiku"]["usd_per_call"])
-    F["pilot_luna_k"] = f"{pr['luna/noshell']['passes']}/{pr['luna/noshell']['n']}"; F["pilot_haiku_k"] = f"{pr['haiku']['passes']}/{pr['haiku']['n']}"
+    F["pilot_luna_k"] = f"{pr['luna/noshell']['passes']}/{pr['luna/noshell']['n']}"
     q = [r for r in quality_rows() if r["outcome"] == "pass" and r["phase"] in ("main", "exploratory", "escalation") and r.get("time_ratio") is not None]
     F["q_rows"] = str(len([r for r in quality_rows() if r["outcome"] == "pass" and r["phase"] in ("main", "exploratory", "escalation")]))
     if q:
@@ -318,7 +316,6 @@ def facts(s):
     need(hard["luna-high"]["passes"] > hard["luna56-high"]["passes"] and ex["luna56-high"]["usd_per_pass"] > ex["luna-high"]["usd_per_pass"], "gpt-6 luna-high beats 5.6 luna-high on L7 and costs less")
     need(hard["astra-medium"]["passes"] == hard["astra-medium"]["n"] > hard["sol56-high"]["passes"], "astra perfect on L7, sol56-high not")
     F["x_sol56_vs_hm"] = f"{ex['sol56-high']['usd_per_pass'] / cfg['haiku-medium']['usd_per_pass']:.0f}×"
-    F["x_astra_vs_hm"] = f"{ex['astra-medium']['usd_per_pass'] / cfg['haiku-medium']['usd_per_pass']:.0f}×"
     sm_all = cfg["sonnet-medium"]["usd_per_pass"]; perfect = [c for c in list(cfg) + list(ex) if (cfg.get(c) or ex[c])["passes"] == (cfg.get(c) or ex[c])["n"] and c in hard and hard[c]["passes"] == hard[c]["n"]]
     need(sorted(perfect) == ["astra-medium", "astra-medium-fast", "haiku-high", "sol61-high", "sol61-high-fast", "sonnet-medium"] and min(ex[c]["usd_per_pass"] for c in ("astra-medium", "sol61-high")) > sm_all > ex["haiku-high"]["usd_per_pass"],
          "haiku-high is the cheapest config with no miss anywhere, then sonnet-medium; astra-medium and sol61-high the only others")
@@ -339,7 +336,7 @@ def facts(s):
     F["x_s61h_vs_sm"] = x(ex["sol61-high"]["usd_per_pass"], sm_all)
     # trusted Codex builders: who bills what. Codex calls bill the Codex subscription, so their Claude $ is zero by construction.
     ah, sh = ex["astra-medium"], ex["sol61-high"]
-    F["x_astra_vs_s61h"] = x(ah["usd_per_pass"], sh["usd_per_pass"]); F["ag_astra_vs_s61h"] = x(ag["astra-medium"]["usd_per_run"], ag["sol61-high"]["usd_per_run"])
+    F["x_astra_vs_s61h"] = x(ah["usd_per_pass"], sh["usd_per_pass"])
     need(ah["latency_s"]["median"] < sh["latency_s"]["median"] and ag["astra-medium"]["latency_s"]["median"] < ag["sol61-high"]["latency_s"]["median"], "astra faster than sol61-high")
     F["ag_n"] = str(ag["sol61-high"]["n"]); F["claude_zero"] = "$0"
     F["ag_hh_k"] = f"{ag['haiku-high']['hidden_pass']}/{ag['haiku-high']['n']}"
@@ -558,7 +555,10 @@ def render():
     up = lambda m: m.group(0) if re.match(r"https?:|#|mailto:", m.group(2)) else f"{m.group(1)}(../{m.group(2)})"
     report = re.sub(r"(\]|!\[[^\]]*\])\(([^)\s]+)\)", up, fill(open(TEMPLATE).read(), F, T, "readme").strip() + "\n")  # it lives in docs/
     W = pagew.widgets(s, need)
-    body = fill(open(PAGE_TEMPLATE).read(), Facts({**F, **{"w_" + k: v for k, v in W.items()}}), T, "page")
+    page_tmpl = open(PAGE_TEMPLATE).read()
+    body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}, "w_everything": ""}), T, "page")  # first pass: the page without the section
+    W["everything"] = configs.section(body)  # every registered config, with 'where it appears' read from that first pass
+    body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}}), T, "page")
     shell = open(os.path.join(PAGE_DIR, "shell.html")).read()
     page = shell.replace("__CSS__", open(os.path.join(PAGE_DIR, "style.css")).read().strip()).replace("__BODY__", body).replace("__JS__", open(os.path.join(PAGE_DIR, "sort.js")).read().strip())
     return readme, report, page

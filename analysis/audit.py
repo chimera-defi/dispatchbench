@@ -8,9 +8,9 @@
 5. The templates (README and page) hold no number of its own outside {{facts}}, code spans and link targets, except the constants listed
    with a reason in docs/audit_allow.json. Each allowed literal must still occur on a line containing its context.
 """
-import json, os, re, sys
+import html, json, os, re, sys
 
-from analysis import charts, luna_rescue, report, summarize
+from analysis import charts, configs, luna_rescue, report, summarize
 from analysis.summarize import ROOT, RES
 
 ALLOW = os.path.join(ROOT, "docs", "audit_allow.json")
@@ -59,6 +59,12 @@ def main():
     checked += same("readme", readme, report.README, fails)
     checked += same("report", full, report.REPORT, fails)
     checked += same("page", page, report.PAGE, fails)
+
+    fails += configs.check_registry()  # every config with rows in results/ is registered, and every entry has rows
+    for e in configs.stats():  # ... and the page shows every one of them in the "Everything we tried" section
+        if f">{html.escape(configs.display(e['name']))}</td><td>{html.escape(e['what'])}</td>" not in page:
+            fails.append(f"page: {e['source']}/{e['name']} is missing from the page's Everything we tried section")
+    checked += 1
 
     allow = json.load(open(ALLOW))
     used = set(); stray = []

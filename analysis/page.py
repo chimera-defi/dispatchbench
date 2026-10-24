@@ -529,5 +529,5 @@ def widgets(s, need):
     a, fa = pass_cost(s); b, fb = speed_cost(s); ha, hfa = hard_pass_cost(); hb, hfb = hard_speed_cost(); nm = dict(HARD_PTS)
     return {"pass_cost": a, "speed_cost": b, "hard_pass_cost": ha, "hard_speed_cost": hb,
             "hard_front_pass": ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": ", ".join(SHORT(nm[c]) for c in hfb), "sets": sets_box(s), "grid": grid(s), "floor": floor(s), "pipes": pipes(), "fast": fast(s), "explorer": explorer(s), "short_table": short_table(s, need),
-            "front_pass": ", ".join(map(DISP, fa)), "front_speed": ", ".join(map(DISP, fb)),
+            "front_speed": ", ".join(map(DISP, fb)),
             "decoder": DECODER, "problems": method(s)[0], "flags": method(s)[1]}
