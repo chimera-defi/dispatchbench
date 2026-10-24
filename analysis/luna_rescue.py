@@ -28,7 +28,9 @@ ARMS = [("luna-low", "luna-low baseline"),
         ("sonnet-medium", "sonnet-medium"),
         ("sol61-medium", "sol61-medium"),
         ("sol61-high", "sol61-high"),
+        ("sol61-high-fast", "sol61-high, fast mode"),
         ("astra-medium", "astra-medium"),
+        ("astra-medium-fast", "astra-medium, fast mode"),
         ("sol56-high", "sol56-high"),
         ("luna56-high", "luna56-high"),
         ("luna56-low", "luna56-low")]
@@ -44,7 +46,7 @@ def claude_usd(r):
 def arms():
     """Per arm: label, passes, n, $ per pass, median seconds, total $, and its rows."""
     main_rows = [json.loads(l) for l in open(os.path.join(ROOT, "results", "2026-10-22b-function.jsonl"))]
-    main_rows = [dict(r, cost_usd=cost(r)) for r in main_rows if r["phase"] in ("main", "exploratory") and r["problem"] in PIDS]
+    main_rows = [dict(r, cost_usd=cost(r)) for r in main_rows if r["phase"] in ("main", "exploratory", "fastmode") and r["problem"] in PIDS]
     arm_rows = [json.loads(l) for l in open(os.path.join(ROOT, "results", "appendix", "luna_rescue.jsonl"))]
     out = {}
     for c, label in ARMS:

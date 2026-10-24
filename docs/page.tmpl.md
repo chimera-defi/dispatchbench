@@ -11,17 +11,18 @@
 <li>Need it faster? astra-medium: also never missed, about {{x_astra_vs_s61h}} the Codex usage.</li>
 </ol>
 <ul class="tight">
-<li>✅ haiku-medium: {{haiku_medium_k}} on all problems, 0 misses on the hard set (its {{rescue_n}} main-run attempts on those problems, not a new run). {{haiku_medium_upp}} per pass, {{haiku_medium_med}}s. Measured $, not estimated.</li>
+<li>✅ haiku-medium: {{haiku_medium_k}} on all problems, 0 misses on the rescue set (its {{rescue_n}} main-run attempts on those problems, not a new run). {{haiku_medium_upp}} per pass, {{haiku_medium_med}}s. Measured $, not estimated.</li>
 <li>💸 haiku-low: {{haiku_low_k}} at {{haiku_low_upp}}. Misses: too slow or a crash, never a wrong answer.</li>
 <li>🛡️ Never missed (main set, hardest rung, all {{ag_n}} repo tasks): sol61-high {{x_sol61_high_med}}s and astra-medium {{x_astra_medium_med}}s median, both billed to Codex. sonnet-medium never missed either ({{sm_all}}), at {{sm_vs_hm_x}} haiku-medium's cost.</li>
 <li>🐢 The Codex picks are slow on repo tasks: {{ag_sol61_high_med}}s and {{ag_astra_medium_med}}s median against about {{ag_claude_med}}s for a Claude builder.</li>
 <li>🎯 Parity starts at haiku-high: {{hh_k}}, {{hh_hk}} on L7, {{ag_hh_k}} repo tasks. {{hh_upp}} per pass, {{hh_med}}s median: {{hh_s61h_x}} cheaper than sol61-high, {{hh_astra_x}} cheaper than astra-medium, and faster than both. haiku-medium missed {{hm_l7_miss}} on L7 ({{hm_l7_k}}).</li>
+<li>⚡ Fast mode (Codex priority tier, same model and effort) changed speed and price, not passes. sol61-high ⚡: {{ff_s61_k}} on the main ladder, {{ff_s61_hk}} on the L7 set, {{ff_s61_upp}} per pass and {{ff_s61_med}}s against {{ff_s61_dupp}} and {{ff_s61_dmed}}s at the default tier ({{ff_s61_faster}} quicker, {{ff_s61_x}} the price). astra-medium ⚡: {{ff_ast_k}} and {{ff_ast_hk}}, {{ff_ast_upp}} and {{ff_ast_med}}s against {{ff_ast_dupp}} and {{ff_ast_dmed}}s ({{ff_ast_faster}} quicker, {{ff_ast_x}} the price).</li>
 </ul>
 </section>
 <section class="method" id="method">
 <h2><span class="num"></span>❓ How it was run</h2>
-<details><summary>📚 Problems by round (Easy/Medium/Hard)</summary>
-<p class="small">The LeetCode links are the closest analogues I found by hand, not where the problems came from: the problems were written for this bench.</p>
+<details><summary>📚 Problems by set (Easy/Medium/Hard)</summary>
+<p class="small">The LeetCode links are the closest analogues I found by hand, not where the problems came from: the problems were written for this bench. The Easy/Medium/Hard badge is a guess at the LeetCode difficulty; the rung (L1 to L7) is this bench's own order. They need not agree: p01 overlap_minutes overlap_minutes (L1) is Medium, p06 calc calc (L3) is Hard, p08 recur recur (L4) is Medium.</p>
 <ul class="tight small">
 {{w_problems}}
 </ul>
@@ -36,14 +37,15 @@
 <details><summary>Exact commands</summary>
 <ul class="tight small cmds">
 {{w_flags}}
-<li>luna-low-bare and luna-high-bare add the stripped harness from bench/trim_probe.py. Every luna-high row on the hard set uses it.</li>
+<li>luna-low-bare and luna-high-bare add the stripped harness from bench/trim_probe.py. Every luna-high row on the rescue set uses it.</li>
 </ul>
 </details>
 </section>
 <section id="pareto">
 <h2><span class="num"></span>📊 Cost vs accuracy</h2>
-<div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="dot hollow" style="color:var(--codex)"></span>exploratory</span><span><span class="ring"></span>Pareto frontier</span><span>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet · ▲ luna · ◆ sol · ★ astra.</span><span>Only frontier points are labelled; hover, tap or focus a point or a key row for the rest.</span></div>
-<div class="tabs"><input type="radio" name="pset" id="pset-all" checked><label for="pset-all">All problems</label><input type="radio" name="pset" id="pset-hard"><label for="pset-hard">Hard set + pipelines</label>
+{{w_sets}}
+<div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="dot hollow" style="color:var(--codex)"></span>exploratory</span><span><span class="ring"></span>Pareto frontier</span><span>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet · ▲ luna · ◆ sol · ★ astra. ⚡ = fast mode, joined to its default-tier twin.</span><span>Only frontier points are labelled; hover, tap or focus a point or a key row for the rest.</span></div>
+<div class="tabs"><input type="radio" name="pset" id="pset-all" checked><label for="pset-all">Main ladder</label><input type="radio" name="pset" id="pset-hard"><label for="pset-hard">Rescue set + pipelines</label>
 <div class="tab tab-all">
 <div class="chart">{{w_pass_cost}}</div>
 <ul class="tight small">
@@ -54,15 +56,15 @@
 <div class="chart"><h3>⏱️ Speed vs $ per pass</h3><p class="sub">Best trade-offs among configs passing at least {{min_pass}}. Dashed hollow = Codex pilot, default → ⚡ fast mode, on {{fast_problems}} well-known LeetCode problems; not on the frontier.</p>{{w_speed_cost}}</div>
 <ul class="tight small">
 <li>Best trade-offs: {{w_front_speed}}.</li>
-<li>Pipelines ran only on the hard set: see the "Hard set + pipelines" tab.</li>
+<li>Pipelines ran only on the rescue set: see the "Rescue set + pipelines" tab.</li>
 </ul>
 </div>
 <div class="tab tab-hard">
-<div class="chart"><h3>Hard set: pass rate vs $ per pass</h3><p class="sub">{{rescue_n}} attempts on {{r_pids}} problems chosen after round 1 (luna-low fails them most). Single models: their main-run attempts. Purple = pipelines: low / high-bare is the luna build; plan→ = Haiku plans, luna builds; →H fail = Haiku fixes only when sample tests fail; →retry = luna tries again; →H all = Haiku fixes every answer. sol61-high and astra-medium →H fail sit on their own dots: the check never failed. Small sample, no intervals.</p>{{w_hard_pass_cost}}</div>
+<div class="chart"><h3>Rescue set: pass rate vs $ per pass</h3><p class="sub">{{rescue_n}} attempts on the rescue set: {{r_pids}} (chosen after the main ladder; luna-low fails them most). Single models: their main-run attempts. Purple = pipelines: low / high-bare is the luna build; plan→ = Haiku plans, luna builds; →H fail = Haiku fixes only when sample tests fail; →retry = luna tries again; →H all = Haiku fixes every answer. sol61-high and astra-medium →H fail sit on their own dots: the check never failed. Small sample, no intervals.</p>{{w_hard_pass_cost}}</div>
 <ul class="tight small">
 <li>Best trade-offs, cheapest first: {{w_hard_front_pass}}.</li>
 </ul>
-<div class="chart"><h3>⏱️ Hard set: speed vs $ per pass</h3><p class="sub">Best trade-offs among rows passing at least {{min_pass}}. sol61-high and astra-medium →H fail: the check never failed, so these are separate runs of the model alone; their times differ by run.</p>{{w_hard_speed_cost}}</div>
+<div class="chart"><h3>⏱️ Rescue set: speed vs $ per pass</h3><p class="sub">Best trade-offs among rows passing at least {{min_pass}}. sol61-high and astra-medium →H fail: the check never failed, so these are separate runs of the model alone; their times differ by run.</p>{{w_hard_speed_cost}}</div>
 <ul class="tight small">
 <li>Best trade-offs: {{w_hard_front_speed}}.</li>
 </ul>
@@ -73,7 +75,7 @@
 <h2><span class="num"></span>🟥 Where they fail</h2>
 {{w_grid}}
 <ul class="tight small">
-<li>p12 crashes most configs; p04 sinks luna low and medium.</li>
+<li>p12 sheet crashes most configs; p04 taller_within sinks luna low and medium.</li>
 <li>haiku-low: {{hl_timeouts}} too slow, {{hl_crashes}} crash, 0 wrong outputs in {{hl_attempts}} tries.</li>
 </ul>
 </section>
@@ -86,7 +88,7 @@
 <details class="small"><summary>What the verdicts mean</summary>
 <ul class="tight small">
 <li><b>★ pick</b>: the recommendation. <b>budget pick</b>: cheapest config passing 95% or more.</li>
-<li><b>0 misses</b>: every attempt passed. <b>0 misses, cheapest</b>: the cheapest such hard-set row. <b>missed N</b>: N attempts failed.</li>
+<li><b>0 misses</b>: every attempt passed. <b>0 misses, cheapest</b>: the cheapest such rescue-set row. <b>missed N</b>: N attempts failed.</li>
 <li><b>beaten</b>: something else is as cheap and passes as often. <b>pricier, passes more</b>: a real trade-off.</li>
 <li><b>avoid</b>: passes under {{min_pass}}.</li>
 </ul>
@@ -108,7 +110,7 @@
 </section>
 <section id="pipes">
 <h2><span class="num"></span>🔗 Pipelines: plan, check, fix</h2>
-<div class="chart floor"><h3>Hard set: passes, $ per pass, median seconds</h3><p class="sub">{{rescue_n}} attempts on {{r_pids}} problems chosen after round 1 (luna-low fails them most). Single models: their main-run attempts. Purple = pipelines. plan→ = Haiku plans, luna builds. →H fail = Haiku fixes only when sample tests fail. →retry = luna tries again. →H all = Haiku fixes every answer.</p>{{w_pipes}}</div>
+<div class="chart floor"><h3>Rescue set: passes, $ per pass, median seconds</h3><p class="sub">{{rescue_n}} attempts on the rescue set: {{r_pids}} (chosen after the main ladder; luna-low fails them most). Single models: their main-run attempts. Purple = pipelines. plan→ = Haiku plans, luna builds. →H fail = Haiku fixes only when sample tests fail. →retry = luna tries again. →H all = Haiku fixes every answer.</p>{{w_pipes}}</div>
 <ul class="tight small">
 <li>✅ Haiku fixing every luna-high-bare answer: {{r_luna_high_bare_haiku_review_all_k}}. But haiku-medium alone also had 0 misses, {{hm_vs_pipe_x}} cheaper.</li>
 <li>⚠️ Sample tests are a weak gate: they caught {{g_hi_fixed}} bad luna-high answers and missed {{g_hi_missed}}. luna-low fails them more often ({{g_lo_fixed}} repairs), so the gate helps it more.</li>

@@ -426,9 +426,9 @@
  "phases": {
   "calibration": 30,
   "escalation": 15,
-  "exploratory": 523,
+  "exploratory": 550,
   "fastmode": 105,
-  "hard": 165,
+  "hard": 195,
   "main": 360,
   "warmup": 6
  },
@@ -744,8 +744,8 @@
    "cli": "codex",
    "model": "gpt-6-astra",
    "effort": "medium",
-   "n": 33,
-   "passes": 33,
+   "n": 60,
+   "passes": 60,
    "pass_at_1": 1.0,
    "ci95": [
     1.0,
@@ -753,58 +753,58 @@
    ],
    "by_rung": {
     "L1": {
-     "passed": 6,
-     "n": 6
+     "passed": 10,
+     "n": 10
     },
     "L2": {
-     "passed": 6,
-     "n": 6
+     "passed": 10,
+     "n": 10
     },
     "L3": {
-     "passed": 6,
-     "n": 6
+     "passed": 10,
+     "n": 10
     },
     "L4": {
-     "passed": 6,
-     "n": 6
+     "passed": 10,
+     "n": 10
     },
     "L5": {
-     "passed": 5,
-     "n": 5
+     "passed": 10,
+     "n": 10
     },
     "L6": {
-     "passed": 4,
-     "n": 4
+     "passed": 10,
+     "n": 10
     }
    },
    "breaking_point": null,
    "outcomes": {
-    "pass": 33
+    "pass": 60
    },
    "latency_s": {
-    "median": 9.91,
-    "p25": 6.01,
-    "p75": 11.58,
-    "p90": 13.38,
-    "max": 33.76
+    "median": 9.9,
+    "p25": 6.45,
+    "p75": 11.77,
+    "p90": 13.62,
+    "max": 39.05
    },
    "tokens_mean": {
-    "in_tok": 15309,
+    "in_tok": 15316,
     "cached_tok": 12160,
-    "out_tok": 606,
-    "reasoning_tok": 126
+    "out_tok": 646,
+    "reasoning_tok": 136
    },
    "input_floor": [
     15118,
     12160
    ],
-   "usd_per_call": 0.073959,
-   "usd_total": 2.4406,
-   "usd_per_pass": 0.073959,
-   "usd_per_pass_L1_L2": 0.06123,
+   "usd_per_call": 0.152024,
+   "usd_total": 9.1214,
+   "usd_per_pass": 0.152024,
+   "usd_per_pass_L1_L2": 0.122429,
    "pass_L1_L2": [
-    12,
-    12
+    20,
+    20
    ],
    "cost_kind": "proxy",
    "vs": [
@@ -831,25 +831,25 @@
      "diff": 0.2167,
      "ci95": [
       0.0333,
-      0.4333
+      0.45
      ],
      "problems": 12
     }
    ],
-   "usd_per_pass_uncached": 0.183399,
+   "usd_per_pass_uncached": 0.370904,
    "by_problem": {
-    "p01_overlap_minutes": 3,
-    "p02_squash": 3,
-    "p03_ledger": 3,
-    "p04_taller_within": 3,
-    "p05_pass_route": 3,
-    "p06_calc": 3,
-    "p07_weighted_distance_sums": 3,
-    "p08_recur": 3,
-    "p09_k_machine_schedule": 3,
-    "p10_avoid_count": 2,
-    "p11_best_average": 2,
-    "p12_sheet": 2
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 5,
+    "p05_pass_route": 5,
+    "p06_calc": 5,
+    "p07_weighted_distance_sums": 5,
+    "p08_recur": 5,
+    "p09_k_machine_schedule": 5,
+    "p10_avoid_count": 5,
+    "p11_best_average": 5,
+    "p12_sheet": 5
    }
   },
   "haiku-high": {
@@ -1650,8 +1650,8 @@
    "cli": "codex",
    "model": "gpt-6.1-sol",
    "effort": "high",
-   "n": 25,
-   "passes": 25,
+   "n": 60,
+   "passes": 60,
    "pass_at_1": 1.0,
    "ci95": [
     1.0,
@@ -1662,81 +1662,100 @@
      "passed": 10,
      "n": 10
     },
+    "L2": {
+     "passed": 10,
+     "n": 10
+    },
     "L3": {
      "passed": 10,
      "n": 10
     },
     "L4": {
-     "passed": 5,
-     "n": 5
+     "passed": 10,
+     "n": 10
+    },
+    "L5": {
+     "passed": 10,
+     "n": 10
+    },
+    "L6": {
+     "passed": 10,
+     "n": 10
     }
    },
    "breaking_point": null,
    "outcomes": {
-    "pass": 25
+    "pass": 60
    },
    "latency_s": {
-    "median": 9.55,
-    "p25": 6.11,
-    "p75": 11.42,
-    "p90": 19.9,
-    "max": 24.59
+    "median": 17.39,
+    "p25": 9.63,
+    "p75": 21.4,
+    "p90": 27.95,
+    "max": 74.61
    },
    "tokens_mean": {
-    "in_tok": 15307,
+    "in_tok": 15380,
     "cached_tok": 12288,
-    "out_tok": 533,
-    "reasoning_tok": 237
+    "out_tok": 1052,
+    "reasoning_tok": 541
    },
    "input_floor": [
     15184,
     12288
    ],
-   "usd_per_call": 0.012597,
-   "usd_total": 0.3149,
-   "usd_per_pass": 0.012597,
-   "usd_per_pass_L1_L2": 0.009333,
+   "usd_per_call": 0.035868,
+   "usd_total": 2.1521,
+   "usd_per_pass": 0.035868,
+   "usd_per_pass_L1_L2": 0.026864,
    "pass_L1_L2": [
-    10,
-    10
+    20,
+    20
    ],
    "cost_kind": "proxy",
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.0,
+     "diff": 0.2333,
      "ci95": [
-      0.0,
-      0.0
+      0.05,
+      0.45
      ],
-     "problems": 5
+     "problems": 12
     },
     {
      "b": "haiku-low",
-     "diff": 0.0,
+     "diff": 0.05,
      "ci95": [
       0.0,
-      0.0
+      0.15
      ],
-     "problems": 5
+     "problems": 12
     },
     {
      "b": "luna-medium",
-     "diff": 0.0,
+     "diff": 0.2167,
      "ci95": [
-      0.0,
-      0.0
+      0.0333,
+      0.45
      ],
-     "problems": 5
+     "problems": 12
     }
    ],
-   "usd_per_pass_uncached": 0.035944,
+   "usd_per_pass_uncached": 0.082563,
    "by_problem": {
     "p01_overlap_minutes": 5,
     "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 5,
     "p05_pass_route": 5,
     "p06_calc": 5,
-    "p07_weighted_distance_sums": 5
+    "p07_weighted_distance_sums": 5,
+    "p08_recur": 5,
+    "p09_k_machine_schedule": 5,
+    "p10_avoid_count": 5,
+    "p11_best_average": 5,
+    "p12_sheet": 5
    }
   }
  },
@@ -1782,6 +1801,59 @@
    "usd_per_call": 0.082956,
    "usd_total": 1.2443,
    "usd_per_pass": 0.082956,
+   "usd_per_pass_L1_L2": null,
+   "pass_L1_L2": [
+    0,
+    0
+   ],
+   "cost_kind": "proxy",
+   "by_problem": {
+    "p13_xor_ring": 5,
+    "p14_bounce_board": 5,
+    "p15_paint_erase": 5
+   }
+  },
+  "astra-medium-fast": {
+   "cli": "codex",
+   "model": "gpt-6-astra",
+   "effort": "medium",
+   "n": 15,
+   "passes": 15,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L7": {
+     "passed": 15,
+     "n": 15
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 15
+   },
+   "latency_s": {
+    "median": 15.44,
+    "p25": 10.92,
+    "p75": 17.42,
+    "p90": 21.34,
+    "max": 27.14
+   },
+   "tokens_mean": {
+    "in_tok": 15287,
+    "cached_tok": 12160,
+    "out_tok": 775,
+    "reasoning_tok": 327
+   },
+   "input_floor": [
+    15236,
+    12160
+   ],
+   "usd_per_call": 0.1644,
+   "usd_total": 2.466,
+   "usd_per_pass": 0.1644,
    "usd_per_pass_L1_L2": null,
    "pass_L1_L2": [
     0,
@@ -1941,6 +2013,59 @@
    "usd_per_call": 0.023603,
    "usd_total": 0.354,
    "usd_per_pass": 0.023603,
+   "usd_per_pass_L1_L2": null,
+   "pass_L1_L2": [
+    0,
+    0
+   ],
+   "cost_kind": "proxy",
+   "by_problem": {
+    "p13_xor_ring": 5,
+    "p14_bounce_board": 5,
+    "p15_paint_erase": 5
+   }
+  },
+  "sol61-high-fast": {
+   "cli": "codex",
+   "model": "gpt-6.1-sol",
+   "effort": "high",
+   "n": 15,
+   "passes": 15,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L7": {
+     "passed": 15,
+     "n": 15
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 15
+   },
+   "latency_s": {
+    "median": 29.45,
+    "p25": 13.31,
+    "p75": 32.86,
+    "p90": 36.23,
+    "max": 42.66
+   },
+   "tokens_mean": {
+    "in_tok": 15351,
+    "cached_tok": 12288,
+    "out_tok": 1465,
+    "reasoning_tok": 1015
+   },
+   "input_floor": [
+    15296,
+    12288
+   ],
+   "usd_per_call": 0.044008,
+   "usd_total": 0.6601,
+   "usd_per_pass": 0.044008,
    "usd_per_pass_L1_L2": null,
    "pass_L1_L2": [
     0,
@@ -2375,8 +2500,8 @@
      "fails": {}
     },
     "astra-medium-fast": {
-     "passed": 3,
-     "n": 3,
+     "passed": 5,
+     "n": 5,
      "fails": {}
     },
     "haiku-high": {
@@ -2464,8 +2589,8 @@
      "fails": {}
     },
     "astra-medium-fast": {
-     "passed": 3,
-     "n": 3,
+     "passed": 5,
+     "n": 5,
      "fails": {}
     },
     "haiku-high": {
@@ -2552,8 +2677,8 @@
      "fails": {}
     },
     "astra-medium-fast": {
-     "passed": 3,
-     "n": 3,
+     "passed": 5,
+     "n": 5,
      "fails": {}
     },
     "haiku-high": {
@@ -2639,8 +2764,8 @@
      "fails": {}
     },
     "astra-medium-fast": {
-     "passed": 3,
-     "n": 3,
+     "passed": 5,
+     "n": 5,
      "fails": {}
     },
     "haiku-high": {
@@ -2728,8 +2853,8 @@
      "fails": {}
     },
     "astra-medium-fast": {
-     "passed": 3,
-     "n": 3,
+     "passed": 5,
+     "n": 5,
      "fails": {}
     },
     "haiku-high": {
@@ -2818,8 +2943,8 @@
      "fails": {}
     },
     "astra-medium-fast": {
-     "passed": 3,
-     "n": 3,
+     "passed": 5,
+     "n": 5,
      "fails": {}
     },
     "haiku-high": {
@@ -2905,8 +3030,8 @@
      "fails": {}
     },
     "astra-medium-fast": {
-     "passed": 3,
-     "n": 3,
+     "passed": 5,
+     "n": 5,
      "fails": {}
     },
     "haiku-high": {
@@ -2987,8 +3112,8 @@
      "fails": {}
     },
     "astra-medium-fast": {
-     "passed": 2,
-     "n": 2,
+     "passed": 5,
+     "n": 5,
      "fails": {}
     },
     "haiku-high": {
@@ -3077,8 +3202,8 @@
      "fails": {}
     },
     "astra-medium-fast": {
-     "passed": 2,
-     "n": 2,
+     "passed": 5,
+     "n": 5,
      "fails": {}
     },
     "haiku-high": {
@@ -3170,8 +3295,8 @@
      "fails": {}
     },
     "astra-medium-fast": {
-     "passed": 2,
-     "n": 2,
+     "passed": 5,
+     "n": 5,
      "fails": {}
     },
     "haiku-high": {
@@ -3249,6 +3374,11 @@
      "n": 5,
      "fails": {}
     },
+    "astra-medium-fast": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "haiku-high": {
      "passed": 5,
      "n": 5,
@@ -3282,6 +3412,11 @@
      "passed": 5,
      "n": 5,
      "fails": {}
+    },
+    "sol61-high-fast": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
     }
    }
   },
@@ -3311,6 +3446,11 @@
      "fails": {}
     },
     "astra-medium": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "astra-medium-fast": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -3350,6 +3490,11 @@
      "passed": 5,
      "n": 5,
      "fails": {}
+    },
+    "sol61-high-fast": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
     }
    }
   },
@@ -3385,6 +3530,11 @@
      "n": 5,
      "fails": {}
     },
+    "astra-medium-fast": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
     "haiku-high": {
      "passed": 5,
      "n": 5,
@@ -3415,6 +3565,11 @@
      "fails": {}
     },
     "sol61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-high-fast": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -4438,10 +4593,10 @@
   "claude_measured_usd": 2.4624,
   "claude_function_usd": 1.6128,
   "claude_agentic_usd": 0.8496,
-  "codex_proxy_usd": 25.5967,
+  "codex_proxy_usd": 35.4036,
   "codex_fastmode_usd": 3.4069,
   "calls": {
-   "function": 1204,
+   "function": 1261,
    "agentic": 84
   }
  },

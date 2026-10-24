@@ -19,9 +19,10 @@ Main ladder: 12 problems × 5 attempts per config.
 - **sol61-high and astra-medium never failed**: every main-ladder attempt, every attempt on the hardest rung, and all 12 repo-task runs. With the Haiku repair gated on the statement's examples, they needed 0 and 0 repairs on luna's hardest problems (35/35 and 35/35).
 - **The price is time.** On the repo tasks they take 109 s and 85 s at the median, against about 28 s for haiku-low and sonnet-medium.
 - **Skip luna at low or medium effort.** It barely reasons there and misses easy problems. luna-high is the cheapest Codex config but misses some.
+- **Fast mode (⚡) keeps the passes and costs about twice as much per pass.** sol61-high ⚡: 60/60, 17.4 s against 27.4 s; astra-medium ⚡: 60/60, 9.9 s against 20.9 s. Neither missed on L7 (15/15, 15/15).
 - **haiku-high and sonnet-medium also never failed.** haiku-high: 60/60, 15/15 on L7 and 12/12 repo tasks at $0.0028 per pass, 7× cheaper than sol61-high and faster (14.7 s against 27.4 s). haiku-medium still misses (13/15 on L7). sonnet-medium: 75/75, the fastest of them.
 
-Function + agentic spend only (auxiliary runs and pilot excluded): $2.46 Claude, $22.53 Codex at list prices ($16.70 of it for the Codex models added on 2026-10-23, $3.41 for the fast-mode and xhigh runs).
+Function + agentic spend only (auxiliary runs and pilot excluded): $2.46 Claude, $35.40 Codex at list prices ($16.70 of it for the Codex models added on 2026-10-23, $3.41 for the fast-mode and xhigh runs).
 
 ## Read more
 

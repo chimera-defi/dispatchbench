@@ -1,5 +1,6 @@
 """Draw the report charts as plain SVG from results/summary.json. Standard library only; no model calls."""
 import json, math, os
+from analysis.labels import DISP, TESTS, plabel
 from xml.sax.saxutils import escape
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -68,7 +69,7 @@ def pareto_chart(s):
         else:
             b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='{7 if on else 5.5}' fill='{col}' stroke='{INK if on else PLATE}' stroke-width='1.5'/>")
         right = x > W - R - 170 or c in LABEL_LEFT
-        label = f"{c} ({100 * v['pass_at_1']:.0f}%){' *' if v['cost_kind'] == 'proxy' else ''}{', exploratory' if hollow else ''}"
+        label = f"{DISP(c)} ({100 * v['pass_at_1']:.0f}%){' *' if v['cost_kind'] == 'proxy' else ''}{', exploratory' if hollow else ''}"
         b.append(text(x - 10 if right else x + 10, y + LABEL_DY.get(c, -8), label, 11, "end" if right else "start", MUTED if hollow else INK))
     b.append(text(L, H - 10, "Dashed: Pareto. Bars: 95% CI. Hollow: exploratory. * Codex cost is proxy.", 10, fill=MUTED))
     return svg(W, H, b)
@@ -106,24 +107,28 @@ def cost_time_chart(s):
         col = FAMILY(c)
         b.append(f"<circle cx='{px:.1f}' cy='{py:.1f}' r='6' fill='{PLATE if hollow else col}' stroke='{PURPLE if c in front else col if hollow else PLATE}' stroke-width='{3 if c in front else 2 if hollow else 1.5}'/>")
         right = px > W - R - 170 or c in left
-        lab = f"{c} ({100 * allc[c]['pass_at_1']:.0f}%){' *' if allc[c]['cost_kind'] == 'proxy' else ''}"
+        lab = f"{DISP(c)} ({100 * allc[c]['pass_at_1']:.0f}%){' *' if allc[c]['cost_kind'] == 'proxy' else ''}"
         b.append(text(px - 10 if right else px + 10, py + dy.get(c, -8), lab, 11, "end" if right else "start", MUTED if hollow else INK))
     b.append(text(L, H - 10, f"Purple ring: frontier, pass@1 ≥ {100 * MIN_PASS:.0f}%, then cost and time. Hollow: exploratory. * Codex cost is proxy.", 10, fill=MUTED))
     return svg(W, H, b)
 
 
 def rung_chart(s):
-    cfg = s["configs"]; rungs = sorted({g for v in cfg.values() for g in v["by_rung"]}, key=lambda g: int(g[1:]))
+    ex = s.get("exploratory") or {}
+    cfg = {**s["configs"], **{c: ex[c] for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex}}  # fast mode beside its default tier
+    rungs = sorted({g for v in cfg.values() for g in v["by_rung"]}, key=lambda g: int(g[1:]))
     W, H, L, R, T, B = 760, 420, 60, 170, 50, 50
     X = lambda i: L + i / max(1, len(rungs) - 1) * (W - L - R); Y = lambda p: H - B - p * (H - T - B)
-    b = [text(L, 24, "Pass rate by difficulty rung, main-run configs (10 attempts per rung per config)", 14, weight="600")]
+    b = [text(L, 24, "Pass rate by difficulty rung (10 attempts per rung per config; 2 problems per rung)", 14, weight="600"),
+         text(L, 40, "Main-run configs plus sol61-high and astra-medium, each beside its ⚡ fast-mode twin. Main ladder p01–p12 only; L7 not shown.", 10.5, fill=MUTED)]
     for p in (0, 0.2, 0.4, 0.6, 0.8, 1.0):
         b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
     b.append(f"<line x1='{L}' x2='{W - R}' y1='{Y(0.4):.1f}' y2='{Y(0.4):.1f}' stroke='var(--bad,#b3261e)' stroke-dasharray='4 3'/>")
     b.append(text(L + 6, Y(0.4) - 6, "breaking point (≤ 40%)", 11, fill="var(--bad,#b3261e)"))
     for i, g in enumerate(rungs):
         b.append(text(X(i), H - B + 18, g, 11, "middle", MUTED))
-    b.append(text((L + W - R) / 2, H - 12, "rung (L1 easiest)", 12, "middle", MUTED))
+        b.append(text(X(i), H - B + 31, " ".join(q[:3] for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g), 9.5, "middle", MUTED))
+    b.append(text((L + W - R) / 2, H - 12, "rung (L1 easiest; the problems on each rung are listed under it)", 12, "middle", MUTED))
     n = len(cfg); labels = []; seen = {}
     for k, (c, v) in enumerate(cfg.items()):
         off = (k - (n - 1) / 2) * 3  # small horizontal jitter so overlapping lines stay visible
@@ -135,7 +140,7 @@ def rung_chart(s):
     labels.sort(); last = -1e9
     for y, c in labels:  # spread end labels so they don't collide
         y = max(y, last + 14); last = y
-        b.append(text(W - R + 6, y + 4, c, 11, fill=FAMILY(c)))
+        b.append(text(W - R + 6, y + 4, DISP(c), 11, fill=FAMILY(c)))
     return svg(W, H, b)
 
 
@@ -143,16 +148,16 @@ def heatmap(s):
     """Main-run configs first, then exploratory ones (muted headers, after a gap); a dash where a config did not run a problem."""
     ex = s.get("exploratory") or {}
     cols = [(c, {p: v[c] for p, v in s["problems"].items()}, False) for c in s["configs"]] + [(c, v["by_problem"], True) for c, v in ex.items()]
-    probs = list(s["problems"]); cw, ch, L, T, gap = 50, 24, 190, 130, 14
+    probs = sorted(s["problems"], key=lambda q: (s["problems"][q]["rung"], q)); cw, ch, L, T, gap = 50, 24, 250, 130, 14
     X = lambda j: L + j * cw + (gap if cols[j][2] else 0)
     W, H = X(len(cols) - 1) + cw + 20, T + ch * len(probs) + 40
     b = [text(12, 24, "Passes out of 5 per problem and config", 14, weight="600"),
-         text(12, 42, "Left: main run. Right, muted: exploratory configs.", 11, fill=MUTED)]
+         text(12, 42, "Main ladder, p01–p12, rungs L1–L6 (2 per rung). Left: main run. Right, muted: exploratory configs; ⚡ = fast mode.", 11, fill=MUTED)]
     for j, (c, _, x) in enumerate(cols):  # rotated headers so every config fits
-        b.append(text(X(j) + cw / 2 + 4, T - 8, c, 11, "start", MUTED if x else INK, rotate=-55))
+        b.append(text(X(j) + cw / 2 + 4, T - 8, DISP(c), 11, "start", MUTED if x else INK, rotate=-55))
     for i, p in enumerate(probs):
         y = T + i * ch
-        b.append(text(L - 10, y + ch / 2 + 4, f"L{s['problems'][p]['rung']}  {p}", 11, "end", INK))
+        b.append(f"<g><title>{escape(TESTS.get(p, ''))}</title>" + text(L - 10, y + ch / 2 + 4, plabel(p, s["problems"][p]["rung"]), 11, "end", INK) + "</g>")
         for j, (c, bp, _) in enumerate(cols):
             k = bp.get(p)
             if k is None:
@@ -231,8 +236,8 @@ def all_configs(s):
 def cost_tokens_chart(s):
     """Total $ for the 60 function-track calls, and $ per 1,000 tokens processed (input plus output), per config."""
     rows = all_configs(s)
-    tot = [(c + (" *" if v["cost_kind"] == "proxy" else ""), v["usd_total"], FAMILY(c), x) for c, v, x in rows]
-    per = [(c + (" *" if v["cost_kind"] == "proxy" else ""), 1000 * v["usd_per_call"] / (v["tokens_mean"]["in_tok"] + v["tokens_mean"]["out_tok"]), FAMILY(c), x)
+    tot = [(DISP(c) + (" *" if v["cost_kind"] == "proxy" else ""), v["usd_total"], FAMILY(c), x) for c, v, x in rows]
+    per = [(DISP(c) + (" *" if v["cost_kind"] == "proxy" else ""), 1000 * v["usd_per_call"] / (v["tokens_mean"]["in_tok"] + v["tokens_mean"]["out_tok"]), FAMILY(c), x)
            for c, v, x in rows]
     a = bars("Total $ for the 60 function-track calls (L1–L6)", tot, lambda v: f"${v:.3f}", "Hollow: exploratory. * Codex cost is proxy; Claude is measured.")
     b = bars("$ per 1,000 tokens processed (input + output, mean per call)", per, lambda v: f"${v:.5f}",

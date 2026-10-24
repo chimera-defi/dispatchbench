@@ -14,8 +14,9 @@ Template syntax:
 import html, json, os, re, statistics
 
 from analysis import luna_rescue, page as pagew
+from analysis.labels import pshort, plabel, DISP
 from analysis.charts import HOST_AGENTS_MD, MIN_PASS
-from analysis.summarize import ROOT, RES, FUNC, AGENT, ci_text, cost, cost_uncached, load, pct, money, scale
+from analysis.summarize import FAST_CONFIGS, ROOT, RES, FUNC, AGENT, ci_text, cost, cost_uncached, load, pct, money, scale
 
 TEMPLATE = os.path.join(ROOT, "docs", "report.tmpl.md")
 PAGE_TEMPLATE = os.path.join(ROOT, "docs", "page.tmpl.md")  # the page: HTML with facts and widgets
@@ -190,9 +191,9 @@ def facts(s):
     F["r_e_vs_hl_x"] = x(ee["usd_per_pass"], a["haiku-low"]["usd_per_pass"]); F["r_e_more"] = str(ee["passes"] - a["haiku-low"]["passes"])
     F["orchestrator"] = "Claude Opus 5.5"  # the model that designed, ran and checked this benchmark; not a measured config
     hr, lr, hv, sm = a["luna-high-bare+haiku-on-fail"], a["luna-low+haiku-on-fail"], a["luna-high-bare+haiku-review-all"], a["sonnet-medium"]
-    need(hv["passes"] == hv["n"] == sm["passes"], "luna-high + Haiku review and sonnet-medium never failed on the hard set")
+    need(hv["passes"] == hv["n"] == sm["passes"], "luna-high + Haiku review and sonnet-medium never failed on the rescue set")
     hm = a["haiku-medium"]; need(hm["passes"] == hm["n"] and hm["usd_per_pass"] < hv["usd_per_pass"], "haiku-medium alone: no miss, cheaper than the pipeline")
-    F["hm_vs_pipe_x"] = x(hv["usd_per_pass"], hm["usd_per_pass"]); F["r_pids"] = str(len(luna_rescue.PIDS))
+    F["hm_vs_pipe_x"] = x(hv["usd_per_pass"], hm["usd_per_pass"]); F["r_pids"] = ", ".join(pshort(q) for q in luna_rescue.PIDS)
     F["sm_vs_hm_x"] = f"{cfg['sonnet-medium']['usd_per_pass'] / cfg['haiku-medium']['usd_per_pass']:.0f}×"
     hm7 = hard["haiku-medium"]; F["hm_l7_k"] = f"{hm7['passes']}/{hm7['n']}"
     F["hm_l7_miss"] = " and ".join(f"{v} {k}" for k, v in sorted(hm7["outcomes"].items()) if k != "pass") or "none"
@@ -239,12 +240,23 @@ def facts(s):
             blk = {i["config"] for i in b["items"] if i["block"]}
             need(blk == {"sonnet-medium"}, "every solution the blind reader would block came from sonnet-medium")
             F["bl_blocks"] = str(sum(i["block"] for i in b["items"]))
+    # fast mode on the main ladder and L7 (exploratory, 2026-10-24): same model and effort, priority tier
+    for k, (b0, b1) in {"s61": ("sol61-high", "sol61-high-fast"), "ast": ("astra-medium", "astra-medium-fast")}.items():
+        d, f = ex[b0], ex[b1]; dh, fh = hard[b0], hard[b1]
+        need(d["passes"] == d["n"] == f["passes"] == f["n"] and dh["passes"] == dh["n"] == fh["passes"] == fh["n"], f"{b1} and {b0} never failed on the main ladder or L7")
+        need(f["latency_s"]["median"] < d["latency_s"]["median"] and fh["latency_s"]["median"] < dh["latency_s"]["median"], f"{b1} is quicker than {b0}")
+        need(f["usd_per_pass"] > d["usd_per_pass"], f"{b1} costs more per pass than {b0}")
+        F[f"ff_{k}_k"] = f"{f['passes']}/{f['n']}"; F[f"ff_{k}_hk"] = f"{fh['passes']}/{fh['n']}"
+        F[f"ff_{k}_upp"] = u(f["usd_per_pass"], 4); F[f"ff_{k}_dupp"] = u(d["usd_per_pass"], 4)
+        F[f"ff_{k}_med"] = f"{f['latency_s']['median']:.1f}"; F[f"ff_{k}_dmed"] = f"{d['latency_s']['median']:.1f}"
+        F[f"ff_{k}_faster"] = f"{(1 - f['latency_s']['median'] / d['latency_s']['median']) * 100:.0f}%"; F[f"ff_{k}_x"] = x(f["usd_per_pass"], d["usd_per_pass"])
     F["growth_margin"] = str(GROWTH_MARGIN)
     F["n_solutions"] = str(sum(1 for _, _, fs in os.walk(os.path.join(RES, "solutions")) for f in fs if f.endswith(".py")))
     # Codex additions (exploratory, run after the report at the operator's request)
     nr = [r for r in rows if r["config"] in NEW_CODEX and r["phase"] != "fastmode"]; F["new_date"] = min(r["ts"] for r in nr)[:10]; F["n_new_codex"] = str(len(NEW_CODEX))
     nu = sum(map(cost, nr + [r for r in agent if r["config"] in NEW_CODEX]))  # function and repo-task runs alike
-    F["codex_new_usd"] = f"${nu:.2f}"; F["codex_old_usd"] = f"${sp['codex_proxy_usd'] - nu - sp['codex_fastmode_usd']:.2f}"; F["fm_usd"] = u(sp['codex_fastmode_usd'], 2)
+    ffu = sum(map(cost, [r for r in rows if r["config"] in FAST_CONFIGS and r["phase"] != "fastmode"]))  # fast-mode runs on the main ladder and L7 (2026-10-24)
+    F["codex_new_usd"] = f"${nu:.2f}"; F["codex_old_usd"] = f"${sp['codex_proxy_usd'] - nu - sp['codex_fastmode_usd'] - ffu:.2f}"; F["ff_usd"] = f"${ffu:.2f}"; F["fm_usd"] = u(sp['codex_fastmode_usd'], 2)
     for c in NEW_CODEX:
         k = "x_" + c.replace("-", "_"); e, h = ex[c], hard[c]
         F[k + "_k"] = f"{e['passes']}/{e['n']}"; F[k + "_upp"] = u(e["usd_per_pass"], 4); F[k + "_med"] = f"{e['latency_s']['median']:.1f}"
@@ -257,7 +269,7 @@ def facts(s):
     F["x_sol56_vs_hm"] = f"{ex['sol56-high']['usd_per_pass'] / cfg['haiku-medium']['usd_per_pass']:.0f}×"
     F["x_astra_vs_hm"] = f"{ex['astra-medium']['usd_per_pass'] / cfg['haiku-medium']['usd_per_pass']:.0f}×"
     sm_all = cfg["sonnet-medium"]["usd_per_pass"]; perfect = [c for c in list(cfg) + list(ex) if (cfg.get(c) or ex[c])["passes"] == (cfg.get(c) or ex[c])["n"] and c in hard and hard[c]["passes"] == hard[c]["n"]]
-    need(sorted(perfect) == ["astra-medium", "haiku-high", "sol61-high", "sonnet-medium"] and min(ex[c]["usd_per_pass"] for c in ("astra-medium", "sol61-high")) > sm_all > ex["haiku-high"]["usd_per_pass"],
+    need(sorted(perfect) == ["astra-medium", "astra-medium-fast", "haiku-high", "sol61-high", "sol61-high-fast", "sonnet-medium"] and min(ex[c]["usd_per_pass"] for c in ("astra-medium", "sol61-high")) > sm_all > ex["haiku-high"]["usd_per_pass"],
          "haiku-high is the cheapest config with no miss anywhere, then sonnet-medium; astra-medium and sol61-high the only others")
     # haiku-high (exploratory, added 2026-10-24): the parity question, the cheapest config with no miss against the others
     hx, hxh, smh7 = ex["haiku-high"], hard["haiku-high"], hard["sonnet-medium"]
@@ -283,7 +295,7 @@ def facts(s):
     F["ag_claude_med"] = f"{statistics.mean(ag[c]['latency_s']['median'] for c in ('haiku-low', 'sonnet-medium')):.0f}"
     ga = luna_rescue.arms()
     for c in ("sol61-high+haiku-on-fail", "astra-medium+haiku-on-fail"):
-        g = ga[c]; need(g["passes"] == g["n"], f"{c} never failed on the hard set"); F["g_" + c.split("-")[0] + "_repairs"] = str(sum(r["repaired"] for r in g["rows"]))
+        g = ga[c]; need(g["passes"] == g["n"], f"{c} never failed on the rescue set"); F["g_" + c.split("-")[0] + "_repairs"] = str(sum(r["repaired"] for r in g["rows"]))
         F["g_" + c.split("-")[0] + "_cupp"] = u(g["claude_usd_per_pass"])
     F["x_astra_vs_sm"] = f"{ex['astra-medium']['usd_per_pass'] / sm_all:.0f}×"
     F["x_l56_vs_lh"] = x(ex["luna56-high"]["usd_per_pass"], ex["luna-high"]["usd_per_pass"])

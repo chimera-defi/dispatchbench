@@ -19,6 +19,7 @@ The main run was on 2026-10-22: $2.46 of Claude CLI-reported spend (function + a
 | luna-medium | 78% (47/60) | 57%–97% | 8.2 | 11.8 | 0.00089 | 0.042 | proxy |
 | sol61-medium | 97% (58/60) | 87%–100% | 22.6 | 36.2 | 0.01499 | 0.869 | proxy |
 | astra-medium (exploratory) | 100% (60/60) | ≥78% (all passed) | 20.9 | 35.6 | 0.07526 | 4.516 | proxy |
+| astra-medium-fast (exploratory) | 100% (60/60) | ≥78% (all passed) | 9.9 | 13.6 | 0.15202 | 9.121 | proxy |
 | haiku-high (exploratory) | 100% (60/60) | ≥78% (all passed) | 14.7 | 37.6 | 0.00282 | 0.169 | measured |
 | luna-high (exploratory) | 92% (55/60) | 82%–100% | 12.2 | 22.9 | 0.00105 | 0.058 | proxy |
 | luna-low-bare (exploratory) | 73% (44/60) | 52%–92% | 6.8 | 11.1 | 0.00080 | 0.035 | proxy |
@@ -26,6 +27,7 @@ The main run was on 2026-10-22: $2.46 of Claude CLI-reported spend (function + a
 | luna56-low (exploratory) | 80% (48/60) | 60%–97% | 9.2 | 17.4 | 0.00218 | 0.105 | proxy |
 | sol56-high (exploratory) | 100% (60/60) | ≥78% (all passed) | 14.5 | 48.4 | 0.04180 | 2.508 | proxy |
 | sol61-high (exploratory) | 100% (60/60) | ≥78% (all passed) | 27.4 | 50.2 | 0.01861 | 1.117 | proxy |
+| sol61-high-fast (exploratory) | 100% (60/60) | ≥78% (all passed) | 17.4 | 27.9 | 0.03587 | 2.152 | proxy |
 
 Function track: 12 problems × 5 attempts per config. Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
 
@@ -40,7 +42,7 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 ## What it found
 
 1. **"Low effort" is not the same budget on both CLIs, and on the point estimates that explains most of luna's gap.** At low and medium effort luna emits a mean of 0 and 7 reasoning tokens per call; haiku-low emits about 1,030. At those settings luna passes 77% and 78%, and haiku-low passes 95% (paired difference +18.3 pts, CI +1.7 to +38.3). At high effort luna emits about 530 reasoning tokens and passes 92% (55/60), 3.3 pts below haiku-low (CI −13.3 to +6.7). Its cost per pass, $0.00105, is close to haiku-low's $0.00112, and its median latency is 12.2 s against 10.0 s.
-2. **Luna's misses at low and medium effort cluster on three problems.** Together they pass 2/10 attempts on p04 (L2), 6/10 on p11 (L6) and 0/10 on p12 (L6). The pre-registered escalation re-ran those three at high effort: 13/15 against luna-medium's 3/15. The three were chosen because luna failed them, so that ratio overstates the general gain; the full-ladder luna-high run is the unbiased version (+13.3 pts against luna-medium, CI −5.0 to +35.0).
+2. **Luna's misses at low and medium effort cluster on three problems.** Together they pass 2/10 attempts on p04 taller_within (L2), 6/10 on p11 best_average (L6) and 0/10 on p12 sheet (L6). The pre-registered escalation re-ran those three at high effort: 13/15 against luna-medium's 3/15. The three were chosen because luna failed them, so that ratio overstates the general gain; the full-ladder luna-high run is the unbiased version (+13.3 pts against luna-medium, CI −5.0 to +35.0).
 3. **Stripping the Codex harness halves luna's input but does not make it as accurate as Haiku.** On the full ladder stripped luna passes 73% against haiku-low's 95%: −21.7 pts, CI −43.3 to 0.0, so the interval's upper end touches zero. Its cost per pass, $0.00080, depends on Codex's prompt cache: with no input served from cache it would be $0.00120, 7% above Haiku's measured $0.00112 (which includes Claude's own cache discount).
 4. **The repo tasks did not separate the configs.** The four configs first run passed every hidden test, 12/12 runs each (so did the two added later, finding 5). What differs is cost per run: luna-low $0.0040, haiku-low $0.0051, sonnet-medium $0.054, sol61-medium $0.075, a 19× spread for the same outcome. sol61-medium also took 89 s at the median against about 28 s for the other three. Part of the Codex cost and time comes from the host's `AGENTS.md`, which Codex loads and which tells the agent to look for more `AGENTS.md` files and to run a search helper and a review delegate. Commands that do one of those, or clean up after the delegate, account for 57 of sol61's 97 shell commands and 26 of luna's 62. The Codex agentic costs and times were measured with host instructions present.
 
@@ -65,6 +67,7 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 | luna-medium | 14,688 | 11,520 | 530 | 7 | 0.00005 |
 | sol61-medium | 15,380 | 12,346 | 718 | 209 | 0.00090 |
 | astra-medium (exploratory) | 15,319 | 12,207 | 639 | 127 | 0.00472 |
+| astra-medium-fast (exploratory) | 15,316 | 12,160 | 646 | 136 | 0.00952 |
 | haiku-high (exploratory) | 4,418 | 649 | 4,123 | 3,353 | 0.00033 |
 | luna-high (exploratory) | 14,688 | 11,520 | 1,060 | 526 | 0.00006 |
 | luna-low-bare (exploratory) | 6,144 | 3,255 | 528 | 0 | 0.00009 |
@@ -72,6 +75,7 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 | luna56-low (exploratory) | 12,965 | 10,281 | 835 | 295 | 0.00013 |
 | sol56-high (exploratory) | 14,504 | 11,315 | 1,226 | 668 | 0.00266 |
 | sol61-high (exploratory) | 15,380 | 12,083 | 1,081 | 565 | 0.00113 |
+| sol61-high-fast (exploratory) | 15,380 | 12,288 | 1,052 | 541 | 0.00218 |
 
 ![Pass rate by difficulty rung, 10 attempts per rung per config.](../results/report/charts/pass_by_rung.svg)
 
@@ -114,7 +118,7 @@ Pass/fail stays the headline. These columns describe the passing solutions only,
 | sol56-high | 60 | 46 | 14 | 0.03 | 0.83 | 1 | 1.00 |
 | sol61-high | 60 | 51 | 16 | 0.03 | 0.72 | 0 | 1.00 |
 
-Medians are over each config's passing L1–L6 solutions, so a config that fails p12, whose solutions are the longest, has a smaller median LOC for that reason alone. "Growth worse than reference" counts solutions whose fitted time exponent is more than 0.3 above the reference's on the same inputs. The medians hide per-problem patterns: on p08, 11 passing solutions from 7 configs run 29× to 2453× slower than the reference at the largest size, because the reference runs in near-constant time (fitted exponent 0.03) and theirs grow with the input. Per-problem rows are in each problem's table under results/solutions/.
+Medians are over each config's passing L1–L6 solutions, so a config that fails p12 sheet, whose solutions are the longest, has a smaller median LOC for that reason alone. "Growth worse than reference" counts solutions whose fitted time exponent is more than 0.3 above the reference's on the same inputs. The medians hide per-problem patterns: on p08, 11 passing solutions from 7 configs run 29× to 2453× slower than the reference at the largest size, because the reference runs in near-constant time (fitted exponent 0.03) and theirs grow with the input. Per-problem rows are in each problem's table under results/solutions/.
 
 **Repo tasks.** Every task asked for a regression test. Whether the requested test file exists is checked by the harness after each run. The function counts come from the agents' own transcripts; Codex logs list the test files it touched but not always their contents, so its function counts are lower bounds.
 
@@ -132,14 +136,16 @@ Medians are over each config's passing L1–L6 solutions, so a config that fails
 
 ## Harder rung (L7), added after the main run
 
-Three more problems, written and checked before any model saw them (PLAN.md, deviation 16), each harder than p12: a cellular automaton on a ring run for up to 10^18 steps (p13), exact expected turns on a board game with bounce-back and chained jumps (p14), and paint/erase operations on 10^9 cells (p15). 5 attempts per config: the four original configs first, then the five later Codex models. These rows are kept apart from L1–L6 and change no number above.
+Three more problems, written and checked before any model saw them (PLAN.md, deviation 16), each harder than p12 sheet: a cellular automaton on a ring run for up to 10^18 steps (p13 xor_ring), exact expected turns on a board game with bounce-back and chained jumps (p14 bounce_board), and paint/erase operations on 10^9 cells (p15 paint_erase). 5 attempts per config: the four original configs first, then the five later Codex models. These rows are kept apart from L1–L6 and change no number above.
 
 | config | passed | 95% CI | p13 | p14 | p15 | median s | mean reasoning tokens | $ per pass | $ kind |
 |---|---|---|---|---|---|---|---|---|---|
 | astra-medium | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 30.6 | 315 | 0.0830 | proxy |
+| astra-medium-fast | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 15.4 | 327 | 0.1644 | proxy |
 | haiku-high | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 27.4 | 4,483 | 0.0034 | measured |
 | luna-high | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 24.0 | 1,569 | 0.0015 | proxy |
 | sol61-high | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 52.7 | 1,151 | 0.0236 | proxy |
+| sol61-high-fast | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 29.4 | 1,015 | 0.0440 | proxy |
 | sol61-medium | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 35.2 | 482 | 0.0170 | proxy |
 | sonnet-medium | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 15.0 | 806 | 0.0180 | measured |
 | haiku-medium | 13/15 | 67%–100% | 5/5 | 4/5 | 4/5 | 21.2 | 2,916 | 0.0030 | measured |
@@ -148,7 +154,7 @@ Three more problems, written and checked before any model saw them (PLAN.md, dev
 | luna56-high | 9/15 | 33%–87% | 4/5 | 2/5 | 3/5 | 20.7 | 2,605 | 0.0078 | proxy |
 | luna56-low | 8/15 | 27%–80% | 3/5 | 2/5 | 3/5 | 11.6 | 761 | 0.0046 | proxy |
 
-- **Of the four configs first run on L7, only haiku-low failed, and only on speed.** All 3 misses are timeouts on the same p15 case: 50,000 single cells painted with a high colour, then 50,000 paints across the whole strip. The failing solutions keep a sorted list of coloured intervals and visit every interval a paint covers, which is quadratic on that case; the 2 passing attempts used a segment tree. None of haiku-low's answers was wrong.
+- **Of the four configs first run on L7, only haiku-low failed, and only on speed.** All 3 misses are timeouts on the same p15 paint_erase case: 50,000 single cells painted with a high colour, then 50,000 paints across the whole strip. The failing solutions keep a sorted list of coloured intervals and visit every interval a paint covers, which is quadratic on that case; the 2 passing attempts used a segment tree. None of haiku-low's answers was wrong.
 - **The other three did not separate.** With three problems, a perfect score only bounds the pass rate at ≥37% (one-sided 95%), so this says L7 is still not hard enough for them, not that they are equally strong. What does separate them is price and time: luna-high costs $0.0015 per pass (proxy) against $0.017–0.018 for sol61-medium and sonnet-medium, and sonnet-medium is the fastest at 15 s.
 - Both effort-adaptive configs spent more reasoning on L7 than on L1–L6: haiku-low 2.4× (1,027 → 2,506 tokens), luna-high 3.0× (526 → 1,569).
 
@@ -156,26 +162,26 @@ Three more problems, written and checked before any model saw them (PLAN.md, dev
 
 Every problem with at least one failure, over all phases. Cells are passes out of 5 (bold when 2 or fewer), then the failures: w wrong answer, c crash, t timeout. A dash means not run.
 
-| problem | haiku-low | haiku-medium | sonnet-medium | luna-low | luna-medium | sol61-medium | astra-medium | haiku-high | luna-high | luna-low-bare | luna56-high | luna56-low | sol56-high | sol61-high |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| p03 L2 | 5 | 5 | 5 | 5 | 4 (1c) | 5 | 5 | 5 | 5 | 3 (1c 1w) | 5 | 5 | 5 | 5 |
-| p04 L2 | 5 | 5 | 5 | **1** (2t 2w) | **1** (1t 3w) | 5 | 5 | 5 | 5 | **1** (4w) | 4 (1w) | 4 (1w) | 5 | 5 |
-| p05 L3 | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 5 |
-| p06 L3 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1w) | **1** (4w) | 5 | 5 |
-| p07 L4 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 3 (1t 1w) | 5 | 5 |
-| p08 L4 | 5 | 5 | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 5 | 4 (1t) | 5 | 5 | 5 | 5 |
-| p09 L5 | 3 (2t) | 5 | 5 | **2** (2t 1w) | 5 | 5 | 5 | 5 | 4 (1c) | 5 | 5 | 5 | 5 | 5 |
-| p10 L5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1c) | 4 (1w) | 5 | 4 (1w) | 5 | 5 |
-| p11 L6 | 5 | 5 | 5 | 4 (1w) | **2** (3w) | 5 | 5 | 5 | 5 | **2** (1c 2w) | 5 | 5 | 5 | 5 |
-| p12 L6 | 4 (1c) | 5 | 5 | **0** (4c 1w) | **0** (4c 1w) | 3 (2c) | 5 | 5 | 3 (2c) | **0** (4c 1w) | 3 (2c) | **1** (3c 1w) | 5 | 5 |
-| p13 L7 | 5 | 5 | 5 | – | – | 5 | 5 | 5 | 5 | – | 4 (1c) | 3 (2w) | 5 | 5 |
-| p14 L7 | 5 | 4 (1c) | 5 | – | – | 5 | 5 | 5 | 5 | – | **2** (3c) | **2** (3c) | 3 (2c) | 5 |
-| p15 L7 | **2** (3t) | 4 (1t) | 5 | – | – | 5 | 5 | 5 | 5 | – | 3 (2w) | 3 (2w) | 5 | 5 |
+| problem | haiku-low | haiku-medium | sonnet-medium | luna-low | luna-medium | sol61-medium | astra-medium | astra-medium-fast | haiku-high | luna-high | luna-low-bare | luna56-high | luna56-low | sol56-high | sol61-high | sol61-high-fast |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| p03 L2 | 5 | 5 | 5 | 5 | 4 (1c) | 5 | 5 | 5 | 5 | 5 | 3 (1c 1w) | 5 | 5 | 5 | 5 | – |
+| p04 L2 | 5 | 5 | 5 | **1** (2t 2w) | **1** (1t 3w) | 5 | 5 | 5 | 5 | 5 | **1** (4w) | 4 (1w) | 4 (1w) | 5 | 5 | – |
+| p05 L3 | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 5 | 5 |
+| p06 L3 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1w) | **1** (4w) | 5 | 5 | 5 |
+| p07 L4 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 3 (1t 1w) | 5 | 5 | 5 |
+| p08 L4 | 5 | 5 | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1t) | 5 | 5 | 5 | 5 | – |
+| p09 L5 | 3 (2t) | 5 | 5 | **2** (2t 1w) | 5 | 5 | 5 | 5 | 5 | 4 (1c) | 5 | 5 | 5 | 5 | 5 | – |
+| p10 L5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1c) | 4 (1w) | 5 | 4 (1w) | 5 | 5 | – |
+| p11 L6 | 5 | 5 | 5 | 4 (1w) | **2** (3w) | 5 | 5 | 5 | 5 | 5 | **2** (1c 2w) | 5 | 5 | 5 | 5 | – |
+| p12 L6 | 4 (1c) | 5 | 5 | **0** (4c 1w) | **0** (4c 1w) | 3 (2c) | 5 | 5 | 5 | 3 (2c) | **0** (4c 1w) | 3 (2c) | **1** (3c 1w) | 5 | 5 | – |
+| p13 L7 | 5 | 5 | 5 | – | – | 5 | 5 | 5 | 5 | 5 | – | 4 (1c) | 3 (2w) | 5 | 5 | 5 |
+| p14 L7 | 5 | 4 (1c) | 5 | – | – | 5 | 5 | 5 | 5 | 5 | – | **2** (3c) | **2** (3c) | 3 (2c) | 5 | 5 |
+| p15 L7 | **2** (3t) | 4 (1t) | 5 | – | – | 5 | 5 | 5 | 5 | 5 | – | 3 (2w) | 3 (2w) | 5 | 5 | 5 |
 
 - **sonnet-medium never failed**: 75/75 across L1–L7. Of the configs added later, haiku-high, sol61-high and astra-medium matched it.
-- **p12 (a spreadsheet evaluator) is where most configs break, and they break by crashing.** Of the 15 attempts by luna-low, luna-medium and stripped luna, 9 raise a parse error on one of the statement's own worked examples and 3 hit Python's recursion limit on a long chain of cell references; haiku-low's one miss is also the recursion limit.
-- **luna at low and medium effort fails p04 at L2**, a sliding-window count, and 8 of its 9 wrong answers are on the statement's own first worked example, `taller_within([5, 1, 4, 4, 9], 2)`. luna-high and every Claude config pass it 5/5.
-- **haiku-low fails by being slow, not wrong**: 5 timeouts (p09, p15) and 1 crash over 75 attempts, no wrong answers. haiku-medium's one miss is a wrong answer on p05.
+- **p12 sheet (a spreadsheet evaluator) is where most configs break, and they break by crashing.** Of the 15 attempts by luna-low, luna-medium and stripped luna, 9 raise a parse error on one of the statement's own worked examples and 3 hit Python's recursion limit on a long chain of cell references; haiku-low's one miss is also the recursion limit.
+- **luna at low and medium effort fails p04 taller_within at L2**, a sliding-window count, and 8 of its 9 wrong answers are on the statement's own first worked example, `taller_within([5, 1, 4, 4, 9], 2)`. luna-high and every Claude config pass it 5/5.
+- **haiku-low fails by being slow, not wrong**: 5 timeouts (p09 k_machine_schedule, p15 paint_erase) and 1 crash over 75 attempts, no wrong answers. haiku-medium's one miss is a wrong answer on p05 pass_route.
 
 ## Method
 
@@ -225,9 +231,9 @@ rebuilds every table, chart and number in this README and the page from the cach
 ## Limitations
 
 - **Small sample.** 12 problems and 4 repo tasks, with 5 and 3 attempts. The intervals are wide; read them before the point estimates.
-- **The breaking point is unstable at this size.** With 10 attempts per rung, two attempts move it. Stripped luna breaks at L2 (4/10) and stock luna at L6, yet stripped luna then scores 10/10 on L3. The rung order is the author's prior about difficulty, not a measurement, and the per-problem chart shows where it was wrong (for luna, p04 at L2 is harder than every problem except p12).
+- **The breaking point is unstable at this size.** With 10 attempts per rung, two attempts move it. Stripped luna breaks at L2 (4/10) and stock luna at L6, yet stripped luna then scores 10/10 on L3. The rung order is the author's prior about difficulty, not a measurement, and the per-problem chart shows where it was wrong (for luna, p04 taller_within at L2 is harder than every problem except p12 sheet).
 - **The repo tasks hit a ceiling.** All 84 runs passed. They show cost and latency differences, not capability differences.
-- **Codex cost is a proxy**, and it depends on the provider's prompt cache. Identical prompts got between 0 and 6.1k cached tokens (stripped luna on p06), which moves a Codex call's cost by up to 5.8×. The stripped-luna figures give a no-cache bound for that reason. Claude cost is measured, but it is the CLI's own accounting.
+- **Codex cost is a proxy**, and it depends on the provider's prompt cache. Identical prompts got between 0 and 6.1k cached tokens (stripped luna on p06 calc), which moves a Codex call's cost by up to 5.8×. The stripped-luna figures give a no-cache bound for that reason. Claude cost is measured, but it is the CLI's own accounting.
 - **Harnesses are matched, not identical.** Codex cannot turn tools off on the function track; it gets a read-only sandbox and an instruction. Codex also injects the host's user-level `AGENTS.md` (about 1.3k tokens), so every Codex input count includes tokens a clean install would not have. Claude Code keeps its own default system prompt.
 - **Latency is wall-clock through the CLI** on one host with up to 4 calls in flight. It includes CLI start-up and network time, and is not comparable to API time-to-first-token. The exploratory stripped-luna run used one lane at a different time of day, so its latency is not a clean comparison with luna-low.
 - **The cache key leaves out a few inputs.** The effort and model literals inside the trim probe are not hashed. The one-line system prompt and the grader's source are pinned by SHA-256 instead: the runners and the grader refuse to run if either file changes while cached results exist.
@@ -240,7 +246,7 @@ rebuilds every table, chart and number in this README and the page from the cach
 
 ## Appendix A: can refinements rescue luna-low? (exploratory, post hoc)
 
-After the main run, several changes were tried on the seven problems luna-low fails most often (p03, p04, p08, p09, p10, p11, p12), with 5 attempts each, n = 35 per row. The problems were picked because luna failed them, so these rows overstate any gain and carry no confidence intervals. The baselines are the main run's attempts on the same problems. Rows are in [results/appendix/luna_rescue.jsonl](../results/appendix/luna_rescue.jsonl).
+After the main run, several changes were tried on the seven problems luna-low fails most often, the rescue set (p03 ledger, p04 taller_within, p08 recur, p09 k_machine_schedule, p10 avoid_count, p11 best_average, p12 sheet), with 5 attempts each, n = 35 per row. The problems were picked because luna failed them, so these rows overstate any gain and carry no confidence intervals. The baselines are the main run's attempts on the same problems. Rows are in [results/appendix/luna_rescue.jsonl](../results/appendix/luna_rescue.jsonl).
 
 | config | passed | $ per pass | median s |
 |---|---|---|---|
@@ -266,7 +272,9 @@ After the main run, several changes were tried on the seven problems luna-low fa
 | sonnet-medium | 35/35 | 0.01530 | 11.4 |
 | sol61-medium | 33/35 | 0.01785 | 25.6 |
 | sol61-high | 35/35 | 0.02218 | 33.4 |
+| sol61-high, fast mode | 35/35 | 0.04349 | 18.9 |
 | astra-medium | 35/35 | 0.08642 | 26.0 |
+| astra-medium, fast mode | 35/35 | 0.17494 | 10.9 |
 | sol56-high | 35/35 | 0.05068 | 19.5 |
 | luna56-high | 32/35 | 0.00360 | 14.1 |
 | luna56-low | 29/35 | 0.00248 | 12.3 |
@@ -281,7 +289,7 @@ After the main run, several changes were tried on the seven problems luna-low fa
 
 ## Appendix C: Codex fast mode and xhigh effort (exploratory, added later)
 
-Asked after the main run: can fan-outs use sol61-high in fast mode (the priority service tier, same model and effort), and does sol61 at xhigh write better or worse code? Both ran on the hard set, 35 attempts each, with a default-tier sol61-high control run at the same time (repeats 6 to 10, so the earlier sol61-high rows stay as they were). These rows are kept apart and change no number above. Fast-mode dollars use the published 2× multiplier.
+Asked after the main run: can fan-outs use sol61-high in fast mode (the priority service tier, same model and effort), and does sol61 at xhigh write better or worse code? Both ran on the rescue set, 35 attempts each, with a default-tier sol61-high control run at the same time (repeats 6 to 10, so the earlier sol61-high rows stay as they were). These rows are kept apart and change no number above. Fast-mode dollars use the published 2× multiplier.
 
 | config | passed | median s | median output tokens | $ per pass (proxy) | median LOC | median max complexity | lint warnings per solution | median time vs reference |
 |---|---|---|---|---|---|---|---|---|
@@ -290,6 +298,7 @@ Asked after the main run: can fan-outs use sol61-high in fast mode (the priority
 | sol61-xhigh, default tier | 35/35 | 44.3 | 1,662 | 0.0326 | 64 | 23 | 0.00 | 0.72 |
 
 - **Fast mode is the same answers, sooner.** Every attempt passed, the code measures the same, and the median call took 18.9 s against 30.1 s (37% faster), at 2× the list price.
+- **Fast mode on the whole main ladder and the L7 set (added 2026-10-24).** Both trusted Codex builders also ran in fast mode on all 12 main-ladder problems and the 3 L7 problems, 5 attempts each, and none missed. sol61-high ⚡: 60/60 and 15/15 on L7, $0.0359 per pass and 17.4 s against $0.0186 and 27.4 s at the default tier (37% quicker, 1.9× the cost per pass). astra-medium ⚡: 60/60 and 15/15, $0.1520 and 9.9 s against $0.0753 and 20.9 s (53% quicker, 2.0× the cost per pass). The ⚡ rows are in every table and chart beside their default-tier twin; spend on them: $12.88.
 - **xhigh buys nothing here.** Same passes, 1.5× the output tokens, 1.5× the cost per pass and 44.3 s per call, with no better code on any measure.
 
 A blind read of 20 passing solutions (4 problems × 5 configs, shuffled, labels hidden, one Fable reviewer) scored readability and marked any it would not merge. All 3 blocks were sonnet-medium answers; the Codex flagships and haiku-medium scored alike. One reviewer and one solution per cell is a small sample: read it as "no sign of bad code", not a ranking.
