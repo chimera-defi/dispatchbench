@@ -9,7 +9,7 @@ import hashlib, json, os, shutil, tempfile
 from concurrent.futures import ThreadPoolExecutor
 
 from analysis.luna_rescue import PIDS
-from analysis.summarize import cost
+from analysis.summarize import cost, usd, money
 from bench import problems
 from bench.grade import grade_text
 from bench.grade_all import extract
@@ -50,7 +50,7 @@ def cached(kind, blob, make):
         res, _ = make(cwd)
     finally:
         shutil.rmtree(cwd, ignore_errors=True)
-    os.makedirs(CACHE, exist_ok=True); json.dump(res, open(fp, "w"), indent=1)
+    os.makedirs(CACHE, exist_ok=True); json.dump(res, open(fp + ".tmp", "w"), indent=1); os.replace(fp + ".tmp", fp)
     return res
 
 
@@ -72,7 +72,7 @@ def main():
         plans = dict(zip(jobs, ex.map(lambda j: plan(*j), jobs)))
     bad = [j for j, p in plans.items() if p["is_error"] or not p["text"].strip()]
     assert not bad, f"planner errors: {bad}"
-    print(f"plans done; Haiku ${sum(p['cost_usd'] or 0 for p in plans.values()):.4f}", flush=True)
+    print(f"plans done; Haiku {money(usd(p.get('cost_usd') for p in plans.values()), 4)} USD", flush=True)
     with ThreadPoolExecutor(4) as ex:
         builds = dict(zip([(c, *j) for c in BUILDERS for j in jobs],
                           ex.map(lambda t: build(t[0], t[1], t[2], plans[(t[1], t[2])]), [(c, *j) for c in BUILDERS for j in jobs])))
@@ -80,11 +80,11 @@ def main():
     for (c, pid, rep), b in builds.items():
         pl = plans[(pid, rep)]; code = extract(b.get("text"))
         g = grade_text(pid, code) if code.strip() else {"outcome": "harness_error" if b["is_error"] else "no_code"}
-        luna = cost({"cli": "codex", "model": BUILDERS[c][0], **b}); haiku = pl["cost_usd"] or 0.0
+        luna = cost({"cli": "codex", "model": BUILDERS[c][0], **b}); haiku = pl.get("cost_usd")
         rows.append({"arm": "F", "config": c, "problem": pid, "repeat": rep,
                      "in_tok": pl["in_tok"] + b["in_tok"], "cached_tok": pl["cached_tok"] + b["cached_tok"], "out_tok": pl["out_tok"] + b["out_tok"],
                      "reasoning_tok": pl["reasoning_tok"] + b["reasoning_tok"], "wall_s": round(pl["wall_s"] + b["wall_s"], 2),
-                     "cost_usd": luna + haiku, "passed": g["outcome"] == "pass", "check": g["outcome"],
+                     "cost_usd": usd([luna, haiku], digits=None), "passed": g["outcome"] == "pass", "check": g["outcome"],
                      "luna_cost_usd": luna, "haiku_cost_usd": haiku,
                      "claude_cli": cli_version("claude"), "codex_cli": cli_version("codex")})
         print(f"{c} {pid} r{rep}: {g['outcome']}", flush=True)
@@ -93,7 +93,7 @@ def main():
         f.writelines(keep); f.writelines(json.dumps(r) + "\n" for r in rows)
     for c in BUILDERS:
         rr = [r for r in rows if r["config"] == c]
-        print(f"{c}: {sum(r['passed'] for r in rr)}/{len(rr)}, ${sum(r['cost_usd'] for r in rr) / max(1, sum(r['passed'] for r in rr)):.5f} per pass")
+        print(f"{c}: {sum(r['passed'] for r in rr)}/{len(rr)}, {money(usd((r['cost_usd'] for r in rr), sum(r['passed'] for r in rr)))} USD per pass")
 
 
 if __name__ == "__main__":

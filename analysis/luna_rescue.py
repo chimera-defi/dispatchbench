@@ -3,7 +3,7 @@
 Rows for arms B-G are in results/appendix/luna_rescue.jsonl; the baselines are the main run's rows (and the exploratory
 configs' rows) for the same problems and repeats. Prints a markdown table. Run: python3 -m analysis.luna_rescue"""
 import json, os
-from analysis.summarize import cost, ROOT
+from analysis.summarize import cost, ROOT, usd, money
 
 PIDS = ["p03_ledger", "p04_taller_within", "p08_recur", "p09_k_machine_schedule", "p10_avoid_count", "p11_best_average", "p12_sheet"]
 ARMS = [("luna-low", "luna-low baseline"),
@@ -50,16 +50,16 @@ def arms():
     for c, label in ARMS:
         rr = [r for r in main_rows + arm_rows if r["config"] == c and r["problem"] in PIDS and 1 <= r["repeat"] <= 5]
         assert len(rr) == 35, (c, len(rr))
-        k = sum(r["passed"] for r in rr); w = sorted(r["wall_s"] for r in rr); usd = sum(r["cost_usd"] for r in rr)
-        out[c] = {"label": label, "passes": k, "n": len(rr), "usd_per_pass": usd / k, "median_s": w[17], "usd_total": usd, "rows": rr,
-                  "claude_usd_per_pass": sum(claude_usd(r) for r in rr) / k}
+        k = sum(r["passed"] for r in rr); w = sorted(r["wall_s"] for r in rr); total = usd((r.get("cost_usd") for r in rr), digits=None)
+        out[c] = {"label": label, "passes": k, "n": len(rr), "usd_per_pass": usd([total], k, digits=None), "median_s": w[17], "usd_total": total, "rows": rr,
+                  "claude_usd_per_pass": usd((claude_usd(r) for r in rr), k, digits=None)}
     return out
 
 
 def table(a):
     L = ["| config | passed | $ per pass | Claude $ per pass | median s |", "|---|---|---|---|---|"]
     for v in a.values():
-        L.append(f"| {v['label']} | {v['passes']}/{v['n']} | {v['usd_per_pass']:.5f} | {v['claude_usd_per_pass']:.5f} | {v['median_s']:.1f} |")
+        L.append(f"| {v['label']} | {v['passes']}/{v['n']} | {money(v['usd_per_pass'])} | {money(v['claude_usd_per_pass'])} | {v['median_s']:.1f} |")
     return "\n".join(L)
 
 

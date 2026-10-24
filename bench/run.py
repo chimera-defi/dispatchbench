@@ -1,4 +1,4 @@
-"""Generate completions for the function track. Every call is cached; a cached key never calls a model again.
+"""Generate completions for the function track. Every call is cached; successful cached keys never call a model again; infrastructure failures get one retry.
 
 python3 -m bench.run --phase main --configs haiku-low,luna-low --problems all --repeats 1-5 --lanes 4
 python3 -m bench.run --phase hard --configs sonnet-medium,sol61-medium,haiku-low,luna-high --problems hard --repeats 1-5 --lanes 4
@@ -6,7 +6,7 @@ python3 -m bench.run --phase fastmode --configs sol61-high-fast,sol61-xhigh --pr
 
 Cache entry: cache/calls/<sha256>.json with the completion text, token usage, wall time and CLI metadata.
 Grading is a separate step (bench.grade_all), so lanes never compete with timed test runs."""
-import argparse, datetime, hashlib, json, os, shutil, subprocess, sys, tempfile, threading, time
+import argparse, datetime, hashlib, json, os, re, shutil, subprocess, sys, tempfile, time
 from concurrent.futures import ThreadPoolExecutor
 
 from bench import problems
@@ -89,25 +89,70 @@ def key_for(config, pid, rep, prompt):
     return hashlib.sha256(blob.encode()).hexdigest()
 
 
-def claude_spend():
+def claude_spend(cache_root=None):
+    """Known Claude CLI cost across every cache directory, including retained retry receipts."""
+    def amount(d):
+        if not isinstance(d, dict): return 0.0
+        claude = d.get("cli") == "claude" or d.get("cost_kind", "").startswith("measured") or str(d.get("model", "")).startswith("claude")
+        return ((d.get("cost_usd") or 0.0) if claude else 0.0) + amount(d.get("previous_attempt"))
     total = 0.0
-    if os.path.isdir(CALLS):
-        for f in os.listdir(CALLS):
-            d = json.load(open(os.path.join(CALLS, f)))
-            if d["cli"] == "claude": total += d.get("cost_usd") or 0.0
+    for base, _, files in os.walk(cache_root or os.path.join(ROOT, "cache")):
+        for f in files:
+            if f.endswith(".json"):
+                with open(os.path.join(base, f)) as src: total += amount(json.load(src))
     return total
 
 
+class SpendLimit(RuntimeError): pass
+
+
+def check_claude_budget():
+    spent = claude_spend()
+    if spent >= CLAUDE_BUDGET_USD:
+        raise SpendLimit(f"refused: Claude spend ${spent:.2f} >= ${CLAUDE_BUDGET_USD}")
+
+
+def error_kind(row):
+    msg = (row.get("error") or "").lower()
+    if row.get("quota_error") or re.search(r"quota|rate[ _-]?limit|too many requests|\b429\b|usage limit", msg): return "limit"
+    if row.get("error_type") == "infrastructure" or row.get("outcome") in ("timeout", "harness_error") or re.search(r"infrastructure|temporary|overloaded|connection|econn|timed? ?out|timeout|\b50[0234]\b", msg): return "infrastructure"
+    return "model"
+
+
+def cache_state(fp):
+    if not os.path.exists(fp): return None, None
+    with open(fp) as src: prior = json.load(src)
+    if prior.get("is_error") and error_kind(prior) == "limit": return "stopped: quota/rate limit", prior
+    if prior.get("is_error") and error_kind(prior) == "infrastructure" and prior.get("retry_count", 0) < 1: return None, prior
+    return "cached", prior
+
+
+def failure(exc, wall):
+    timeout = isinstance(exc, subprocess.TimeoutExpired)
+    raw = getattr(exc, "stdout", "") or ""
+    if isinstance(raw, bytes): raw = raw.decode(errors="replace")
+    return dict(wall_s=wall, text="", is_error=True, error=str(exc)[-300:], error_type="infrastructure",
+                outcome="timeout" if timeout else "harness_error", cost_usd=None, in_tok=0, cached_tok=0,
+                cache_write_tok=0, out_tok=0, reasoning_tok=0), raw
+
+
+def stop_message(entry):
+    return "stopped: quota/rate limit" if entry.get("is_error") and error_kind(entry) == "limit" else None
+
+
 def call_claude(mid, eff, prompt, cwd):
+    check_claude_budget()
     cmd = [CLAUDE, "-p", prompt, "--model", mid, "--effort", eff] + CLAUDE_FLAGS
     t = time.monotonic(); r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, cwd=cwd, timeout=1200)
     wall = time.monotonic() - t
     try:
         d = json.loads(r.stdout)
     except json.JSONDecodeError:
-        return dict(wall_s=wall, text="", is_error=True, error=(r.stderr or r.stdout)[-300:]), r.stdout
+        return dict(wall_s=wall, text="", is_error=True, error=(r.stderr or r.stdout)[-300:], error_type="infrastructure", cost_usd=None), r.stdout
     u = d.get("usage", {})
-    return dict(wall_s=wall, text=d.get("result", ""), is_error=bool(d.get("is_error")), error=None if not d.get("is_error") else d.get("result", "")[:300],
+    return dict(wall_s=wall, text=d.get("result", ""), is_error=bool(d.get("is_error")) or r.returncode != 0,
+                error=(r.stderr or d.get("result", ""))[-300:] if r.returncode or d.get("is_error") else None,
+                error_type="infrastructure" if r.returncode else "model",
                 api_duration_ms=d.get("duration_api_ms"),
                 in_tok=u.get("input_tokens", 0) + u.get("cache_creation_input_tokens", 0) + u.get("cache_read_input_tokens", 0),
                 cached_tok=u.get("cache_read_input_tokens", 0), cache_write_tok=u.get("cache_creation_input_tokens", 0),
@@ -138,25 +183,23 @@ def call_codex(mid, eff, prompt, cwd, flags=CODEX_FLAGS):
     p = parse_codex(r.stdout)
     p.update(wall_s=wall, is_error=bool(p["error"]) or r.returncode != 0, cost_usd=None, cost_kind="proxy (list price x tokens)")
     if r.returncode and not p["error"]: p["error"] = r.stderr.strip()[-300:]
+    if p["is_error"]: p["error_type"] = "infrastructure"
     return p, r.stdout
-
-
-_lock = threading.Lock()
 
 
 def one(config, pid, rep, phase, lanes):
     prompt = prompt_for(pid); key = key_for(config, pid, rep, prompt); fp = os.path.join(CALLS, key + ".json")
-    if os.path.exists(fp):
-        return "cached"
+    status, prior = cache_state(fp)
+    if status: return status
     cli, mid, eff = CONFIGS[config]
-    if cli == "claude":
-        with _lock:
-            spent = claude_spend()
-        if spent >= CLAUDE_BUDGET_USD:
-            return f"refused: Claude spend ${spent:.2f} >= ${CLAUDE_BUDGET_USD}"
     cwd = tempfile.mkdtemp(prefix="mrb-")
+    t0 = time.monotonic()
     try:
         res, raw = call_claude(mid, eff, prompt, cwd) if cli == "claude" else call_codex(mid, eff, prompt, cwd, codex_flags(config))
+    except SpendLimit as exc:
+        return str(exc)
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        res, raw = failure(exc, time.monotonic() - t0)
     finally:
         shutil.rmtree(cwd, ignore_errors=True)
     if res.get("error"):
@@ -164,12 +207,13 @@ def one(config, pid, rep, phase, lanes):
     entry = dict(key=key, ts=datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"), phase=phase, config=config, cli=cli,
                  cli_version=cli_version(cli), model=mid, effort=eff, problem=pid, repeat=rep, lanes=lanes,
                  prompt_sha=hashlib.sha256(prompt.encode()).hexdigest()[:12], **res)
-    if entry["is_error"] and "quota" in (entry.get("error") or "").lower():
-        entry["quota_error"] = True
+    entry["retry_count"] = (prior.get("retry_count", 0) + 1) if prior else 0
+    if prior: entry["previous_attempt"] = prior
+    if stop_message(entry): entry["quota_error"] = True
     os.makedirs(CALLS, exist_ok=True); os.makedirs(RAW, exist_ok=True)
     json.dump(entry, open(fp + ".tmp", "w"), indent=1); os.replace(fp + ".tmp", fp)
     open(os.path.join(RAW, key + ".out"), "w").write(raw)
-    return f"{'ERR ' if entry['is_error'] else ''}{entry['wall_s']:.1f}s out={entry.get('out_tok')}"
+    return stop_message(entry) or f"{'ERR ' if entry['is_error'] else ''}{entry['wall_s']:.1f}s out={entry.get('out_tok')}"
 
 
 def parse_reps(s):
@@ -191,10 +235,10 @@ def main():
             for pid in pids:
                 msg = one(cfg, pid, rep, a.phase, a.lanes)
                 print(f"[{a.phase}] {cfg} {pid} r{rep}: {msg}", flush=True)
-                if msg.startswith("refused"): return
+                if msg.startswith(("refused", "stopped")): return
     with ThreadPoolExecutor(a.lanes) as ex:
         list(ex.map(lane, cfgs))
-    print(f"Claude spend so far: ${claude_spend():.4f}")
+    print(f"Known Claude CLI cost across all cache dirs: ${claude_spend():.4f}")
 
 
 if __name__ == "__main__":

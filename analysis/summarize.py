@@ -31,7 +31,8 @@ PRICES = json.load(open(os.path.join(RES, "prices.json")))["models"]
 def cost(r):
     """Measured for Claude; proxy for Codex (uncached input, cached input and output at list price)."""
     if r["cli"] == "claude":
-        return r.get("cost_usd") or 0.0
+        return r.get("cost_usd")
+    if r.get("is_error"): return None
     p = PRICES[r["model"]]
     return ((r["in_tok"] - r["cached_tok"]) * p["input"] + r["cached_tok"] * p["cached_input"] + r["out_tok"] * p["output"]) / 1e6
 
@@ -39,9 +40,25 @@ def cost(r):
 def cost_uncached(r):
     """Codex proxy with no prompt-cache discount: an upper bound that does not depend on how many tokens the provider cached."""
     if r["cli"] == "claude":
-        return r.get("cost_usd") or 0.0
+        return r.get("cost_usd")
+    if r.get("is_error"): return None
     p = PRICES[r["model"]]
     return (r["in_tok"] * p["input"] + r["out_tok"] * p["output"]) / 1e6
+
+
+def usd(values, divisor=1, digits=6):
+    values = list(values)
+    if not divisor or any(v is None for v in values): return None
+    total = sum(values) / divisor
+    return round(total, digits) if digits is not None else total
+
+
+def money(value, digits=5):
+    return "unknown" if value is None else f"{value:.{digits}f}"
+
+
+def scale(value, factor):
+    return None if value is None else value * factor
 
 
 def ci_text(k, n, ci, clusters):
@@ -79,9 +96,9 @@ def config_block(rows):
         "latency_s": {"median": round(statistics.median(walls), 2), "p25": round(statistics.quantiles(walls, n=4)[0], 2), "p75": round(statistics.quantiles(walls, n=4)[2], 2), "p90": round(p90(walls), 2), "max": round(max(walls), 2)},
         "tokens_mean": {k: round(statistics.mean(r[k] or 0 for r in rows)) for k in ("in_tok", "cached_tok", "out_tok", "reasoning_tok")},
         "input_floor": min((r["in_tok"], r["cached_tok"]) for r in rows),
-        "usd_per_call": round(statistics.mean(dollars), 6), "usd_total": round(sum(dollars), 4),
-        "usd_per_pass": round(sum(dollars) / passes, 6) if passes else None,
-        "usd_per_pass_L1_L2": round(sum(map(cost, l12)) / sum(r["passed"] for r in l12), 6) if l12 and any(r["passed"] for r in l12) else None,
+        "usd_per_call": usd(dollars, len(dollars)), "usd_total": usd(dollars, digits=4),
+        "usd_per_pass": usd(dollars, passes),
+        "usd_per_pass_L1_L2": usd(map(cost, l12), sum(r["passed"] for r in l12)) if l12 and any(r["passed"] for r in l12) else None,
         "pass_L1_L2": [sum(r["passed"] for r in l12), len(l12)],
         "cost_kind": "measured" if rows[0]["cli"] == "claude" else "proxy",
     }
@@ -111,14 +128,14 @@ def agentic_block(rows):
         out[c] = {
             "cli": rr[0]["cli"], "model": rr[0]["model"], "n": len(rr), "hidden_pass": sum(r["hidden_pass"] for r in rr),
             "hidden_pass_rate": round(pt, 4), "ci95": [round(lo, 4), round(hi, 4)],
-            "visible_pass": sum(r["visible_pass"] for r in rr), "own_tests_written": sum(r["own_tests"] for r in rr),
+            "visible_pass": sum(r["visible_pass"] for r in rr), "task_complete": sum(r.get("task_complete", r["visible_pass"] and r["hidden_pass"]) for r in rr), "own_tests_written": sum(r["own_tests"] for r in rr),
             "tests_tampered_runs": sum(bool(r["tests_tampered"]) for r in rr), "delegate_calls": sum(r.get("delegate_calls") or 0 for r in rr),
             "errors": sum(r["is_error"] for r in rr), "by_task": by_task,
             "latency_s": {"median": round(statistics.median(walls), 1), "p90": round(p90(walls), 1)},
             "input_floor": min((r["in_tok"], r["cached_tok"]) for r in rr),
             "tokens_mean": {k: round(statistics.mean(r[k] or 0 for r in rr)) for k in ("in_tok", "cached_tok", "out_tok")},
-            "usd_per_run": round(statistics.mean(dollars), 5), "usd_total": round(sum(dollars), 4),
-            "usd_per_hidden_pass": round(sum(dollars) / sum(r["hidden_pass"] for r in rr), 5) if any(r["hidden_pass"] for r in rr) else None,
+            "usd_per_run": usd(dollars, len(dollars), 5), "usd_total": usd(dollars, digits=4),
+            "usd_per_hidden_pass": usd(dollars, sum(r["hidden_pass"] for r in rr), 5) if any(r["hidden_pass"] for r in rr) else None,
             "cost_kind": "measured" if rr[0]["cli"] == "claude" else "proxy",
         }
     return out
@@ -159,11 +176,11 @@ def pilot_block():
     for c in dict.fromkeys(r["config"] for r in rows):
         rr = [r for r in rows if r["config"] == c]
         prio = rr[0]["cli"].startswith("codex") and (rr[0].get("service_tier") or "").startswith("priority")
-        usd = [r["cost_usd"] if r["cli"].startswith("claude") else cost(r) * (mult if prio else 1) for r in rr]
+        dollars = [r["cost_usd"] if r["cli"].startswith("claude") else scale(cost(r), mult if prio else 1) for r in rr]
         out[c] = {"cli": rr[0]["cli"], "model": rr[0]["model"], "effort": rr[0]["effort"], "passes": sum(bool(r["passed"]) for r in rr), "n": len(rr),
                   "problems": len({r["problem"] for r in rr}), "service_tier": rr[0].get("service_tier"), "ladder": rr[0]["phase"] == "ladder",
                   "input_floor": min(r["in_tok"] for r in rr), "median_s": round(statistics.median(r["wall_s"] for r in rr), 2),
-                  "usd_per_call": round(statistics.mean(usd), 6)}
+                  "usd_per_call": usd(dollars, len(dollars))}
     return out
 
 
@@ -175,7 +192,7 @@ def pilot_fast():
         for tier, c, m in (("default", d, 1), ("fast", f, mult)):
             rr = [r for r in rows if r["config"] == c and r["problem"] in probs]
             out[f"{name}/{tier}"] = {"passes": sum(bool(r["passed"]) for r in rr), "n": len(rr), "median_s": round(statistics.median(r["wall_s"] for r in rr), 2),
-                                     "usd_per_call": round(statistics.mean(cost(r) * m for r in rr), 6)}
+                                     "usd_per_call": usd((scale(cost(r), m) for r in rr), len(rr))}
     return out
 
 
@@ -192,8 +209,8 @@ def fastmode_block(rows):
         if not rr: continue
         m = mult if c == "sol61-high-fast" else 1; ps = sum(r["passed"] for r in rr)
         out[c] = {"passes": ps, "n": len(rr), "repeats": sorted({r["repeat"] for r in rr}), "median_s": round(statistics.median(r["wall_s"] for r in rr), 2),
-                  "out_median": statistics.median(r["out_tok"] for r in rr), "usd_per_pass": round(sum(cost(r) * m for r in rr) / ps, 6) if ps else None,
-                  "usd_per_pass_list": round(sum(map(cost, rr)) / ps, 6) if ps else None}
+                  "out_median": statistics.median(r["out_tok"] for r in rr), "usd_per_pass": usd((scale(cost(r), m) for r in rr), ps),
+                  "usd_per_pass_list": usd(map(cost, rr), ps)}
     return out
 
 
@@ -205,12 +222,12 @@ def trim_block():
             out["floor"][r["config"]] = {"in_tok": r["in_tok"], "cached_tok": r["cached_tok"], "passed": r["passed"]}
     for c in dict.fromkeys(r["config"] for r in rows if r["step"] == "pair"):
         # the floor step's fizzbuzz round-1 call has the same cache key as the pair step's, so it is the same call and counts here
-        rr = [r for r in rows if r["config"] == c]; usd = [cost(r) for r in rr]
+        rr = [r for r in rows if r["config"] == c]; dollars = [cost(r) for r in rr]
         out["pair"][c] = {"cli": rr[0]["cli"], "model": rr[0]["model"], "level": rr[0].get("level"), "passes": sum(r["passed"] for r in rr), "n": len(rr),
                           "errors": sum(bool(r["is_error"]) for r in rr), "uncached_calls": sum(r["cached_tok"] == 0 for r in rr), "in_median": round(statistics.median(r["in_tok"] for r in rr)),
                           "in_min": min(r["in_tok"] for r in rr), "cached_median": round(statistics.median(r["cached_tok"] or 0 for r in rr)),
                           "out_median": round(statistics.median(r["out_tok"] for r in rr)), "median_s": round(statistics.median(r["wall_s"] for r in rr), 2),
-                          "p90_s": round(p90([r["wall_s"] for r in rr]), 2), "usd_per_call": round(statistics.mean(usd), 6),
+                          "p90_s": round(p90([r["wall_s"] for r in rr]), 2), "usd_per_call": usd(dollars, len(dollars)),
                           "cost_kind": "measured" if rr[0]["cli"] == "claude" else "proxy"}
     return out
 
@@ -244,7 +261,7 @@ def build():
         s["escalation"].append({"config": c, "vs": base, "problems": probs, "passes": sum(r["passed"] for r in er), "n": len(er),
                                 "base_passes": sum(r["passed"] for r in br), "base_n": len(br), "diff": round(d, 4), "ci95": [round(lo, 4), round(hi, 4)],
                                 "median_latency_s": round(statistics.median(r["wall_s"] for r in er), 2),
-                                "usd_total": round(sum(map(cost, er)), 4), "cost_kind": "measured" if er[0]["cli"] == "claude" else "proxy"})
+                                "usd_total": usd(map(cost, er), digits=4), "cost_kind": "measured" if er[0]["cli"] == "claude" else "proxy"})
     xr = [r for r in rows if r["phase"] == "exploratory"]
     s["exploratory"] = {}
     for c in sorted({r["config"] for r in xr}):
@@ -256,7 +273,7 @@ def build():
                 d, lo, hi, n = paired_boot(cells(rr), cb)
                 blk["vs"].append({"b": base, "diff": round(d, 4), "ci95": [round(lo, 4), round(hi, 4)], "problems": n})
         er = [r for r in rr if r["passed"]]
-        blk["usd_per_pass_uncached"] = round(sum(map(cost_uncached, rr)) / len(er), 6) if er else None
+        blk["usd_per_pass_uncached"] = usd(map(cost_uncached, rr), len(er))
         blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}  # heatmap columns
         s["exploratory"][c] = blk
     hr = [r for r in rows if r["phase"] == "hard"]
@@ -275,11 +292,11 @@ def build():
     s["trim"] = trim_block()
     s["fastmode"] = fastmode_block(rows)
     claude_all = [r for r in rows if r["cli"] == "claude"] + [r for r in agent if r["cli"] == "claude"]
-    s["spend"] = {"claude_measured_usd": round(sum(r.get("cost_usd") or 0 for r in claude_all), 4),
-                  "claude_function_usd": round(sum(r.get("cost_usd") or 0 for r in rows if r["cli"] == "claude"), 4),
-                  "claude_agentic_usd": round(sum(r.get("cost_usd") or 0 for r in agent if r["cli"] == "claude"), 4),
-                  "codex_proxy_usd": round(sum(cost(r) * fast_mult(r) for r in rows + agent if r["cli"] == "codex"), 4),
-                  "codex_fastmode_usd": round(sum(cost(r) * fast_mult(r) for r in rows if r["phase"] == "fastmode"), 4),
+    s["spend"] = {"claude_measured_usd": usd((r.get("cost_usd") for r in claude_all), digits=4),
+                  "claude_function_usd": usd((r.get("cost_usd") for r in rows if r["cli"] == "claude"), digits=4),
+                  "claude_agentic_usd": usd((r.get("cost_usd") for r in agent if r["cli"] == "claude"), digits=4),
+                  "codex_proxy_usd": usd((scale(cost(r), fast_mult(r)) for r in rows + agent if r["cli"] == "codex"), digits=4),
+                  "codex_fastmode_usd": usd((scale(cost(r), fast_mult(r)) for r in rows if r["phase"] == "fastmode"), digits=4),
                   "calls": {"function": len(rows), "agentic": len(agent)}}
     s["hypotheses"] = hypotheses(s)
     return s, tables(s), manifest(rows, agent, s)
@@ -406,7 +423,7 @@ def tables(s):
     L += ["## Function track, main run", "", "| config | pass@1 | 95% CI | breaking point | median s | p90 s | $/call | $/pass | $ kind |", "|---|---|---|---|---|---|---|---|---|"]
     for c, v in s["configs"].items():
         L.append(f"| {c} | {pct(v['pass_at_1'])} ({v['passes']}/{v['n']}) | {ci_text(v['passes'], v['n'], v['ci95'], len(s['problems']))} | {v['breaking_point'] or 'none ≤ L6'} | "
-                 f"{v['latency_s']['median']} | {v['latency_s']['p90']} | {v['usd_per_call']:.5f} | {v['usd_per_pass']:.5f} | {v['cost_kind']} |")
+                 f"{v['latency_s']['median']} | {v['latency_s']['p90']} | {money(v['usd_per_call'], 5)} | {money(v['usd_per_pass'], 5)} | {v['cost_kind']} |")
     rungs = sorted({g for v in s["configs"].values() for g in v["by_rung"]})
     L += ["", "## Passes by rung (out of 10: 2 problems × 5 repeats)", "", "| config | " + " | ".join(rungs) + " |", "|---|" + "---|" * len(rungs)]
     for c, v in s["configs"].items():
@@ -436,7 +453,7 @@ def tables(s):
               "By rung: " + ", ".join(f"{g} {b['passed']}/{b['n']}" for g, b in v["by_rung"].items()), "",
               "| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |", "|---|---|---|---|---|---|---|---|---|---|---|",
               f"| {c} | {pct(v['pass_at_1'])} ({v['passes']}/{v['n']}) | {ci_text(v['passes'], v['n'], v['ci95'], len(s['problems']))} | {v['breaking_point'] or 'none ≤ L6'} | "
-              f"{v['latency_s']['median']} | {v['latency_s']['p90']} | {v['tokens_mean']['in_tok']} | {v['usd_per_call']:.5f} | {v['usd_per_pass']:.5f} | {v['usd_per_pass_uncached']:.5f} | {v['cost_kind']} |", "",
+              f"{v['latency_s']['median']} | {v['latency_s']['p90']} | {v['tokens_mean']['in_tok']} | {money(v['usd_per_call'], 5)} | {money(v['usd_per_pass'], 5)} | {money(v['usd_per_pass_uncached'], 5)} | {v['cost_kind']} |", "",
               "| a | b | diff | 95% CI |", "|---|---|---|---|"]
         for d in v["vs"]:
             L.append(f"| {c} | {d['b']} | {100 * d['diff']:+.1f} pts | {100 * d['ci95'][0]:+.1f} to {100 * d['ci95'][1]:+.1f} |")
@@ -450,8 +467,8 @@ def tables(s):
             oc = ", ".join(f"{k} {n}" for k, n in sorted(v["outcomes"].items()))
             L.append(f"| {c} | {pct(v['pass_at_1'])} ({v['passes']}/{v['n']}) | {ci_text(v['passes'], v['n'], v['ci95'], len(probs))} | "
                      + " | ".join(f"{v['by_problem'].get(p, 0)}/5" for p in probs)
-                     + f" | {oc} | {v['latency_s']['median']} | {v['latency_s']['p90']} | {v['tokens_mean']['reasoning_tok']} | {v['usd_per_call']:.5f} | "
-                     + (f"{v['usd_per_pass']:.5f}" if v["usd_per_pass"] else "no pass") + f" | {v['cost_kind']} |")
+                     + f" | {oc} | {v['latency_s']['median']} | {v['latency_s']['p90']} | {v['tokens_mean']['reasoning_tok']} | {money(v['usd_per_call'], 5)} | "
+                     + (money(v["usd_per_pass"], 5) if v["passes"] else "no pass") + f" | {v['cost_kind']} |")
     if s.get("failures"):
         cfgs = list(dict.fromkeys(c for f in s["failures"].values() for c in f["cells"]))
         L += ["", "## Where they fail", "",
@@ -466,10 +483,10 @@ def tables(s):
         for p, f in s["failures"].items():
             L.append(f"| {p} | L{f['rung']} | " + " | ".join(cell(f["cells"].get(c)) for c in cfgs) + " |")
     if s["agentic"]:
-        L += ["", "## Agentic track (hidden tests)", "", "| config | hidden pass | 95% CI | visible suite, incl. agent's own tests | median s | input floor | $/run | $ kind |", "|---|---|---|---|---|---|---|---|"]
+        L += ["", "## Agentic track (hidden tests)", "", "| config | hidden pass | 95% CI | visible suite, incl. agent's own tests | complete task | median s | input floor | $/run | $ kind |", "|---|---|---|---|---|---|---|---|---|"]
         for c, v in s["agentic"].items():
-            L.append(f"| {c} | {v['hidden_pass']}/{v['n']} | {ci_text(v['hidden_pass'], v['n'], v['ci95'], len(v['by_task']))} | {v['visible_pass']}/{v['n']} | {v['latency_s']['median']} | "
-                     f"{v['input_floor'][0]} | {v['usd_per_run']:.4f} | {v['cost_kind']} |")
+            L.append(f"| {c} | {v['hidden_pass']}/{v['n']} | {ci_text(v['hidden_pass'], v['n'], v['ci95'], len(v['by_task']))} | {v['visible_pass']}/{v['n']} | {v['task_complete']}/{v['n']} | {v['latency_s']['median']} | "
+                     f"{v['input_floor'][0]} | {money(v['usd_per_run'], 4)} | {v['cost_kind']} |")
         tasks = sorted({t for v in s["agentic"].values() for t in v["by_task"]})
         L += ["", "| config | " + " | ".join(tasks) + " |", "|---|" + "---|" * len(tasks)]
         for c, v in s["agentic"].items():
@@ -490,7 +507,7 @@ def tables(s):
               "| config | level | passes | median input | of which cached | min input | median output | median s | p90 s | $/call | $ kind |", "|---|---|---|---|---|---|---|---|---|---|---|"]
         for c, v in t["pair"].items():
             L.append(f"| {c} | {v['level'] or '–'} | {v['passes']}/{v['n']} | {v['in_median']:,} | {v['cached_median']:,} | {v['in_min']:,} | {v['out_median']:,} | {v['median_s']} | {v['p90_s']} | "
-                     f"{v['usd_per_call']:.5f} | {v['cost_kind']} |")
+                     f"{money(v['usd_per_call'], 5)} | {v['cost_kind']} |")
     if s.get("pilot"):
         L += ["", "## Pilot (2026-10-22), for reference", "",
               "Well-known problems, so every config passed everything. Cells show passes/runs; † marks a cell whose n is not 9, so it does not read as a 9/9 equivalent. "
@@ -498,7 +515,7 @@ def tables(s):
               "| config | model | effort | passes | problems | tier | input floor | median s | $/call |", "|---|---|---|---|---|---|---|---|---|"]
         for c, v in s["pilot"].items():
             L.append(f"| {c} | {v['model']} | {v['effort']} | {v['passes']}/{v['n']}{'' if v['n'] == 9 else ' †'} | {v['problems']} | {v['service_tier']} | "
-                     f"{v['input_floor']:,} | {v['median_s']} | {v['usd_per_call']:.5f} |")
+                     f"{v['input_floor']:,} | {v['median_s']} | {money(v['usd_per_call'], 5)} |")
         L += ["", "† n ≠ 9: these configs ran a different number of rounds or problems (3 problems × 3 rounds = 9 is the common cell).", "",
               "The pilot's Codex ladder records only the levels that were actually tested. Every model passed at low effort, so nothing escalated, "
               "and the ladder is not an intelligence ranking."]
@@ -507,8 +524,8 @@ def tables(s):
         verdict = {True: "holds", False: "does not hold", None: "not testable"}[v["holds"]]
         L.append(f"- {k} ({v['claim']}): {verdict}. Data: `{json.dumps(v['data'])}`" + (f" {v['note']}." if v.get("note") else ""))
     sp = s["spend"]
-    L += ["", "## Spend", "", f"- Claude, measured: ${sp['claude_measured_usd']:.2f} (function ${sp['claude_function_usd']:.2f}, agentic ${sp['claude_agentic_usd']:.2f}).",
-          f"- Codex, proxy at list price: ${sp['codex_proxy_usd']:.2f}.",
+    L += ["", "## Spend", "", "Auxiliary runs and pilot excluded from the function + agentic totals.", "", f"- Claude CLI-reported cost (list basis), function + agentic only: ${money(sp['claude_measured_usd'], 2)} (function ${money(sp['claude_function_usd'], 2)}, agentic ${money(sp['claude_agentic_usd'], 2)}).",
+          f"- Codex token-price estimate, function + agentic only: ${money(sp['codex_proxy_usd'], 2)}.",
           f"- Pilot repricing: {s['pilot_reprice']['rows']} priority-tier Codex rows cost ${s['pilot_reprice']['usd_at_1_5x']:.4f} at the pilot's 1.5× and ${s['pilot_reprice']['usd_at_2x']:.4f} at the published 2×.", ""]
     return "\n".join(L)
 
