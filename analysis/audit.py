@@ -8,9 +8,9 @@
 5. The templates (README and page) hold no number of its own outside {{facts}}, code spans and link targets, except the constants listed
    with a reason in docs/audit_allow.json. Each allowed literal must still occur on a line containing its context.
 """
-import json, os, re, sys
+import html, json, os, re, sys
 
-from analysis import charts, luna_rescue, report, summarize
+from analysis import charts, configs, dataset, luna_rescue, report, summarize
 from analysis.summarize import ROOT, RES
 
 ALLOW = os.path.join(ROOT, "docs", "audit_allow.json")
@@ -42,6 +42,7 @@ def template_literals():
 def main():
     fails = []; checked = 0
     s, tab, man = summarize.build()
+    ds = dataset.build()
     checked += same("summary", json.dumps(s, indent=1), os.path.join(RES, "summary.json"), fails)
     checked += same("tables", tab, os.path.join(RES, "report", "tables.md"), fails)
     have_manifest = os.path.join(RES, "manifest.json")
@@ -52,13 +53,21 @@ def main():
             fails.append("manifest: results/manifest.json differs from what the data give (run make report)")
     else:
         checked += same("manifest", json.dumps(man, indent=1), have_manifest, fails)
-    for name, body in charts.build(s).items():
+    for name, body in charts.build(s, ds).items():
         if body: checked += same("chart", body, os.path.join(charts.OUT, name), fails)
     checked += same("luna rescue", luna_rescue.table(luna_rescue.arms()) + "\n", os.path.join(RES, "report", "luna_rescue.md"), fails)
     readme, full, page = report.render()
     checked += same("readme", readme, report.README, fails)
     checked += same("report", full, report.REPORT, fails)
     checked += same("page", page, report.PAGE, fails)
+
+    checked += same("dataset", dataset.text(ds), dataset.PATH, fails)  # the cached table equals what the rows give
+    fails += configs.check_registry(dataset.keys(ds))  # every config with rows is registered, and every entry has rows
+    for e in ds["rows"]:  # ... and the page shows every one of them, with the dataset's numbers, in the "Everything we tried" section
+        if e["set"] != "all runs": continue
+        cell = f">{html.escape(e['display'])}</td><td>{html.escape(e['what'])}</td><td>{e['passes']}/{e['n']}</td>"
+        if cell not in page: fails.append(f"page: {e['id']} is missing from the page's Everything we tried section, or its pass count differs from the dataset")
+    checked += 1
 
     allow = json.load(open(ALLOW))
     used = set(); stray = []

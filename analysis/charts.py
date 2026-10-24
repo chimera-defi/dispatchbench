@@ -1,5 +1,6 @@
 """Draw the report charts as plain SVG from results/summary.json. Standard library only; no model calls."""
 import json, math, os
+from analysis import dataset
 from analysis.labels import DISP, TESTS, plabel
 from xml.sax.saxutils import escape
 
@@ -256,12 +257,18 @@ def all_configs(s):
     return [(c, v, "-fast" in c) for c, v in {**s["configs"], **(s.get("exploratory") or {})}.items()]
 
 
-def cost_tokens_chart(s):
-    """Total $ for the 60 function-track calls, and $ per 1,000 tokens processed (input plus output), per config."""
-    rows = all_configs(s)
-    tot = [(DISP(c) + (" *" if v["cost_kind"] == "proxy" else ""), v["usd_total"], FAMILY(c), x) for c, v, x in rows]
-    per = [(DISP(c) + (" *" if v["cost_kind"] == "proxy" else ""), 1000 * v["usd_per_call"] / (v["tokens_mean"]["in_tok"] + v["tokens_mean"]["out_tok"]), FAMILY(c), x)
-           for c, v, x in rows]
+def ladder(ds, s, set_="main ladder"):
+    """[(config, dataset row, hollow)] for one set: the 12-problem x 5-repeat configs. Hollow = fast mode."""
+    order = [c for c, _, _ in all_configs(s)]  # page order, until the registry owns it
+    rows = [(r["config"], r, "-fast" in r["config"]) for r in ds["rows"] if r["source"] == "main" and r["set"] == set_]
+    return sorted(rows, key=lambda x: order.index(x[0]))
+
+
+def cost_tokens_chart(s, ds=None):
+    """Total $ for the 60 function-track calls, and $ per 1,000 tokens processed (input plus output), per config. Reads the dataset."""
+    rows = ladder(ds or dataset.read(), s)
+    tot = [(r["display"] + (" *" if r["cost_kind"] == "proxy" else ""), r["spend"], FAMILY(c), x) for c, r, x in rows]
+    per = [(r["display"] + (" *" if r["cost_kind"] == "proxy" else ""), 1000 * r["usd_per_call"] / (r["tokens_in_mean"] + r["tokens_out_mean"]), FAMILY(c), x) for c, r, x in rows]
     a = bars("Total $ for the main ladder p01-p12", tot, lambda v: f"${v:.3f}", "Solid: normal speed; hollow: fast mode. * Codex cost is proxy; Claude is measured.")
     b = bars("$ per 1,000 tokens processed (input + output, mean per call)", per, lambda v: f"${v:.5f}",
                 "Cached input costs less per token. * Codex cost is proxy.")
@@ -271,10 +278,10 @@ def cost_tokens_chart(s):
 TOKEN_IN = ["luna-low", "luna-low-bare", "haiku-low", "sonnet-medium"]
 
 
-def token_in_chart(s):
-    allc = {c: v for c, v, _ in all_configs(s)}
+def token_in_chart(s, ds=None):
+    allc = {c: r for c, r, _ in ladder(ds or dataset.read(), s)}
     lab = {"luna-low": "luna-low, stock Codex", "luna-low-bare": "luna-low, stripped Codex", "haiku-low": "haiku-low, tools off", "sonnet-medium": "sonnet-medium, tools off"}
-    rows = [(lab[c], allc[c]["tokens_mean"]["in_tok"], FAMILY(c), "-fast" in c) for c in TOKEN_IN if c in allc]
+    rows = [(lab[c], allc[c]["tokens_in_mean"], FAMILY(c), "-fast" in c) for c in TOKEN_IN if c in allc]
     return bars("Mean input tokens per call (main ladder p01-p12)", rows, lambda v: f"{v:,}",
                 f"Includes cached input. Codex includes ~{HOST_AGENTS_MD} host AGENTS.md tokens.", L=200, R=80)
 
@@ -286,12 +293,12 @@ def check_design(s):
         raise SystemExit(f"chart text assumes 12 problems, 60 calls per config and 10 per rung; check {bad or 'the problem count'}")
 
 
-def build(s):
+def build(s, ds=None):
     """{file name: SVG text or None} for every chart."""
-    check_design(s)
+    check_design(s); ds = ds or dataset.read()
     charts = {"pareto.svg": pareto_chart(s), "cost_time.svg": cost_time_chart(s), "pass_by_rung.svg": rung_chart(s), "heatmap.svg": heatmap(s),
-              "token_floor.svg": floor_chart(s), "agentic.svg": agentic_chart(s), "token_in.svg": token_in_chart(s)}
-    charts["cost_total.svg"], charts["cost_per_1k.svg"] = cost_tokens_chart(s)
+              "token_floor.svg": floor_chart(s), "agentic.svg": agentic_chart(s), "token_in.svg": token_in_chart(s, ds)}
+    charts["cost_total.svg"], charts["cost_per_1k.svg"] = cost_tokens_chart(s, ds)
     return charts
 
 

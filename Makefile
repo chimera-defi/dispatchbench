@@ -41,6 +41,7 @@ grade:               ## grade cached completions in the sandbox, write results/*
 
 report:              ## render existing results; grading/export is explicit to preserve historical rows
 	$(PY) -m analysis.summarize
+	$(PY) -m analysis.dataset
 	$(PY) -m analysis.charts
 	$(PY) -m analysis.luna_rescue > results/report/luna_rescue.md
 	$(PY) -m analysis.report

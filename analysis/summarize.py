@@ -39,7 +39,7 @@ def cost(r):
 
 def list_cost(r):
     """Measured for Claude; proxy for Codex (uncached input, cached input and output at list price)."""
-    if r["cli"] == "claude":
+    if r["cli"].startswith("claude"):  # "claude" and the pilot's "claude-agent"
         return r.get("cost_usd")
     if r.get("is_error"): return None
     p = PRICES[r["model"]]
@@ -52,7 +52,7 @@ def cost_uncached(r):
 
 
 def _uncached(r):
-    if r["cli"] == "claude":
+    if r["cli"].startswith("claude"):  # "claude" and the pilot's "claude-agent"
         return r.get("cost_usd")
     if r.get("is_error"): return None
     p = PRICES[r["model"]]
