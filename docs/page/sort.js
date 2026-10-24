@@ -21,7 +21,7 @@ document.querySelectorAll("table.sortable").forEach(function(tb){
 // shows in .ctip. Tap works the same on touch; Escape or a tap outside clears it.
 (function(){
 document.querySelectorAll(".cwrap").forEach(function(w){
- var tip=w.querySelector(".ctip"),all=w.querySelectorAll(".pt,.ckey li,.free-strip li");
+ var tip=w.querySelector(".ctip"),all=w.querySelectorAll(".pt,.ckey li");
  function clear(){w.classList.remove("hov");all.forEach(function(e){e.classList.remove("hi","dim")});tip.hidden=true}
  function updateCategories(set){
   w.querySelectorAll('.category-filter input').forEach(function(input){

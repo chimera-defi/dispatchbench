@@ -75,6 +75,7 @@ def separate_points(pts, X, Y):
     """Jitter coincident marks only; preserve the measured coordinates and tooltips."""
     groups = []
     for p in pts:
+        if "plot_x" in p: continue  # already placed, e.g. packed into the $0 lane
         xy = X(p["x"]), Y(p["y"])
         group = next((g for g in groups if math.dist(xy, g[0]) < 14), None)
         if group is None: groups.append((xy, [p]))
@@ -85,11 +86,12 @@ def separate_points(pts, X, Y):
             p.update(plot_x=x + (i - (len(group) - 1) / 2) * 18, plot_y=y, label=True)
 
 
-def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=84, R=16, T=14, B=322, extra="", stat=None, variant=None, free_pts=()):
+def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=84, R=16, T=14, B=322, extra="", stat=None, variant=None, minor=()):
     """pts: dicts with c, x, y, w (whisker (axis, lo, hi) or None), tip, hollow. fr: the frontier path. Only frontier points
     get a text label; every point is in the key beside the chart, and hovering (or tapping) a point or a key row shows its tip."""
     separate_points(pts, X, Y)
     g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="{esc(ylab)} against {esc(xlab)}, Pareto frontier in purple; the key lists every point">']
+    g += [f'<line x1="{X(v):.1f}" x2="{X(v):.1f}" y1="{T}" y2="{B}" stroke="var(--line)" stroke-opacity=".45"/>' for v in minor]
     for i, (v, t) in enumerate(xt):
         # Thin labels from the right on mobile, retaining the inset final label.
         skip = " tick-skip" if (len(xt) - 1 - i) % 2 else ""
@@ -114,13 +116,13 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
         g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="14" fill="transparent"/></g>')  # hover target
     cx, cy = L + 10, T + 18 if corner.startswith("↖") else B - 10
     walls = path_boxes(fr) + [(cx, cy - LH + 3, cx + CW * len(corner), cy + 3)]
-    labelled = [p for p in pts if p["on"] or ("+" in p["c"] if p.get("set") == "rescue" else p.get("label"))]
+    labelled = [p for p in pts if not p.get("quiet") and (p["on"] or ("+" in p["c"] if p.get("set") == "rescue" else p.get("label")))]
     for p, (x, y, a) in place(labelled, X, Y, labels, (L, W - 2, T - 6, B - 2), walls, also=pts):
         if p["lead"]: g.append((f'<line class="label-leader" data-c="{esc(p["c"])}" data-cat="{point_category(p["c"])}" x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="var(--muted)" stroke-width="1"/>') % p["lead"])
         g.append(f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{a}" class="lbl{' on' if p["on"] else ''}" data-cat="{point_category(p["c"])}" data-set="{p.get("set", "main")}">{esc(p.get("name", p["c"]))}</text>')
     g.append("</svg>")
     if variant:
-        return f'<div class="cvariant v-{variant}"><div class="cplot">{"".join(g)}{free_strip(free_pts, stat)}</div>{key(pts + list(free_pts), stat)}</div>'
+        return f'<div class="cvariant v-{variant}"><div class="cplot">{"".join(g)}</div>{key(pts, stat)}</div>'
     return f'<div class="cwrap"><div class="cplot">{"".join(g)}</div>{key(pts, stat)}<div class="ctip" hidden></div></div>'
 
 
@@ -142,16 +144,6 @@ def point_values(p, stat):
     if p.get("free_mode") and p["normal_usd"] != p["free_usd"]:
         value += f' · saved {dataset.usd(p["saved_usd"])}'
     return value
-
-
-def free_strip(pts, stat):
-    """Zero-cost configs ranked by the chart's other metric, outside its log plot."""
-    if not pts: return ""
-    ranked = sorted(pts, key=lambda p: (p["x"] if stat == "speed" else -p["y"], p["c"]))
-    rows = [f'<li tabindex="0" {point_attrs(p)}>{point_icon(p)}<span class="n">{esc(p["name"])}</span>'
-            f'<span class="v">{point_values(p, stat)}</span></li>' for p in ranked]
-    metric = "fastest first" if stat == "speed" else "highest pass rate first"
-    return f'<div class="free-quota"><p><b>Free with Codex quota:</b> {metric}</p><ol class="free-strip">{"".join(rows)}</ol></div>'
 
 
 def key(pts, stat):
@@ -266,7 +258,7 @@ def ladder_toggle(render, s):
     free, _ = render(s, free=True)
     rescue_normal, _ = render(s, free=False, problem_set="rescue")
     rescue_free, _ = render(s, free=True, problem_set="rescue")
-    note = ('<p class="repair-note">Codex counted as free: its points move to a ranked list under the plot. '
+    note = ('<p class="repair-note">Codex counted as free: its points move to the $0 lane. '
             'Each saving per pass is in the key and tooltip.</p>')
     main_categories = {point_category(c) for c in ORDER}
     filters = '<div class="category-filter" role="group" aria-label="Point categories">' + "".join(
@@ -321,30 +313,52 @@ def ladder_points(s, free, stat, problem_set):
     return pts
 
 
-def paid_points(pts, stat):
-    axis = "y" if stat == "speed" else "x"
-    return [p for p in pts if p[axis] > 0], [dict(p, on=False) for p in pts if p[axis] == 0]
+ZERO_LANE = {"pass": 110, "speed": 64}  # px kept for $0 points before a log $ axis starts
+
+
+def pack_zero_lane(pts, at, Y):
+    """Ties at $0 sit in a 5-wide grid inside the lane; only the picks keep a text label (all are in the key)."""
+    rows = {}
+    for p in sorted(pts, key=lambda p: (-p["y"], p["c"])):
+        rows.setdefault(round(Y(p["y"]) / 14), []).append(p)
+    for group in rows.values():
+        for i, p in enumerate(group):
+            p.update(plot_x=at + (i % 5 - (min(len(group), 5) - 1) / 2) * 18, plot_y=Y(p["y"]) + i // 5 * 18,
+                     quiet=len(group) > 1 and not pick(p["c"]))
+
+
+def pick(c):
+    """A Winner pick, or a pipeline built on one."""
+    return c.split("+")[0] in WINNER_PICKS
+
+
+def zero_lane(log, at):
+    """A log $ scale with $0 drawn in its own lane: log(0) has no position."""
+    return lambda v: at if v == 0 else log(v)
 
 
 def pass_cost(s, free=None, problem_set="main"):
     """Pass rate (up is better) against paid $ per pass, log (left is better)."""
     if free is None: return ladder_toggle(pass_cost, s)
     L, R, T, B, W = 84, 16, 14, 322, 560
-    all_pts = ladder_points(s, free, "pass", problem_set)
-    ymin = min(.6, math.floor(min(p["y"] for p in all_pts) * 10) / 10)
-    pts, free_pts = paid_points(all_pts, "pass")
-    cost_min = min(p["x"] for p in pts)
-    lo = 5e-4 if cost_min >= 5e-4 else 10 ** math.floor(math.log10(cost_min))
-    X = logscale(lo, 3e-1, L, W - R)
+    pts = ladder_points(s, free, "pass", problem_set)
+    ymin = min(.6, math.floor(min(p["y"] for p in pts) * 10) / 10)
+    paid = [p["x"] for p in pts if p["x"] > 0]
+    lo = 5e-4 if min(paid) >= 5e-4 else 10 ** math.floor(math.log10(min(paid)))
+    lane = any(p["x"] == 0 for p in pts)
+    X = zero_lane(logscale(lo, 3e-1, L + ZERO_LANE["pass"] * lane, W - R), L + 48)
     Y = lambda v: B - (v - ymin) / (1.1 - ymin) * (B - T)
-    eligible = [p for p in pts if problem_set == "rescue" or not p["hollow"] and point_category(p["c"]) != "exploratory"]
-    fr = sorted(front(eligible, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
+    fr = sorted(front(pts, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
+    pack_zero_lane([p for p in pts if p["x"] == 0], L + 48, Y)
     for p in pts:
         p["on"] = p in fr
         if p["w"]: p["w"] = ("y", max(ymin, p["w"][1]), p["w"][2])
     d = (f"M{X(fr[0]['x']):.1f} {B} V{Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}") if fr else ""
-    xt = [(v, dataset.usd(v)) for v in (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1) if v >= lo]
+    # With the $0 lane the log axis is narrower, so only decades get a label.
+    xt = [(v, dataset.usd(v)) for v in ((1e-4, 1e-3, 1e-2, 1e-1) if lane else (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1)) if v >= lo]
     yt = [(v / 100, f"{v}%") for v in range(round(ymin * 100), 101, 10)]
+    zero = (f'<line x1="{L + 98}" x2="{L + 98}" y1="{T}" y2="{B}" stroke="var(--muted)" stroke-dasharray="2 4"/>'
+            f'<text x="{L + 48}" y="{B + 18}" text-anchor="middle" class="axis">$0</text>') if lane else ""
     lab = {"luna-low": (12, 16, "start"), "luna-medium": (12, -8, "start"), "luna-high": (12, 14, "start"), "haiku-low": (-14, 16, "end"),
            "haiku-medium": (14, 22, "start"), "sonnet-medium": (-14, -10, "end"), "sol61-medium": (0, 26, "middle"),
            "haiku-high": (14, 20, "start"), "luna56-high": (14, 5, "start")}
@@ -354,39 +368,47 @@ def pass_cost(s, free=None, problem_set="main"):
             if p["c"] in ("haiku-low", "haiku-high", "sol61-high", "sonnet-medium") or p["c"].startswith(("luna56", "sol56")) or p["hollow"]:
                 p["label"] = True
     return scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab,
-                   extra=fast_pairs(pts, X, Y), stat="pass", variant="free" if free else "normal", free_pts=free_pts), [p["c"] for p in fr]
+                   extra=zero + fast_pairs(pts, X, Y), stat="pass", variant="free" if free else "normal"), [p["c"] for p in fr]
 
 
 def speed_cost(s, free=None, problem_set="main"):
     """Median seconds against paid $ per pass, log; frontier requires MIN_PASS."""
     if free is None: return ladder_toggle(speed_cost, s)
     L, R, T, B, W = 84, 16, 14, 462, 560
-    all_pts = ladder_points(s, free, "speed", problem_set)
-    xmax = math.ceil(max(p["w"][2] if p["w"] else p["x"] for p in all_pts) / 5) * 5
-    X = lambda v: L + v / xmax * (W - R - L)
-    pts, free_pts = paid_points(all_pts, "speed")
-    cost_min = min(p["y"] for p in pts)
-    lo = 5e-4 if cost_min >= 5e-4 else 10 ** math.floor(math.log10(cost_min))
-    Y = logscale(lo, 3e-1, B, T)
-    ok = [p for p in pts if p.get("rate", 0) >= MIN_PASS and (problem_set == "rescue" or not p["hollow"] and point_category(p["c"]) != "exploratory")]
+    pts = ladder_points(s, free, "speed", problem_set)
+    # Axis spans the medians plus a margin, in 5 s blocks; whiskers are clipped to it.
+    xmin = max(0, math.floor((min(p["x"] for p in pts) - 1) / 5) * 5)
+    xmax = math.ceil((max(p["x"] for p in pts) + 1) / 5) * 5
+    X = lambda v: L + (v - xmin) / (xmax - xmin) * (W - R - L)
+    for p in pts:
+        if p["w"]: p["w"] = ("x", max(xmin, p["w"][1]), min(xmax, p["w"][2]))
+    paid = [p["y"] for p in pts if p["y"] > 0]
+    lo = 5e-4 if min(paid) >= 5e-4 else 10 ** math.floor(math.log10(min(paid)))
+    lane = any(p["y"] == 0 for p in pts)
+    Y = zero_lane(logscale(lo, 3e-1, B - ZERO_LANE["speed"] * lane, T), B - 16)
+    ok = [p for p in pts if p.get("rate", 0) >= MIN_PASS]
     fr = sorted(front(ok, speed_dominates), key=lambda p: p["x"])
-    for p in pts: p["on"] = p in fr
+    for p in pts:
+        p["on"] = p in fr
+        p["quiet"] = p["y"] == 0 and not p["on"] and not pick(p["c"])
     d = (f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}") if len(fr) > 1 else ""
     if len(fr) == 1 and problem_set == "main":
         nearest = sorted((p for p in pts if p not in fr and p["rate"] == 1),
                          key=lambda p: math.hypot(X(p["x"]) - X(fr[0]["x"]), Y(p["y"]) - Y(fr[0]["y"])))[:3]
         for p in nearest: p["label"] = True
-    xt = [(v, f"{v} s") for v in range(5, xmax + 1, 5)]
-    yt = [(v, dataset.usd(v)) for v in (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1) if v >= lo]
+    xt = [(v, f"{v} s") for v in range(xmin, xmax + 1, 5)]
+    yt = [(v, dataset.usd(v)) for v in (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1) if v >= lo] + [(0, "$0")] * lane
+    zero = f'<line x1="{L}" x2="{W - R}" y1="{B - 44}" y2="{B - 44}" stroke="var(--muted)" stroke-dasharray="2 4"/>' if lane else ""
     lab = {"luna-low": (0, -14, "middle"), "luna-medium": (14, 10, "start"), "haiku-low": (0, -20, "middle"), "luna-high": (14, -10, "start"),
            "haiku-medium": (14, 5, "start"), "sonnet-medium": (14, 4, "start"), "sol61-medium": (-14, -12, "end"),
            "luna56-high": (-14, 5, "end"), "luna56-low": (0, 26, "middle"), "haiku-high": (0, -14, "middle")}
     if problem_set == "main":
         for p in pts:
-            if p["c"] == "luna-low": p["label"] = True
+            if p["c"] == "luna-low" or p["c"] in WINNER_PICKS: p["label"] = True
     xlab = "median seconds per call" + (" (bar: middle half of calls)" if any(p["w"] for p in pts) else "")
     g = scatter(pts, d, X, Y, xt, yt, xlab, "$ per pass (log)", "", lab,
-                H=520, B=B, extra=fast_pairs(pts, X, Y), stat="speed", variant="free" if free else "normal", free_pts=free_pts)
+                H=520, B=B, extra=zero + fast_pairs(pts, X, Y), stat="speed", variant="free" if free else "normal",
+                minor=[v for v in range(xmin + 1, xmax) if v % 5])
     return g.replace("</svg>", f'<text x="{W - R - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>', 1), [p["c"] for p in fr]
 
 
@@ -852,7 +874,12 @@ def winner_table(ds, need):
          "Winner fast-mode premium does not come from more tokens")
     need(pipeline["passes"] == pipeline["n"] and pipeline["spend_claude"] == 0,
          "Winner measured example-check pipeline passed without calling Haiku")
-    why = {"default": f"No misses. Free on Codex quota. ⚡ saves {plain['median_s'] - default['median_s']:.0f} s", "budget": ds["facts"]["budget_why"], "speed": ds["facts"]["speed_why"]}
+    astra = ladder("astra-medium-fast")
+    quota = astra["usd_per_pass"] / default["usd_per_pass"]
+    need(astra["passes"] == astra["n"] and astra["median_s"] < default["median_s"] and quota > 2,
+         "astra-medium ⚡ is faster but burns much more Codex quota")
+    why = {"default": (f"No misses. Free on Codex quota. ⚡ saves {plain['median_s'] - default['median_s']:.0f} s. "
+                       f"astra ⚡ is faster but uses {quota:.0f}× the quota"), "budget": ds["facts"]["budget_why"], "speed": ds["facts"]["speed_why"]}
     choices = [(use.title(), ladder(c), why[use]) for c, use in WINNER_PICKS.items()]
     head = ("Use case", "Pick", "Pass", "$ per pass", "Time", "Why")
     th = "".join(f'<th scope="col">{esc(name)}</th>' for name in head)

@@ -639,7 +639,7 @@ def _facts(s, arms):
     F['frontier_caption'] = (
         f"luna-low is not a best trade-off: luna-medium costs the same, {usd(medium['usd_per_pass'], sig=1)} per pass. "
         f"It passes {medium['passes']}/{medium['n']} to luna-low's {low['passes']}/{low['n']}. "
-        f"{configs.set_label('main ladder', capital=True)} only; hollow and exploratory points excluded.")
+        f"{configs.set_label('main ladder', capital=True)} only; every point counts.")
     F['winner_caption'] = (
         f"Numbers: the {nprob}-problem {configs.set_label('main ladder')}, {hl['n']} tries per config. "
         "Time = median seconds. ~ = estimated from tokens; Claude costs are measured.")
@@ -683,10 +683,9 @@ def _facts(s, arms):
     cluster = [v['latency_s']['median'] for c, v in every.items() if c.startswith('luna') and v['usd_per_pass'] < hl['usd_per_pass']]
     F['speed_luna_cluster'] = f"luna ×{len(cluster)} ({min(cluster):.0f}–{max(cluster):.0f} s)"
     sf, hf = every['sol61-high-fast'], hard['sol61-high-fast']
-    F['default_route_scope'] = (f"sol61-high ⚡ passed every main try ({sf['passes']}/{sf['n']}). "
-                                f"It passed every L7 try ({hf['passes']}/{hf['n']}). "
-                                f"The Haiku check ran at normal speed: {F['r_sol61_high_haiku_on_fail_k']} on the {configs.set_label('rescue set')}. "
-                                "Haiku never ran.")
+    need(sf['passes'] == sf['n'] and hf['passes'] == hf['n'], "sol61-high ⚡ passes every main and L7 try")
+    F['default_route_scope'] = (f"Tested with plain sol61-high: {F['r_sol61_high_haiku_on_fail_k']} on the "
+                                f"{configs.set_label('rescue set')}. Haiku never ran.")
     F['hb_conclusion_copy'] = ("Codex's own CLI helped luna-low a little more than Claude Code helped haiku-low. "
                                "No pick changes.")
     F['l7_set_description'] = (f"{configs.set_label('L7 set')}: " + ", ".join(pshort(p) for p in probs)

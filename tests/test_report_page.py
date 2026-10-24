@@ -89,45 +89,50 @@ def test_speed_whiskers_fit_axis_even_with_a_slower_config(summary, monkeypatch)
 
 @pytest.mark.parametrize("render,stat", [(page.pass_cost, "pass"), (page.speed_cost, "speed")])
 @pytest.mark.parametrize("problem_set", ["main", "rescue"])
-def test_chart_free_strip_and_set_attribution(summary, render, stat, problem_set):
-    normal, _ = render(summary, free=False, problem_set=problem_set)
+def test_chart_free_mode_plots_zero_lane_and_set_attribution(summary, render, stat, problem_set):
+    """Codex at $0 stays on the plot, in a $0 lane, and can reach the frontier."""
+    normal, normal_front = render(summary, free=False, problem_set=problem_set)
     output, frontier = render(summary, free=True, problem_set=problem_set)
     svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
     points = {g.get("data-c"): g for g in svg.findall("s:g[@class='pt']", NS)}
-    strip = re.search(r'<ol class="free-strip"[^>]*>(.*?)</ol>', output, re.S)[1]
-    configs = re.findall(r'<li[^>]*data-c="([^"]+)"', strip)
     if problem_set == "main":
         values = page.every(summary)
-        expected = [c for c in page.ORDER if not c.startswith(("haiku", "sonnet"))]
-        rank = lambda c: values[c]["latency_s"]["median"] if stat == "speed" else -values[c]["pass_at_1"]
-        assert set(points) | set(configs) == set(page.ORDER)
+        assert set(points) == set(page.ORDER)
+        zero = {c for c in page.ORDER if values[c]["claude_usd_per_pass"] == 0}
     else:
-        values = {c: page.rescue_arms()[c] for c in page.NAME}
-        expected = [c for c, v in values.items() if v["claude_usd_per_pass"] == 0]
-        rank = lambda c: values[c]["median_s"] if stat == "speed" else -values[c]["passes"] / values[c]["n"]
-        assert set(points) | set(configs) == set(values)
-        assert "[luna-miss set]" not in strip
-    assert set(configs) == set(expected)
-    assert [rank(c) for c in configs] == sorted(rank(c) for c in configs)
-    assert set(points).isdisjoint(configs)
-    assert set(frontier).isdisjoint(configs)
-    assert "Free with Codex quota:" in output
-    assert 'cost-drop' not in output
-    assert "$0" not in [t.text for t in svg.findall("s:text", NS)]
-    assert "$0.00000" not in output
-    assert "log" in output
+        values = page.rescue_arms()
+        assert set(points) == set(page.NAME)
+        zero = {c for c in page.NAME if values[c]["claude_usd_per_pass"] == 0}
+    assert zero and "free-strip" not in output
+    assert "$0" in [t.text for t in svg.findall("s:text", NS)]
+    assert "$0" not in [t.text for t in ET.fromstring(re.search(r'<svg\b.*?</svg>', normal, re.S)[0]).findall("s:text", NS)]
+    assert set(frontier) & zero and frontier != normal_front
+    assert "$0.00000" not in output and "log" in output
     for point in points.values():
         assert point.get("data-set") == problem_set
         assert ("luna-miss set" if problem_set == "rescue" else "main ladder") in point.get("data-tip").lower()
-    # The strip preserves the exact marker used for the same config in paid mode.
-    normal_svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', normal, re.S)[0])
-    normal_points = {g.get("data-c"): g for g in normal_svg.findall("s:g[@class='pt']", NS)}
-    for c in configs:
-        item = re.search(r'<li[^>]*data-c="' + re.escape(c) + r'".*?</li>', strip, re.S)[0]
-        icon = ET.fromstring(re.search(r'<svg\b.*?</svg>', item, re.S)[0])[0]
-        original = normal_points[c][-2]
-        assert (icon.tag, icon.get("fill"), icon.get("stroke")) == (original.tag, original.get("fill"), original.get("stroke"))
-        assert "saved" in item
+    for c in zero:
+        assert "saved" in re.search(r'<li tabindex="0" data-c="' + re.escape(c) + r'"[^>]*>.*?</li>', output, re.S)[0]
+
+
+def test_free_pass_frontier_is_codex_and_pipelines(summary):
+    _, normal = page.pass_cost(summary, free=False)
+    _, free = page.pass_cost(summary, free=True)
+    _, rescue = page.pass_cost(summary, free=True, problem_set="rescue")
+    assert normal[-1] == "haiku-high"
+    assert {"sol61-high", "sol61-high-fast"} <= set(free)
+    assert not any(c.startswith(("haiku", "sonnet")) for c in free)
+    assert "sol61-high-fast+haiku-on-fail" in rescue
+
+
+def test_speed_axis_is_trimmed_with_one_second_gridlines(summary):
+    output, _ = page.speed_cost(summary, free=False)
+    svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
+    ticks = [t.text for t in svg.findall("s:text", NS) if "x-tick" in t.get("class", "").split()]
+    medians = [v["latency_s"]["median"] for c, v in page.every(summary).items() if c in page.ORDER]
+    first, last = (int(t.split()[0]) for t in (ticks[0], ticks[-1]))
+    assert first > 0 and first <= min(medians) - 1 and last >= max(medians) + 1 and last - max(medians) < 6
+    assert len(svg.findall("s:line[@stroke-opacity='.45']", NS)) == (last - first) - (last - first) // 5
 
 
 @pytest.mark.parametrize("render", [page.pass_cost, page.speed_cost])
@@ -178,7 +183,9 @@ def test_scatter_ticks_use_dataset_usd_and_mobile_endpoint_fits(summary, render,
     svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
     costs = [t.text for t in svg.findall("s:text", NS) if (t.text or "").startswith("$0.")]
     expected = [dataset.usd(v) for v in (0.001, 0.003, 0.01, 0.03, 0.1, 0.3)]
-    if free and problem_set == "rescue":
+    if free and render is page.pass_cost:  # the $0 lane narrows the log axis: decades only
+        expected = [dataset.usd(v) for v in ((0.0001,) if problem_set == "rescue" else ()) + (0.001, 0.01, 0.1)]
+    elif free and problem_set == "rescue":
         expected.insert(0, dataset.usd(0.0003))
     assert costs == expected
     ticks = [t for t in svg.findall("s:text", NS) if "x-tick" in t.get("class", "").split()]
@@ -215,7 +222,7 @@ def test_frontier_caption_uses_computed_costs(summary):
     assert dataset.usd(low["usd_per_pass"], sig=1) == dataset.usd(medium["usd_per_pass"], sig=1)
     assert page.esc(f"It passes {medium['passes']}/{medium['n']} to luna-low's {low['passes']}/{low['n']}.") in caption
     assert 'Main ladder only' in caption
-    assert 'hollow and exploratory points excluded' in caption
+    assert 'every point counts' in caption
     for render in (page.pass_cost, page.speed_cost):
         output, _ = render(summary)
         main, rescue = output.split('<div class="cset s-rescue">', 1)
@@ -348,7 +355,7 @@ def test_speed_frontier_treats_sub_half_second_gap_as_tie(summary):
     assert 'astra-medium-fast' not in names
     changed = json.loads(json.dumps(summary))
     changed['exploratory']['astra-medium-fast']['latency_s']['median'] = 9.0
-    assert 'astra-medium-fast' not in page.speed_cost(changed)[1]
+    assert 'astra-medium-fast' in page.speed_cost(changed)[1]  # a full second faster: every point is eligible
     assert page.speed_dominates(dict(x=10, y=1), dict(x=9.9, y=2))
     assert not page.speed_dominates(dict(x=10, y=1), dict(x=9, y=2))
 
@@ -481,14 +488,19 @@ def test_main_markers_follow_config_encoding(summary):
             assert mark.get(attr) == expected.get(attr)
 
 
-def test_single_speed_frontier_has_no_line_and_labels_accurate_competitors(summary):
+def test_speed_frontier_lines_and_single_point_free_mode(summary):
     output, names = page.speed_cost(summary, free=False)
-    assert names == ['haiku-low']
+    assert names == ['haiku-low', 'luna-high']
     svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
     path = next(p for p in svg.findall('s:path', NS) if p.get('stroke') == 'var(--frontier)')
-    assert not path.get('d')
+    assert path.get('d')
     labels = {t.text for t in svg.findall('s:text', NS) if 'lbl' in t.get('class', '')}
-    assert {'haiku-low', 'sonnet-medium', 'haiku-high', 'sol61-high ⚡'} <= labels
+    assert {'haiku-low', 'luna-high', 'sol61-high ⚡'} <= labels
+    output, names = page.speed_cost(summary, free=True)
+    assert names == ['astra-medium-fast']
+    svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
+    labels = {t.text for t in svg.findall('s:text', NS) if 'lbl' in t.get('class', '')}
+    assert 'astra-medium ⚡' in labels
 
 
 def test_luna_miss_views_share_points_and_separate_coincident_models(summary):

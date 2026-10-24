@@ -22410,7 +22410,7 @@
   "exploratory_names": "astra-medium, astra-medium ⚡, haiku-high, luna-high, luna-low-bare, luna56-high, luna56-low, sol56-high, sol61-high, sol61-high ⚡",
   "badge_disagreements": "p01 overlap_minutes (L1) is Medium, p06 calc (L3) is Hard, p08 recur (L4) is Medium",
   "badge_disagreement_items": "<li>p01 overlap_minutes (L1) is Medium.</li><li>p06 calc (L3) is Hard.</li><li>p08 recur (L4) is Medium.</li>",
-  "frontier_caption": "luna-low is not a best trade-off: luna-medium costs the same, $0.0009 per pass. It passes 47/60 to luna-low's 46/60. Main ladder only; hollow and exploratory points excluded.",
+  "frontier_caption": "luna-low is not a best trade-off: luna-medium costs the same, $0.0009 per pass. It passes 47/60 to luna-low's 46/60. Main ladder only; every point counts.",
   "winner_caption": "Numbers: the 12-problem main ladder, 60 tries per config. Time = median seconds. ~ = estimated from tokens; Claude costs are measured.",
   "winner_other_routes": [
    "⚡ = fast mode: same answers, about 2× list price, faster."
@@ -22429,7 +22429,7 @@
   "rung_caption": "Passes per rung. Tint = a miss; red = 40% or less, the breaking point. L7 excluded.",
   "pipes_caption": "Bar length = passes out of 35. Text by each bar = passes · $ per pass · median seconds.",
   "speed_luna_cluster": "luna ×4 (7–12 s)",
-  "default_route_scope": "sol61-high ⚡ passed every main try (60/60). It passed every L7 try (15/15). The Haiku check ran at normal speed: 35/35 on the luna-miss set. Haiku never ran.",
+  "default_route_scope": "Tested with plain sol61-high: 35/35 on the luna-miss set. Haiku never ran.",
   "hb_conclusion_copy": "Codex's own CLI helped luna-low a little more than Claude Code helped haiku-low. No pick changes.",
   "l7_set_description": "L7 set: p13 xor_ring, p14 bounce_board, p15 paint_erase; scored separately. Added after every strong config passed L6.",
   "hb_accuracy": "haiku-low passed more often than luna-low in both runners.",
