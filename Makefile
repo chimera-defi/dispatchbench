@@ -39,7 +39,7 @@ grade:               ## grade cached completions in the sandbox, write results/*
 	$(PY) -m bench.agentic.run --export
 	$(PY) -m bench.trim_probe --step export
 
-report: grade        ## summary.json, manifest.json, tables.md, charts, README.md and results/report/page.html
+report:              ## render existing results; grading/export is explicit to preserve historical rows
 	$(PY) -m analysis.summarize
 	$(PY) -m analysis.charts
 	$(PY) -m analysis.luna_rescue > results/report/luna_rescue.md

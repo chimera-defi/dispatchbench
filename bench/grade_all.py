@@ -43,8 +43,8 @@ def main():
         ph = hashlib.sha256(open(problems.path(e["problem"]), "rb").read()).hexdigest()[:16]
         gk = hashlib.sha256((ph + "\0" + code).encode()).hexdigest()
         gp = os.path.join(GRADES, gk + ".json")
-        if e["is_error"] and not code.strip():
-            g = {"outcome": "harness_error", "detail": (e.get("error") or "")[:300]}
+        if e["is_error"]:
+            g = {"outcome": e.get("outcome", "harness_error"), "detail": (e.get("error") or "")[:300]}
         elif os.path.exists(gp):
             g = json.load(open(gp))
         else:

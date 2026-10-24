@@ -223,15 +223,15 @@ Every problem on which at least one config failed at least once, over all phases
 
 ## Agentic track (hidden tests)
 
-| config | hidden pass | 95% CI | visible suite, incl. agent's own tests | median s | input floor | $/run | $ kind |
-|---|---|---|---|---|---|---|---|
-| astra-medium | 12/12 | ≥47% (all passed) | 12/12 | 85.2 | 98876 | 0.3798 | proxy |
-| haiku-high | 12/12 | ≥47% (all passed) | 12/12 | 58.4 | 61331 | 0.0121 | measured |
-| haiku-low | 12/12 | ≥47% (all passed) | 12/12 | 28.3 | 31760 | 0.0051 | measured |
-| luna-low | 12/12 | ≥47% (all passed) | 11/12 | 28.5 | 92906 | 0.0040 | proxy |
-| sol61-high | 12/12 | ≥47% (all passed) | 12/12 | 108.6 | 162168 | 0.0948 | proxy |
-| sol61-medium | 12/12 | ≥47% (all passed) | 12/12 | 89.0 | 116924 | 0.0752 | proxy |
-| sonnet-medium | 12/12 | ≥47% (all passed) | 12/12 | 27.7 | 27425 | 0.0537 | measured |
+| config | hidden pass | 95% CI | visible suite, incl. agent's own tests | complete task | median s | input floor | $/run | $ kind |
+|---|---|---|---|---|---|---|---|---|
+| astra-medium | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 85.2 | 98876 | 0.3798 | proxy |
+| haiku-high | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 58.4 | 61331 | 0.0121 | measured |
+| haiku-low | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 28.3 | 31760 | 0.0051 | measured |
+| luna-low | 12/12 | ≥47% (all passed) | 11/12 | 11/12 | 28.5 | 92906 | 0.0040 | proxy |
+| sol61-high | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 108.6 | 162168 | 0.0948 | proxy |
+| sol61-medium | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 89.0 | 116924 | 0.0752 | proxy |
+| sonnet-medium | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 27.7 | 27425 | 0.0537 | measured |
 
 | config | t1_discount | t2_cache_bugs | t3_config_refs | t4_retry_queue |
 |---|---|---|---|---|
@@ -303,6 +303,8 @@ The pilot's Codex ladder records only the levels that were actually tested. Ever
 
 ## Spend
 
-- Claude, measured: $2.46 (function $1.61, agentic $0.85).
-- Codex, proxy at list price: $22.53.
+Auxiliary runs and pilot excluded from the function + agentic totals.
+
+- Claude CLI-reported cost (list basis), function + agentic only: $2.46 (function $1.61, agentic $0.85).
+- Codex token-price estimate, function + agentic only: $22.53.
 - Pilot repricing: 83 priority-tier Codex rows cost $3.5190 at the pilot's 1.5× and $4.6920 at the published 2×.
