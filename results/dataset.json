@@ -22391,7 +22391,7 @@
   "rung_breaks": "luna-low breaks at L6; luna-medium breaks at L6",
   "bare_rung_break": "L2",
   "rung_caption": "Passes per rung. Tint = a miss; red = 40% or less, the breaking point. L7 excluded.",
-  "pipes_caption": "Bar length = passes out of 35. Text under each bar = passes · $ per pass · median seconds.",
+  "pipes_caption": "Bar length = passes out of 35. Text by each bar = passes · $ per pass · median seconds.",
   "speed_luna_cluster": "luna ×4 (7–12 s)",
   "default_route_scope": "sol61-high passed every main try (60/60). It passed every L7 try (15/15). It passed every repo try (12/12). On the luna-miss set, it passed 35/35. Haiku never ran.",
   "hb_conclusion_copy": "Does our runner make Codex look bad? Slightly, maybe more. The gap moved 13 points, below our 15-point bar. We used 95% confidence. The range spans 3 to 23 points. A larger bias is possible.",

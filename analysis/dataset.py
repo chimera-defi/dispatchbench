@@ -666,7 +666,7 @@ def _facts(s, arms):
     F['rung_caption'] = (f"Passes per rung. Tint = a miss; red = {F['break_at']} or less, the breaking point. "
                          f"{configs.set_label('L7 set').split()[0]} excluded.")
     F['pipes_caption'] = (f"Bar length = passes out of {F['rescue_n']}. "
-                          "Text under each bar = passes · $ per pass · median seconds.")
+                          "Text by each bar = passes · $ per pass · median seconds.")
     cluster = [v['latency_s']['median'] for c, v in every.items() if c.startswith('luna') and v['usd_per_pass'] < hl['usd_per_pass']]
     F['speed_luna_cluster'] = f"luna ×{len(cluster)} ({min(cluster):.0f}–{max(cluster):.0f} s)"
     F['default_route_scope'] = (f"sol61-high passed every main try ({F['sol61_high_k']}). "

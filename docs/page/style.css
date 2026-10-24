@@ -289,7 +289,7 @@ section.collapsible>.sec-body:not([hidden]){animation:sec-in var(--sec-dur,0s) e
 .bar-value{overflow-wrap:anywhere}
 .bar-note{margin:4px 0;color:var(--muted);font:12px/1.4 var(--body)}
 @media(min-width:700px){
- .bar-row{grid-template-columns:minmax(0,2fr) minmax(0,3fr) var(--bar-value-width)}
+ .bar-row{grid-template-columns:26ch minmax(0,1fr) var(--bar-value-width)}
  .bar-value{white-space:nowrap}
 }
 @media(max-width:390px){
