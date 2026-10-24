@@ -1,4 +1,6 @@
-# model-routing-bench
+# DispatchBench
+
+LeetCode-style problems, written fresh for this bench.
 
 Which model and reasoning effort should a coding task be routed to? This repo measures {{n_configs}} Claude Code and Codex CLI configs, plus {{n_new_codex}} Codex configs added on {{new_date}}, on {{n_all_problems}} Python problems written after the models' training cutoff, plus {{n_tasks}} small repo tasks.
 

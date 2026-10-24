@@ -1,6 +1,7 @@
 <header class="head">
-<h1>Which model should a coding task go to?</h1>
-<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#pareto">Cost vs accuracy</a><a href="#results">Results</a><a href="#method">How it was run</a><a href="#fail">Where they fail</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#limits">Limitations</a><a href="#tokens">Token floor</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#equiv">Codex vs Claude</a></nav>
+<h1>DispatchBench: which model should a coding task go to?</h1>
+<p class="small">LeetCode-style problems, written fresh for this bench. {{run_dates}}</p>
+<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#pareto">Cost vs accuracy</a><a href="#results">Results</a><a href="#method">How it was run</a><a href="#fail">Where they fail</a><a href="#tokens">Token floor</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#limits">Limitations</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#equiv">Codex vs Claude</a></nav>
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
@@ -110,7 +111,6 @@
 <li>{{versions_claude}}</li>
 <li>{{versions_codex}}</li>
 <li>{{versions_extra}}</li>
-<li>{{run_dates}}</li>
 </ul>
 </details>
 {{w_legend}}
@@ -129,6 +129,17 @@
 <li>haiku-low never gave a wrong answer.</li>
 <li>Its {{hl_main_misses}} main-ladder misses: {{hl_main_timeouts}} too slow. {{hl_main_crashes}} crash.</li>
 <li>Its {{l7_hl_fail}} L7 misses: all too slow.</li>
+</ul>
+</section>
+<section id="tokens">
+<h2><span class="num"></span>🧱 Token floor: input tokens per call</h2>
+<p class="small">Trimming luna-low's Codex system prompt cuts mean input by {{in_cut}}.</p>
+<div class="chart floor">{{w_floor}}</div>
+<ul class="tight small">
+<li>Token floor = text Codex's runner (its harness) adds before the task. This includes the system prompt and tool descriptions.</li>
+<li>Bars show mean input per call, including the task.</li>
+<li>All these runs had tools off.</li>
+<li><a href="#notation">See Notation.</a></li>
 </ul>
 </section>
 <section id="pipes">
@@ -207,21 +218,11 @@
 </details>
 <details><summary>Reproduce</summary>
 <ul class="tight small">
+<li>{{cite}}</li>
 <li>Code, problems and raw results: <a href="https://github.com/chimera-defi/model-routing-bench">model-routing-bench on GitHub</a>, MIT licence.</li>
 <li>Every number on this page comes from <code>results/dataset.json</code>.</li>
 </ul>
 </details>
-</section>
-<section id="tokens">
-<h2><span class="num"></span>🧱 Token floor: input tokens per call</h2>
-<p class="small">Trimming luna-low's Codex system prompt cuts mean input by {{in_cut}}.</p>
-<div class="chart floor">{{w_floor}}</div>
-<ul class="tight small">
-<li>Token floor = text Codex's runner (its harness) adds before the task. This includes the system prompt and tool descriptions.</li>
-<li>Bars show mean input per call, including the task.</li>
-<li>All these runs had tools off.</li>
-<li><a href="#notation">See Notation.</a></li>
-</ul>
 </section>
 <section class="extras" id="extras">
 <h2><span class="num"></span>🔍 More charts</h2>

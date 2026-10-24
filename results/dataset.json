@@ -21919,6 +21919,7 @@
   "versions_codex": "Main bench, Codex CLI 0.163.0: gpt-5.6-luna, gpt-5.6-sol, gpt-6-astra, gpt-6-luna, gpt-6.1-sol.",
   "versions_extra": "Whose bench? also used Codex CLI 0.164.0 and Claude Code 2.1.293.",
   "run_dates": "All calls ran 2026-10-22 to 2026-10-24.",
+  "cite": "Cite as: DispatchBench (2026), github.com/chimera-defi/model-routing-bench.",
   "main_set_label": "main ladder",
   "l7_set_label": "L7 set",
   "l7_n": "15",

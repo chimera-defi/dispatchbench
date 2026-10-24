@@ -356,6 +356,7 @@ def _facts(s, arms):
                            f" and Claude Code {', '.join(sorted(extra['claude']))}.")
     days = sorted(r["ts"][:10] for path in glob.glob(os.path.join(RES, "**", "*.jsonl"), recursive=True) for r in load(path) if r.get("ts"))
     F["run_dates"] = f"All calls ran {days[0]} to {days[-1]}."
+    F["cite"] = f"Cite as: DispatchBench ({days[-1][:4]}), github.com/chimera-defi/model-routing-bench."
     F.update(main_set_label=configs.set_label("main ladder"), l7_set_label=configs.set_label("L7 set"))
     F["l7_n"] = str(len({p for v in hard.values() for p in v["by_problem"]}) * int(F["repeats"]))
     F["n_rescue_problems"] = str(len(luna_rescue.PIDS))

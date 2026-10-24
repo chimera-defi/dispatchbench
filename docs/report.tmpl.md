@@ -1,4 +1,4 @@
-@readme # model-routing-bench: full report
+@readme # DispatchBench: full report
 @readme
 @readme Short version: [README](README.md). Interactive version: [results/report/page.html](results/report/page.html).
 
