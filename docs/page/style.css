@@ -183,6 +183,8 @@ section.collapsible > h2 > .sec-toggle:focus-visible,.sec-toggle-all:focus-visib
 
 /* Verdict text wraps independently of numeric cells at desktop widths too. */
 .sortable .verdict-cell{white-space:normal;min-width:9ch;overflow-wrap:anywhere}
+#results .sortable th:first-child,#results .sortable td:first-child{width:1%;min-width:0;white-space:nowrap}
+#results .sortable th:nth-child(2),#results .sortable td:nth-child(2){text-align:left}
 
 .chart.floor .scroll-hint{font-size:12px;color:var(--muted);margin:6px 4px}
 @media (min-width:641px){.chart.floor .scroll-hint{display:none}}

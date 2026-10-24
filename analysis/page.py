@@ -456,10 +456,10 @@ def verdict(c, v, need, E):
 HARD = list(NAME.items())
 
 
-def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived=""):
+def row(set_name, name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived=""):
     r = k / n; cls = "good" if r >= 0.95 else "warn" if r >= MIN_PASS else "bad"
     attr = f' title="{esc(derived)}"' if derived else ""
-    return (f'<tr{attr}><td><span class="dot" style="background:{col}"></span>{esc(name)}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
+    return (f'<tr{attr}><td>{set_name}</td><td><span class="dot" style="background:{col}"></span>{esc(name)}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
             f'<td>{"~" if proxy else ""}${usd:.5f}</td><td>{"–" if cusd is None else f"${cusd:.5f}"}</td><td>{sec:.1f}</td><td class="verdict-cell">{verdict}</td></tr>')
 
 
@@ -471,21 +471,22 @@ def short_table(s, need):
     set. Passed reads "95% (57/60)" so it sorts by rate. Hard-set verdicts come from the numbers: never failed, the cheapest of
     those, or how many attempts missed."""
     E = every(s); a = rescue_arms()
-    top = [row(DISP(c), FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], None if CODEX(c) else E[c]["usd_per_pass"],
+    top = [row("Ladder", DISP(c), FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], None if CODEX(c) else E[c]["usd_per_pass"],
                E[c]["latency_s"]["median"], verdict(c, E[c], need, E),
                E[c]["cost_kind"] == "proxy") for c in ORDER]
     clean = [c for c, _ in HARD if a[c]["passes"] == a[c]["n"]]; need(clean, "some rescue-set row never failed")
     best = min(clean, key=lambda c: a[c]["usd_per_pass"])
     need(best == "haiku-medium", "haiku-medium is the cheapest rescue-set row with no miss")
     hv = lambda c: "0 misses, cheapest" if c == best else "0 misses" if c in clean else f"missed {a[c]['n'] - a[c]['passes']}"
-    hard = [row(name, "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], None if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
+    hard = [row("Rescue", name, "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], None if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
                 a[c]["median_s"], hv(c), CODEX(c), a[c].get("derived", "")) for c, name in HARD]
-    grp = lambda t: f'<tr class="grp"><th colspan="6">{t}</th></tr>'
-    return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>total $ per pass</th>'
+    problems = sorted(s["problems"]); rungs = [v["rung"] for v in s["problems"].values()]
+    return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>set</th><th>config</th><th>passed</th><th>total $ per pass</th>'
             '<th>Claude $ per pass</th><th>median s</th><th>verdict</th></tr></thead>'
-            f'<tbody>{grp(f"Main ladder: {len(s['problems'])} problems, p01–p12 (L1–L6)")}{"".join(top)}</tbody>'
-            f'<tbody>{grp(f"Rescue set: {a[HARD[0][0]]["n"]} attempts on {len(luna_rescue.PIDS)} problems")}{"".join(hard)}</tbody></table></div>'
-            f'<p class="small">Rescue set = the {len(luna_rescue.PIDS)} ladder problems luna missed most. {", ".join(plabel(q) for q in luna_rescue.PIDS)}.</p>')
+            f'<tbody>{"".join(top)}</tbody><tbody>{"".join(hard)}</tbody></table></div>'
+            '<ul class="tight small">'
+            f'<li>Ladder = {len(problems)} problems, {problems[0][:3]}–{problems[-1][:3]} (L{min(rungs)}–L{max(rungs)}).</li>'
+            f'<li>Rescue = {a[HARD[0][0]]["n"]} attempts on the {len(luna_rescue.PIDS)} ladder problems luna missed most: {", ".join(plabel(q) for q in luna_rescue.PIDS)}.</li></ul>')
 
 
 
