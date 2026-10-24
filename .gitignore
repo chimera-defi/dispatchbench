@@ -3,6 +3,8 @@ __pycache__/
 *.pyc
 cache/tmp/
 cache/raw/
+cache/codex_harness/raw/
+cache/codex_harness/.lock
 artifacts/
 cache/expected/
 cache/*.log

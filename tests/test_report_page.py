@@ -1,12 +1,13 @@
 """Regression checks for report geometry and attribution, using existing results only."""
 import json
 import re
+from datetime import datetime
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
 import pytest
 
-from analysis import charts, page, report
+from analysis import charts, harness_bias, page, report
 
 ROOT = Path(__file__).resolve().parents[1]
 NS = {"s": "http://www.w3.org/2000/svg"}
@@ -73,6 +74,64 @@ def test_codex_orchestrator_status_requires_attributed_results():
     assert report.codex_orchestrator_status([{"orchestrator": "Claude Opus", "passed": True}]) == "not run yet"
     for attribution in ("Codex", {"cli": "codex"}, {"model": "gpt-6.1-sol"}):
         assert report.codex_orchestrator_status([{"orchestrator": attribution, "passed": False}]) == "results available"
+
+
+def test_fairness_qa_renders_counts_and_runtime_from_appendix():
+    rows = [json.loads(line) for line in (ROOT / 'results/appendix/harness_bias.jsonl').read_text().splitlines()]
+    rendered = report.render()[2]
+    method = re.search(r'<section\b[^>]*\bid="method"[^>]*>(.*?)</section>', rendered, re.S).group(1)
+    assert "Q: Does Claude's harness make Codex look bad?" in method
+    assert 'not proof of no bias' in method
+    assert 'the program that sends the problem to the model and grades the answer' in method
+    assert 'one-shot' in method and 'tool loop' in method
+    assert 'not just in who built them' in method
+    assert 'A separate run with Codex managing the benchmark' not in method
+    assert f"{len({r['problem'] for r in rows})} hard problems × {len({r['repeat'] for r in rows})} repeats" in method
+    for config in ('luna-low', 'haiku-low'):
+        counts = []
+        for harness in ('claude-one-shot', 'codex-tool-loop'):
+            cell = [r for r in rows if (r['config'], r['harness']) == (config, harness)]
+            counts.append(f"{sum(r['passed'] for r in cell)}/{len(cell)}")
+        assert f"<td>{config}</td><td>{counts[0]}</td><td>{counts[1]}</td>" in method
+    codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
+    start = min(datetime.fromisoformat(r['ts']).timestamp() for r in codex)
+    end = max(datetime.fromisoformat(r['ts']).timestamp() + r['wall_s'] for r in codex)
+    assert f"{sum(r['outcome'] == 'harness_error' for r in codex)} harness errors" in method
+    assert f"about {(end - start) / 60:.0f} minutes of wall time for the recorded calls" in method
+    assert 'no timeouts' in method
+    comparison = harness_bias.pass_summary(rows)
+    lo, hi = comparison['ci']
+    assert f'No bias of about {max(abs(lo), abs(hi)):.1f} or more was detectable' in method
+    assert f'{lo:+.3f} to {hi:+.3f}' in method
+
+
+def test_fairness_qa_updates_when_appendix_data_change(monkeypatch):
+    original = report.load
+    rows = original(str(ROOT / 'results/appendix/harness_bias.jsonl'))
+    changed = [dict(r, passed=False) if r['config'] == 'luna-low' else r for r in rows]
+    monkeypatch.setattr(report, 'load', lambda path: changed if str(path).endswith('/appendix/harness_bias.jsonl') else original(path))
+    rendered = report.render()[2]
+    n = sum(r['config'] == 'luna-low' and r['harness'] == 'claude-one-shot' for r in changed)
+    passes = sum(r['passed'] for r in changed if r['config'] == 'luna-low')
+    assert f'<td>luna-low</td><td>{passes}/{n}</td><td>{passes}/{n}</td>' in rendered
+    lo, hi = harness_bias.pass_summary(changed)['ci']
+    assert f'No bias of about {max(abs(lo), abs(hi)):.1f} or more was detectable' in rendered
+    assert f'{lo:+.3f} to {hi:+.3f}' in rendered
+
+
+@pytest.mark.parametrize('change', ['bias', 'timeout', 'missing'])
+def test_fairness_qa_rejects_data_that_invalidate_its_claims(monkeypatch, change):
+    rows = report.load(str(ROOT / 'results/appendix/harness_bias.jsonl'))
+    if change == 'bias':
+        rows = [dict(r, passed=r['harness'] == 'codex-tool-loop') if r['config'] == 'luna-low'
+                else dict(r, passed=True) for r in rows]
+    elif change == 'timeout':
+        next(r for r in rows if r['harness'] == 'codex-tool-loop')['outcome'] = 'timeout'
+    else:
+        rows.pop()
+    monkeypatch.setattr(report, 'load', lambda path: rows)
+    with pytest.raises(AssertionError, match='template wording no longer matches the data'):
+        report.fairness_facts()
 
 
 def test_speed_frontier_treats_sub_half_second_gap_as_tie(summary):

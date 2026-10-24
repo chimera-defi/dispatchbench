@@ -67,6 +67,12 @@ add("pilot", "pilot",
 add("pilot-agentic", "pilot",
     ("pipeline A", "Pilot repo task: gpt-6.1-sol builds, a reviewer checks"), ("pipeline B", "Pilot repo task: gpt-6-luna builds, a reviewer checks"),
     ("pipeline C", "Pilot repo task: Claude Sonnet builds, no review"))
+add("harness-bias", "harness-bias",
+    ("haiku-low / Claude harness", "Harness-bias check: haiku-low on the hard problems through the Claude-built harness"),
+    ("haiku-low / Codex harness", "Harness-bias check: haiku-low through the harness Codex built"),
+    ("luna-low / Claude harness", "Harness-bias check: luna-low through the Claude-built harness"),
+    ("luna-low / Codex harness", "Harness-bias check: luna-low through the harness Codex built"),
+    ("sol61-medium / Codex harness", "Harness-bias check: sol61-medium through the harness Codex built"))
 REGISTRY = {(s, n): {"source": s, "name": n, "category": c, "what": w} for s, n, c, w in R}
 assert len(REGISTRY) == len(R), "duplicate registry entry"
 
