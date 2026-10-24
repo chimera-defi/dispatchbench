@@ -571,10 +571,10 @@ def _tables(s, arms):
                            [[DISP(c) + (" †" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], nprob),
                              f"{v['latency_s']['median']:.1f}", f"{v['latency_s']['p90']:.1f}", f"{usd(v['usd_per_pass'])}", f"{usd(v['usd_total'])}", v["cost_kind"]]
                             for c, v in {**cfg, **ex}.items()])
-    T["result_detail"] = md_table(["set", "config", "95% CI", "p90 s", f"total $ ({cfg['haiku-low']['n']} calls)", "$ kind"],
-                                  [["Ladder", DISP(c) + (" (exploratory)" if c in ex else ""), ci_text(v["passes"], v["n"], v["ci95"], nprob),
-                                    f"{v['latency_s']['p90']:.1f}", usd(v["usd_total"]), v["cost_kind"]]
-                                   for c, v in {**cfg, **ex}.items()])
+    T["result_detail"] = md_table(["config", "pass@1 95% CI", "p90 s", f"total $ ({cfg['haiku-low']['n']} calls)"],
+                                  [[DISP(c) + (" †" if c in ex else ""), ci_text(v["passes"], v["n"], v["ci95"], nprob),
+                                    f"{v['latency_s']['p90']:.1f}", ("~" if v["cost_kind"] == "proxy" else "") + usd(v["usd_total"])]
+                                   for c, v in sorted({**cfg, **ex}.items(), key=lambda pair: configs.low_context(pair[0]))])
     T["tokens"] = md_table(["config", "mean input", "of which cached", "mean output", "of which reasoning", "$ per 1k tokens"],
                            [[DISP(c) + (" †" if c in ex else ""), n(v["tokens_mean"]["in_tok"]), n(v["tokens_mean"]["cached_tok"]), n(v["tokens_mean"]["out_tok"]),
                              n(v["tokens_mean"]["reasoning_tok"]), usd(v["usd_per_1k_tokens"])]

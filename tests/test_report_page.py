@@ -400,8 +400,8 @@ def test_winner_and_conclusion_agree_and_sets_are_collapsed(summary):
 
 def test_winner_verdict_and_luna_high_tradeoff(summary):
     E = page.every(summary)
-    assert page.verdict('haiku-high', E['haiku-high'], report.need, E) == '★ pick: 0 misses, cheapest'
-    assert page.verdict('luna-high', E['luna-high'], report.need, E) == 'trade-off: costs more than luna-low, passes more'
+    assert page.verdict('haiku-high', E['haiku-high'], report.need, E) == '★ pick'
+    assert page.verdict('luna-high', E['luna-high'], report.need, E) == 'trade-off'
 
 
 def test_rung_dip_labels_clear_series_and_breaking_line(summary):
