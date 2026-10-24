@@ -194,3 +194,69 @@ def test_grader_version_changes_new_cache_key(task, monkeypatch):
     key = A.key_for("luna-low", "t1", 1)
     monkeypatch.setattr(A, "GRADER_VERSION", A.GRADER_VERSION + 1)
     assert A.key_for("luna-low", "t1", 1) != key
+
+
+def legacy_entry(config, task):
+    import hashlib
+    cli, mid, eff = A.CONFIGS[config]
+    blob = dict(track="agentic", config=config, model=mid, effort=eff, cli=cli, cli_version="offline",
+                flags=A.CLAUDE_FLAGS if cli == "claude" else A.CODEX_FLAGS, prompt=(task / "TASK.md").read_text(),
+                task="t1", task_tree=A.tree_hash(str(task / "repo"), str(task / "hidden")), repeat=1)
+    key = hashlib.sha256(json.dumps(blob, sort_keys=True).encode()).hexdigest()
+    row = dict(key=key, config=config, task="t1", repeat=1, hidden_pass=True, visible_pass=True, is_error=False)
+    path = Path(A.CACHE) / (key + ".json"); path.parent.mkdir(exist_ok=True)
+    path.write_text(json.dumps(row))
+    return path
+
+
+@pytest.mark.parametrize("config", ["luna-low", "haiku-low"])
+def test_legacy_cache_hit_never_calls_model(task, monkeypatch, config):
+    legacy = legacy_entry(config, task); before = legacy.read_bytes()
+    current = Path(A.CACHE) / (A.key_for(config, "t1", 1) + ".json")
+    assert not current.exists()
+    forbidden = Mock(side_effect=AssertionError("legacy verdict must prevent model calls"))
+    monkeypatch.setattr(A, "run_claude", forbidden); monkeypatch.setattr(A, "run_codex", forbidden)
+    status = A.one(config, "t1", 1, 1)
+    assert status == "cached (grader_version=1)"
+    assert not forbidden.called
+    assert legacy.read_bytes() == before and not current.exists()
+
+
+def test_regrade_explicitly_bypasses_legacy_cache(task, monkeypatch):
+    legacy = legacy_entry("luna-low", task); before = legacy.read_bytes()
+    call = Mock(side_effect=subprocess.TimeoutExpired("mock", 1))
+    monkeypatch.setattr(A, "run_codex", call)
+    A.one("luna-low", "t1", 1, 1, regrade=True)
+    assert call.call_count == 1 and legacy.read_bytes() == before
+    current = json.loads((Path(A.CACHE) / (A.key_for("luna-low", "t1", 1) + ".json")).read_text())
+    assert current["grader_version"] == A.GRADER_VERSION and current["outcome"] == "timeout"
+
+
+def test_export_selects_newest_grader_for_each_trial(task, tmp_path, monkeypatch):
+    cache = Path(A.CACHE); cache.mkdir()
+    old = dict(config="luna-low", task="t1", repeat=1, ts="2099-01-01", hidden_pass=True)
+    new = dict(old, grader_version=2, ts="2026-01-01", hidden_pass=False)
+    latest = dict(new, ts="2026-02-01", hidden_pass=True)
+    other_repeat = dict(old, repeat=2)
+    other_task = dict(old, task="t2")
+    other_config = dict(old, config="haiku-low")
+    sources = [old, new, latest, other_repeat, other_task, other_config]
+    for i, row in enumerate(sources): (cache / f"{i}.json").write_text(json.dumps(row))
+    (cache / "inflight.json.tmp").write_text("incomplete JSON")
+    before = {p: p.read_bytes() for p in cache.iterdir()}
+    output = tmp_path / "export.jsonl"; monkeypatch.setattr(A, "OUT", str(output))
+    A.export()
+    rows = [json.loads(line) for line in output.read_text().splitlines()]
+    assert len(rows) == 4
+    selected = {(r["config"], r["task"], r["repeat"]): r for r in rows}
+    assert len(selected) == 4 and selected[("luna-low", "t1", 1)] == latest
+    assert set(selected) == {("luna-low", "t1", 1), ("luna-low", "t1", 2), ("luna-low", "t2", 1), ("haiku-low", "t1", 1)}
+    assert before == {p: p.read_bytes() for p in cache.iterdir()}
+
+
+def test_regrade_flag_is_forwarded_to_trials(monkeypatch):
+    monkeypatch.setattr(A, "one", Mock(return_value="cached"))
+    monkeypatch.setattr(A, "export", lambda: None)
+    monkeypatch.setattr("sys.argv", ["run", "--configs", "luna-low", "--tasks", "t1", "--repeats", "1", "--lanes", "1", "--regrade"])
+    A.main()
+    A.one.assert_called_once_with("luna-low", "t1", 1, 1, regrade=True)

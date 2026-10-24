@@ -36,11 +36,14 @@ def tree_hash(*dirs):
     return h.hexdigest()
 
 
-def key_for(config, task, rep):
+def key_for(config, task, rep, legacy=False):
     cli, mid, eff = CONFIGS[config]; t = os.path.join(TASKS, task)
-    blob = json.dumps({"track": "agentic", "grader_version": GRADER_VERSION, "config": config, "model": mid, "effort": eff, "cli": cli, "cli_version": cli_version(cli),
+    dirs = [os.path.join(t, "repo"), os.path.join(t, "hidden")] + ([] if legacy else [os.path.join(t, "solution")])
+    identity = {"track": "agentic", "config": config, "model": mid, "effort": eff, "cli": cli, "cli_version": cli_version(cli),
                        "flags": CLAUDE_FLAGS if cli == "claude" else CODEX_FLAGS, "prompt": open(os.path.join(t, "TASK.md")).read(),
-                       "task": task, "task_tree": tree_hash(os.path.join(t, "repo"), os.path.join(t, "hidden"), os.path.join(t, "solution")), "repeat": rep}, sort_keys=True)
+                       "task": task, "task_tree": tree_hash(*dirs), "repeat": rep}
+    if not legacy: identity["grader_version"] = GRADER_VERSION
+    blob = json.dumps(identity, sort_keys=True)
     return hashlib.sha256(blob.encode()).hexdigest()
 
 
@@ -123,7 +126,9 @@ def visible_pytest(w):
         return pytest(clean, "tests", source=w)
 
 
-def one(config, task, rep, lanes):
+def one(config, task, rep, lanes, regrade=False):
+    if not regrade and os.path.exists(os.path.join(CACHE, key_for(config, task, rep, legacy=True) + ".json")):
+        return "cached (grader_version=1)"
     key = key_for(config, task, rep); fp = os.path.join(CACHE, key + ".json")
     status, prior = cache_state(fp)
     if status: return status
@@ -177,7 +182,9 @@ def one(config, task, rep, lanes):
 
 def export():
     rows = [json.load(open(os.path.join(CACHE, f))) for f in sorted(os.listdir(CACHE)) if f.endswith(".json")] if os.path.isdir(CACHE) else []
-    rows.sort(key=lambda r: (r["config"], r["task"], r["repeat"]))
+    rows.sort(key=lambda r: (r.get("grader_version", 1), r.get("ts", ""), r.get("key", "")))
+    latest = {(r["config"], r["task"], r["repeat"]): r for r in rows}
+    rows = [latest[k] for k in sorted(latest)]
     with open(OUT, "w") as f:
         for r in rows: f.write(json.dumps(r, sort_keys=True) + "\n")
     print(f"{len(rows)} agentic runs -> {os.path.relpath(OUT, ROOT)}")
@@ -187,6 +194,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--configs"); ap.add_argument("--tasks", default="all"); ap.add_argument("--repeats", default="1-3")
     ap.add_argument("--lanes", type=int, default=4); ap.add_argument("--export", action="store_true")
+    ap.add_argument("--regrade", action="store_true", help="allow new model calls for legacy verdicts under the current grader")
     a = ap.parse_args()
     if a.export:
         return export()
@@ -196,7 +204,7 @@ def main():
     def lane(cfg):
         for rep in reps:
             for task in tasks:
-                msg = one(cfg, task, rep, a.lanes); print(f"[agentic] {cfg} {task} r{rep}: {msg}", flush=True)
+                msg = one(cfg, task, rep, a.lanes, regrade=a.regrade); print(f"[agentic] {cfg} {task} r{rep}: {msg}", flush=True)
                 if msg.startswith(("refused", "stopped")): return
     with ThreadPoolExecutor(a.lanes) as ex:
         list(ex.map(lane, cfgs))
