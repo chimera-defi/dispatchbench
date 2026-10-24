@@ -5609,7 +5609,7 @@
    "display": "sol61-high ⚡",
    "family": "Codex",
    "category": "fast mode and xhigh",
-   "what": "sol61-high on the Codex priority tier (fast mode): same model and effort, about twice the price",
+   "what": "sol61-high on Codex priority tier (fast mode). Same model and effort, about twice the price.",
    "set": "L7 set",
    "derived": false,
    "files": [
@@ -5845,7 +5845,7 @@
    "display": "sol61-high ⚡",
    "family": "Codex",
    "category": "fast mode and xhigh",
-   "what": "sol61-high on the Codex priority tier (fast mode): same model and effort, about twice the price",
+   "what": "sol61-high on Codex priority tier (fast mode). Same model and effort, about twice the price.",
    "set": "main ladder",
    "derived": false,
    "files": [
@@ -6367,7 +6367,7 @@
    "display": "sol61-high ⚡",
    "family": "Codex",
    "category": "fast mode and xhigh",
-   "what": "sol61-high on the Codex priority tier (fast mode): same model and effort, about twice the price",
+   "what": "sol61-high on Codex priority tier (fast mode). Same model and effort, about twice the price.",
    "set": "rescue set",
    "derived": true,
    "files": [
@@ -9979,10 +9979,10 @@
    "id": "harness-bias/haiku-low / Claude harness",
    "source": "harness-bias",
    "config": "haiku-low / Claude harness",
-   "display": "haiku-low / Claude harness",
+   "display": "haiku-low / our one-shot runner",
    "family": "Claude",
    "category": "harness-bias",
-   "what": "Harness-bias check: haiku-low on the hard problems through the Claude-built harness",
+   "what": "Harness-bias check: haiku-low on hard problems through our one-shot runner",
    "set": "harness bias",
    "derived": false,
    "files": [
@@ -10058,10 +10058,10 @@
    "id": "harness-bias/haiku-low / Codex harness",
    "source": "harness-bias",
    "config": "haiku-low / Codex harness",
-   "display": "haiku-low / Codex harness",
+   "display": "haiku-low / Claude Code (agent)",
    "family": "Claude",
    "category": "harness-bias",
-   "what": "Harness-bias check: haiku-low through the harness Codex built",
+   "what": "Harness-bias check: haiku-low in Claude Code (Codex-built runner)",
    "set": "harness bias",
    "derived": false,
    "files": [
@@ -10151,10 +10151,10 @@
    "id": "harness-bias/luna-low / Claude harness",
    "source": "harness-bias",
    "config": "luna-low / Claude harness",
-   "display": "luna-low / Claude harness",
+   "display": "luna-low / our one-shot runner",
    "family": "Codex",
    "category": "harness-bias",
-   "what": "Harness-bias check: luna-low through the Claude-built harness",
+   "what": "Harness-bias check: luna-low through our one-shot runner",
    "set": "harness bias",
    "derived": false,
    "files": [
@@ -10230,10 +10230,10 @@
    "id": "harness-bias/luna-low / Codex harness",
    "source": "harness-bias",
    "config": "luna-low / Codex harness",
-   "display": "luna-low / Codex harness",
+   "display": "luna-low / Codex CLI (agent)",
    "family": "Codex",
    "category": "harness-bias",
-   "what": "Harness-bias check: luna-low through the harness Codex built",
+   "what": "Harness-bias check: luna-low in Codex CLI (Codex-built runner)",
    "set": "harness bias",
    "derived": false,
    "files": [
@@ -10326,10 +10326,10 @@
    "id": "harness-bias/sol61-medium / Codex harness",
    "source": "harness-bias",
    "config": "sol61-medium / Codex harness",
-   "display": "sol61-medium / Codex harness",
+   "display": "sol61-medium / Codex CLI (agent)",
    "family": "Codex",
    "category": "harness-bias",
-   "what": "Harness-bias check: sol61-medium through the harness Codex built",
+   "what": "Harness-bias check: sol61-medium in Codex CLI (Codex-built runner)",
    "set": "harness bias",
    "derived": false,
    "files": [
@@ -13578,7 +13578,7 @@
    "display": "sol61-high ⚡",
    "family": "Codex",
    "category": "fast mode and xhigh",
-   "what": "sol61-high on the Codex priority tier (fast mode): same model and effort, about twice the price",
+   "what": "sol61-high on Codex priority tier (fast mode). Same model and effort, about twice the price.",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -14905,6 +14905,7 @@
   "fast_mode_multiplier": 2.0,
   "host_agents_md": "1.3k",
   "min_pass": 0.9,
+  "xor_time_bound": "10^18",
   "usd_ticks": [
    [
     0.0,
@@ -21470,6 +21471,7 @@
    "fast_mode_multiplier": 2.0,
    "host_agents_md": "1.3k",
    "min_pass": 0.9,
+   "xor_time_bound": "10^18",
    "usd_ticks": [
     [
      0.0,
@@ -21843,8 +21845,11 @@
   "per_rung": "2",
   "run_id": "2026-10-22b",
   "codex_orchestrator_status": "not run yet",
-  "hb_answer": "Slightly, but below the 0.15 we set as the bias threshold.",
-  "hb_detail": "Codex's harness helped luna-low more than haiku-low: the gap between them changed by +0.133. The confidence interval excludes zero but stays below 0.15, so we do not call it bias.",
+  "hb_answer": "Slightly. The estimated tilt is below our 0.15 bias threshold.",
+  "hb_detail": "The gap changed by +0.133. Below our threshold, so we do not call it bias.",
+  "hb_diff": "+0.133",
+  "hb_takeaway": "Both vendor agent CLIs improved pass rates. Codex CLI helped luna-low more.",
+  "hb_uncertainty": "The interval excludes zero. It also permits bias above our threshold.",
   "hb_ci": "+0.033 to +0.233",
   "hb_n_problems": "6",
   "hb_repeats": "10",
@@ -21852,12 +21857,18 @@
   "hb_claude_haiku_low": "57/60",
   "hb_codex_luna_low": "47/60",
   "hb_codex_haiku_low": "60/60",
+  "hb_conclusion": "Vendor agent CLIs improved both models.",
   "hb_errors": "0",
   "hb_minutes": "74",
+  "main_set_label": "main ladder",
+  "l7_set_label": "L7 set",
   "l7_n": "15",
   "n_rescue_problems": "7",
   "older_generation": "5.6",
-  "quality_fast_note": "sol61-high ⚡: main-ladder solutions not scored. Its separate 35-attempt luna-miss run is scored in the ‘Codex fast mode and xhigh’ table below. astra-medium ⚡: main-ladder solutions not scored. No separate luna-miss-run quality scores are available.",
+  "quality_fast_note": "sol61-high ⚡: main-ladder solutions not scored. Its separate 35-attempt luna-miss run has quality scores below. astra-medium ⚡: main-ladder solutions not scored. No separate luna-miss-run quality scores are available.",
+  "quality_fast_items": "<li>sol61-high ⚡: main-ladder solutions not scored.</li><li>Its separate 35-attempt luna-miss run has quality scores below.</li><li>astra-medium ⚡: main-ladder solutions not scored.</li><li>No separate luna-miss-run quality scores are available.</li>",
+  "exploratory_items": "<li>astra-medium</li><li>astra-medium ⚡</li><li>haiku-high</li><li>luna-high</li><li>luna-low-bare</li><li>luna56-high</li><li>luna56-low</li><li>sol56-high</li><li>sol61-high</li><li>sol61-high ⚡</li>",
+  "l7_problem_items": "<li>p13 xor_ring</li><li>p14 bounce_board</li><li>p15 paint_erase</li>",
   "budget_pass": "95%",
   "p90_percent": "90%",
   "host_agents_md": "1.3k",
@@ -22007,6 +22018,7 @@
   "p11_luna": "6/10",
   "p12_luna": "0/10",
   "esc_problems": "p04 taller_within (L2), p11 best_average (L6), p12 sheet (L6)",
+  "escalation_problem_items": "<li>p04 taller_within</li><li>p11 best_average</li><li>p12 sheet</li>",
   "esc_k": "13/15",
   "esc_base": "3/15",
   "esc_vs": "luna-medium",
@@ -22068,8 +22080,8 @@
   "p12_rec": "3",
   "p04_wrong": "9",
   "p04_wrong_ex1": "8",
-  "hl_main_failures": "2 too slow, 1 crash, 0 wrong outputs in 60 tries",
-  "hl_l7_failures": "3 too slow, 0 crash, 0 wrong outputs in 15 tries",
+  "hl_main_failures": "2 too slow, 1 crash in 60 tries",
+  "hl_l7_failures": "3 too slow, 0 crash in 15 tries",
   "worst_failure": "p12 sheet (L6) has misses in 8 of 16 configs",
   "hl_timeouts": "5",
   "hl_crashes": "1",
@@ -22226,7 +22238,7 @@
   "bl_probs": "4",
   "bl_cfgs": "5",
   "bl_blocks": "3",
-  "blind_caption": "Reader: claude-fable-5-1, one blind pass, 2026-10-23. Method: one passing solution per config per problem, shuffled and labelled A-E (seed 7); the reviewer saw code only. Score: 1-10 readability and maintainability; would block = would not merge as is. 4 solutions per config.",
+  "blind_caption": "Reader: claude-fable-5-1, one blind pass, 2026-10-23. Method: one passing solution per config per problem, shuffled and labelled A-E (seed 7). the reviewer saw code only. Score: 1-10 readability and maintainability; would block = would not merge as is. 4 solutions per config.",
   "ff_s61_k": "60/60",
   "ff_s61_hk": "15/15",
   "ff_s61_upp": "$0.036",
@@ -22335,7 +22347,10 @@
   "r_luna_high_bare_miss": "4",
   "n_exploratory": "10",
   "exploratory_names": "astra-medium, astra-medium ⚡, haiku-high, luna-high, luna-low-bare, luna56-high, luna56-low, sol56-high, sol61-high, sol61-high ⚡",
-  "badge_disagreements": "p01 overlap_minutes (L1) is Medium, p06 calc (L3) is Hard, p08 recur (L4) is Medium"
+  "badge_disagreements": "p01 overlap_minutes (L1) is Medium, p06 calc (L3) is Hard, p08 recur (L4) is Medium",
+  "badge_disagreement_items": "<li>p01 overlap_minutes (L1) is Medium.</li><li>p06 calc (L3) is Hard.</li><li>p08 recur (L4) is Medium.</li>",
+  "hb_accuracy": "haiku-low passed more often than luna-low in both runners.",
+  "hb_speed": "luna-low answered faster than haiku-low in our one-shot runner."
  },
  "tables": {
   "result": {
@@ -22514,141 +22529,107 @@
   },
   "result_detail": {
    "head": [
-    "set",
     "config",
-    "95% CI",
+    "pass@1 95% CI",
     "p90 s",
-    "total $ (60 calls)",
-    "$ kind"
+    "total $ (60 calls)"
    ],
    "rows": [
     [
-     "Ladder",
      "haiku-low",
      "85%–100%",
      "16.0",
-     "$0.064",
-     "measured"
+     "$0.064"
     ],
     [
-     "Ladder",
      "haiku-medium",
      "93%–100%",
      "26.8",
-     "$0.088",
-     "measured"
+     "$0.088"
     ],
     [
-     "Ladder",
      "sonnet-medium",
      "≥78% (all passed)",
      "18.1",
-     "$0.75",
-     "measured"
+     "$0.75"
     ],
     [
-     "Ladder",
      "luna-low",
      "53%–95%",
      "11.6",
-     "$0.041",
-     "proxy"
+     "~$0.041"
     ],
     [
-     "Ladder",
      "luna-medium",
      "57%–97%",
      "11.8",
-     "$0.042",
-     "proxy"
+     "~$0.042"
     ],
     [
-     "Ladder",
      "sol61-medium",
      "87%–100%",
      "36.2",
-     "$0.87",
-     "proxy"
+     "~$0.87"
     ],
     [
-     "Ladder",
-     "astra-medium (exploratory)",
+     "astra-medium †",
      "≥78% (all passed)",
      "35.6",
-     "$4.52",
-     "proxy"
+     "~$4.52"
     ],
     [
-     "Ladder",
-     "astra-medium ⚡ (exploratory)",
+     "astra-medium ⚡ †",
      "≥78% (all passed)",
      "13.6",
-     "$9.12",
-     "proxy"
+     "~$9.12"
     ],
     [
-     "Ladder",
-     "haiku-high (exploratory)",
+     "haiku-high †",
      "≥78% (all passed)",
      "37.6",
-     "$0.17",
-     "measured"
+     "$0.17"
     ],
     [
-     "Ladder",
-     "luna-high (exploratory)",
+     "luna-high †",
      "82%–100%",
      "22.9",
-     "$0.058",
-     "proxy"
+     "~$0.058"
     ],
     [
-     "Ladder",
-     "luna-low-bare (exploratory)",
-     "52%–92%",
-     "11.1",
-     "$0.035",
-     "proxy"
-    ],
-    [
-     "Ladder",
-     "luna56-high (exploratory)",
+     "luna56-high †",
      "83%–100%",
      "35.5",
-     "$0.17",
-     "proxy"
+     "~$0.17"
     ],
     [
-     "Ladder",
-     "luna56-low (exploratory)",
+     "luna56-low †",
      "60%–97%",
      "17.4",
-     "$0.1",
-     "proxy"
+     "~$0.1"
     ],
     [
-     "Ladder",
-     "sol56-high (exploratory)",
+     "sol56-high †",
      "≥78% (all passed)",
      "48.4",
-     "$2.51",
-     "proxy"
+     "~$2.51"
     ],
     [
-     "Ladder",
-     "sol61-high (exploratory)",
+     "sol61-high †",
      "≥78% (all passed)",
      "50.2",
-     "$1.12",
-     "proxy"
+     "~$1.12"
     ],
     [
-     "Ladder",
-     "sol61-high ⚡ (exploratory)",
+     "sol61-high ⚡ †",
      "≥78% (all passed)",
      "27.9",
-     "$2.15",
-     "proxy"
+     "~$2.15"
+    ],
+    [
+     "luna-low-bare †",
+     "52%–92%",
+     "11.1",
+     "~$0.035"
     ]
    ]
   },
@@ -23856,6 +23837,71 @@
      "Codex CLI",
      "gpt-6.1-sol",
      "medium"
+    ]
+   ]
+  },
+  "harness_strengths": {
+   "head": [
+    "model",
+    "runner",
+    "passed",
+    "median s"
+   ],
+   "rows": [
+    [
+     "haiku-low",
+     "our one-shot runner",
+     "57/60",
+     "13.6"
+    ],
+    [
+     "haiku-low",
+     "Claude Code",
+     "126/126",
+     "13.6"
+    ],
+    [
+     "luna-low",
+     "our one-shot runner",
+     "36/60",
+     "7.5"
+    ],
+    [
+     "luna-low",
+     "Codex CLI",
+     "99/126",
+     "21.1"
+    ],
+    [
+     "sol61-medium",
+     "Codex CLI",
+     "6/6",
+     "57.9"
+    ]
+   ]
+  },
+  "haiku_failures": {
+   "head": [
+    "set",
+    "tries",
+    "too slow",
+    "crashes",
+    "wrong outputs"
+   ],
+   "rows": [
+    [
+     "main ladder",
+     60,
+     2,
+     1,
+     0
+    ],
+    [
+     "L7 set",
+     15,
+     3,
+     0,
+     0
     ]
    ]
   }

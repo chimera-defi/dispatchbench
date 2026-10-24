@@ -524,8 +524,9 @@ def explorer(s):
             for e, group in ((False, s["configs"]), (True, s["exploratory"])) for c, v in group.items()]
     src = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "page", "explorer.html")
     body = open(src).read().replace("__DATA__", json.dumps(data, separators=(",", ":"))).replace("__USD_TICKS__", json.dumps(s["design"]["usd_ticks"], separators=(",", ":")))
+    older = s["exploratory"]["sol56-high"]["model"].split("-")[1]
     body = body.replace("Hollow = exploratory config. Codex $ is a proxy.",
-                        "Solid = normal speed; hollow = fast mode; dashed edge = bare prompt; lighter blue = 5.6 generation. Shapes match the charts above. Labels connect to their own points. Codex $ is a proxy.")
+                        f"Solid = normal speed. Hollow = fast mode. Dashed edge = bare prompt. Lighter blue = {older} generation. Shapes match the charts above. Labels connect to their own points. Codex $ is a list-price estimate.")
     # Match the static speed chart: differences below both 0.5 s and 5% are ties.
     body = body.replace('return M[k].up?a>=b:a<=b', 'return k=="med"?a<=b+Math.min(.5,.05*b):M[k].up?a>=b:a<=b')
     body = body.replace('return M[k].up?a>b:a<b', 'return k=="med"?a<=b-Math.min(.5,.05*b):M[k].up?a>b:a<b')
@@ -688,8 +689,9 @@ def set_definitions(s):
 
 def l7_reason(s):
     main, hard, per, _ = set_definitions(s)
-    return (f"L7 has {len(hard)} problems, not {per}, because it was added after every strong config passed L6 "
-            "to look for a breaking point; it is scored separately from the main ladder.")
+    last_rung = max(s["problems"][p]["rung"] for p in main)
+    return (f"Every strong config passed L{last_rung}. We added L7 to find a breaking point. "
+            f"It has {len(hard)} problems instead of the usual {per}. We score it separately.")
 
 
 def method(s):
@@ -698,34 +700,41 @@ def method(s):
     like = lambda p: (f'<br><span class="like">like <a href="https://leetcode.com/problems/{ANALOGUE[p][1]}/" title="closest LeetCode analogue, not the source">{esc(ANALOGUE[p][0])}</a></span>'
                       if ANALOGUE.get(p) else '<br><span class="like">no close LeetCode analogue</span>')
     # Problem name includes its rung; the difficulty badge trails the name.
+    description = lambda p: TESTS[p].replace("for huge t", f"for t ≤ {s['design']['xor_time_bound']}")
     item = lambda p, r: (f'<li class="prow"><span class="pn"><a href="{REPO}{p}.py"><code>{esc(plabel(p, r))}</code></a> {lvl(LC[p])}{like(p)}</span>'
-                         f'<span class="pd">{esc(TESTS[p])}</span></li>')
+                         f'<span class="pd">{esc(description(p))}</span></li>')
     main, hard, per, _ = set_definitions(s)
-    li = [f'<li class="round"><b>Pilot</b>: well-known LeetCode problems. Every config passed, so it ranked nothing and is not scored.<ul>'
+    rungs = sorted({s["problems"][p]["rung"] for p in main})
+    li = [f'<li class="round"><b>Pilot</b>: well-known LeetCode problems. Every config passed. It ranked nothing, so we exclude its scores.<ul>'
           + "".join(f'<li>{lvl(d)} <a href="https://leetcode.com/problems/{slug}/">{esc(n)}</a> <span class="like">source</span></li>' for n, slug, d in PILOT) + "</ul></li>",
-          f'<li class="round"><b>Main ladder</b>: {len(main)} new problems, p01–p12, rungs L1–L6 ({per} per rung, rising difficulty). Every config ran it.<ul>'
+          f'<li class="round"><b>{configs.set_label("main ladder", capital=True)}</b>: {len(main)} new problems.'
+          f'<ul><li>Problem numbers: {main[0].split("_")[0]}–{main[-1].split("_")[0]}.</li>'
+          f'<li>Rungs: L{rungs[0]}–L{rungs[-1]}, easiest first.</li><li>Each rung has {per} problems.</li>'
+          '<li>Every config ran it.</li></ul><ul>'
           + "".join(item(p, s["problems"][p]["rung"]) for p in main) + "</ul></li>",
-          f'<li class="round"><b>L7 set</b>: {len(hard)} extra-hard problems, p13–p15, rung L7. {l7_reason(s)}<ul>'
+          f'<li class="round"><b>{configs.set_label("L7 set")}</b>: extra-hard problems.'
+          f'<ul><li>Problem numbers: {hard[0].split("_")[0]}–{hard[-1].split("_")[0]}.</li>'
+          f'<li>{l7_reason(s)}</li></ul><ul>'
           + "".join(item(p, 7) for p in hard) + "</ul></li>"]
     flag = lambda fl: esc(" ".join(f if f else '""' for f in fl))
     group = {}
     for c, v in every(s).items():
         group.setdefault((v["cli"], v["model"]), []).append((c, v["effort"]))
     cmds = []
-    for (cli, model), configs in group.items():
-        efforts = "|".join(e for e in ("low", "medium", "high", "xhigh") if any(v == e for _, v in configs))
-        names = ", ".join(DISP(c) for c, _ in configs)
+    for (cli, model), entries in group.items():
+        efforts = "|".join(e for e in ("low", "medium", "high", "xhigh") if any(v == e for _, v in entries))
+        names = ", ".join(DISP(c) for c, _ in entries)
         if cli == "claude":
             command = f"claude -p --model {model} --effort {efforts} {flag(CLAUDE_FLAGS)}"
         else:
-            flags = [codex_flags(c) for c, _ in configs]
+            flags = [codex_flags(c) for c, _ in entries]
             base = list(flags[0])
             tiers = list(dict.fromkeys(f.split("=", 1)[1] for fl in flags for f in fl if f.startswith("service_tier=")))
             tiers.sort(key=lambda v: v != "default")
             base = ["service_tier=" + "|".join(tiers) if f.startswith("service_tier=") else f for f in base]
             command = f"codex exec -m {model} -c model_reasoning_effort={efforts} {flag(base)}"
         cmds.append(f'<li>{esc(names)} → <code>{command}</code></li>')
-    cmds.append('<li><code>python3 -m bench.gated_repair</code>: builder answer → run the statement’s examples → haiku-low repairs only on failure</li>')
+    cmds.append('<li><code>python3 -m bench.gated_repair</code>: answer, then run the statement’s examples. haiku-low repairs failures.</li>')
     return "".join(li), "".join(cmds)
 
 
