@@ -321,9 +321,9 @@ def grid(s):
     return "".join(out)
 
 
-def scroll_chart(body, width=None):
-    return (f'<div class="svgscroll" tabindex="0" role="region" aria-label="Chart with scrolling fallback">{body}</div>'
-            '<p class="scroll-hint">Scroll sideways if needed.</p>')
+def scroll_chart(body, width):
+    return (f'<div class="svgscroll" style="--natural-width:{width}px" tabindex="0" role="region" aria-label="Scrollable chart">{body}</div>'
+            '<p class="scroll-hint">Scroll sideways on narrow screens.</p>')
 
 
 def floor(s):
@@ -344,37 +344,38 @@ def floor(s):
 
 
 def pipes():
-    """Rescue bars use a label line above the bar and its measurements."""
+    """Rescue set: the single models, then every pipeline (plan first, check then fix, fix everything)."""
     a = rescue_arms()
     bars = [(c, SHORT(n), "var(--frontier)" if "→" in n else FAM(c)) for c, n in HARD_PTS]
-    W, BL, BR, H = 360, 8, 116, 12 + 52 * len(bars)
+    W, BL, BR, H = 760, 330, 530, 16 + 40 * len(bars)
     g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Passes on the rescue set: single models and the Haiku review and repair pipelines">']
     for i, (c, name, col) in enumerate(bars):
-        v = a[c]; y = 8 + i * 52; w = v["passes"] / v["n"] * (BR - BL)
+        v = a[c]; y = 8 + i * 40; w = v["passes"] / v["n"] * (BR - BL)
         g.append(f'<g><title>{esc(NAME[c])}{" (" + v["derived"] + ")" if "derived" in v else ""}</title>')
-        g.append(f'<text x="{BL}" y="{y + 12}" class="lbl">{esc(name)}</text>')
-        g.append(f'<rect x="{BL}" y="{y + 23}" width="{BR - BL}" height="12" rx="3" fill="var(--line)"/>')
-        g.append(f'<rect x="{BL}" y="{y + 23}" width="{w:.1f}" height="12" rx="3" fill="{col}"/>')
-        g.append(f'<text x="{BR + 10}" y="{y + 33}" class="lbl">{v["passes"]}/{v["n"]} · ${v["usd_per_pass"]:.4f} · {v["median_s"]:.0f}s</text></g>')
+        g.append(f'<text x="{BL - 10}" y="{y + 19}" text-anchor="end" class="lbl">{esc(name)}</text>')
+        g.append(f'<rect x="{BL}" y="{y}" width="{BR - BL}" height="28" rx="3" fill="var(--line)"/>')
+        g.append(f'<rect x="{BL}" y="{y}" width="{w:.1f}" height="28" rx="3" fill="{col}"/>')
+        g.append(f'<text x="{BR + 8}" y="{y + 19}" class="lbl">{v["passes"]}/{v["n"]} · ${v["usd_per_pass"]:.4f} · {v["median_s"]:.0f}s</text>')
+        g.append("</g>")
     g.append("</svg>")
-    return scroll_chart("".join(g))
+    return scroll_chart("".join(g), W)
 
 
 def fast(s):
-    """Normal/fast pairs, with all labels and values within a phone's width."""
-    rows = [(label, c, group[c]) for label, group in (("Main", every(s)), ("L7", s["hard"]))
+    """Default → fast twins on the main ladder and L7, never the pilot."""
+    rows = [(label, c, group[c]) for label, group in (("main ladder", every(s)), ("L7 set", s["hard"]))
             for pair in FAST_PAIRS for c in pair]
     mx = max(v["latency_s"]["median"] for _, _, v in rows)
-    W, BL, BR, H = 360, 8, 140, 12 + 52 * len(rows)
-    g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Normal to fast mode pairs on the main ladder and L7 set">']
+    W, BL, BR, H = 760, 340, 550, 16 + 40 * len(rows)
+    g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Default to fast mode pairs on the main ladder and L7 set">']
     for i, (label, c, v) in enumerate(rows):
-        y = 8 + i * 52; w = v["latency_s"]["median"] / mx * (BR - BL)
-        g.append(f'<text x="{BL}" y="{y + 12}" class="lbl">{esc(label)} · {esc(DISP(c))}</text>')
-        g.append(f'<rect x="{BL}" y="{y + 23}" width="{BR - BL}" height="12" rx="3" fill="var(--line)"/>')
-        g.append(f'<rect x="{BL}" y="{y + 23}" width="{w:.1f}" height="12" rx="3" fill="var(--frontier)"/>')
-        g.append(f'<text x="{BR + 10}" y="{y + 33}" class="lbl">{v["latency_s"]["median"]:.1f}s · ${v["usd_per_pass"]:.4f}</text>')
+        y = 8 + i * 40; w = v["latency_s"]["median"] / mx * (BR - BL)
+        g.append(f'<text x="{BL - 10}" y="{y + 19}" text-anchor="end" class="lbl">{esc(label)} · {esc(DISP(c))}{"" if c.endswith("-fast") else " default"}</text>')
+        g.append(f'<rect x="{BL}" y="{y}" width="{BR - BL}" height="28" rx="3" fill="var(--line)"/>')
+        g.append(f'<rect x="{BL}" y="{y}" width="{w:.1f}" height="28" rx="3" fill="var(--frontier)"/>')
+        g.append(f'<text x="{BR + 8}" y="{y + 19}" class="lbl">{v["latency_s"]["median"]:.1f}s · ${v["usd_per_pass"]:.4f}</text>')
     g.append("</svg>")
-    return scroll_chart("".join(g))
+    return scroll_chart("".join(g), W)
 
 
 def explorer(s):
