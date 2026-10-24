@@ -122,11 +122,11 @@ Medians are over each config's passing L1–L6 solutions, so a config that fails
 |---|---|---|---|---|---|---|
 | luna-low | 12/12 | 12/12 | ≥5 | 28.5 | 0.0040 | proxy |
 | haiku-low | 12/12 | 12/12 | 114 | 28.3 | 0.0051 | measured |
-| haiku-high | 12/12 | 12/12 | 0 | 58.4 | 0.0121 | measured |
+| haiku-high | 12/12 | 12/12 | no transcripts | 58.4 | 0.0121 | measured |
 | sonnet-medium | 12/12 | 12/12 | 77 | 27.7 | 0.0537 | measured |
 | sol61-medium | 12/12 | 12/12 | ≥8 | 89.0 | 0.0752 | proxy |
-| sol61-high | 12/12 | 12/12 | 0 | 108.6 | 0.0948 | proxy |
-| astra-medium | 12/12 | 12/12 | 0 | 85.2 | 0.3798 | proxy |
+| sol61-high | 12/12 | 12/12 | no transcripts | 108.6 | 0.0948 | proxy |
+| astra-medium | 12/12 | 12/12 | no transcripts | 85.2 | 0.3798 | proxy |
 
 ![Repo tasks: hidden-test pass rate against dollars per run.](../results/report/charts/agentic.svg)
 
