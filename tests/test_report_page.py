@@ -57,10 +57,13 @@ def test_reader_set_labels_and_complete_notation_legend():
     for meaning in meanings.values():
         assert meaning in unescape(re.sub(r'<[^>]+>', '', legend))
     assert reader.uses
-    assert {'purple dot', 'family dots'} <= {symbol for _, symbol, _ in reader.uses}
+    assert {'✓ pick', '→H fail', '⚡'} <= {symbol for _, symbol, _ in reader.uses}
+    assert len(configs.NOTATION) <= 14
+    assert 'retry' not in configs.NOTATION and '★' not in configs.NOTATION
     assert len(reader.uses) == len({(section, symbol) for section, symbol, _ in reader.uses})
     assert all(title == meanings[symbol] for _, symbol, title in reader.uses)
-    assert {section for section, _, _ in reader.uses} == set(re.findall(r'<section[^>]*id="([^"]+)"', output))
+    assert {"winner", "results", "pipes"} <= {section for section, _, _ in reader.uses}
+    assert {section for section, _, _ in reader.uses} <= set(re.findall(r'<section[^>]*id="([^"]+)"', output))
     assert {(r['source'], r['config']) for r in dataset.catalog_rows(ds) if r['category'] == 'low context'} == configs.LOW_CONTEXT
 
 
@@ -131,7 +134,7 @@ def test_chart_free_strip_and_set_attribution(summary, render, stat, problem_set
 def test_chart_set_toggle_and_grouped_keys(summary, render):
     output, _ = render(summary)
     assert 'Codex is free (subscription quota)</label>' in output
-    assert 'Main ladder' in output and '> Luna-miss set</label>' in output
+    assert 'Main ladder' in output and '> Luna-miss set + pipelines</label>' in output
     for cat in ("main", "fast", "pipelines", "exploratory"):
         assert f'data-cat="{cat}" checked' in output
         groups = re.findall(r'<details class="key-group" data-cat="' + cat + r'"([^>]*)>(.*?)</details>', output, re.S)
@@ -194,8 +197,12 @@ def test_rescue_labels_and_markers_are_clean(summary, render, free):
     svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
     for point in svg.findall("s:g[@class='pt']", NS):
         marker = point[-2]
-        assert marker.get("stroke-dasharray") is None
-        if point.get("data-cat") != "pipelines":
+        name = point.get("data-c")
+        assert bool(marker.get("stroke-dasharray")) == ("bare" in name)
+        assert (marker.get("fill") == "var(--panel)") == ("-fast" in name)
+        if point.get("data-cat") == "pipelines":
+            assert marker.get("stroke") == "var(--frontier)"
+        elif "-fast" not in name:
             assert marker.get("fill") == marker.get("stroke")
 
 
@@ -203,11 +210,14 @@ def test_frontier_caption_uses_computed_costs(summary):
     values = page.every(summary)
     medium, low = values["luna-medium"], values["luna-low"]
     caption = page.frontier_caption(summary)
-    assert (f'luna-low is off the frontier: luna-medium costs about the same '
-            f'({dataset.usd(medium["usd_per_pass"], sig=3)} vs {dataset.usd(low["usd_per_pass"], sig=3)}) '
-            f'and passes more ({medium["passes"]}/{medium["n"]} vs {low["passes"]}/{low["n"]}).') in caption
-    assert 'shown precision' not in caption
-    assert '($0.00089 vs $0.000899)' in caption
+    assert 'luna-low is not a best trade-off.' in caption
+    assert f'luna-medium costs the same ({dataset.usd(medium["usd_per_pass"], sig=1)} per pass).' in caption
+    assert dataset.usd(low["usd_per_pass"], sig=1) == dataset.usd(medium["usd_per_pass"], sig=1)
+    assert f'It passes {medium["passes"]}/{medium["n"]}.' in caption
+    assert f'luna-low passes {low["passes"]}/{low["n"]}.' in caption
+    assert 'main ladder only' in caption
+    assert page.pass_cost(summary)[0].count('class="frontier-note"') == 1
+    assert 'class="frontier-note"' not in page.speed_cost(summary)[0]
 
 
 def test_measured_luna_rescue_keeps_its_own_page_metrics(summary):
@@ -275,7 +285,7 @@ def test_fairness_qa_renders_counts_and_runtime_from_appendix():
     assert '<th>our one-shot runner</th>' in method
     assert '<th>vendor agent CLI (runs code, retries)</th>' in method
     appendix = re.search(r'<details id="appendix">(.*?)</details>', rendered, re.S).group(1)
-    assert 'the program that sends the problem to the model and grades the answer' in method
+    assert 'program that sends the problem to the model and grades the answer' in method
     assert 'one-shot' in method and 'tool loop' in appendix
     assert 'not just in who built them' in appendix
     assert 'A separate run with Codex managing the benchmark' not in method
@@ -294,9 +304,11 @@ def test_fairness_qa_renders_counts_and_runtime_from_appendix():
     assert 'no timeouts' in method
     comparison = harness_bias.pass_summary(rows)
     lo, hi = comparison['ci']
-    assert 'The estimated tilt is below our 0.15 bias threshold.' in method and 'we do not call it bias' in method
-    assert f'{lo:+.3f} to {hi:+.3f}' in appendix
-    assert 'It also permits bias above our threshold.' in appendix
+    assert 'Slightly.' in method
+    assert f"The pass-rate gap moved by {100 * comparison['diff']:.0f} points." in method
+    assert 'We pre-set 15 points as the bar for calling it bias.' in method
+    assert f'Its range, {100 * lo:.0f} to {100 * hi:.0f} points, permits a larger tilt.' in appendix
+    assert method.index('Harness =') < method.index('Q: Does')
 
 
 def test_fairness_qa_updates_when_appendix_data_change(monkeypatch):
@@ -313,7 +325,7 @@ def test_fairness_qa_updates_when_appendix_data_change(monkeypatch):
     assert f'<td>luna-low</td><td>{passes}/{n}</td><td>{passes}/{n}</td>' in rendered
     lo, hi = harness_bias.pass_summary(changed)['ci']
     assert f'No bias of about {max(abs(lo), abs(hi)):.1f} or more was detectable' in rendered
-    assert f'{lo:+.3f} to {hi:+.3f}' in rendered
+    assert f'{100 * lo:.0f} to {100 * hi:.0f}' in updated['facts']['hb_range_points']
 
 
 @pytest.mark.parametrize('change', ['bias', 'timeout', 'missing'])
@@ -337,12 +349,14 @@ def test_speed_frontier_treats_sub_half_second_gap_as_tie(summary):
     assert 'astra-medium-fast' not in names
     changed = json.loads(json.dumps(summary))
     changed['exploratory']['astra-medium-fast']['latency_s']['median'] = 9.0
-    assert 'astra-medium-fast' in page.speed_cost(changed)[1]
+    assert 'astra-medium-fast' not in page.speed_cost(changed)[1]
+    assert page.speed_dominates(dict(x=10, y=1), dict(x=9.9, y=2))
+    assert not page.speed_dominates(dict(x=10, y=1), dict(x=9, y=2))
 
 
 def test_rescue_triangle_labels_lead_to_their_own_points():
     for render in (page.hard_pass_cost, page.hard_speed_cost):
-        svg = ET.fromstring(render()[0].split('<div class="cplot">')[1].split('</div>')[0])
+        svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', render()[0], re.S)[0])
         labels = [e.text for e in svg.findall('s:text', NS)]
         assert 'luna-high-bare→retry' in labels
 
@@ -377,7 +391,7 @@ def test_quality_fast_coverage_keeps_main_and_separate_rescue_runs_apart(summary
 
 def test_rescue_label_leaders_start_at_the_named_point():
     for render in (page.hard_pass_cost, page.hard_speed_cost):
-        svg = ET.fromstring(render()[0].split('<div class="cplot">')[1].split('</div>')[0])
+        svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', render()[0], re.S)[0])
         points = {g.get('data-c'): g.findall('s:circle', NS)[-1] for g in svg.findall("s:g[@class='pt']", NS)}
         for lead in svg.findall("s:line[@class='label-leader']", NS):
             circle = points[lead.get('data-c')]
@@ -389,7 +403,7 @@ def test_rescue_label_leaders_start_at_the_named_point():
 
 def test_winner_and_conclusion_agree_and_sets_are_collapsed(summary):
     template = (ROOT / "docs/page.tmpl.md").read_text()
-    verdict = "Use Codex quota first. Choose Haiku for savings, Sonnet for speed."
+    verdict = "Use Codex first: on a subscription its calls cost {{claude_zero}} cash. Paying per call? Haiku is cheapest. Need speed? Sonnet."
     assert template.count(verdict) == 2
     assert '<details class="sets"><summary>' in page.sets_box(summary)
     assert ' open' not in page.sets_box(summary).split('>')[0]
@@ -404,7 +418,7 @@ def test_winner_and_conclusion_agree_and_sets_are_collapsed(summary):
 
 def test_winner_verdict_and_luna_high_tradeoff(summary):
     E = page.every(summary)
-    assert page.verdict('haiku-high', E['haiku-high'], report.need, E) == '★ pick'
+    assert page.verdict('haiku-high', E['haiku-high'], report.need, E) == '✓ pick'
     assert page.verdict('luna-high', E['luna-high'], report.need, E) == 'trade-off'
 
 
@@ -425,3 +439,74 @@ def test_rung_dip_labels_clear_series_and_breaking_line(summary):
         for (ax, ay), (bx, by) in segments:
             assert not any(left < ax + (bx - ax) * k / 200 < left + width and
                            y - 11 < ay + (by - ay) * k / 200 < y + 2 for k in range(201)), label.text
+
+
+def test_cost_accuracy_has_one_selector_per_chart_and_one_sets_guide():
+    template = (ROOT / 'docs/page.tmpl.md').read_text()
+    assert template.count('{{w_sets}}') == 1
+    assert 'name="pset"' not in template
+    rendered = report.render()[2]
+    section = re.search(r'<section id="pareto">(.*?)</section>', rendered, re.S)[1]
+    assert section.count('class="cost-toggle"') == 2
+    assert section.count('class="set-filter"') == 2
+    assert section.index('Purple line = best trade-offs') < section.index('class="cplot"')
+
+
+def test_main_markers_follow_config_encoding(summary):
+    output, _ = page.pass_cost(summary, free=False)
+    svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
+    for point in svg.findall("s:g[@class='pt']", NS):
+        c = point.get('data-c')
+        expected = ET.fromstring(f'<svg xmlns="{NS["s"]}">{page.config_marker(c, 0, 0)}</svg>')[0]
+        mark = point[-2]
+        assert mark.tag == expected.tag
+        for attr in ('fill', 'stroke', 'stroke-dasharray'):
+            assert mark.get(attr) == expected.get(attr)
+
+
+def test_single_speed_frontier_has_no_line_and_labels_accurate_competitors(summary):
+    output, names = page.speed_cost(summary, free=False)
+    assert names == ['haiku-low']
+    svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
+    path = next(p for p in svg.findall('s:path', NS) if p.get('stroke') == 'var(--frontier)')
+    assert not path.get('d')
+    labels = {t.text for t in svg.findall('s:text', NS) if 'lbl' in t.get('class', '')}
+    assert {'haiku-low', 'sonnet-medium', 'haiku-high', 'sol61-high ⚡'} <= labels
+
+
+def test_luna_miss_views_share_points_and_separate_coincident_models(summary):
+    for primary, hard in ((page.pass_cost, page.hard_pass_cost), (page.speed_cost, page.hard_speed_cost)):
+        direct = primary(summary, free=False, problem_set='rescue')[0]
+        alternate = hard(page.rescue_arms(summary))[0]
+        assert direct == alternate
+        svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', direct, re.S)[0])
+        targets = {g.get('data-c'): (g[-1].get('cx'), g[-1].get('cy'))
+                   for g in svg.findall("s:g[@class='pt']", NS)}
+        labels = {t.text for t in svg.findall('s:text', NS) if 'lbl' in t.get('class', '')}
+        builders = ('sol61-high', 'astra-medium') if primary is page.pass_cost else ('sol61-high-fast', 'astra-medium-fast')
+        for builder in builders:
+            pipeline = builder + '+haiku-on-fail'
+            assert targets[builder] != targets[pipeline]
+            assert {configs.display(builder), configs.display(pipeline)} <= labels
+        assert set(targets) == set(page.rescue_arms(summary))
+
+
+def test_winner_has_three_rows_and_metric_columns_before_why():
+    ds = dataset.read()
+    output = page.winner_table(ds, dataset.need)
+    head = re.findall(r'<th scope="col">(.*?)</th>', output)
+    assert head == ['Use case', 'Pick', 'Pass', '$ per pass', 'Time', 'Why']
+    body = re.search(r'<tbody>(.*?)</tbody>', output, re.S)[1]
+    assert body.count('<tr>') == 3
+    assert 'table-layout:fixed' not in output and 'min-width:720px' not in output
+    for label in head:
+        assert body.count(f'data-label="{label}"') == 3
+    assert 'Numbers:' in output and 'luna-miss set' in output
+    assert ds['facts']['speed_why'] in output
+
+
+def test_failure_copy_keeps_main_and_l7_counts_separate():
+    facts = dataset.read()['facts']
+    assert int(facts['hl_main_timeouts']) + int(facts['hl_main_crashes']) == int(facts['hl_main_misses'])
+    assert int(facts['hl_main_timeouts']) + int(facts['l7_hl_fail']) == int(facts['hl_timeouts'])
+    assert int(facts['hl_main_crashes']) == int(facts['hl_crashes'])

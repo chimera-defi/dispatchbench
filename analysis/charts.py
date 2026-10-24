@@ -128,7 +128,7 @@ def rung_rows(s, ds=None):
 def rung_chart(s, ds=None):
     """Heat table, one row per config (family shape + colour + name, grouped by family), one column per rung L1-L6;
     each cell is passes out of the attempts on that rung. Perfect cells stay plain, so the misses stand out."""
-    from analysis.page import ORDER, SHAPE, marker  # lazy: page imports this module
+    from analysis.page import ORDER, config_marker  # lazy: page imports this module
     cfg, rungs = rung_rows(s, ds)
     names = sorted(cfg, key=lambda c: ORDER.index(c) if c in ORDER else len(ORDER))
     W, L, T, cw, rh = 560, 190, 96, 58, 30
@@ -138,11 +138,11 @@ def rung_chart(s, ds=None):
          text(12, 46, "Passes per rung. Tinted = a miss. L7 excluded.", 11, fill=MUTED)]
     for i, g in enumerate(rungs):
         x = L + i * cw + cw / 2
-        b += [text(x, T - 22, g, 14, "middle", INK, "600"), text(x, T - 8, probs[g], 9, "middle", MUTED)]
+        b += [text(x, T - 22, g, 14, "middle", INK, "600"), text(x, T - 8, probs[g], 11, "middle", MUTED)]
     for r, c in enumerate(names):
         y = T + r * rh; col = FAMILY(c)
         b.append(f"<line x1='8' x2='{L + len(rungs) * cw}' y1='{y}' y2='{y}' stroke='{GRID}'/>")
-        b.append(marker(SHAPE(c), 22, y + rh / 2, col, col, k=0.8))
+        b.append(config_marker(c, 22, y + rh / 2, col, k=0.8))
         b.append(text(40, y + rh / 2 + 5, DISP(c), 14, fill=col, weight="600"))
         for i, g in enumerate(rungs):
             v = cfg[c].get(g); x = L + i * cw
@@ -154,7 +154,7 @@ def rung_chart(s, ds=None):
     yb = T + rh * len(names)
     b.append(f"<line x1='8' x2='{L + len(rungs) * cw}' y1='{yb}' y2='{yb}' stroke='{GRID}'/>")
     b.append(text(12, yb + 24, "Rung L1 is easiest. Red tint: 40% or less, the breaking point.", 11, fill=MUTED))
-    out = svg(W, H, b).replace(f"width='{W}' height='{H}'", "class='rung' width='100%' height='auto' style='max-width:560px'", 1)
+    out = svg(W, H, b).replace(f"width='{W}' height='{H}'", f"class='rung' width='{W}' height='{H}'", 1)
     return re.sub(r"font-size='([\d.]+)'( text-anchor='\w+' style=')", r"\2font-size:\1px;", out)  # inline size: the page's phone CSS does not rescale this chart
 
 

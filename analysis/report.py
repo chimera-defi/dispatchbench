@@ -44,7 +44,7 @@ def fill(text, F, T, mode, chart_bodies=None):
             f, cap = k[6:].split("|", 1)
             if mode == "readme": return f"![{cap}](results/report/charts/{f})"
             body = (chart_bodies if chart_bodies is not None else charts.build())[f].strip()
-            width = re.search(r"\bwidth=['\"](\d+)['\"]", body).group(1)
+            width = re.search(r"viewBox=['\"]0 0 ([\d.]+)", body).group(1)
             return f'<figure><div class="svgscroll" style="--natural-width:{width}px">{body}</div><figcaption>{html.escape(cap)}. <span class="scroll-hint">Scroll sideways on narrow screens.</span></figcaption></figure>'
         return F[k]
     lines = []

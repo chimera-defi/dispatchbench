@@ -20,33 +20,20 @@ def set_label(key, capital=False):
 
 # Meanings may interpolate existing dataset facts; prose and tooltips share them.
 NOTATION = {
-    "low/medium/high": "The effort setting after the model name.",
-    "⚡": "Codex priority tier costs {fm_mult} list price at the same model and effort.",
+    "⚡": "Fast mode: {fm_mult} list price at the same model and effort.",
     "-bare": "Codex's system prompt and tool text are trimmed.",
-    "→": "A second step in a pipeline.",
     "H": "Haiku at low effort (haiku-low).",
     "→H fail": "Haiku fixes answers only when the problem's worked examples fail.",
     "→H all": "Haiku checks and fixes every answer.",
     "→retry": "The same model tries again if the examples fail.",
-    "retry": "The same model tries again if the examples fail.",
     "plan→": "Haiku writes a plan before the named model answers.",
     "†": "An exploratory config added after the main run.",
-    "★": "A Winner pick. Star-shaped chart markers identify astra.",
+    "✓ pick": "A Winner pick, or the cheapest row without misses in its group.",
     "~": "Codex cost estimated from tokens and list prices.",
-    "–": "No Claude step in this row. In failure grids, the config was not run.",
+    "–": "No Claude step, unavailable cost, or an unrun failure-grid cell.",
     "$0": "The Haiku step never ran, or subscription quota covers the Codex call.",
     "≥N%": "The lower {ci_level} bound when every attempt passed.",
-    "pass@1": "The share of attempts passing every hidden test on the first answer.",
     "p90": "The time within which {p90_percent} of calls finished.",
-    "L1–L7": "Difficulty rungs run from easiest to hardest. The hardest rung uses a separate set.",
-    "noshell B1/B2": "Luna prompt variants remove shell context. The latter adds a detailed reasoning summary.",
-    "purple dot": "A pipeline using two models.",
-    "family dots": "Dot colours distinguish Haiku, Sonnet and Codex.",
-    "●": "Haiku's chart marker.",
-    "■": "Sonnet's chart marker.",
-    "▲": "Luna's chart marker. Triangle direction indicates effort.",
-    "◆": "Sol's chart marker.",
-    "E/M/H": "Estimated LeetCode difficulty: Easy, Medium or Hard.",
 }
 
 
@@ -125,6 +112,7 @@ assert len(REGISTRY) == len(R), "duplicate registry entry"
 
 def display(c):
     """Display name of a config: fast mode (priority tier) gets a lightning suffix."""
+    if c in globals().get("RESCUE_NAMES", {}): return RESCUE_NAMES[c]
     if ' / ' in c:
         model, harness = c.split(' / ', 1)
         if harness == 'Claude harness': return model + ' / our one-shot runner'
@@ -146,12 +134,12 @@ def family(name):
 RESCUE_NAMES = {c: display(c) for c in ("luna-low", "luna-high-bare", "haiku-low", "haiku-medium", "haiku-high", "sonnet-medium", "sol61-medium",
                                    "sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast", "sol56-high", "luna56-high", "luna56-low")}
 for builder in ("sol61-high", "astra-medium", "luna-low", "luna-high-bare"):
-    RESCUE_NAMES[builder + "+haiku-on-fail"] = display(builder) + " → Haiku if samples fail"
+    RESCUE_NAMES[builder + "+haiku-on-fail"] = display(builder) + "→H fail"
     if builder + "-fast" in RESCUE_NAMES:
-        RESCUE_NAMES[builder + "-fast+haiku-on-fail"] = display(builder + "-fast") + " → Haiku if samples fail"
-RESCUE_NAMES.update({"haiku-low-plan+luna-low": "Haiku plan → luna-low", "haiku-low-plan+luna-high-bare": "Haiku plan → luna-high-bare",
-             "luna-high-bare+retry-on-fail": "luna-high-bare → retry if samples fail",
-             "luna-low+haiku-review-all": "luna-low → Haiku fixes all", "luna-high-bare+haiku-review-all": "luna-high-bare → Haiku fixes all"})
+        RESCUE_NAMES[builder + "-fast+haiku-on-fail"] = display(builder + "-fast") + "→H fail"
+RESCUE_NAMES.update({"haiku-low-plan+luna-low": "plan→luna-low", "haiku-low-plan+luna-high-bare": "plan→luna-high-bare",
+             "luna-high-bare+retry-on-fail": "luna-high-bare→retry",
+             "luna-low+haiku-review-all": "luna-low→H all", "luna-high-bare+haiku-review-all": "luna-high-bare→H all"})
 
 
 def entry(source, name):
@@ -194,7 +182,7 @@ def section(rest, ds, root, chart_bodies=None):
     head = "".join(f"<th>{h}</th>" for h in ("name", "what it was", "pass", "$ per pass", "median s", "spend", "where it appears"))
     out = ["<details><summary>Everything we tried</summary>", "<ul class=\"tight small\"><li>Every config with rows in results/, grouped by kind.</li>"
            "<li>Each row combines that config's runs within its category.</li>"
-           "<li>Codex $ are list-price estimates. ~ here means some rows have no cost.</li>"
+           "<li>Codex dollars are list-price estimates. Dash means the full cost is unavailable.</li>"
            "<li>Hover over a name for its source file.</li></ul>"]
     for cat in CATEGORIES:
         es = by.pop(cat, [])
@@ -202,9 +190,9 @@ def section(rest, ds, root, chart_bodies=None):
         label = "Low context (prompt or tool text trimmed)" if cat == "low context" else set_label(cat)
         out.append(f"<details><summary>{html.escape(label)}: {ds['categories'][cat]['n_configs']} configs, {money(ds['categories'][cat]['spend'])} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
         for e in es:
-            tilde = "~" if e["unknown_usd"] else ""
+            spend = None if e["unknown_usd"] else e["spend"]
             out.append(f"<tr><td title=\"{html.escape(', '.join(e['files']))}\">{html.escape(e['display'])}</td><td>{html.escape(e['what'])}</td><td>{e['passes']}/{e['n']}</td>"
-                       f"<td>{tilde}{money(e['usd_per_pass'])}</td><td>{e['median_s']:.1f}</td><td>{tilde}{money(e['spend'])}</td><td>{where(e, rest, chart_bodies)}</td></tr>")
+                       f"<td>{money(e['usd_per_pass'])}</td><td>{e['median_s']:.1f}</td><td>{money(spend)}</td><td>{where(e, rest, chart_bodies)}</td></tr>")
         out.append("</tbody></table></div></details>")
     out += [f"<details><summary>unregistered</summary><p>{html.escape(r['display'])} ({r['source']})</p></details>" for es in by.values() for r in es]
     return "\n".join(out + ["</details>"])

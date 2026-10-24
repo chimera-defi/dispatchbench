@@ -66,9 +66,28 @@ def marker(kind, x, y, fill, stroke, dash=False, k=1.0):
     return f'<polygon points="{" ".join(f"{x + dx * k:.1f},{y + dy * k:.1f}" for dx, dy in v)}"{a}/>'
 
 
+def plot_xy(p, X, Y):
+    return p.get("plot_x", X(p["x"])), p.get("plot_y", Y(p["y"]))
+
+
+def separate_points(pts, X, Y):
+    """Jitter coincident marks only; preserve the measured coordinates and tooltips."""
+    groups = []
+    for p in pts:
+        xy = X(p["x"]), Y(p["y"])
+        group = next((g for g in groups if math.dist(xy, g[0]) < 4), None)
+        if group is None: groups.append((xy, [p]))
+        else: group[1].append(p)
+    for (x, y), group in groups:
+        if len(group) < 2: continue
+        for i, p in enumerate(group):
+            p.update(plot_x=x + (i - (len(group) - 1) / 2) * 18, plot_y=y, label=True)
+
+
 def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=84, R=16, T=14, B=322, extra="", stat=None, variant=None, free_pts=()):
     """pts: dicts with c, x, y, w (whisker (axis, lo, hi) or None), tip, hollow. fr: the frontier path. Only frontier points
     get a text label; every point is in the key beside the chart, and hovering (or tapping) a point or a key row shows its tip."""
+    separate_points(pts, X, Y)
     g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="{esc(ylab)} against {esc(xlab)}, Pareto frontier in purple; the key lists every point">']
     for i, (v, t) in enumerate(xt):
         # Thin labels from the right on mobile, retaining the inset final label.
@@ -82,7 +101,8 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
     g.append(f'<text x="{L + 10}" y="{T + 18 if corner.startswith("↖") else B - 10}" class="better">{corner}</text>')
     g.append(f'<path d="{fr}" fill="none" stroke="var(--frontier)" stroke-width="4" stroke-dasharray="9 6" stroke-linejoin="round"/>' + extra)
     for p in sorted(pts, key=lambda p: p["on"]):  # frontier points drawn last, on top
-        px, py, col = X(p["x"]), Y(p["y"]), p.get("col") or FAM(p["c"])
+        px, py = plot_xy(p, X, Y)
+        col = p.get("col") or FAM(p["c"])
         g.append(f'<g class="pt" {point_attrs(p)}>')
         if p["w"]:
             ax, lo, hi = p["w"]
@@ -93,9 +113,9 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
         g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="14" fill="transparent"/></g>')  # hover target
     cx, cy = L + 10, T + 18 if corner.startswith("↖") else B - 10
     walls = path_boxes(fr) + [(cx, cy - LH + 3, cx + CW * len(corner), cy + 3)]
-    for p, (x, y, a) in place([p for p in pts if p["on"]], X, Y, labels, (L, W - 2, T - 6, B - 2), walls, also=pts):
-        if p["lead"]: g.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="var(--muted)" stroke-width="1"/>' % p["lead"])
-        g.append(f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{a}" class="lbl on" data-cat="{point_category(p["c"])}" data-set="{p.get("set", "main")}">{esc(p.get("name", p["c"]))}</text>')
+    for p, (x, y, a) in place([p for p in pts if p["on"] or p.get("label")], X, Y, labels, (L, W - 2, T - 6, B - 2), walls, also=pts):
+        if p["lead"]: g.append((f'<line class="label-leader" data-c="{esc(p["c"])}" x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="var(--muted)" stroke-width="1"/>') % p["lead"])
+        g.append(f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{a}" class="lbl{' on' if p["on"] else ''}" data-cat="{point_category(p["c"])}" data-set="{p.get("set", "main")}">{esc(p.get("name", p["c"]))}</text>')
     g.append("</svg>")
     if variant:
         return f'<div class="cvariant v-{variant}"><div class="cplot">{"".join(g)}{free_strip(free_pts, stat)}</div>{key(pts + list(free_pts), stat)}</div>'
@@ -170,23 +190,18 @@ def place(pts, X, Y, labels, box, walls=(), also=(), char_width=CW, label_height
     """Greedy label placement: frontier points first, each takes the first spot (its hand-set offset, then SPOTS) whose text
     box stays inside the plot and clears every dot and every label already placed; if none is clear, the least-overlapping."""
     x0, x1, y0, y1 = box
-    dots = [(X(p["x"]) - (15 if p["on"] else 10), Y(p["y"]) - (15 if p["on"] else 10),
-             X(p["x"]) + (15 if p["on"] else 10), Y(p["y"]) + (15 if p["on"] else 10)) for p in list(also) or pts]
+    dots = [(plot_xy(p, X, Y)[0] - (15 if p["on"] else 10), plot_xy(p, X, Y)[1] - (15 if p["on"] else 10),
+             plot_xy(p, X, Y)[0] + (15 if p["on"] else 10), plot_xy(p, X, Y)[1] + (15 if p["on"] else 10)) for p in list(also) or pts]
     taken, out = list(walls), {}
     def rect(px, py, dx, dy, a, n):
         w = char_width * len(n); l = px + dx - (w if a == "end" else w / 2 if a == "middle" else 0)
         return (l, py + dy - label_height + 4, l + w, py + dy + 4)
-    centres = [(X(p["x"]), Y(p["y"])) for p in list(also) or pts]
+    centres = [plot_xy(p, X, Y) for p in list(also) or pts]
     def gap(r, x, y): return math.hypot(max(r[0] - x, 0, x - r[2]), max(r[1] - y, 0, y - r[3]))
     def hit(r, q): return max(0, min(r[2], q[2]) - max(r[0], q[0])) * max(0, min(r[3], q[3]) - max(r[1], q[1]))
-    # A pipeline whose gate never fired sits on its single model's dot: label the dot once (the chart note says so).
     nm = {id(p): p.get("name", p["c"]) for p in pts}; skip = set()
-    for i, p in enumerate(pts):
-        for q in pts[i + 1:]:
-            if abs(X(p["x"]) - X(q["x"])) < 4 and abs(Y(p["y"]) - Y(q["y"])) < 4 and nm[id(q)].startswith(nm[id(p)]):
-                skip.add(id(q))
     def best(p, others):
-        px, py, n = X(p["x"]), Y(p["y"]), nm[id(p)]; top = None
+        px, py = plot_xy(p, X, Y); n = nm[id(p)]; top = None
         for s in ([labels[p["c"]]] if p["c"] in labels else []) + SPOTS + FAR:
             r = rect(px, py, *s, n); led = s in FAR or p.get("label", False)
             out_of = (max(0, x0 - r[0]) + max(0, r[2] - x1) + max(0, y0 - r[1]) + max(0, r[3] - y1)) * 1000
@@ -204,7 +219,7 @@ def place(pts, X, Y, labels, box, walls=(), also=(), char_width=CW, label_height
             if sum(hit(got[id(p)][2], q) for q in others) > 0 or sum(hit(got[id(p)][2], q) for q in dots) > 0:
                 got[id(p)] = best(p, others)
     for p in order:
-        _, s, r = got[id(p)]; dx, dy, a = s; px, py = X(p["x"]), Y(p["y"])
+        _, s, r = got[id(p)]; dx, dy, a = s; px, py = plot_xy(p, X, Y)
         lead = None
         if s in FAR or p.get("label"):  # line from the dot's edge to the nearest point of the label box
             qx, qy = min(max(px, r[0]), r[2]), min(max(py, r[1]), r[3]); d = math.hypot(qx - px, qy - py) or 1
@@ -234,20 +249,8 @@ def fast_pairs(pts, X, Y):
 
 
 def frontier_caption(s):
-    """Explain the cost/pass-rate dominance using the eligible full-ladder frontier."""
-    E = every(s); c = "luna-low"; v = E[c]
-    pts = [{"c": c, "x": E[c]["usd_per_pass"], "y": E[c]["pass_at_1"]} for c in ORDER if point_category(c) != "exploratory"]
-    fr = front(pts, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"])
-    dominators = [p for p in fr if p["x"] <= v["usd_per_pass"] and p["y"] > v["pass_at_1"]]
-    if dominators:
-        d = min(dominators, key=lambda p: (p["y"], p["x"]))["c"]; q = E[d]
-        relation = "costs about the same" if math.isclose(q["usd_per_pass"], v["usd_per_pass"], rel_tol=.05) else "costs less"
-        reason = (f'{DISP(c)} is off the frontier: {DISP(d)} {relation} '
-                  f'({dataset.usd(q["usd_per_pass"], sig=3)} vs {dataset.usd(v["usd_per_pass"], sig=3)}) and passes more '
-                  f'({q["passes"]}/{q["n"]} vs {v["passes"]}/{v["n"]}).')
-    else:
-        reason = f'{DISP(c)} has no cost/pass-rate dominator on the eligible frontier'
-    return f'<p class="frontier-note">{esc(reason)} Hollow and exploratory points are left off the frontier.</p>'
+    """Dataset-owned comparison, limited to the main-ladder pass-rate chart."""
+    return '<p class="frontier-note">' + esc(s["facts"]["frontier_caption"]) + '</p>'
 
 
 def ladder_toggle(render, s):
@@ -255,8 +258,8 @@ def ladder_toggle(render, s):
     free, _ = render(s, free=True)
     rescue_normal, _ = render(s, free=False, problem_set="rescue")
     rescue_free, _ = render(s, free=True, problem_set="rescue")
-    note = ('<p class="repair-note">Hollow = pipeline, using the builder’s shape; filled = single model. '
-            'Savings per pass appear in the key and tooltip. The log plot shows paid configs; free configs are ranked below it.</p>')
+    note = ('<p class="repair-note">Savings per pass appear in the key and tooltip. '
+            'The log plot shows paid configs; free configs are ranked below it.</p>')
     main_categories = {point_category(c) for c in ORDER}
     filters = '<div class="category-filter" role="group" aria-label="Point categories">' + "".join(
         ('<label>' if cat in main_categories else f'<label class="disabled" title="only on the {configs.set_label("rescue set")}">')
@@ -264,14 +267,14 @@ def ladder_toggle(render, s):
         + f'> {cat}</label>' for cat in ("main", "fast", "pipelines", "exploratory")) + '</div>'
     set_name = render.__name__ + "-set"
     sets = (f'<div class="set-filter" role="group" aria-label="Problem set">'
-            f'<label><input type="radio" name="{set_name}" value="main" checked> Main ladder</label>'
-            f'<label><input type="radio" name="{set_name}" value="rescue"> {configs.set_label("rescue set", capital=True)}</label></div>')
+            f'<label><input type="radio" name="{set_name}" value="main" checked> {configs.set_label("main ladder", capital=True)}</label>'
+            f'<label><input type="radio" name="{set_name}" value="rescue"> {configs.set_label("rescue set", capital=True)} + pipelines</label></div>')
     rescue_n = next(iter(rescue_arms(s).values()))["n"]
     return ('<div class="cwrap"><label class="cost-toggle"><input type="checkbox"> Codex is free (subscription quota)</label>'
-            + sets + filters + note + '<div class="cset s-main">' + normal + free + frontier_caption(s) + '</div>'
+            + sets + filters + note + '<div class="cset s-main">' + normal + free + (frontier_caption(s) if render is pass_cost else "") + '</div>'
             + f'<div class="cset s-rescue"><p class="set-note">{configs.set_label("rescue set", capital=True)}: '
             + f'{rescue_n} attempts, shown apart from the main ladder.</p>'
-            + rescue_normal + rescue_free + '</div><div class="ctip" hidden></div></div>'), fr
+            + f'<p class="set-note">{esc(rescue_subtitle(s))}</p>' + rescue_normal + rescue_free + '</div><div class="ctip" hidden></div></div>'), fr
 
 
 def quota_tip(normal, free, saving):
@@ -283,12 +286,13 @@ def ladder_repairs(free, stat, arms=None):
     """All rescue configs, including baselines measured on this same subset."""
     pts = []
     for c, v in (arms if arms is not None else rescue_arms()).items():
-        name = NAME.get(c) or " → ".join(DISP(part) for part in c.split("+"))
+        name = DISP(c)
         pipeline = "+" in c
         builder = c.split("+", 1)[-1] if c.startswith("haiku-low-plan+") else c.split("+", 1)[0]
         usd = v["claude_usd_per_pass"] if free else v["usd_per_pass"]
         pts.append({"c": c, "name": name, "set": "rescue", "x": v["median_s"] if stat == "speed" else usd,
-                    "y": usd if stat == "speed" else v["pass_rate"], "rate": v["pass_rate"], "hollow": pipeline,
+                    "y": usd if stat == "speed" else v["pass_rate"], "rate": v["pass_rate"], "hollow": "-fast" in builder, "dash": "bare" in builder,
+                    "col": "var(--frontier)" if pipeline else FAM(c),
                     "shape": SHAPE(builder), "w": None, "on": False, "free_mode": free,
                     "saved_usd": v["usd_saved_per_pass"], "normal_usd": v["usd_per_pass"], "free_usd": v["claude_usd_per_pass"],
                     "tip": f"{name}: {v['passes']}/{v['n']} passed. {dataset.usd(usd)} per pass. Median {v['median_s']:.1f} s. {configs.set_label('rescue set', capital=True)} only. "
@@ -306,7 +310,7 @@ def ladder_points(s, free, stat, problem_set):
         usd = quota if free else normal
         w = (("x", v["latency_s"]["p25"], v["latency_s"]["p75"]) if "p25" in v["latency_s"] else None) if stat == "speed" else ("y", v["ci95"][0], v["ci95"][1])
         pts.append({"c": c, "name": DISP(c), "set": "main", "x": v["latency_s"]["median"] if stat == "speed" else usd,
-                    "y": usd if stat == "speed" else v["pass_at_1"], "rate": v["pass_at_1"], "hollow": False, "w": w,
+                    "y": usd if stat == "speed" else v["pass_at_1"], "rate": v["pass_at_1"], "hollow": "-fast" in c, "dash": "bare" in c, "w": w,
                     "saved_usd": v["usd_saved_per_pass"], "normal_usd": normal, "free_usd": quota, "free_mode": free,
                     "tip": tip(c, dict(v, usd_per_pass=usd)) + ". " + quota_tip(normal, quota, v["usd_saved_per_pass"])})
     return pts
@@ -328,7 +332,7 @@ def pass_cost(s, free=None, problem_set="main"):
     lo = 5e-4 if cost_min >= 5e-4 else 10 ** math.floor(math.log10(cost_min))
     X = logscale(lo, 3e-1, L, W - R)
     Y = lambda v: B - (v - ymin) / (1.1 - ymin) * (B - T)
-    eligible = [p for p in pts if not p["hollow"] and point_category(p["c"]) != "exploratory"]
+    eligible = [p for p in pts if problem_set == "rescue" or not p["hollow"] and point_category(p["c"]) != "exploratory"]
     fr = sorted(front(eligible, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
     for p in pts:
         p["on"] = p in fr
@@ -354,10 +358,14 @@ def speed_cost(s, free=None, problem_set="main"):
     cost_min = min(p["y"] for p in pts)
     lo = 5e-4 if cost_min >= 5e-4 else 10 ** math.floor(math.log10(cost_min))
     Y = logscale(lo, 3e-1, B, T)
-    ok = [p for p in pts if p.get("rate", 0) >= MIN_PASS and not p["hollow"] and point_category(p["c"]) != "exploratory"]
+    ok = [p for p in pts if p.get("rate", 0) >= MIN_PASS and (problem_set == "rescue" or not p["hollow"] and point_category(p["c"]) != "exploratory")]
     fr = sorted(front(ok, speed_dominates), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
-    d = (f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}") if fr else ""
+    d = (f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}") if len(fr) > 1 else ""
+    if len(fr) == 1:
+        nearest = sorted((p for p in pts if p not in fr and p["rate"] == 1),
+                         key=lambda p: math.hypot(X(p["x"]) - X(fr[0]["x"]), Y(p["y"]) - Y(fr[0]["y"])))[:3]
+        for p in nearest: p["label"] = True
     xt = [(v, f"{v} s") for v in range(5, xmax + 1, 5)]
     yt = [(v, dataset.usd(v)) for v in (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1) if v >= lo]
     lab = {"luna-low": (0, -14, "middle"), "luna-medium": (14, 10, "start"), "haiku-low": (0, -20, "middle"), "luna-high": (14, -10, "start"),
@@ -381,47 +389,15 @@ def rescue_arms(ds=None):
 
 
 def hard_pts(arms=None):
-    a = arms if arms is not None else rescue_arms()
-    return [{"c": c, "name": SHORT(n) if "→" in n else n, "set": "rescue", "col": "var(--frontier)" if "→" in n else FAM(c), "hollow": False, "w": None, "k": a[c]["pass_rate"],
-             "usd": a[c]["usd_per_pass"], "sec": a[c]["median_s"],
-             "tip": f"{n} [{configs.set_label('rescue set')}]: {a[c]['passes']}/{a[c]['n']} passed. {dataset.usd(a[c]['usd_per_pass'])} per pass. Median {a[c]['median_s']:.1f} s" + (" (" + a[c]["derived_note"] + ")" if "derived_note" in a[c] else "")} for c, n in HARD_PTS]
+    return ladder_repairs(False, "pass", arms)
 
 
 def hard_pass_cost(arms=None):
-    """Rescue set: pass rate against $ per pass (log), single models and the Haiku pipelines; no intervals (n is small and post hoc)."""
-    L, R, T, B, W = 84, 16, 14, 382, 560
-    X = logscale(5e-4, 4e-1, L, W - R); Y = lambda v: B - (v - 0.55) / 0.5 * (B - T)
-    pts = [dict(p, x=p["usd"], y=p["k"]) for p in hard_pts(arms)]
-    fr = sorted(front(pts, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
-    for p in pts: p["on"] = p in fr
-    d = f"M{X(fr[0]['x']):.1f} {B} V{Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
-    xt = [(v, dataset.usd(v)) for v in (1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1)]
-    yt = [(v / 100, f"{v}%") for v in (55, 65, 75, 85, 95, 100)]
-    lab = {"luna-high-bare": (14, 20, "start"), "haiku-low": (14, 5, "start"), "haiku-medium": (0, -16, "middle"),
-           "sonnet-medium": (0, -14, "middle"), "sol61-medium": (0, 24, "middle"), "luna-high-bare+retry-on-fail": (-14, 28, "end"),
-           "luna-high-bare+haiku-on-fail": (0, 24, "middle"), "luna-low+haiku-on-fail": (-14, 5, "end"),
-           "luna-low+haiku-review-all": (14, 5, "start"), "luna-high-bare+haiku-review-all": (0, 22, "middle")}
-    g = scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, H=440, B=B, stat="pass", extra=fast_pairs(pts, X, Y))
-    return g, [p["c"] for p in fr]
+    return pass_cost({"rescue": arms or rescue_arms()}, free=False, problem_set="rescue")
 
 
 def hard_speed_cost(arms=None):
-    """Rescue set: median seconds against $ per pass (log); frontier among rows passing at least MIN_PASS."""
-    L, R, T, B, W = 84, 16, 14, 462, 560
-    X = lambda v: L + (v - 6) / 30 * (W - R - L); Y = logscale(8e-4, 4e-1, B, T)
-    pts = [dict(p, x=p["sec"], y=p["usd"]) for p in hard_pts(arms)]
-    ok = [p for p in pts if p["k"] >= MIN_PASS]
-    fr = sorted(front(ok, speed_dominates), key=lambda p: p["x"])
-    for p in pts: p["on"] = p in fr
-    d = f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
-    xt = [(v, f"{v} s") for v in (10, 15, 20, 25, 30, 35)]
-    yt = [(v, dataset.usd(v)) for v in (1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1)]
-    lab = {"luna-low": (-12, 5, "end"), "luna-high-bare": (14, 5, "start"), "haiku-low": (14, 1, "start"), "haiku-medium": (14, 5, "start"),
-           "sonnet-medium": (14, 5, "start"), "sol61-medium": (-14, 4, "end"), "luna-high-bare+retry-on-fail": (-20, 28, "middle"),
-           "luna-high-bare+haiku-on-fail": (12, 6, "start"), "luna-low+haiku-on-fail": (0, -16, "middle"),
-           "luna-low+haiku-review-all": (0, -14, "middle"), "luna-high-bare+haiku-review-all": (-14, 5, "end")}
-    g = scatter(pts, d, X, Y, xt, yt, "median seconds per call", "$ per pass (log)", "", lab, H=520, B=B, stat="speed", extra=fast_pairs(pts, X, Y))  # corner label goes top right: the bottom left is crowded
-    return g.replace("</svg>", f'<text x="{W - R - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>', 1), [p["c"] for p in fr]
+    return speed_cost({"rescue": arms or rescue_arms()}, free=False, problem_set="rescue")
 
 
 def grid(s):
@@ -570,10 +546,10 @@ def verdict(c, v, need, E, arms=None):
         return f"missed {v['n'] - v['passes']}"
     if c == "haiku-high":
         need(v["passes"] == v["n"] and v["usd_per_pass"] == min(E[d]["usd_per_pass"] for d in ORDER if E[d]["passes"] == E[d]["n"]), "haiku-high is the cheapest with 0 misses")
-        return "★ pick"
+        return "✓ pick"
     if c == "sol61-high":
         need(v["passes"] == v["n"] == 60, "Winner sol61-high passed every main-ladder answer")
-        return "★ pick"
+        return "✓ pick"
     if c == "haiku-low":
         need(v["usd_per_pass"] == min(E[d]["usd_per_pass"] for d in ORDER if E[d]["pass_at_1"] >= 0.95), "haiku-low is the cheapest at 95%+")
         return "budget pick"
@@ -611,7 +587,7 @@ def short_table(s, need):
     clean = [c for c, _ in HARD if a[c]["passes"] == a[c]["n"]]; need(clean, "some rescue-set row never failed")
     best = min(clean, key=lambda c: a[c]["usd_per_pass"])
     need(best == "haiku-medium", "haiku-medium is the cheapest rescue-set row with no miss")
-    hv = lambda c: "0 misses ★" if c == best else "★ pick" if c == "sol61-high" else "0 misses" if c in clean else f"missed {a[c]['misses']}"
+    hv = lambda c: "0 misses ✓ pick" if c == best else "✓ pick" if c == "sol61-high" else "0 misses" if c in clean else f"missed {a[c]['misses']}"
     duplicates = {c + "+haiku-on-fail" for pair in FAST_PAIRS for c in pair}
     hard = [(c, row(SHORT(name), "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], None if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
                 a[c]["median_s"], hv(c), CODEX(c), a[c].get("derived_note", ""), rate=a[c]["pass_rate"], claude_only=not CODEX(c))) for c, name in HARD if c not in duplicates]
@@ -742,16 +718,20 @@ def sets_box(s):
     """Collapsed reading guide below the cost/accuracy charts and their notes."""
     main, hard, per, l7 = set_definitions(s)
     rungs = sorted({s["problems"][p]["rung"] for p in main})
+    l7_names = [DISP(c) for c in ORDER if c in s["hard"]]
+    l7_lines = " ".join((f'Ran the {configs.set_label("L7 set")}: ' if i == 0 else 'Also: ')
+                        + ", ".join(l7_names[i:i + 6]) + "." for i in range(0, len(l7_names), 6))
     lab = lambda ps: ", ".join(f'<span class="pl" title="{esc(TESTS[p])}">{esc(plabel(p))}</span>' for p in ps)
     return ('<details class="sets"><summary>How to read the problems, rungs and sets</summary><ul class="tight small">'
             '<li>Compare each set separately.</li>'
             f'<li>Problem labels show number, short name and rung: {lab([main[-1]])}. Hover for a one-line description.</li>'
-            f'<li><b>Main ladder</b>: {len(main)} problems, {main[0].split("_")[0]}–{main[-1].split("_")[0]}, rungs L{rungs[0]}–L{rungs[-1]} ({per} per rung, easiest first). Every config ran it.</li>'
-            f'<li><b>L7 set</b>: {len(hard)} extra-hard problems ({lab(hard)}), scored separately. Added after every strong config passed L{rungs[-1]} to seek a breaking point, with more than the usual {per} problems per rung.</li>'
-            f'<li>Later-run configs: {l7}.</li>'
-            f'<li><b>{configs.set_label("rescue set", capital=True)}</b>: {lab(s["design"]["rescue_problems"])}.</li>'
+            f'<li><b>{configs.set_label("main ladder", capital=True)}</b>: {len(main)} problems. Rungs: L{rungs[0]}–L{rungs[-1]}. Each has {per} problems, easiest first. Every config ran it.</li>'
+            f'<li>{esc(s["facts"]["l7_set_description"])}</li>'
+            f'<li>{l7_lines}</li>'
+            f'<li><b>{configs.set_label("rescue set", capital=True)}</b>:<ul>'
+            + "".join(f'<li>{lab([p])}.</li>' for p in s["design"]["rescue_problems"]) + '</ul></li>'
             '<li>Easy/Medium/Hard badges estimate LeetCode difficulty; rungs use this bench\'s own order and may differ.</li>'
-            '<li>Config names: haiku/sonnet = Claude; luna/sol/astra = Codex; suffix = effort; -bare = stripped Codex CLI system prompt.</li>'
+            '<li>Config names: haiku/sonnet = Claude; luna/sol/astra = Codex. Suffix = effort. -bare = stripped Codex CLI system prompt.</li>'
             '</ul></details>')
 
 
@@ -760,10 +740,8 @@ def rescue_subtitle(s=None):
     attempts = rescue_arms(s)["sol61-high"]["n"]
     return (f'{configs.set_label("rescue set", capital=True)}: the {len(s["design"]["rescue_problems"])} problems luna failed most. '
             f'Each row has {attempts} attempts. No intervals are shown. '
-            'Purple marks pipelines. '
-            'sol61-high and astra-medium never failed an example. '
-            'No Haiku repair ran. '
-            'Normal speed uses separate runs. ⚡ rows replay cached answers.')
+            'Purple-filled points are pipelines; a purple ring is the frontier. '
+            'This set includes exploratory configs and pipelines in its frontier.')
 
 
 def speed_frontier_text(s, names):
@@ -818,7 +796,7 @@ def notation_tooltips(body, ds):
             values = dict(attrs)
             if "dot" in values.get("class", "").split():
                 symbol = "purple dot" if "--frontier" in values.get("style", "") else "family dots"
-                if symbol not in self.seen:
+                if symbol in meanings and symbol not in self.seen:
                     self.seen.add(symbol)
                     raw = raw[:-1] + f' data-notation="{symbol}" title="{esc(meanings[symbol])}">'
             if tag not in ("area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"):
@@ -868,7 +846,7 @@ def notation_tooltips(body, ds):
 
 
 def winner_table(ds, need):
-    """Six routing choices; pipeline metrics retain their separately measured scope."""
+    """Three primary choices; secondary routes retain their separately measured scope."""
     ladder = lambda c: dataset.get(ds, c, "main ladder")
     default, budget, speed, fast, safety = map(ladder, (
         "sol61-high", "haiku-low", "sonnet-medium", "sol61-high-fast", "haiku-high"))
@@ -892,34 +870,26 @@ def winner_table(ds, need):
     choices = [
         ("Default", default, "Use Codex quota first"),
         ("Budget", budget, f"Cheapest passing ≥{ds['facts']['budget_pass']}"),
-        ("Speed", speed, "Faster than haiku-high; no misses"),
-        ("Fast mode", fast, f"Faster Codex; {ds['facts']['fm_mult']} list price"),
-        ("Codex → Haiku", pipeline, "Fix failed examples; no fixes needed"),
-        ("Safety / fallback", safety, "Cheapest with no misses across sets"),
+        ("Speed", speed, ds["facts"]["speed_why"]),
     ]
-    head = ("Use case", "Pick", "Why", "Pass", "$ per pass", "Time")
-    widths = (16, 22, 26, 10, 15, 11)
-    th = "".join(f'<th scope="col" style="width:{width}%;text-align:left">{esc(name)}</th>'
-                 for name, width in zip(head, widths))
+    head = ("Use case", "Pick", "Pass", "$ per pass", "Time", "Why")
+    th = "".join(f'<th scope="col">{esc(name)}</th>' for name in head)
     rows = []
-    for use, r, why in choices:
-        pick = r["display"] if r is not pipeline else f"{default['display']} →H fail"
+    for i, (use, r, why) in enumerate(choices, 1):
         price = ("~" if r["cost_kind"] == "proxy" else "") + dataset.usd(r["usd_per_pass"])
-        cells = (use, pick, why, f"{r['passes']}/{r['n']}", price, f"{r['median_s']:.1f} s")
+        cells = (f"{i}. {use}", r["display"], f"{r['passes']}/{r['n']}", price, f"{r['median_s']:.1f} s", why)
         rows.append('<tr>' + "".join(
-            f'<td style="white-space:normal;text-align:left;padding:7px 8px;vertical-align:top">{esc(cell)}</td>'
-            for cell in cells) + '</tr>')
-    caption = (f'{configs.set_label("main ladder", capital=True)} except pipeline '
-               f'({configs.set_label("rescue set")}). Time = median seconds. '
-               '~ = estimated from tokens; Claude costs are measured.')
-    return ('<div class="tablewrap"><table class="winner-table" style="table-layout:fixed;min-width:720px;font-size:13px">'
-            f'<caption style="caption-side:bottom;text-align:left;padding:8px">{esc(caption)}</caption>'
-            f'<thead><tr>{th}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>')
+            f'<td data-label="{esc(label)}">{esc(cell)}</td>' for label, cell in zip(head, cells)) + '</tr>')
+    caption = ds["facts"]["winner_caption"]
+    return ('<div class="tablewrap"><table class="winner-table">'
+            f'<caption>{esc(caption)}</caption><thead><tr>{th}</tr></thead>'
+            f'<tbody>{"".join(rows)}</tbody></table></div>'
+            f'<p class="small">{esc(ds["facts"]["winner_other_routes"])}</p>')
 
 
 def widgets(s, need, ds=None):
     arms = rescue_arms(ds or s)
-    a, fa = pass_cost(s); b, fb = speed_cost(s); ha, hfa = hard_pass_cost(arms); hb, hfb = hard_speed_cost(arms); nm = dict(HARD_PTS)
+    a, fa = pass_cost(s); b, fb = speed_cost(s); ha, hfa = hard_pass_cost(arms); hb, hfb = hard_speed_cost(arms); nm = {c: DISP(c) for c in arms}
     return {"pass_cost": a, "speed_cost": b, "hard_pass_cost": ha, "hard_speed_cost": hb,
             "hard_front_pass": ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": ", ".join(SHORT(nm[c]) for c in hfb), "sets": sets_box(s), "grid": grid(s), "floor": floor(s), "pipes": pipes(arms), "fast": fast(s), "explorer": explorer(s), "short_table": short_table(s, need), "full_table": full_table(ds or dataset.read()),
             "front_pass": ", ".join(map(DISP, fa)), "front_speed": speed_frontier_text(s, fb),

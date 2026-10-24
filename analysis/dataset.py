@@ -249,7 +249,7 @@ def fairness_facts():
         uncertainty = "The interval includes zero bias."
     else:
         need(0 < lo and 0 < diff < 0.15, "harness-bias result is a positive tilt below the 0.15 bias threshold")
-        answer = "Slightly. The estimated tilt is below our 0.15 bias threshold."
+        answer = "Slightly."
         lifts = {}
         for config in harness_bias.CFGS:
             rates = {}
@@ -260,7 +260,8 @@ def fairness_facts():
         need(all(v > 0 for v in lifts.values()) and lifts['luna-low'] > lifts['haiku-low'],
              "both agent loops beat the one-shot runner, luna more")
         takeaway = "Both vendor agent CLIs improved pass rates. Codex CLI helped luna-low more."
-        detail = f"The gap changed by {diff:+.3f}. Below our threshold, so we do not call it bias."
+        detail = (f"The pass-rate gap moved by {100 * diff:.0f} points. "
+                  f"We pre-set {100 * .15:.0f} points as the bar for calling it bias.")
         uncertainty = "The interval excludes zero. " + (
             "It also permits bias above our threshold." if hi > 0.15 else "It stays below our threshold.")
     facts = dict(hb_answer=answer, hb_detail=detail, hb_diff=f"{diff:+.3f}", hb_takeaway=takeaway, hb_uncertainty=uncertainty, hb_ci=f"{lo:+.3f} to {hi:+.3f}",
@@ -272,6 +273,23 @@ def fairness_facts():
             facts[f"hb_{prefix}_{config.replace('-', '_')}"] = f"{sum(r['passed'] for r in cell)}/{len(cell)}"
     improved = all(int(facts[f"hb_codex_{c.replace('-', '_')}"].split('/')[0]) >
                    int(facts[f"hb_claude_{c.replace('-', '_')}"].split('/')[0]) for c in harness_bias.CFGS)
+    facts.update(hb_diff_points=f"{100 * diff:.0f}", hb_bar_points=f"{100 * .15:.0f}",
+                 hb_range_points=f"{100 * lo:.0f} to {100 * hi:.0f}")
+    for c in harness_bias.CFGS:
+        one = [r for r in rows if r['config'] == c and r['harness'] == 'claude-one-shot']
+        agent = [r for r in rows if r['config'] == c and r['harness'] == 'codex-tool-loop']
+        key = c.replace('-', '_')
+        facts[f'hb_{key}_gain'] = str(sum(r['passed'] for r in agent) - sum(r['passed'] for r in one))
+        facts[f'hb_{key}_change'] = f"{sum(r['passed'] for r in one)}→{sum(r['passed'] for r in agent)}"
+        facts[f'hb_{key}_n'] = str(len(one))
+    if lo > 0:
+        facts['hb_uncertainty'] = (f"Point estimate: {facts['hb_diff_points']} points. "
+                                   f"The confidence level is {95}%. "
+                                   f"Its range, {facts['hb_range_points']} points, permits a larger tilt.")
+        facts['hb_takeaway'] = (f"Inside its own agent CLI, luna-low gained {facts['hb_luna_low_gain']} passes. "
+                               f"It moved {facts['hb_luna_low_change']}. Each config had {facts['hb_luna_low_n']} attempts. "
+                               f"haiku-low gained {facts['hb_haiku_low_gain']} passes. "
+                               f"It moved {facts['hb_haiku_low_change']}. Each config had {facts['hb_haiku_low_n']} attempts.")
     facts['hb_conclusion'] = ("Vendor agent CLIs improved both models." if improved
                               else "The runner comparison uses paired attempts.")
     codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
@@ -405,6 +423,9 @@ def _facts(s, arms):
     misses = sum(v["passed"] < v["n"] for v in s["failures"][worst]["cells"].values())
     need(misses > 0 and worst in s["problems"], "the worst failure problem belongs to the main ladder")
     F["worst_failure"] = f"{plabel(worst)} has misses in {misses} of {len(every)} configs"
+    F["hl_main_timeouts"] = str(sum(r["outcome"] == "timeout" for r in hl_all if r["phase"] == "main"))
+    F["hl_main_misses"] = str(hl["n"] - hl["passes"])
+    F["hl_main_crashes"] = str(sum(r["outcome"] == "crash" for r in hl_all if r["phase"] == "main"))
     F["hl_timeouts"] = str(oc["timeout"]); F["hl_crashes"] = str(oc["crash"]); F["hl_attempts"] = str(len(hl_all))
     hm = [r for r in main_rows if r["config"] == "haiku-medium" and not r["passed"]]
     need(len(hm) == 1 and hm[0]["outcome"] == "wrong" and hm[0]["problem"].startswith("p05"), "haiku-medium's one miss")
@@ -490,7 +511,16 @@ def _facts(s, arms):
             F["bl_blocks"] = str(sum(i["block"] for i in b["items"]))
             counts = {c: sum(i["config"] == c for i in b["items"]) for c in {i["config"] for i in b["items"]}}
             need(len(set(counts.values())) == 1, "blind read has the same sample size per config")
-            F["blind_caption"] = f"Reader: {b['reviewer']}. Method: {b['method'].replace('; ', '. ')}. Score: {b['scale'].replace('block =', 'would block =')}. {next(iter(counts.values()))} solutions per config."
+            sentence_case = lambda t: ". ".join(part[0].upper() + part[1:] for part in t.split("; "))
+            method = b['method'].replace("; the reviewer saw code only", "; code only").replace("A-E", "A–E")
+            scale = b['scale'].replace("1-10", "1–10").replace("block =", "would block =")
+            F["blind_caption"] = (f"Reader: {b['reviewer']}. Method: {sentence_case(method)}. "
+                                  f"Score: {sentence_case(scale)}. {next(iter(counts.values()))} solutions per config.")
+            scores = {c: statistics.mean(i['score'] for i in b['items'] if i['config'] == c) for c in counts}
+            others = [v for c, v in scores.items() if c != 'sonnet-medium']
+            F['bl_sonnet_score'] = f"{scores['sonnet-medium']:.1f}/{10}"
+            F['bl_other_scores'] = f"{min(others):g}–{max(others):g}"
+            F['bl_other_blocks'] = str(sum(i['block'] for i in b['items'] if i['config'] != 'sonnet-medium'))
     # fast mode on the main ladder and L7 (exploratory, 2026-10-24): same model and effort, priority tier
     for k, (b0, b1) in {"s61": ("sol61-high", "sol61-high-fast"), "ast": ("astra-medium", "astra-medium-fast")}.items():
         d, f = ex[b0], ex[b1]; dh, fh = hard[b0], hard[b1]
@@ -559,7 +589,7 @@ def _facts(s, arms):
     ah, sh = ex["astra-medium"], ex["sol61-high"]
     F["x_astra_vs_s61h"] = x(ah["usd_per_pass"], sh["usd_per_pass"])
     need(ah["latency_s"]["median"] < sh["latency_s"]["median"] and ag["astra-medium"]["latency_s"]["median"] < ag["sol61-high"]["latency_s"]["median"], "astra faster than sol61-high")
-    F["ag_n"] = str(ag["sol61-high"]["n"]); F["claude_zero"] = "$0"
+    F["ag_n"] = str(ag["sol61-high"]["n"]); F["claude_zero"] = usd(0)
     F["ag_hh_k"] = f"{ag['haiku-high']['hidden_pass']}/{ag['haiku-high']['n']}"
     F["ag_claude_med"] = f"{statistics.mean(ag[c]['latency_s']['median'] for c in ('haiku-low', 'sonnet-medium')):.0f}"
     ga = arms
@@ -580,6 +610,33 @@ def _facts(s, arms):
     need(disagree, "some LeetCode badges disagree with rung order")
     F["badge_disagreements"] = ", ".join(f"{plabel(p, s['problems'][p]['rung'])} is {configs.LC[p]}" for p in disagree)
     F["badge_disagreement_items"] = "".join(f"<li>{plabel(p, s['problems'][p]['rung'])} is {configs.LC[p]}.</li>" for p in disagree)
+    low, medium = every['luna-low'], every['luna-medium']
+    need(medium['usd_per_pass'] <= low['usd_per_pass'] and medium['passes'] > low['passes'],
+         "luna-medium dominates luna-low")
+    need(usd(medium['usd_per_pass'], sig=1) == usd(low['usd_per_pass'], sig=1), "luna prices round identically")
+    F['frontier_caption'] = (
+        f"luna-low is not a best trade-off. luna-medium costs the same ({usd(medium['usd_per_pass'], sig=1)} per pass). "
+        f"It passes {medium['passes']}/{medium['n']}. luna-low passes {low['passes']}/{low['n']}. "
+        f"This note covers the {configs.set_label('main ladder')} only. Hollow and exploratory points are excluded there.")
+    F['winner_names'] = f"sol61 = OpenAI {ex['sol61-high']['model']} (Codex). haiku / sonnet = Claude."
+    F['winner_caption'] = (
+        f"Numbers: the {nprob}-problem {configs.set_label('main ladder')}, {hl['n']} tries per config. "
+        f"The Codex → Haiku route uses the {len(luna_rescue.PIDS)}-problem {configs.set_label('rescue set')}. "
+        f"It has {a['sol61-high+haiku-on-fail']['n']} tries. Time = median seconds. "
+        "~ = estimated from tokens; Claude costs are measured.")
+    F['winner_other_routes'] = (f"Fast mode: {F['fm_mult']} list price. "
+                               "Codex → Haiku: check examples, repair failures. Safety: haiku-high.")
+    gap = round(cfg['sonnet-medium']['latency_s']['median'], 1) - round(hl['latency_s']['median'], 1)
+    need(gap > 0, "haiku-low is slightly faster than sonnet-medium")
+    F['speed_why'] = (f"Fastest with no misses; its code read worst in a blind review. "
+                      f"haiku-low is {gap:.1f} s faster but misses {hl['n'] - hl['passes']}. "
+                      f"luna is faster but misses {F['cheap_miss_words']}.")
+    F['s61_later_note'] = (f"sol61-high was added after the main run (†). "
+                            f"Its {F['sol61_high_k']} held on the {configs.set_label('main ladder')}, L7 and repo tasks.")
+    F['default_route_scope'] = (f"No misses on {ex['sol61-high']['n']} {configs.set_label('main ladder')} tries. "
+                                f"No misses on {hard['sol61-high']['n']} L7 tries or {ag['sol61-high']['n']} repo tries.")
+    F['l7_set_description'] = (f"{configs.set_label('L7 set')}: " + ", ".join(pshort(p) for p in probs)
+                               + f"; scored separately. Added after every strong config passed L{max(v['rung'] for v in s['problems'].values())}.")
     return F
 
 
@@ -837,7 +894,7 @@ def build(summary=None):
 
 def view(ds):
     """Cached report-shaped projections of the canonical config/set rows."""
-    return {**ds["report"], "rescue": ds["rescue"]}
+    return {**ds["report"], "rescue": ds["rescue"], "facts": ds["facts"]}
 
 
 def read():
