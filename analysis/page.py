@@ -393,7 +393,6 @@ def speed_cost(s, free=None, problem_set="main"):
 # Display names for rescue-set rows, used by every chart and table so a pipeline reads the same everywhere. luna-high on the hard
 # set is the stripped harness (luna-high-bare); the name says so. Haiku in a pipeline reviews the answer and rewrites it if wrong.
 from analysis.configs import RESCUE_NAMES as NAME
-HARD_PTS = list(NAME.items())
 SHORT = lambda n: n.replace("Haiku plan → ", "plan→").replace(" → Haiku if samples fail", "→H fail").replace(" → Haiku fixes all", "→H all").replace(" → retry if samples fail", "→retry")
 
 
@@ -859,7 +858,7 @@ def winner_table(ds, need):
          "Winner fast-mode premium does not come from more tokens")
     need(pipeline["passes"] == pipeline["n"] and pipeline["spend_claude"] == 0,
          "Winner measured example-check pipeline passed without calling Haiku")
-    why = {"default": "Use Codex quota first", "budget": ds["facts"]["budget_why"], "speed": ds["facts"]["speed_why"]}
+    why = {"default": "Ties the others. Free on Codex quota", "budget": ds["facts"]["budget_why"], "speed": ds["facts"]["speed_why"]}
     choices = [(use.title(), ladder(c), why[use]) for c, use in WINNER_PICKS.items()]
     head = ("Use case", "Pick", "Pass", "$ per pass", "Time", "Why")
     th = "".join(f'<th scope="col">{esc(name)}</th>' for name in head)

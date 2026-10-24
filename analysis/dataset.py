@@ -308,6 +308,11 @@ def fairness_facts():
         "A larger bias is possible."] if lo > 0 else [facts['hb_answer']])
     facts['hb_conclusion'] = ("Vendor agent CLIs improved both models." if improved
                               else "The runner comparison uses paired attempts.")
+    for harness, key in (('claude-one-shot', 'one'), ('codex-tool-loop', 'agent')):
+        facts[f'hb_luna_wrong_{key}'] = str(sum(r['outcome'] == 'wrong' for r in rows if (r['harness'], r['config']) == (harness, 'luna-low')))
+    need(int(facts['hb_luna_wrong_agent']) < int(facts['hb_luna_wrong_one']), "the tool loop cut luna-low's wrong answers")
+    need(all(int(facts[f'hb_{h}_haiku_low'].split('/')[0]) > int(facts[f'hb_{h}_luna_low'].split('/')[0]) for h in ('claude', 'codex')),
+         "haiku-low led luna-low in both runners")
     codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
     facts['hb_errors'] = str(sum(r['outcome'] == 'harness_error' for r in codex))
     need(not any(r['outcome'] == 'timeout' or re.search(r'timeout|timed out|exceeded', r.get('error') or '', re.I)
@@ -648,15 +653,22 @@ def _facts(s, arms):
     need(gap > 0, "haiku-low is slightly faster than sonnet-medium")
     F['speed_why'] = (f"No misses. It trails haiku-low by {gap:.1f} s. "
                       f"haiku-low misses {hl['n'] - hl['passes']} of {hl['n']}.")
+    tied = ('sol61-high', 'haiku-high', 'sonnet-medium')
+    need(all(every[c]['passes'] == every[c]['n'] and hard[c]['passes'] == hard[c]['n'] and ag[c]['hidden_pass'] == ag[c]['n'] for c in tied),
+         "sol61-high, haiku-high and sonnet-medium pass every main, L7 and repo try")
+    need(every['haiku-high']['usd_per_pass'] < min(every[c]['usd_per_pass'] for c in ('sol61-high', 'sonnet-medium')), "haiku-high is the cheapest of the three")
+    F['winner_line'] = (f"sol61-high, haiku-high and sonnet-medium passed every try. "
+                        f"haiku-high is cheapest of the three at {F['hh_upp']} per pass. "
+                        f"With Codex quota, sol61-high costs {F['claude_zero']} cash.")
     F['budget_why'] = f"Cheapest pick that passes {F['budget_pass']} or more"
     F['model_names'] += (f", luna56 = {ex['luna56-high']['model']}, "
                          f"sol56 = {ex['sol56-high']['model']} (older generation)")
     need(a['luna-low-noshell-B1']['passes'] > a['luna-low']['passes'] > a['luna-low-noshell-B2']['passes'], "B1 improves over plain luna-low; B2 passes less often")
     F['noshell_comparison'] = "B1 passed more often than plain luna-low. B2 passed less often."
     F['verdict_key'] = (
-        "✓ pick = a Winner pick · 0 misses / missed N = raw miss count, no ranking · "
-        "beaten = another row is as cheap and passes as often · "
-        f"trade-off = pricier but passes more · avoid = below {F['min_pass'] }.")
+        "✓ pick = a Winner pick. 0 misses / missed N = raw miss count, no ranking. "
+        "beaten = another row is as cheap and passes as often. "
+        f"trade-off = pricier but passes more. avoid = below {F['min_pass'] }.")
     F['dropped_pipelines'] = ", ".join(map(configs.display, configs.PLAIN_PIPELINE_DUPLICATES))
     F['dropped_pipeline_models'] = " and ".join(dict.fromkeys(
         DISP(c.split('+')[0].removesuffix('-fast')) for c in configs.PLAIN_PIPELINE_DUPLICATES)) + " (normal and ⚡)"
@@ -678,11 +690,8 @@ def _facts(s, arms):
                                 f"It passed every repo try ({ag['sol61-high']['hidden_pass']}/{ag['sol61-high']['n']}). "
                                 f"On the {configs.set_label('rescue set')}, it passed {F['r_sol61_high_haiku_on_fail_k']}. "
                                 "Haiku never ran.")
-    F['hb_conclusion_copy'] = (
-        "Does our runner make Codex look bad? Slightly, maybe more. "
-        f"The gap moved {F['hb_diff_points']} points, below our {F['hb_bar_points']}-point bar. "
-        f"We used {F['ci_level']} confidence. The range spans {F['hb_range_points']} points. "
-        "A larger bias is possible.")
+    F['hb_conclusion_copy'] = ("Codex's own CLI helped luna-low a little more than Claude Code helped haiku-low. "
+                               "No pick changes.")
     F['l7_set_description'] = (f"{configs.set_label('L7 set')}: " + ", ".join(pshort(p) for p in probs)
                                + f"; scored separately. Added after every strong config passed L{max(v['rung'] for v in s['problems'].values())}.")
     return F

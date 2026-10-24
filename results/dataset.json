@@ -21911,6 +21911,8 @@
    "A larger bias is possible."
   ],
   "hb_conclusion": "Vendor agent CLIs improved both models.",
+  "hb_luna_wrong_one": "14",
+  "hb_luna_wrong_agent": "6",
   "hb_errors": "0",
   "hb_minutes": "74",
   "main_set_label": "main ladder",
@@ -22416,9 +22418,10 @@
    "No misses when paying per call: haiku-high, $0.0028 per pass."
   ],
   "speed_why": "No misses. It trails haiku-low by 0.2 s. haiku-low misses 3 of 60.",
+  "winner_line": "sol61-high, haiku-high and sonnet-medium passed every try. haiku-high is cheapest of the three at $0.0028 per pass. With Codex quota, sol61-high costs $0 cash.",
   "budget_why": "Cheapest pick that passes 95% or more",
   "noshell_comparison": "B1 passed more often than plain luna-low. B2 passed less often.",
-  "verdict_key": "✓ pick = a Winner pick · 0 misses / missed N = raw miss count, no ranking · beaten = another row is as cheap and passes as often · trade-off = pricier but passes more · avoid = below 90%.",
+  "verdict_key": "✓ pick = a Winner pick. 0 misses / missed N = raw miss count, no ranking. beaten = another row is as cheap and passes as often. trade-off = pricier but passes more. avoid = below 90%.",
   "dropped_pipelines": "sol61-high→H fail, astra-medium→H fail, sol61-high ⚡→H fail, astra-medium ⚡→H fail",
   "dropped_pipeline_models": "sol61-high and astra-medium (normal and ⚡)",
   "l7_config_count": "13",
@@ -22429,7 +22432,7 @@
   "pipes_caption": "Bar length = passes out of 35. Text by each bar = passes · $ per pass · median seconds.",
   "speed_luna_cluster": "luna ×4 (7–12 s)",
   "default_route_scope": "sol61-high passed every main try (60/60). It passed every L7 try (15/15). It passed every repo try (12/12). On the luna-miss set, it passed 35/35. Haiku never ran.",
-  "hb_conclusion_copy": "Does our runner make Codex look bad? Slightly, maybe more. The gap moved 13 points, below our 15-point bar. We used 95% confidence. The range spans 3 to 23 points. A larger bias is possible.",
+  "hb_conclusion_copy": "Codex's own CLI helped luna-low a little more than Claude Code helped haiku-low. No pick changes.",
   "l7_set_description": "L7 set: p13 xor_ring, p14 bounce_board, p15 paint_erase; scored separately. Added after every strong config passed L6.",
   "hb_accuracy": "haiku-low passed more often than luna-low in both runners.",
   "hb_speed": "luna-low answered faster than haiku-low in our one-shot runner."

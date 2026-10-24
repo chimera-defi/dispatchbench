@@ -268,7 +268,7 @@ def test_every_toc_target_has_a_direct_toggle_heading():
     template = (ROOT / "docs/page.tmpl.md").read_text()
     toc = re.search(r'<nav class="toc"[^>]*>(.*?)</nav>', template, re.S)[1]
     targets = re.findall(r'<a href="#([^\"]+)">', toc)
-    assert len(targets) == 10
+    assert len(targets) == 11
     for target in targets:
         assert re.search(r'<section\b[^>]*\bid="' + target + r'"[^>]*>\s*<h2\b', template)
 
@@ -286,42 +286,28 @@ def test_fairness_qa_renders_counts_and_runtime_from_appendix():
     facts = dataset.read()['facts']
     rendered = report.render()[2]
     method = re.search(r'<section\b[^>]*\bid="method"[^>]*>(.*?)</section>', rendered, re.S).group(1)
-    assert "Q: Does our one-shot runner make Codex look bad?" in method
-    assert '<th>our one-shot runner</th>' in method
-    assert '<th>vendor agent CLI (runs code, retries)</th>' in method
-    appendix = re.search(r'<details id="appendix">(.*?)</details>', rendered, re.S).group(1)
-    assert 'program that sends the problem to the model and grades the answer' in method
-    assert 'one-shot' in method and 'tool loop' in appendix
-    assert 'not just in who built them' in appendix
-    assert 'A separate run with Codex managing the benchmark' not in method
-    assert f"{len({r['problem'] for r in rows})} hard problems × {len({r['repeat'] for r in rows})} repeats" in appendix
+    fair = re.search(r'<section\b[^>]*\bid="fair"[^>]*>(.*?)</section>', rendered, re.S).group(1)
+    assert 'make Codex look bad' not in method and 'Exact commands' not in method
+    assert f"{len({r['problem'] for r in rows})} hard problems, {len({r['repeat'] for r in rows})} tries each" in fair
     for config in ('luna-low', 'haiku-low'):
-        counts = []
         for harness in ('claude-one-shot', 'codex-tool-loop'):
             cell = [r for r in rows if (r['config'], r['harness']) == (config, harness)]
-            counts.append(f"{sum(r['passed'] for r in cell)}/{len(cell)}")
-        assert f"<td>{config}</td><td>{counts[0]}</td><td>{counts[1]}</td>" in method
-        cli = 'Codex CLI' if config.startswith('luna') else 'Claude Code'
-        assert (f"<li>Inside {cli}, {config} went from {counts[0].split('/')[0]} "
-                f"to {counts[1].split('/')[0]} passes.</li>") in method
+            assert f">{sum(r['passed'] for r in cell)}</text>" in fair
     codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
     start = min(datetime.fromisoformat(r['ts']).timestamp() for r in codex)
     end = max(datetime.fromisoformat(r['ts']).timestamp() + r['wall_s'] for r in codex)
-    assert f"{sum(r['outcome'] == 'harness_error' for r in codex)} harness errors" in method
+    assert f"{sum(r['outcome'] == 'harness_error' for r in codex)} harness errors, no timeouts" in fair
     assert facts['hb_minutes'] == f"{(end - start) / 60:.0f}"
-    assert f"The recorded calls took about {facts['hb_minutes']} minutes of wall time." in appendix
-    assert 'no timeouts' in method
+    assert f"Calls took about {facts['hb_minutes']} minutes of wall time." in fair
     comparison = harness_bias.pass_summary(rows)
     lo, hi = comparison['ci']
-    assert f"<li>A: {facts['hb_answer']}</li>" in method
+    assert f"<b>{facts['hb_answer']} haiku-low still led in both runners" in fair
     assert (f"<li>The gap moved {100 * comparison['diff']:.0f} points, "
-            f"below our {facts['hb_bar_points']}-point bias bar.</li>") in method
-    assert (f"<li>We used {facts['ci_level']} confidence. "
-            f"The range spans {100 * lo:.0f} to {100 * hi:.0f} points.</li>") in method
-    assert '<li>A larger bias is possible.</li>' in method
-    assert 'Headline numbers: see' in appendix
-    assert dataset.read()['facts']['hb_summary'] not in appendix
-    assert method.index('Harness =') < method.index('Q: Does')
+            f"below our {facts['hb_bar_points']}-point bias bar.</li>") in fair
+    assert f"range is {100 * lo:.0f} to {100 * hi:.0f} points, so a larger bias is possible." in fair
+    wrong = [sum(r['outcome'] == 'wrong' for r in rows if (r['harness'], r['config']) == (h, 'luna-low')) for h in ('claude-one-shot', 'codex-tool-loop')]
+    assert f"wrong answers fell from {wrong[0]} to {wrong[1]}" in fair
+
 
 
 def test_fairness_qa_updates_when_appendix_data_change(monkeypatch):
@@ -335,7 +321,7 @@ def test_fairness_qa_updates_when_appendix_data_change(monkeypatch):
     rendered = report.render()[2]
     n = sum(r['config'] == 'luna-low' and r['harness'] == 'claude-one-shot' for r in changed)
     passes = sum(r['passed'] for r in changed if r['config'] == 'luna-low')
-    assert f'<td>luna-low</td><td>{passes}/{n}</td><td>{passes}/{n}</td>' in rendered
+    assert updated['facts']['hb_claude_luna_low'] == updated['facts']['hb_codex_luna_low'] == f'{passes}/{n}'
     lo, hi = harness_bias.pass_summary(changed)['ci']
     assert f'No bias of about {max(abs(lo), abs(hi)):.1f} or more was detectable' in rendered
     assert f'{100 * lo:.0f} to {100 * hi:.0f}' in updated['facts']['hb_range_points']
@@ -418,8 +404,10 @@ def test_rescue_label_leaders_start_at_the_named_point():
 
 def test_winner_and_conclusion_agree_and_sets_are_collapsed(summary):
     template = (ROOT / "docs/page.tmpl.md").read_text()
-    verdict = "Use Codex first: on a subscription its calls cost {{claude_zero}} cash. Paying per call? Haiku is cheapest. Need speed? Sonnet."
-    assert template.count(verdict) == 2
+    assert template.count('<b>{{winner_line}}</b>') == 2
+    assert 'Codex first' not in template
+    winner = re.search(r'<section[^>]*id="winner">(.*?)</section>', template, re.S)[1]
+    assert winner.index('{{winner_line}}') < winner.index('<details') < winner.index('{{w_winner}}')
     assert '<details class="sets"><summary>' in page.sets_box(summary)
     assert ' open' not in page.sets_box(summary).split('>')[0]
     assert template.index('{{w_sets}}') > template.index('{{w_pass_cost}}')
@@ -478,7 +466,7 @@ def test_cost_accuracy_has_one_selector_per_chart_and_one_sets_guide():
     section = re.search(r'<section id="pareto">(.*?)</section>', rendered, re.S)[1]
     assert section.count('class="cost-toggle"') == 2
     assert section.count('class="set-filter"') == 2
-    assert section.index('Purple line = best trade-offs') < section.index('class="cplot"')
+    assert section.index('class="cplot"') < section.index('<summary>How to read these charts</summary>') < section.index('Purple line = best trade-offs')
 
 
 def test_main_markers_follow_config_encoding(summary):

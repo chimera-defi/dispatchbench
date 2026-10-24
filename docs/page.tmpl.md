@@ -1,10 +1,11 @@
 <header class="head">
 <h1>Which model should a coding task go to?</h1>
-<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#method">How it was run</a><a href="#pareto">Cost vs accuracy</a><a href="#fail">Where they fail</a><a href="#results">Results</a><a href="#tokens">Token floor</a><a href="#pipes">Pipelines</a><a href="#conclusion">Conclusion</a><a href="#extras">More charts</a><a href="#notes">Notes</a></nav>
+<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#method">How it was run</a><a href="#pareto">Cost vs accuracy</a><a href="#fail">Where they fail</a><a href="#results">Results</a><a href="#tokens">Token floor</a><a href="#pipes">Pipelines</a><a href="#fair">Codex in its own CLI</a><a href="#conclusion">Conclusion</a><a href="#extras">More charts</a><a href="#notes">Notes</a></nav>
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
-<p><b>Use Codex first: on a subscription its calls cost {{claude_zero}} cash. Paying per call? Haiku is cheapest. Need speed? Sonnet.</b></p>
+<p><b>{{winner_line}}</b></p>
+<details class="small"><summary>Picks, model names and notation</summary>
 {{w_winner}}
 <details class="small names"><summary>Model names</summary>
 <ul class="tight small">
@@ -16,6 +17,7 @@
 </ul>
 </details>
 {{w_legend}}
+</details>
 </section>
 <section class="method" id="method">
 <h2><span class="num"></span>❓ How it was run</h2>
@@ -53,47 +55,27 @@
 <li>{{ci_level}} intervals from {{n_boot}} bootstrap resamples: how much a rerun's pass rate could vary.</li>
 <li>Run by Wren, a {{orchestrator}} orchestrator. It is not one of the configs tested.</li>
 </ul>
-<details><summary>Exact commands</summary>
-<ul class="tight small cmds">
-{{w_flags}}
-<li><code>-bare</code> trims Codex's system prompt and tool text using <code>bench/trim_probe.py</code>.</li>
-<li>This applies to luna-low-bare and luna-high-bare.</li>
-<li>Every luna-high row on the {{set_label}} uses it.</li>
-</ul>
-</details>
-<p class="small">Harness = program that sends the problem to the model and grades the answer.</p>
-<p class="small"><b>Q: Does our one-shot runner make Codex look bad?</b></p>
-<ul class="tight small">
-{{w_hb_qa}}
-<li>Codex built and finished the agent-CLI comparison. It had {{hb_errors}} harness errors and no timeouts.</li>
-</ul>
-<table><caption>Passed / attempted on {{hb_n_problems}} hard problems × {{hb_repeats}} repeats (not the {{main_set_label}})</caption><thead><tr><th>Model</th><th>our one-shot runner</th><th>vendor agent CLI (runs code, retries)</th></tr></thead><tbody>
-<tr><td>luna-low</td><td>{{hb_claude_luna_low}}</td><td>{{hb_codex_luna_low}}</td></tr>
-<tr><td>haiku-low</td><td>{{hb_claude_haiku_low}}</td><td>{{hb_codex_haiku_low}}</td></tr>
-</tbody></table>
-<p class="small">Vendor agent CLI: luna-low uses Codex CLI; haiku-low uses Claude Code.</p>
-<p class="small">Codex used its own CLI in the main benchmark: personal settings ignored, tools off.</p>
-<p class="small">Runner details, Codex behaviour and model strengths: see the <a href="#appendix">Appendix</a>.</p>
 </section>
 <section id="pareto">
 <h2><span class="num"></span>📊 Cost vs accuracy</h2>
 <p class="small">haiku-high passes {{haiku_high_pass}} at {{haiku_high_upp}} per pass. sol61-high also passes {{sol61_high_pass}} at ~{{sol61_high_upp}} per pass. It costs {{claude_zero}} on Codex quota. luna-low and luna-medium cost less but miss about {{cheap_miss_words}}.</p>
-<div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="ring"></span>Pareto frontier</span><span>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet. Triangles = luna · ◆ sol · ★ astra. Luna triangle direction = effort: up low, right medium, down high. Alternate Codex colour = the older gpt-{{older_generation}} models (luna56, sol56).</span><span>Filled = normal speed. Hollow (⚡) = fast mode, joined by a thin line to its normal-speed point. Dashed edge = bare prompt.</span><span>Labels mark frontier points, the picks named above, and older-generation and fast-mode points. Pipeline views label frontier points and pipelines. Hover, tap or focus a point or key row for the rest.</span></div>
+<div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="ring"></span>Pareto frontier</span></div>
+<div class="chart"><h3>🎯 Pass rate vs $ per pass</h3>{{w_pass_cost}}</div>
+<div class="chart"><h3>⏱️ Speed vs $ per pass</h3><p class="sub">Best trade-offs among configs passing at least {{min_pass}}.</p>{{w_speed_cost}}</div>
+{{w_sets}}
+<details class="small"><summary>How to read these charts</summary>
 <ul class="tight small">
+<li>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet. Triangles = luna · ◆ sol · ★ astra. Luna triangle direction = effort: up low, right medium, down high. Alternate Codex colour = the older gpt-{{older_generation}} models (luna56, sol56).</li>
+<li>Filled = normal speed. Hollow (⚡) = fast mode, joined by a thin line to its normal-speed point. Dashed edge = bare prompt.</li>
+<li>Labels mark frontier points, the picks named above, and older-generation and fast-mode points. Pipeline views label frontier points and pipelines. Hover, tap or focus a point or key row for the rest.</li>
 <li>Purple line = best trade-offs: nothing is both cheaper and more accurate.</li>
 <li>Whiskers: {{ci_level}} confidence interval (bootstrap).</li>
-</ul>
-<div class="chart"><h3>🎯 Pass rate vs $ per pass</h3>{{w_pass_cost}}</div>
-<ul class="tight small">
 <li>The three cheapest points miss about {{cheap_miss_words}}.</li>
 <li>luna-low {{luna_low_pass}}. luna-low-bare {{luna_low_bare_pass}}. luna-medium {{luna_medium_pass}}.</li>
 <li>luna-low-bare = luna-low with Codex's own system prompt removed.</li>
-</ul>
-<div class="chart"><h3>⏱️ Speed vs $ per pass</h3><p class="sub">Best trade-offs among configs passing at least {{min_pass}}.</p>{{w_speed_cost}}</div>
-<ul class="tight small">
 <li>Pipelines are on the "{{set_label_title}} + pipelines" tab.</li>
 </ul>
-{{w_sets}}
+</details>
 </section>
 <section id="fail">
 <h2><span class="num"></span>🟥 Where they fail</h2>
@@ -163,10 +145,39 @@
 <li>Low-context rows use trimmed prompts. <a href="#notation">See Notation.</a></li>
 </ul>
 </section>
+<section id="fair">
+<h2><span class="num"></span>⚖️ Does Codex do better in its own CLI?</h2>
+<p class="small"><b>{{hb_answer}} haiku-low still led in both runners, so no pick changes.</b></p>
+{{chart:harness_bias.svg|{{hb_n_problems}} hard problems, {{hb_repeats}} tries each}}
+<details class="small"><summary>What we tested and what we found</summary>
+<ul class="tight small">
+<li>Question: does our one-shot runner make Codex look bad?</li>
+<li>Our runner answers once, tools off.</li>
+<li>Codex built a second runner: each model inside its vendor's agent CLI.</li>
+<li>luna-low ran in Codex CLI. haiku-low ran in Claude Code.</li>
+<li>That loop runs code and retries.</li>
+<li>Codex finished every run: {{hb_errors}} harness errors, no timeouts.</li>
+<li>Calls took about {{hb_minutes}} minutes of wall time.</li>
+<li>Why luna-low gained: wrong answers fell from {{hb_luna_wrong_one}} to {{hb_luna_wrong_agent}} once it could run code.</li>
+<li>The gap moved {{hb_diff_points}} points, below our {{hb_bar_points}}-point bias bar.</li>
+<li>The {{ci_level}} range is {{hb_range_points}} points, so a larger bias is possible.</li>
+<li>sol61-high already passed every try in our runner. A better runner cannot raise it.</li>
+</ul>
+</details>
+<details class="small"><summary>Pooled numbers and prompt variants</summary>
+<ul class="tight small">
+<li>{{hb_accuracy}}</li>
+<li>{{hb_speed}}</li>
+<li>These pooled calls include extra runs beyond the paired comparison.</li>
+<li>Two more luna-low variants are listed under Everything we tried. luna-low-noshell-B1 removes shell context and asks for edge cases first. luna-low-noshell-B2 also asks for a detailed reasoning summary. {{noshell_comparison}}</li>
+</ul>
+{{table:harness_strengths}}
+</details>
+</section>
 <section class="verdict conclusion" id="conclusion">
 <h2 class="eyebrow"><span class="num"></span>✅ CONCLUSION</h2>
-<b>Use Codex first: on a subscription its calls cost {{claude_zero}} cash. Paying per call? Haiku is cheapest. Need speed? Sonnet.</b>
-<p>Default route:</p>
+<b>{{winner_line}}</b>
+<p>Route with Codex quota:</p>
 <ol class="tight">
 <li>Send the task to sol61-high ({{claude_zero}} on quota). {{default_route_scope}}</li>
 <li>Run the worked examples.</li>
@@ -233,24 +244,8 @@
 </details>
 <details id="appendix"><summary>📎 Appendix</summary>
 <p class="small">Headline numbers: see <a href="#method">How it was run</a>.</p>
-<h3>Harnesses: which model does better at what?</h3>
+<h3>Codex CLI in the main benchmark</h3>
 <ul class="tight small">
-<li>{{hb_accuracy}}</li>
-<li>{{hb_speed}}</li>
-<li>These pooled calls include extra runs beyond the paired fairness comparison.</li>
-</ul>
-{{table:harness_strengths}}
-<ul class="tight small">
-<li>Our one-shot runner answers once, tools off.</li>
-<li>Codex built the vendor-CLI runner.</li>
-<li>It runs each model inside its vendor's agent CLI.</li>
-<li>That tool loop runs code and revises answers.</li>
-<li>The mechanisms differ, not just in who built them.</li>
-<li>Both runners tested luna-low and haiku-low.</li>
-<li>Paired comparison: {{hb_n_problems}} hard problems × {{hb_repeats}} repeats.</li>
-<li>Bias means a change in the gap between the models' pass rates.</li>
-<li>Two more luna-low variants are listed under Everything we tried. luna-low-noshell-B1 removes shell context and asks for edge cases first. luna-low-noshell-B2 also asks for a detailed reasoning summary. {{noshell_comparison}}</li>
-<li>The recorded calls took about {{hb_minutes}} minutes of wall time.</li>
 <li>Codex also answered through its own CLI in the main benchmark.</li>
 <li>We ignored personal settings and disabled tools.</li>
 <li>The <code>luna-*-bare</code> rows test how much Codex's system prompt and tool text matter.</li>

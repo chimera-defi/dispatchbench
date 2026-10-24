@@ -297,3 +297,8 @@ section.collapsible>.sec-body:not([hidden]){animation:sec-in var(--sec-dur,0s) e
  .compact-bars .bar-wide{display:none}
 }
 #results .sortable td:first-child .muted{font-size:11px}
+/* The fairness slope chart is small: scale it to fit instead of scrolling. */
+#fair figure{margin:0 0 12px}
+#fair figure .svgscroll svg{width:100%;min-width:0;max-width:var(--natural-width);height:auto}
+#fair figure .scroll-hint{display:none}
+#fair figcaption{font-size:13px;color:var(--muted)}

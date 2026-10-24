@@ -323,12 +323,35 @@ def check_design(s):
         raise SystemExit(f"chart text assumes 12 problems, 60 calls per config and 10 per rung; check {bad or 'the problem count'}")
 
 
+def harness_chart(s):
+    """Slope chart: the same two configs in our one-shot runner and in their vendor agent CLI."""
+    f = s.get("facts") or {}
+    if "hb_claude_luna_low" not in f: return None
+    W, H, L, R, T, B = 350, 280, 44, 112, 50, 50
+    cols = [(L + 42, "our one-shot runner"), (W - R - 20, "vendor agent CLI")]
+    cells = {c: [tuple(map(int, f[f"hb_{h}_{c.replace('-', '_')}"].split("/"))) for h in ("claude", "codex")] for c in ("haiku-low", "luna-low")}
+    Y = lambda p: H - B - (p - 0.5) / 0.5 * (H - T - B)
+    b = [text(8, 24, f"Same models, two runners: passes out of {cells['luna-low'][0][1]}", 14, weight="600")]
+    for p in (0.5, 0.75, 1.0):
+        b += [f"<line x1='{L}' x2='{W - R + 10}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
+    for x, lab in cols:
+        b.append(text(x, H - B + 22, lab, 12, "middle", MUTED))
+    for c, pts in cells.items():
+        xy = [(x, Y(k / n)) for (x, _), (k, n) in zip(cols, pts)]
+        b.append(f"<line x1='{xy[0][0]:.1f}' y1='{xy[0][1]:.1f}' x2='{xy[1][0]:.1f}' y2='{xy[1][1]:.1f}' stroke='{FAMILY(c)}' stroke-width='3'/>")
+        for (x, y), (k, n), side in zip(xy, pts, ("end", "start")):
+            b += [f"<circle cx='{x:.1f}' cy='{y:.1f}' r='6' fill='{FAMILY(c)}'/>", text(x + (-12 if side == "end" else 12), y + 4, str(k), 12, side, weight="600")]
+        gain = pts[1][0] - pts[0][0]
+        b.append(text(xy[1][0] + 32, xy[1][1] + 4, f"{DISP(c)} (+{gain})", 12, fill=FAMILY(c), weight="600"))
+    return svg(W, H, b)
+
+
 def build(ds=None):
     """{file name: SVG text or None}, using only the dataset."""
     ds = ds or dataset.read(); s = dataset.view(ds)
     check_design(s)
     charts = {"pareto.svg": pareto_chart(s), "cost_time.svg": cost_time_chart(s), "pass_by_rung.svg": rung_chart(s, ds), "heatmap.svg": heatmap(s),
-              "token_floor.svg": floor_chart(s), "agentic.svg": agentic_chart(s), "token_in.svg": token_in_chart(s, ds)}
+              "token_floor.svg": floor_chart(s), "agentic.svg": agentic_chart(s), "token_in.svg": token_in_chart(s, ds), "harness_bias.svg": harness_chart(s)}
     charts["cost_total.svg"], charts["cost_per_1k.svg"] = cost_tokens_chart(s, ds)
     return charts
 
