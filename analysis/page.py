@@ -102,16 +102,18 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
     g.append(f'<text x="{(L + W - R) / 2}" y="{H - 14}" text-anchor="middle" class="axis">{esc(xlab)}</text>')
     g.append(f'<text x="16" y="{(T + B) / 2}" text-anchor="middle" class="axis" transform="rotate(-90 16 {(T + B) / 2})">{esc(ylab)}</text>')
     g.append(f'<text x="{L + 10}" y="{T + 18 if corner.startswith("↖") else B - 10}" class="better">{corner}</text>')
-    g.append(f'<path d="{fr}" fill="none" stroke="var(--frontier)" stroke-width="4" stroke-dasharray="9 6" stroke-linejoin="round"/>' + extra)
+    # data-front/b/end let sort.js redraw this path from the visible points when a category is filtered out.
+    g.append(f'<path d="{fr}" data-front="{stat or ""}" data-b="{B}" data-end="{W - R}" fill="none" stroke="var(--frontier)" stroke-width="4" stroke-dasharray="9 6" stroke-linejoin="round"/>' + extra)
     for p in sorted(pts, key=lambda p: p["on"]):  # frontier points drawn last, on top
         px, py = plot_xy(p, X, Y)
         col = p.get("col") or FAM(p["c"])
-        g.append(f'<g class="pt" {point_attrs(p)}>')
+        g.append(f'<g class="pt" {point_attrs(p)} data-v="{p["x"]!r} {p["y"]!r}" data-f="{X(p["x"]):.1f} {Y(p["y"]):.1f}"'
+                 f'{"" if p.get("ok", True) else " data-out=\"1\""}>')
         if p["w"]:
             ax, lo, hi = p["w"]
             if ax == "x": g.append(f'<line x1="{X(lo):.1f}" x2="{X(hi):.1f}" y1="{py:.1f}" y2="{py:.1f}" stroke="{col}" stroke-width="2.5" stroke-opacity=".4"/>')
             else: g.append(f'<line x1="{px:.1f}" x2="{px:.1f}" y1="{Y(lo):.1f}" y2="{Y(hi):.1f}" stroke="{col}" stroke-width="2" stroke-opacity=".3"/>')
-        if p["on"]: g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="13" fill="none" stroke="var(--frontier)" stroke-width="3"/>')
+        if p["on"]: g.append(f'<circle class="ring" cx="{px:.1f}" cy="{py:.1f}" r="13" fill="none" stroke="var(--frontier)" stroke-width="3"/>')
         g.append(marker(p.get("shape", SHAPE(p["c"])), px, py, "var(--panel)" if p["hollow"] else col, col, p.get("dash")))
         g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="14" fill="transparent"/></g>')  # hover target
     cx, cy = L + 10, T + 18 if corner.startswith("↖") else B - 10
@@ -386,7 +388,8 @@ def speed_cost(s, free=None, problem_set="main"):
     lo = 5e-4 if min(paid) >= 5e-4 else 10 ** math.floor(math.log10(min(paid)))
     lane = any(p["y"] == 0 for p in pts)
     Y = zero_lane(logscale(lo, 3e-1, B - ZERO_LANE["speed"] * lane, T), B - 16)
-    ok = [p for p in pts if p.get("rate", 0) >= MIN_PASS]
+    for p in pts: p["ok"] = p.get("rate", 0) >= MIN_PASS
+    ok = [p for p in pts if p["ok"]]
     fr = sorted(front(ok, speed_dominates), key=lambda p: p["x"])
     for p in pts:
         p["on"] = p in fr

@@ -38,8 +38,28 @@ document.querySelectorAll(".cwrap").forEach(function(w){
  var toggle=w.querySelector('.cost-toggle input');
  if(toggle){toggle.checked=false;toggle.addEventListener("change",function(){clear();w.classList.toggle("free",toggle.checked)})}
  w.querySelectorAll('.category-filter input').forEach(function(input){
-  input.checked=true;input.addEventListener("change",function(){clear();w.classList.toggle("hide-"+input.getAttribute("data-cat"),!input.checked)})
+  input.checked=true;input.addEventListener("change",function(){clear();w.classList.toggle("hide-"+input.getAttribute("data-cat"),!input.checked);w.querySelectorAll("svg").forEach(refront)})
  });
+ // Same rules as analysis/page.py front() and speed_dominates(), over the points still shown.
+ function refront(svg){
+  var path=svg.querySelector("path[data-front]");if(!path||!path.getAttribute("data-front"))return;
+  var speed=path.getAttribute("data-front")==="speed",hidden=function(c){return w.classList.contains("hide-"+c)};
+  var pts=[].map.call(svg.querySelectorAll(".pt"),function(g){var v=g.getAttribute("data-v").split(" ").map(Number),f=g.getAttribute("data-f").split(" ").map(Number);
+   return {g:g,x:v[0],y:v[1],fx:f[0],fy:f[1]}}).filter(function(p){return !hidden(p.g.getAttribute("data-cat"))&&!p.g.hasAttribute("data-out")});
+  function better(a,b){if(!speed)return a.x<=b.x&&a.y>=b.y;var t=Math.min(.5,b.x*.05);return a.y<b.y&&a.x<=b.x+t||a.y===b.y&&a.x<=b.x-t}
+  var fr=pts.filter(function(p){return !pts.some(function(q){return q!==p&&better(q,p)&&(q.x!==p.x||q.y!==p.y)})}).sort(function(a,b){return a.x-b.x});
+  var end=" H"+path.getAttribute("data-end"),d="";
+  if(fr.length&&!speed)d="M"+fr[0].fx+" "+path.getAttribute("data-b")+" V"+fr[0].fy;
+  else if(fr.length>1)d="M"+fr[0].fx+" "+fr[0].fy;
+  if(d){fr.slice(1).forEach(function(p){d+=" H"+p.fx+" V"+p.fy});d+=end}
+  path.setAttribute("d",d);
+  svg.querySelectorAll(".ring").forEach(function(r){r.remove()});
+  var on={};fr.forEach(function(p){on[p.g.getAttribute("data-c")]=1;
+   var m=p.g.querySelector("circle:last-child"),r=document.createElementNS(svg.namespaceURI,"circle");
+   [["class","ring"],["cx",m.getAttribute("cx")],["cy",m.getAttribute("cy")],["r",13],["fill","none"],["stroke","var(--frontier)"],["stroke-width",3]].forEach(function(a){r.setAttribute(a[0],a[1])});
+   p.g.insertBefore(r,p.g.children[p.g.querySelector("line")?1:0])});
+  var v=svg.closest(".cvariant");if(v)v.querySelectorAll(".ckey li").forEach(function(li){li.classList.toggle("on",!!on[li.getAttribute("data-c")])})
+ }
  updateCategories("main");
  function show(el,x,y){
   w.classList.add("hov");all.forEach(function(e){var m=e.getAttribute("data-c")===el.getAttribute("data-c")&&e.getAttribute("data-set")===el.getAttribute("data-set");e.classList.toggle("hi",m);e.classList.toggle("dim",!m)});

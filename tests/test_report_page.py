@@ -503,6 +503,24 @@ def test_speed_frontier_lines_and_single_point_free_mode(summary):
     assert 'astra-medium ⚡' in labels
 
 
+def test_svg_data_lets_sort_js_rebuild_the_frontier(summary):
+    # sort.js refront() redraws the frontier from data-v when a category is hidden; with none hidden it must match.
+    for chart in (page.pass_cost, page.speed_cost):
+        for free in (False, True):
+            output, names = chart(summary, free=free)
+            svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
+            path = next(p for p in svg.findall('s:path', NS) if p.get('data-front'))
+            speed = path.get('data-front') == 'speed'
+            pts = [(g.get('data-c'), *map(float, g.get('data-v').split()))
+                   for g in svg.findall("s:g[@class='pt']", NS) if g.get('data-out') is None]
+            def better(a, b):
+                if not speed: return a[1] <= b[1] and a[2] >= b[2]
+                t = min(.5, b[1] * .05)
+                return a[2] < b[2] and a[1] <= b[1] + t or a[2] == b[2] and a[1] <= b[1] - t
+            front = {p[0] for p in pts if not any(q is not p and better(q, p) and q[1:] != p[1:] for q in pts)}
+            assert front == set(names), (chart.__name__, free)
+
+
 def test_luna_miss_views_share_points_and_separate_coincident_models(summary):
     for primary, hard in ((page.pass_cost, page.hard_pass_cost), (page.speed_cost, page.hard_speed_cost)):
         direct, frontier = primary(summary, free=False, problem_set='rescue')
