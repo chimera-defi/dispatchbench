@@ -3,26 +3,28 @@
 <nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#method">How it was run</a><a href="#pareto">Cost vs accuracy</a><a href="#fail">Where they fail</a><a href="#results">Results</a><a href="#tokens">Token floor</a><a href="#pipes">Pipelines</a><a href="#conclusion">Conclusion</a><a href="#extras">More charts</a></nav>
 </header>
 <section class="verdict" id="winner">
-<span class="eyebrow"><span class="num"></span>🏆 WINNER</span>
+<h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
+<p class="small">Test sets: main ladder {{n_problems}}×{{repeats}}={{n_calls}}; L7 {{n_l7}}×{{repeats}}={{l7_n}}; rescue {{n_rescue_problems}}×{{repeats}}={{rescue_n}}; repo tasks {{n_tasks}}×{{agent_repeats}}={{ag_n}}.</p>
 <ol class="recs">
-<li><b>Codex has quota? sol61-high (default tier).</b> Haiku repairs only if a check fails; it never fired. {{claude_zero}} on the Claude bill. In fast mode (⚡) the same pipeline runs {{ff_s61_faster}} quicker at {{ff_s61_x}} the Codex price, same {{ff_s61_k}}.</li>
+<li><b>Codex has quota? sol61-high (default tier).</b> The check runs the problem’s worked examples; Haiku repairs only if they fail. No repairs fired. {{claude_zero}} on the Claude bill.</li>
 <li>Codex out? haiku-low ({{haiku_low_upp}} per pass, {{haiku_low_k}}); haiku-high when a miss is costly (never missed, {{hh_upp}} per pass).</li>
-<li>Need it faster? astra-medium: also never missed on the main ladder and L7 set, about {{x_astra_vs_s61h}} the Codex usage.</li>
+<li>Need it faster? haiku-high: {{hh_med}} s, never missed, {{hh_upp}} per pass on the Claude bill. Must stay on Codex? astra-medium: {{x_astra_medium_med}} s; Codex cost about {{x_astra_vs_s61h}} vs sol61-high.</li>
 </ol>
 <ul class="tight">
 <li>✅ haiku-medium: {{haiku_medium_k}} on the main ladder, 0 misses on the rescue set (its {{rescue_n}} main-run attempts on those problems, not a new run). {{haiku_medium_upp}} per pass, {{haiku_medium_med}}s. Measured $, not estimated.</li>
 <li>💸 haiku-low: {{haiku_low_k}} on the main ladder at {{haiku_low_upp}}. Misses: too slow or a crash, never a wrong answer.</li>
-<li>🛡️ Never missed on the main ladder, the L7 set and all {{ag_n}} repo-task runs ({{n_tasks}} tasks × {{agent_repeats}}): sol61-high {{x_sol61_high_med}}s and astra-medium {{x_astra_medium_med}}s median, both billed to Codex; sonnet-medium ({{sm_all}} + {{ag_sm_k}}), at {{sm_vs_hm_x}} haiku-medium's cost.</li>
+<li>🛡️ sol61-high and astra-medium never missed on the main ladder, L7 or repo tasks: {{x_sol61_high_med}}s and {{x_astra_medium_med}}s main-ladder medians, both billed to Codex.</li>
+<li>🛡️ sonnet-medium also never missed: {{sm_all}} main ladder + L7, {{ag_sm_k}} repo tasks, at {{sm_vs_hm_x}} haiku-medium's main-ladder cost.</li>
 <li>🐢 The Codex picks are slow on repo tasks: {{ag_sol61_high_med}}s and {{ag_astra_medium_med}}s median against about {{ag_claude_med}}s for a Claude builder.</li>
-<li>🎯 Parity starts at haiku-high: {{hh_k}}, {{hh_hk}} on the L7 set, {{ag_hh_k}} repo tasks. {{hh_upp}} per pass, {{hh_med}}s median: {{hh_s61h_x}} cheaper than sol61-high, {{hh_astra_x}} cheaper than astra-medium, and faster than both. haiku-medium missed {{hm_l7_miss}} on the L7 set ({{hm_l7_k}}).</li>
-<li>⚡ Fast mode (Codex priority tier, same model and effort) changed speed and price, not passes. sol61-high ⚡: {{ff_s61_k}} on the main ladder, {{ff_s61_hk}} on the L7 set, {{ff_s61_upp}} per pass and {{ff_s61_med}}s against {{ff_s61_dupp}} and {{ff_s61_dmed}}s at the default tier ({{ff_s61_faster}} quicker, {{ff_s61_x}} the price). astra-medium ⚡: {{ff_ast_k}} and {{ff_ast_hk}}, {{ff_ast_upp}} and {{ff_ast_med}}s against {{ff_ast_dupp}} and {{ff_ast_dmed}}s ({{ff_ast_faster}} quicker, {{ff_ast_x}} the price).</li>
+<li>🎯 haiku-high is the cheapest config with no misses across these sets: {{hh_k}}, {{hh_hk}} on the L7 set, {{ag_hh_k}} repo tasks. {{hh_upp}} per pass, {{hh_med}}s median: {{hh_s61h_x}} cheaper than sol61-high, {{hh_astra_x}} cheaper than astra-medium, and faster than both. haiku-medium missed {{hm_l7_miss}} on the L7 set ({{hm_l7_k}}).</li>
+<li>⚡ Faster sol61-high: fast mode ({{ff_s61_med}} s). astra-medium fast ({{ff_ast_med}} s) is fastest among main-ladder configs with no misses; pairs are in Results.</li>
 </ul>
 </section>
 <section class="method" id="method">
 <h2><span class="num"></span>❓ How it was run</h2>
-<p class="small">Run 2026-10-22b · {{n_problems}} problems × {{repeats}} attempts = {{n_calls}} calls per config · {{claude_usd}} Claude, {{codex_usd}} Codex (estimated from tokens, not billed), all runs.</p>
+<p class="small">Every config faced the same new problems and hidden tests, with tools off. {{n_problems}} problems × {{repeats}} attempts = {{n_calls}} calls per config; total spend: {{claude_usd}} Claude, {{codex_usd}} Codex (estimated from tokens).</p>
 <details><summary>📚 Problems by set (Easy/Medium/Hard)</summary>
-<p class="small">The LeetCode links are the closest analogues I found by hand, not where the problems came from: the problems were written for this bench. The Easy/Medium/Hard badge is a guess at the LeetCode difficulty; the rung (L1 to L7) is this bench's own order. They need not agree: {{badge_disagreements}}.</p>
+<p class="small">Outside the pilot, LeetCode links are the closest analogues I found by hand; the problems were written for this bench. Pilot links are labelled source because those problems came from LeetCode. The Easy/Medium/Hard badge is a guess at the LeetCode difficulty; the rung (L1 to L7) is this bench's own order. They need not agree: {{badge_disagreements}}.</p>
 <ul class="tight small">
 {{w_problems}}
 </ul>
@@ -35,14 +37,18 @@
 <li>Run by Wren, a {{orchestrator}} orchestrator. It is not one of the configs tested.</li>
 </ul>
 <details><summary>Exact commands</summary>
+<p class="small">Run {{run_id}}.</p>
 <ul class="tight small cmds">
 {{w_flags}}
 <li>luna-low-bare and luna-high-bare add the stripped harness (the Codex CLI’s own system prompt and tool text, trimmed by bench/trim_probe.py). Every luna-high row on the rescue set uses it.</li>
 </ul>
 </details>
+<p class="small"><b>Did we test whether Claude's harness makes Codex look bad?</b> Codex ran in its own CLI with <code>--ignore-user-config</code> and tools off. The stripped-harness rows (<code>luna-*-bare</code>) are the sensitivity check. Codex-as-orchestrator run: {{codex_orchestrator_status}}.</p>
+<p class="small">On repo tasks, host AGENTS.md instructions accounted for {{host_sol61_medium}} of {{shell_sol61_medium}} sol61-medium shell commands and {{host_luna_low}} of {{shell_luna_low}} luna-low commands (HOST_DOC count); Codex latency includes that overhead.</p>
 </section>
 <section id="pareto">
 <h2><span class="num"></span>📊 Cost vs accuracy</h2>
+<p class="small">Haiku is cheap and accurate; Codex’s strongest configs trade more usage for reliable passes. Compare each set separately.</p>
 {{w_sets}}
 <div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="ring"></span>Pareto frontier</span><span>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet · ▲ luna · ◆ sol · ★ astra. ⚡ = fast mode, joined to its default-tier twin.</span><span>Only frontier points are labelled; hover, tap or focus a point or a key row for the rest.</span></div>
 <div class="tabs"><input type="radio" name="pset" id="pset-all" checked><label for="pset-all">Main ladder</label><input type="radio" name="pset" id="pset-hard"><label for="pset-hard">Rescue set + pipelines</label>
@@ -72,29 +78,24 @@
 </section>
 <section id="fail">
 <h2><span class="num"></span>🟥 Where they fail</h2>
-<p class="small">Scroll sideways for more configs. E/M/H = my LeetCode difficulty guess.</p>
+<p class="small">{{worst_failure}}. Cells show passed/attempted: green = all passed, amber = more than half, red = half or fewer; dash = not run. Scroll sideways for more configs. E/M/H = my LeetCode difficulty guess.</p>
 {{w_grid}}
 <ul class="tight small">
-<li>{{worst_failure}}; p04 taller_within sinks luna low and medium.</li>
+<li>p04 taller_within also sinks luna low and medium.</li>
 <li>haiku-low: main ladder — {{hl_main_failures}}; L7 set — {{hl_l7_failures}}.</li>
 </ul>
 </section>
 <section id="results">
 <h2><span class="num"></span>📋 Results</h2>
+<p class="small">sol61-high is the Codex routing pick; haiku-high is the cheapest config with no misses across the main ladder, L7 and repo tasks.</p>
 {{w_short_table}}
 <ul class="tight small">
 <li>Click a header to sort. ~ = Codex $ estimated from token prices. → = a second step after the first. Claude $ = the part billed to the Claude CLI; Codex calls bill Codex. ≥N% (all passed) = lower {{ci_level}} bound when nothing failed.</li>
 </ul>
-<details class="small"><summary>What the verdicts mean</summary>
-<ul class="tight small">
-<li><b>★</b>: the routing pick in Winner. <b>budget pick</b>: cheapest config passing 95% or more.</li>
-<li><b>0 misses</b>: every attempt passed. <b>0 misses, cheapest</b>: the cheapest such rescue-set row. <b>missed N</b>: N attempts failed.</li>
-<li><b>beaten</b>: something else is as cheap and passes as often. <b>pricier, passes more</b>: a real trade-off.</li>
-<li><b>avoid</b>: passes under {{min_pass}}.</li>
-</ul>
-</details>
-<details><summary>Full table with intervals</summary>
-{{table:result}}
+<p class="small">Verdicts: ★ = Winner pick; budget pick = cheapest config passing {{budget_pass}} or more; <b>0 misses</b>: every attempt passed; “cheapest” compares those rows within the set. “one miss” or “missed N” counts failed attempts; beaten = another row is as cheap and passes as often; pricier, passes more = a trade-off; avoid = below {{min_pass}}.</p>
+<details><summary>Full table with intervals and tail latency</summary>
+{{table:result_detail}}
+<p class="small">pass@1 is the fraction of individual attempts passing all hidden tests; p90 is the time within which {{p90_percent}} of calls finished; proxy means Codex cost estimated from tokens and list prices.</p>
 </details>
 <div class="chart floor"><h3>⚡ Codex fast mode: seconds and $ per pass</h3><p class="sub">Default → ⚡ pairs for sol61-high and astra-medium on the main ladder and L7 set. Same model and effort; default and priority service tiers. All passed.</p>{{w_fast}}</div>
 <ul class="tight small">
@@ -103,6 +104,7 @@
 </section>
 <section id="tokens">
 <h2><span class="num"></span>🧱 Token floor: input tokens per call</h2>
+<p class="small">Codex’s harness adds input before the task itself: this is the token floor. Bars show mean input per call, including the task, so they also capture prompt length.</p>
 <div class="chart floor">{{w_floor}}</div>
 <ul class="tight small">
 <li>Stripping the Codex harness (the CLI’s own system prompt and tool text) cuts luna’s input {{in_cut}}. Still more than haiku-low's {{haiku_low_in}} tokens per call.</li>
@@ -110,23 +112,24 @@
 </section>
 <section id="pipes">
 <h2><span class="num"></span>🔗 Pipelines: plan, check, fix</h2>
+<p class="small">Checking examples can catch some bad answers, but haiku-medium alone beat the best luna repair pipeline on cost with no rescue-set misses.</p>
 <div class="chart floor"><h3>Rescue set: passes, $ per pass, median seconds</h3><p class="sub">Rescue set: see the sets box in Cost vs accuracy. {{w_decoder}} The ⚡ →H fail rows are derived: check never failed.</p>{{w_pipes}}</div>
 <ul class="tight small">
 <li>✅ Haiku fixing every luna-high-bare answer: {{r_luna_high_bare_haiku_review_all_k}}. But haiku-medium alone also had 0 misses, {{hm_vs_pipe_x}} cheaper.</li>
 <li>⚠️ In a fresh luna-high-bare run the sample tests fired on {{g_hi_fixed}} of {{g_hi_bad}} bad answers (Haiku fixed them) and let {{g_hi_missed}} through; the ungated run had {{r_luna_high_bare_miss}} misses.</li>
-<li>✅ sol61-high and astra-medium → Haiku if samples fail: {{r_sol61_high_haiku_on_fail_k}} and {{r_astra_medium_haiku_on_fail_k}}; the check never failed ({{g_sol61_repairs}} and {{g_astra_repairs}} repairs). In fast mode the check also never failed on any of the {{pf_s61_n_all}} sol61-high ⚡ answers (main ladder + L7 set), so the ⚡ pipeline is sol61-high ⚡ alone: main ladder {{pf_s61_k}}, {{pf_s61_upp}} per pass, {{pf_s61_med}} s vs {{pf_s61_dupp}}, {{pf_s61_dmed}} s at the default tier (quicker, about {{ff_s61_x}} the Codex list price, {{claude_zero}} Claude). For astra-medium ⚡ the check never failed on {{pf_ast_n_all}} answers (main ladder + L7 set): main ladder {{pf_ast_k}}, {{pf_ast_upp}} per pass, {{pf_ast_med}} s vs {{pf_ast_dupp}}, {{pf_ast_dmed}} s at the default tier ({{ff_ast_faster}} quicker, {{ff_ast_x}} the Codex list price, {{claude_zero}} Claude). Derived from cached answers, not separate runs.</li>
+<li>✅ sol61-high and astra-medium → Haiku if samples fail: {{r_sol61_high_haiku_on_fail_k}} and {{r_astra_medium_haiku_on_fail_k}}; no repairs fired. Fast-mode pipelines equal their builders because every example check passed (derived from cached answers).</li>
 <li>❌ A Haiku plan before luna helped luna-low ({{r_luna_low_k}} → {{r_haiku_low_plan_luna_low_k}}) but not luna-high-bare ({{r_luna_high_bare_k}} either way), and both cost more than Haiku checking after.</li>
 </ul>
 </section>
 <section class="verdict conclusion" id="conclusion">
-<span class="eyebrow"><span class="num"></span>✅ CONCLUSION</span>
-<b>Delegate only to a model you can trust.</b>
+<h2 class="eyebrow"><span class="num"></span>✅ CONCLUSION</h2>
+<b>Use sol61-high for Codex quota; haiku-high for fast, reliable Claude runs.</b>
 <ol class="recs">
 <li>Codex has quota: sol61-high, haiku-low repairs only on a failed check ({{claude_zero}} Claude).</li>
-<li>Faster, more Codex usage: astra-medium, same repair.</li>
+<li>Need it faster? haiku-high: {{hh_med}} s, never missed, {{hh_upp}} per pass on the Claude bill. Must stay on Codex? astra-medium: {{x_astra_medium_med}} s; Codex cost about {{x_astra_vs_s61h}} vs sol61-high; same repair.</li>
 <li>Claude only (Codex out): haiku-low (<code>claude -p --tools ""</code>); haiku-high on a failed check or when a miss is costly.</li>
 <li>Zero misses on the Claude side: sonnet-medium.</li>
-<li>Best luna + Haiku pipeline: also 0 misses, but {{hm_vs_pipe_x}} the cost of haiku-medium alone.</li>
+<li>Best luna + Haiku pipeline: luna-high-bare → Haiku reviews every answer; passed {{r_luna_high_bare_haiku_review_all_k}}, but cost {{hm_vs_pipe_x}} as much as haiku-medium alone.</li>
 <li>Never luna-low or luna-medium alone.</li>
 </ol>
 </section>
@@ -142,7 +145,7 @@
 <details><summary>⚠️ Caveats</summary>
 <ul class="tight">
 <li>Small sample: read the intervals before the point estimates.</li>
-<li>{{n_exploratory}} configs were added after the main run: {{exploratory_names}}, including the Winner’s sol61-high and astra-medium.</li>
+<li>Exploratory means added after seeing the main-run results, outside the original comparison. {{n_exploratory}} configs were added: {{exploratory_names}}, including the Winner’s sol61-high and astra-medium.</li>
 <li>A Codex call's estimated $ drops up to {{cache_swing}} when the prompt cache hits.</li>
 <li>Latency is CLI wall clock, up to {{lanes}} calls in flight on one host.</li>
 <li>One run in time; hosted models change.</li>
@@ -150,6 +153,7 @@
 </details>
 <details><summary>🧪 Code quality</summary>
 {{table:quality}}
+<p class="small">Fast-mode runs not scored here; see fast-mode table.</p>
 <p class="small">Complexity = max cyclomatic complexity per function (radon); lint = ruff warnings; worse growth = time-growth exponent more than {{growth_margin}} above the reference’s.</p>
 <ul class="tight">
 <li>Main-ladder passing solutions only ({{q_rows}} rows); all {{n_solutions}} solutions are under results/solutions.</li>
@@ -162,7 +166,6 @@
 <ul class="tight">
 <li>Fast mode: same passes and code, {{fm_fast_s}} s vs {{fm_ctrl_s}} s per call ({{fm_faster}} faster), {{fm_mult}} the list price (the pricing-page multiplier, not a measured bill).</li>
 <li>xhigh: same passes, {{fm_x_cost}} the cost, slower, no better code.</li>
-<li>Main-ladder/L7 set fast runs: sol61-high ⚡ {{ff_s61_k}} / {{ff_s61_hk}}, {{ff_s61_upp}} per pass, {{ff_s61_med}} s; astra-medium ⚡ {{ff_ast_k}} / {{ff_ast_hk}}, {{ff_ast_upp}}, {{ff_ast_med}} s. Their derived →H fail pipelines equal the builders: {{pf_s61_fails}} / {{pf_ast_fails}} sample-test failures.</li>
 <li>Blind read, {{bl_n}} solutions: all {{bl_blocks}} blocks were sonnet-medium.</li>
 </ul>
 <p class="small">{{blind_caption}}</p>

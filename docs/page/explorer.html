@@ -54,7 +54,7 @@ function draw(){try{localStorage.setItem("rb-x2",JSON.stringify(st))}catch(e){}
  var placed=[];
  pts.forEach(function(p,i){var x=sx.f(p[st.x]),y=sy.f(p[st.y]),onf=fr.indexOf(p)>=0;
   g.push('<circle data-i="'+D.indexOf(p)+'" cx="'+x+'" cy="'+y+'" r="7" fill="'+(p.exp?"var(--panel)":p.col)+'" stroke="'+(onf?"var(--frontier)":p.col)+'" stroke-width="'+(onf?3:2)+'" style="cursor:pointer"/>')});
- pts.slice().sort(function(a,b){return sy.f(a[st.y])-sy.f(b[st.y])}).forEach(function(p){var x=sx.f(p[st.x]),y=sy.f(p[st.y]),w=p.d.length*(small?5.6:6.4)+4;
+ pts.filter(function(p){return !small||fr.indexOf(p)>=0}).sort(function(a,b){return sy.f(a[st.y])-sy.f(b[st.y])}).forEach(function(p){var x=sx.f(p[st.x]),y=sy.f(p[st.y]),w=p.d.length*(small?5.6:6.4)+4;
   var right=x+12+w>W-R,lx=right?x-12-w:x+12,ly=y+4;
   function hit(){return placed.some(function(r){return Math.abs(r[1]-ly)<13&&lx<r[0]+r[2]&&r[0]<lx+w})}
   for(var n=0;n<8&&hit();n++)ly+=(n%2?-1:1)*13*(n+1);

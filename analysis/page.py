@@ -189,7 +189,8 @@ def speed_cost(s):
     """Median seconds (left is better, whisker p25–p75) against $ per pass, log (down is better). Frontier among configs
     that pass at least MIN_PASS; the rest are drawn but cannot be on it."""
     E = every(s); L, R, T, B, W = 84, 16, 14, 462, 560
-    X = lambda v: L + (v - 3) / 27 * (W - R - L); Y = logscale(5e-4, 3e-1, B, T)
+    xmax = math.ceil(max(E[c]["latency_s"].get("p75", E[c]["latency_s"]["median"]) for c in ORDER) / 5) * 5
+    X = lambda v: L + v / xmax * (W - R - L); Y = logscale(5e-4, 3e-1, B, T)
     pts = [{"c": c, "name": DISP(c), "x": E[c]["latency_s"]["median"], "y": E[c]["usd_per_pass"], "hollow": False, "tip": tip(c, E[c]),
             "w": ("x", E[c]["latency_s"]["p25"], E[c]["latency_s"]["p75"]) if "p25" in E[c]["latency_s"] else None} for c in ORDER]
     ok = [p for p in pts if E[p["c"]]["pass_at_1"] >= MIN_PASS]
@@ -197,7 +198,7 @@ def speed_cost(s):
     for p in pts: p["on"] = p in fr
     ex = fast_pairs(pts, X, Y)
     d = f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
-    xt = [(v, f"{v} s") for v in (5, 10, 15, 20, 25)]
+    xt = [(v, f"{v} s") for v in range(5, xmax + 1, 5)]
     yt = [(v, f"${v:g}") for v in (1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1)]
     lab = {"luna-low": (0, -14, "middle"), "luna-medium": (14, 10, "start"), "haiku-low": (0, -20, "middle"), "luna-high": (14, -10, "start"),
            "haiku-medium": (14, 5, "start"), "sonnet-medium": (14, 4, "start"), "sol61-medium": (-14, -12, "end"),
@@ -397,7 +398,7 @@ def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived=""):
     r = k / n; cls = "good" if r >= 0.95 else "warn" if r >= MIN_PASS else "bad"
     attr = f' title="{esc(derived)}"' if derived else ""
     return (f'<tr{attr}><td><span class="dot" style="background:{col}"></span>{esc(name)}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
-            f'<td>{"~" if proxy else ""}${usd:.5f}</td><td>{"–" if cusd is None else f"${cusd:.5f}"}</td><td>{sec:.1f}</td><td>{verdict}</td></tr>')
+            f'<td>{"~" if proxy else ""}${usd:.5f}</td><td>{"–" if cusd is None else f"${cusd:.5f}"}</td><td>{sec:.1f}</td><td class="verdict-cell">{verdict}</td></tr>')
 
 
 CODEX = lambda c: any(x in c for x in ("luna", "sol", "astra"))
@@ -466,20 +467,26 @@ def set_definitions(s):
     return main, hard, per, l7
 
 
+def l7_reason(s):
+    main, hard, per, _ = set_definitions(s)
+    return (f"L7 has {len(hard)} problems, not {per}, because it was added after every strong config passed L6 "
+            "to look for a breaking point; it is scored separately from the main ladder.")
+
+
 def method(s):
     from bench.run import CLAUDE_FLAGS, codex_flags
     lvl = lambda d: f'<span class="lc {d.lower()}">{d}</span>'
     like = lambda p: (f'<br><span class="like">like <a href="https://leetcode.com/problems/{ANALOGUE[p][1]}/" title="closest LeetCode analogue, not the source">{esc(ANALOGUE[p][0])}</a></span>'
-                      if ANALOGUE.get(p) else "")
+                      if ANALOGUE.get(p) else '<br><span class="like">no close LeetCode analogue</span>')
     # one grid row per problem: level badge | rung | "p12 sheet" (+ LeetCode analogue) | description; a wrapped description hangs in its own column
     item = lambda p, r: (f'<li class="prow">{lvl(LC[p])}<span class="rung">L{r}</span><span class="pn"><a href="{REPO}{p}.py"><code>{esc(pshort(p))}</code></a>{like(p)}</span>'
                          f'<span class="pd">{esc(TESTS[p])}</span></li>')
     main, hard, per, _ = set_definitions(s)
     li = [f'<li class="round"><b>Pilot</b>: well-known LeetCode problems. Every config passed, so it ranked nothing and is not scored.<ul>'
-          + "".join(f'<li>{lvl(d)} <a href="https://leetcode.com/problems/{slug}/">{esc(n)}</a></li>' for n, slug, d in PILOT) + "</ul></li>",
+          + "".join(f'<li>{lvl(d)} <a href="https://leetcode.com/problems/{slug}/">{esc(n)}</a> <span class="like">source</span></li>' for n, slug, d in PILOT) + "</ul></li>",
           f'<li class="round"><b>Main ladder</b>: {len(main)} new problems, p01–p12, rungs L1–L6 ({per} per rung, rising difficulty). Every config ran it.<ul>'
           + "".join(item(p, s["problems"][p]["rung"]) for p in main) + "</ul></li>",
-          f'<li class="round"><b>L7 set</b>: {len(hard)} extra-hard problems, p13–p15, rung L7. Configs are listed in the sets box below.<ul>'
+          f'<li class="round"><b>L7 set</b>: {len(hard)} extra-hard problems, p13–p15, rung L7. {l7_reason(s)} Configs are listed in the sets box below.<ul>'
           + "".join(item(p, 7) for p in hard) + "</ul></li>"]
     flag = lambda fl: esc(" ".join(f if f else '""' for f in fl))
     group = {}
@@ -510,9 +517,10 @@ def sets_box(s):
     return ('<div class="sets"><b>How to read the problems, rungs and sets</b><ul class="tight small">'
             '<li>A problem reads <span class="pl" title="spreadsheet evaluator with references, ranges, division and cycle errors">p12 sheet (L6)</span>: its number, its short name, its rung. Hover for a one-line description.</li>'
             f'<li><b>Main ladder</b>: {len(main)} problems, p01–p12, rungs L1–L6. {per} problems per rung, rising difficulty (L1 easiest). Every config ran it.</li>'
-            f'<li><b>L7 set</b>: {len(hard)} extra-hard problems ({lab(hard)}), rung L7. Run later, only on: {l7}.</li>'
-            f'<li><b>Rescue set</b>: {len(luna_rescue.PIDS)} main-ladder problems chosen after the main ladder because luna-low fails them most ({lab(luna_rescue.PIDS)}). The pipeline and repair charts use it. It is a subset of the main ladder, not the L7 set.</li>'
+            f'<li><b>L7 set</b>: {len(hard)} extra-hard problems ({lab(hard)}), rung L7. {l7_reason(s)} Run later, only on: {l7}.</li>'
+            f'<li><b>Rescue set</b>: {len(luna_rescue.PIDS)} main-ladder problems chosen after the main ladder where luna, at low or medium effort, stock or bare, missed most ({lab(luna_rescue.PIDS)}). The pipeline and repair charts use it. It is a subset of the main ladder, not the L7 set.</li>'
             '<li>Easy, Medium and Hard badges are my guess at the closest LeetCode difficulty. The rungs are this bench\'s own order, so they need not agree.</li>'
+            '<li>Config names: haiku, sonnet = Claude; luna, sol, astra = Codex; suffix = effort; -bare = Codex CLI system prompt stripped; ⚡ fast marker = fast mode.</li>'
             '<li>⚡ after a config = Codex fast mode (priority tier): same model and effort, about twice the price, joined to its default-tier twin by a thin line (visible in the speed chart; on the pass-rate chart both twins sit on the 100% line).</li>'
             '</ul></div>')
 

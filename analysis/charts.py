@@ -133,18 +133,22 @@ def rung_chart(s):
         b.append(text(X(i), H - B + 18, g, 11, "middle", MUTED))
         b.append(text(X(i), H - B + 31, " ".join(q[:3] for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g), 9.5, "middle", MUTED))
     b.append(text((L + W - R) / 2, H - 8, "rung (L1 easiest; the problems on each rung are listed under it)", 12, "middle", MUTED))
-    n = len(cfg); labels = []; seen = {}
+    n = len(cfg); labels = []
+    patterns = ("none", "8 3", "2 3", "8 3 2 3", "12 4", "4 2 1 2", "12 3 2 3", "2 2 2 5", "10 2 4 2", "1 4")
+    dashes = {c: patterns[k] if k < len(patterns) else f"{k + 3} 2 1 4" for k, c in enumerate(cfg)}
+    key_x = W - R + (n - 1) / 2 * 3 + 10
     for k, (c, v) in enumerate(cfg.items()):
         off = (k - (n - 1) / 2) * 3  # small horizontal jitter so overlapping lines stay visible
         pts = [(X(i) + off, Y(v["by_rung"][g]["passed"] / v["by_rung"][g]["n"])) for i, g in enumerate(rungs) if g in v["by_rung"]]
-        col = FAMILY(c); j = seen.get(col, 0); seen[col] = j + 1; dash = ("", " stroke-dasharray='5 3'", " stroke-dasharray='2 3'")[j % 3]
+        col = FAMILY(c); dash = f" stroke-dasharray='{dashes[c]}'"
         b.append(f"<polyline points='{' '.join(f'{x:.1f},{y:.1f}' for x, y in pts)}' fill='none' stroke='{col}' stroke-width='2'{dash}/>")
         b += [f"<circle cx='{x:.1f}' cy='{y:.1f}' r='3.5' fill='{col}'/>" for x, y in pts]
         labels.append((pts[-1][1], c))
     labels.sort(); last = -1e9
     for y, c in labels:  # spread end labels so they don't collide
         y = max(y, last + 21); last = y
-        b.append(text(W - R + 6, y + 4, DISP(c), 11, fill=FAMILY(c)))
+        b.append(f"<line x1='{key_x:.1f}' x2='{key_x + 24:.1f}' y1='{y:.1f}' y2='{y:.1f}' stroke='{FAMILY(c)}' stroke-width='2' stroke-dasharray='{dashes[c]}'/>")
+        b.append(text(key_x + 30, y + 4, DISP(c), 11, fill=FAMILY(c)))
     return svg(W, H, b)
 
 
@@ -194,7 +198,7 @@ def floor_chart(s):
 def agentic_chart(s):
     ag = s.get("agentic") or {}
     if not ag: return None
-    W, H, L, R, T, B = 760, 460, 80, 30, 100, 80
+    W, H, L, R, T, B = 760, 460, 80, 250, 100, 80
     xs = [v["usd_per_run"] for v in ag.values()]
     x0, x1 = min(xs) / 1.5, max(xs) * 1.5
     X = lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R); Y = lambda p: H - B - p * (H - T - B)
@@ -204,17 +208,15 @@ def agentic_chart(s):
     for v in log_ticks(x0, x1):
         b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{H - B}' stroke='{GRID}'/>", text(X(v), H - B + 18, fmt_usd(v), 11, "middle", MUTED)]
     b += [text((L + W - R) / 2, H - B + 38, "$ per run", 12, "middle", MUTED), text(20, (T + H - B) / 2, "runs passing all hidden tests", 12, "middle", MUTED, rotate=-90)]
-    lanes = {}  # label rows above the 100% line, filled left to right
+    # Reserve a label column beyond every data point; leaders stop before its text boxes.
     for i, (c, v) in enumerate(sorted(ag.items(), key=lambda kv: kv[1]["usd_per_run"])):
         x, y = X(v["usd_per_run"]), Y(v["hidden_pass_rate"]); lo, hi = v["ci95"]
         if v["hidden_pass"] == v["n"]: lo = 0.05 ** (1 / len(v["by_task"]))  # bootstrap collapses at 100%; one-sided bound over tasks, as in the tables
         b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(lo):.1f}' y2='{Y(hi):.1f}' stroke='{FAMILY(c)}' stroke-width='2' opacity='0.5'/>")
         b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='6' fill='{FAMILY(c)}'/>")
-        lab = f"{c} {v['hidden_pass']}/{v['n']}{' *' if v['cost_kind'] == 'proxy' else ''}"; w = 6.3 * len(lab)
-        right = x + 8 + w > W - R; xl = x - 8 - w if right else x + 8
-        lane = next(k for k in range(20) if all(e < xl - 6 or s0 > xl + w + 6 for s0, e in lanes.setdefault(k, [])))  # first lane with room
-        lanes[lane].append((xl, xl + w)); ly = y - 12 - 15 * lane
-        if lane: b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{y - 7:.1f}' y2='{ly + 3:.1f}' stroke='{FAMILY(c)}' stroke-width='1' opacity='0.6'/>")
+        lab = f"{c} {v['hidden_pass']}/{v['n']}{' *' if v['cost_kind'] == 'proxy' else ''}"
+        xl, ly = W - R + 24, T + i * 22
+        b.append(f"<line class='leader' x1='{x + 7:.1f}' x2='{xl - 6:.1f}' y1='{y:.1f}' y2='{ly - 4:.1f}' stroke='{FAMILY(c)}' stroke-width='1' opacity='0.6'/>")
         b.append(text(xl, ly, s=lab, size=11))
     b.append(text(L, H - 10, "All configs: 12/12. Bars: lower 95% bound. * Estimated from tokens.", 11, fill=MUTED))
     return svg(W, H, b)

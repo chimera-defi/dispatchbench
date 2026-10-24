@@ -99,7 +99,7 @@ main{counter-reset:sec toc}
 #tip{position:absolute;background:var(--panel);color:var(--fg);border:1px solid var(--line);font:500 12px/18px var(--mono);padding:8px 10px;border-radius:4px;pointer-events:none;max-width:260px;z-index:2}
 #tip .tag{color:var(--muted)}
 .extras figure{margin:0 0 24px}.extras figure svg{width:100%;height:auto;border-radius:6px}
-.extras>figure>figcaption{display:none}
+.extras figure figcaption{font-size:13px;color:var(--muted);margin-top:6px}
 tr.grp th{text-align:left;cursor:default;background:var(--bg);color:var(--muted);font-size:12px;font-weight:600;letter-spacing:.02em}
 tr.grp th::after{content:none}
 .tabs>input{position:absolute;opacity:0;pointer-events:none}
@@ -154,8 +154,7 @@ tr.grp th::after{content:none}
 
 .chart.floor svg{max-width:none}
 @media (max-width:640px){
- .chart.floor{overflow-x:auto}
- .chart.floor svg{min-width:760px}
+ .chart.floor svg{min-width:0;width:100%}
 }
 
 .head .eyebrow{text-wrap:balance}
@@ -182,3 +181,6 @@ section.collapsible > h2 > .sec-toggle:focus-visible,.sec-toggle-all:focus-visib
  section.collapsible > .sec-body[hidden]{display:block!important}
  section.collapsible .sec-chevron,.sec-toggle-all{display:none}
 }
+
+/* Verdict text wraps independently of numeric cells at desktop widths too. */
+.sortable .verdict-cell{white-space:normal;min-width:9ch;overflow-wrap:anywhere}

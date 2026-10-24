@@ -11,7 +11,7 @@ Template syntax:
   {{w_name}}             page only: a widget from analysis/page.py (scatters, grid, token bars, short table)
   lines starting "@readme " or "@page " appear only in that output
 """
-import html, json, os, re, statistics
+import glob, html, json, os, re, statistics
 
 from analysis import fast_gate, luna_rescue, page as pagew
 from analysis.labels import pshort, plabel, DISP
@@ -78,6 +78,15 @@ def vs(s, c, b):
     return next(d for d in s["exploratory"][c]["vs"] if d["b"] == b)
 
 
+def codex_orchestrator_status(rows):
+    """Only attributed result rows count; running the tested config in Codex is not orchestration."""
+    def is_codex(value):
+        if isinstance(value, dict):
+            return any(is_codex(value.get(k, "")) for k in ("cli", "model", "name"))
+        return str(value).lower().startswith(("codex", "gpt-"))
+    return "results available" if any(r.get("passed") is not None and is_codex(r.get("orchestrator", "")) for r in rows) else "not run yet"
+
+
 def facts(s):
     F = Facts(); cfg, ex, ag, hard = s["configs"], s["exploratory"], s["agentic"], s["hard"]
     rows = load(FUNC); agent = load(AGENT); main_rows = [r for r in rows if r["phase"] == "main"]
@@ -87,6 +96,12 @@ def facts(s):
              repeats=str(cfg["haiku-low"]["n"] // nprob), n_calls=str(cfg["haiku-low"]["n"]), n_all_problems=str(nprob + len({p for v in hard.values() for p in v["by_problem"]})),
              agent_repeats=str(next(iter(ag.values()))["n"] // ntask), n_rungs=str(len(cfg["haiku-low"]["by_rung"])), per_rung=str(nprob // len(cfg["haiku-low"]["by_rung"])))
     need(all(v["n"] == cfg["haiku-low"]["n"] for v in every.values()), "every function-track config has the same number of calls")
+    F["run_id"] = json.load(open(os.path.join(RES, "manifest.json")))["experiment"]
+    attributed = (r for path in sorted(glob.glob(os.path.join(RES, "**", "*.jsonl"), recursive=True)) for r in load(path))
+    F["codex_orchestrator_status"] = codex_orchestrator_status(attributed)
+    F["l7_n"] = str(len({p for v in hard.values() for p in v["by_problem"]}) * int(F["repeats"]))
+    F["n_rescue_problems"] = str(len(luna_rescue.PIDS))
+    F["budget_pass"] = pct(0.95); F["p90_percent"] = pct(0.90)
     F["host_agents_md"] = HOST_AGENTS_MD; F["min_pass"] = pct(MIN_PASS)
     F["rung_attempts"] = str(cfg["haiku-low"]["by_rung"]["L1"]["n"])
     sp = s["spend"]
@@ -216,7 +231,7 @@ def facts(s):
     pl = s["pilot"]; prow = load(os.path.join(RES, "2026-10-22-pilot.jsonl"))
     need(all(v["passes"] == v["n"] for v in pl.values()), "every pilot run passed")
     F["pilot_configs"] = str(len(pl)); F["pilot_runs"] = str(sum(v["n"] for v in pl.values())); F["pilot_problems"] = str(len({r["problem"] for r in prow}))
-    pf = s["pilot_fast"]; F["fast_mult"] = f'{json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]:g}'
+    pf = s["pilot_fast"]; F["fast_mult"] = f'{json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]:g}×'
     F["fast_problems"] = str(len({r["problem"] for r in prow if r["config"] == "sol61-low-defa"})); F["fast_rounds"] = str(pf["sol61-low/default"]["n"] // int(F["fast_problems"]))
     assert all(v["passes"] == v["n"] for v in pf.values()), "fast-mode text says every call passed"
     for k, v in pf.items(): F[f"fast_{k.split('-')[0].rstrip('0123456789')}_{'def' if k.endswith('default') else 'fast'}"] = f"{v['median_s']:.1f}"
@@ -284,6 +299,8 @@ def facts(s):
         F[f"pf_{k}_n_all"] = str(checked[b1]["main"]["n"] + checked[b1]["hard"]["n"])
         F[f"pf_{k}_status"] = checked[b1]["all"]["status"]
         need(all(F[f"pf_{k}_{field}"] == F[f"ff_{k}_{field}"] for field in ("k", "hk", "upp", "med", "dupp", "dmed")), "pf facts equal ff facts")
+    need(min((c for c, v in every.items() if v["passes"] == v["n"]), key=lambda c: every[c]["latency_s"]["median"]) == "astra-medium-fast",
+         "astra-medium fast is fastest among main-ladder configs with no misses")
     F["growth_margin"] = str(GROWTH_MARGIN)
     F["n_solutions"] = str(sum(1 for _, _, fs in os.walk(os.path.join(RES, "solutions")) for f in fs if f.endswith(".py")))
     # Codex additions (exploratory, run after the report at the operator's request)
@@ -357,6 +374,10 @@ def tables_md(s):
                            [[DISP(c) + (" (exploratory)" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], nprob),
                              f"{v['latency_s']['median']:.1f}", f"{v['latency_s']['p90']:.1f}", f"{money(v['usd_per_pass'], 5)}", f"{money(v['usd_total'], 3)}", v["cost_kind"]]
                             for c, v in {**cfg, **ex}.items()])
+    T["result_detail"] = md_table(["config", "95% CI", "p90 s", f"total $ ({cfg['haiku-low']['n']} calls)", "$ kind"],
+                                  [[DISP(c) + (" (exploratory)" if c in ex else ""), ci_text(v["passes"], v["n"], v["ci95"], nprob),
+                                    f"{v['latency_s']['p90']:.1f}", money(v["usd_total"], 3), v["cost_kind"]]
+                                   for c, v in {**cfg, **ex}.items()])
     T["tokens"] = md_table(["config", "mean input", "of which cached", "mean output", "of which reasoning", "$ per 1k tokens"],
                            [[DISP(c) + (" (exploratory)" if c in ex else ""), n(v["tokens_mean"]["in_tok"]), n(v["tokens_mean"]["cached_tok"]), n(v["tokens_mean"]["out_tok"]),
                              n(v["tokens_mean"]["reasoning_tok"]), money(scale(v["usd_per_call"], 1000 / (v["tokens_mean"]["in_tok"] + v["tokens_mean"]["out_tok"])))]
@@ -457,7 +478,7 @@ def fill(text, F, T, mode):
             if mode == "readme": return f"![{cap}](results/report/charts/{f})"
             body = open(os.path.join(CHARTS, f)).read().strip()
             width = re.search(r"\bwidth=['\"](\d+)['\"]", body).group(1)
-            return f'<figure><div class="svgscroll" style="--natural-width:{width}px">{body}</div><figcaption>{html.escape(cap)}</figcaption></figure>'
+            return f'<figure><div class="svgscroll" style="--natural-width:{width}px">{body}</div><figcaption>{html.escape(cap)}. <span class="scroll-hint">Scroll sideways on narrow screens.</span></figcaption></figure>'
         return F[k]
     lines = []
     for line in text.split("\n"):
