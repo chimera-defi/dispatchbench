@@ -32,18 +32,13 @@ def test_speed_whiskers_fit_axis_even_with_a_slower_config(summary, monkeypatch)
     assert seen and min(seen) >= 84 and max(seen) <= 544
 
 
-def test_rung_series_have_distinct_keys_past_all_endpoints(summary):
+def test_rung_table_names_every_config_and_rung(summary):
     svg = ET.fromstring(charts.rung_chart(summary))
-    series = svg.findall("s:polyline", NS)
-    assert len({e.get("stroke-dasharray") for e in series}) == len(series)
-    keys = [e for e in svg.findall("s:line", NS) if e.get("stroke-width") == "2"]
-    assert len(keys) == len(series)
-    max_end = max(float(e.get("points").split()[-1].split(",")[0]) for e in series)
-    assert min(float(e.get("x1")) for e in keys) > max_end
-    labels = {e.text: e for e in svg.findall("s:text", NS)}
-    for c in ("astra-medium", "astra-medium-fast"):
-        label = labels[page.DISP(c)]
-        assert float(label.get("x")) + len(label.text) * 6.6 < 760
+    words = {e.text for e in svg.findall("s:text", NS)}
+    ex = summary.get("exploratory") or {}
+    shown = list(summary["configs"]) + [c for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex]
+    assert {page.DISP(c) for c in shown} <= words
+    assert {g for c in summary["configs"].values() for g in c["by_rung"]} <= words
 
 
 def test_agentic_leaders_stop_before_all_label_boxes(summary):

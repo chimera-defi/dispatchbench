@@ -1,5 +1,5 @@
 """Draw the report charts as plain SVG from results/summary.json. Standard library only; no model calls."""
-import json, math, os
+import json, math, os, re
 from analysis.labels import DISP, TESTS, plabel
 from xml.sax.saxutils import escape
 
@@ -8,6 +8,7 @@ OUT = os.path.join(ROOT, "results", "report", "charts")
 FONT = "font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, sans-serif'"
 INK, MUTED, GRID, PLATE = "var(--fg,#1d2321)", "var(--muted,#5d6763)", "var(--line,#dde2de)", "var(--panel,#ffffff)"
 HOST_AGENTS_MD = "1.3k"  # tokens of the host's ~/.codex/AGENTS.md, measured once by hand (bytes / 4); not in the result rows
+BADC, WARNC = "var(--bad,#b3261e)", "var(--warn,#a86b00)"
 FAMILY = lambda c: "var(--claude,#b4572e)" if c.startswith("haiku") else "var(--sonnet,#2f8f7d)" if c.startswith("sonnet") else "var(--codex,#3a5bb8)"
 
 
@@ -117,39 +118,45 @@ def cost_time_chart(s):
     return svg(W, H, b)
 
 
-def rung_chart(s):
+def rung_rows(s):
+    """The one place the rung chart reads data: ({config: {rung 'L1': (passed, n)}}, rungs L1..L6 in order)."""
     ex = s.get("exploratory") or {}
     cfg = {**s["configs"], **{c: ex[c] for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex}}  # fast mode beside its default tier
-    rungs = sorted({g for v in cfg.values() for g in v["by_rung"]}, key=lambda g: int(g[1:]))
-    W, H, L, R, T, B = 760, 420, 60, 190, 70, 62
-    X = lambda i: L + i / max(1, len(rungs) - 1) * (W - L - R); Y = lambda p: H - B - p * (H - T - B)
-    b = [text(L, 24, "Pass rate by difficulty rung (main ladder p01-p12)", 14, weight="600"),
-         text(L, 46, "Main run + sol61-high / astra-medium + ⚡ twins; L7 excluded.", 10.5, fill=MUTED)]
-    for p in (0, 0.2, 0.4, 0.6, 0.8, 1.0):
-        b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
-    b.append(f"<line x1='{L}' x2='{W - R}' y1='{Y(0.4):.1f}' y2='{Y(0.4):.1f}' stroke='var(--bad,#b3261e)' stroke-dasharray='4 3'/>")
-    b.append(text(L + 6, Y(0.4) - 6, "breaking point (≤ 40%)", 11, fill="var(--bad,#b3261e)"))
+    rows = {c: {g: (r["passed"], r["n"]) for g, r in v["by_rung"].items()} for c, v in cfg.items()}
+    return rows, sorted({g for r in rows.values() for g in r}, key=lambda g: int(g[1:]))
+
+
+def rung_chart(s):
+    """Heat table, one row per config (family shape + colour + name, grouped by family), one column per rung L1-L6;
+    each cell is passes out of the attempts on that rung. Perfect cells stay plain, so the misses stand out."""
+    from analysis.page import ORDER, SHAPE, marker  # lazy: page imports this module
+    cfg, rungs = rung_rows(s)
+    names = sorted(cfg, key=lambda c: ORDER.index(c) if c in ORDER else len(ORDER))
+    W, L, T, cw, rh = 560, 190, 96, 58, 30
+    H = T + rh * len(names) + 40
+    probs = {g: " ".join(q[:3] for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g) for g in rungs}
+    b = [text(12, 24, "Pass rate by difficulty rung (main ladder p01-p12)", 15, weight="600"),
+         text(12, 46, "Passes per rung. Tinted = a miss. L7 excluded.", 11, fill=MUTED)]
     for i, g in enumerate(rungs):
-        b.append(text(X(i), H - B + 18, g, 11, "middle", MUTED))
-        b.append(text(X(i), H - B + 31, " ".join(q[:3] for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g), 9.5, "middle", MUTED))
-    b.append(text((L + W - R) / 2, H - 8, "rung (L1 easiest; the problems on each rung are listed under it)", 12, "middle", MUTED))
-    n = len(cfg); labels = []
-    patterns = ("none", "8 3", "2 3", "8 3 2 3", "12 4", "4 2 1 2", "12 3 2 3", "2 2 2 5", "10 2 4 2", "1 4")
-    dashes = {c: patterns[k] if k < len(patterns) else f"{k + 3} 2 1 4" for k, c in enumerate(cfg)}
-    key_x = W - R + (n - 1) / 2 * 3 + 10
-    for k, (c, v) in enumerate(cfg.items()):
-        off = (k - (n - 1) / 2) * 3  # small horizontal jitter so overlapping lines stay visible
-        pts = [(X(i) + off, Y(v["by_rung"][g]["passed"] / v["by_rung"][g]["n"])) for i, g in enumerate(rungs) if g in v["by_rung"]]
-        col = FAMILY(c); dash = f" stroke-dasharray='{dashes[c]}'"
-        b.append(f"<polyline points='{' '.join(f'{x:.1f},{y:.1f}' for x, y in pts)}' fill='none' stroke='{col}' stroke-width='2'{dash}/>")
-        b += [f"<circle cx='{x:.1f}' cy='{y:.1f}' r='3.5' fill='{col}'/>" for x, y in pts]
-        labels.append((pts[-1][1], c))
-    labels.sort(); last = -1e9
-    for y, c in labels:  # spread end labels so they don't collide
-        y = max(y, last + 21); last = y
-        b.append(f"<line x1='{key_x:.1f}' x2='{key_x + 24:.1f}' y1='{y:.1f}' y2='{y:.1f}' stroke='{FAMILY(c)}' stroke-width='2' stroke-dasharray='{dashes[c]}'/>")
-        b.append(text(key_x + 30, y + 4, DISP(c), 11, fill=FAMILY(c)))
-    return svg(W, H, b)
+        x = L + i * cw + cw / 2
+        b += [text(x, T - 22, g, 14, "middle", INK, "600"), text(x, T - 8, probs[g], 9, "middle", MUTED)]
+    for r, c in enumerate(names):
+        y = T + r * rh; col = FAMILY(c)
+        b.append(f"<line x1='8' x2='{L + len(rungs) * cw}' y1='{y}' y2='{y}' stroke='{GRID}'/>")
+        b.append(marker(SHAPE(c), 22, y + rh / 2, col, col, k=0.8))
+        b.append(text(40, y + rh / 2 + 5, DISP(c), 14, fill=col, weight="600"))
+        for i, g in enumerate(rungs):
+            v = cfg[c].get(g); x = L + i * cw
+            if not v: b.append(text(x + cw / 2, y + rh / 2 + 5, "-", 13, "middle", MUTED)); continue
+            k, n = v
+            tint = "" if k == n else f"<rect x='{x + 2}' y='{y + 2}' width='{cw - 4}' height='{rh - 4}' rx='3' style='fill:{BADC if k / n <= 0.4 else WARNC}' fill-opacity='0.3'/>"
+            b.append(f"<g><title>{escape(DISP(c))} on {g}: {k} of {n} passed</title>{tint}"
+                     + text(x + cw / 2, y + rh / 2 + 5, f"{k}/{n}", 13, "middle", INK, "normal" if k == n else "700") + "</g>")
+    yb = T + rh * len(names)
+    b.append(f"<line x1='8' x2='{L + len(rungs) * cw}' y1='{yb}' y2='{yb}' stroke='{GRID}'/>")
+    b.append(text(12, yb + 24, "Rung L1 is easiest. Red tint: 40% or less, the breaking point.", 11, fill=MUTED))
+    out = svg(W, H, b).replace(f"width='{W}' height='{H}'", "class='rung' width='100%' height='auto' style='max-width:560px'", 1)
+    return re.sub(r"font-size='([\d.]+)'( text-anchor='\w+' style=')", r"\2font-size:\1px;", out)  # inline size: the page's phone CSS does not rescale this chart
 
 
 def heatmap(s):
