@@ -22267,6 +22267,7 @@
   "fast_sol_fast": "5.2",
   "fast_luna_def": "4.5",
   "fast_luna_fast": "4.5",
+  "fast_luna_change": "stayed at 4.5 s",
   "pilot_r2_configs": "4",
   "pair_problems": "3",
   "nofeat_nocache": "8",
@@ -22416,7 +22417,7 @@
    "⚡ = fast mode: same answers, about 2× list price, faster."
   ],
   "speed_why": "No misses. 4.6 s faster than haiku-high.",
-  "winner_line": "sol61-high (normal and ⚡), haiku-high and sonnet-medium passed every try. haiku-high is cheapest of the three at $0.0028 per pass. With Codex quota, sol61-high ⚡ costs $0 cash.",
+  "winner_line": "sol61-high (normal and ⚡), haiku-high and sonnet-medium passed every try. haiku-high is cheapest of these at $0.0028 per pass. With Codex quota, sol61-high ⚡ costs $0 cash.",
   "budget_why": "Cheapest with no misses. haiku-low costs less but misses 3 of 60",
   "noshell_comparison": "B1 passed more often than plain luna-low. B2 passed less often.",
   "verdict_key": "✓ pick = a Winner pick. 0 misses / missed N = raw miss count, no ranking. beaten = another row is as cheap and passes as often. trade-off = pricier but passes more. avoid = below 90%.",
@@ -22424,7 +22425,7 @@
   "dropped_pipeline_models": "sol61-high and astra-medium (normal and ⚡)",
   "l7_config_count": "13",
   "l7_absent": "luna-low, luna-medium and luna-low-bare",
-  "rung_breaks": "luna-low breaks at L6; luna-medium breaks at L6",
+  "rung_breaks": "luna-low and luna-medium break at L6",
   "bare_rung_break": "L2",
   "rung_caption": "Passes per rung. Tint = a miss; red = 40% or less, the breaking point. L7 excluded.",
   "pipes_caption": "Bar length = passes out of 35. Text by each bar = passes · $ per pass · median seconds.",
@@ -22432,6 +22433,9 @@
   "default_route_scope": "Tested with plain sol61-high: 35/35 on the luna-miss set. Haiku never ran.",
   "hb_conclusion_copy": "Codex's own CLI helped luna-low a little more than Claude Code helped haiku-low. No pick changes.",
   "l7_set_description": "L7 set: p13 xor_ring, p14 bounce_board, p15 paint_erase; scored separately. Added after every strong config passed L6.",
+  "equiv_takeaway": "Every Claude config has a Codex match. haiku-high and sonnet-medium hit 100%; sol61-high matches them. Each match costs more at list price and runs slower.",
+  "equiv_fastest": "Fastest Codex at 100%: astra-medium ⚡, 10 s. It costs $0.15 per pass.",
+  "equiv_near": "At haiku-low's price, the best Codex is luna-high: 92% to 95%.",
   "hb_accuracy": "haiku-low passed more often than luna-low in both runners.",
   "hb_speed": "luna-low answered faster than haiku-low in our one-shot runner."
  },
@@ -23920,6 +23924,60 @@
      "Codex CLI",
      "gpt-6.1-sol",
      "medium"
+    ]
+   ]
+  },
+  "equiv": {
+   "head": [
+    "Claude",
+    "passed",
+    "$ per pass",
+    "median s",
+    "Codex match",
+    "passed",
+    "$ per pass (est.)",
+    "median s"
+   ],
+   "rows": [
+    [
+     "haiku-low",
+     "95%",
+     "$0.0011",
+     "10",
+     "sol61-medium",
+     "97%",
+     "$0.015",
+     "23"
+    ],
+    [
+     "haiku-medium",
+     "98%",
+     "$0.0015",
+     "13",
+     "sol61-high",
+     "100%",
+     "$0.019",
+     "27"
+    ],
+    [
+     "haiku-high",
+     "100%",
+     "$0.0028",
+     "15",
+     "sol61-high",
+     "100%",
+     "$0.019",
+     "27"
+    ],
+    [
+     "sonnet-medium",
+     "100%",
+     "$0.012",
+     "10",
+     "sol61-high",
+     "100%",
+     "$0.019",
+     "27"
     ]
    ]
   },

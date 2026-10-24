@@ -496,6 +496,8 @@ def _facts(s, arms):
     F["fast_problems"] = str(len({r["problem"] for r in prow if r["config"] == "sol61-low-defa"})); F["fast_rounds"] = str(pf["sol61-low/default"]["n"] // int(F["fast_problems"]))
     assert all(v["passes"] == v["n"] for v in pf.values()), "fast-mode text says every call passed"
     for k, v in pf.items(): F[f"fast_{k.split('-')[0].rstrip('0123456789')}_{'def' if k.endswith('default') else 'fast'}"] = f"{v['median_s']:.1f}"
+    F["fast_luna_change"] = (f"stayed at {F['fast_luna_def']} s" if F["fast_luna_def"] == F["fast_luna_fast"]
+                             else f"changed from {F['fast_luna_def']} s to {F['fast_luna_fast']} s")
     F["pilot_r2_configs"] = str(sum(1 for v in pl.values() if v["problems"] > 3))
     need(all(v["passes"] == v["n"] for v in pr.values()), "every trim-probe pair config passed")
     F["pair_problems"] = str(len({r["problem"] for r in load(os.path.join(RES, "2026-10-22b-trim.jsonl")) if r["step"] == "pair"}))
@@ -652,10 +654,10 @@ def _facts(s, arms):
     tied = ('sol61-high', 'haiku-high', 'sonnet-medium')
     need(all(every[c]['passes'] == every[c]['n'] and hard[c]['passes'] == hard[c]['n'] and ag[c]['hidden_pass'] == ag[c]['n'] for c in tied),
          "sol61-high, haiku-high and sonnet-medium pass every main, L7 and repo try")
-    need(every['haiku-high']['usd_per_pass'] < min(every[c]['usd_per_pass'] for c in ('sol61-high', 'sonnet-medium')), "haiku-high is the cheapest of the three")
+    need(every['haiku-high']['usd_per_pass'] < min(every[c]['usd_per_pass'] for c in ('sol61-high', 'sol61-high-fast', 'sonnet-medium')), "haiku-high is the cheapest of these")
     need(all(v['passes'] == v['n'] for v in (every['sol61-high-fast'], hard['sol61-high-fast'])), "sol61-high ⚡ passes every main and L7 try")
     F['winner_line'] = (f"sol61-high (normal and ⚡), haiku-high and sonnet-medium passed every try. "
-                        f"haiku-high is cheapest of the three at {F['hh_upp']} per pass. "
+                        f"haiku-high is cheapest of these at {F['hh_upp']} per pass. "
                         f"With Codex quota, sol61-high ⚡ costs {F['claude_zero']} cash.")
     F['budget_why'] = f"Cheapest with no misses. haiku-low costs less but misses {hl['n'] - hl['passes']} of {hl['n']}"
     F['model_names'] += (f", luna56 = {ex['luna56-high']['model']}, "
@@ -673,8 +675,10 @@ def _facts(s, arms):
     absent = [DISP(c) for c in every if c not in hard]
     F['l7_absent'] = ", ".join(absent[:-1]) + " and " + absent[-1] if len(absent) > 1 else "".join(absent)
     rung_configs = list(cfg) + [c for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex]
-    F['rung_breaks'] = "; ".join(f"{DISP(c)} breaks at {every[c]['breaking_point']}" for c in rung_configs
-                                 if every[c]['breaking_point'])
+    at = {}
+    for c in rung_configs:
+        if every[c]['breaking_point']: at.setdefault(every[c]['breaking_point'], []).append(DISP(c))
+    F['rung_breaks'] = "; ".join(f"{' and '.join(cs)} break{'s' if len(cs) == 1 else ''} at {b}" for b, cs in at.items())
     F['bare_rung_break'] = lb['breaking_point']
     F['rung_caption'] = (f"Passes per rung. Tint = a miss; red = {F['break_at']} or less, the breaking point. "
                          f"{configs.set_label('L7 set').split()[0]} excluded.")
@@ -920,6 +924,36 @@ def _currency_ticks(values):
     return sorted(labels.items())
 
 
+def _equivalents(ds):
+    """Codex vs Claude: for each Claude config, the cheapest Codex config on the main ladder that passes at least as often."""
+    rows = [r for r in ds["rows"] if r["source"] == "main" and r["set"] == "main ladder" and r["usd_per_pass"]]
+    claude = sorted((r for r in rows if r["family"] == "Claude"), key=lambda r: (r["pass_rate"], r["usd_per_pass"]))
+    codex = [r for r in rows if r["family"] == "Codex"]
+    pct = lambda r: f'{r["pass_rate"]:.0%}'
+    out, pairs = [], []
+    for r in claude:
+        m = min((q for q in codex if q["pass_rate"] >= r["pass_rate"]), key=lambda q: q["usd_per_pass"])
+        pairs.append((r, m))
+        out.append([r["display"], pct(r), usd(r["usd_per_pass"]), f'{r["median_s"]:.0f}', m["display"], pct(m), usd(m["usd_per_pass"]), f'{m["median_s"]:.0f}'])
+    ds["tables"]["equiv"] = md_table(["Claude", "passed", "$ per pass", "median s", "Codex match", "passed", "$ per pass (est.)", "median s"], out)
+    need(all(m["usd_per_pass"] > r["usd_per_pass"] for r, m in pairs), "every Codex match costs more per pass at list price")
+    need(all(m["median_s"] > r["median_s"] for r, m in pairs), "every cheapest Codex match is slower")
+    top = [r for r in claude if r["pass_rate"] == 1]
+    tops = {m["config"] for r, m in pairs if r["pass_rate"] == 1}
+    need(len(tops) == 1 and top, "the 100% Claude configs share one cheapest Codex match")
+    tm = next(m for r, m in pairs if r["pass_rate"] == 1)
+    F = ds["facts"]
+    F["equiv_takeaway"] = (f'Every Claude config has a Codex match. {" and ".join(r["display"] for r in top)} hit 100%; '
+                           f'{tm["display"]} matches them. Each match costs more at list price and runs slower.')
+    fast = min((q for q in codex if q["pass_rate"] == 1), key=lambda q: q["median_s"])
+    need(fast["usd_per_pass"] > tm["usd_per_pass"], "the fastest 100% Codex config costs more than the cheapest")
+    F["equiv_fastest"] = f'Fastest Codex at 100%: {fast["display"]}, {fast["median_s"]:.0f} s. It costs {usd(fast["usd_per_pass"])} per pass.'
+    lo = claude[0]  # best Codex config at no more than 1.5x the weakest Claude config's price
+    near = max((q for q in codex if q["usd_per_pass"] <= 1.5 * lo["usd_per_pass"]), key=lambda q: q["pass_rate"])
+    need(near["pass_rate"] < lo["pass_rate"], f"{near['config']} passes less often than {lo['config']}")
+    F["equiv_near"] = f'At {lo["display"]}\'s price, the best Codex is {near["display"]}: {pct(near)} to {pct(lo)}.'
+
+
 def build(summary=None):
     from bench.problems.p13_xor_ring import STATEMENT as xor_statement
     ds = _base()
@@ -940,6 +974,7 @@ def build(summary=None):
     ds["report"] = s
     ds["facts"] = _facts(s, arms)
     ds["tables"] = _tables(s, arms)
+    _equivalents(ds)
     method_appendix(ds)
     return ds
 

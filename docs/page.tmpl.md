@@ -1,6 +1,6 @@
 <header class="head">
 <h1>Which model should a coding task go to?</h1>
-<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#method">How it was run</a><a href="#pareto">Cost vs accuracy</a><a href="#fail">Where they fail</a><a href="#results">Results</a><a href="#tokens">Token floor</a><a href="#pipes">Pipelines</a><a href="#fair">Codex in its own CLI</a><a href="#conclusion">Conclusion</a><a href="#extras">More charts</a><a href="#notes">Notes</a></nav>
+<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#method">How it was run</a><a href="#pareto">Cost vs accuracy</a><a href="#fail">Where they fail</a><a href="#results">Results</a><a href="#tokens">Token floor</a><a href="#pipes">Pipelines</a><a href="#fair">Codex in its own CLI</a><a href="#conclusion">Conclusion</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#equiv">Codex vs Claude</a></nav>
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
@@ -39,7 +39,7 @@
 <li>Sets:<ul>
 <li>{{main_set_label}}: {{n_problems}} problems, {{repeats}} tries each. Total: {{n_calls}} calls.</li>
 <li>{{l7_set_label}}: {{n_l7}} problems, {{repeats}} tries each. Total: {{l7_n}} calls.</li>
-<li>{{set_label_title}}: the {{n_rescue_problems}} main-ladder problems luna-low missed most, chosen after the main run. Each config tried {{n_rescue_problems}} problems, {{repeats}} times each. Each config made {{rescue_n}} calls.</li>
+<li>{{set_label_title}}: the {{n_rescue_problems}} main-ladder problems luna-low missed most, chosen after the main run. Each config made {{rescue_n}} calls.</li>
 <li>Repo tasks: {{n_tasks}} edits, {{agent_repeats}} tries each. Total: {{ag_n}} calls.</li>
 </ul></li>
 <li>Pass = every hidden test passes:<ul>
@@ -71,7 +71,7 @@
 <li>Whiskers: {{ci_level}} confidence interval (bootstrap).</li>
 <li>The three cheapest points miss about {{cheap_miss_words}}.</li>
 <li>luna-low {{luna_low_pass}}. luna-low-bare {{luna_low_bare_pass}}. luna-medium {{luna_medium_pass}}.</li>
-<li>luna-low-bare = luna-low with Codex's own system prompt removed.</li>
+<li>luna-low-bare = luna-low with Codex's system prompt trimmed.</li>
 <li>Pipelines are on the "{{set_label_title}} + pipelines" tab.</li>
 </ul>
 </details>
@@ -94,7 +94,7 @@
 </section>
 <section id="results">
 <h2><span class="num"></span>📋 Results</h2>
-<p class="small">sol61-high is the Codex pick. haiku-high is the cheapest config without misses across the ladder, L7 and repo tasks.</p>
+<p class="small">sol61-high ⚡ is the Codex pick. haiku-high is the cheapest config with no misses on the main ladder.</p>
 <p class="small">Verdict key: {{verdict_key}}</p>
 {{w_short_table}}
 <ul class="tight small">
@@ -118,7 +118,7 @@
 <li>Pairs compare sol61-high and astra-medium at normal speed and ⚡.</li>
 <li>The model and effort stay the same. Both the main ladder and L7 passed everything.</li>
 <li>Fast-mode $ uses {{fm_mult}} list price. This multiplier comes from the pricing page.</li>
-<li>Codex $ estimates use tokens, not measured bills. <a href="#notation">See Notation.</a></li>
+<li><a href="#notation">Codex $ is an estimate: see Notation.</a></li>
 </ul>
 </details>
 </section>
@@ -129,8 +129,7 @@
 <ul class="tight small">
 <li>Token floor = text Codex's runner (its harness) adds before the task. This includes the system prompt and tool descriptions.</li>
 <li>Bars show mean input per call, including the task.</li>
-<li>Solid = served from cache. Faded = uncached.</li>
-<li>Low-context rows use trimmed prompts. All these runs had tools off.</li>
+<li>All these runs had tools off.</li>
 <li><a href="#notation">See Notation.</a></li>
 </ul>
 </section>
@@ -141,7 +140,7 @@
 <ul class="tight small">
 <li>sol61-high and astra-medium never failed an example, so Haiku never ran.</li>
 <li>Normal speed uses separate runs. ⚡ pipeline rows replay cached answers.</li>
-<li>Low-context rows use trimmed prompts. <a href="#notation">See Notation.</a></li>
+<li><a href="#notation">See Notation.</a></li>
 </ul>
 </section>
 <section id="fair">
@@ -159,7 +158,7 @@
 <li>Calls took about {{hb_minutes}} minutes of wall time.</li>
 <li>Why luna-low gained: wrong answers fell from {{hb_luna_wrong_one}} to {{hb_luna_wrong_agent}} once it could run code.</li>
 <li>The gap moved {{hb_diff_points}} points, below our {{hb_bar_points}}-point bias bar.</li>
-<li>The {{ci_level}} range is {{hb_range_points}} points, so a larger bias is possible.</li>
+<li>The range is {{hb_range_points}} points, so a larger bias is possible.</li>
 <li>sol61-high already passed every try in our runner. A better runner cannot raise it.</li>
 </ul>
 </details>
@@ -179,7 +178,7 @@
 <ol class="tight">
 <li>Codex quota left? Send the task to sol61-high ⚡.</li>
 <li>Run the worked examples. If one fails, hand it to haiku-low. {{default_route_scope}}</li>
-<li>Quota out? Use haiku-high, the cheapest with no misses.</li>
+<li>Quota out? Use haiku-high, the cheapest with no misses on the main ladder.</li>
 </ol>
 <ul class="tight">
 <li>Need speed? sonnet-medium takes {{sonnet_medium_med}} s to haiku-high's {{haiku_high_med}} s. It costs {{sm_vs_hh_x}} as much.</li>
@@ -204,10 +203,8 @@
 <p class="small">Small sample: read the intervals first. {{n_exploratory}} configs were added after the main run (†), including the winning sol61-high. Sonnet's code read worst in a blind review.</p>
 <details><summary>⚠️ Caveats</summary>
 <ul class="tight">
-<li>Small sample: read the intervals before the point estimates.</li>
 <li>† = exploratory: added after the main run, outside the original comparison.</li>
 <li>We added {{n_exploratory}} configs:<ul>{{exploratory_items}}</ul></li>
-<li>The Winner's sol61-high is one of them.</li>
 <li>A Codex call's estimated $ drops up to {{cache_swing}} when the prompt cache hits.</li>
 <li>Latency is CLI wall clock.</li>
 <li>We ran up to {{lanes}} calls at once on one host.</li>
@@ -298,7 +295,7 @@
 <li>The pilot used {{fast_problems}} problems across {{fast_rounds}} rounds.</li>
 <li>It used {{fast_mult}} list price.</li>
 <li>sol61-low fell from {{fast_sol_def}} s to {{fast_sol_fast}} s.</li>
-<li>luna-low changed from {{fast_luna_def}} s to {{fast_luna_fast}} s.</li>
+<li>luna-low {{fast_luna_change}}.</li>
 <li>This pilot supplies the only fast-mode data at low effort.</li>
 </ul></li>
 <li><b>Original repair run: we lost its prompt but reran committed code.</b><ul>
@@ -322,4 +319,18 @@
 </ul>
 </details>
 {{w_everything}}
+</section>
+<section id="equiv">
+<h2><span class="num"></span>🔁 Codex vs Claude</h2>
+<p><b>{{equiv_takeaway}}</b></p>
+{{table:equiv}}
+<details><summary>📝 How we matched</summary>
+<ul class="tight small">
+<li>Match = the cheapest Codex config that passes at least as often.</li>
+<li>{{equiv_fastest}}</li>
+<li>{{equiv_near}}</li>
+<li>Codex $ is estimated from tokens at list price. On a subscription it uses quota instead.</li>
+<li>All rows use the main ladder.</li>
+</ul>
+</details>
 </section>
