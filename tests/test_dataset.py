@@ -26,3 +26,17 @@ def test_matches_rescue_arms():
 
 def test_cached_dataset_current():
     assert open(dataset.PATH).read() == dataset.text(dataset.build())
+
+
+def test_rescue_set_is_derived_and_matches_baselines():
+    ds = dataset.build(); arms = luna_rescue.arms()
+    derived = [r for r in ds["rows"] if r["derived"]]
+    assert derived and {r["set"] for r in derived} == {"rescue set"}
+    for r in derived: assert (r["passes"], r["n"]) == (arms[r["config"]]["passes"], arms[r["config"]]["n"]), r["config"]
+    # derived rows never feed the roll-up: all-runs n equals the sum of the non-derived sets
+    for a in (r for r in ds["rows"] if r["set"] == "all runs"):
+        parts = [r["n"] for r in ds["rows"] if r["id"] == a["id"] and r["set"] != "all runs" and not r["derived"]]
+        assert sum(parts) == a["n"], a["id"]
+    # every result row is in exactly one non-derived set: set counts are unique per (source, config)
+    ks = [(r["source"], r["config"], r["set"]) for r in ds["rows"] if not r["derived"]]
+    assert len(ks) == len(set(ks))

@@ -21,6 +21,7 @@
   "pilot repo task",
   "repo tasks",
   "rescue arms",
+  "rescue set",
   "trim probe"
  ],
  "rows": [
@@ -33,6 +34,7 @@
    "category": "main ladder",
    "what": "Claude Haiku, low effort, tools off",
    "set": "L7 set",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -74,6 +76,7 @@
    "category": "main ladder",
    "what": "Claude Haiku, medium effort",
    "set": "L7 set",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -115,6 +118,7 @@
    "category": "main ladder",
    "what": "Claude Sonnet, medium effort",
    "set": "L7 set",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -153,6 +157,7 @@
    "category": "main ladder",
    "what": "Codex gpt-6.1-sol, medium effort",
    "set": "L7 set",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -191,6 +196,7 @@
    "category": "main ladder",
    "what": "Claude Haiku, low effort, tools off",
    "set": "calibration",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -245,6 +251,7 @@
    "category": "main ladder",
    "what": "Claude Sonnet, medium effort",
    "set": "calibration",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -299,6 +306,7 @@
    "category": "main ladder",
    "what": "Codex gpt-6.1-sol, medium effort",
    "set": "calibration",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -353,6 +361,7 @@
    "category": "main ladder",
    "what": "Claude Haiku, low effort, tools off",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -414,6 +423,7 @@
    "category": "main ladder",
    "what": "Claude Haiku, medium effort",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -475,6 +485,7 @@
    "category": "main ladder",
    "what": "Claude Sonnet, medium effort",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -533,6 +544,7 @@
    "category": "main ladder",
    "what": "Codex gpt-6-luna, low effort, stock Codex harness",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -594,6 +606,7 @@
    "category": "main ladder",
    "what": "Codex gpt-6-luna, medium effort",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -655,6 +668,7 @@
    "category": "main ladder",
    "what": "Codex gpt-6.1-sol, medium effort",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -708,6 +722,324 @@
    "cost_kind": "proxy"
   },
   {
+   "id": "main/haiku-low",
+   "source": "main",
+   "config": "haiku-low",
+   "display": "haiku-low",
+   "family": "Claude",
+   "category": "main ladder",
+   "what": "Claude Haiku, low effort, tools off",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 32,
+   "n": 35,
+   "pass_rate": 0.9143,
+   "ci95": [
+    0.7429,
+    1.0
+   ],
+   "groups": 7,
+   "usd_per_pass": 0.001568,
+   "claude_usd_per_pass": 0.001568,
+   "codex_usd_per_pass": 0.0,
+   "usd_per_call": 0.001433,
+   "spend": 0.05016,
+   "spend_claude": 0.05016,
+   "spend_codex": 0.0,
+   "unknown_usd": 0,
+   "median_s": 13.08,
+   "p25_s": 10.17,
+   "p75_s": 14.35,
+   "tokens_in_mean": 4571,
+   "tokens_out_mean": 2528,
+   "by_rung": {
+    "L2": [
+     10,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     8,
+     10
+    ],
+    "L6": [
+     9,
+     10
+    ]
+   },
+   "cost_kind": "measured"
+  },
+  {
+   "id": "main/haiku-medium",
+   "source": "main",
+   "config": "haiku-medium",
+   "display": "haiku-medium",
+   "family": "Claude",
+   "category": "main ladder",
+   "what": "Claude Haiku, medium effort",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 35,
+   "n": 35,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 7,
+   "usd_per_pass": 0.001919,
+   "claude_usd_per_pass": 0.001919,
+   "codex_usd_per_pass": 0.0,
+   "usd_per_call": 0.001919,
+   "spend": 0.06717,
+   "spend_claude": 0.06717,
+   "spend_codex": 0.0,
+   "unknown_usd": 0,
+   "median_s": 14.83,
+   "p25_s": 13.03,
+   "p75_s": 18.59,
+   "tokens_in_mean": 4570,
+   "tokens_out_mean": 3526,
+   "by_rung": {
+    "L2": [
+     10,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
+   "cost_kind": "measured"
+  },
+  {
+   "id": "main/sonnet-medium",
+   "source": "main",
+   "config": "sonnet-medium",
+   "display": "sonnet-medium",
+   "family": "Claude",
+   "category": "main ladder",
+   "what": "Claude Sonnet, medium effort",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 35,
+   "n": 35,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 7,
+   "usd_per_pass": 0.015305,
+   "claude_usd_per_pass": 0.015305,
+   "codex_usd_per_pass": 0.0,
+   "usd_per_call": 0.015305,
+   "spend": 0.53566,
+   "spend_claude": 0.53566,
+   "spend_codex": 0.0,
+   "unknown_usd": 0,
+   "median_s": 11.45,
+   "p25_s": 9.87,
+   "p75_s": 12.99,
+   "tokens_in_mean": 3793,
+   "tokens_out_mean": 1239,
+   "by_rung": {
+    "L2": [
+     10,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
+   "cost_kind": "measured"
+  },
+  {
+   "id": "main/luna-low",
+   "source": "main",
+   "config": "luna-low",
+   "display": "luna-low",
+   "family": "Codex",
+   "category": "main ladder",
+   "what": "Codex gpt-6-luna, low effort, stock Codex harness",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 21,
+   "n": 35,
+   "pass_rate": 0.6,
+   "ci95": [
+    0.2857,
+    0.8857
+   ],
+   "groups": 7,
+   "usd_per_pass": 0.001287,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.001287,
+   "usd_per_call": 0.000772,
+   "spend": 0.02703,
+   "spend_claude": 0.0,
+   "spend_codex": 0.02703,
+   "unknown_usd": 0,
+   "median_s": 8.53,
+   "p25_s": 6.32,
+   "p75_s": 10.7,
+   "tokens_in_mean": 14740,
+   "tokens_out_mean": 670,
+   "by_rung": {
+    "L2": [
+     6,
+     10
+    ],
+    "L4": [
+     4,
+     5
+    ],
+    "L5": [
+     7,
+     10
+    ],
+    "L6": [
+     4,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/luna-medium",
+   "source": "main",
+   "config": "luna-medium",
+   "display": "luna-medium",
+   "family": "Codex",
+   "category": "main ladder",
+   "what": "Codex gpt-6-luna, medium effort",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 22,
+   "n": 35,
+   "pass_rate": 0.6286,
+   "ci95": [
+    0.3143,
+    0.9143
+   ],
+   "groups": 7,
+   "usd_per_pass": 0.001238,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.001238,
+   "usd_per_call": 0.000778,
+   "spend": 0.027244,
+   "spend_claude": 0.0,
+   "spend_codex": 0.027244,
+   "unknown_usd": 0,
+   "median_s": 9.53,
+   "p25_s": 7.61,
+   "p75_s": 11.23,
+   "tokens_in_mean": 14741,
+   "tokens_out_mean": 682,
+   "by_rung": {
+    "L2": [
+     5,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     2,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/sol61-medium",
+   "source": "main",
+   "config": "sol61-medium",
+   "display": "sol61-medium",
+   "family": "Codex",
+   "category": "main ladder",
+   "what": "Codex gpt-6.1-sol, medium effort",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 33,
+   "n": 35,
+   "pass_rate": 0.9429,
+   "ci95": [
+    0.8,
+    1.0
+   ],
+   "groups": 7,
+   "usd_per_pass": 0.01785,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.01785,
+   "usd_per_call": 0.01683,
+   "spend": 0.589042,
+   "spend_claude": 0.0,
+   "spend_codex": 0.589042,
+   "unknown_usd": 0,
+   "median_s": 25.56,
+   "p25_s": 22.05,
+   "p75_s": 29.46,
+   "tokens_in_mean": 15432,
+   "tokens_out_mean": 950,
+   "by_rung": {
+    "L2": [
+     10,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     8,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
    "id": "main/haiku-high",
    "source": "main",
    "config": "haiku-high",
@@ -716,6 +1048,7 @@
    "category": "exploratory",
    "what": "Claude Haiku, high effort (added after the main run)",
    "set": "L7 set",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -754,6 +1087,7 @@
    "category": "exploratory",
    "what": "gpt-6-luna, high effort (added after the main run)",
    "set": "L7 set",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -792,6 +1126,7 @@
    "category": "exploratory",
    "what": "gpt-5.6-luna, low effort",
    "set": "L7 set",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -833,6 +1168,7 @@
    "category": "exploratory",
    "what": "gpt-5.6-luna, high effort",
    "set": "L7 set",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -874,6 +1210,7 @@
    "category": "exploratory",
    "what": "gpt-5.6-sol, high effort",
    "set": "L7 set",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -915,6 +1252,7 @@
    "category": "exploratory",
    "what": "gpt-6.1-sol, high effort (default tier)",
    "set": "L7 set",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -953,6 +1291,7 @@
    "category": "exploratory",
    "what": "gpt-6-astra, medium effort",
    "set": "L7 set",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -991,6 +1330,7 @@
    "category": "exploratory",
    "what": "gpt-6.1-sol, high effort (default tier)",
    "set": "extra repeats",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -1041,6 +1381,7 @@
    "category": "exploratory",
    "what": "Claude Haiku, high effort (added after the main run)",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -1099,6 +1440,7 @@
    "category": "exploratory",
    "what": "gpt-6-luna, high effort (added after the main run)",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -1160,6 +1502,7 @@
    "category": "exploratory",
    "what": "luna-low with the Codex system prompt and tool features stripped (trim level noshell)",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -1221,6 +1564,7 @@
    "category": "exploratory",
    "what": "gpt-5.6-luna, low effort",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -1282,6 +1626,7 @@
    "category": "exploratory",
    "what": "gpt-5.6-luna, high effort",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -1343,6 +1688,7 @@
    "category": "exploratory",
    "what": "gpt-5.6-sol, high effort",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -1401,6 +1747,7 @@
    "category": "exploratory",
    "what": "gpt-6.1-sol, high effort (default tier)",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -1459,6 +1806,7 @@
    "category": "exploratory",
    "what": "gpt-6-astra, medium effort",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -1509,6 +1857,422 @@
    "cost_kind": "proxy"
   },
   {
+   "id": "main/haiku-high",
+   "source": "main",
+   "config": "haiku-high",
+   "display": "haiku-high",
+   "family": "Claude",
+   "category": "exploratory",
+   "what": "Claude Haiku, high effort (added after the main run)",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 35,
+   "n": 35,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 7,
+   "usd_per_pass": 0.003473,
+   "claude_usd_per_pass": 0.003473,
+   "codex_usd_per_pass": 0.0,
+   "usd_per_call": 0.003473,
+   "spend": 0.121567,
+   "spend_claude": 0.121567,
+   "spend_codex": 0.0,
+   "unknown_usd": 0,
+   "median_s": 17.41,
+   "p25_s": 14.21,
+   "p75_s": 23.72,
+   "tokens_in_mean": 4492,
+   "tokens_out_mean": 5397,
+   "by_rung": {
+    "L2": [
+     10,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
+   "cost_kind": "measured"
+  },
+  {
+   "id": "main/luna-high",
+   "source": "main",
+   "config": "luna-high",
+   "display": "luna-high",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-6-luna, high effort (added after the main run)",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 18,
+   "n": 20,
+   "pass_rate": 0.9,
+   "ci95": [
+    0.7,
+    1.0
+   ],
+   "groups": 4,
+   "usd_per_pass": 0.00115,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.00115,
+   "usd_per_call": 0.001035,
+   "spend": 0.020702,
+   "spend_claude": 0.0,
+   "spend_codex": 0.020702,
+   "unknown_usd": 0,
+   "median_s": 13.38,
+   "p25_s": 12.3,
+   "p75_s": 14.78,
+   "tokens_in_mean": 14720,
+   "tokens_out_mean": 1200,
+   "by_rung": {
+    "L2": [
+     5,
+     5
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     8,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/luna-low-bare",
+   "source": "main",
+   "config": "luna-low-bare",
+   "display": "luna-low-bare",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "luna-low with the Codex system prompt and tool features stripped (trim level noshell)",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 19,
+   "n": 35,
+   "pass_rate": 0.5429,
+   "ci95": [
+    0.2571,
+    0.8
+   ],
+   "groups": 7,
+   "usd_per_pass": 0.00125,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.00125,
+   "usd_per_call": 0.000679,
+   "spend": 0.023758,
+   "spend_claude": 0.0,
+   "spend_codex": 0.023758,
+   "unknown_usd": 0,
+   "median_s": 7.78,
+   "p25_s": 6.77,
+   "p75_s": 10.29,
+   "tokens_in_mean": 6196,
+   "tokens_out_mean": 687,
+   "by_rung": {
+    "L2": [
+     4,
+     10
+    ],
+    "L4": [
+     4,
+     5
+    ],
+    "L5": [
+     9,
+     10
+    ],
+    "L6": [
+     2,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/luna56-low",
+   "source": "main",
+   "config": "luna56-low",
+   "display": "luna56-low",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-5.6-luna, low effort",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 29,
+   "n": 35,
+   "pass_rate": 0.8286,
+   "ci95": [
+    0.5714,
+    1.0
+   ],
+   "groups": 7,
+   "usd_per_pass": 0.002483,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.002483,
+   "usd_per_call": 0.002058,
+   "spend": 0.072014,
+   "spend_claude": 0.0,
+   "spend_codex": 0.072014,
+   "unknown_usd": 0,
+   "median_s": 12.32,
+   "p25_s": 8.82,
+   "p75_s": 14.25,
+   "tokens_in_mean": 13016,
+   "tokens_out_mean": 1081,
+   "by_rung": {
+    "L2": [
+     9,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     9,
+     10
+    ],
+    "L6": [
+     6,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/luna56-high",
+   "source": "main",
+   "config": "luna56-high",
+   "display": "luna56-high",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-5.6-luna, high effort",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 32,
+   "n": 35,
+   "pass_rate": 0.9143,
+   "ci95": [
+    0.7714,
+    1.0
+   ],
+   "groups": 7,
+   "usd_per_pass": 0.003603,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.003603,
+   "usd_per_call": 0.003294,
+   "spend": 0.115297,
+   "spend_claude": 0.0,
+   "spend_codex": 0.115297,
+   "unknown_usd": 0,
+   "median_s": 14.11,
+   "p25_s": 10.86,
+   "p75_s": 29.32,
+   "tokens_in_mean": 13016,
+   "tokens_out_mean": 2112,
+   "by_rung": {
+    "L2": [
+     9,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     8,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/sol56-high",
+   "source": "main",
+   "config": "sol56-high",
+   "display": "sol56-high",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-5.6-sol, high effort",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 35,
+   "n": 35,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 7,
+   "usd_per_pass": 0.050676,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.050676,
+   "usd_per_call": 0.050676,
+   "spend": 1.77366,
+   "spend_claude": 0.0,
+   "spend_codex": 1.77366,
+   "unknown_usd": 0,
+   "median_s": 19.48,
+   "p25_s": 14.16,
+   "p75_s": 37.66,
+   "tokens_in_mean": 14520,
+   "tokens_out_mean": 1657,
+   "by_rung": {
+    "L2": [
+     10,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/sol61-high",
+   "source": "main",
+   "config": "sol61-high",
+   "display": "sol61-high",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-6.1-sol, high effort (default tier)",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 35,
+   "n": 35,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 7,
+   "usd_per_pass": 0.022185,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.022185,
+   "usd_per_call": 0.022185,
+   "spend": 0.776472,
+   "spend_claude": 0.0,
+   "spend_codex": 0.776472,
+   "unknown_usd": 0,
+   "median_s": 33.36,
+   "p25_s": 25.34,
+   "p75_s": 46.93,
+   "tokens_in_mean": 15432,
+   "tokens_out_mean": 1467,
+   "by_rung": {
+    "L2": [
+     10,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/astra-medium",
+   "source": "main",
+   "config": "astra-medium",
+   "display": "astra-medium",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-6-astra, medium effort",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 35,
+   "n": 35,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 7,
+   "usd_per_pass": 0.086416,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.086416,
+   "usd_per_call": 0.086416,
+   "spend": 3.024546,
+   "spend_claude": 0.0,
+   "spend_codex": 3.024546,
+   "unknown_usd": 0,
+   "median_s": 25.99,
+   "p25_s": 20.1,
+   "p75_s": 30.74,
+   "tokens_in_mean": 15374,
+   "tokens_out_mean": 857,
+   "by_rung": {
+    "L2": [
+     10,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
    "id": "main/sol61-high-fast",
    "source": "main",
    "config": "sol61-high-fast",
@@ -1517,6 +2281,7 @@
    "category": "fast mode and xhigh",
    "what": "sol61-high on the Codex priority tier (fast mode): same model and effort, about twice the price",
    "set": "L7 set",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -1555,6 +2320,7 @@
    "category": "fast mode and xhigh",
    "what": "astra-medium on the Codex priority tier (fast mode)",
    "set": "L7 set",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -1593,6 +2359,7 @@
    "category": "fast mode and xhigh",
    "what": "sol61-high on the Codex priority tier (fast mode): same model and effort, about twice the price",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -1651,6 +2418,7 @@
    "category": "fast mode and xhigh",
    "what": "astra-medium on the Codex priority tier (fast mode)",
    "set": "main ladder",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -1709,6 +2477,160 @@
    "category": "fast mode and xhigh",
    "what": "gpt-6.1-sol at xhigh effort",
    "set": "partial ladder",
+   "derived": false,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 35,
+   "n": 35,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 7,
+   "usd_per_pass": 0.032607,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.032607,
+   "usd_per_call": 0.032607,
+   "spend": 1.141252,
+   "spend_claude": 0.0,
+   "spend_codex": 1.141252,
+   "unknown_usd": 0,
+   "median_s": 44.28,
+   "p25_s": 34.46,
+   "p75_s": 58.11,
+   "tokens_in_mean": 15433,
+   "tokens_out_mean": 2509,
+   "by_rung": {
+    "L2": [
+     10,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/sol61-high-fast",
+   "source": "main",
+   "config": "sol61-high-fast",
+   "display": "sol61-high ⚡",
+   "family": "Codex",
+   "category": "fast mode and xhigh",
+   "what": "sol61-high on the Codex priority tier (fast mode): same model and effort, about twice the price",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 35,
+   "n": 35,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 7,
+   "usd_per_pass": 0.043492,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.043492,
+   "usd_per_call": 0.043492,
+   "spend": 1.522236,
+   "spend_claude": 0.0,
+   "spend_codex": 1.522236,
+   "unknown_usd": 0,
+   "median_s": 18.95,
+   "p25_s": 16.8,
+   "p75_s": 26.85,
+   "tokens_in_mean": 15432,
+   "tokens_out_mean": 1423,
+   "by_rung": {
+    "L2": [
+     10,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/astra-medium-fast",
+   "source": "main",
+   "config": "astra-medium-fast",
+   "display": "astra-medium ⚡",
+   "family": "Codex",
+   "category": "fast mode and xhigh",
+   "what": "astra-medium on the Codex priority tier (fast mode)",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-22b-function.jsonl"
+   ],
+   "passes": 35,
+   "n": 35,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 7,
+   "usd_per_pass": 0.174941,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.174941,
+   "usd_per_call": 0.174941,
+   "spend": 6.12294,
+   "spend_claude": 0.0,
+   "spend_codex": 6.12294,
+   "unknown_usd": 0,
+   "median_s": 10.94,
+   "p25_s": 9.52,
+   "p75_s": 12.34,
+   "tokens_in_mean": 15368,
+   "tokens_out_mean": 865,
+   "by_rung": {
+    "L2": [
+     10,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/sol61-xhigh",
+   "source": "main",
+   "config": "sol61-xhigh",
+   "display": "sol61-xhigh",
+   "family": "Codex",
+   "category": "fast mode and xhigh",
+   "what": "gpt-6.1-sol at xhigh effort",
+   "set": "rescue set",
+   "derived": true,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -1759,6 +2681,7 @@
    "category": "rescue pipeline",
    "what": "Arm B1: luna-low without shell, nudged to list edge cases and trace the examples first",
    "set": "rescue arms",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -1795,6 +2718,7 @@
    "category": "rescue pipeline",
    "what": "Arm B2: B1 plus a detailed reasoning summary",
    "set": "rescue arms",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -1831,6 +2755,7 @@
    "category": "rescue pipeline",
    "what": "Arm C: luna-low with shell on, told to test its code first",
    "set": "rescue arms",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -1867,6 +2792,7 @@
    "category": "rescue pipeline",
    "what": "Arm D: luna-medium, stripped harness",
    "set": "rescue arms",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -1903,6 +2829,7 @@
    "category": "rescue pipeline",
    "what": "Arm D: luna-high, stripped harness",
    "set": "rescue arms",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -1939,6 +2866,7 @@
    "category": "rescue pipeline",
    "what": "Arm E (original run, prompt not kept): luna-low answers, haiku-low reviews and repairs",
    "set": "rescue arms",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -1972,6 +2900,7 @@
    "category": "rescue pipeline",
    "what": "Arm F: haiku-low writes a plan, luna-low builds from it",
    "set": "rescue arms",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -2008,6 +2937,7 @@
    "category": "rescue pipeline",
    "what": "Arm F: haiku-low plans, luna-high (stripped) builds",
    "set": "rescue arms",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -2044,6 +2974,7 @@
    "category": "rescue pipeline",
    "what": "Arm G: luna-high builds; haiku-low repairs only if the statement's examples fail",
    "set": "rescue arms",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -2080,6 +3011,7 @@
    "category": "rescue pipeline",
    "what": "Arm G: luna-high builds; luna-high retries only if the examples fail",
    "set": "rescue arms",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -2116,6 +3048,7 @@
    "category": "rescue pipeline",
    "what": "Arm G: luna-low builds; haiku-low repairs only if the examples fail",
    "set": "rescue arms",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -2152,6 +3085,7 @@
    "category": "rescue pipeline",
    "what": "Arm G: astra-medium builds; haiku-low repairs only if the examples fail",
    "set": "rescue arms",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -2185,6 +3119,7 @@
    "category": "rescue pipeline",
    "what": "Arm G: sol61-high builds; haiku-low repairs only if the examples fail",
    "set": "rescue arms",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -2218,6 +3153,7 @@
    "category": "rescue pipeline",
    "what": "Arm G: luna-high builds; haiku-low reviews every answer",
    "set": "rescue arms",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -2251,6 +3187,7 @@
    "category": "rescue pipeline",
    "what": "Arm G: luna-low builds; haiku-low reviews every answer (arm E rerun from committed code)",
    "set": "rescue arms",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -2287,6 +3224,7 @@
    "category": "repo tasks",
    "what": "Repo tasks with tools: Claude Haiku, low",
    "set": "repo tasks",
+   "derived": false,
    "files": [
     "results/2026-10-22b-agentic.jsonl"
    ],
@@ -2320,6 +3258,7 @@
    "category": "repo tasks",
    "what": "Repo tasks: Claude Haiku, high",
    "set": "repo tasks",
+   "derived": false,
    "files": [
     "results/2026-10-22b-agentic.jsonl"
    ],
@@ -2353,6 +3292,7 @@
    "category": "repo tasks",
    "what": "Repo tasks: Claude Sonnet, medium",
    "set": "repo tasks",
+   "derived": false,
    "files": [
     "results/2026-10-22b-agentic.jsonl"
    ],
@@ -2386,6 +3326,7 @@
    "category": "repo tasks",
    "what": "Repo tasks: gpt-6-luna, low",
    "set": "repo tasks",
+   "derived": false,
    "files": [
     "results/2026-10-22b-agentic.jsonl"
    ],
@@ -2419,6 +3360,7 @@
    "category": "repo tasks",
    "what": "Repo tasks: gpt-6.1-sol, medium",
    "set": "repo tasks",
+   "derived": false,
    "files": [
     "results/2026-10-22b-agentic.jsonl"
    ],
@@ -2452,6 +3394,7 @@
    "category": "repo tasks",
    "what": "Repo tasks: gpt-6.1-sol, high",
    "set": "repo tasks",
+   "derived": false,
    "files": [
     "results/2026-10-22b-agentic.jsonl"
    ],
@@ -2485,6 +3428,7 @@
    "category": "repo tasks",
    "what": "Repo tasks: gpt-6-astra, medium",
    "set": "repo tasks",
+   "derived": false,
    "files": [
     "results/2026-10-22b-agentic.jsonl"
    ],
@@ -2518,6 +3462,7 @@
    "category": "trim",
    "what": "Codex harness floor probe: luna, stock harness",
    "set": "trim probe",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -2551,6 +3496,7 @@
    "category": "trim",
    "what": "luna, tool features stripped",
    "set": "trim probe",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -2584,6 +3530,7 @@
    "category": "trim",
    "what": "luna, features, shell and base instructions stripped",
    "set": "trim probe",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -2617,6 +3564,7 @@
    "category": "trim",
    "what": "luna, minimal instructions (one call)",
    "set": "trim probe",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -2650,6 +3598,7 @@
    "category": "trim",
    "what": "luna, no project context (one call)",
    "set": "trim probe",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -2683,6 +3632,7 @@
    "category": "trim",
    "what": "luna, no docs (one call)",
    "set": "trim probe",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -2716,6 +3666,7 @@
    "category": "trim",
    "what": "terra, stock harness",
    "set": "trim probe",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -2749,6 +3700,7 @@
    "category": "trim",
    "what": "terra, tool features stripped",
    "set": "trim probe",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -2782,6 +3734,7 @@
    "category": "trim",
    "what": "terra, features and shell stripped",
    "set": "trim probe",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -2815,6 +3768,7 @@
    "category": "trim",
    "what": "terra, minimal instructions (one call)",
    "set": "trim probe",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -2848,6 +3802,7 @@
    "category": "trim",
    "what": "terra, no project context (one call)",
    "set": "trim probe",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -2881,6 +3836,7 @@
    "category": "trim",
    "what": "terra, no docs (one call)",
    "set": "trim probe",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -2914,6 +3870,7 @@
    "category": "trim",
    "what": "haiku-low through the same probe, tools off (reference)",
    "set": "trim probe",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -2947,6 +3904,7 @@
    "category": "pilot",
    "what": "Pilot (well-known problems): Claude Haiku, low",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -2980,6 +3938,7 @@
    "category": "pilot",
    "what": "Pilot: Claude Haiku, medium",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3013,6 +3972,7 @@
    "category": "pilot",
    "what": "Pilot: Claude Sonnet, low",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3046,6 +4006,7 @@
    "category": "pilot",
    "what": "Pilot: Claude Sonnet, medium",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3079,6 +4040,7 @@
    "category": "pilot",
    "what": "Pilot: Haiku low with tools on",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3112,6 +4074,7 @@
    "category": "pilot",
    "what": "Pilot: Sonnet medium with tools on",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3145,6 +4108,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6.1-sol, low, priority tier",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3178,6 +4142,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6.1-sol, medium, priority tier",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3211,6 +4176,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6.1-sol low with --ignore-user-config only",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3244,6 +4210,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6.1-sol low, stripped harness, priority tier",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3277,6 +4244,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6-astra, low",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3310,6 +4278,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6-luna, low, priority tier",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3343,6 +4312,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6-luna low, default tier",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3376,6 +4346,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6-luna high, priority tier",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3409,6 +4380,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-5.6-terra low, priority tier",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3442,6 +4414,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6-sol low, priority tier",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3475,6 +4448,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6.1-sol low, priority tier",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3508,6 +4482,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6.1-sol low, default tier (the fast-mode control)",
    "set": "pilot",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -3541,6 +4516,7 @@
    "category": "pilot",
    "what": "Pilot repo task: gpt-6.1-sol builds, a reviewer checks",
    "set": "pilot repo task",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot-agentic.jsonl"
    ],
@@ -3574,6 +4550,7 @@
    "category": "pilot",
    "what": "Pilot repo task: gpt-6-luna builds, a reviewer checks",
    "set": "pilot repo task",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot-agentic.jsonl"
    ],
@@ -3607,6 +4584,7 @@
    "category": "pilot",
    "what": "Pilot repo task: Claude Sonnet builds, no review",
    "set": "pilot repo task",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot-agentic.jsonl"
    ],
@@ -3640,6 +4618,7 @@
    "category": "harness-bias",
    "what": "Harness-bias check: haiku-low on the hard problems through the Claude-built harness",
    "set": "harness bias",
+   "derived": false,
    "files": [
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
@@ -3677,6 +4656,7 @@
    "category": "harness-bias",
    "what": "Harness-bias check: haiku-low through the harness Codex built",
    "set": "harness bias",
+   "derived": false,
    "files": [
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
@@ -3728,6 +4708,7 @@
    "category": "harness-bias",
    "what": "Harness-bias check: luna-low through the Claude-built harness",
    "set": "harness bias",
+   "derived": false,
    "files": [
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
@@ -3765,6 +4746,7 @@
    "category": "harness-bias",
    "what": "Harness-bias check: luna-low through the harness Codex built",
    "set": "harness bias",
+   "derived": false,
    "files": [
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
@@ -3819,6 +4801,7 @@
    "category": "harness-bias",
    "what": "Harness-bias check: sol61-medium through the harness Codex built",
    "set": "harness bias",
+   "derived": false,
    "files": [
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
@@ -3866,6 +4849,7 @@
    "category": "main ladder",
    "what": "Claude Haiku, low effort, tools off",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -3931,6 +4915,7 @@
    "category": "main ladder",
    "what": "Claude Haiku, medium effort",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -3996,6 +4981,7 @@
    "category": "main ladder",
    "what": "Claude Sonnet, medium effort",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -4058,6 +5044,7 @@
    "category": "main ladder",
    "what": "Codex gpt-6-luna, low effort, stock Codex harness",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -4119,6 +5106,7 @@
    "category": "main ladder",
    "what": "Codex gpt-6-luna, medium effort",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -4180,6 +5168,7 @@
    "category": "main ladder",
    "what": "Codex gpt-6.1-sol, medium effort",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -4245,6 +5234,7 @@
    "category": "exploratory",
    "what": "Claude Haiku, high effort (added after the main run)",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -4307,6 +5297,7 @@
    "category": "exploratory",
    "what": "gpt-6-luna, high effort (added after the main run)",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -4372,6 +5363,7 @@
    "category": "exploratory",
    "what": "luna-low with the Codex system prompt and tool features stripped (trim level noshell)",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -4433,6 +5425,7 @@
    "category": "exploratory",
    "what": "gpt-5.6-luna, low effort",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -4498,6 +5491,7 @@
    "category": "exploratory",
    "what": "gpt-5.6-luna, high effort",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -4563,6 +5557,7 @@
    "category": "exploratory",
    "what": "gpt-5.6-sol, high effort",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -4628,6 +5623,7 @@
    "category": "exploratory",
    "what": "gpt-6.1-sol, high effort (default tier)",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -4690,6 +5686,7 @@
    "category": "exploratory",
    "what": "gpt-6-astra, medium effort",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -4752,6 +5749,7 @@
    "category": "fast mode and xhigh",
    "what": "sol61-high on the Codex priority tier (fast mode): same model and effort, about twice the price",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -4814,6 +5812,7 @@
    "category": "fast mode and xhigh",
    "what": "astra-medium on the Codex priority tier (fast mode)",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -4876,6 +5875,7 @@
    "category": "fast mode and xhigh",
    "what": "gpt-6.1-sol at xhigh effort",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-function.jsonl"
    ],
@@ -4926,6 +5926,7 @@
    "category": "rescue pipeline",
    "what": "Arm B1: luna-low without shell, nudged to list edge cases and trace the examples first",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -4962,6 +5963,7 @@
    "category": "rescue pipeline",
    "what": "Arm B2: B1 plus a detailed reasoning summary",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -4998,6 +6000,7 @@
    "category": "rescue pipeline",
    "what": "Arm C: luna-low with shell on, told to test its code first",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -5034,6 +6037,7 @@
    "category": "rescue pipeline",
    "what": "Arm D: luna-medium, stripped harness",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -5070,6 +6074,7 @@
    "category": "rescue pipeline",
    "what": "Arm D: luna-high, stripped harness",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -5106,6 +6111,7 @@
    "category": "rescue pipeline",
    "what": "Arm E (original run, prompt not kept): luna-low answers, haiku-low reviews and repairs",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -5139,6 +6145,7 @@
    "category": "rescue pipeline",
    "what": "Arm F: haiku-low writes a plan, luna-low builds from it",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -5175,6 +6182,7 @@
    "category": "rescue pipeline",
    "what": "Arm F: haiku-low plans, luna-high (stripped) builds",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -5211,6 +6219,7 @@
    "category": "rescue pipeline",
    "what": "Arm G: luna-high builds; haiku-low repairs only if the statement's examples fail",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -5247,6 +6256,7 @@
    "category": "rescue pipeline",
    "what": "Arm G: luna-high builds; luna-high retries only if the examples fail",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -5283,6 +6293,7 @@
    "category": "rescue pipeline",
    "what": "Arm G: luna-low builds; haiku-low repairs only if the examples fail",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -5319,6 +6330,7 @@
    "category": "rescue pipeline",
    "what": "Arm G: astra-medium builds; haiku-low repairs only if the examples fail",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -5352,6 +6364,7 @@
    "category": "rescue pipeline",
    "what": "Arm G: sol61-high builds; haiku-low repairs only if the examples fail",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -5385,6 +6398,7 @@
    "category": "rescue pipeline",
    "what": "Arm G: luna-high builds; haiku-low reviews every answer",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -5418,6 +6432,7 @@
    "category": "rescue pipeline",
    "what": "Arm G: luna-low builds; haiku-low reviews every answer (arm E rerun from committed code)",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/luna_rescue.jsonl"
    ],
@@ -5454,6 +6469,7 @@
    "category": "repo tasks",
    "what": "Repo tasks with tools: Claude Haiku, low",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-agentic.jsonl"
    ],
@@ -5487,6 +6503,7 @@
    "category": "repo tasks",
    "what": "Repo tasks: Claude Haiku, high",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-agentic.jsonl"
    ],
@@ -5520,6 +6537,7 @@
    "category": "repo tasks",
    "what": "Repo tasks: Claude Sonnet, medium",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-agentic.jsonl"
    ],
@@ -5553,6 +6571,7 @@
    "category": "repo tasks",
    "what": "Repo tasks: gpt-6-luna, low",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-agentic.jsonl"
    ],
@@ -5586,6 +6605,7 @@
    "category": "repo tasks",
    "what": "Repo tasks: gpt-6.1-sol, medium",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-agentic.jsonl"
    ],
@@ -5619,6 +6639,7 @@
    "category": "repo tasks",
    "what": "Repo tasks: gpt-6.1-sol, high",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-agentic.jsonl"
    ],
@@ -5652,6 +6673,7 @@
    "category": "repo tasks",
    "what": "Repo tasks: gpt-6-astra, medium",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-agentic.jsonl"
    ],
@@ -5685,6 +6707,7 @@
    "category": "trim",
    "what": "Codex harness floor probe: luna, stock harness",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -5718,6 +6741,7 @@
    "category": "trim",
    "what": "luna, tool features stripped",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -5751,6 +6775,7 @@
    "category": "trim",
    "what": "luna, features, shell and base instructions stripped",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -5784,6 +6809,7 @@
    "category": "trim",
    "what": "luna, minimal instructions (one call)",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -5817,6 +6843,7 @@
    "category": "trim",
    "what": "luna, no project context (one call)",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -5850,6 +6877,7 @@
    "category": "trim",
    "what": "luna, no docs (one call)",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -5883,6 +6911,7 @@
    "category": "trim",
    "what": "terra, stock harness",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -5916,6 +6945,7 @@
    "category": "trim",
    "what": "terra, tool features stripped",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -5949,6 +6979,7 @@
    "category": "trim",
    "what": "terra, features and shell stripped",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -5982,6 +7013,7 @@
    "category": "trim",
    "what": "terra, minimal instructions (one call)",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -6015,6 +7047,7 @@
    "category": "trim",
    "what": "terra, no project context (one call)",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -6048,6 +7081,7 @@
    "category": "trim",
    "what": "terra, no docs (one call)",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -6081,6 +7115,7 @@
    "category": "trim",
    "what": "haiku-low through the same probe, tools off (reference)",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22b-trim.jsonl"
    ],
@@ -6114,6 +7149,7 @@
    "category": "pilot",
    "what": "Pilot (well-known problems): Claude Haiku, low",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6147,6 +7183,7 @@
    "category": "pilot",
    "what": "Pilot: Claude Haiku, medium",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6180,6 +7217,7 @@
    "category": "pilot",
    "what": "Pilot: Claude Sonnet, low",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6213,6 +7251,7 @@
    "category": "pilot",
    "what": "Pilot: Claude Sonnet, medium",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6246,6 +7285,7 @@
    "category": "pilot",
    "what": "Pilot: Haiku low with tools on",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6279,6 +7319,7 @@
    "category": "pilot",
    "what": "Pilot: Sonnet medium with tools on",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6312,6 +7353,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6.1-sol, low, priority tier",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6345,6 +7387,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6.1-sol, medium, priority tier",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6378,6 +7421,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6.1-sol low with --ignore-user-config only",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6411,6 +7455,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6.1-sol low, stripped harness, priority tier",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6444,6 +7489,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6-astra, low",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6477,6 +7523,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6-luna, low, priority tier",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6510,6 +7557,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6-luna low, default tier",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6543,6 +7591,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6-luna high, priority tier",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6576,6 +7625,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-5.6-terra low, priority tier",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6609,6 +7659,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6-sol low, priority tier",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6642,6 +7693,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6.1-sol low, priority tier",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6675,6 +7727,7 @@
    "category": "pilot",
    "what": "Pilot: gpt-6.1-sol low, default tier (the fast-mode control)",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot.jsonl"
    ],
@@ -6708,6 +7761,7 @@
    "category": "pilot",
    "what": "Pilot repo task: gpt-6.1-sol builds, a reviewer checks",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot-agentic.jsonl"
    ],
@@ -6741,6 +7795,7 @@
    "category": "pilot",
    "what": "Pilot repo task: gpt-6-luna builds, a reviewer checks",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot-agentic.jsonl"
    ],
@@ -6774,6 +7829,7 @@
    "category": "pilot",
    "what": "Pilot repo task: Claude Sonnet builds, no review",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/2026-10-22-pilot-agentic.jsonl"
    ],
@@ -6807,6 +7863,7 @@
    "category": "harness-bias",
    "what": "Harness-bias check: haiku-low on the hard problems through the Claude-built harness",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
@@ -6844,6 +7901,7 @@
    "category": "harness-bias",
    "what": "Harness-bias check: haiku-low through the harness Codex built",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
@@ -6895,6 +7953,7 @@
    "category": "harness-bias",
    "what": "Harness-bias check: luna-low through the Claude-built harness",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
@@ -6932,6 +7991,7 @@
    "category": "harness-bias",
    "what": "Harness-bias check: luna-low through the harness Codex built",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"
@@ -6986,6 +8046,7 @@
    "category": "harness-bias",
    "what": "Harness-bias check: sol61-medium through the harness Codex built",
    "set": "all runs",
+   "derived": false,
    "files": [
     "results/appendix/harness_bias.jsonl",
     "results/appendix/codex_harness.jsonl"

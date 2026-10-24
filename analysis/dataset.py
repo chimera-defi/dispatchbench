@@ -11,18 +11,19 @@ Sets (mutually exclusive; every row lands in exactly one, or this module raises)
   repo tasks      the agentic track
   rescue arms     appendix/luna_rescue.jsonl (35 attempts per arm on the rescue problems)
   pilot, pilot repo task, trim probe, harness bias   one set per file
-Columns: id, source, config, display, family, category, what, set, passes, n, pass_rate, ci95, usd_per_pass, claude_usd_per_pass,
+A set in DERIVED (rescue set: a main-run config restricted to the 7 rescue problems, repeats 1-5) repeats rows already in another set, is flagged\nderived: true and is excluded from "all runs".\nColumns: id, derived, source, config, display, family, category, what, set, passes, n, pass_rate, ci95, usd_per_pass, claude_usd_per_pass,
 codex_usd_per_pass, usd_per_call, spend, spend_claude, spend_codex, unknown_usd, median_s, p25_s, p75_s, tokens_in_mean, tokens_out_mean,
 cost_kind, by_rung ({L1: [passed, n]}), groups (problems or tasks). No model calls. Run: python3 -m analysis.dataset"""
 import json, os, statistics
 from collections import defaultdict
 
 from analysis import configs, stats
-from analysis.luna_rescue import claude_usd
+from analysis.luna_rescue import PIDS, claude_usd
 from analysis.summarize import RES, ROOT, cost, load, scale
 
 PATH = os.path.join(RES, "dataset.json")
 REPORT_PROBLEMS = 12; REPEATS = 5
+DERIVED = ("rescue set",)  # slices of rows that are also in another set; never summed into "all runs"
 
 
 def _mult(r):
@@ -67,6 +68,8 @@ def _rows():
         elif r["repeat"] > REPEATS: st = "extra repeats"
         else: st = "main ladder" if len(cover[c]) == REPORT_PROBLEMS * REPEATS else "partial ladder"
         add("main", c, st, r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
+        if r["problem"] in PIDS and r["phase"] in ("main", "exploratory", "fastmode") and r["repeat"] <= REPEATS:  # the same rows again, as the rescue-set baseline
+            add("main", c, "rescue set", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
     for r in load(os.path.join(RES, configs.SOURCES["agentic"][0])):
         add("agentic", r["config"], "repo tasks", r, r["hidden_pass"], r["wall_s"], r["task"], _usd(r, "agentic"), r["in_tok"], r["out_tok"])
     for r in load(os.path.join(RES, configs.SOURCES["trim"][0])):
@@ -101,7 +104,7 @@ def _row(src, name, st, rr):
         if x["rung"] is not None: g = by_rung.setdefault(f"L{x['rung']}", [0, 0]); g[0] += x["ok"]; g[1] += 1
     p25, p75 = _quart(secs)
     spend = sum(known); sc = sum(cl)
-    return {"id": e["id"], "source": src, "config": name, "display": e["display"], "family": e["family"], "category": e["category"], "what": e["what"], "set": st, "files": e["files"],
+    return {"id": e["id"], "source": src, "config": name, "display": e["display"], "family": e["family"], "category": e["category"], "what": e["what"], "set": st, "derived": st in DERIVED, "files": e["files"],
             "passes": k, "n": n, "pass_rate": round(k / n, 4), "ci95": ci, "groups": len(cells),
             "usd_per_pass": round(spend / k, 6) if k and complete else None, "claude_usd_per_pass": round(sc / k, 6) if k and complete else None,
             "codex_usd_per_pass": round((spend - sc) / k, 6) if k and complete else None, "usd_per_call": round(spend / n, 6) if complete else None,
@@ -116,7 +119,8 @@ def build():
     for src, name, st, x in _rows(): groups[(src, name, st)].append(x)
     rows = [_row(src, name, st, rr) for (src, name, st), rr in groups.items()]
     allr = defaultdict(list)
-    for (src, name, st), rr in groups.items(): allr[(src, name)] += rr
+    for (src, name, st), rr in groups.items():
+        if st not in DERIVED: allr[(src, name)] += rr
     rows += [_row(src, name, "all runs", rr) for (src, name), rr in allr.items()]
     order = {c: i for i, c in enumerate(configs.CATEGORIES)}
     rows.sort(key=lambda r: (r["set"] == "all runs", order.get(r["category"], 99), r["source"], r["set"], list(configs.REGISTRY).index((r["source"], r["config"])) if (r["source"], r["config"]) in configs.REGISTRY else 999))
