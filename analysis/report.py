@@ -12,8 +12,9 @@ Template syntax:
   lines starting "@readme " or "@page " appear only in that output
 """
 import glob, html, json, os, re, statistics
+from datetime import datetime
 
-from analysis import fast_gate, luna_rescue, page as pagew
+from analysis import fast_gate, harness_bias, luna_rescue, page as pagew
 from analysis.labels import pshort, plabel, DISP
 from analysis.charts import HOST_AGENTS_MD, MIN_PASS
 from analysis.summarize import FAST_CONFIGS, ROOT, RES, FUNC, AGENT, ci_text, cost, cost_uncached, load, pct, money, scale
@@ -87,6 +88,31 @@ def codex_orchestrator_status(rows):
     return "results available" if any(r.get("passed") is not None and is_codex(r.get("orchestrator", "")) for r in rows) else "not run yet"
 
 
+def fairness_facts():
+    """Page facts from committed appendix rows; never regenerate or grade the experiment."""
+    rows = load(os.path.join(RES, "appendix", "harness_bias.jsonl"))
+    result = harness_bias.pass_summary(rows)
+    lo, hi = result['ci']
+    need(result['missing'] == 0, "harness comparison has complete pairs")
+    need(lo <= 0 <= hi, "harness-bias confidence interval contains zero")
+    facts = dict(hb_limit=f"{max(abs(lo), abs(hi)):.1f}", hb_ci=f"{lo:+.3f} to {hi:+.3f}",
+                 hb_n_problems=str(len({r['problem'] for r in rows})),
+                 hb_repeats=str(len({r['repeat'] for r in rows})))
+    for harness, prefix in (('claude-one-shot', 'claude'), ('codex-tool-loop', 'codex')):
+        for config in harness_bias.CFGS:
+            cell = [r for r in rows if (r['harness'], r['config']) == (harness, config)]
+            facts[f"hb_{prefix}_{config.replace('-', '_')}"] = f"{sum(r['passed'] for r in cell)}/{len(cell)}"
+    codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
+    facts['hb_errors'] = str(sum(r['outcome'] == 'harness_error' for r in codex))
+    need(not any(r['outcome'] == 'timeout' or re.search(r'timeout|timed out|exceeded', r.get('error') or '', re.I)
+                 for r in codex), "Codex harness had no timeouts")
+    # Codex harness ts is recorded before invocation; wall_s is that invocation's duration.
+    start = min(datetime.fromisoformat(r['ts']).timestamp() for r in codex)
+    end = max(datetime.fromisoformat(r['ts']).timestamp() + r['wall_s'] for r in codex)
+    facts['hb_minutes'] = f"{(end - start) / 60:.0f}"
+    return facts
+
+
 def facts(s):
     F = Facts(); cfg, ex, ag, hard = s["configs"], s["exploratory"], s["agentic"], s["hard"]
     rows = load(FUNC); agent = load(AGENT); main_rows = [r for r in rows if r["phase"] == "main"]
@@ -99,6 +125,7 @@ def facts(s):
     F["run_id"] = json.load(open(os.path.join(RES, "manifest.json")))["experiment"]
     attributed = (r for path in sorted(glob.glob(os.path.join(RES, "**", "*.jsonl"), recursive=True)) for r in load(path))
     F["codex_orchestrator_status"] = codex_orchestrator_status(attributed)
+    F.update(fairness_facts())
     F["l7_n"] = str(len({p for v in hard.values() for p in v["by_problem"]}) * int(F["repeats"]))
     F["n_rescue_problems"] = str(len(luna_rescue.PIDS))
     F["older_generation"] = "5.6"

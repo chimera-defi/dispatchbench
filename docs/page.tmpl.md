@@ -42,7 +42,16 @@
 <li>luna-low-bare and luna-high-bare add the stripped harness (the Codex CLI’s own system prompt and tool text, trimmed by bench/trim_probe.py). Every luna-high row on the rescue set uses it.</li>
 </ul>
 </details>
-<p class="small"><b>Could the way this test was run favour Claude?</b> Codex answered through its own command-line app, with personal settings ignored and tools off. We also tried luna with Codex's own system prompt and tool instructions removed (the <code>luna-*-bare</code> rows) to see how much those instructions affected the results. A separate run with Codex managing the benchmark: {{codex_orchestrator_status}}.</p>
+<p class="small"><b>Q: Does Claude's harness make Codex look bad?</b><br><b>A: No bias of about {{hb_limit}} or more was detectable.</b> The confidence interval contains zero; this small subset is not proof of no bias.</p>
+<p class="small">We had Codex build its own harness: the program that sends the problem to the model and grades the answer. We ran luna-low and haiku-low on both harnesses ({{hb_n_problems}} hard problems × {{hb_repeats}} repeats).</p>
+<table><caption>Passed / attempted</caption><thead><tr><th>Model</th><th>Claude harness</th><th>Codex harness</th></tr></thead><tbody>
+<tr><td>luna-low</td><td>{{hb_claude_luna_low}}</td><td>{{hb_codex_luna_low}}</td></tr>
+<tr><td>haiku-low</td><td>{{hb_claude_haiku_low}}</td><td>{{hb_codex_haiku_low}}</td></tr>
+</tbody></table>
+<p class="small">The confidence interval is the range of bias the data support: {{hb_ci}}. Bias here means a change in the gap between the models' pass rates.</p>
+<p class="small">The harnesses differ in mechanism: one-shot (answer once) vs tool loop (run code and revise), not just in who built them.</p>
+<p class="small">Codex built and ran its harness with {{hb_errors}} harness errors and no timeouts, in about {{hb_minutes}} minutes of wall time for the recorded calls.</p>
+<p class="small">In the main benchmark, Codex answered through its own command-line app, with personal settings ignored and tools off. We also tried luna with Codex's own system prompt and tool instructions removed (the <code>luna-*-bare</code> rows) to see how much those instructions affected the results.</p>
 <p class="small">On repo tasks, instructions in the host's AGENTS.md file caused {{host_sol61_medium}} of {{shell_sol61_medium}} sol61-medium shell commands and {{host_luna_low}} of {{shell_luna_low}} luna-low commands. Those extra commands are included in Codex's measured time.</p>
 </section>
 <section id="pareto">

@@ -74,12 +74,8 @@ def boot(cells, fn, n=10000, seed=1):
     return out[int(0.025 * n)], out[int(0.975 * n) - 1]
 
 
-def main():
-    rows = [fill_cost(r) for r in claude_rows() + codex_rows()]
-    os.makedirs(OUT, exist_ok=True)
-    with open(os.path.join(OUT, "harness_bias.jsonl"), "w") as f:
-        for r in sorted(rows, key=lambda r: (r["harness"], r["config"], r["problem"], r["repeat"])):
-            f.write(json.dumps(r) + "\n")
+def paired_cells(rows):
+    """Complete problem/repeat pairs in the pre-registered cell order; no grading or writes."""
     idx = {(r["harness"], r["config"], r["problem"], r["repeat"]): r for r in rows}
     H = ["claude-one-shot", "codex-tool-loop"]
     cells = {}
@@ -93,20 +89,42 @@ def main():
             else:
                 missing += 1
         cells[p] = lst
+    return cells, missing
 
-    def D(tot, f=lambda r: float(r["passed"])):
-        n = len(tot)
-        a = [sum(f(t[i]) for t in tot) / n for i in range(4)]
-        return (a[1] - a[0]) - (a[3] - a[2])
+
+def interaction(tot, f=lambda r: float(r["passed"])):
+    """Change in the luna-minus-Haiku gap from Claude's harness to Codex's."""
+    n = len(tot)
+    a = [sum(f(t[i]) for t in tot) / n for i in range(4)]
+    return (a[1] - a[0]) - (a[3] - a[2])
+
+
+def pass_summary(rows):
+    """Read-only pass comparison using the appendix's paired bootstrap method."""
+    cells, missing = paired_cells(rows)
+    flat = [t for p in PROBS for t in cells[p]]
+    if not flat:
+        raise ValueError("harness comparison has no complete pairs")
+    return dict(diff=interaction(flat), ci=boot(cells, interaction), missing=missing)
+
+
+def main():
+    rows = [fill_cost(r) for r in claude_rows() + codex_rows()]
+    os.makedirs(OUT, exist_ok=True)
+    with open(os.path.join(OUT, "harness_bias.jsonl"), "w") as f:
+        for r in sorted(rows, key=lambda r: (r["harness"], r["config"], r["problem"], r["repeat"])):
+            f.write(json.dumps(r) + "\n")
+    cells, missing = paired_cells(rows)
+    H = ["claude-one-shot", "codex-tool-loop"]
 
     def logf(key):
         return lambda r: math.log(max(r[key] or 1e-9, 1e-9))
 
     flat = [t for p in PROBS for t in cells[p]]
     res = {}
-    res["pass"] = (D(flat), boot(cells, D))
+    res["pass"] = (interaction(flat), boot(cells, interaction))
     for name, key in [("log_cost", "cost_usd"), ("log_wall", "wall_s")]:
-        fn = lambda tot, f=logf(key): D(tot, f)
+        fn = lambda tot, f=logf(key): interaction(tot, f)
         res[name] = (fn(flat), boot(cells, fn))
     errs = {f"{h}/{c}": sum(1 for r in rows if r["harness"] == h and r["config"] == c and r["outcome"] == "harness_error") for h in H for c in CFGS}
     cellstat = {}
