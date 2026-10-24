@@ -429,6 +429,23 @@ LC = {"p01_overlap_minutes": "Medium", "p02_squash": "Easy", "p03_ledger": "Medi
       "p05_pass_route": "Medium", "p06_calc": "Hard", "p07_weighted_distance_sums": "Hard", "p08_recur": "Medium",
       "p09_k_machine_schedule": "Hard", "p10_avoid_count": "Hard", "p11_best_average": "Hard", "p12_sheet": "Hard",
       "p13_xor_ring": "Hard", "p14_bounce_board": "Hard", "p15_paint_erase": "Hard"}
+# Closest LeetCode analogue per problem, chosen by hand by core technique and shape. It is NOT the source (the problems
+# were written for this bench) and is not a measurement. None = nothing on LeetCode is genuinely close.
+ANALOGUE = {"p01_overlap_minutes": ("My Calendar III", "my-calendar-iii"),
+            "p02_squash": ("String Compression", "string-compression"),
+            "p03_ledger": ("Simple Bank System", "simple-bank-system"),
+            "p04_taller_within": ("Count of Smaller Numbers After Self", "count-of-smaller-numbers-after-self"),
+            "p05_pass_route": ("Cheapest Flights Within K Stops", "cheapest-flights-within-k-stops"),
+            "p06_calc": ("Basic Calculator", "basic-calculator"),
+            "p07_weighted_distance_sums": ("Sum of Distances in Tree", "sum-of-distances-in-tree"),
+            "p08_recur": None,
+            "p09_k_machine_schedule": ("Maximum Profit in Job Scheduling", "maximum-profit-in-job-scheduling"),
+            "p10_avoid_count": ("Find All Good Strings", "find-all-good-strings"),
+            "p11_best_average": ("Maximum Average Subarray II", "maximum-average-subarray-ii"),
+            "p12_sheet": ("Design Excel Sum Formula", "design-excel-sum-formula"),
+            "p13_xor_ring": None,
+            "p14_bounce_board": ("Snakes and Ladders", "snakes-and-ladders"),
+            "p15_paint_erase": ("Range Module", "range-module")}
 # The pilot's well-known LeetCode problems, in the order the pilot ran them (round 1, then the harder round 2).
 PILOT = [("Fizz Buzz", "fizz-buzz", "Easy"), ("Course Schedule II", "course-schedule-ii", "Medium"), ("Candy", "candy", "Hard"),
          ("Reconstruct Itinerary", "reconstruct-itinerary", "Hard"), ("Minimum Window Substring", "minimum-window-substring", "Hard"),
@@ -438,7 +455,9 @@ PILOT = [("Fizz Buzz", "fizz-buzz", "Easy"), ("Course Schedule II", "course-sche
 def method(s):
     from bench.run import CLAUDE_FLAGS, CODEX_FLAGS
     lvl = lambda d: f'<span class="lc {d.lower()}">{d}</span>'
-    item = lambda p, r: f'<li>{lvl(LC[p])} L{r} <a href="{REPO}{p}.py"><code>{p.split("_", 1)[1]}</code></a>: {esc(TESTS[p])}</li>'
+    like = lambda p: (f' · like <a href="https://leetcode.com/problems/{ANALOGUE[p][1]}/" title="closest LeetCode analogue, not the source">{esc(ANALOGUE[p][0])}</a>'
+                      if ANALOGUE.get(p) else "")
+    item = lambda p, r: f'<li>{lvl(LC[p])} L{r} <a href="{REPO}{p}.py"><code>{p.split("_", 1)[1]}</code></a>{like(p)}: {esc(TESTS[p])}</li>'
     main = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
     hard = sorted({p for v in s["hard"].values() for p in v["by_problem"]})
     hcfg = ", ".join(c for c in ORDER if c in s["hard"])

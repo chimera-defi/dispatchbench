@@ -21,6 +21,7 @@
 <section class="method" id="method">
 <h2><span class="num"></span>❓ How it was run</h2>
 <details><summary>📚 Problems by round (Easy/Medium/Hard)</summary>
+<p class="small">The LeetCode links are the closest analogues I found by hand, not where the problems came from: the problems were written for this bench.</p>
 <ul class="tight small">
 {{w_problems}}
 </ul>
