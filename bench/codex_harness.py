@@ -703,8 +703,8 @@ def main():
         ap.error("--repeats must be an integer or inclusive range, e.g. 1-5")
     if not 1 <= args.lanes <= 4:
         ap.error("--lanes must be between 1 and 4")
-    if not reps or any(r not in range(1, 6) for r in reps):
-        ap.error("repeats must be in 1-5")
+    if not reps or any(r < 1 for r in reps):
+        ap.error("repeats must be positive integers")
     if len(set(configs)) != len(configs) or any(c not in CONFIGS for c in configs):
         ap.error("configs must be unique members of " + ",".join(CONFIGS))
     if len(set(pids)) != len(pids) or any(p not in problems.MAIN for p in pids):
