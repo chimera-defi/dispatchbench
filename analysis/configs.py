@@ -128,6 +128,11 @@ def display(c):
     return c[:-5] + " ⚡" if c.endswith("-fast") else c
 
 
+def low_context(config, source="main"):
+    """Use the registry category when grouping trimmed-context variants."""
+    return REGISTRY.get((source, config), {}).get("category") == "low context"
+
+
 def family(name):
     return "Claude" if name.split("-")[0] in ("haiku", "sonnet") or name.startswith("pipeline C") else "Codex"
 

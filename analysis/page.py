@@ -458,16 +458,20 @@ def scroll_chart(body, width):
 def floor(s):
     """Compact stacked labels and bars fit a phone; darker input was cached."""
     E = every(s)
-    bars = [("haiku-low", "haiku-low, tools off"), ("sonnet-medium", "sonnet-medium, tools off"),
-            ("luna-low", "luna-low, default Codex prompt"), ("luna-low-bare", "luna-low, Codex prompt trimmed"), ("sol61-medium", "sol61-medium, stock")]
-    W, BL, BR, H = 760, 360, 680, 16 + 40 * len(bars); top = max(E[c]["tokens_mean"]["in_tok"] for c, _ in bars)
+    bars = [("haiku-low", "haiku-low"), ("sonnet-medium", "sonnet-medium"),
+            ("luna-low", "luna-low, stock prompt"), ("sol61-medium", "sol61-medium"), ("luna-low-bare", "luna-low, trimmed prompt")]
+    bars.sort(key=lambda row: configs.low_context(row[0]))
+    W, BL, BR, H = 760, 200, 600, 40 + 40 * len(bars); top = max(E[c]["tokens_mean"]["in_tok"] for c, _ in bars)
     g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Mean input tokens per call by config">']
+    offset = 0
     for i, (c, name) in enumerate(bars):
-        t = E[c]["tokens_mean"]; y = 8 + i * 40; w = t["in_tok"] / top * (BR - BL); cw = t["cached_tok"] / top * (BR - BL)
+        if configs.low_context(c) and not offset:
+            g.append(f'<text x="12" y="{20 + i * 40}" class="lbl">Low context</text>'); offset = 24
+        t = E[c]["tokens_mean"]; y = 8 + i * 40 + offset; w = t["in_tok"] / top * (BR - BL); cw = t["cached_tok"] / top * (BR - BL)
         g.append(f'<text x="{BL - 10}" y="{y + 19}" text-anchor="end" class="lbl">{esc(name)}</text>')
         g.append(f'<rect x="{BL}" y="{y}" width="{w:.1f}" height="28" rx="3" fill="{FAM(c)}" fill-opacity=".35"/>')
         g.append(f'<rect x="{BL}" y="{y}" width="{cw:.1f}" height="28" rx="3" fill="{FAM(c)}" fill-opacity=".9"/>')
-        g.append(f'<text x="{BL + w + 8:.1f}" y="{y + 19}" class="lbl">{t["in_tok"] / 1000:.1f}k</text>')
+        g.append(f'<text x="{BL + w + 8:.1f}" y="{y + 19}" class="lbl">{t["in_tok"]:,.0f}</text>')
     g.append("</svg>")
     return scroll_chart("".join(g), W)
 
@@ -475,11 +479,15 @@ def floor(s):
 def pipes(arms=None):
     """Rescue set: the single models, then every pipeline (plan first, check then fix, fix everything)."""
     a = arms if arms is not None else rescue_arms()
-    bars = [(c, SHORT(n), "var(--frontier)" if "→" in n else FAM(c)) for c, n in HARD_PTS]
-    W, BL, BR, H = 760, 330, 530, 16 + 40 * len(bars)
+    low = lambda c: configs.low_context(c, "rescue")
+    bars = sorted([(c, SHORT(n), "var(--frontier)" if "→" in n else FAM(c)) for c, n in HARD_PTS], key=lambda row: low(row[0]))
+    W, BL, BR, H = 760, 200, 580, 40 + 40 * len(bars)
     g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Passes on the {configs.set_label("rescue set")}: single models and Haiku pipelines">']
+    offset = 0
     for i, (c, name, col) in enumerate(bars):
-        v = a[c]; y = 8 + i * 40; w = v["pass_rate"] * (BR - BL)
+        if low(c) and not offset:
+            g.append(f'<text x="12" y="{20 + i * 40}" class="lbl">Low context</text>'); offset = 24
+        v = a[c]; y = 8 + i * 40 + offset; w = v["pass_rate"] * (BR - BL)
         g.append(f'<g><title>{esc(NAME[c])}{" (" + v["derived_note"] + ")" if "derived_note" in v else ""}</title>')
         g.append(f'<text x="{BL - 10}" y="{y + 19}" text-anchor="end" class="lbl">{esc(name)}</text>')
         g.append(f'<rect x="{BL}" y="{y}" width="{BR - BL}" height="28" rx="3" fill="var(--line)"/>')
@@ -492,14 +500,15 @@ def pipes(arms=None):
 
 def fast(s):
     """Default → fast twins on the main ladder and L7, never the pilot."""
-    rows = [(label, c, group[c]) for label, group in (("main ladder", every(s)), ("L7 set", s["hard"]))
+    rows = [(label, c, group[c]) for label, group in ((configs.set_label("main ladder"), every(s)), (configs.set_label("L7 set"), s["hard"]))
             for pair in FAST_PAIRS for c in pair]
     mx = max(v["latency_s"]["median"] for _, _, v in rows)
-    W, BL, BR, H = 760, 340, 550, 16 + 40 * len(rows)
+    W, BL, BR, H = 760, 200, 600, 16 + 40 * len(rows)
     g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Default to fast mode pairs on the main ladder and L7 set">']
     for i, (label, c, v) in enumerate(rows):
         y = 8 + i * 40; w = v["latency_s"]["median"] / mx * (BR - BL)
-        g.append(f'<text x="{BL - 10}" y="{y + 19}" text-anchor="end" class="lbl">{esc(label)} · {esc(DISP(c))}{"" if c.endswith("-fast") else " default"}</text>')
+        short_set = "L7" if label == configs.set_label("L7 set") else "ladder"
+        g.append(f'<text x="{BL - 10}" y="{y + 19}" text-anchor="end" class="lbl">{short_set} · {esc(DISP(c))}</text>')
         g.append(f'<rect x="{BL}" y="{y}" width="{BR - BL}" height="28" rx="3" fill="var(--line)"/>')
         g.append(f'<rect x="{BL}" y="{y}" width="{w:.1f}" height="28" rx="3" fill="var(--frontier)"/>')
         g.append(f'<text x="{BR + 8}" y="{y + 19}" class="lbl">{v["latency_s"]["median"]:.1f}s · {dataset.usd(v["usd_per_pass"])}</text>')
@@ -557,10 +566,10 @@ def verdict(c, v, need, E, arms=None):
     """One word per config; each is checked against the data so the table cannot drift from it."""
     if c == "haiku-medium":
         need(v["passes"] == v["n"] - 1 and (arms if arms is not None else rescue_arms())[c]["passes"] == (arms if arms is not None else rescue_arms())[c]["n"], "haiku-medium: one miss, none on the rescue set")
-        return "one miss"
+        return f"missed {v['n'] - v['passes']}"
     if c == "haiku-high":
         need(v["passes"] == v["n"] and v["usd_per_pass"] == min(E[d]["usd_per_pass"] for d in ORDER if E[d]["passes"] == E[d]["n"]), "haiku-high is the cheapest with 0 misses")
-        return "★ pick: 0 misses, cheapest"
+        return "★ pick"
     if c == "sol61-high":
         need(v["passes"] == v["n"] == 60, "Winner sol61-high passed every main-ladder answer")
         return "★ pick"
@@ -569,22 +578,22 @@ def verdict(c, v, need, E, arms=None):
         return "budget pick"
     if c == "luna-high":
         need(v["usd_per_pass"] > E["luna-low"]["usd_per_pass"] and v["passes"] > E["luna-low"]["passes"], "luna-high trades cost for more passes")
-        return "trade-off: costs more than luna-low, passes more"
+        return "trade-off"
     if v["passes"] == v["n"]: return "0 misses"
     if v["pass_at_1"] < MIN_PASS: return "avoid"
     dominated = any(d != c and E[d]["usd_per_pass"] <= v["usd_per_pass"] and E[d]["pass_at_1"] >= v["pass_at_1"] for d in ORDER)
-    return "beaten" if dominated else "pricier, passes more"
+    return "beaten" if dominated else "trade-off"
 
 
 # Hard-set rows for the results table: single models, then pipelines (arrow = a second model or call after the first).
 HARD = list(NAME.items())
 
 
-def row(set_name, name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, rate):
+def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, rate, claude_only=False):
     r = rate; cls = "good" if r >= 0.95 else "warn" if r >= MIN_PASS else "bad"
     attr = f' title="{esc(derived)}"' if derived else ""
-    return (f'<tr{attr}><td>{set_name}</td><td><span class="dot" style="background:{col}"></span>{esc(name)}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
-            f'<td>{"~" if proxy else ""}{dataset.usd(usd)}</td><td>{dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell">{verdict}</td></tr>')
+    return (f'<tr{attr}><td><span class="dot" style="background:{col}"></span>{esc(name)}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
+            f'<td>{"~" if proxy else ""}{dataset.usd(usd)}</td><td>{"all" if claude_only else dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell" style="white-space:nowrap">{verdict}</td></tr>')
 
 
 CODEX = lambda c: any(x in c for x in ("luna", "sol", "astra"))
@@ -595,23 +604,48 @@ def short_table(s, need):
     set. Passed reads "95% (57/60)" so it sorts by rate. Hard-set verdicts come from the numbers: never failed, the cheapest of
     those, or how many attempts missed."""
     E = every(s); a = rescue_arms(s)
-    top = [row("Ladder", DISP(c), FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], None if CODEX(c) else E[c]["usd_per_pass"],
+    top = [(c, row(DISP(c), FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], None,
                E[c]["latency_s"]["median"], verdict(c, E[c], need, E, a),
-               E[c]["cost_kind"] == "proxy", rate=E[c]["pass_at_1"]) for c in ORDER]
+               E[c]["cost_kind"] == "proxy", rate=E[c]["pass_at_1"], claude_only=not CODEX(c))) for c in ORDER]
     clean = [c for c, _ in HARD if a[c]["passes"] == a[c]["n"]]; need(clean, "some rescue-set row never failed")
     best = min(clean, key=lambda c: a[c]["usd_per_pass"])
     need(best == "haiku-medium", "haiku-medium is the cheapest rescue-set row with no miss")
-    hv = lambda c: "0 misses, cheapest" if c == best else "0 misses" if c in clean else f"missed {a[c]['misses']}"
-    hard = [row(configs.set_label("rescue set", capital=True), name, "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], None if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
-                a[c]["median_s"], hv(c), CODEX(c), a[c].get("derived_note", ""), rate=a[c]["pass_rate"]) for c, name in HARD]
+    hv = lambda c: "0 misses ★" if c == best else "★ pick" if c == "sol61-high" else "0 misses" if c in clean else f"missed {a[c]['misses']}"
+    duplicates = {c + "+haiku-on-fail" for pair in FAST_PAIRS for c in pair}
+    hard = [(c, row(SHORT(name), "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], None if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
+                a[c]["median_s"], hv(c), CODEX(c), a[c].get("derived_note", ""), rate=a[c]["pass_rate"], claude_only=not CODEX(c))) for c, name in HARD if c not in duplicates]
     problems = sorted(s["problems"]); rungs = [v["rung"] for v in s["problems"].values()]
-    return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>set</th><th>config</th><th>passed</th><th>total $ per pass</th>'
-            '<th>Claude $ per pass</th><th>median s</th><th>verdict</th></tr></thead>'
-            f'<tbody>{"".join(top)}</tbody><tbody>{"".join(hard)}</tbody></table></div>'
+    def group(label, rows, source):
+        regular = "".join(body for c, body in rows if not configs.low_context(c, source))
+        low = "".join(body for c, body in rows if configs.low_context(c, source))
+        return (f'<tbody><tr class="grp"><th colspan="6">{esc(label)}</th></tr>{regular}</tbody>'
+                + (f'<tbody class="low-context"><tr class="grp"><th colspan="6">Low context: trimmed prompt</th></tr>{low}</tbody>' if low else ""))
+    repeats = E[ORDER[0]]["n"] // len(problems)
+    ladder_label = f'{configs.set_label("main ladder", capital=True)}: {len(problems)} problems × {repeats} tries = {E[ORDER[0]]["n"]} calls'
+    subset_label = f'{configs.set_label("rescue set", capital=True)}: {len(s["design"]["rescue_problems"])} problems × {repeats} tries = {a[HARD[0][0]]["n"]} attempts'
+    return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>$ per pass</th>'
+            '<th>Claude $</th><th>median s</th><th>verdict</th></tr></thead>'
+            + group(ladder_label, top, "main") + group(subset_label, hard, "rescue") + '</table></div>'
             '<ul class="tight small">'
-            f'<li>Ladder = {len(problems)} problems, {problems[0][:3]}–{problems[-1][:3]} (L{min(rungs)}–L{max(rungs)}).</li>'
-            f'<li>{configs.set_label("rescue set", capital=True)}: {a[HARD[0][0]]["n"]} attempts per row.</li>'
-            f'<li>Problems: {", ".join(plabel(q) for q in s["design"]["rescue_problems"])}.</li></ul>')
+            f'<li>Ladder problems: {problems[0][:3]}–{problems[-1][:3]}.</li><li>Rungs: L{min(rungs)}–L{max(rungs)}.</li>'
+            f'<li>{configs.set_label("rescue set", capital=True)}: problems luna failed most, selected after the main run.</li>'
+            '<li>Subset problems:<ul>' + "".join(f'<li>{esc(plabel(q))}.</li>' for q in s["design"]["rescue_problems"]) + '</ul></li>'
+            '<li>Low-context rows use trimmed prompts. Other variants: Notes → Everything we tried.</li></ul>')
+
+
+def full_table(ds):
+    """Retain every interval, tail latency and total in a compact grouped table."""
+    spec = ds["tables"]["result_detail"]
+    label = configs.set_label("main ladder", capital=True)
+    low_names = {configs.display(c) + " †" for source, c in configs.REGISTRY if source == "main" and configs.low_context(c)}
+    def rows(low):
+        return "".join('<tr>' + "".join(f'<td>{esc(cell)}</td>' for cell in r) + '</tr>'
+                       for r in spec["rows"] if (r[0] in low_names) == low)
+    return ('<div class="tablewrap"><table class="sortable"><thead><tr>'
+            + "".join(f'<th>{esc(h)}</th>' for h in spec["head"]) + '</tr></thead>'
+            f'<tbody><tr class="grp"><th colspan="4">{esc(label)}</th></tr>{rows(False)}</tbody>'
+            f'<tbody class="low-context"><tr class="grp"><th colspan="4">Low context: trimmed prompt</th></tr>{rows(True)}</tbody>'
+            '</table></div>')
 
 
 
@@ -715,10 +749,11 @@ def sets_box(s):
 def rescue_subtitle(s=None):
     s = s or dataset.view(dataset.read())
     attempts = rescue_arms(s)["sol61-high"]["n"]
-    return (f'{configs.set_label("rescue set", capital=True)}: {attempts} attempts per row, no intervals. '
-            'Purple marks pipelines.<br>'
+    return (f'{configs.set_label("rescue set", capital=True)}: the {len(s["design"]["rescue_problems"])} problems luna failed most. '
+            f'Each row has {attempts} attempts. No intervals are shown. '
+            'Purple marks pipelines. '
             'sol61-high and astra-medium never failed an example. '
-            'Their →H fail rows equal the model alone. '
+            'No Haiku repair ran. '
             'Normal speed uses separate runs. ⚡ rows replay cached answers.')
 
 
@@ -877,7 +912,7 @@ def widgets(s, need, ds=None):
     arms = rescue_arms(ds or s)
     a, fa = pass_cost(s); b, fb = speed_cost(s); ha, hfa = hard_pass_cost(arms); hb, hfb = hard_speed_cost(arms); nm = dict(HARD_PTS)
     return {"pass_cost": a, "speed_cost": b, "hard_pass_cost": ha, "hard_speed_cost": hb,
-            "hard_front_pass": ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": ", ".join(SHORT(nm[c]) for c in hfb), "sets": sets_box(s), "grid": grid(s), "floor": floor(s), "pipes": pipes(arms), "fast": fast(s), "explorer": explorer(s), "short_table": short_table(s, need),
+            "hard_front_pass": ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": ", ".join(SHORT(nm[c]) for c in hfb), "sets": sets_box(s), "grid": grid(s), "floor": floor(s), "pipes": pipes(arms), "fast": fast(s), "explorer": explorer(s), "short_table": short_table(s, need), "full_table": full_table(ds or dataset.read()),
             "front_pass": ", ".join(map(DISP, fa)), "front_speed": speed_frontier_text(s, fb),
             "winner": winner_table(ds or dataset.read(), need),
             "legend": legend(ds or dataset.read()), "rescue_subtitle": rescue_subtitle(s), "problems": method(s)[0], "flags": method(s)[1]}

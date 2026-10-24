@@ -102,55 +102,59 @@
 </section>
 <section id="results">
 <h2><span class="num"></span>📋 Results</h2>
-<p class="small">sol61-high is the Codex routing pick; haiku-high is the cheapest config with no misses across the main ladder, L7 and repo tasks.</p>
+<p class="small">sol61-high is the Codex pick. haiku-high is the cheapest config without misses across the ladder, L7 and repo tasks.</p>
 {{w_short_table}}
 <ul class="tight small">
-<li>★ = a Winner pick (sol61-high on Codex, haiku-high on Claude); budget pick = cheapest config passing {{budget_pass}} or more.</li>
-<li><b>0 misses</b>: every attempt passed; “cheapest” compares those rows within the set. “one miss” or “missed N” counts failed attempts.</li>
-<li>beaten = another row is as cheap and passes as often; pricier, passes more = a trade-off; avoid = below {{min_pass}}.</li>
-<li>Purple dot = pipeline (two models); → = a second step; →retry uses the same model twice.</li>
-<li>~ / proxy = Codex $ estimated from tokens and list prices. Claude $ = the part billed to the Claude CLI; Codex calls bill Codex.</li>
-<li>Click a header to sort within each set; on a phone, scroll sideways for the verdict.</li>
+<li>★ = Winner pick, or cheapest row without misses in its group.</li>
+<li>Budget pick = cheapest at {{budget_pass}}+. Avoid = below {{min_pass}}.</li>
+<li>Beaten = another row is as cheap and passes as often. Trade-off = pricier, passes more.</li>
+<li>Claude $: “all” means the whole cost. Pipeline rows show the Haiku share per pass.</li>
+<li>Click a header to sort within a group. <a href="#notation">Symbols: see Notation.</a></li>
 <li>haiku-medium's {{set_label}} row reuses its {{rescue_n}} main-run attempts.</li>
+<li>sol61-high and astra-medium →H fail never called Haiku. Their ⚡ rows replay cached answers.</li>
+<li>Those pipeline measurements remain in Pipelines and the chart explorer.</li>
 </ul>
-<details><summary>Full table with intervals and tail latency</summary>
-{{table:result_detail}}
+<details><summary>Full table: intervals and p90</summary>
+<p class="small">Intervals show pass-rate uncertainty. p90 covers slower calls.</p>
+{{w_full_table}}
 <ul class="tight small">
+<li>Each config ran {{n_calls}} calls. † = exploratory, added after the main run.</li>
 <li>pass@1 is the fraction of individual attempts passing all hidden tests.</li>
 <li>p90 = time within which {{p90_percent}} of calls finished.</li>
 <li>≥N% (all passed) = lower {{ci_level}} bound when nothing failed.</li>
 </ul>
-</details>
+<p class="small">Fast mode passed everything on both sets.</p>
 <div class="chart floor"><h3>⚡ Codex fast mode: seconds and $ per pass</h3>{{w_fast}}</div>
 <ul class="tight small">
-<li>Default → ⚡ pairs: sol61-high and astra-medium, main ladder and L7; same model and effort, default and priority service tiers. All passed.</li>
-<li>Fast-mode $ uses {{fm_mult}} the list price (the pricing-page multiplier, not a measured bill).</li>
-<li><a href="#notation">See Notation.</a></li>
+<li>Pairs compare sol61-high and astra-medium at normal speed and ⚡.</li>
+<li>The model and effort stay the same. Both the main ladder and L7 passed everything.</li>
+<li>Fast-mode $ uses {{fm_mult}} list price. This multiplier comes from the pricing page.</li>
+<li>Codex $ estimates use tokens, not measured bills. <a href="#notation">See Notation.</a></li>
 </ul>
+</details>
 </section>
 <section id="tokens">
 <h2><span class="num"></span>🧱 Token floor: input tokens per call</h2>
-<p class="small">Trimming luna-low's Codex system prompt cuts input from {{luna_low_in}} to {{luna_low_bare_in}} tokens per call ({{in_cut}} less); haiku-low uses {{haiku_low_in}}.</p>
+<p class="small">Trimming luna-low's Codex system prompt cuts mean input by {{in_cut}}.</p>
 <div class="chart floor">{{w_floor}}</div>
 <ul class="tight small">
 <li>Token floor = input added by Codex’s harness before the task.</li>
-<li>Bars show mean input per call, including the task, so prompt length counts.</li>
-<li>Solid = served from cache; faded = uncached.</li>
+<li>Bars show mean input per call, including the task.</li>
+<li>Solid = served from cache. Faded = uncached.</li>
+<li>Low-context rows use trimmed prompts. All these runs had tools off.</li>
 <li><a href="#notation">See Notation.</a></li>
 </ul>
 </section>
 <section id="pipes">
 <h2><span class="num"></span>🔗 Pipelines: plan, check, fix</h2>
 <p class="small">Pipelines were run on the {{set_label}} only.</p>
-<div class="chart floor"><h3>{{set_label_title}}: passes, $ per pass, median seconds</h3>{{w_pipes}}</div>
-<p class="small">{{w_rescue_subtitle}}</p>
+<div class="chart floor"><h3>Passes, $ per pass, median seconds</h3>{{w_pipes}}</div>
 <ul class="tight small">
 <li>Haiku reviewing every luna-high-bare answer: {{r_luna_high_bare_haiku_review_all_k}}.</li>
-<li>Example checks leak: a fresh luna-high-bare run had {{g_hi_bad}} bad answers; checks caught {{g_hi_fixed}} (Haiku fixed {{g_hi_fixed_words}}), missed {{g_hi_missed}}. Without checks: {{r_luna_high_bare_miss}} bad answers.</li>
-<li>Haiku on failed samples: sol61-high {{r_sol61_high_haiku_on_fail_k}}, astra-medium {{r_astra_medium_haiku_on_fail_k}}; no repairs fired. Fast-mode pipelines equal their builders.</li>
-<li>Planning first helped luna-low ({{r_luna_low_k}} → {{r_haiku_low_plan_luna_low_k}}), not luna-high-bare ({{r_luna_high_bare_k}} either way). Both Haiku-plan pipelines cost more than Haiku checking after.</li>
-<li><a href="#notation">See Notation.</a></li>
+<li>sol61-high and astra-medium →H fail never called Haiku. Their ⚡ rows replay cached answers.</li>
+<li>Low-context rows use trimmed prompts. <a href="#notation">See Notation.</a></li>
 </ul>
+<p class="small">{{w_rescue_subtitle}}</p>
 </section>
 <section class="verdict conclusion" id="conclusion">
 <h2 class="eyebrow"><span class="num"></span>✅ CONCLUSION</h2>
@@ -209,6 +213,25 @@ That row uses repeats {{repeat_lo}}–{{repeats}}.</p>
 </details>
 <details><summary>📎 Appendix</summary>
 <ul class="tight">
+<li>The example check lets bad answers through.
+<ul>
+<li>A fresh luna-high-bare run had {{g_hi_bad}} bad answers.</li>
+<li>The check caught {{g_hi_fixed}}. Haiku fixed {{g_hi_fixed_words}}.</li>
+<li>It missed {{g_hi_missed}}: they passed examples but failed hidden tests.</li>
+<li>The plain luna-high-bare run had {{r_luna_high_bare_miss}} bad answers.</li>
+</ul></li>
+<li>sol61-high and astra-medium never needed Haiku.
+<ul>
+<li>sol61-high → Haiku if examples fail: {{r_sol61_high_haiku_on_fail_k}}. No repair ran.</li>
+<li>astra-medium → Haiku if examples fail: {{r_astra_medium_haiku_on_fail_k}}. No repair ran.</li>
+<li>⚡ rows: same result, replayed from cached answers.</li>
+</ul></li>
+<li>A Haiku plan first helped luna-low.
+<ul>
+<li>Before planning: {{r_luna_low_k}}. With planning: {{r_haiku_low_plan_luna_low_k}}.</li>
+<li>luna-high-bare passed {{r_luna_high_bare_k}} either way.</li>
+<li>Both plan-first pipelines cost more than fixing afterwards.</li>
+</ul></li>
 <li>L7 set (p13–p15 × {{repeats}}): haiku-low {{l7_hl_k}} at {{l7_haiku_low_upp}} per pass, sonnet-medium {{l7_sm_k}} at {{l7_sonnet_medium_upp}}.</li>
 <li>Escalation (retrying weak problems at higher effort): on {{esc_problems}}, luna-high passed {{esc_k}} where {{esc_vs}} passed {{esc_base}}.</li>
 <li>{{set_label_title}}: {{rescue_n}} attempts per row.

@@ -25,7 +25,6 @@
  {"context": "Bars: 95% CI.", "literals": ["95"], "reason": "interval level, fixed by the method (bootstrap 95% CI)"},
  {"context": "Dollars per 1,000 tokens", "literals": ["1,000"], "reason": "unit of the chart, not a result"},
  {"context": "Liu et al. 2023", "literals": ["2023"], "reason": "citation year"},
- {"context": "<b>0 misses</b>: every attempt passed", "literals": ["0", "0"], "reason": "verdict names, defined by the numbers in analysis/page.py"},
  {"context": "finding 5", "literals": ["5"], "reason": "cross-reference to finding 5 in docs/REPORT.md"},
  {"context": "finding 7", "literals": ["7"], "reason": "cross-reference to finding 7 in docs/REPORT.md"},
  {"context": "Findings 5 and 6 are exploratory", "literals": ["5", "6"], "reason": "cross-reference to findings 5 and 6"},

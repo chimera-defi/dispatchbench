@@ -1,6 +1,6 @@
 """Draw the report charts as plain SVG from results/dataset.json. Standard library only; no model calls."""
 import math, os, re
-from analysis import dataset
+from analysis import configs, dataset
 from analysis.labels import DISP, TESTS, plabel
 from xml.sax.saxutils import escape
 
@@ -183,9 +183,9 @@ def heatmap(s):
 
 
 def floor_chart(s):
-    rows = [(c, "main ladder p01-p12", v["input_floor"][0], v["input_floor"][1]) for c, v in s["configs"].items()]
-    rows += [(c, "Repo tasks (4 tasks x 3 runs, with tools)", v["input_floor"][0], v["input_floor"][1]) for c, v in (s.get("agentic") or {}).items()]
-    W, L, R, T, bh = 760, 190, 90, 50, 20
+    rows = [(c, configs.set_label("main ladder", capital=True), v["input_floor"][0], v["input_floor"][1]) for c, v in s["configs"].items()]
+    rows += [(c, "Repo tasks: tools on", v["input_floor"][0], v["input_floor"][1]) for c, v in (s.get("agentic") or {}).items()]
+    W, L, R, T, bh = 760, 200, 90, 50, 20
     H = T + len(rows) * (bh + 8) + 70
     mx = max(r[2] for r in rows) * 1.05; X = lambda v: L + v / mx * (W - L - R)
     b = [text(12, 24, "Minimum input tokens over all calls (the harness floor), cached share shaded", 14, weight="600")]
@@ -195,7 +195,7 @@ def floor_chart(s):
             b.append(text(12, y + 12, track, 11, fill=MUTED, weight="600")); y += 18; last = track
         b += [f"<rect x='{L}' y='{y}' width='{X(tot) - L:.1f}' height='{bh}' fill='{FAMILY(c)}' opacity='0.35'/>",
               f"<rect x='{L}' y='{y}' width='{X(cached) - L:.1f}' height='{bh}' fill='{FAMILY(c)}'/>",
-              text(L - 8, y + 14, c, 11, "end"), text(X(tot) + 6, y + 14, f"{tot:,}", 11, fill=MUTED)]
+              text(L - 8, y + 14, DISP(c), 11, "end"), text(X(tot) + 6, y + 14, f"{tot:,}", 11, fill=MUTED)]
         y += bh + 8
     b.append(text(12, y + 22, f"Solid: cached. Pale: uncached. Codex includes ~{HOST_AGENTS_MD} host AGENTS.md tokens.", 11, fill=MUTED))
     return svg(W, y + 40, b)
@@ -228,13 +228,15 @@ def agentic_chart(s):
     return svg(W, H, b)
 
 
-def bars(title, rows, fmt, note, W=760, L=190, R=110):
+def bars(title, rows, fmt, note, W=760, L=200, R=110, low_start=None):
     """Horizontal bars. rows: (label, value, colour, hollow). Labels sit left of the bars, values right of them."""
-    T, bh = 50, 20; H = T + len(rows) * (bh + 8) + 46
+    T, bh = 50, 20; H = T + len(rows) * (bh + 8) + 46 + (24 if low_start is not None else 0)
     mx = max(r[1] for r in rows) * 1.02; X = lambda v: L + v / mx * (W - L - R)
     b = [text(12, 24, title, 14, weight="600")]
     for i, (lab, v, col, hollow) in enumerate(rows):
-        y = T + i * (bh + 8)
+        if i == low_start:
+            b.append(text(12, T + i * (bh + 8) + 12, "Low context", 11, fill=MUTED, weight="600"))
+        y = T + i * (bh + 8) + (24 if low_start is not None and i >= low_start else 0)
         b += [f"<rect x='{L}' y='{y}' width='{max(1, X(v) - L):.1f}' height='{bh}' fill='{PLATE if hollow else col}' stroke='{col}' stroke-width='{2 if hollow else 0}'/>",
               text(L - 8, y + 14, lab, 11, "end", MUTED if hollow else INK), text(X(v) + 6, y + 14, fmt(v), 11, fill=MUTED)]
     b.append(text(12, H - 14, note, 10, fill=MUTED))
@@ -249,17 +251,19 @@ def ladder(ds, s, set_="main ladder"):
     """[(config, dataset row, hollow)] for one set: the 12-problem x 5-repeat configs. Hollow = fast mode."""
     order = [c for c, _, _ in all_configs(s)]  # page order, until the registry owns it
     rows = [(r["config"], r, "-fast" in r["config"]) for r in ds["rows"] if r["source"] == "main" and r["set"] == set_]
-    return sorted(rows, key=lambda x: order.index(x[0]))
+    return sorted(rows, key=lambda x: (configs.low_context(x[0]), order.index(x[0])))
 
 
 def cost_tokens_chart(s, ds=None):
     """Total $ for the 60 function-track calls, and $ per 1,000 tokens processed (input plus output), per config. Reads the dataset."""
     rows = ladder(ds or dataset.read(), s)
+    low_start = next((i for i, (c, _, _) in enumerate(rows) if configs.low_context(c)), None)
     tot = [(r["display"] + (" *" if r["cost_kind"] == "proxy" else ""), r["spend"], FAMILY(c), x) for c, r, x in rows]
     per = [(r["display"] + (" *" if r["cost_kind"] == "proxy" else ""), r["usd_per_1k_tokens"], FAMILY(c), x) for c, r, x in rows]
-    a = bars("Total $ for the main ladder p01-p12", tot, dataset.usd, "Solid: normal speed; hollow: fast mode. * Codex cost is proxy; Claude is measured.")
+    a = bars(f'Total $: {configs.set_label("main ladder")}', tot, dataset.usd,
+             "Solid: normal speed. Hollow: fast mode. * Codex cost is estimated. Claude cost is measured.", low_start=low_start)
     b = bars("$ per 1,000 tokens processed (input + output, mean per call)", per, dataset.usd,
-                "Cached input costs less per token. * Codex cost is proxy.")
+                "Cached input costs less per token. * Codex cost is estimated.", low_start=low_start)
     return a, b
 
 
@@ -268,10 +272,12 @@ TOKEN_IN = ["luna-low", "luna-low-bare", "haiku-low", "sonnet-medium"]
 
 def token_in_chart(s, ds=None):
     allc = {c: r for c, r, _ in ladder(ds or dataset.read(), s)}
-    lab = {"luna-low": "luna-low, stock Codex", "luna-low-bare": "luna-low, stripped Codex", "haiku-low": "haiku-low, tools off", "sonnet-medium": "sonnet-medium, tools off"}
-    rows = [(lab[c], allc[c]["tokens_in_mean"], FAMILY(c), "-fast" in c) for c in TOKEN_IN if c in allc]
-    return bars("Mean input tokens per call (main ladder p01-p12)", rows, lambda v: f"{v:,}",
-                f"Includes cached input. Codex includes ~{HOST_AGENTS_MD} host AGENTS.md tokens.", L=200, R=80)
+    lab = {"luna-low": "luna-low, stock prompt", "luna-low-bare": "luna-low, trimmed prompt", "haiku-low": "haiku-low", "sonnet-medium": "sonnet-medium"}
+    order = sorted([c for c in TOKEN_IN if c in allc], key=configs.low_context)
+    rows = [(lab[c], allc[c]["tokens_in_mean"], FAMILY(c), "-fast" in c) for c in order]
+    low_start = next((i for i, c in enumerate(order) if configs.low_context(c)), None)
+    return bars(f'Mean input per call: {configs.set_label("main ladder")}', rows, lambda v: f"{v:,.0f}",
+                f"Includes cached input. Tools were off. Codex includes ~{HOST_AGENTS_MD} host AGENTS.md tokens.", R=80, low_start=low_start)
 
 
 def check_design(s):
