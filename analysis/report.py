@@ -326,7 +326,7 @@ def tables_md(s):
     ag = s["agentic"]; at = json.load(open(os.path.join(RES, "agentic_tests.json")))
     T["agentic"] = md_table(["config", "hidden tests passed", "runs that wrote the requested test file", "test functions added", "median s", "$ per run", "$ kind"],
                             [[c, f"{v['hidden_pass']}/{v['n']}", f"{v['own_tests_written']}/{v['n']}",
-                              (lambda rr: str(sum(r["test_functions_added"] for r in rr)) if all(r["test_functions_added"] is not None for r in rr)
+                              (lambda rr: "no transcripts" if not rr else str(sum(r["test_functions_added"] for r in rr)) if all(r["test_functions_added"] is not None for r in rr)
                                else f"≥{sum(r['test_functions_lower_bound'] for r in rr)}")([r for r in at if r["config"] == c]),
                               f"{v['latency_s']['median']:.1f}", f"{v['usd_per_run']:.4f}", v["cost_kind"]] for c, v in sorted(ag.items(), key=lambda kv: kv[1]["usd_per_run"])])
     a = luna_rescue.arms()
