@@ -219,7 +219,7 @@
 <details><summary>Reproduce</summary>
 <ul class="tight small">
 <li>{{cite}}</li>
-<li>Code, problems and raw results: <a href="https://github.com/chimera-defi/model-routing-bench">model-routing-bench on GitHub</a>, MIT licence.</li>
+<li>Code, problems and raw results: <a href="https://github.com/chimera-defi/dispatchbench">dispatchbench on GitHub</a>, MIT licence.</li>
 <li>Every number on this page comes from <code>results/dataset.json</code>.</li>
 </ul>
 </details>

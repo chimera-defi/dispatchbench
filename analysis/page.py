@@ -644,7 +644,7 @@ def full_table(ds):
 
 
 
-REPO = "https://github.com/chimera-defi/model-routing-bench/blob/main/bench/problems/"
+REPO = "https://github.com/chimera-defi/dispatchbench/blob/main/bench/problems/"
 
 
 # Closest LeetCode difficulty for each new problem: my estimate from the nearest LeetCode analogue, not a measurement.

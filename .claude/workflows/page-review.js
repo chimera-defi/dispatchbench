@@ -10,7 +10,7 @@ export const meta = {
   ],
 }
 
-// Defaults match model-routing-bench; override any of them via args.
+// Defaults match dispatchbench; override any of them via args.
 const A = args || {}
 const REPO = A.repo
 if (!REPO) throw new Error('pass args.repo: the bench checkout path')
