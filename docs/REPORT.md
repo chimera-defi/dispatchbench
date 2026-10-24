@@ -15,16 +15,16 @@ The main run was on 2026-10-22: $2.46 of Claude CLI-reported spend (function + a
 | haiku-low | 95% (57/60) | 85%–100% | 10.0 | 16.0 | $0.0011 | $0.064 | measured |
 | haiku-medium | 98% (59/60) | 93%–100% | 13.0 | 26.8 | $0.0015 | $0.088 | measured |
 | sonnet-medium | 100% (60/60) | ≥78% (all passed) | 10.1 | 18.1 | $0.012 | $0.75 | measured |
-| luna-low | 77% (46/60) | 53%–95% | 7.2 | 11.6 | $0.0009 | $0.041 | proxy |
+| luna-low | 77% (46/60) | 53%–95% | 7.2 | 11.6 | $0.00090 | $0.041 | proxy |
 | luna-medium | 78% (47/60) | 57%–97% | 8.2 | 11.8 | $0.00089 | $0.042 | proxy |
 | sol61-medium | 97% (58/60) | 87%–100% | 22.6 | 36.2 | $0.015 | $0.87 | proxy |
 | astra-medium † | 100% (60/60) | ≥78% (all passed) | 20.9 | 35.6 | $0.075 | $4.52 | proxy |
 | astra-medium ⚡ † | 100% (60/60) | ≥78% (all passed) | 9.9 | 13.6 | $0.15 | $9.12 | proxy |
 | haiku-high † | 100% (60/60) | ≥78% (all passed) | 14.7 | 37.6 | $0.0028 | $0.17 | measured |
-| luna-high † | 92% (55/60) | 82%–100% | 12.2 | 22.9 | $0.001 | $0.058 | proxy |
-| luna-low-bare † | 73% (44/60) | 52%–92% | 6.8 | 11.1 | $0.0008 | $0.035 | proxy |
-| luna56-high † | 93% (56/60) | 83%–100% | 11.4 | 35.5 | $0.003 | $0.17 | proxy |
-| luna56-low † | 80% (48/60) | 60%–97% | 9.2 | 17.4 | $0.0022 | $0.1 | proxy |
+| luna-high † | 92% (55/60) | 82%–100% | 12.2 | 22.9 | $0.0010 | $0.058 | proxy |
+| luna-low-bare † | 73% (44/60) | 52%–92% | 6.8 | 11.1 | $0.00080 | $0.035 | proxy |
+| luna56-high † | 93% (56/60) | 83%–100% | 11.4 | 35.5 | $0.0030 | $0.17 | proxy |
+| luna56-low † | 80% (48/60) | 60%–97% | 9.2 | 17.4 | $0.0022 | $0.10 | proxy |
 | sol56-high † | 100% (60/60) | ≥78% (all passed) | 14.5 | 48.4 | $0.042 | $2.51 | proxy |
 | sol61-high † | 100% (60/60) | ≥78% (all passed) | 27.4 | 50.2 | $0.019 | $1.12 | proxy |
 | sol61-high ⚡ † | 100% (60/60) | ≥78% (all passed) | 17.4 | 27.9 | $0.036 | $2.15 | proxy |
@@ -33,7 +33,7 @@ Function track: 12 problems × 5 attempts per config. Click a column header on t
 
 ## Can luna run on fewer tokens?
 
-Codex has no single switch like Claude's `--tools ""`. Turning off its tool features, shell tools, environment context and stock system prompt, six config knobs in all, cuts luna-low's mean input from 14,688 to 6,144 tokens per call, 58% less. No measurable change in accuracy: the stripped config passes 73% against stock luna-low's 77% (−3.3 pts, CI −20.0 to +13.3, which rules out neither a gain nor a loss). Its proxy cost per pass falls from $0.0009 to $0.0008.
+Codex has no single switch like Claude's `--tools ""`. Turning off its tool features, shell tools, environment context and stock system prompt, six config knobs in all, cuts luna-low's mean input from 14,688 to 6,144 tokens per call, 58% less. No measurable change in accuracy: the stripped config passes 73% against stock luna-low's 77% (−3.3 pts, CI −20.0 to +13.3, which rules out neither a gain nor a loss). Its proxy cost per pass falls from $0.00090 to $0.00080.
 
 Even stripped, luna's input is larger than Claude's with tools off: haiku-low's mean is 4,498. About 1.3k (estimated from file size) of luna's remaining tokens are the host's user-level `~/.codex/AGENTS.md`, which no Codex flag removes. Removing it needs a separate Codex home directory with its own copy of the login file, which this run did not do.
 
@@ -41,10 +41,10 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 
 ## What it found
 
-1. **"Low effort" is not the same budget on both CLIs, and on the point estimates that explains most of luna's gap.** At low and medium effort luna emits a mean of 0 and 7 reasoning tokens per call; haiku-low emits about 1,030. At those settings luna passes 77% and 78%, and haiku-low passes 95% (paired difference +18.3 pts, CI +1.7 to +38.3). At high effort luna emits about 530 reasoning tokens and passes 92% (55/60), 3.3 pts below haiku-low (CI −13.3 to +6.7). Its cost per pass, $0.001, is close to haiku-low's $0.0011, and its median latency is 12.2 s against 10.0 s.
+1. **"Low effort" is not the same budget on both CLIs, and on the point estimates that explains most of luna's gap.** At low and medium effort luna emits a mean of 0 and 7 reasoning tokens per call; haiku-low emits about 1,030. At those settings luna passes 77% and 78%, and haiku-low passes 95% (paired difference +18.3 pts, CI +1.7 to +38.3). At high effort luna emits about 530 reasoning tokens and passes 92% (55/60), 3.3 pts below haiku-low (CI −13.3 to +6.7). Its cost per pass, $0.0010, is close to haiku-low's $0.0011, and its median latency is 12.2 s against 10.0 s.
 2. **Luna's misses at low and medium effort cluster on three problems.** Together they pass 2/10 attempts on p04 taller_within (L2), 6/10 on p11 best_average (L6) and 0/10 on p12 sheet (L6). The pre-registered escalation re-ran those three at high effort: 13/15 against luna-medium's 3/15. The three were chosen because luna failed them, so that ratio overstates the general gain; the full-ladder luna-high run is the unbiased version (+13.3 pts against luna-medium, CI −5.0 to +35.0).
-3. **Stripping the Codex harness halves luna's input but does not make it as accurate as Haiku.** On the full ladder stripped luna passes 73% against haiku-low's 95%: −21.7 pts, CI −43.3 to 0.0, so the interval's upper end touches zero. Its cost per pass, $0.0008, depends on Codex's prompt cache: with no input served from cache it would be $0.0012, 7% above Haiku's measured $0.0011 (which includes Claude's own cache discount).
-4. **The repo tasks did not separate the configs.** The four configs first run passed every hidden test, 12/12 runs each (so did the two added later, finding 5). What differs is cost per run: luna-low $0.004, haiku-low $0.0051, sonnet-medium $0.054, sol61-medium $0.075, a 19× spread for the same outcome. sol61-medium also took 89 s at the median against about 28 s for the other three. Part of the Codex cost and time comes from the host's `AGENTS.md`, which Codex loads and which tells the agent to look for more `AGENTS.md` files and to run a search helper and a review delegate. Commands that do one of those, or clean up after the delegate, account for 57 of sol61's 97 shell commands and 26 of luna's 62. The Codex agentic costs and times were measured with host instructions present.
+3. **Stripping the Codex harness halves luna's input but does not make it as accurate as Haiku.** On the full ladder stripped luna passes 73% against haiku-low's 95%: −21.7 pts, CI −43.3 to 0.0, so the interval's upper end touches zero. Its cost per pass, $0.00080, depends on Codex's prompt cache: with no input served from cache it would be $0.0012, 7% above Haiku's measured $0.0011 (which includes Claude's own cache discount).
+4. **The repo tasks did not separate the configs.** The four configs first run passed every hidden test, 12/12 runs each (so did the two added later, finding 5). What differs is cost per run: luna-low $0.0040, haiku-low $0.0051, sonnet-medium $0.054, sol61-medium $0.075, a 19× spread for the same outcome. sol61-medium also took 89 s at the median against about 28 s for the other three. Part of the Codex cost and time comes from the host's `AGENTS.md`, which Codex loads and which tells the agent to look for more `AGENTS.md` files and to run a search helper and a review delegate. Commands that do one of those, or clean up after the delegate, account for 57 of sol61's 97 shell commands and 26 of luna's 62. The Codex agentic costs and times were measured with host instructions present.
 
 5. **Two later Codex configs never failed, and they move the cost to the Codex bill** (exploratory, added 2026-10-23). sol61-high (gpt-6.1-sol at high effort) and astra-medium (gpt-6-astra) passed every L1–L6 attempt (60/60, 60/60), every L7 attempt (15/15, 15/15) and all 12 repo-task runs. On luna's hardest problems, with haiku-low repairing only when the statement's examples fail, they needed 0 and 0 repairs (35/35, 35/35), so their Claude cost there was $0 and $0 per pass. By list price they are dear: $0.019 and $0.075 per pass on L1–L6, 1.5× and 6× sonnet-medium's. astra-medium is faster (20.9 s against 27.4 s on L1–L6, 85 s against 109 s on the repo tasks) and uses about 4.0× as much at list price; both are much slower than a Claude builder on the repo tasks (about 28 s for haiku-low and sonnet-medium).
 6. **The other later Codex configs change nothing.** sol56-high (gpt-5.6-sol) never fails on L1–L6 but misses on L7 (13/15) at 28× haiku-medium's price per pass. The older luna is worse and dearer: luna56-high passes 9/15 on L7 against gpt-6 luna-high's 15/15, and costs 2.8× as much per pass on L1–L6 (gpt-5.6-luna lists at twice gpt-6-luna's input price and more than twice its output price). Findings 5 and 6 are exploratory: the configs were chosen after the main results were known, and Codex dollars are list-price proxies.
@@ -65,7 +65,7 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 | sonnet-medium | 3,719 | 3,095 | 964 | 292 | $0.0027 |
 | luna-low | 14,688 | 11,520 | 514 | 0 | $0.000045 |
 | luna-medium | 14,688 | 11,520 | 530 | 7 | $0.000046 |
-| sol61-medium | 15,380 | 12,346 | 718 | 209 | $0.0009 |
+| sol61-medium | 15,380 | 12,346 | 718 | 209 | $0.00090 |
 | astra-medium † | 15,319 | 12,207 | 639 | 127 | $0.0047 |
 | astra-medium ⚡ † | 15,316 | 12,160 | 646 | 136 | $0.0095 |
 | haiku-high † | 4,418 | 649 | 4,123 | 3,353 | $0.00033 |
@@ -95,7 +95,7 @@ Each trim level adds Codex CLI 0.163.0 config knobs to the one before. The probe
 | gpt-6-luna | 14,389 | 14,389 | 14,210 | 9,930 | 6,485 | 5,845 |
 | gpt-5.6-terra | 14,201 | 14,197 | 14,020 | 9,469 | 5,928 | 5,288 |
 
-gpt-5.6-terra at the smallest prompt costs $0.008 per call on the pilot problems, about 29× haiku-low, so it was not run on the full ladder.
+gpt-5.6-terra at the smallest prompt costs $0.0080 per call on the pilot problems, about 29× haiku-low, so it was not run on the full ladder.
 
 ## Code quality
 
@@ -124,7 +124,7 @@ Medians are over each config's passing L1–L6 solutions, so a config that fails
 
 | config | hidden tests passed | complete task | runs that wrote the requested test file | test functions added | median s | $ per run | $ kind |
 |---|---|---|---|---|---|---|---|
-| luna-low | 12/12 | 11/12 | 12/12 | ≥5 | 28.5 | $0.004 | proxy |
+| luna-low | 12/12 | 11/12 | 12/12 | ≥5 | 28.5 | $0.0040 | proxy |
 | haiku-low | 12/12 | 12/12 | 12/12 | 114 | 28.3 | $0.0051 | measured |
 | haiku-high | 12/12 | 12/12 | 12/12 | no transcripts | 58.4 | $0.012 | measured |
 | sonnet-medium | 12/12 | 12/12 | 12/12 | 77 | 27.7 | $0.054 | measured |
@@ -148,7 +148,7 @@ Three more problems, written and checked before any model saw them (PLAN.md, dev
 | sol61-high-fast | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 29.4 | 1,015 | $0.044 | proxy |
 | sol61-medium | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 35.2 | 482 | $0.017 | proxy |
 | sonnet-medium | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 15.0 | 806 | $0.018 | measured |
-| haiku-medium | 13/15 | 67%–100% | 5/5 | 4/5 | 4/5 | 21.2 | 2,916 | $0.003 | measured |
+| haiku-medium | 13/15 | 67%–100% | 5/5 | 4/5 | 4/5 | 21.2 | 2,916 | $0.0030 | measured |
 | sol56-high | 13/15 | 53%–100% | 5/5 | 3/5 | 5/5 | 41.0 | 1,435 | $0.069 | proxy |
 | haiku-low | 12/15 | 40%–100% | 5/5 | 5/5 | 2/5 | 16.5 | 2,506 | $0.0023 | measured |
 | luna56-high | 9/15 | 33%–87% | 4/5 | 2/5 | 3/5 | 20.7 | 2,605 | $0.0078 | proxy |
@@ -255,7 +255,7 @@ After the main run, several changes were tried on the seven problems luna-low fa
 | B2: B1 plus a detailed reasoning summary | 19/35 | $0.0012 | 8.9 |
 | C: shell on, told to test its code before answering | 29/35 | $0.0036 | 21.9 |
 | D: luna-medium, stripped harness | 21/35 | $0.0012 | 8.4 |
-| D: luna-high, stripped harness | 31/35 | $0.001 | 13.2 |
+| D: luna-high, stripped harness | 31/35 | $0.0010 | 13.2 |
 | E (original run, prompt not kept): luna-low answer, then haiku-low reviews and repairs it | 35/35 | $0.0035 | 27.4 |
 | F: haiku-low writes a plan, luna-low builds from it | 30/35 | $0.0034 | 22.1 |
 | F: haiku-low writes a plan, luna-high (stripped harness) builds from it | 31/35 | $0.0036 | 27.4 |
@@ -279,7 +279,7 @@ After the main run, several changes were tried on the seven problems luna-low fa
 | luna56-high | 32/35 | $0.0036 | 14.1 |
 | luna56-low | 29/35 | $0.0025 | 12.3 |
 
-- **Raising effort is the only cheap fix.** Stripped luna-high passes 31/35 at $0.001 per pass (proxy), next to haiku-low's 32/35 at $0.0016. Medium effort does nothing (21/35), which fits the reasoning-token counts above: luna barely reasons below high.
+- **Raising effort is the only cheap fix.** Stripped luna-high passes 31/35 at $0.0010 per pass (proxy), next to haiku-low's 32/35 at $0.0016. Medium effort does nothing (21/35), which fits the reasoning-token counts above: luna barely reasons below high.
 - **Prompting helps a little or hurts.** The "trace the examples first" nudge adds 4 passes; asking for a reasoning summary on top of it loses 6.
 - **Letting luna test its own code works but costs more than switching models.** Self-testing reaches 29/35 at 2.8× the baseline's cost per pass and 2.6× its latency, more than haiku-low for fewer passes.
 - **A Haiku review of every answer fixes almost everything, but Haiku does the work.** In the original arm E run, luna-low's own answers passed 21/35; Haiku changed 22 of them and accounted for 78% of the spend, reaching 35/35. Rerun from committed code (arm G, reconstructed prompt) it reached 34/35. With luna-high building, the review reached 35/35 at $0.0035 per pass.
@@ -322,11 +322,11 @@ The one later step that reused pilot material is the Codex harness probe. It nee
 | haiku-low, tools off | 9/9 | 4,100 | 5.0 | $0.00028 | measured |
 | luna-low, stock harness | 9/9 | 14,400 | 4.2 | $0.00047 | proxy |
 | luna-low, tool features off | 9/9 | 9,939 | 4.4 | $0.00098 | proxy |
-| luna-low, stripped | 9/9 | 5,854 | 3.8 | $0.0003 | proxy |
+| luna-low, stripped | 9/9 | 5,854 | 3.8 | $0.00030 | proxy |
 
 The tool-features-off row costs more than stock because 8 of its 9 calls got no cache hit; the per-call figures show the proxy's cache sensitivity, not a token effect.
 
-3 problems × three rounds. Stripped luna and haiku-low both pass 9/9 at $0.0003 and $0.00028 per call, but on problems this easy that says nothing about accuracy: on the full ladder above the same stripped luna passes 73%.
+3 problems × three rounds. Stripped luna and haiku-low both pass 9/9 at $0.00030 and $0.00028 per call, but on problems this easy that says nothing about accuracy: on the full ladder above the same stripped luna passes 73%.
 
 ## What we borrowed from other benchmarks
 

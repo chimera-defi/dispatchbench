@@ -33,7 +33,8 @@
 </details>
 <ul class="tight small">
 <li>Each config tries each problem {{repeats}} times, tools off.</li>
-<li>Function and agentic sets cost {{claude_usd}} on Claude; Codex quota use was estimated at {{codex_usd}}. These totals cover function and agentic sets only. We excluded pilot, harness-bias, trim and {{set_label}} pipeline runs.</li>
+<li>The bench cost {{claude_usd}} on Claude. Codex quota use is estimated at {{codex_usd}}.</li>
+<li>These totals leave out the pilot, harness-bias, trim and {{set_label}} pipeline runs.</li>
 <li>Sets:<ul>
 <li>{{main_set_label}}: {{n_problems}} problems, {{repeats}} tries each. Total: {{n_calls}} calls.</li>
 <li>{{l7_set_label}}: {{n_l7}} problems, {{repeats}} tries each. Total: {{l7_n}} calls.</li>

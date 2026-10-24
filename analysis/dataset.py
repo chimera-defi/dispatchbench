@@ -170,16 +170,21 @@ def get(ds, config, set_, source="main"):
     return next(r for r in ds["rows"] if r["source"] == source and r["config"] == config and r["set"] == set_)
 
 
-def usd(v, sig=2):
-    """Two decimals from $1; otherwise significant figures without zero padding.
+def usd(v, sig=2, tick=False):
+    """Two decimals from $1; otherwise `sig` significant figures.
 
-    Use sig=3 explicitly when a textual comparison needs the extra distinction.
+    Values keep trailing zeros so neighbours read at the same precision ($0.00090 beside $0.00089).
+    Axis ticks (tick=True) drop them. Use sig=3 when a comparison needs the extra distinction.
     """
     if v is None: return "–"
     if v == 0: return "$0"
     if v >= 1: return f"${v:,.2f}"
-    value = format(Decimal(f"{v:.{sig}g}"), "f")
-    return "$" + (value.rstrip("0").rstrip(".") if "." in value else value)
+    d = Decimal(f"{v:.{sig}g}")
+    value = format(d, "f")
+    if tick:
+        return "$" + (value.rstrip("0").rstrip(".") if "." in value else value)
+    places = max(0, sig - 1 - d.adjusted())
+    return f"${d:.{places}f}"
 
 
 

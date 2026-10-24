@@ -55,15 +55,20 @@ def test_catalog_keeps_every_source_under_its_own_counts(ds):
 @pytest.mark.parametrize("value,want", [
     (None, "–"), (0, "$0"), (1, "$1.00"), (12.345, "$12.35"),
     (.002822, "$0.0028"), (.000890, "$0.00089"), (.01234, "$0.012"),
-    (.1, "$0.1"), (.001, "$0.001"), (.003, "$0.003"), (.01, "$0.01"),
-    (.03, "$0.03"), (.3, "$0.3"), (.0000001234, "$0.00000012"),
+    (.1, "$0.10"), (.0009, "$0.00090"), (.001, "$0.0010"), (.01, "$0.010"),
+    (.3, "$0.30"), (.0000001234, "$0.00000012"),
 ])
 def test_usd_readable_precision(value, want):
     assert dataset.usd(value) == want
 
 
+@pytest.mark.parametrize("value,want", [(.001, "$0.001"), (.003, "$0.003"), (.03, "$0.03"), (.3, "$0.3")])
+def test_usd_ticks_drop_trailing_zeros(value, want):
+    assert dataset.usd(value, tick=True) == want
+
+
 def test_usd_explicit_comparison_precision():
-    assert dataset.usd(.000890, sig=3) == "$0.00089"
+    assert dataset.usd(.000890, sig=3) == "$0.000890"
     assert dataset.usd(.000899, sig=3) == "$0.000899"
 
 
