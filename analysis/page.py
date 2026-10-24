@@ -339,7 +339,7 @@ def floor(s):
     E = every(s)
     bars = [("haiku-low", "haiku-low, tools off"), ("sonnet-medium", "sonnet-medium, tools off"),
             ("luna-low", "luna-low, default Codex prompt"), ("luna-low-bare", "luna-low, Codex prompt trimmed"), ("sol61-medium", "sol61-medium, stock")]
-    W, BL, BR, H = 760, 360, 680, 30 + 40 * len(bars); top = max(E[c]["tokens_mean"]["in_tok"] for c, _ in bars)
+    W, BL, BR, H = 760, 360, 680, 16 + 40 * len(bars); top = max(E[c]["tokens_mean"]["in_tok"] for c, _ in bars)
     g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Mean input tokens per call by config">']
     for i, (c, name) in enumerate(bars):
         t = E[c]["tokens_mean"]; y = 8 + i * 40; w = t["in_tok"] / top * (BR - BL); cw = t["cached_tok"] / top * (BR - BL)
@@ -347,7 +347,7 @@ def floor(s):
         g.append(f'<rect x="{BL}" y="{y}" width="{w:.1f}" height="28" rx="3" fill="{FAM(c)}" fill-opacity=".35"/>')
         g.append(f'<rect x="{BL}" y="{y}" width="{cw:.1f}" height="28" rx="3" fill="{FAM(c)}" fill-opacity=".9"/>')
         g.append(f'<text x="{BL + w + 8:.1f}" y="{y + 19}" class="lbl">{t["in_tok"] / 1000:.1f}k</text>')
-    g.append(f'<text x="{BL}" y="{H - 4}" class="axis">solid = served from cache · faded = uncached</text></svg>')
+    g.append("</svg>")
     return scroll_chart("".join(g), W)
 
 
