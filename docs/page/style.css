@@ -2,15 +2,15 @@
    token bars, what to do, then collapsed notes. Colours are CSS variables, redefined for dark mode. */
 :root{
   --bg:#f6f7f4; --panel:#ffffff; --fg:#1d2321; --muted:#5d6763; --line:#dde2de;
-  --accent:#0f7a5c; --claude:#b4572e; --sonnet:#2f8f7d; --frontier:#7b3fe4; --codex:#3a5bb8; --good:#1c7c3c; --warn:#a86b00; --bad:#b3261e;
+  --accent:#0f7a5c; --claude:#b4572e; --sonnet:#2f8f7d; --frontier:#7b3fe4; --codex:#3a5bb8; --codex56:#688acf; --good:#1c7c3c; --warn:#a86b00; --bad:#b3261e;
   --display:"Fraunces",Georgia,serif; --body:"Atkinson Hyperlegible",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141917; --panel:#1b2220; --fg:#e6ece9; --muted:#9aa6a1; --line:#2c3633;
-  --accent:#4cc79d; --claude:#e08a62; --sonnet:#5cc7b2; --frontier:#b48cff; --codex:#7f9cf0; --good:#5fcf83; --warn:#e3b04b; --bad:#ff7a6e; color-scheme:dark}}
+  --accent:#4cc79d; --claude:#e08a62; --sonnet:#5cc7b2; --frontier:#b48cff; --codex:#7f9cf0; --codex56:#abc4ff; --good:#5fcf83; --warn:#e3b04b; --bad:#ff7a6e; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141917; --panel:#1b2220; --fg:#e6ece9; --muted:#9aa6a1; --line:#2c3633;
-  --accent:#4cc79d; --claude:#e08a62; --sonnet:#5cc7b2; --frontier:#b48cff; --codex:#7f9cf0; --good:#5fcf83; --warn:#e3b04b; --bad:#ff7a6e; color-scheme:dark}
+  --accent:#4cc79d; --claude:#e08a62; --sonnet:#5cc7b2; --frontier:#b48cff; --codex:#7f9cf0; --codex56:#abc4ff; --good:#5fcf83; --warn:#e3b04b; --bad:#ff7a6e; color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--body)}
 main{max-width:920px;margin:0 auto;padding-block:32px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
@@ -145,7 +145,6 @@ tr.grp th::after{content:none}
 .svgscroll{max-width:100%;overflow-x:auto}
 @media (max-width:640px){
  .extras figure .svgscroll svg{min-width:max(760px,var(--natural-width,760px))}
- .extras figure svg text{font-size:16px}
 }
 .grid .set-separator{font-weight:700;text-align:left;background:var(--line)}
 .notes .tablewrap th{letter-spacing:0;font-size:11px}
@@ -154,7 +153,7 @@ tr.grp th::after{content:none}
 
 .chart.floor svg{max-width:none}
 @media (max-width:640px){
- .chart.floor svg{min-width:0;width:100%}
+ .chart.floor .svgscroll svg{width:var(--natural-width,760px);min-width:var(--natural-width,760px);max-width:none}
 }
 
 .head .eyebrow{text-wrap:balance}
@@ -184,3 +183,6 @@ section.collapsible > h2 > .sec-toggle:focus-visible,.sec-toggle-all:focus-visib
 
 /* Verdict text wraps independently of numeric cells at desktop widths too. */
 .sortable .verdict-cell{white-space:normal;min-width:9ch;overflow-wrap:anywhere}
+
+.chart.floor .scroll-hint{font-size:12px;color:var(--muted);margin:6px 4px}
+@media (min-width:641px){.chart.floor .scroll-hint{display:none}}

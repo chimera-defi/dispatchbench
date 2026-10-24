@@ -10,7 +10,7 @@ from analysis.labels import TESTS, DISP, pshort, plabel, plabel_html
 # Plot order and family colour (a CSS variable of the page). luna-high is the exploratory full-ladder run.
 ORDER = ["haiku-low", "haiku-medium", "haiku-high", "sonnet-medium", "sol61-medium", "luna-high", "luna-medium", "luna-low", "luna-low-bare",
          "astra-medium", "astra-medium-fast", "sol61-high", "sol61-high-fast", "sol56-high", "luna56-high", "luna56-low"]
-FAM = lambda c: "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex)"
+FAM = lambda c: "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex56)" if c.startswith(("sol56", "luna56")) else "var(--codex)"
 NS = 'xmlns="http://www.w3.org/2000/svg"'
 
 
@@ -28,7 +28,16 @@ def esc(t):
 
 
 # Marker shape by model (colour stays the vendor): read the chart without a label on every point.
-SHAPE = lambda c: "circle" if c.startswith("haiku") else "square" if c.startswith("sonnet") else "triangle" if c.startswith("luna") else "star" if c.startswith("astra") else "diamond"
+def SHAPE(c):
+    if "luna" in c:
+        return "triangle-down" if "high" in c else "triangle-right" if "medium" in c else "triangle"
+    return "circle" if c.startswith("haiku") else "square" if c.startswith("sonnet") else "star" if c.startswith("astra") else "diamond"
+
+
+def config_marker(c, x, y, col=None, k=1.0):
+    """Across plots, hollow means fast mode, dashed means a stripped prompt."""
+    col = col or FAM(c)
+    return marker(SHAPE(c), x, y, "var(--panel)" if "-fast" in c else col, col, "bare" in c, k)
 
 
 def marker(kind, x, y, fill, stroke, dash=False, k=1.0):
@@ -36,6 +45,8 @@ def marker(kind, x, y, fill, stroke, dash=False, k=1.0):
     if kind == "circle": return f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{6.5 * k:.1f}"{a}/>'
     if kind == "square": return f'<rect x="{x - 6 * k:.1f}" y="{y - 6 * k:.1f}" width="{12 * k:.1f}" height="{12 * k:.1f}"{a}/>'
     if kind == "triangle": v = [(0, -8.5), (7.5, 5.5), (-7.5, 5.5)]
+    elif kind == "triangle-down": v = [(0, 8.5), (7.5, -5.5), (-7.5, -5.5)]
+    elif kind == "triangle-right": v = [(8.5, 0), (-5.5, 7.5), (-5.5, -7.5)]
     elif kind == "diamond": v = [(0, -8.5), (8.5, 0), (0, 8.5), (-8.5, 0)]
     else: v = [(r * math.sin(math.radians(36 * i)), -r * math.cos(math.radians(36 * i))) for i, r in enumerate([9.5, 4] * 5)]
     return f'<polygon points="{" ".join(f"{x + dx * k:.1f},{y + dy * k:.1f}" for dx, dy in v)}"{a}/>'
@@ -61,13 +72,13 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
             if ax == "x": g.append(f'<line x1="{X(lo):.1f}" x2="{X(hi):.1f}" y1="{py:.1f}" y2="{py:.1f}" stroke="{col}" stroke-width="2.5" stroke-opacity=".4"/>')
             else: g.append(f'<line x1="{px:.1f}" x2="{px:.1f}" y1="{Y(lo):.1f}" y2="{Y(hi):.1f}" stroke="{col}" stroke-width="2" stroke-opacity=".3"/>')
         if p["on"]: g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="13" fill="none" stroke="var(--frontier)" stroke-width="3"/>')
-        g.append(marker(SHAPE(p["c"]), px, py, "var(--panel)" if p["hollow"] else col, col, p.get("dash")))
+        g.append(config_marker(p["c"], px, py, col))
         g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="14" fill="transparent"/></g>')  # hover target
     cx, cy = L + 10, T + 18 if corner.startswith("↖") else B - 10
     walls = path_boxes(fr) + [(cx, cy - LH + 3, cx + CW * len(corner), cy + 3)]
-    for p, (x, y, a) in place([p for p in pts if p["on"]], X, Y, labels, (L, W - 2, T - 6, B - 2), walls, also=pts):
-        if p["lead"]: g.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="var(--muted)" stroke-width="1"/>' % p["lead"])
-        g.append(f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{a}" class="lbl on">{esc(p.get("name", p["c"]))}</text>')
+    for p, (x, y, a) in place([p for p in pts if p["on"] or p.get("label")], X, Y, labels, (L, W - 2, T - 6, B - 2), walls, also=pts):
+        if p["lead"]: g.append('<line class="label-leader" data-c="%s" x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="var(--muted)" stroke-width="1"/>' % (esc(p['c']), *p["lead"]))
+        g.append(f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{a}" class="lbl{' on' if p["on"] else ''}">{esc(p.get("name", p["c"]))}</text>')
     g.append("</svg>")
     return f'<div class="cwrap"><div class="cplot">{"".join(g)}</div>{key(pts, stat)}<div class="ctip" hidden></div></div>'
 
@@ -78,7 +89,7 @@ def key(pts, stat):
     for p in sorted(pts, key=lambda p: (p["x"] if stat == "speed" else 0, p.get("usd", p["x"] if stat != "speed" else p["y"]))):
         col = p.get("col") or FAM(p["c"]); nm = p.get("lname") or p.get("name", p["c"])
         v = (f'{p["x"]:.0f} s · ${p["y"]:.4f}' if stat == "speed" else f'{100 * p["y"]:.0f}% · ${p["x"]:.4f}') if stat else ""
-        ico = f'<svg viewBox="-10 -10 20 20" aria-hidden="true">{marker(SHAPE(p["c"]), 0, 0, "var(--panel)" if p["hollow"] else col, col, p.get("dash"), .8)}</svg>'
+        ico = f'<svg viewBox="-10 -10 20 20" aria-hidden="true">{config_marker(p["c"], 0, 0, col, .8)}</svg>'
         rows.append(f'<li tabindex="0" data-c="{esc(p["c"])}" data-tip="{esc(p["tip"])}"{" class=on" if p["on"] else ""}>{ico}<span class="n">{esc(nm)}</span><span class="v">{v}</span></li>')
     return f'<ul class="ckey">{"".join(rows)}</ul>'
 
@@ -88,7 +99,7 @@ SPOTS = [(14, 5, "start"), (-14, 5, "end"), (0, -14, "middle"), (0, 26, "middle"
          (-14, -10, "end"), (-14, 20, "end")]
 # Far spots, joined to their dot by a thin leader line: rings at 45 and 75 units, every 30 degrees.
 FAR = [(round(r * math.cos(a)), round(r * math.sin(a)) + 5, "start" if math.cos(a) > .3 else "end" if math.cos(a) < -.3 else "middle")
-       for r in (45, 75) for a in (math.radians(d) for d in range(0, 360, 30))]
+       for r in (45, 75, 110, 150) for a in (math.radians(d) for d in range(0, 360, 30))]
 
 
 def path_boxes(d):
@@ -105,7 +116,8 @@ def place(pts, X, Y, labels, box, walls=(), also=()):
     """Greedy label placement: frontier points first, each takes the first spot (its hand-set offset, then SPOTS) whose text
     box stays inside the plot and clears every dot and every label already placed; if none is clear, the least-overlapping."""
     x0, x1, y0, y1 = box
-    dots = [(X(p["x"]) - 8, Y(p["y"]) - 8, X(p["x"]) + 8, Y(p["y"]) + 8) for p in list(also) or pts]
+    dots = [(X(p["x"]) - (15 if p["on"] else 10), Y(p["y"]) - (15 if p["on"] else 10),
+             X(p["x"]) + (15 if p["on"] else 10), Y(p["y"]) + (15 if p["on"] else 10)) for p in list(also) or pts]
     taken, out = list(walls), {}
     def rect(px, py, dx, dy, a, n):
         w = CW * len(n); l = px + dx - (w if a == "end" else w / 2 if a == "middle" else 0)
@@ -122,7 +134,7 @@ def place(pts, X, Y, labels, box, walls=(), also=()):
     def best(p, others):
         px, py, n = X(p["x"]), Y(p["y"]), nm[id(p)]; top = None
         for s in ([labels[p["c"]]] if p["c"] in labels else []) + SPOTS + FAR:
-            r = rect(px, py, *s, n); led = s in FAR
+            r = rect(px, py, *s, n); led = s in FAR or p.get("label", False)
             out_of = (max(0, x0 - r[0]) + max(0, r[2] - x1) + max(0, y0 - r[1]) + max(0, r[3] - y1)) * 1000
             # text on text or on a dot is bad; an unled label closer to another dot than its own misnames it
             mine = gap(r, px, py); near = not led and any(gap(r, *c) < mine - 2 for c in centres if c != (px, py))
@@ -140,7 +152,7 @@ def place(pts, X, Y, labels, box, walls=(), also=()):
     for p in order:
         _, s, r = got[id(p)]; dx, dy, a = s; px, py = X(p["x"]), Y(p["y"])
         lead = None
-        if s in FAR:  # line from the dot's edge to the nearest point of the label box
+        if s in FAR or p.get("label"):  # line from the dot's edge to the nearest point of the label box
             qx, qy = min(max(px, r[0]), r[2]), min(max(py, r[1]), r[3]); d = math.hypot(qx - px, qy - py) or 1
             lead = (px + (qx - px) * 8 / d, py + (qy - py) * 8 / d, qx, qy)
         out[id(p)] = (dict(p, name=nm[id(p)], lead=lead), (px + dx, py + dy, a))
@@ -171,7 +183,7 @@ def pass_cost(s):
     """Pass rate (up is better) against $ per pass, log (left is better). Whiskers: 95% CI of the pass rate."""
     E = every(s); L, R, T, B, W = 84, 16, 14, 322, 560
     X = logscale(5e-4, 3e-1, L, W - R); Y = lambda v: B - (v - 0.6) / 0.5 * (B - T)
-    pts = [{"c": c, "name": DISP(c), "x": E[c]["usd_per_pass"], "y": E[c]["pass_at_1"], "hollow": False, "tip": tip(c, E[c]),
+    pts = [{"c": c, "name": DISP(c), "x": E[c]["usd_per_pass"], "y": E[c]["pass_at_1"], "hollow": "-fast" in c, "tip": tip(c, E[c]),
             "w": ("y", max(0.6, E[c]["ci95"][0]), E[c]["ci95"][1])} for c in ORDER]
     fr = sorted(front(pts, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
@@ -185,16 +197,23 @@ def pass_cost(s):
     return scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, extra=ex, stat="pass"), [p["c"] for p in fr]
 
 
+def speed_dominates(a, b):
+    """Cost must not rise; speed changes below both 0.5 s and 5% count as ties."""
+    tolerance = min(0.5, b["x"] * 0.05)
+    return (a["y"] < b["y"] and a["x"] <= b["x"] + tolerance or
+            a["y"] == b["y"] and a["x"] <= b["x"] - tolerance)
+
+
 def speed_cost(s):
     """Median seconds (left is better, whisker p25–p75) against $ per pass, log (down is better). Frontier among configs
     that pass at least MIN_PASS; the rest are drawn but cannot be on it."""
     E = every(s); L, R, T, B, W = 84, 16, 14, 462, 560
     xmax = math.ceil(max(E[c]["latency_s"].get("p75", E[c]["latency_s"]["median"]) for c in ORDER) / 5) * 5
     X = lambda v: L + v / xmax * (W - R - L); Y = logscale(5e-4, 3e-1, B, T)
-    pts = [{"c": c, "name": DISP(c), "x": E[c]["latency_s"]["median"], "y": E[c]["usd_per_pass"], "hollow": False, "tip": tip(c, E[c]),
+    pts = [{"c": c, "name": DISP(c), "x": E[c]["latency_s"]["median"], "y": E[c]["usd_per_pass"], "hollow": "-fast" in c, "tip": tip(c, E[c]),
             "w": ("x", E[c]["latency_s"]["p25"], E[c]["latency_s"]["p75"]) if "p25" in E[c]["latency_s"] else None} for c in ORDER]
     ok = [p for p in pts if E[p["c"]]["pass_at_1"] >= MIN_PASS]
-    fr = sorted(front(ok, lambda a, b: a["x"] <= b["x"] and a["y"] <= b["y"]), key=lambda p: p["x"])
+    fr = sorted(front(ok, speed_dominates), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
     ex = fast_pairs(pts, X, Y)
     d = f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
@@ -220,7 +239,7 @@ NAME.update({"haiku-low-plan+luna-low": "Haiku plan → luna-low", "haiku-low-pl
              "luna-low+haiku-review-all": "luna-low → Haiku fixes all", "luna-high-bare+haiku-review-all": "luna-high-bare → Haiku fixes all"})
 HARD_PTS = list(NAME.items())
 SHORT = lambda n: n.replace("Haiku plan → ", "plan→").replace(" → Haiku if samples fail", "→H fail").replace(" → Haiku fixes all", "→H all").replace(" → retry if samples fail", "→retry")
-DECODER = "plan→ = Haiku plans first; →H fail = Haiku fixes only when the sample tests fail; →retry = the same model tries again; →H all = Haiku fixes every answer."
+DECODER = "plan→ = Haiku plan; →H fail = Haiku fixes if examples fail; →retry = same-model retry; →H all = Haiku checks every answer."
 
 
 def rescue_arms():
@@ -240,8 +259,9 @@ def rescue_arms():
 
 def hard_pts():
     a = rescue_arms()
-    return [{"c": c, "name": SHORT(n) if "→" in n else n, "col": "var(--frontier)" if "→" in n else FAM(c), "hollow": False, "w": None, "k": a[c]["passes"] / a[c]["n"],
+    return [{"c": c, "name": SHORT(n) if "→" in n else n, "col": "var(--frontier)" if "→" in n else FAM(c), "hollow": "-fast" in c, "w": None, "k": a[c]["passes"] / a[c]["n"],
              "usd": a[c]["usd_per_pass"], "sec": a[c]["median_s"],
+             "label": c in ("luna-high-bare+retry-on-fail", "luna-low+haiku-on-fail", "luna-high-bare+haiku-on-fail"),
              "tip": f"{n}: {a[c]['passes']}/{a[c]['n']} passed, ${a[c]['usd_per_pass']:.5f} per pass, median {a[c]['median_s']:.1f} s" + (" (" + a[c]["derived"] + ")" if "derived" in a[c] else "")} for c, n in HARD_PTS]
 
 
@@ -269,7 +289,7 @@ def hard_speed_cost():
     X = lambda v: L + (v - 6) / 30 * (W - R - L); Y = logscale(8e-4, 4e-1, B, T)
     pts = [dict(p, x=p["sec"], y=p["usd"]) for p in hard_pts()]
     ok = [p for p in pts if p["k"] >= MIN_PASS]
-    fr = sorted(front(ok, lambda a, b: a["x"] <= b["x"] and a["y"] <= b["y"]), key=lambda p: p["x"])
+    fr = sorted(front(ok, speed_dominates), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
     d = f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
     xt = [(v, f"{v} s") for v in (10, 15, 20, 25, 30, 35)]
@@ -309,6 +329,11 @@ def grid(s):
     return "".join(out)
 
 
+def scroll_chart(body, width):
+    return (f'<div class="svgscroll" style="--natural-width:{width}px" tabindex="0" role="region" aria-label="Scrollable chart">{body}</div>'
+            '<p class="scroll-hint">Scroll sideways on narrow screens.</p>')
+
+
 def floor(s):
     """Mean input tokens per call; the darker part was served from the prompt cache."""
     E = every(s)
@@ -323,7 +348,7 @@ def floor(s):
         g.append(f'<rect x="{BL}" y="{y}" width="{cw:.1f}" height="28" rx="3" fill="{FAM(c)}" fill-opacity=".9"/>')
         g.append(f'<text x="{BL + w + 8:.1f}" y="{y + 19}" class="lbl">{t["in_tok"] / 1000:.1f}k</text>')
     g.append(f'<text x="{BL}" y="{H - 4}" class="axis">solid = served from cache · faded = uncached</text></svg>')
-    return "".join(g)
+    return scroll_chart("".join(g), W)
 
 
 def pipes():
@@ -341,7 +366,7 @@ def pipes():
         g.append(f'<text x="{BR + 8}" y="{y + 19}" class="lbl">{v["passes"]}/{v["n"]} · ${v["usd_per_pass"]:.4f} · {v["median_s"]:.0f}s</text>')
         g.append("</g>")
     g.append("</svg>")
-    return "".join(g)
+    return scroll_chart("".join(g), W)
 
 
 def fast(s):
@@ -358,16 +383,53 @@ def fast(s):
         g.append(f'<rect x="{BL}" y="{y}" width="{w:.1f}" height="28" rx="3" fill="var(--frontier)"/>')
         g.append(f'<text x="{BR + 8}" y="{y + 19}" class="lbl">{v["latency_s"]["median"]:.1f}s · ${v["usd_per_pass"]:.4f}</text>')
     g.append("</svg>")
-    return "".join(g)
+    return scroll_chart("".join(g), W)
 
 
 def explorer(s):
-    """The pick-your-axes scatter (docs/page/explorer.html) with every config's numbers injected."""
-    data = [{"c": c, "d": DISP(c), "exp": e, "col": FAMILY(c), "kind": v["cost_kind"], "pass": v["pass_at_1"], "usd": v["usd_per_pass"],
+    """Enhance the shared explorer at render time; the source template stays unchanged."""
+    data = [{"c": c, "d": DISP(c), "exp": e, "col": FAM(c), "fast": "-fast" in c,
+             "mark": config_marker(c, 0, 0), "kind": v["cost_kind"], "pass": v["pass_at_1"], "usd": v["usd_per_pass"],
              "med": v["latency_s"]["median"], "inp": v["tokens_mean"]["in_tok"], "rsn": v["tokens_mean"]["reasoning_tok"]}
             for e, group in ((False, s["configs"]), (True, s["exploratory"])) for c, v in group.items()]
     src = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "page", "explorer.html")
-    return open(src).read().replace("__DATA__", json.dumps(data, separators=(",", ":")))
+    body = open(src).read().replace("__DATA__", json.dumps(data, separators=(",", ":")))
+    body = body.replace("Hollow = exploratory config. Codex $ is a proxy.",
+                        "Solid = normal speed; hollow = fast mode; dashed edge = bare prompt; lighter blue = 5.6 generation. Shapes match the charts above. Labels connect to their own points. Codex $ is a proxy.")
+    # Match the static speed chart: differences below both 0.5 s and 5% are ties.
+    body = body.replace('return M[k].up?a>=b:a<=b', 'return k=="med"?a<=b+Math.min(.5,.05*b):M[k].up?a>=b:a<=b')
+    body = body.replace('return M[k].up?a>b:a<b', 'return k=="med"?a<=b-Math.min(.5,.05*b):M[k].up?a>b:a<b')
+    body = body.replace('sx.t.forEach(function(v){', 'var tickEnd=-Infinity; sx.t.forEach(function(v){')
+    body = body.replace('if(x<L-1||x>W-R+1)return;',
+                        'if(x<L-1||x>W-R+1)return;var tw=tf(st.x,v).length*(small?6:7);if(x-tw/2<tickEnd+10)return;tickEnd=x+tw/2;')
+    start, end = body.index(' var placed=[];'), body.index(" box.innerHTML='<svg")
+    body = body[:start] + r"""
+ var placed=[],dots=pts.map(function(p){return [sx.f(p[st.x]),sy.f(p[st.y])]}),fontSize=small?11:12;
+ var measure=document.createElement('canvas').getContext('2d');measure.font=fontSize+'px -apple-system,Segoe UI,Helvetica,Arial,sans-serif';
+ pts.forEach(function(p){var x=sx.f(p[st.x]),y=sy.f(p[st.y]),onf=fr.indexOf(p)>=0;
+  g.push('<g class="explorer-point" data-i="'+D.indexOf(p)+'" data-x="'+x+'" data-y="'+y+'" transform="translate('+x+' '+y+')" style="cursor:pointer">'+
+   '<title>'+esc(p.d)+'</title>'+(onf?'<circle r="12" fill="none" stroke="var(--frontier)" stroke-width="3"/>':'')+p.mark+'<circle r="14" fill="transparent"/></g>')});
+ function overlap(a,b){return Math.max(0,Math.min(a[2],b[2])-Math.max(a[0],b[0]))*Math.max(0,Math.min(a[3],b[3])-Math.max(a[1],b[1]))}
+ pts.filter(function(p){return !small||fr.indexOf(p)>=0}).sort(function(a,b){return (fr.indexOf(b)>=0)-(fr.indexOf(a)>=0)||sy.f(a[st.y])-sy.f(b[st.y])}).forEach(function(p){
+  var x=sx.f(p[st.x]),y=sy.f(p[st.y]),w=measure.measureText(p.d).width+6,h=fontSize+5,candidates=[];
+  [20,45,75,110,150].forEach(function(r){for(var angle=0;angle<360;angle+=30){var a=angle*Math.PI/180,dx=Math.cos(a)*r,dy=Math.sin(a)*r;
+    candidates.push([x+dx-(dx<0?w:0),y+dy])}});
+  for(var yy=T+h;yy<H-B;yy+=h+3)for(var xx=L;xx+w<W-R;xx+=24)candidates.push([xx,yy]);
+  var best=null;
+  candidates.forEach(function(c){var lx=c[0],ly=c[1],r=[lx,ly-h,lx+w,ly+3];
+   var outside=Math.max(0,L-r[0])+Math.max(0,r[2]-(W-R))+Math.max(0,T-r[1])+Math.max(0,r[3]-(H-B));
+   var collision=placed.reduce(function(s,q){return s+overlap(r,q)},0)+dots.reduce(function(s,q){return s+overlap(r,[q[0]-15,q[1]-15,q[0]+15,q[1]+15])},0);
+   var score=outside*10000+collision*1000+Math.hypot(lx+w/2-x,ly-h/2-y);
+   if(!best||score<best.score)best={score:score,r:r,lx:lx,ly:ly};
+  });
+  var r=best.r,qx=Math.max(r[0],Math.min(x,r[2])),qy=Math.max(r[1],Math.min(y,r[3])),dist=Math.hypot(qx-x,qy-y)||1;
+  placed.push(r);g.push('<line class="explorer-leader" x1="'+(x+(qx-x)*14/dist)+'" y1="'+(y+(qy-y)*14/dist)+'" x2="'+qx+'" y2="'+qy+'" stroke="var(--muted)" stroke-width="1"/>');
+  g.push('<text class="explorer-label" x="'+(best.lx+3)+'" y="'+best.ly+'" style="fill:var(--fg)" pointer-events="none">'+esc(p.d)+'</text>');
+ });
+""" + body[end:]
+    body = body.replace('box.querySelectorAll("circle")', 'box.querySelectorAll(".explorer-point")')
+    body = body.replace('c.getAttribute("cx")', 'c.getAttribute("data-x")').replace('c.getAttribute("cy")', 'c.getAttribute("data-y")')
+    return body
 
 
 def verdict(c, v, need, E):
@@ -423,7 +485,7 @@ def short_table(s, need):
             '<th>Claude $ per pass</th><th>median s</th><th>verdict</th></tr></thead>'
             f'<tbody>{grp(f"Main ladder: {len(s['problems'])} problems, p01–p12 (L1–L6)")}{"".join(top)}</tbody>'
             f'<tbody>{grp(f"Rescue set: {a[HARD[0][0]]["n"]} attempts on {len(luna_rescue.PIDS)} problems")}{"".join(hard)}</tbody></table></div>'
-            f'<p class="small">Rescue set: see the sets box in Cost vs accuracy. {", ".join(plabel(q) for q in luna_rescue.PIDS)}.</p>')
+            f'<p class="small">Rescue set = the {len(luna_rescue.PIDS)} ladder problems luna missed most. {", ".join(plabel(q) for q in luna_rescue.PIDS)}.</p>')
 
 
 
@@ -486,7 +548,7 @@ def method(s):
           + "".join(f'<li>{lvl(d)} <a href="https://leetcode.com/problems/{slug}/">{esc(n)}</a> <span class="like">source</span></li>' for n, slug, d in PILOT) + "</ul></li>",
           f'<li class="round"><b>Main ladder</b>: {len(main)} new problems, p01–p12, rungs L1–L6 ({per} per rung, rising difficulty). Every config ran it.<ul>'
           + "".join(item(p, s["problems"][p]["rung"]) for p in main) + "</ul></li>",
-          f'<li class="round"><b>L7 set</b>: {len(hard)} extra-hard problems, p13–p15, rung L7. {l7_reason(s)} Configs are listed in the sets box below.<ul>'
+          f'<li class="round"><b>L7 set</b>: {len(hard)} extra-hard problems, p13–p15, rung L7. {l7_reason(s)} Configs are listed in the <a href="#pareto">sets box in Cost vs accuracy</a>.<ul>'
           + "".join(item(p, 7) for p in hard) + "</ul></li>"]
     flag = lambda fl: esc(" ".join(f if f else '""' for f in fl))
     group = {}
@@ -525,9 +587,23 @@ def sets_box(s):
             '</ul></div>')
 
 
+def rescue_subtitle():
+    attempts = luna_rescue.arms()["sol61-high"]["n"]
+    return (f'Rescue set = the {len(luna_rescue.PIDS)} ladder problems luna missed most. Purple = pipelines.<br>'
+            + esc(DECODER) + '<br>'
+            f'Examples never failed for sol61-high and astra-medium (normal: separate runs; ⚡: cached answers). '
+            f'{attempts} attempts per row, no intervals.')
+
+
+def speed_frontier_text(s, names):
+    E = every(s)
+    return ", ".join(f"{DISP(c)} ({E[c]['latency_s']['median']:.1f} s, ${E[c]['usd_per_pass']:.5f} per pass"
+                     + (f", {100 * E[c]['pass_at_1']:.1f}% passed" if E[c]['passes'] < E[c]['n'] else "") + ")" for c in names)
+
+
 def widgets(s, need):
     a, fa = pass_cost(s); b, fb = speed_cost(s); ha, hfa = hard_pass_cost(); hb, hfb = hard_speed_cost(); nm = dict(HARD_PTS)
     return {"pass_cost": a, "speed_cost": b, "hard_pass_cost": ha, "hard_speed_cost": hb,
             "hard_front_pass": ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": ", ".join(SHORT(nm[c]) for c in hfb), "sets": sets_box(s), "grid": grid(s), "floor": floor(s), "pipes": pipes(), "fast": fast(s), "explorer": explorer(s), "short_table": short_table(s, need),
-            "front_pass": ", ".join(map(DISP, fa)), "front_speed": ", ".join(map(DISP, fb)),
-            "decoder": DECODER, "problems": method(s)[0], "flags": method(s)[1]}
+            "front_pass": ", ".join(map(DISP, fa)), "front_speed": speed_frontier_text(s, fb),
+            "decoder": DECODER, "rescue_subtitle": rescue_subtitle(), "problems": method(s)[0], "flags": method(s)[1]}

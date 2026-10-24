@@ -32,14 +32,14 @@ def test_speed_whiskers_fit_axis_even_with_a_slower_config(summary, monkeypatch)
     assert seen and min(seen) >= 84 and max(seen) <= 544
 
 
-def test_rung_series_have_distinct_keys_past_all_endpoints(summary):
+def test_rung_series_have_distinct_keys_above_the_plot(summary):
     svg = ET.fromstring(charts.rung_chart(summary))
     series = svg.findall("s:polyline", NS)
     assert len({e.get("stroke-dasharray") for e in series}) == len(series)
-    keys = [e for e in svg.findall("s:line", NS) if e.get("stroke-width") == "2"]
+    keys = svg.findall("s:line[@class='rung-key']", NS)
     assert len(keys) == len(series)
-    max_end = max(float(e.get("points").split()[-1].split(",")[0]) for e in series)
-    assert min(float(e.get("x1")) for e in keys) > max_end
+    top = min(float(p.split(',')[1]) for e in series for p in e.get('points').split())
+    assert max(float(e.get('y1')) for e in keys) < top
     labels = {e.text: e for e in svg.findall("s:text", NS)}
     for c in ("astra-medium", "astra-medium-fast"):
         label = labels[page.DISP(c)]
@@ -71,3 +71,69 @@ def test_codex_orchestrator_status_requires_attributed_results():
     assert report.codex_orchestrator_status([{"orchestrator": "Claude Opus", "passed": True}]) == "not run yet"
     for attribution in ("Codex", {"cli": "codex"}, {"model": "gpt-6.1-sol"}):
         assert report.codex_orchestrator_status([{"orchestrator": attribution, "passed": False}]) == "results available"
+
+
+def test_speed_frontier_treats_sub_half_second_gap_as_tie(summary):
+    _, names = page.speed_cost(summary)
+    assert 'haiku-low' in names
+    assert 'astra-medium-fast' not in names
+    changed = json.loads(json.dumps(summary))
+    changed['exploratory']['astra-medium-fast']['latency_s']['median'] = 9.0
+    assert 'astra-medium-fast' in page.speed_cost(changed)[1]
+
+
+def test_rescue_triangle_labels_lead_to_their_own_points():
+    for render in (page.hard_pass_cost, page.hard_speed_cost):
+        svg = ET.fromstring(render()[0].split('<div class="cplot">')[1].split('</div>')[0])
+        labels = [e.text for e in svg.findall('s:text', NS)]
+        assert 'luna-high-bare→retry' in labels
+        assert 'luna-low→H fail' in labels
+        assert svg.findall("s:line[@class='label-leader']", NS)
+
+
+def test_rung_points_explain_per_problem_passes(summary):
+    svg = ET.fromstring(charts.rung_chart(summary))
+    titles = [e.text for e in svg.findall('.//s:title', NS)]
+    assert any('haiku-low' in t and 'p11' in t and '/5' in t for t in titles)
+    labels = [e for e in svg.findall('s:text', NS) if e.get('class') == 'dip-label']
+    assert labels
+    assert len({e.tag for e in svg.findall('.//*[@class="rung-marker"]')}) >= 3
+
+
+def test_marker_styles_distinguish_fast_generation_and_luna_variants():
+    def draw(c):
+        return page.config_marker(c, 0, 0)
+    assert 'var(--panel)' in draw('sol61-high-fast')
+    assert draw('sol61-high') != draw('sol56-high')
+    assert len({draw(c) for c in ('luna-low', 'luna-medium', 'luna-high', 'luna-low-bare', 'luna56-low')}) == 5
+
+
+def test_floor_charts_keep_natural_size(summary):
+    for body in (page.floor(summary), page.fast(summary), page.pipes()):
+        assert 'class="svgscroll"' in body
+        assert '--natural-width:760px' in body
+        assert 'Scroll sideways' in body
+
+
+def test_quality_fast_coverage_keeps_main_and_separate_rescue_runs_apart(summary, monkeypatch):
+    note = report.quality_fast_note(summary)
+    assert 'sol61-high-fast: main-ladder solutions not scored' in note
+    assert '35-attempt rescue run' in note
+    assert 'astra-medium-fast: main-ladder solutions not scored' in note
+    assert 'No separate rescue-run quality scores' in note
+    scored = next(r for r in report.quality_rows() if r['config'] == 'sol61-high-fast' and r['outcome'] == 'pass')
+    main = dict(scored, phase='exploratory')
+    monkeypatch.setattr(report, 'quality_rows', lambda: [scored, main])
+    table = report.quality_table({'configs': {}, 'exploratory': {'sol61-high-fast': {'passes': 1}}})
+    assert 'sol61-high ⚡ | 1 |' in table
+
+
+def test_rescue_label_leaders_start_at_the_named_point():
+    for render in (page.hard_pass_cost, page.hard_speed_cost):
+        svg = ET.fromstring(render()[0].split('<div class="cplot">')[1].split('</div>')[0])
+        points = {g.get('data-c'): g.findall('s:circle', NS)[-1] for g in svg.findall("s:g[@class='pt']", NS)}
+        for lead in svg.findall("s:line[@class='label-leader']", NS):
+            circle = points[lead.get('data-c')]
+            dx = float(lead.get('x1')) - float(circle.get('cx'))
+            dy = float(lead.get('y1')) - float(circle.get('cy'))
+            assert (dx * dx + dy * dy) ** .5 == pytest.approx(8, abs=.15)

@@ -101,6 +101,8 @@ def facts(s):
     F["codex_orchestrator_status"] = codex_orchestrator_status(attributed)
     F["l7_n"] = str(len({p for v in hard.values() for p in v["by_problem"]}) * int(F["repeats"]))
     F["n_rescue_problems"] = str(len(luna_rescue.PIDS))
+    F["older_generation"] = "5.6"
+    F["quality_fast_note"] = quality_fast_note(s)
     F["budget_pass"] = pct(0.95); F["p90_percent"] = pct(0.90)
     F["host_agents_md"] = HOST_AGENTS_MD; F["min_pass"] = pct(MIN_PASS)
     F["rung_attempts"] = str(cfg["haiku-low"]["by_rung"]["L1"]["n"])
@@ -222,6 +224,8 @@ def facts(s):
     F["hm_l7_miss"] = " and ".join(f"{v} {k}" for k, v in sorted(hm7["outcomes"].items()) if k != "pass") or "none"
     F["g_vs_sm_x"] = x(sm["usd_per_pass"], hv["usd_per_pass"]); F["g_hi_fixed"] = str(sum(r["repaired"] for r in hr["rows"]))
     need(all(r["passed"] for r in hr["rows"] if r["repaired"]), "Haiku fixed every answer whose sample tests failed")
+    fixed = int(F["g_hi_fixed"])
+    F["g_hi_fixed_words"] = "both" if fixed == 2 else f"all {fixed}"
     F["g_hi_bad"] = str(sum(r["repaired"] for r in hr["rows"]) + hr["n"] - hr["passes"])
     need(a["haiku-low-plan+luna-high-bare"]["passes"] == a["luna-high-bare"]["passes"], "plan first leaves luna-high-bare passes unchanged")
     need(a["haiku-low-plan+luna-low"]["passes"] > a["luna-low"]["passes"], "planning helps luna-low")
@@ -420,6 +424,21 @@ def tables_md(s):
 
 def quality_rows():
     return [json.loads(l) for l in open(QUALITY)] if os.path.exists(QUALITY) else []
+
+
+def quality_fast_note(s):
+    """Describe quality coverage by phase, without confusing the two fast runs."""
+    q = [r for r in quality_rows() if r.get("outcome") == "pass"]
+    parts = []
+    for c in ("sol61-high-fast", "astra-medium-fast"):
+        main = [r for r in q if r["config"] == c and r["phase"] in ("main", "exploratory", "escalation")]
+        parts.append(f"{c}: {len(main)} main-ladder passing solutions scored in this table." if main else f"{c}: main-ladder solutions not scored.")
+        rescue = [r for r in q if r["config"] == c and r["phase"] == "fastmode"]
+        if rescue:
+            parts.append(f"Its separate {len(rescue)}-attempt rescue run is scored in the ‘Codex fast mode and xhigh’ table below.")
+        else:
+            parts.append("No separate rescue-run quality scores are available.")
+    return " ".join(parts)
 
 
 def quality_table(s):

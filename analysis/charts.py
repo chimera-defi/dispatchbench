@@ -41,7 +41,7 @@ def fmt_usd(v):
 
 def pareto_chart(s):
     cfg = {c: v for c, v in s["configs"].items() if v["usd_per_pass"]}
-    extra = {c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"]}  # drawn hollow, not on the frontier
+    extra = {c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"]}  # exploratory, not on the pre-registered frontier
     allc = {**cfg, **extra}
     W, H, L, R, T, B = 760, 480, 96, 30, 50, 80
     xs = [v["usd_per_pass"] for v in allc.values()]
@@ -60,7 +60,7 @@ def pareto_chart(s):
         pts = " ".join(f"{X(cfg[c]['usd_per_pass']):.1f},{Y(cfg[c]['pass_at_1']):.1f}" for c in front)
         b.append(f"<polyline points='{pts}' fill='none' stroke='{INK}' stroke-width='1.5' stroke-dasharray='5 4'/>")
     for c, v in allc.items():
-        x, y = X(v["usd_per_pass"]), Y(v["pass_at_1"]); on = c in front; hollow = c in extra
+        x, y = X(v["usd_per_pass"]), Y(v["pass_at_1"]); on = c in front; hollow = "-fast" in c
         lo, hi = v["ci95"]
         col = FAMILY(c)
         b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(max(lo, y0)):.1f}' y2='{Y(hi):.1f}' stroke='{col}' stroke-width='2' opacity='0.35'/>")
@@ -69,9 +69,9 @@ def pareto_chart(s):
         else:
             b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='{7 if on else 5.5}' fill='{col}' stroke='{INK if on else PLATE}' stroke-width='1.5'/>")
         right = x > W - R - 170 or c in LABEL_LEFT
-        label = f"{DISP(c)} ({100 * v['pass_at_1']:.0f}%){' *' if v['cost_kind'] == 'proxy' else ''}{', exploratory' if hollow else ''}"
+        label = f"{DISP(c)} ({100 * v['pass_at_1']:.0f}%){' *' if v['cost_kind'] == 'proxy' else ''}{', exploratory' if c in extra else ''}"
         b.append(text(x - 10 if right else x + 10, y + LABEL_DY.get(c, -8), label, 11, "end" if right else "start", MUTED if hollow else INK))
-    b.append(text(L, H - 10, "Dashed: Pareto. Bars: 95% CI. Hollow: exploratory. * Codex cost is proxy.", 10, fill=MUTED))
+    b.append(text(L, H - 10, "Dashed: Pareto. Bars: 95% CI. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
     return svg(W, H, b)
 
 
@@ -82,10 +82,11 @@ PURPLE = "var(--frontier,#7b3fe4)"
 def cost_time_chart(s):
     """$ per pass against median latency, function track L1-L6. The frontier is drawn over configs at or above MIN_PASS
     pass@1: among those, the ones no other config beats on both cost and time."""
+    from analysis.page import speed_dominates
     allc = {**{c: v for c, v in s["configs"].items() if v["usd_per_pass"]}, **{c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"]}}
     pts = {c: (v["usd_per_pass"], v["latency_s"]["median"]) for c, v in allc.items()}
     ok = {c: p for c, p in pts.items() if allc[c]["pass_at_1"] >= MIN_PASS}
-    front = [a for a, (x, y) in ok.items() if not any(x2 <= x and y2 <= y and (x2 < x or y2 < y) for b, (x2, y2) in ok.items() if b != a)]
+    front = [a for a, (x, y) in ok.items() if not any(speed_dominates({"x": y2, "y": x2}, {"x": y, "y": x}) for b, (x2, y2) in ok.items() if b != a)]
     front.sort(key=lambda c: pts[c][0])
     W, H, L, R, T, B = 760, 440, 96, 30, 50, 80
     xs = [p[0] for p in pts.values()]; x0, x1 = min(xs) / 1.6, max(xs) * 1.6
@@ -103,7 +104,7 @@ def cost_time_chart(s):
         b.append(f"<polyline points='{' '.join(f'{X(pts[c][0]):.1f},{Y(pts[c][1]):.1f}' for c in front)}' fill='none' stroke='{PURPLE}' stroke-width='2.5' stroke-dasharray='6 4'/>")
     lanes = {}
     for c, (x, t) in sorted(pts.items(), key=lambda item: item[1][0]):
-        hollow = c not in s["configs"]; px, py = X(x), Y(t)
+        hollow = "-fast" in c; px, py = X(x), Y(t)
         col = FAMILY(c)
         b.append(f"<circle cx='{px:.1f}' cy='{py:.1f}' r='6' fill='{PLATE if hollow else col}' stroke='{PURPLE if c in front else col if hollow else PLATE}' stroke-width='{3 if c in front else 2 if hollow else 1.5}'/>")
         lab = f"{DISP(c)} ({100 * allc[c]['pass_at_1']:.0f}%){' *' if allc[c]['cost_kind'] == 'proxy' else ''}"; w = 6.3 * len(lab)
@@ -113,42 +114,58 @@ def cost_time_chart(s):
         lanes[0].append((xl, xl + w, ly))
         if lane: b.append(f"<line x1='{px:.1f}' x2='{px:.1f}' y1='{py - 7:.1f}' y2='{ly + 3:.1f}' stroke='{col}' stroke-width='1' opacity='0.6'/>")
         b.append(text(xl, ly, lab, 11, fill=MUTED if hollow else INK))
-    b.append(text(L, H - 10, f"Purple ring: frontier, pass@1 ≥ {100 * MIN_PASS:.0f}%, then cost and time. Hollow: exploratory. * Codex cost is proxy.", 10, fill=MUTED))
+    b.append(text(L, H - 10, f"Purple ring: frontier, pass@1 ≥ {100 * MIN_PASS:.0f}%, then cost and time. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
     return svg(W, H, b)
 
 
 def rung_chart(s):
+    from analysis.page import config_marker, place
     ex = s.get("exploratory") or {}
-    cfg = {**s["configs"], **{c: ex[c] for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex}}  # fast mode beside its default tier
+    cfg = {**s["configs"], **{c: ex[c] for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex}}
     rungs = sorted({g for v in cfg.values() for g in v["by_rung"]}, key=lambda g: int(g[1:]))
-    W, H, L, R, T, B = 760, 420, 60, 190, 70, 62
-    X = lambda i: L + i / max(1, len(rungs) - 1) * (W - L - R); Y = lambda p: H - B - p * (H - T - B)
+    W, H, L, R, T, B = 760, 650, 72, 40, 200, 72
+    X = lambda i: L + i / max(1, len(rungs) - 1) * (W - L - R)
+    Y = lambda p: H - B - p * (H - T - B)
     b = [text(L, 24, "Pass rate by difficulty rung (main ladder p01-p12)", 14, weight="600"),
-         text(L, 46, "Main run + sol61-high / astra-medium + ⚡ twins; L7 excluded.", 10.5, fill=MUTED)]
-    for p in (0, 0.2, 0.4, 0.6, 0.8, 1.0):
-        b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
+         text(L, 46, "L7 excluded. Solid = normal speed; hollow = fast mode. Hover a point for per-problem passes.", 11, fill=MUTED)]
+    patterns = ("none", "8 3", "2 3", "8 3 2 3", "12 4", "4 2 1 2", "12 3 2 3", "2 2 2 5", "10 2 4 2", "1 4")
+    dashes = {c: patterns[k] if k < len(patterns) else f"{k + 3} 2 1 4" for k, c in enumerate(cfg)}
+    # The key precedes the plot; each entry repeats the series dash and model marker.
+    for k, c in enumerate(cfg):
+        x, y = L + (k % 3) * 220, 72 + (k // 3) * 25
+        b.append(f"<line class='rung-key' x1='{x}' x2='{x + 24}' y1='{y}' y2='{y}' stroke='{FAMILY(c)}' stroke-width='2' stroke-dasharray='{dashes[c]}'/>")
+        b.append(config_marker(c, x + 12, y, FAMILY(c), .55))
+        b.append(text(x + 31, y + 4, DISP(c), 11, fill=FAMILY(c)))
+    for rate in (0, 0.2, 0.4, 0.6, 0.8, 1.0):
+        b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(rate):.1f}' y2='{Y(rate):.1f}' stroke='{GRID}'/>",
+              text(L - 8, Y(rate) + 4, f"{100 * rate:.0f}%", 11, "end", MUTED)]
     b.append(f"<line x1='{L}' x2='{W - R}' y1='{Y(0.4):.1f}' y2='{Y(0.4):.1f}' stroke='var(--bad,#b3261e)' stroke-dasharray='4 3'/>")
     b.append(text(L + 6, Y(0.4) - 6, "breaking point (≤ 40%)", 11, fill="var(--bad,#b3261e)"))
     for i, g in enumerate(rungs):
         b.append(text(X(i), H - B + 18, g, 11, "middle", MUTED))
-        b.append(text(X(i), H - B + 31, " ".join(q[:3] for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g), 9.5, "middle", MUTED))
-    b.append(text((L + W - R) / 2, H - 8, "rung (L1 easiest; the problems on each rung are listed under it)", 12, "middle", MUTED))
-    n = len(cfg); labels = []
-    patterns = ("none", "8 3", "2 3", "8 3 2 3", "12 4", "4 2 1 2", "12 3 2 3", "2 2 2 5", "10 2 4 2", "1 4")
-    dashes = {c: patterns[k] if k < len(patterns) else f"{k + 3} 2 1 4" for k, c in enumerate(cfg)}
-    key_x = W - R + (n - 1) / 2 * 3 + 10
+        b.append(text(X(i), H - B + 34, " ".join(q[:3] for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g), 11, "middle", MUTED))
+    b.append(text((L + W - R) / 2, H - 8, "rung (L1 easiest; problems listed underneath)", 12, "middle", MUTED))
+    dots = []
     for k, (c, v) in enumerate(cfg.items()):
-        off = (k - (n - 1) / 2) * 3  # small horizontal jitter so overlapping lines stay visible
-        pts = [(X(i) + off, Y(v["by_rung"][g]["passed"] / v["by_rung"][g]["n"])) for i, g in enumerate(rungs) if g in v["by_rung"]]
-        col = FAMILY(c); dash = f" stroke-dasharray='{dashes[c]}'"
-        b.append(f"<polyline points='{' '.join(f'{x:.1f},{y:.1f}' for x, y in pts)}' fill='none' stroke='{col}' stroke-width='2'{dash}/>")
-        b += [f"<circle cx='{x:.1f}' cy='{y:.1f}' r='3.5' fill='{col}'/>" for x, y in pts]
-        labels.append((pts[-1][1], c))
-    labels.sort(); last = -1e9
-    for y, c in labels:  # spread end labels so they don't collide
-        y = max(y, last + 21); last = y
-        b.append(f"<line x1='{key_x:.1f}' x2='{key_x + 24:.1f}' y1='{y:.1f}' y2='{y:.1f}' stroke='{FAMILY(c)}' stroke-width='2' stroke-dasharray='{dashes[c]}'/>")
-        b.append(text(key_x + 30, y + 4, DISP(c), 11, fill=FAMILY(c)))
+        off = (k - (len(cfg) - 1) / 2) * 2.5
+        pts = []
+        for i, g in enumerate(rungs):
+            if g not in v["by_rung"]: continue
+            z = v["by_rung"][g]; rate = z["passed"] / z["n"]
+            px, py = X(i) + off, Y(rate); pts.append((px, py))
+            probs = [q for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g]
+            detail = ", ".join(f"{q[:3]}: {(v.get('by_problem') or {}).get(q, s['problems'][q].get(c))}/{v['n'] // len(s['problems'])}" for q in probs)
+            title = f"{DISP(c)}, {g}: {z['passed']}/{z['n']} passed; {detail}"
+            mark = config_marker(c, px, py, FAMILY(c), .6).replace(" ", ' class="rung-marker" ', 1)
+            b.append(f"<g><title>{escape(title)}</title>{mark}</g>")
+            dots.append(dict(c=f"{c}/{g}", name=f"{DISP(c)} {z['passed']}/{z['n']}", x=px, y=py, on=False, dip=rate < 1))
+        # Lines behind markers, without hiding each point's hover title.
+        b.insert(0, f"<polyline points='{' '.join(f'{x:.1f},{y:.1f}' for x, y in pts)}' fill='none' stroke='{FAMILY(c)}' stroke-width='2' stroke-dasharray='{dashes[c]}'/>")
+    for p, (x, y, anchor) in place([p for p in dots if p["dip"]], lambda v: v, lambda v: v, {}, (L - 20, W - 10, T - 28, H - B - 4), also=dots):
+        if p["lead"]:
+            a, b0, c, d = p["lead"]
+            b.append(f"<line x1='{a:.1f}' y1='{b0:.1f}' x2='{c:.1f}' y2='{d:.1f}' stroke='{MUTED}'/>")
+        b.append(text(x, y, p["name"], 11, anchor).replace("<text ", "<text class='dip-label' ", 1))
     return svg(W, H, b)
 
 
@@ -236,7 +253,7 @@ def bars(title, rows, fmt, note, W=760, L=190, R=110):
 
 
 def all_configs(s):
-    return [(c, v, False) for c, v in s["configs"].items()] + [(c, v, True) for c, v in (s.get("exploratory") or {}).items()]
+    return [(c, v, "-fast" in c) for c, v in {**s["configs"], **(s.get("exploratory") or {})}.items()]
 
 
 def cost_tokens_chart(s):
@@ -245,7 +262,7 @@ def cost_tokens_chart(s):
     tot = [(DISP(c) + (" *" if v["cost_kind"] == "proxy" else ""), v["usd_total"], FAMILY(c), x) for c, v, x in rows]
     per = [(DISP(c) + (" *" if v["cost_kind"] == "proxy" else ""), 1000 * v["usd_per_call"] / (v["tokens_mean"]["in_tok"] + v["tokens_mean"]["out_tok"]), FAMILY(c), x)
            for c, v, x in rows]
-    a = bars("Total $ for the main ladder p01-p12", tot, lambda v: f"${v:.3f}", "Hollow: exploratory. * Codex cost is proxy; Claude is measured.")
+    a = bars("Total $ for the main ladder p01-p12", tot, lambda v: f"${v:.3f}", "Solid: normal speed; hollow: fast mode. * Codex cost is proxy; Claude is measured.")
     b = bars("$ per 1,000 tokens processed (input + output, mean per call)", per, lambda v: f"${v:.5f}",
                 "Cached input costs less per token. * Codex cost is proxy.")
     return a, b
@@ -257,7 +274,7 @@ TOKEN_IN = ["luna-low", "luna-low-bare", "haiku-low", "sonnet-medium"]
 def token_in_chart(s):
     allc = {c: v for c, v, _ in all_configs(s)}
     lab = {"luna-low": "luna-low, stock Codex", "luna-low-bare": "luna-low, stripped Codex", "haiku-low": "haiku-low, tools off", "sonnet-medium": "sonnet-medium, tools off"}
-    rows = [(lab[c], allc[c]["tokens_mean"]["in_tok"], FAMILY(c), c not in s["configs"]) for c in TOKEN_IN if c in allc]
+    rows = [(lab[c], allc[c]["tokens_mean"]["in_tok"], FAMILY(c), "-fast" in c) for c in TOKEN_IN if c in allc]
     return bars("Mean input tokens per call (main ladder p01-p12)", rows, lambda v: f"{v:,}",
                 f"Includes cached input. Codex includes ~{HOST_AGENTS_MD} host AGENTS.md tokens.", L=200, R=80)
 
