@@ -12,6 +12,7 @@ Template syntax:
   lines starting "@readme " or "@page " appear only in that output
 """
 import glob, html, json, os, re, statistics
+from fractions import Fraction
 
 from analysis import fast_gate, luna_rescue, page as pagew
 from analysis.labels import pshort, plabel, DISP
@@ -113,6 +114,18 @@ def facts(s):
         F[f"{k}_pass"] = pct(v["pass_at_1"]); F[f"{k}_k"] = f"{v['passes']}/{v['n']}"; F[f"{k}_upp"] = u(v["usd_per_pass"])
         F[f"{k}_med"] = f"{v['latency_s']['median']:.1f}"; F[f"{k}_rsn"] = n(v["tokens_mean"]["reasoning_tok"]); F[f"{k}_rsn10"] = about(v["tokens_mean"]["reasoning_tok"])
         F[f"{k}_in"] = n(v["tokens_mean"]["in_tok"]); F[f"{k}_total"] = u(v['usd_total'], 3)
+    F["haiku_low_passes"] = str(cfg["haiku-low"]["passes"])
+    F["hh_passes"] = str(ex["haiku-high"]["passes"])
+    F["model_names"] = f"luna = {cfg['luna-low']['model']}, sol61 = {ex['sol61-high']['model']}, astra = {ex['astra-medium']['model']}"
+    F["ref_unit"] = f"{1:.2f}"
+    missed = statistics.mean(1 - every[c]["pass_at_1"] for c in ("luna-low", "luna-low-bare", "luna-medium"))
+    need(abs(missed - 1 / 4) < .04, "the cheapest points miss about a quarter")
+    fraction = Fraction(missed).limit_denominator(4)
+    F["cheap_miss_words"] = f"{fraction.numerator} answer in {fraction.denominator}"
+    p04 = [r for r in rows if r["problem"] == "p04_taller_within" and r["phase"] in ("main", "exploratory")]
+    counts = [sum(r["passed"] for r in p04 if r["config"] == c) for c in ("luna-low", "luna-medium", "luna-low-bare")]
+    need(len(set(counts)) == 1, "three cheap luna configs have equal p04 passes")
+    F["p04_passes"] = str(counts[0])
     # finding 1: effort budgets
     hl, ll, lm, lh = cfg["haiku-low"], cfg["luna-low"], cfg["luna-medium"], ex["luna-high"]
     need(ll["tokens_mean"]["reasoning_tok"] < 50 and lm["tokens_mean"]["reasoning_tok"] < 50, "luna low/medium barely reason")
@@ -219,6 +232,7 @@ def facts(s):
     need(hv["passes"] == hv["n"] == sm["passes"], "luna-high + Haiku review and sonnet-medium never failed on the rescue set")
     hm = a["haiku-medium"]; need(hm["passes"] == hm["n"] and hm["usd_per_pass"] < hv["usd_per_pass"], "haiku-medium alone: no miss, cheaper than the pipeline")
     F["hm_vs_pipe_x"] = x(hv["usd_per_pass"], hm["usd_per_pass"]); F["r_pids"] = ", ".join(plabel(q) for q in luna_rescue.PIDS)
+    F["sm_vs_hh_x"] = x(cfg["sonnet-medium"]["usd_per_pass"], ex["haiku-high"]["usd_per_pass"])
     F["sm_vs_hm_x"] = f"{cfg['sonnet-medium']['usd_per_pass'] / cfg['haiku-medium']['usd_per_pass']:.0f}×"
     hm7 = hard["haiku-medium"]; F["hm_l7_k"] = f"{hm7['passes']}/{hm7['n']}"
     F["hm_l7_miss"] = " and ".join(f"{v} {k}" for k, v in sorted(hm7["outcomes"].items()) if k != "pass") or "none"
@@ -375,15 +389,15 @@ def md_table(head, rows, bold=None):
 def tables_md(s):
     T = {}; cfg, ex = s["configs"], s["exploratory"]; nprob = len(s["problems"])
     T["result"] = md_table(["config", "pass@1", "95% CI", "median s", "p90 s", "$ per pass", f"total $ ({cfg['haiku-low']['n']} calls)", "$ kind"],
-                           [[DISP(c) + (" (exploratory)" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], nprob),
+                           [[DISP(c) + (" †" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], nprob),
                              f"{v['latency_s']['median']:.1f}", f"{v['latency_s']['p90']:.1f}", f"{money(v['usd_per_pass'], 5)}", f"{money(v['usd_total'], 3)}", v["cost_kind"]]
                             for c, v in {**cfg, **ex}.items()])
     T["result_detail"] = md_table(["config", "95% CI", "p90 s", f"total $ ({cfg['haiku-low']['n']} calls)", "$ kind"],
-                                  [[DISP(c) + (" (exploratory)" if c in ex else ""), ci_text(v["passes"], v["n"], v["ci95"], nprob),
+                                  [[DISP(c) + (" †" if c in ex else ""), ci_text(v["passes"], v["n"], v["ci95"], nprob),
                                     f"{v['latency_s']['p90']:.1f}", money(v["usd_total"], 3), v["cost_kind"]]
                                    for c, v in {**cfg, **ex}.items()])
     T["tokens"] = md_table(["config", "mean input", "of which cached", "mean output", "of which reasoning", "$ per 1k tokens"],
-                           [[DISP(c) + (" (exploratory)" if c in ex else ""), n(v["tokens_mean"]["in_tok"]), n(v["tokens_mean"]["cached_tok"]), n(v["tokens_mean"]["out_tok"]),
+                           [[DISP(c) + (" †" if c in ex else ""), n(v["tokens_mean"]["in_tok"]), n(v["tokens_mean"]["cached_tok"]), n(v["tokens_mean"]["out_tok"]),
                              n(v["tokens_mean"]["reasoning_tok"]), money(scale(v["usd_per_call"], 1000 / (v["tokens_mean"]["in_tok"] + v["tokens_mean"]["out_tok"])))]
                             for c, v in {**cfg, **ex}.items()])
     from bench.trim_probe import LEVELS
@@ -432,7 +446,7 @@ def quality_fast_note(s):
     parts = []
     for c in ("sol61-high-fast", "astra-medium-fast"):
         main = [r for r in q if r["config"] == c and r["phase"] in ("main", "exploratory", "escalation")]
-        parts.append(f"{c}: {len(main)} main-ladder passing solutions scored in this table." if main else f"{c}: main-ladder solutions not scored.")
+        parts.append(f"{DISP(c)}: {len(main)} main-ladder passing solutions scored in this table." if main else f"{DISP(c)}: main-ladder solutions not scored.")
         rescue = [r for r in q if r["config"] == c and r["phase"] == "fastmode"]
         if rescue:
             parts.append(f"Its separate {len(rescue)}-attempt rescue run is scored in the ‘Codex fast mode and xhigh’ table below.")
@@ -453,7 +467,7 @@ def quality_table(s):
         need(len(rr) == (s["configs"].get(c) or s["exploratory"][c])["passes"], f"quality rows cover every passing {c} solution")
         tr = [r["time_ratio"] for r in rr if r.get("time_ratio") is not None]; mr = [r["mem_ratio"] for r in rr if r.get("mem_ratio") is not None]
         slow = sum(1 for r in rr if r.get("time_exp") is not None and r.get("ref_time_exp") is not None and r["time_exp"] - r["ref_time_exp"] > GROWTH_MARGIN)
-        out.append([DISP(c), str(len(rr)), f"{med([r['loc'] for r in rr]):.0f}", f"{med([r['cc_max'] for r in rr]):.0f}",
+        out.append([DISP(c) + (" †" if c in s["exploratory"] else ""), str(len(rr)), f"{med([r['loc'] for r in rr]):.0f}", f"{med([r['cc_max'] for r in rr]):.0f}",
                     f"{sum(r['lint_warnings'] for r in rr) / len(rr):.2f}", f"{med(tr):.2f}" if tr else "–", f"{slow}", f"{med(mr):.2f}" if mr else "–"])
     return md_table(["config", "passing solutions", "median LOC", "median max complexity", "lint warnings per solution", "time vs ref",
                      "worse growth", "mem vs ref"], out)

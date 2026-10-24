@@ -123,7 +123,7 @@ def rung_chart(s):
     ex = s.get("exploratory") or {}
     cfg = {**s["configs"], **{c: ex[c] for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex}}
     rungs = sorted({g for v in cfg.values() for g in v["by_rung"]}, key=lambda g: int(g[1:]))
-    W, H, L, R, T, B = 760, 650, 72, 40, 200, 72
+    W, H, L, R, T, B = 760, 650, 72, 220, 200, 72
     X = lambda i: L + i / max(1, len(rungs) - 1) * (W - L - R)
     Y = lambda p: H - B - p * (H - T - B)
     b = [text(L, 24, "Pass rate by difficulty rung (main ladder p01-p12)", 14, weight="600"),
@@ -146,6 +146,8 @@ def rung_chart(s):
         b.append(text(X(i), H - B + 34, " ".join(q[:3] for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g), 11, "middle", MUTED))
     b.append(text((L + W - R) / 2, H - 8, "rung (L1 easiest; problems listed underneath)", 12, "middle", MUTED))
     dots = []
+    walls = [(L, Y(.4) - 3, W - R, Y(.4) + 3),
+             (L + 6, Y(.4) - 20, L + 180, Y(.4) - 3)]
     for k, (c, v) in enumerate(cfg.items()):
         off = (k - (len(cfg) - 1) / 2) * 2.5
         pts = []
@@ -159,9 +161,18 @@ def rung_chart(s):
             mark = config_marker(c, px, py, FAMILY(c), .6).replace(" ", ' class="rung-marker" ', 1)
             b.append(f"<g><title>{escape(title)}</title>{mark}</g>")
             dots.append(dict(c=f"{c}/{g}", name=f"{DISP(c)} {z['passed']}/{z['n']}", x=px, y=py, on=False, dip=rate < 1))
+        # Thin boxes follow each segment instead of blocking its entire diagonal bounds.
+        for (ax, ay), (bx, by) in zip(pts, pts[1:]):
+            steps = max(1, math.ceil(math.hypot(bx - ax, by - ay) / 6))
+            for j in range(steps):
+                x0, y0 = ax + (bx - ax) * j / steps, ay + (by - ay) * j / steps
+                x1, y1 = ax + (bx - ax) * (j + 1) / steps, ay + (by - ay) * (j + 1) / steps
+                walls.append((min(x0, x1) - 2, min(y0, y1) - 2, max(x0, x1) + 2, max(y0, y1) + 2))
         # Lines behind markers, without hiding each point's hover title.
         b.insert(0, f"<polyline points='{' '.join(f'{x:.1f},{y:.1f}' for x, y in pts)}' fill='none' stroke='{FAMILY(c)}' stroke-width='2' stroke-dasharray='{dashes[c]}'/>")
-    for p, (x, y, anchor) in place([p for p in dots if p["dip"]], lambda v: v, lambda v: v, {}, (L - 20, W - 10, T - 28, H - B - 4), also=dots):
+    for p, (x, y, anchor) in place([p for p in dots if p["dip"]], lambda v: v, lambda v: v,
+                                   {p["c"]: (14, -14, "start") for p in dots if p["c"].endswith("/L6")},
+                                   (L - 20, W - 10, T - 28, H - B - 4), walls=walls, also=dots, char_width=6.6, label_height=15):
         if p["lead"]:
             a, b0, c, d = p["lead"]
             b.append(f"<line x1='{a:.1f}' y1='{b0:.1f}' x2='{c:.1f}' y2='{d:.1f}' stroke='{MUTED}'/>")
@@ -215,7 +226,7 @@ def floor_chart(s):
 def agentic_chart(s):
     ag = s.get("agentic") or {}
     if not ag: return None
-    W, H, L, R, T, B = 760, 460, 80, 250, 100, 80
+    W, H, L, R, T, B = 760, 500, 80, 40, 200, 80
     xs = [v["usd_per_run"] for v in ag.values()]
     x0, x1 = min(xs) / 1.5, max(xs) * 1.5
     X = lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R); Y = lambda p: H - B - p * (H - T - B)
@@ -225,16 +236,17 @@ def agentic_chart(s):
     for v in log_ticks(x0, x1):
         b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{H - B}' stroke='{GRID}'/>", text(X(v), H - B + 18, fmt_usd(v), 11, "middle", MUTED)]
     b += [text((L + W - R) / 2, H - B + 38, "$ per run", 12, "middle", MUTED), text(20, (T + H - B) / 2, "runs passing all hidden tests", 12, "middle", MUTED, rotate=-90)]
-    # Reserve a label column beyond every data point; leaders stop before its text boxes.
+    # Direct labels above the dots, with vertical stubs clear of the shared 100% line.
     for i, (c, v) in enumerate(sorted(ag.items(), key=lambda kv: kv[1]["usd_per_run"])):
         x, y = X(v["usd_per_run"]), Y(v["hidden_pass_rate"]); lo, hi = v["ci95"]
         if v["hidden_pass"] == v["n"]: lo = 0.05 ** (1 / len(v["by_task"]))  # bootstrap collapses at 100%; one-sided bound over tasks, as in the tables
         b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(lo):.1f}' y2='{Y(hi):.1f}' stroke='{FAMILY(c)}' stroke-width='2' opacity='0.5'/>")
         b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='6' fill='{FAMILY(c)}'/>")
-        lab = f"{c} {v['hidden_pass']}/{v['n']}{' *' if v['cost_kind'] == 'proxy' else ''}"
-        xl, ly = W - R + 24, T + i * 22
-        b.append(f"<line class='leader' x1='{x + 7:.1f}' x2='{xl - 6:.1f}' y1='{y:.1f}' y2='{ly - 4:.1f}' stroke='{FAMILY(c)}' stroke-width='1' opacity='0.6'/>")
-        b.append(text(xl, ly, s=lab, size=11))
+        lab = f"{DISP(c)} {v['hidden_pass']}/{v['n']}{' *' if v['cost_kind'] == 'proxy' else ''}"
+        ly = T - 24 - i * 22
+        anchor = "end" if x + len(lab) * 6.6 > W - 10 else "start"
+        b.append(f"<line class='leader' x1='{x:.1f}' x2='{x:.1f}' y1='{y - 8:.1f}' y2='{ly + 5:.1f}' stroke='{FAMILY(c)}' stroke-width='1' opacity='0.6'/>")
+        b.append(text(x, ly, s=lab, size=11, anchor=anchor))
     b.append(text(L, H - 10, "All configs: 12/12. Bars: lower 95% bound. * Estimated from tokens.", 11, fill=MUTED))
     return svg(W, H, b)
 
