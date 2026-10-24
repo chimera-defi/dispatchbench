@@ -28,7 +28,7 @@ NOTATION = {
     "→retry": "The same model tries again if the examples fail.",
     "plan→": "Haiku writes a plan before the named model answers.",
     "†": "An exploratory config added after the main run.",
-    "✓ pick": "A Winner pick, or the cheapest row without misses in its group.",
+    "✓ pick": "A Winner pick.",
     "~": "Codex cost estimated from tokens and list prices.",
     "–": "No Claude step, unavailable cost, or an unrun failure-grid cell.",
     "$0": "The Haiku step never ran, or subscription quota covers the Codex call.",

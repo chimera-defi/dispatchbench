@@ -215,8 +215,13 @@ def test_frontier_caption_uses_computed_costs(summary):
     assert dataset.usd(low["usd_per_pass"], sig=1) == dataset.usd(medium["usd_per_pass"], sig=1)
     assert page.esc(f"It passes {medium['passes']}/{medium['n']} to luna-low's {low['passes']}/{low['n']}.") in caption
     assert 'Main ladder only' in caption
-    assert page.pass_cost(summary)[0].count('class="frontier-note"') == 1
-    assert 'class="frontier-note"' not in page.speed_cost(summary)[0]
+    assert 'hollow and exploratory points excluded' in caption
+    for render in (page.pass_cost, page.speed_cost):
+        output, _ = render(summary)
+        main, rescue = output.split('<div class="cset s-rescue">', 1)
+        assert output.count('class="frontier-note"') == 1
+        assert caption in main
+        assert 'class="frontier-note"' not in rescue
 
 
 def test_measured_luna_rescue_keeps_its_own_page_metrics(summary):
@@ -278,6 +283,7 @@ def test_codex_orchestrator_status_requires_attributed_results():
 
 def test_fairness_qa_renders_counts_and_runtime_from_appendix():
     rows = [json.loads(line) for line in (ROOT / 'results/appendix/harness_bias.jsonl').read_text().splitlines()]
+    facts = dataset.read()['facts']
     rendered = report.render()[2]
     method = re.search(r'<section\b[^>]*\bid="method"[^>]*>(.*?)</section>', rendered, re.S).group(1)
     assert "Q: Does our one-shot runner make Codex look bad?" in method
@@ -295,18 +301,24 @@ def test_fairness_qa_renders_counts_and_runtime_from_appendix():
             cell = [r for r in rows if (r['config'], r['harness']) == (config, harness)]
             counts.append(f"{sum(r['passed'] for r in cell)}/{len(cell)}")
         assert f"<td>{config}</td><td>{counts[0]}</td><td>{counts[1]}</td>" in method
+        cli = 'Codex CLI' if config.startswith('luna') else 'Claude Code'
+        assert (f"<li>Inside {cli}, {config} went from {counts[0].split('/')[0]} "
+                f"to {counts[1].split('/')[0]} passes.</li>") in method
     codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
     start = min(datetime.fromisoformat(r['ts']).timestamp() for r in codex)
     end = max(datetime.fromisoformat(r['ts']).timestamp() + r['wall_s'] for r in codex)
     assert f"{sum(r['outcome'] == 'harness_error' for r in codex)} harness errors" in method
-    assert f"about {(end - start) / 60:.0f} minutes of wall time for the recorded calls" in appendix
+    assert facts['hb_minutes'] == f"{(end - start) / 60:.0f}"
+    assert f"The recorded calls took about {facts['hb_minutes']} minutes of wall time." in appendix
     assert 'no timeouts' in method
     comparison = harness_bias.pass_summary(rows)
     lo, hi = comparison['ci']
-    assert 'Slightly, and possibly more.' in method
-    assert f"The gap between them moved {100 * comparison['diff']:.0f} points." in method
-    assert 'We set 15 points as the bar for calling our runner biased.' in method
-    assert f'The 95% range is {100 * lo:.0f} to {100 * hi:.0f} points' in method
+    assert f"<li>A: {facts['hb_answer']}</li>" in method
+    assert (f"<li>The gap moved {100 * comparison['diff']:.0f} points, "
+            f"below our {facts['hb_bar_points']}-point bias bar.</li>") in method
+    assert (f"<li>We used {facts['ci_level']} confidence. "
+            f"The range spans {100 * lo:.0f} to {100 * hi:.0f} points.</li>") in method
+    assert '<li>A larger bias is possible.</li>' in method
     assert 'Headline numbers: see' in appendix
     assert dataset.read()['facts']['hb_summary'] not in appendix
     assert method.index('Harness =') < method.index('Q: Does')
@@ -421,8 +433,22 @@ def test_winner_and_conclusion_agree_and_sets_are_collapsed(summary):
 
 def test_winner_verdict_and_luna_high_tradeoff(summary):
     E = page.every(summary)
-    assert page.verdict('haiku-high', E['haiku-high'], report.need, E) == '✓ pick'
-    assert page.verdict('luna-high', E['luna-high'], report.need, E) == 'trade-off'
+    verdicts = {c: page.verdict(c, E[c], report.need, E) for c in page.ORDER}
+    assert verdicts['haiku-high'] == f"{E['haiku-high']['n'] - E['haiku-high']['passes']} misses"
+    assert verdicts['sol61-high'] == '✓ pick'
+    assert verdicts['haiku-low'] == '✓ pick (budget)'
+    assert verdicts['sonnet-medium'] == '✓ pick (speed)'
+    assert verdicts['luna-high'] == 'trade-off'
+    winner = page.winner_table(dataset.read(), report.need)
+    picks = set(re.findall(r'<td data-label="Pick"><span>(.*?)</span></td>', winner))
+    assert {configs.display(c) for c, verdict in verdicts.items() if verdict.startswith('✓ pick')} == picks
+    results = page.short_table(summary, report.need)
+    result_rows = ET.fromstring('<root>' + results + '</root>').findall('.//tbody/tr')
+    result_picks = [''.join(row[0].itertext()) for row in result_rows
+                    if (cell := row.find('td[@class="verdict-cell"]')) is not None
+                    and cell.text.startswith('✓ pick')]
+    assert set(result_picks) == picks
+    assert len(result_picks) == len(picks)
 
 
 def test_rung_dip_labels_clear_series_and_breaking_line(summary):
@@ -479,18 +505,26 @@ def test_single_speed_frontier_has_no_line_and_labels_accurate_competitors(summa
 
 def test_luna_miss_views_share_points_and_separate_coincident_models(summary):
     for primary, hard in ((page.pass_cost, page.hard_pass_cost), (page.speed_cost, page.hard_speed_cost)):
-        direct = primary(summary, free=False, problem_set='rescue')[0]
-        alternate = hard(page.rescue_arms(summary))[0]
+        direct, frontier = primary(summary, free=False, problem_set='rescue')
+        alternate, alternate_frontier = hard(page.rescue_arms(summary))
         assert direct == alternate
+        assert frontier == alternate_frontier
         svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', direct, re.S)[0])
-        targets = {g.get('data-c'): (g[-1].get('cx'), g[-1].get('cy'))
-                   for g in svg.findall("s:g[@class='pt']", NS)}
+        points = {g.get('data-c'): g for g in svg.findall("s:g[@class='pt']", NS)}
+        targets = {c: (g[-1].get('cx'), g[-1].get('cy')) for c, g in points.items()}
         labels = {t.text for t in svg.findall('s:text', NS) if 'lbl' in t.get('class', '')}
+        expected_labels = {page.NAME[c] for c in targets if c in frontier or '+' in c}
+        assert labels == expected_labels
+        stat = 'pass' if primary is page.pass_cost else 'speed'
+        expected_points = page.ladder_repairs(False, stat, page.rescue_arms(summary))
+        assert set(targets) == {p['c'] for p in expected_points}
+        for point in expected_points:
+            assert points[point['c']].get('data-tip') == point['tip']
         builders = ('sol61-high', 'astra-medium') if primary is page.pass_cost else ('sol61-high-fast', 'astra-medium-fast')
         for builder in builders:
             pipeline = builder + '+haiku-on-fail'
             assert targets[builder] != targets[pipeline]
-            assert {configs.display(builder), configs.display(pipeline)} <= labels
+            assert page.NAME[pipeline] in labels
         assert set(targets) == set(page.NAME)
 
 

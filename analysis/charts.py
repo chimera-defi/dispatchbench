@@ -134,8 +134,9 @@ def rung_chart(s, ds=None):
     W, L, T, cw, rh = 560, 190, 96, 58, 30
     H = T + rh * len(names) + 40
     probs = {g: " ".join(q[:3] for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g) for g in rungs}
+    caption = (ds or dataset.read())["facts"]["rung_caption"]
     b = [text(12, 24, "Pass rate by difficulty rung (main ladder p01-p12)", 15, weight="600"),
-         text(12, 46, "Passes per rung. Tinted = a miss. L7 excluded.", 11, fill=MUTED)]
+         text(12, 46, caption, 10, fill=MUTED)]
     for i, g in enumerate(rungs):
         x = L + i * cw + cw / 2
         b += [text(x, T - 22, g, 14, "middle", INK, "600"), text(x, T - 8, probs[g], 11, "middle", MUTED)]
@@ -153,7 +154,7 @@ def rung_chart(s, ds=None):
                      + text(x + cw / 2, y + rh / 2 + 5, f"{k}/{n}", 13, "middle", INK, "normal" if k == n else "700") + "</g>")
     yb = T + rh * len(names)
     b.append(f"<line x1='8' x2='{L + len(rungs) * cw}' y1='{yb}' y2='{yb}' stroke='{GRID}'/>")
-    b.append(text(12, yb + 24, "Rung L1 is easiest. Red tint: 40% or less, the breaking point.", 11, fill=MUTED))
+    b.append(text(12, yb + 24, "Rung L1 is easiest.", 11, fill=MUTED))
     out = svg(W, H, b).replace(f"width='{W}' height='{H}'", f"class='rung' width='{W}' height='{H}'", 1)
     return re.sub(r"font-size='([\d.]+)'( text-anchor='\w+' style=')", r"\2font-size:\1px;", out)  # inline size: the page's phone CSS does not rescale this chart
 
@@ -228,9 +229,31 @@ def agentic_chart(s):
     return svg(W, H, b)
 
 
-def bars(title, rows, fmt, note, W=360, L=None, R=8, low_start=None, values=None, cached=None):
-    """Phone-width bars with wrapped labels and values below each bar."""
+def bars(title, rows, fmt, note, W=360, L=None, R=8, low_start=None, values=None, cached=None,
+         responsive=False):
+    """Compact horizontal desktop rows; phones stack values below their bars."""
     import textwrap
+    if responsive:
+        phone = bars(title, rows, fmt, note, low_start=low_start, values=values, cached=cached)
+        phone = phone.replace("<svg ", "<svg class='bar-phone' ", 1)
+        mx = max(r[1] for r in rows) or 1
+        value_text = values if values is not None else [fmt(r[1]) for r in rows]
+        value_width = max(len(str(v)) for v in value_text)
+        wide = [f'<div class="bar-wide" style="--bar-value-width:{value_width}ch"><b class="bar-title">{escape(title)}</b>']
+        for i, (label, v, col, hollow) in enumerate(rows):
+            if i == low_start:
+                wide.append('<b class="bar-divider">Low context</b>')
+            value = value_text[i]
+            style = f"--bar-color:{col};--bar-width:{100 * v / mx:.3f}%"
+            cls = "bar-fill" + (" bar-hollow" if hollow else "") + (" bar-uncached" if cached is not None else "")
+            fill = f'<span class="{cls}" style="{style}">'
+            if cached is not None:
+                fill += f'<span class="bar-cached" style="width:{100 * cached[i]:.3f}%"></span>'
+            wide.append(f'<div class="bar-row"><span class="bar-name">{escape(label)}</span>'
+                        f'<span class="bar-track">{fill}</span></span>'
+                        f'<span class="bar-value">{escape(str(value))}</span></div>')
+        if note: wide.append(f'<p class="bar-note">{escape(note)}</p>')
+        return phone + "".join(wide) + '</div>'
     label_lines = [textwrap.wrap(r[0], 20, break_long_words=True, break_on_hyphens=False) for r in rows]
     L = min(140, max(90, max(len(line) for lines in label_lines for line in lines) * 6.2 + 12))
     title_lines = textwrap.wrap(title, 45)
@@ -285,7 +308,7 @@ TOKEN_IN = ["luna-low", "luna-low-bare", "haiku-low", "sonnet-medium"]
 
 def token_in_chart(s, ds=None):
     allc = {c: r for c, r, _ in ladder(ds or dataset.read(), s)}
-    lab = {"luna-low": "luna-low, stock prompt", "luna-low-bare": "luna-low, trimmed prompt", "haiku-low": "haiku-low", "sonnet-medium": "sonnet-medium"}
+    lab = {"luna-low": "luna-low, Codex's normal prompt", "luna-low-bare": "luna-low, trimmed prompt", "haiku-low": "haiku-low", "sonnet-medium": "sonnet-medium"}
     order = sorted([c for c in TOKEN_IN if c in allc], key=configs.low_context)
     rows = [(lab[c], allc[c]["tokens_in_mean"], FAMILY(c), "-fast" in c) for c in order]
     low_start = next((i for i, c in enumerate(order) if configs.low_context(c)), None)

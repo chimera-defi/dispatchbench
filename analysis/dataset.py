@@ -294,14 +294,14 @@ def fairness_facts():
             f"({95}% range {facts['hb_range_points']}); bias bar was {facts['hb_bar_points']}.")
         facts['hb_uncertainty'] = "A bigger bias is possible."
     facts['hb_summary'] = " ".join(facts[k] for k in ('hb_takeaway', 'hb_detail'))
-    facts['hb_qa'] = (f"A: {facts['hb_answer']} "
+    facts['hb_qa'] = ([f"A: {facts['hb_answer']}",
         f"Inside Codex CLI, luna-low went from {facts['hb_claude_luna_low'].split('/')[0]} "
-        f"to {facts['hb_codex_luna_low'].split('/')[0]} passes out of {facts['hb_luna_low_n']}. "
-        f"haiku-low went from {facts['hb_claude_haiku_low'].split('/')[0]} "
-        f"to {facts['hb_codex_haiku_low'].split('/')[0]}. "
-        f"The gap between them moved {facts['hb_diff_points']} points. "
-        f"We set {facts['hb_bar_points']} points as the bar for calling our runner biased. "
-        f"The {95}% range is {facts['hb_range_points']} points. A bigger bias is possible.") if lo > 0 else facts['hb_answer']
+        f"to {facts['hb_codex_luna_low'].split('/')[0]} passes.",
+        f"Inside Claude Code, haiku-low went from {facts['hb_claude_haiku_low'].split('/')[0]} "
+        f"to {facts['hb_codex_haiku_low'].split('/')[0]} passes.",
+        f"The gap moved {facts['hb_diff_points']} points, below our {facts['hb_bar_points']}-point bias bar.",
+        f"We used {95}% confidence. The range spans {facts['hb_range_points']} points.",
+        "A larger bias is possible."] if lo > 0 else [facts['hb_answer']])
     facts['hb_conclusion'] = ("Vendor agent CLIs improved both models." if improved
                               else "The runner comparison uses paired attempts.")
     codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
@@ -634,37 +634,51 @@ def _facts(s, arms):
     F['winner_caption'] = (
         f"Numbers: the {nprob}-problem {configs.set_label('main ladder')}, {hl['n']} tries per config. "
         "Time = median seconds. ~ = estimated from tokens; Claude costs are measured.")
-    F['winner_other_routes'] = (
-        f"Other routes. Fast mode (⚡): same answers, about {F['fm_mult']} list price, faster. "
-        "Codex → Haiku: run the worked examples; Haiku fixes only failures. "
+    F['winner_other_routes'] = [
+        f"⚡ = fast mode: same answers, about {F['fm_mult']} list price, faster.",
+        "Codex → Haiku (→H fail = Haiku fixes answers whose worked examples fail). "
         f"It passed {F['r_sol61_high_haiku_on_fail_k']} on the "
-        f"{len(luna_rescue.PIDS)}-problem {configs.set_label('rescue set')} and never needed Haiku. "
-        f"No misses when paying per call: haiku-high, {F['hh_upp']} per pass.")
+        f"{len(luna_rescue.PIDS)}-problem {configs.set_label('rescue set')}; Haiku never ran.",
+        f"No misses when paying per call: haiku-high, {F['hh_upp']} per pass."]
     gap = round(cfg['sonnet-medium']['latency_s']['median'], 1) - round(hl['latency_s']['median'], 1)
     need(gap > 0, "haiku-low is slightly faster than sonnet-medium")
-    F['speed_why'] = (
-        f"No misses, and only {gap:.1f} s behind haiku-low (which misses {hl['n'] - hl['passes']} of {hl['n']}). "
-        f"luna is faster but misses {F['cheap_miss_words']}. "
-        "Its code scored lowest in a code-only readability review (see Notes).")
+    F['speed_why'] = (f"No misses. It trails haiku-low by {gap:.1f} s. "
+                      f"haiku-low misses {hl['n'] - hl['passes']} of {hl['n']}.")
     F['budget_why'] = f"Cheapest pick that passes {F['budget_pass']} or more"
     F['model_names'] += (f", luna56 = {ex['luna56-high']['model']}, "
                          f"sol56 = {ex['sol56-high']['model']} (older generation)")
     need(a['luna-low-noshell-B1']['passes'] > a['luna-low']['passes'] > a['luna-low-noshell-B2']['passes'], "B1 improves over plain luna-low; B2 passes less often")
     F['noshell_comparison'] = "B1 passed more often than plain luna-low. B2 passed less often."
     F['verdict_key'] = (
-        f"pick = best in its group · budget pick = cheapest at {F['budget_pass']}+ · "
+        "✓ pick = a Winner pick · 0 misses / missed N = raw miss count, no ranking · "
         "beaten = another row is as cheap and passes as often · "
         f"trade-off = pricier but passes more · avoid = below {F['min_pass'] }.")
     F['dropped_pipelines'] = ", ".join(map(configs.display, configs.PLAIN_PIPELINE_DUPLICATES))
+    F['dropped_pipeline_models'] = " and ".join(dict.fromkeys(
+        DISP(c.split('+')[0].removesuffix('-fast')) for c in configs.PLAIN_PIPELINE_DUPLICATES)) + " (normal and ⚡)"
     F['l7_config_count'] = str(len(hard))
     absent = [DISP(c) for c in every if c not in hard]
     F['l7_absent'] = ", ".join(absent[:-1]) + " and " + absent[-1] if len(absent) > 1 else "".join(absent)
-    F['rung_breaks'] = " and ".join(sorted({lb['breaking_point'], ll['breaking_point']}))
+    rung_configs = list(cfg) + [c for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex]
+    F['rung_breaks'] = "; ".join(f"{DISP(c)} breaks at {every[c]['breaking_point']}" for c in rung_configs
+                                 if every[c]['breaking_point'])
+    F['bare_rung_break'] = lb['breaking_point']
+    F['rung_caption'] = (f"Passes per rung. Tint = a miss; red = {F['break_at']} or less, the breaking point. "
+                         f"{configs.set_label('L7 set').split()[0]} excluded.")
+    F['pipes_caption'] = (f"Bar length = passes out of {F['rescue_n']}. "
+                          "Text under each bar = passes · $ per pass · median seconds.")
     cluster = [v['latency_s']['median'] for c, v in every.items() if c.startswith('luna') and v['usd_per_pass'] < hl['usd_per_pass']]
     F['speed_luna_cluster'] = f"luna ×{len(cluster)} ({min(cluster):.0f}–{max(cluster):.0f} s)"
-    F['s61_later_note'] = "sol61-high was added after the main run (†)."
-    F['default_route_scope'] = (f"Passed {F['sol61_high_k']} main, {F['x_sol61_high_hk']} L7, and "
-                                f"{ag['sol61-high']['hidden_pass']}/{ag['sol61-high']['n']} repo tries.")
+    F['default_route_scope'] = (f"sol61-high passed every main try ({F['sol61_high_k']}). "
+                                f"It passed every L7 try ({F['x_sol61_high_hk']}). "
+                                f"It passed every repo try ({ag['sol61-high']['hidden_pass']}/{ag['sol61-high']['n']}). "
+                                f"On the {configs.set_label('rescue set')}, it passed {F['r_sol61_high_haiku_on_fail_k']}. "
+                                "Haiku never ran.")
+    F['hb_conclusion_copy'] = (
+        "Does our runner make Codex look bad? Slightly, maybe more. "
+        f"The gap moved {F['hb_diff_points']} points, below our {F['hb_bar_points']}-point bar. "
+        f"We used {F['ci_level']} confidence. The range spans {F['hb_range_points']} points. "
+        "A larger bias is possible.")
     F['l7_set_description'] = (f"{configs.set_label('L7 set')}: " + ", ".join(pshort(p) for p in probs)
                                + f"; scored separately. Added after every strong config passed L{max(v['rung'] for v in s['problems'].values())}.")
     return F
