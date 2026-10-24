@@ -191,3 +191,8 @@ section.collapsible > h2 > .sec-toggle:focus-visible,.sec-toggle-all:focus-visib
 main>section.collapsible:not(.verdict){border-top:1px solid var(--line);padding-top:14px}
 main>section.collapsible:not(.verdict)>h2{margin-bottom:6px}
 section.collapsible>h2>.sec-toggle:hover .sec-chevron,section.collapsible>h2>.sec-toggle:hover{color:var(--fg)}
+
+/* Expanding a section fades it in. Only after the first click (sort.js adds .sec-anim), so page load stays still. */
+@keyframes sec-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+section.collapsible>.sec-body:not([hidden]){animation:sec-in var(--sec-dur,0s) ease-out}
+.sec-anim{--sec-dur:.15s}

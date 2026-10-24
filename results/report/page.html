@@ -196,6 +196,11 @@ section.collapsible > h2 > .sec-toggle:focus-visible,.sec-toggle-all:focus-visib
 main>section.collapsible:not(.verdict){border-top:1px solid var(--line);padding-top:14px}
 main>section.collapsible:not(.verdict)>h2{margin-bottom:6px}
 section.collapsible>h2>.sec-toggle:hover .sec-chevron,section.collapsible>h2>.sec-toggle:hover{color:var(--fg)}
+
+/* Expanding a section fades it in. Only after the first click (sort.js adds .sec-anim), so page load stays still. */
+@keyframes sec-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+section.collapsible>.sec-body:not([hidden]){animation:sec-in var(--sec-dur,0s) ease-out}
+.sec-anim{--sec-dur:.15s}
 </style></head><body><main>
 <header class="head">
 <h1>Which model should a coding task go to?</h1>
@@ -554,7 +559,7 @@ document.querySelectorAll("main > section").forEach(function(section,i){
  section.appendChild(body);section.classList.add("collapsible");
  var item={section:section,button:button,chevron:chevron,body:body};sections.push(item);
  setOpen(item,collapsed.indexOf(section.id)===-1);
- button.addEventListener("click",function(){setOpen(item,body.hidden);updateAll();persist()})
+ button.addEventListener("click",function(){document.documentElement.classList.add("sec-anim");setOpen(item,body.hidden);updateAll();persist()})
 });
 if(!sections.length)return;
 var toc=document.querySelector("main nav.toc"),allButton;
@@ -562,7 +567,7 @@ if(toc){
  allButton=document.createElement("button");allButton.type="button";allButton.className="sec-toggle-all";
  toc.insertAdjacentElement("afterend",allButton);
  allButton.addEventListener("click",function(){
-  var open=sections.some(function(item){return item.body.hidden});
+  document.documentElement.classList.add("sec-anim");var open=sections.some(function(item){return item.body.hidden});
   sections.forEach(function(item){setOpen(item,open)});updateAll();persist()
  });
  toc.addEventListener("click",function(ev){
