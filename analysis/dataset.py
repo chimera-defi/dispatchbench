@@ -337,6 +337,25 @@ def _facts(s, arms):
     attributed = (r for path in sorted(glob.glob(os.path.join(RES, "**", "*.jsonl"), recursive=True)) for r in load(path))
     F["codex_orchestrator_status"] = codex_orchestrator_status(attributed)
     F.update(fairness_facts())
+    # Models and versions: one CLI version per vendor across the function track.
+    by_cli = defaultdict(set)
+    for r in rows: by_cli[r["cli"], r["cli_version"]].add(r["model"])
+    need(len({cli for cli, _ in by_cli}) == len(by_cli) == 2, "one CLI version per vendor")
+    vers = dict(by_cli)
+    F["versions_claude"] = next(f"Main bench, Claude Code {v}: {', '.join(sorted(m))}." for (c, v), m in vers.items() if c == "claude")
+    F["versions_codex"] = next(f"Main bench, Codex CLI {v}: {', '.join(sorted(m))}." for (c, v), m in vers.items() if c == "codex")
+    # The Codex-built bench (Whose bench?) also ran newer CLI builds.
+    norm = lambda v: v.replace("codex-cli ", "").replace(" (Claude Code)", "")
+    extra = defaultdict(set)
+    for name in ("harness_bias", "codex_harness"):
+        for r in load(os.path.join(RES, "appendix", f"{name}.jsonl")):
+            v = norm(r["cli_version"])
+            if (r["cli"], v) not in by_cli: extra[r["cli"]].add(v)
+    need(set(extra) == {"claude", "codex"}, "Codex-built bench used other CLI builds on both sides")
+    F["versions_extra"] = (f"Whose bench? also used Codex CLI {', '.join(sorted(extra['codex']))}"
+                           f" and Claude Code {', '.join(sorted(extra['claude']))}.")
+    days = sorted(r["ts"][:10] for path in glob.glob(os.path.join(RES, "**", "*.jsonl"), recursive=True) for r in load(path) if r.get("ts"))
+    F["run_dates"] = f"All calls ran {days[0]} to {days[-1]}."
     F.update(main_set_label=configs.set_label("main ladder"), l7_set_label=configs.set_label("L7 set"))
     F["l7_n"] = str(len({p for v in hard.values() for p in v["by_problem"]}) * int(F["repeats"]))
     F["n_rescue_problems"] = str(len(luna_rescue.PIDS))
