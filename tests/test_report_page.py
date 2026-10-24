@@ -32,6 +32,41 @@ def test_speed_whiskers_fit_axis_even_with_a_slower_config(summary, monkeypatch)
     assert seen and min(seen) >= 84 and max(seen) <= 544
 
 
+@pytest.mark.parametrize("render", [page.pass_cost, page.speed_cost])
+def test_main_ladder_repair_toggle(summary, render):
+    output, frontier = render(summary)
+    assert '<label class="cost-toggle"><input type="checkbox"' in output
+    assert 'Codex is free (subscription quota)</label>' in output
+    layers = re.findall(r'<div class="cvariant v-(normal|free)">(.*?)</ul></div>', output, re.S)
+    assert [name for name, _ in layers] == ["normal", "free"]
+    arms = page.rescue_arms()
+    for variant, layer in layers:
+        svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', layer, re.S)[0])
+        points = {g.get("data-c"): g for g in svg.findall("s:g[@class='pt']", NS)}
+        assert ("$0" in [t.text for t in svg.findall("s:text", NS)]) == (variant == "free")
+        for builder in (*page.fast_gate.CONFIGS, "luna-low"):
+            config = builder + "+haiku-on-fail"
+            point = points[config]
+            assert config not in frontier
+            assert "rescue set, not the full ladder" in point.get("data-tip")
+            v = arms[config]
+            cost = v["claude_usd_per_pass"] if variant == "free" else v["usd_per_pass"]
+            assert f"${cost:.5f} per pass" in point.get("data-tip")
+            assert f"{v['passes']}/{v['n']} passed" in point.get("data-tip")
+            assert f"median {v['median_s']:.1f} s" in point.get("data-tip")
+            assert len(point) == 2  # hollow builder marker and hover target; no frontier ring
+            assert point[0].tag == points[builder][-2].tag
+            assert point[0].get("fill") == "var(--panel)"
+            assert point[0].get("stroke") == "var(--codex)"
+            assert f'data-c="{config}"' in layer[layer.index("<ul"):]
+        assert "→" not in "".join(t.text or "" for t in svg.findall("s:text[@class='lbl on']", NS))
+        for config in page.ORDER:
+            cost = page.every(summary)[config]["usd_per_pass"]
+            if variant == "free" and not config.startswith(("haiku", "sonnet")):
+                cost = 0
+            assert f"${cost:.5f} per pass" in points[config].get("data-tip")
+
+
 def test_rung_series_have_distinct_keys_past_all_endpoints(summary):
     svg = ET.fromstring(charts.rung_chart(summary))
     series = svg.findall("s:polyline", NS)

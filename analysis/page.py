@@ -31,6 +31,12 @@ def esc(t):
 SHAPE = lambda c: "circle" if c.startswith("haiku") else "square" if c.startswith("sonnet") else "triangle" if c.startswith("luna") else "star" if c.startswith("astra") else "diamond"
 
 
+def point_category(c):
+    if "+" in c: return "pipelines"
+    if c.endswith("-fast"): return "fast"
+    return "exploratory" if c == "luna-high" or c not in ORDER else "main"
+
+
 def marker(kind, x, y, fill, stroke, dash=False, k=1.0):
     a = f' fill="{fill}" stroke="{stroke}" stroke-width="2.5"' + (' stroke-dasharray="3 2"' if dash else "")
     if kind == "circle": return f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{6.5 * k:.1f}"{a}/>'
@@ -41,10 +47,11 @@ def marker(kind, x, y, fill, stroke, dash=False, k=1.0):
     return f'<polygon points="{" ".join(f"{x + dx * k:.1f},{y + dy * k:.1f}" for dx, dy in v)}"{a}/>'
 
 
-def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=84, R=16, T=14, B=322, extra="", stat=None):
+def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=84, R=16, T=14, B=322, extra="", stat=None, variant=None, band=""):
     """pts: dicts with c, x, y, w (whisker (axis, lo, hi) or None), tip, hollow. fr: the frontier path. Only frontier points
     get a text label; every point is in the key beside the chart, and hovering (or tapping) a point or a key row shows its tip."""
     g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="{esc(ylab)} against {esc(xlab)}, Pareto frontier in purple; the key lists every point">']
+    g.append(band)
     for v, t in xt:
         g.append(f'<line x1="{X(v):.1f}" x2="{X(v):.1f}" y1="{T}" y2="{B}" stroke="var(--line)"/><text x="{X(v):.1f}" y="{B + 18}" text-anchor="middle" class="axis">{t}</text>')
     for v, t in yt:
@@ -55,13 +62,13 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
     g.append(f'<path d="{fr}" fill="none" stroke="var(--frontier)" stroke-width="4" stroke-dasharray="9 6" stroke-linejoin="round"/>' + extra)
     for p in sorted(pts, key=lambda p: p["on"]):  # frontier points drawn last, on top
         px, py, col = X(p["x"]), Y(p["y"]), p.get("col") or FAM(p["c"])
-        g.append(f'<g class="pt" data-c="{esc(p["c"])}" data-tip="{esc(p["tip"])}">')
+        g.append(f'<g class="pt" data-c="{esc(p["c"])}" data-cat="{point_category(p["c"])}" data-tip="{esc(p["tip"])}">')
         if p["w"]:
             ax, lo, hi = p["w"]
             if ax == "x": g.append(f'<line x1="{X(lo):.1f}" x2="{X(hi):.1f}" y1="{py:.1f}" y2="{py:.1f}" stroke="{col}" stroke-width="2.5" stroke-opacity=".4"/>')
             else: g.append(f'<line x1="{px:.1f}" x2="{px:.1f}" y1="{Y(lo):.1f}" y2="{Y(hi):.1f}" stroke="{col}" stroke-width="2" stroke-opacity=".3"/>')
         if p["on"]: g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="13" fill="none" stroke="var(--frontier)" stroke-width="3"/>')
-        g.append(marker(SHAPE(p["c"]), px, py, "var(--panel)" if p["hollow"] else col, col, p.get("dash")))
+        g.append(marker(p.get("shape", SHAPE(p["c"])), px, py, "var(--panel)" if p["hollow"] else col, col, p.get("dash")))
         g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="14" fill="transparent"/></g>')  # hover target
     cx, cy = L + 10, T + 18 if corner.startswith("↖") else B - 10
     walls = path_boxes(fr) + [(cx, cy - LH + 3, cx + CW * len(corner), cy + 3)]
@@ -69,6 +76,8 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
         if p["lead"]: g.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="var(--muted)" stroke-width="1"/>' % p["lead"])
         g.append(f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{a}" class="lbl on">{esc(p.get("name", p["c"]))}</text>')
     g.append("</svg>")
+    if variant:
+        return f'<div class="cvariant v-{variant}"><div class="cplot">{"".join(g)}</div>{key(pts, stat)}</div>'
     return f'<div class="cwrap"><div class="cplot">{"".join(g)}</div>{key(pts, stat)}<div class="ctip" hidden></div></div>'
 
 
@@ -78,8 +87,10 @@ def key(pts, stat):
     for p in sorted(pts, key=lambda p: (p["x"] if stat == "speed" else 0, p.get("usd", p["x"] if stat != "speed" else p["y"]))):
         col = p.get("col") or FAM(p["c"]); nm = p.get("lname") or p.get("name", p["c"])
         v = (f'{p["x"]:.0f} s · ${p["y"]:.4f}' if stat == "speed" else f'{100 * p["y"]:.0f}% · ${p["x"]:.4f}') if stat else ""
-        ico = f'<svg viewBox="-10 -10 20 20" aria-hidden="true">{marker(SHAPE(p["c"]), 0, 0, "var(--panel)" if p["hollow"] else col, col, p.get("dash"), .8)}</svg>'
-        rows.append(f'<li tabindex="0" data-c="{esc(p["c"])}" data-tip="{esc(p["tip"])}"{" class=on" if p["on"] else ""}>{ico}<span class="n">{esc(nm)}</span><span class="v">{v}</span></li>')
+        if "normal_usd" in p:
+            v = (f'{p["x"]:.0f} s' if stat == "speed" else f'{100 * p["y"]:.0f}%') + f' · ${p["normal_usd"]:.5f}, Codex free: ${p["free_usd"]:.5f}'
+        ico = f'<svg viewBox="-10 -10 20 20" aria-hidden="true">{marker(p.get("shape", SHAPE(p["c"])), 0, 0, "var(--panel)" if p["hollow"] else col, col, p.get("dash"), .8)}</svg>'
+        rows.append(f'<li tabindex="0" data-c="{esc(p["c"])}" data-cat="{point_category(p["c"])}" data-tip="{esc(p["tip"])}"{" class=on" if p["on"] else ""}>{ico}<span class="n">{esc(nm)}</span><span class="v">{v}</span></li>')
     return f'<ul class="ckey">{"".join(rows)}</ul>'
 
 
@@ -164,46 +175,128 @@ def fast_pairs(pts, X, Y):
     """A thin line from each default-tier config to its fast-mode twin (same model and effort, priority tier), so the cost of speed reads off the chart."""
     by = {p["c"]: p for p in pts}
     return "".join(f'<line x1="{X(by[a]["x"]):.1f}" y1="{Y(by[a]["y"]):.1f}" x2="{X(by[b]["x"]):.1f}" y2="{Y(by[b]["y"]):.1f}" '
-                   f'stroke="var(--codex)" stroke-width="1.5" stroke-opacity=".6"/>' for a, b in FAST_PAIRS if a in by and b in by)
+                   f'data-cat="fast" data-from-cat="main" stroke="var(--codex)" stroke-width="1.5" stroke-opacity=".6"/>' for a, b in FAST_PAIRS if a in by and b in by)
 
 
-def pass_cost(s):
+def frontier_caption(s):
+    """Explain the cost/pass-rate dominance using the eligible full-ladder frontier."""
+    E = every(s); c = "luna-low"; v = E[c]
+    pts = [{"c": c, "x": E[c]["usd_per_pass"], "y": E[c]["pass_at_1"]} for c in ORDER if point_category(c) != "exploratory"]
+    fr = front(pts, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"])
+    dominators = [p for p in fr if p["x"] <= v["usd_per_pass"] and p["y"] > v["pass_at_1"]]
+    if dominators:
+        d = min(dominators, key=lambda p: (p["y"], p["x"]))["c"]; q = E[d]
+        same = f'{q["usd_per_pass"]:.4f}' == f'{v["usd_per_pass"]:.4f}'
+        relation = "costs the same at shown precision" if same else "costs less"
+        reason = (f'On cost/pass rate, {DISP(d)} {relation} (${q["usd_per_pass"]:.4f} vs ${v["usd_per_pass"]:.4f}) and passes more '
+                  f'({q["passes"]}/{q["n"]} vs {v["passes"]}/{v["n"]}), so it dominates {DISP(c)}')
+    else:
+        reason = f'{DISP(c)} has no cost/pass-rate dominator on the eligible frontier'
+    return f'<p class="frontier-note">{esc(reason)}; hollow and exploratory points are left off the frontier.</p>'
+
+
+def ladder_toggle(render, s):
+    normal, fr = render(s, free=False)
+    free, _ = render(s, free=True)
+    icon = marker("diamond", 0, 0, "var(--panel)", "var(--codex)", k=.8)
+    note = f'<p class="repair-note"><svg viewBox="-10 -10 20 20" aria-hidden="true">{icon}</svg>Hollow = pipeline, using the builder’s shape; filled with a dashed stroke = rescue-set variant. Thin lines in free mode show pipeline cost drops.</p>'
+    filters = '<div class="category-filter" role="group" aria-label="Point categories">' + "".join(
+        f'<label><input type="checkbox" data-cat="{cat}" checked> {cat}</label>' for cat in ("main", "fast", "pipelines", "exploratory")) + '</div>'
+    return ('<div class="cwrap"><label class="cost-toggle"><input type="checkbox"> Codex is free (subscription quota)</label>'
+            + filters + note + normal + free + frontier_caption(s) + '<div class="ctip" hidden></div></div>'), fr
+
+
+def ladder_repairs(free, stat):
+    arms = rescue_arms()
+    pts = []
+    for c in arms:
+        if c in ORDER: continue
+        name = NAME.get(c) or " → ".join(DISP(part) for part in c.split("+"))
+        pipeline = "+" in c
+        builder = c.split("+", 1)[-1] if c.startswith("haiku-low-plan+") else c.split("+", 1)[0]
+        v = arms[c]; usd = v["claude_usd_per_pass"] if free else v["usd_per_pass"]
+        pts.append({"c": c, "name": name, "x": v["median_s"] if stat == "speed" else usd,
+                    "y": usd if stat == "speed" else v["passes"] / v["n"], "hollow": pipeline, "dash": not pipeline,
+                    "shape": SHAPE(builder), "w": None, "on": False,
+                    "normal_usd": v["usd_per_pass"], "free_usd": v["claude_usd_per_pass"],
+                    "tip": f"{name}: {v['passes']}/{v['n']} passed, ${v['usd_per_pass']:.5f} per pass, Codex free: ${v['claude_usd_per_pass']:.5f} per pass, median {v['median_s']:.1f} s; rescue set, not the full ladder"
+                    + (" (" + v["derived"] + ")" if "derived" in v else "")})
+    return pts
+
+
+def cost_drops(pts, X, Y, stat):
+    """Use the active free-mode axes for both ends of every pipeline's normal-to-free move."""
+    return "".join(
+        f'<line class="cost-drop" data-c="{esc(p["c"])}" data-cat="pipelines" '
+        f'x1="{X(p["x"] if stat == "speed" else p["normal_usd"]):.1f}" '
+        f'y1="{Y(p["normal_usd"] if stat == "speed" else p["y"]):.1f}" '
+        f'x2="{X(p["x"]):.1f}" y2="{Y(p["y"]):.1f}" stroke="{FAM(p["c"])}" stroke-width="1" stroke-opacity=".6"/>'
+        for p in pts if p["hollow"])
+
+
+def ladder_costs(s, free):
+    return {c: dict(v, usd_per_pass=0 if free and not c.startswith(("haiku", "sonnet")) else v["usd_per_pass"])
+            for c, v in every(s).items()}
+
+
+def pass_cost(s, free=None):
     """Pass rate (up is better) against $ per pass, log (left is better). Whiskers: 95% CI of the pass rate."""
-    E = every(s); L, R, T, B, W = 84, 16, 14, 322, 560
-    X = logscale(5e-4, 3e-1, L, W - R); Y = lambda v: B - (v - 0.6) / 0.5 * (B - T)
+    if free is None: return ladder_toggle(pass_cost, s)
+    E = ladder_costs(s, free); L, R, T, B, W = 84, 16, 14, 322, 560
+    repairs = ladder_repairs(free, "pass")
+    ymin = min(.6, math.floor(min(p["y"] for p in repairs) * 10) / 10)
+    cost_min = min([E[c]["usd_per_pass"] for c in ORDER if E[c]["usd_per_pass"] > 0] + [p["x"] for p in repairs if p["x"] > 0])
+    lo = 5e-4 if cost_min >= 5e-4 else 10 ** math.floor(math.log10(cost_min))
+    paid = logscale(lo, 3e-1, L + (40 if free else 0), W - R)
+    X = lambda v: L if v == 0 else paid(v)
+    Y = lambda v: B - (v - ymin) / (1.1 - ymin) * (B - T)
     pts = [{"c": c, "name": DISP(c), "x": E[c]["usd_per_pass"], "y": E[c]["pass_at_1"], "hollow": False, "tip": tip(c, E[c]),
-            "w": ("y", max(0.6, E[c]["ci95"][0]), E[c]["ci95"][1])} for c in ORDER]
-    fr = sorted(front(pts, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
+            "w": ("y", max(ymin, E[c]["ci95"][0]), E[c]["ci95"][1])} for c in ORDER]
+    fr = sorted(front([p for p in pts if point_category(p["c"]) != "exploratory"], lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
+    pts += repairs  # rescue samples never change the full-ladder frontier
     d = f"M{X(fr[0]['x']):.1f} {B} V{Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
-    xt = [(v, f"${v:g}") for v in (1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1)]
-    yt = [(v / 100, f"{v}%") for v in (60, 70, 80, 90, 100)]
-    ex = fast_pairs(pts, X, Y)
+    xt = [(v, f"${v:g}") for v in (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1) if v >= lo]
+    if free: xt.insert(0, (0, "$0"))
+    yt = [(v / 100, f"{v}%") for v in range(round(ymin * 100), 101, 10)]
+    ex = fast_pairs(pts, X, Y) + (cost_drops(repairs, X, Y, "pass") if free else "")
     lab = {"luna-low": (12, 16, "start"), "luna-medium": (12, -8, "start"), "luna-high": (12, 14, "start"), "haiku-low": (-14, 16, "end"),
            "haiku-medium": (14, 22, "start"), "sonnet-medium": (-14, -10, "end"), "sol61-medium": (0, 26, "middle"),
            "haiku-high": (14, 20, "start"), "luna56-high": (14, 5, "start")}
-    return scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, extra=ex, stat="pass"), [p["c"] for p in fr]
+    band = f'<rect x="{L - 14}" y="{T}" width="28" height="{B - T}" fill="var(--bg)"/>' if free else ""
+    return scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, extra=ex, stat="pass",
+                   variant="free" if free else "normal", band=band), [p["c"] for p in fr]
 
 
-def speed_cost(s):
+def speed_cost(s, free=None):
     """Median seconds (left is better, whisker p25–p75) against $ per pass, log (down is better). Frontier among configs
     that pass at least MIN_PASS; the rest are drawn but cannot be on it."""
-    E = every(s); L, R, T, B, W = 84, 16, 14, 462, 560
-    xmax = math.ceil(max(E[c]["latency_s"].get("p75", E[c]["latency_s"]["median"]) for c in ORDER) / 5) * 5
-    X = lambda v: L + v / xmax * (W - R - L); Y = logscale(5e-4, 3e-1, B, T)
+    if free is None: return ladder_toggle(speed_cost, s)
+    E = ladder_costs(s, free); L, R, T, B, W = 84, 16, 14, 462, 560
+    repairs = ladder_repairs(free, "speed")
+    xmax = math.ceil(max([E[c]["latency_s"].get("p75", E[c]["latency_s"]["median"]) for c in ORDER] + [p["x"] for p in repairs]) / 5) * 5
+    X = lambda v: L + v / xmax * (W - R - L)
+    cost_min = min([E[c]["usd_per_pass"] for c in ORDER if E[c]["usd_per_pass"] > 0] + [p["y"] for p in repairs if p["y"] > 0])
+    lo = 5e-4 if cost_min >= 5e-4 else 10 ** math.floor(math.log10(cost_min))
+    paid = logscale(lo, 3e-1, B - (40 if free else 0), T)
+    Y = lambda v: B if v == 0 else paid(v)
     pts = [{"c": c, "name": DISP(c), "x": E[c]["latency_s"]["median"], "y": E[c]["usd_per_pass"], "hollow": False, "tip": tip(c, E[c]),
             "w": ("x", E[c]["latency_s"]["p25"], E[c]["latency_s"]["p75"]) if "p25" in E[c]["latency_s"] else None} for c in ORDER]
-    ok = [p for p in pts if E[p["c"]]["pass_at_1"] >= MIN_PASS]
+    ok = [p for p in pts if E[p["c"]]["pass_at_1"] >= MIN_PASS and point_category(p["c"]) != "exploratory"]
     fr = sorted(front(ok, lambda a, b: a["x"] <= b["x"] and a["y"] <= b["y"]), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
-    ex = fast_pairs(pts, X, Y)
+    pts += repairs
+    ex = fast_pairs(pts, X, Y) + (cost_drops(repairs, X, Y, "speed") if free else "")
     d = f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
     xt = [(v, f"{v} s") for v in range(5, xmax + 1, 5)]
-    yt = [(v, f"${v:g}") for v in (1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1)]
+    yt = [(v, f"${v:g}") for v in (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1) if v >= lo]
+    if free: yt.insert(0, (0, "$0"))
     lab = {"luna-low": (0, -14, "middle"), "luna-medium": (14, 10, "start"), "haiku-low": (0, -20, "middle"), "luna-high": (14, -10, "start"),
            "haiku-medium": (14, 5, "start"), "sonnet-medium": (14, 4, "start"), "sol61-medium": (-14, -12, "end"),
            "luna56-high": (-14, 5, "end"), "luna56-low": (0, 26, "middle"), "haiku-high": (0, -14, "middle")}
-    g = scatter(pts, d, X, Y, xt, yt, "median seconds per call (bar: middle half of calls)", "$ per pass (log)", "", lab, H=520, B=B, extra=ex, stat="speed")
+    band = f'<rect x="{L}" y="{B - 14}" width="{W - R - L}" height="28" fill="var(--bg)"/>' if free else ""
+    g = scatter(pts, d, X, Y, xt, yt, "median seconds per call (bar: middle half of calls)", "$ per pass (log)", "", lab, H=520, B=B, extra=ex, stat="speed",
+                variant="free" if free else "normal", band=band)
     return g.replace("</svg>", f'<text x="{W - R - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>', 1), [p["c"] for p in fr]
 
 

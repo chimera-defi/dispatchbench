@@ -23,6 +23,11 @@ document.querySelectorAll("table.sortable").forEach(function(tb){
 document.querySelectorAll(".cwrap").forEach(function(w){
  var tip=w.querySelector(".ctip"),all=w.querySelectorAll(".pt,.ckey li");
  function clear(){w.classList.remove("hov");all.forEach(function(e){e.classList.remove("hi","dim")});tip.hidden=true}
+ var toggle=w.querySelector('.cost-toggle input');
+ if(toggle){toggle.checked=false;toggle.addEventListener("change",function(){clear();w.classList.toggle("free",toggle.checked)})}
+ w.querySelectorAll('.category-filter input').forEach(function(input){
+  input.checked=true;input.addEventListener("change",function(){clear();w.classList.toggle("hide-"+input.getAttribute("data-cat"),!input.checked)})
+ });
  function show(el,x,y){
   w.classList.add("hov");all.forEach(function(e){var m=e.getAttribute("data-c")===el.getAttribute("data-c");e.classList.toggle("hi",m);e.classList.toggle("dim",!m)});
   tip.textContent=el.getAttribute("data-tip")||"";tip.hidden=false;

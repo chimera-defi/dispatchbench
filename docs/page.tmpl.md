@@ -61,7 +61,7 @@
 <div class="chart"><h3>⏱️ Speed vs $ per pass</h3><p class="sub">Best trade-offs among configs passing at least {{min_pass}}.</p>{{w_speed_cost}}</div>
 <ul class="tight small">
 <li>Best trade-offs: {{w_front_speed}}.</li>
-<li>Pipelines ran only on the rescue set: see the "Rescue set + pipelines" tab.</li>
+<li>Hollow pipeline points use the rescue set, not the full ladder; they do not enter the ladder frontier. See the "Rescue set + pipelines" tab for a comparison on the same set.</li>
 </ul>
 </div>
 <div class="tab tab-hard">
