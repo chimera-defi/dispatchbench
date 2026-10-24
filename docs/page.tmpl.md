@@ -5,7 +5,7 @@
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
 <p><b>{{winner_line}}</b></p>
-<details class="small"><summary>Picks, model names and notation</summary>
+<details class="small"><summary>Picks and model names</summary>
 {{w_winner}}
 <details class="small names"><summary>Model names</summary>
 <ul class="tight small">
@@ -16,7 +16,6 @@
 <li>{{model_names}}.</li>
 </ul>
 </details>
-{{w_legend}}
 </details>
 </section>
 <section class="method" id="method">
@@ -201,6 +200,7 @@
 </section>
 <section class="notes" id="notes">
 <h2><span class="num"></span>Notes: caveats, code quality, appendix</h2>
+{{w_legend}}
 <p class="small">Small sample: read the intervals first. {{n_exploratory}} configs were added after the main run (†), including the winning sol61-high. Sonnet's code read worst in a blind review.</p>
 <details><summary>⚠️ Caveats</summary>
 <ul class="tight">

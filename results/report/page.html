@@ -315,7 +315,7 @@ section.collapsible>.sec-body:not([hidden]){animation:sec-in var(--sec-dur,0s) e
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
 <p><b>sol61-high (normal and <abbr class="notation-use" data-notation="⚡" title="Fast mode: 2× list price at the same model and effort.">⚡</abbr>), haiku-high and sonnet-medium passed every try. haiku-high is cheapest of the three at $0.0028 per pass. With Codex quota, sol61-high ⚡ costs <abbr class="notation-use" data-notation="$0" title="The Haiku step never ran, or subscription quota covers the Codex call.">$0</abbr> cash.</b></p>
-<details class="small"><summary>Picks, model names and notation</summary>
+<details class="small"><summary>Picks and model names</summary>
 <div class="tablewrap"><table class="winner-table"><caption>Numbers: the 12-problem main ladder, 60 tries per config. Time = median seconds. <abbr class="notation-use" data-notation="~" title="Codex cost estimated from tokens and list prices.">~</abbr> = estimated from tokens; Claude costs are measured.</caption><thead><tr><th scope="col">Use case</th><th scope="col">Pick</th><th scope="col">Pass</th><th scope="col">$ per pass</th><th scope="col">Time</th><th scope="col">Why</th></tr></thead><tbody><tr><td data-label="Use case"><span>1. Default</span></td><td data-label="Pick"><span>sol61-high ⚡</span></td><td data-label="Pass"><span>60/60</span></td><td data-label="$ per pass"><span>~$0.036</span></td><td data-label="Time"><span>17.4 s</span></td><td data-label="Why"><span>No misses. Free on Codex quota. ⚡ saves 10 s</span></td></tr><tr><td data-label="Use case"><span>2. Budget</span></td><td data-label="Pick"><span>haiku-high</span></td><td data-label="Pass"><span>60/60</span></td><td data-label="$ per pass"><span>$0.0028</span></td><td data-label="Time"><span>14.7 s</span></td><td data-label="Why"><span>Cheapest with no misses. haiku-low costs less but misses 3 of 60</span></td></tr><tr><td data-label="Use case"><span>3. Speed</span></td><td data-label="Pick"><span>sonnet-medium</span></td><td data-label="Pass"><span>60/60</span></td><td data-label="$ per pass"><span>$0.012</span></td><td data-label="Time"><span>10.1 s</span></td><td data-label="Why"><span>No misses. 4.6 s faster than haiku-high.</span></td></tr></tbody></table></div><ul class="tight small"><li>⚡ = fast mode: same answers, about 2× list price, faster.</li></ul><p class="small">Caveat: sonnet-medium's code read worst in a blind review (see Notes).</p>
 <details class="small names"><summary>Model names</summary>
 <ul class="tight small">
@@ -326,7 +326,6 @@ section.collapsible>.sec-body:not([hidden]){animation:sec-in var(--sec-dur,0s) e
 <li>luna = gpt-6-luna, sol61 = gpt-6.1-sol, astra = gpt-6-astra, luna56 = gpt-5.6-luna, sol56 = gpt-5.6-sol (older generation).</li>
 </ul>
 </details>
-<details class="legend" id="notation"><summary>Notation</summary><dl><dt>⚡</dt><dd>Fast mode: 2× list price at the same model and effort.</dd><dt>-bare</dt><dd>Codex&#x27;s system prompt and tool text are trimmed.</dd><dt>H</dt><dd>Haiku at low effort (haiku-low).</dd><dt>→H fail</dt><dd>Haiku fixes answers only when the problem&#x27;s worked examples fail.</dd><dt>→H all</dt><dd>Haiku checks and fixes every answer.</dd><dt>→retry</dt><dd>The same model tries again if the examples fail.</dd><dt>plan→</dt><dd>Haiku writes a plan before the named model answers.</dd><dt>†</dt><dd>An exploratory config added after the main run.</dd><dt>✓ pick</dt><dd>A Winner pick.</dd><dt>~</dt><dd>Codex cost estimated from tokens and list prices.</dd><dt>–</dt><dd>No Claude step, unavailable cost, or an unrun failure-grid cell.</dd><dt>$0</dt><dd>The Haiku step never ran, or subscription quota covers the Codex call.</dd><dt>≥N%</dt><dd>The lower 95% bound when every attempt passed.</dd><dt>p90</dt><dd>The time within which 90% of calls finished.</dd></dl></details>
 </details>
 </section>
 <section class="method" id="method">
@@ -599,6 +598,7 @@ var rt,lw=0,bx=document.getElementById("xplot");function re(){var w=bx.clientWid
 </section>
 <section class="notes" id="notes">
 <h2><span class="num"></span>Notes: caveats, code quality, appendix</h2>
+<details class="legend" id="notation"><summary>Notation</summary><dl><dt>⚡</dt><dd>Fast mode: 2× list price at the same model and effort.</dd><dt>-bare</dt><dd>Codex&#x27;s system prompt and tool text are trimmed.</dd><dt>H</dt><dd>Haiku at low effort (haiku-low).</dd><dt>→H fail</dt><dd>Haiku fixes answers only when the problem&#x27;s worked examples fail.</dd><dt>→H all</dt><dd>Haiku checks and fixes every answer.</dd><dt>→retry</dt><dd>The same model tries again if the examples fail.</dd><dt>plan→</dt><dd>Haiku writes a plan before the named model answers.</dd><dt>†</dt><dd>An exploratory config added after the main run.</dd><dt>✓ pick</dt><dd>A Winner pick.</dd><dt>~</dt><dd>Codex cost estimated from tokens and list prices.</dd><dt>–</dt><dd>No Claude step, unavailable cost, or an unrun failure-grid cell.</dd><dt>$0</dt><dd>The Haiku step never ran, or subscription quota covers the Codex call.</dd><dt>≥N%</dt><dd>The lower 95% bound when every attempt passed.</dd><dt>p90</dt><dd>The time within which 90% of calls finished.</dd></dl></details>
 <p class="small">Small sample: read the intervals first. 10 configs were added after the main run (<abbr class="notation-use" data-notation="†" title="An exploratory config added after the main run.">†</abbr>), including the winning sol61-high. Sonnet's code read worst in a blind review.</p>
 <details><summary>⚠️ Caveats</summary>
 <ul class="tight">
@@ -942,6 +942,7 @@ function revealHash(hash){
  var id=hash.slice(1);try{id=decodeURIComponent(id)}catch(e){}
  var target=document.getElementById(id);if(!target)return;
  sections.forEach(function(item){if(item.section.contains(target))setOpen(item,true)});
+ for(var d=target;d;d=d.parentElement)if(d.tagName==="DETAILS")d.open=true;
  updateAll();persist();target.scrollIntoView()
 }
 updateAll();revealHash(location.hash);

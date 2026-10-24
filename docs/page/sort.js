@@ -118,6 +118,7 @@ function revealHash(hash){
  var id=hash.slice(1);try{id=decodeURIComponent(id)}catch(e){}
  var target=document.getElementById(id);if(!target)return;
  sections.forEach(function(item){if(item.section.contains(target))setOpen(item,true)});
+ for(var d=target;d;d=d.parentElement)if(d.tagName==="DETAILS")d.open=true;
  updateAll();persist();target.scrollIntoView()
 }
 updateAll();revealHash(location.hash);
