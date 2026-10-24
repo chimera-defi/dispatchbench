@@ -42,7 +42,7 @@ def template_literals():
 def main():
     fails = []; checked = 0
     s, tab, man = summarize.build()
-    ds = dataset.build()
+    ds = dataset.build(s)
     checked += same("summary", json.dumps(s, indent=1), os.path.join(RES, "summary.json"), fails)
     checked += same("tables", tab, os.path.join(RES, "report", "tables.md"), fails)
     have_manifest = os.path.join(RES, "manifest.json")
@@ -53,7 +53,7 @@ def main():
             fails.append("manifest: results/manifest.json differs from what the data give (run make report)")
     else:
         checked += same("manifest", json.dumps(man, indent=1), have_manifest, fails)
-    for name, body in charts.build(s, ds).items():
+    for name, body in charts.build(ds).items():
         if body: checked += same("chart", body, os.path.join(charts.OUT, name), fails)
     checked += same("luna rescue", luna_rescue.table(luna_rescue.arms()) + "\n", os.path.join(RES, "report", "luna_rescue.md"), fails)
     readme, full, page = report.render()

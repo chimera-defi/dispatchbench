@@ -352,4 +352,4 @@ Auxiliary runs and pilot excluded from the function + agentic totals.
 
 - Claude CLI-reported cost (list basis), function + agentic only: $2.46 (function $1.61, agentic $0.85).
 - Codex token-price estimate, function + agentic only: $35.40.
-- Pilot repricing: 83 priority-tier Codex rows cost $3.5190 at the pilot's 1.5× and $4.6920 at the published 2×.
+- Pilot repricing: 83 priority-tier Codex rows cost $3.52 at the pilot's 1.5× and $4.69 at the published 2×.

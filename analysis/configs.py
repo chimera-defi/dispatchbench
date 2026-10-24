@@ -114,13 +114,12 @@ def _seen(text, name):
     return re.search(r"(?<![\w/+→-])" + re.escape(display(name)) + r"(?![\w/]|-\w)", text) is not None
 
 
-def where(e, rest, root):
+def where(e, rest, chart_bodies):
     """Where the page shows this config outside the section, decided by source: main-run names are searched in the page text, repo-task
     names in the agentic chart, rescue arms by their page label. Pilot, trim and harness-bias configs are never claimed elsewhere."""
     if e["source"] == "main" and _seen(rest, e["config"]): return "charts and tables"
     if e["source"] == "agentic":
-        f = os.path.join(root, "results", "report", "charts", "agentic.svg")
-        return "repo-task chart" if os.path.exists(f) and e["config"] in open(f).read() else "only here"
+        return "repo-task chart" if e["config"] in (chart_bodies.get("agentic.svg") or "") else "only here"
     if e["source"] == "rescue":
         from analysis import page  # lazy: page imports labels, which imports this module
         shown = page.NAME.get(e["config"])
@@ -128,13 +127,11 @@ def where(e, rest, root):
     return "only here"
 
 
-def money(v):
-    return "–" if v is None else f"${v:,.2f}" if v >= 1 else f"${v:.4f}"
-
-
-def section(rest, ds, root):
+def section(rest, ds, root, chart_bodies=None):
     """The collapsible "Everything we tried" block, one row per config from the dataset's all-runs roll-up. rest = the page HTML without
     this block, used for the 'where it appears' column."""
+    from analysis.dataset import usd as money
+    chart_bodies = chart_bodies or {}
     by = {}
     for r in ds["rows"]:
         if r["set"] == "all runs": by.setdefault(r["category"], []).append(r)
@@ -144,11 +141,17 @@ def section(rest, ds, root):
     for cat in CATEGORIES:
         es = by.pop(cat, [])
         if not es: continue
-        out.append(f"<details><summary>{html.escape(cat)}: {len(es)} configs, {money(sum(e['spend'] for e in es))} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
+        out.append(f"<details><summary>{html.escape(cat)}: {ds['categories'][cat]['n_configs']} configs, {money(ds['categories'][cat]['spend'])} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
         for e in es:
             tilde = "~" if e["unknown_usd"] else ""
             out.append(f"<tr><td title=\"{html.escape(', '.join(e['files']))}\">{html.escape(e['display'])}</td><td>{html.escape(e['what'])}</td><td>{e['passes']}/{e['n']}</td>"
-                       f"<td>{tilde}{money(e['usd_per_pass'])}</td><td>{e['median_s']:.1f}</td><td>{tilde}{money(e['spend'])}</td><td>{where(e, rest, root)}</td></tr>")
+                       f"<td>{tilde}{money(e['usd_per_pass'])}</td><td>{e['median_s']:.1f}</td><td>{tilde}{money(e['spend'])}</td><td>{where(e, rest, chart_bodies)}</td></tr>")
         out.append("</tbody></table></div></details>")
     out += [f"<details><summary>unregistered</summary><p>{html.escape(r['display'])} ({r['source']})</p></details>" for es in by.values() for r in es]
     return "\n".join(out + ["</details>"])
+
+
+LC = {"p01_overlap_minutes": "Medium", "p02_squash": "Easy", "p03_ledger": "Medium", "p04_taller_within": "Medium",
+      "p05_pass_route": "Medium", "p06_calc": "Hard", "p07_weighted_distance_sums": "Hard", "p08_recur": "Medium",
+      "p09_k_machine_schedule": "Hard", "p10_avoid_count": "Hard", "p11_best_average": "Hard", "p12_sheet": "Hard",
+      "p13_xor_ring": "Hard", "p14_bounce_board": "Hard", "p15_paint_erase": "Hard"}
