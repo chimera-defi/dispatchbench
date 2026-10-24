@@ -87,24 +87,27 @@
 <section id="results">
 <h2><span class="num"></span>📋 Results</h2>
 <p class="small">sol61-high is the Codex routing pick; haiku-high is the cheapest config with no misses across the main ladder, L7 and repo tasks.</p>
+{{w_short_table}}
 <ul class="tight small">
 <li>★ = Winner pick; budget pick = cheapest config passing {{budget_pass}} or more.</li>
 <li><b>0 misses</b>: every attempt passed; “cheapest” compares those rows within the set. “one miss” or “missed N” counts failed attempts.</li>
 <li>beaten = another row is as cheap and passes as often; pricier, passes more = a trade-off; avoid = below {{min_pass}}.</li>
-<li>Purple dot = pipeline (two models); →retry uses the same model twice.</li>
-<li>On a phone, scroll the table sideways for the verdict.</li>
-</ul>
-{{w_short_table}}
-<p class="small">haiku-medium had 0 misses on the rescue set (its {{rescue_n}} main-run attempts on those problems, not a new run).</p>
-<ul class="tight small">
-<li>Click a header to sort. ~ = Codex $ estimated from token prices. → = a second step after the first. Claude $ = the part billed to the Claude CLI; Codex calls bill Codex.</li>
+<li>Purple dot = pipeline (two models); → = a second step; →retry uses the same model twice.</li>
+<li>~ / proxy = Codex $ estimated from tokens and list prices. Claude $ = the part billed to the Claude CLI; Codex calls bill Codex.</li>
+<li>Click a header to sort within each set; on a phone, scroll sideways for the verdict.</li>
+<li>haiku-medium had 0 misses on the rescue set (its {{rescue_n}} main-run attempts on those problems, not a new run).</li>
 </ul>
 <details><summary>Full table with intervals and tail latency</summary>
 {{table:result_detail}}
-<p class="small">pass@1 is the fraction of individual attempts passing all hidden tests; p90 is the time within which {{p90_percent}} of calls finished; proxy means Codex cost estimated from tokens and list prices. ≥N% (all passed) = lower {{ci_level}} bound when nothing failed.</p>
-</details>
-<div class="chart floor"><h3>⚡ Codex fast mode: seconds and $ per pass</h3><p class="sub">Default → ⚡ pairs for sol61-high and astra-medium on the main ladder and L7 set. Same model and effort; default and priority service tiers. All passed.</p>{{w_fast}}</div>
 <ul class="tight small">
+<li>pass@1 is the fraction of individual attempts passing all hidden tests.</li>
+<li>p90 = time within which {{p90_percent}} of calls finished.</li>
+<li>≥N% (all passed) = lower {{ci_level}} bound when nothing failed.</li>
+</ul>
+</details>
+<div class="chart floor"><h3>⚡ Codex fast mode: seconds and $ per pass</h3>{{w_fast}}</div>
+<ul class="tight small">
+<li>Default → ⚡ pairs: sol61-high and astra-medium, main ladder and L7; same model and effort, default and priority service tiers. All passed.</li>
 <li>Fast-mode $ uses {{fm_mult}} the list price (the pricing-page multiplier, not a measured bill).</li>
 </ul>
 </section>
