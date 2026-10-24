@@ -295,7 +295,8 @@ def build():
         rr = [r for r in hr if r["config"] == c]; blk = config_block(rr)
         blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}
         s["hard"][c] = blk
-    s["failures"] = failures([r for r in rows if r["phase"] in ("main", "exploratory", "escalation", "hard")])
+    s["failures"] = failures([r for r in rows if r["phase"] in ("main", "exploratory", "escalation", "hard")
+                               or (r["phase"] == "fastmode" and r["config"] == "sol61-high-fast")])  # same rows as its exploratory block
     cfg = s["configs"]
     s["pareto"] = pareto({c: (v["usd_per_pass"], v["pass_at_1"]) for c, v in cfg.items() if v["usd_per_pass"]})
     s["agentic"] = agentic_block(agent) if agent else {}

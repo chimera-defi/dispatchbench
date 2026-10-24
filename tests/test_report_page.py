@@ -631,10 +631,11 @@ def test_pilot_display_names_preserve_run_ids():
     assert configs.display('codex-low') != configs.display('sol61-low-prio')
 
 
-def test_monetary_ratios_match_printed_prices(summary):
+def test_monetary_ratios_use_raw_prices(summary):
     facts = summary['facts']
-    price = lambda name: float(facts[name].replace('$', '').replace(',', ''))
-    assert facts['sm_vs_hh_x'] == f"{price('sonnet_medium_upp') / price('haiku_high_upp'):.1f}×"
+    raw = json.loads((Path(__file__).resolve().parents[1] / 'results' / 'summary.json').read_text())
+    sm, hh = raw['configs']['sonnet-medium']['usd_per_pass'], raw['exploratory']['haiku-high']['usd_per_pass']
+    assert facts['sm_vs_hh_x'] == f"{sm / hh:.1f}×"  # from raw values, not the rounded prices
     table = dataset.read()['tables']['fastmode']['rows']
     a, b = (float(table[i][4].replace('$', '')) for i in (2, 0))
     assert facts['fm_x_cost'] == f"{a / b:.1f}×"

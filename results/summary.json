@@ -2541,6 +2541,11 @@
      "passed": 5,
      "n": 5,
      "fails": {}
+    },
+    "sol61-high-fast": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
     }
    }
   },
@@ -2630,6 +2635,11 @@
      "fails": {}
     },
     "sol61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-high-fast": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -2983,6 +2993,11 @@
      "passed": 5,
      "n": 5,
      "fails": {}
+    },
+    "sol61-high-fast": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
     }
    }
   },
@@ -3067,6 +3082,11 @@
      "fails": {}
     },
     "sol61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-high-fast": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -3156,6 +3176,11 @@
      "passed": 5,
      "n": 5,
      "fails": {}
+    },
+    "sol61-high-fast": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
     }
    }
   },
@@ -3240,6 +3265,11 @@
      "fails": {}
     },
     "sol61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-high-fast": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -3340,6 +3370,11 @@
      "fails": {}
     },
     "sol61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "sol61-high-fast": {
      "passed": 5,
      "n": 5,
      "fails": {}

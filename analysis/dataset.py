@@ -214,8 +214,7 @@ def n(v):
 
 
 def x(a, b, d=1, *, money=False, sig=2):
-    if money:
-        a, b = (float(usd(v, sig=sig).replace('$', '').replace(',', '')) for v in (a, b))
+    # money/sig are kept for call sites; the ratio uses raw values so it matches the dataset
     return f"{a / b:.{d}f}×"
 
 
@@ -645,7 +644,7 @@ def _facts(s, arms):
         f"It passed {F['r_sol61_high_haiku_on_fail_k']} on the "
         f"{len(luna_rescue.PIDS)}-problem {configs.set_label('rescue set')}; Haiku never ran.",
         f"No misses when paying per call: haiku-high, {F['hh_upp']} per pass."]
-    gap = round(cfg['sonnet-medium']['latency_s']['median'], 1) - round(hl['latency_s']['median'], 1)
+    gap = cfg['sonnet-medium']['latency_s']['median'] - hl['latency_s']['median']
     need(gap > 0, "haiku-low is slightly faster than sonnet-medium")
     F['speed_why'] = (f"No misses. It trails haiku-low by {gap:.1f} s. "
                       f"haiku-low misses {hl['n'] - hl['passes']} of {hl['n']}.")

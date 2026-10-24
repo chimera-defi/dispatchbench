@@ -19089,6 +19089,11 @@
       "passed": 5,
       "n": 5,
       "fails": {}
+     },
+     "sol61-high-fast": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
      }
     }
    },
@@ -19178,6 +19183,11 @@
       "fails": {}
      },
      "sol61-high": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "sol61-high-fast": {
       "passed": 5,
       "n": 5,
       "fails": {}
@@ -19531,6 +19541,11 @@
       "passed": 5,
       "n": 5,
       "fails": {}
+     },
+     "sol61-high-fast": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
      }
     }
    },
@@ -19615,6 +19630,11 @@
       "fails": {}
      },
      "sol61-high": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "sol61-high-fast": {
       "passed": 5,
       "n": 5,
       "fails": {}
@@ -19704,6 +19724,11 @@
       "passed": 5,
       "n": 5,
       "fails": {}
+     },
+     "sol61-high-fast": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
      }
     }
    },
@@ -19788,6 +19813,11 @@
       "fails": {}
      },
      "sol61-high": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "sol61-high-fast": {
       "passed": 5,
       "n": 5,
       "fails": {}
@@ -19888,6 +19918,11 @@
       "fails": {}
      },
      "sol61-high": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "sol61-high-fast": {
       "passed": 5,
       "n": 5,
       "fails": {}
@@ -22211,7 +22246,7 @@
   "orchestrator": "Claude Opus 5.5",
   "hm_vs_pipe_x": "1.8×",
   "r_pids": "p03 ledger (L2), p04 taller_within (L2), p08 recur (L4), p09 k_machine_schedule (L5), p10 avoid_count (L5), p11 best_average (L6), p12 sheet (L6)",
-  "sm_vs_hh_x": "4.3×",
+  "sm_vs_hh_x": "4.4×",
   "sm_vs_hm_x": "8×",
   "hm_l7_k": "13/15",
   "hm_l7_miss": "1 crash and 1 timeout",
@@ -22380,7 +22415,7 @@
    "Codex → Haiku (→H fail = Haiku fixes answers whose worked examples fail). It passed 35/35 on the 7-problem luna-miss set; Haiku never ran.",
    "No misses when paying per call: haiku-high, $0.0028 per pass."
   ],
-  "speed_why": "No misses. It trails haiku-low by 0.1 s. haiku-low misses 3 of 60.",
+  "speed_why": "No misses. It trails haiku-low by 0.2 s. haiku-low misses 3 of 60.",
   "budget_why": "Cheapest pick that passes 95% or more",
   "noshell_comparison": "B1 passed more often than plain luna-low. B2 passed less often.",
   "verdict_key": "✓ pick = a Winner pick · 0 misses / missed N = raw miss count, no ranking · beaten = another row is as cheap and passes as often · trade-off = pricier but passes more · avoid = below 90%.",
@@ -23061,7 +23096,7 @@
      "5",
      "5",
      "5",
-     "–"
+     "5"
     ],
     [
      "p04 L2",
@@ -23080,7 +23115,7 @@
      "4 (1w)",
      "5",
      "5",
-     "–"
+     "5"
     ],
     [
      "p05 L3",
@@ -23156,7 +23191,7 @@
      "5",
      "5",
      "5",
-     "–"
+     "5"
     ],
     [
      "p09 L5",
@@ -23175,7 +23210,7 @@
      "5",
      "5",
      "5",
-     "–"
+     "5"
     ],
     [
      "p10 L5",
@@ -23194,7 +23229,7 @@
      "4 (1w)",
      "5",
      "5",
-     "–"
+     "5"
     ],
     [
      "p11 L6",
@@ -23213,7 +23248,7 @@
      "5",
      "5",
      "5",
-     "–"
+     "5"
     ],
     [
      "p12 L6",
@@ -23232,7 +23267,7 @@
      "**1** (3c 1w)",
      "5",
      "5",
-     "–"
+     "5"
     ],
     [
      "p13 L7",
