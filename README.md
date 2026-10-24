@@ -4,7 +4,7 @@ Which model and reasoning effort should a coding task be routed to? This repo me
 
 ## The answer
 
-Claude and Codex are billed separately, so the table shows both: Claude $ is what the Claude side pays; list $ prices every call, Codex included, at list rates.
+Claude and Codex are billed separately, so the table shows both: Claude $ is Claude CLI-reported cost (list basis); Codex $ is a token-price estimate. The list $ column combines those two accounting bases.
 
 | Route to | When | Passed | Claude $ per pass | List $ per pass | Median s |
 |---|---|---|---|---|---|
@@ -21,7 +21,7 @@ Main ladder: 12 problems × 5 attempts per config.
 - **Skip luna at low or medium effort.** It barely reasons there and misses easy problems. luna-high is the cheapest Codex config but misses some.
 - **haiku-high and sonnet-medium also never failed.** haiku-high: 60/60, 15/15 on L7 and 12/12 repo tasks at $0.0028 per pass, 7× cheaper than sol61-high and faster (14.7 s against 27.4 s). haiku-medium still misses (13/15 on L7). sonnet-medium: 75/75, the fastest of them.
 
-Total spend: $2.46 Claude, $22.53 Codex at list prices ($16.70 of it for the Codex models added on 2026-10-23, $3.41 for the fast-mode and xhigh runs).
+Function + agentic spend only (auxiliary runs and pilot excluded): $2.46 Claude, $22.53 Codex at list prices ($16.70 of it for the Codex models added on 2026-10-23, $3.41 for the fast-mode and xhigh runs).
 
 ## Read more
 

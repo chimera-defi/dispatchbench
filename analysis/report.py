@@ -15,7 +15,7 @@ import html, json, os, re, statistics
 
 from analysis import luna_rescue, page as pagew
 from analysis.charts import HOST_AGENTS_MD, MIN_PASS
-from analysis.summarize import ROOT, RES, FUNC, AGENT, ci_text, cost, cost_uncached, load, pct
+from analysis.summarize import ROOT, RES, FUNC, AGENT, ci_text, cost, cost_uncached, load, pct, money, scale
 
 TEMPLATE = os.path.join(ROOT, "docs", "report.tmpl.md")
 PAGE_TEMPLATE = os.path.join(ROOT, "docs", "page.tmpl.md")  # the page: HTML with facts and widgets
@@ -52,7 +52,7 @@ def ci_pts(ci):
 
 
 def u(v, d=5):
-    return f"${v:.{d}f}"
+    return "unknown" if v is None else f"${v:.{d}f}"
 
 
 def n(v):
@@ -89,12 +89,12 @@ def facts(s):
     F["host_agents_md"] = HOST_AGENTS_MD; F["min_pass"] = pct(MIN_PASS)
     F["rung_attempts"] = str(cfg["haiku-low"]["by_rung"]["L1"]["n"])
     sp = s["spend"]
-    F["claude_usd"] = f"${sp['claude_measured_usd']:.2f}"; F["codex_usd"] = f"${sp['codex_proxy_usd']:.2f}"
+    F["claude_usd"] = u(sp['claude_measured_usd'], 2); F["codex_usd"] = u(sp['codex_proxy_usd'], 2)
     for c, v in every.items():
         k = c.replace("-", "_")
         F[f"{k}_pass"] = pct(v["pass_at_1"]); F[f"{k}_k"] = f"{v['passes']}/{v['n']}"; F[f"{k}_upp"] = u(v["usd_per_pass"])
         F[f"{k}_med"] = f"{v['latency_s']['median']:.1f}"; F[f"{k}_rsn"] = n(v["tokens_mean"]["reasoning_tok"]); F[f"{k}_rsn10"] = about(v["tokens_mean"]["reasoning_tok"])
-        F[f"{k}_in"] = n(v["tokens_mean"]["in_tok"]); F[f"{k}_total"] = f"${v['usd_total']:.3f}"
+        F[f"{k}_in"] = n(v["tokens_mean"]["in_tok"]); F[f"{k}_total"] = u(v['usd_total'], 3)
     # finding 1: effort budgets
     hl, ll, lm, lh = cfg["haiku-low"], cfg["luna-low"], cfg["luna-medium"], ex["luna-high"]
     need(ll["tokens_mean"]["reasoning_tok"] < 50 and lm["tokens_mean"]["reasoning_tok"] < 50, "luna low/medium barely reason")
@@ -121,7 +121,7 @@ def facts(s):
     need(all(v["hidden_pass"] == v["n"] for v in ag.values()), "every agentic run passed")
     F["ag_k"] = f"{ag['luna-low']['hidden_pass']}/{ag['luna-low']['n']}"; F["ag_runs"] = str(sum(v["n"] for v in ag.values()))
     for c, v in ag.items():
-        k = c.replace("-", "_"); F[f"ag_{k}_usd"] = f"${v['usd_per_run']:.4f}" if v["usd_per_run"] < 0.01 else f"${v['usd_per_run']:.3f}"
+        k = c.replace("-", "_"); F[f"ag_{k}_usd"] = u(v['usd_per_run'], 4) if v["usd_per_run"] is not None and v["usd_per_run"] < 0.01 else u(v['usd_per_run'], 3)
         F[f"ag_{k}_med"] = f"{v['latency_s']['median']:.0f}"
     AG_BASE = ("luna-low", "haiku-low", "sonnet-medium", "sol61-medium")  # the four first run; sol61-high and astra-medium added 2026-10-23
     usds = [ag[c]["usd_per_run"] for c in AG_BASE]; F["ag_spread"] = f"{max(usds) / min(usds):.0f}×"
@@ -244,7 +244,7 @@ def facts(s):
     # Codex additions (exploratory, run after the report at the operator's request)
     nr = [r for r in rows if r["config"] in NEW_CODEX and r["phase"] != "fastmode"]; F["new_date"] = min(r["ts"] for r in nr)[:10]; F["n_new_codex"] = str(len(NEW_CODEX))
     nu = sum(map(cost, nr + [r for r in agent if r["config"] in NEW_CODEX]))  # function and repo-task runs alike
-    F["codex_new_usd"] = f"${nu:.2f}"; F["codex_old_usd"] = f"${sp['codex_proxy_usd'] - nu - sp['codex_fastmode_usd']:.2f}"; F["fm_usd"] = f"${sp['codex_fastmode_usd']:.2f}"
+    F["codex_new_usd"] = f"${nu:.2f}"; F["codex_old_usd"] = f"${sp['codex_proxy_usd'] - nu - sp['codex_fastmode_usd']:.2f}"; F["fm_usd"] = u(sp['codex_fastmode_usd'], 2)
     for c in NEW_CODEX:
         k = "x_" + c.replace("-", "_"); e, h = ex[c], hard[c]
         F[k + "_k"] = f"{e['passes']}/{e['n']}"; F[k + "_upp"] = u(e["usd_per_pass"], 4); F[k + "_med"] = f"{e['latency_s']['median']:.1f}"
@@ -298,11 +298,11 @@ def tables_md(s):
     T = {}; cfg, ex = s["configs"], s["exploratory"]; nprob = len(s["problems"])
     T["result"] = md_table(["config", "pass@1", "95% CI", "median s", "p90 s", "$ per pass", f"total $ ({cfg['haiku-low']['n']} calls)", "$ kind"],
                            [[c + (" (exploratory)" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], nprob),
-                             f"{v['latency_s']['median']:.1f}", f"{v['latency_s']['p90']:.1f}", f"{v['usd_per_pass']:.5f}", f"{v['usd_total']:.3f}", v["cost_kind"]]
+                             f"{v['latency_s']['median']:.1f}", f"{v['latency_s']['p90']:.1f}", f"{money(v['usd_per_pass'], 5)}", f"{money(v['usd_total'], 3)}", v["cost_kind"]]
                             for c, v in {**cfg, **ex}.items()])
     T["tokens"] = md_table(["config", "mean input", "of which cached", "mean output", "of which reasoning", "$ per 1k tokens"],
                            [[c + (" (exploratory)" if c in ex else ""), n(v["tokens_mean"]["in_tok"]), n(v["tokens_mean"]["cached_tok"]), n(v["tokens_mean"]["out_tok"]),
-                             n(v["tokens_mean"]["reasoning_tok"]), f"{1000 * v['usd_per_call'] / (v['tokens_mean']['in_tok'] + v['tokens_mean']['out_tok']):.5f}"]
+                             n(v["tokens_mean"]["reasoning_tok"]), money(scale(v["usd_per_call"], 1000 / (v["tokens_mean"]["in_tok"] + v["tokens_mean"]["out_tok"])))]
                             for c, v in {**cfg, **ex}.items()])
     from bench.trim_probe import LEVELS
     fl = s["trim"]["floor"]; names = {"base": "stock harness", "nodoc": "+ no project docs", "noctx": "+ no env/permission context", "nofeat": "+ tool features off",
@@ -313,7 +313,7 @@ def tables_md(s):
     hard = s["hard"]; hp = sorted({p for v in hard.values() for p in v["by_problem"]})
     T["l7"] = md_table(["config", "passed", "95% CI"] + [p[:3] for p in hp] + ["median s", "mean reasoning tokens", "$ per pass", "$ kind"],
                        [[c, f"{v['passes']}/{v['n']}", ci_text(v["passes"], v["n"], v["ci95"], len(hp))] + [f"{v['by_problem'].get(p, 0)}/5" for p in hp]
-                        + [f"{v['latency_s']['median']:.1f}", n(v["tokens_mean"]["reasoning_tok"]), f"{v['usd_per_pass']:.4f}", v["cost_kind"]] for c, v in hard.items()])
+                        + [f"{v['latency_s']['median']:.1f}", n(v["tokens_mean"]["reasoning_tok"]), f"{money(v['usd_per_pass'], 4)}", v["cost_kind"]] for c, v in hard.items()])
     fail = s["failures"]; cols = list(dict.fromkeys(c for f in fail.values() for c in f["cells"]))
     ab = {"wrong": "w", "crash": "c", "timeout": "t", "no_code": "n"}
 
@@ -324,16 +324,16 @@ def tables_md(s):
         return k + (f" ({f})" if f else "")
     T["fail"] = md_table(["problem"] + cols, [[f"{p[:3]} L{f['rung']}"] + [cell(f["cells"].get(c)) for c in cols] for p, f in fail.items()])
     ag = s["agentic"]; at = json.load(open(os.path.join(RES, "agentic_tests.json")))
-    T["agentic"] = md_table(["config", "hidden tests passed", "runs that wrote the requested test file", "test functions added", "median s", "$ per run", "$ kind"],
-                            [[c, f"{v['hidden_pass']}/{v['n']}", f"{v['own_tests_written']}/{v['n']}",
+    T["agentic"] = md_table(["config", "hidden tests passed", "complete task", "runs that wrote the requested test file", "test functions added", "median s", "$ per run", "$ kind"],
+                            [[c, f"{v['hidden_pass']}/{v['n']}", f"{v['task_complete']}/{v['n']}", f"{v['own_tests_written']}/{v['n']}",
                               (lambda rr: "no transcripts" if not rr else str(sum(r["test_functions_added"] for r in rr)) if all(r["test_functions_added"] is not None for r in rr)
                                else f"≥{sum(r['test_functions_lower_bound'] for r in rr)}")([r for r in at if r["config"] == c]),
-                              f"{v['latency_s']['median']:.1f}", f"{v['usd_per_run']:.4f}", v["cost_kind"]] for c, v in sorted(ag.items(), key=lambda kv: kv[1]["usd_per_run"])])
+                              f"{v['latency_s']['median']:.1f}", f"{money(v['usd_per_run'], 4)}", v["cost_kind"]] for c, v in sorted(ag.items(), key=lambda kv: (kv[1]["usd_per_run"] is None, kv[1]["usd_per_run"] or 0))])
     a = luna_rescue.arms()
-    T["rescue"] = md_table(["config", "passed", "$ per pass", "median s"], [[v["label"], f"{v['passes']}/{v['n']}", f"{v['usd_per_pass']:.5f}", f"{v['median_s']:.1f}"] for v in a.values()])
+    T["rescue"] = md_table(["config", "passed", "$ per pass", "median s"], [[v["label"], f"{v['passes']}/{v['n']}", f"{money(v['usd_per_pass'], 5)}", f"{v['median_s']:.1f}"] for v in a.values()])
     pr = s["trim"]["pair"]; lab = {"haiku": "haiku-low, tools off", "luna/base": "luna-low, stock harness", "luna/nofeat": "luna-low, tool features off", "luna/noshell": "luna-low, stripped"}
     T["pilot"] = md_table(["config", "passes", "median input", "median s", "$ per call", "$ kind"],
-                          [[lab[c], f"{v['passes']}/{v['n']}", n(v["in_median"]), f"{v['median_s']:.1f}", f"{v['usd_per_call']:.5f}", v["cost_kind"]] for c, v in pr.items() if c in lab])
+                          [[lab[c], f"{v['passes']}/{v['n']}", n(v["in_median"]), f"{v['median_s']:.1f}", f"{money(v['usd_per_call'], 5)}", v["cost_kind"]] for c, v in pr.items() if c in lab])
     T["quality"] = quality_table(s)
     T["fastmode"], T["blind"] = fastmode_tables(s)
     T["configs"] = md_table(["config", "CLI", "model", "effort"], [[c, {"claude": "Claude Code", "codex": "Codex CLI"}[v["cli"]], v["model"], v["effort"]] for c, v in cfg.items()])
@@ -373,7 +373,7 @@ def fastmode_tables(s):
     for c, v in fm.items():
         rr = [r for r in q if r["config"] == c]; need(len(rr) == v["passes"], f"quality rows cover every passing fast-mode {c} solution")
         tr = [r["time_ratio"] for r in rr if r.get("time_ratio") is not None]
-        out.append([FM_LABEL[c], f"{v['passes']}/{v['n']}", f"{v['median_s']:.1f}", n(v["out_median"]), f"{v['usd_per_pass']:.4f}",
+        out.append([FM_LABEL[c], f"{v['passes']}/{v['n']}", f"{v['median_s']:.1f}", n(v["out_median"]), f"{money(v['usd_per_pass'], 4)}",
                     f"{statistics.median(r['loc'] for r in rr):.0f}", f"{statistics.median(r['cc_max'] for r in rr):.0f}",
                     f"{sum(r['lint_warnings'] for r in rr) / len(rr):.2f}", f"{statistics.median(tr):.2f}" if tr else "–"])
     t1 = md_table(["config", "passed", "median s", "median output tokens", "$ per pass (proxy)", "median LOC", "median max complexity",

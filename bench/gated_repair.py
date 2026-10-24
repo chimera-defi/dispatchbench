@@ -9,7 +9,7 @@ import hashlib, json, os, shutil, statistics, tempfile
 from concurrent.futures import ThreadPoolExecutor
 
 from analysis.luna_rescue import PIDS
-from analysis.summarize import cost
+from analysis.summarize import cost, usd, money
 from bench import problems
 from bench.grade import _norm, grade_text, run_sandbox
 from bench.grade_all import extract
@@ -58,7 +58,7 @@ def cached(kind, blob, make):
         res, _ = make(cwd)
     finally:
         shutil.rmtree(cwd, ignore_errors=True)
-    os.makedirs(CACHE, exist_ok=True); json.dump(res, open(fp, "w"), indent=1)
+    os.makedirs(CACHE, exist_ok=True); json.dump(res, open(fp + ".tmp", "w"), indent=1); os.replace(fp + ".tmp", fp)
     return res
 
 
@@ -148,7 +148,7 @@ def main():
     for cfg, pid, rep, mid, effort, flags, b, code, build_ok, did_repair, rb in rows:
         g = grade_text(pid, code) if code.strip() else {"outcome": "harness_error" if (rb or b)["is_error"] else "no_code"}
         build_cost = cost({"cli": "codex", "model": mid, **b})
-        repair_cost = (rb.get("cost_usd") or 0.0) if rb and CONFIGS[cfg][3] != "retry" else (cost({"cli": "codex", "model": mid, **rb}) if rb else 0.0)
+        repair_cost = rb.get("cost_usd") if rb and CONFIGS[cfg][3] != "retry" else (cost({"cli": "codex", "model": mid, **rb}) if rb else 0.0)
         calls = [b] + ([rb] if rb else [])
         output_rows.append({"arm": "G", "config": cfg, "problem": pid, "repeat": rep,
                             "in_tok": sum(c.get("in_tok") or 0 for c in calls),
@@ -156,7 +156,7 @@ def main():
                             "out_tok": sum(c.get("out_tok") or 0 for c in calls),
                             "reasoning_tok": sum(c.get("reasoning_tok") or 0 for c in calls),
                             "wall_s": round(sum(c.get("wall_s") or 0 for c in calls), 2),
-                            "cost_usd": build_cost + repair_cost, "passed": g["outcome"] == "pass", "check": g["outcome"],
+                            "cost_usd": usd([build_cost, repair_cost], digits=None), "passed": g["outcome"] == "pass", "check": g["outcome"],
                             "build_passed_visible": build_ok, "repaired": did_repair,
                             "build_cost_usd": build_cost, "repair_cost_usd": repair_cost,
                             "claude_cli": cli_version("claude"), "codex_cli": cli_version("codex")})
@@ -166,7 +166,7 @@ def main():
     for cfg in CONFIGS:
         rr = [r for r in output_rows if r["config"] == cfg]
         passed = sum(r["passed"] for r in rr)
-        print(f"{cfg}: {passed}/{len(rr)}, ${sum(r['cost_usd'] for r in rr) / max(1, passed):.5f} per pass, "
+        print(f"{cfg}: {passed}/{len(rr)}, {money(usd((r['cost_usd'] for r in rr), passed))} USD per pass, "
               f"median {statistics.median(r['wall_s'] for r in rr):.2f}s, repairs {sum(r['repaired'] for r in rr)}")
 
 
