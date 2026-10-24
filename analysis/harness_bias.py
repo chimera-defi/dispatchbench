@@ -11,7 +11,7 @@ from bench.run import CALLS, ROOT
 
 PROBS = ["p03_ledger", "p04_taller_within", "p08_recur", "p09_k_machine_schedule", "p11_best_average", "p12_sheet"]
 CFGS = ["luna-low", "haiku-low"]
-REPS = range(11, 14)  # scope cut by operator: 3 repeats (was 10)
+REPS = range(11, 21)  # 10 fresh repeats, as pre-registered
 OUT = os.path.join(ROOT, "results", "appendix")
 
 
@@ -109,7 +109,10 @@ def pass_summary(rows):
 
 
 def main():
-    rows = [fill_cost(r) for r in claude_rows() + codex_rows()]
+    first = {}
+    for r in sorted(claude_rows() + codex_rows(), key=lambda r: r["ts"]):  # luna-low repeat 14 ran twice: keep the first run
+        first.setdefault((r["harness"], r["config"], r["problem"], r["repeat"]), r)
+    rows = [fill_cost(r) for r in first.values()]
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, "harness_bias.jsonl"), "w") as f:
         for r in sorted(rows, key=lambda r: (r["harness"], r["config"], r["problem"], r["repeat"])):
@@ -153,7 +156,7 @@ def main():
     def cell(h, c):
         p, n, cost, w = cellstat[(h, c)]
         return f"{p}/{n} pass, ${cost:.3f}, {w:.1f}s"
-    md = f"""# Does the harness family bias results? (underpowered subset, n=18 per cell)
+    md = f"""# Does the harness family bias results? (full pre-registered run, n={len(PROBS) * len(REPS)} per cell)
 
 **Answer: {verdict}**
 
@@ -164,7 +167,7 @@ D = {d:+.3f}, 95% CI [{lo:+.3f}, {hi:+.3f}]  (D>0 would mean Codex harness favou
 | luna-low (Codex family) | {cell(H[0], 'luna-low')} | {cell(H[1], 'luna-low')} |
 | haiku-low (Claude family) | {cell(H[0], 'haiku-low')} | {cell(H[1], 'haiku-low')} |
 
-Cells: pass count / calls, total $, median wall seconds. 6 problems x 3 fresh repeats (11-13) per cell, n=18 per cell, 72 calls. Scope cut from the pre-registered 10 repeats; treat as underpowered subset.
+Cells: pass count / calls, total $, median wall seconds. {len(PROBS)} problems x {len(REPS)} fresh repeats ({REPS[0]}-{REPS[-1]}) per cell, n={len(PROBS) * len(REPS)} per cell, {len(rows)} calls. This is the full pre-registered run.
 `harness_error` rows: {sum(errs.values())} ({errs}); counted as fails above.
 Calls with no cost figure: {nocost}. Incomplete pairs dropped: {missing}.
 
@@ -180,7 +183,7 @@ Method: pairs by (problem, repeat); bootstrap 10,000 resamples of pairs stratifi
 Reproduce:
 ```
 P=p03_ledger,p04_taller_within,p08_recur,p09_k_machine_schedule,p11_best_average,p12_sheet
-for r in 11 12 13; do
+for r in $(seq 11 20); do
   python3 -m bench.run --phase harness_bias --configs luna-low,haiku-low --problems $P --repeats $r --lanes 2 &
   python3 -m bench.codex_harness --configs luna-low,haiku-low --problems $P --repeats $r --lanes 2
   wait
