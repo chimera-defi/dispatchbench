@@ -19,19 +19,23 @@ Path | what | produced by | read by. Cache (`cache/`, 15 MB) holds raw call tran
 ## Appendix experiments
 - `appendix/luna_rescue.jsonl` rescue pipeline arms on 7 hard problems | bench rescue | luna_rescue, dataset
 - `appendix/blind_readability.json` | blind grading | report
-- `appendix/harness_bias.jsonl`, `codex_harness.jsonl` arrive with branch codex-own-harness | registry already lists them
+- `appendix/harness_bias.jsonl`, `codex_harness.jsonl` harness-bias runs | bench harness-bias runner | analysis.harness_bias, dataset
 
 ## Generated report (do not edit)
 - `report/page.html`, `report/charts/*.svg` (9), `report/tables.md`, `report/luna_rescue.md` | analysis.report, charts, luna_rescue | readers, audit
 
 ## Research and reviews
 - `solutions/` model answers kept for grading | bench | graders
-- Branches to merge (not merged here): review-astra, review-sol61, codex-own-harness. Their REVIEW.md files conflict by name; land each under
-  `results/research/<branch>/`.
+- `research/review-sol61/REVIEW.md` independent review of the bench and page (branch review-sol61) | a reviewer session | humans; findings tracked in the page work
+- `research/review-astra/REVIEW.md` second review (branch review-astra); both were root REVIEW.md files, moved here to avoid the name clash | a reviewer session | humans
+- `review-sol61/probe.py`, `probe.json`, `audit.txt` offline fairness and harness probes and their output | probe.py (offline, no model calls) | REVIEW.md, receipt.json
+- `review-sol61/receipt.json`, `review.bundle` hashes of the reviewed files and a git bundle of the review commits | the reviewer | nobody at run time; receipt.json still names the old root path REVIEW.md
+- `review-astra/probe.json` output of `bench/review_probe.py` | bench/review_probe.py | research/review-astra/REVIEW.md
+- `codex-own-harness` is merged (via fairness-qa): `appendix/harness_bias.jsonl`, `appendix/codex_harness.jsonl` | analysis/harness_bias.py | dataset, page Q&A
 
 ## Proposed moves (none made)
 - `quality*.json*` and `agentic_tests.json` into `results/inputs/`; `prices.json` stays.
-- `appendix/*` stays; reviews go to `results/research/<branch>/`.
+- `appendix/*` stays; reviews already live in `results/research/<branch>/`.
 Each move needs its readers rewritten, then `make report`, `python3 -m analysis.audit`, `python3 -m pytest -q tests`.
 
 summary.json is unchanged in this pass. Add a config to `analysis/configs.py` when a new run lands; audit enforces it.

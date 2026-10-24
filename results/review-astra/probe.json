@@ -1,0 +1,288 @@
+{
+  "model_calls": 0,
+  "claude_spend_usd": 0,
+  "data": {
+    "function_rows": 1146,
+    "codex_function_tool_items": 0,
+    "agentic": {
+      "astra-medium": {
+        "n": 12,
+        "hidden_pass": 12,
+        "visible_pass": 12,
+        "full_contract_pass": 12,
+        "transcripts": 0,
+        "test_count_rows": 0,
+        "claude_tool_sets": [],
+        "actual_kimi_invocations": []
+      },
+      "haiku-high": {
+        "n": 12,
+        "hidden_pass": 12,
+        "visible_pass": 12,
+        "full_contract_pass": 12,
+        "transcripts": 0,
+        "test_count_rows": 0,
+        "claude_tool_sets": [],
+        "actual_kimi_invocations": []
+      },
+      "haiku-low": {
+        "n": 12,
+        "hidden_pass": 12,
+        "visible_pass": 12,
+        "full_contract_pass": 12,
+        "transcripts": 12,
+        "test_count_rows": 12,
+        "claude_tool_sets": [
+          [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Write"
+          ]
+        ],
+        "actual_kimi_invocations": []
+      },
+      "luna-low": {
+        "n": 12,
+        "hidden_pass": 12,
+        "visible_pass": 11,
+        "full_contract_pass": 11,
+        "transcripts": 12,
+        "test_count_rows": 12,
+        "claude_tool_sets": [],
+        "actual_kimi_invocations": []
+      },
+      "sol61-high": {
+        "n": 12,
+        "hidden_pass": 12,
+        "visible_pass": 12,
+        "full_contract_pass": 12,
+        "transcripts": 0,
+        "test_count_rows": 0,
+        "claude_tool_sets": [],
+        "actual_kimi_invocations": []
+      },
+      "sol61-medium": {
+        "n": 12,
+        "hidden_pass": 12,
+        "visible_pass": 12,
+        "full_contract_pass": 12,
+        "transcripts": 12,
+        "test_count_rows": 12,
+        "claude_tool_sets": [],
+        "actual_kimi_invocations": [
+          {
+            "source": "cache/agentic_raw/agentic-3cd04907cb996c697ff1d996fc2dee11ea220ecc8afab127c58441b12ecf49ef.out:18",
+            "auth_failed": true
+          },
+          {
+            "source": "cache/agentic_raw/agentic-7d063908661b8304f1bf51d644981d191d28e4729a809b2f3a2d5bbc5ed6581d.out:20",
+            "auth_failed": true
+          },
+          {
+            "source": "cache/agentic_raw/agentic-affd5e8d20e3fe1ea4496aa38471ebffb7fc52f4fb9a2a0a43297cc9dd6dbefd.out:22",
+            "auth_failed": true
+          },
+          {
+            "source": "cache/agentic_raw/agentic-532b733f207e619a0f9dec6146bcbdf859c65a7001d0bd69a5f8eb5f9e689fd5.out:20",
+            "auth_failed": true
+          },
+          {
+            "source": "cache/agentic_raw/agentic-d61f4aba35f149fbf6ae723768d45be5cd6a47a1f44fd6c54664f0f3a4eb2ac5.out:20",
+            "auth_failed": true
+          },
+          {
+            "source": "cache/agentic_raw/agentic-99272d4e98a8d946a6cda839254e3fce7a21fc7bfe1797f10d3accd3ceeb946a.out:20",
+            "auth_failed": true
+          },
+          {
+            "source": "cache/agentic_raw/agentic-29cb478c6e24f4f4020d32c88d970de7371ba12fff1d73eb3372bd48cc323a3e.out:21",
+            "auth_failed": true
+          },
+          {
+            "source": "cache/agentic_raw/agentic-8823bc3c64206ce2bc359d323d7e867ce813769a4c967275000c384290912881.out:16",
+            "auth_failed": true
+          },
+          {
+            "source": "cache/agentic_raw/agentic-2c6f93633db2d958bd7aa54ea5d88832752eb116c6fab5fe481f134c305ec9e2.out:22",
+            "auth_failed": true
+          }
+        ]
+      },
+      "sonnet-medium": {
+        "n": 12,
+        "hidden_pass": 12,
+        "visible_pass": 12,
+        "full_contract_pass": 12,
+        "transcripts": 12,
+        "test_count_rows": 12,
+        "claude_tool_sets": [
+          [
+            "Bash",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Read",
+            "Write"
+          ]
+        ],
+        "actual_kimi_invocations": []
+      }
+    },
+    "function_costs": {
+      "haiku-low": {
+        "passes": 57,
+        "n": 60,
+        "usd_per_pass": 0.0011218601754385965,
+        "codex_no_cache_sensitivity": 0.0011218601754385965,
+        "cache_token_share": 0.8616060179352256
+      },
+      "haiku-high": {
+        "passes": 60,
+        "n": 60,
+        "usd_per_pass": 0.002821673333333333,
+        "codex_no_cache_sensitivity": 0.002821673333333333,
+        "cache_token_share": 0.1468962785521625
+      },
+      "sol61-high": {
+        "passes": 60,
+        "n": 60,
+        "usd_per_pass": 0.018614953333333333,
+        "codex_no_cache_sensitivity": 0.04157303333333333,
+        "cache_token_share": 0.7856428417394433
+      },
+      "astra-medium": {
+        "passes": 60,
+        "n": 60,
+        "usd_per_pass": 0.0752641,
+        "codex_no_cache_sensitivity": 0.1851265,
+        "cache_token_share": 0.7968240878445639
+      },
+      "luna-low-bare": {
+        "passes": 44,
+        "n": 60,
+        "usd_per_pass": 0.0007981131818181817,
+        "codex_no_cache_sensitivity": 0.0011976477272727273,
+        "cache_token_share": 0.5298395518845533
+      }
+    },
+    "pipeline_G": {
+      "astra-medium+haiku-on-fail": {
+        "n": 35,
+        "passes": 35,
+        "repairs": 0,
+        "failures_not_repaired": 0
+      },
+      "luna-high-bare+haiku-on-fail": {
+        "n": 35,
+        "passes": 32,
+        "repairs": 2,
+        "failures_not_repaired": 3
+      },
+      "luna-high-bare+haiku-review-all": {
+        "n": 35,
+        "passes": 35,
+        "repairs": 35,
+        "failures_not_repaired": 0
+      },
+      "luna-high-bare+retry-on-fail": {
+        "n": 35,
+        "passes": 32,
+        "repairs": 2,
+        "failures_not_repaired": 3
+      },
+      "luna-low+haiku-on-fail": {
+        "n": 35,
+        "passes": 34,
+        "repairs": 13,
+        "failures_not_repaired": 1
+      },
+      "luna-low+haiku-review-all": {
+        "n": 35,
+        "passes": 34,
+        "repairs": 35,
+        "failures_not_repaired": 0
+      },
+      "sol61-high+haiku-on-fail": {
+        "n": 35,
+        "passes": 35,
+        "repairs": 0,
+        "failures_not_repaired": 0
+      }
+    },
+    "measured_cache_costs": {
+      "calls": 1.61278838,
+      "agentic": 0.8496056900000001,
+      "trim": 0.0024917800000000003,
+      "plan_first": 0.06925582,
+      "gated_repair": 0.24822865
+    },
+    "reported_claude_total": 2.4624,
+    "failed_visible_runs": [
+      {
+        "config": "luna-low",
+        "task": "t2_cache_bugs",
+        "repeat": 2,
+        "key": "6f2f1a0dbd6c8ed873fc0f7f290678ecebe99a53f30959350f34e8a688e5aa15",
+        "visible": {
+          "failed": 1,
+          "ok": false,
+          "passed": 5,
+          "tail": "1 failed, 5 passed in 0.03s"
+        },
+        "hidden": {
+          "failed": 0,
+          "ok": true,
+          "passed": 6,
+          "tail": "6 passed in 0.02s"
+        }
+      }
+    ]
+  },
+  "lifecycle": {
+    "transient_error": {
+      "first": "ERR 1.0s out=None",
+      "second": "cached",
+      "provider_calls": 1
+    },
+    "timeout": {
+      "escaped": true,
+      "ledger_entries": 1,
+      "accounted_usd": 0.01
+    },
+    "quota_lane_provider_attempts": 2,
+    "gated_repair_with_zero_budget": {
+      "provider_calls": 1,
+      "run_claude_spend_usd": 0.0
+    },
+    "bytecode_changes_task_cache_key": true
+  },
+  "grading": {
+    "unmodified_starter_hidden": {
+      "ok": false,
+      "passed": 1,
+      "failed": 5,
+      "tail": "5 failed, 1 passed in 0.04s"
+    },
+    "with_skip_hook": {
+      "visible": {
+        "ok": true,
+        "passed": 0,
+        "failed": 0,
+        "tail": "2 skipped in 0.01s"
+      },
+      "hidden": {
+        "ok": true,
+        "passed": 0,
+        "failed": 0,
+        "tail": "6 skipped in 0.02s"
+      },
+      "visible_pass": true,
+      "hidden_pass": true,
+      "own_tests": true,
+      "tests_tampered": []
+    }
+  }
+}
