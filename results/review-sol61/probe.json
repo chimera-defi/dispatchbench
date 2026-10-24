@@ -1,0 +1,250 @@
+{
+  "agentic": {
+    "astra-medium": {
+      "hidden_passes": 12,
+      "median_s": 85.22475350050081,
+      "minimum_hidden_tests_passed": 6,
+      "raw_transcripts": 0,
+      "runs": 12
+    },
+    "haiku-high": {
+      "hidden_passes": 12,
+      "median_s": 58.4314555259989,
+      "minimum_hidden_tests_passed": 6,
+      "raw_transcripts": 0,
+      "runs": 12
+    },
+    "haiku-low": {
+      "hidden_passes": 12,
+      "median_s": 28.29245597042609,
+      "minimum_hidden_tests_passed": 6,
+      "raw_transcripts": 12,
+      "runs": 12
+    },
+    "luna-low": {
+      "hidden_passes": 12,
+      "median_s": 28.49555506987963,
+      "minimum_hidden_tests_passed": 6,
+      "raw_transcripts": 12,
+      "runs": 12
+    },
+    "sol61-high": {
+      "hidden_passes": 12,
+      "median_s": 108.57934077800019,
+      "minimum_hidden_tests_passed": 6,
+      "raw_transcripts": 0,
+      "runs": 12
+    },
+    "sol61-medium": {
+      "hidden_passes": 12,
+      "median_s": 89.04416398354806,
+      "minimum_hidden_tests_passed": 6,
+      "raw_transcripts": 12,
+      "runs": 12
+    },
+    "sonnet-medium": {
+      "hidden_passes": 12,
+      "median_s": 27.734961925423704,
+      "minimum_hidden_tests_passed": 6,
+      "raw_transcripts": 12,
+      "runs": 12
+    }
+  },
+  "claude_recorded_cost_basis": {
+    "list": 24
+  },
+  "claude_recorded_toolsets": {
+    "Bash,Edit,Glob,Grep,Read,Write": 24
+  },
+  "context_cache_collision": {
+    "equal_keys": true,
+    "key": "dd6393bf802442ac6435dbbe3022f27fae2275a8b8b8859aead13ece0f8afcbb"
+  },
+  "function_rates": {
+    "haiku-high": {
+      "first_timestamp": "2026-10-23T23:39:16+00:00",
+      "lanes": {
+        "2": 60
+      },
+      "last_timestamp": "2026-10-24T00:00:05+00:00",
+      "mean_output_tokens": 4123.133333333333,
+      "mean_reasoning_tokens": 3353.2166666666667,
+      "passed": 60,
+      "runs": 60,
+      "uncached_usd_per_pass": 0.002821673333333333,
+      "usd_per_pass": 0.002821673333333333
+    },
+    "haiku-low": {
+      "first_timestamp": "2026-10-22T08:48:23+00:00",
+      "lanes": {
+        "4": 60
+      },
+      "last_timestamp": "2026-10-22T09:00:23+00:00",
+      "mean_output_tokens": 1805.45,
+      "mean_reasoning_tokens": 1026.55,
+      "passed": 57,
+      "runs": 60,
+      "uncached_usd_per_pass": 0.0011218601754385965,
+      "usd_per_pass": 0.0011218601754385965
+    },
+    "luna-high": {
+      "first_timestamp": "2026-10-22T09:33:54+00:00",
+      "lanes": {
+        "1": 60
+      },
+      "last_timestamp": "2026-10-22T10:25:10+00:00",
+      "mean_output_tokens": 1059.6666666666667,
+      "mean_reasoning_tokens": 525.7833333333333,
+      "passed": 55,
+      "runs": 60,
+      "uncached_usd_per_pass": 0.0021803145454545457,
+      "usd_per_pass": 0.00104926
+    },
+    "luna-low": {
+      "first_timestamp": "2026-10-22T08:48:21+00:00",
+      "lanes": {
+        "4": 60
+      },
+      "last_timestamp": "2026-10-22T08:56:13+00:00",
+      "mean_output_tokens": 514.3666666666667,
+      "mean_reasoning_tokens": 0.0,
+      "passed": 46,
+      "runs": 60,
+      "uncached_usd_per_pass": 0.0022513326086956525,
+      "usd_per_pass": 0.0008989847826086958
+    },
+    "luna-medium": {
+      "first_timestamp": "2026-10-22T08:56:21+00:00",
+      "lanes": {
+        "4": 60
+      },
+      "last_timestamp": "2026-10-22T09:04:29+00:00",
+      "mean_output_tokens": 530.2,
+      "mean_reasoning_tokens": 6.866666666666666,
+      "passed": 47,
+      "runs": 60,
+      "uncached_usd_per_pass": 0.0022135489361702126,
+      "usd_per_pass": 0.0008899744680851063
+    },
+    "sol61-high": {
+      "first_timestamp": "2026-10-23T17:52:48+00:00",
+      "lanes": {
+        "4": 60
+      },
+      "last_timestamp": "2026-10-23T18:26:29+00:00",
+      "mean_output_tokens": 1081.3,
+      "mean_reasoning_tokens": 564.7666666666667,
+      "passed": 60,
+      "runs": 60,
+      "uncached_usd_per_pass": 0.04157303333333333,
+      "usd_per_pass": 0.018614953333333333
+    },
+    "sonnet-medium": {
+      "first_timestamp": "2026-10-22T08:48:21+00:00",
+      "lanes": {
+        "4": 60
+      },
+      "last_timestamp": "2026-10-22T08:59:39+00:00",
+      "mean_output_tokens": 963.7333333333333,
+      "mean_reasoning_tokens": 292.05,
+      "passed": 60,
+      "runs": 60,
+      "uncached_usd_per_pass": 0.012437721666666669,
+      "usd_per_pass": 0.012437721666666669
+    }
+  },
+  "function_tools": {
+    "codex_calls": 823,
+    "nonzero_tool_items": 0
+  },
+  "hidden_skip_bypass": {
+    "after": {
+      "failed": 0,
+      "ok": true,
+      "passed": 0,
+      "tail": "1 skipped in 0.00s"
+    },
+    "before": {
+      "failed": 1,
+      "ok": false,
+      "passed": 0,
+      "tail": "1 failed in 0.01s"
+    }
+  },
+  "inflight_spend_reader": "JSONDecodeError",
+  "missing_evidence_rendered_as_zero": {
+    "astra-medium": "| astra-medium | 12/12 | 12/12 | 0 | 85.2 | 0.3798 | proxy |",
+    "haiku-high": "| haiku-high | 12/12 | 12/12 | 0 | 58.4 | 0.0121 | measured |",
+    "sol61-high": "| sol61-high | 12/12 | 12/12 | 0 | 108.6 | 0.0948 | proxy |"
+  },
+  "model_calls": 0,
+  "new_claude_spend_usd": 0.0,
+  "nonzero_exit_classification": {
+    "claude_is_error": false,
+    "codex_is_error": true
+  },
+  "quota_lane": {
+    "expected_stop_after": 1,
+    "mock_calls_after_quota": 2
+  },
+  "repair_exposure": {
+    "astra-medium+haiku-on-fail": {
+      "passes": 35,
+      "repairs": 0,
+      "runs": 35
+    },
+    "luna-high-bare+haiku-on-fail": {
+      "passes": 32,
+      "repairs": 2,
+      "runs": 35
+    },
+    "luna-high-bare+retry-on-fail": {
+      "passes": 32,
+      "repairs": 2,
+      "runs": 35
+    },
+    "luna-low+haiku-on-fail": {
+      "passes": 34,
+      "repairs": 13,
+      "runs": 35
+    },
+    "sol61-high+haiku-on-fail": {
+      "passes": 35,
+      "repairs": 0,
+      "runs": 35
+    }
+  },
+  "sol61_medium_delegation": {
+    "actual_task_exit_codes": [
+      126,
+      126,
+      126,
+      126,
+      126,
+      126,
+      126,
+      126,
+      126
+    ],
+    "actual_task_invocations": 9,
+    "cached_delegate_calls": 23,
+    "host_marked_commands": 57,
+    "shell_commands": 97
+  },
+  "spend": {
+    "agentic_guard_counts_usd": 2.4623940700000015,
+    "cache_measured_usd": {
+      "agentic": 0.8496056900000001,
+      "calls": 1.61278838,
+      "gated_repair": 0.24822865,
+      "plan_first": 0.06925582,
+      "trim": 0.0024917800000000003
+    },
+    "function_guard_counts_usd": 1.6127883800000016,
+    "retained_five_directory_total_usd": 2.78237032
+  },
+  "timeout_journal": {
+    "rows": 0,
+    "uncaught": true
+  }
+}

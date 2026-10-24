@@ -1,0 +1,38 @@
+{
+  "delivery_status": "BUNDLED_ORIGINAL_BRANCH_UNCHANGED_READONLY_GIT_METADATA",
+  "original_branch": "review-sol61",
+  "original_head": "d94fbc8eb1eada1903636724c79795f42342bc5f",
+  "original_main": "d94fbc8eb1eada1903636724c79795f42342bc5f",
+  "portable_branch": "review-sol61",
+  "portable_head": "b53d65bc9f384e9b407c994a7e5b5d0fbcdc6f20",
+  "portable_commits": [
+    "b53d65bc9f384e9b407c994a7e5b5d0fbcdc6f20 review: document fairness verdict and ranked routing risks",
+    "6bd40f75bb411ff6696757c431188b1be3eb8007 review: add offline fairness and harness failure probes"
+  ],
+  "committed_paths": [
+    "REVIEW.md",
+    "results/review-sol61/audit.txt",
+    "results/review-sol61/probe.json",
+    "results/review-sol61/probe.py"
+  ],
+  "bundle_heads": [
+    "b53d65bc9f384e9b407c994a7e5b5d0fbcdc6f20 refs/heads/review-sol61"
+  ],
+  "validation": {
+    "offline_probe": "PASS; fresh semantic output matches captured evidence",
+    "report_audit": "PASS; 16 generated files compared",
+    "diff_check": "PASS",
+    "review_blob_matches_worktree": true,
+    "bundle_verify": "PASS"
+  },
+  "model_calls": 0,
+  "new_claude_spend_usd": 0.0,
+  "sha256": {
+    "REVIEW.md": "48fb6641cb63a43d3b6547377eb78bb2ae1e936e320afb21bd9217626aa23c58",
+    "results/review-sol61/probe.py": "67aadc809463d1915e459487db220c1b8c7bfaf4c8cb2b0d98ad8dcb7c74d57e",
+    "results/review-sol61/probe.json": "a6efc0cdf80098c8e74d6aef042a71cf42f77652474ec25ca5027f08db6dcf13",
+    "results/review-sol61/audit.txt": "2fd6aecea8cfeaa5c79cf4647d517a0f50357abba29a5e934d298017f9a19cd7",
+    "results/review-sol61/review.bundle": "c9479bb318f901eb8afc37cf988ba4c606758e56f94c4a6ba31d776cd86659be"
+  },
+  "note": "Original worktree Git index/ref cannot be updated in this sandbox. Bundle and receipt are delivery sidecars; they are not themselves in the portable commits."
+}

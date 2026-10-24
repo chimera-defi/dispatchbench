@@ -1,0 +1,2 @@
+audit: 16 generated files compared, 59 template literals checked against 38 allowed constants
+audit: OK, every committed number matches the data
