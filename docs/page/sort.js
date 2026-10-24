@@ -21,15 +21,28 @@ document.querySelectorAll("table.sortable").forEach(function(tb){
 // shows in .ctip. Tap works the same on touch; Escape or a tap outside clears it.
 (function(){
 document.querySelectorAll(".cwrap").forEach(function(w){
- var tip=w.querySelector(".ctip"),all=w.querySelectorAll(".pt,.ckey li");
+ var tip=w.querySelector(".ctip"),all=w.querySelectorAll(".pt,.ckey li,.free-strip li");
  function clear(){w.classList.remove("hov");all.forEach(function(e){e.classList.remove("hi","dim")});tip.hidden=true}
+ function updateCategories(set){
+  w.querySelectorAll('.category-filter input').forEach(function(input){
+   var empty=!w.querySelector('.s-'+set+' .key-group[data-cat="'+input.getAttribute("data-cat")+'"]'),label=input.parentNode;
+   input.disabled=empty;label.classList.toggle("disabled",empty);
+   if(empty)label.title=set==="main"?"only on the rescue set":"only on the main ladder";
+   else label.removeAttribute("title")
+  })
+ }
+ w.querySelectorAll('.set-filter input').forEach(function(input){
+  input.checked=input.value==="main";
+  input.addEventListener("change",function(){if(input.checked){clear();w.classList.toggle("rescue",input.value==="rescue");updateCategories(input.value)}})
+ });
  var toggle=w.querySelector('.cost-toggle input');
  if(toggle){toggle.checked=false;toggle.addEventListener("change",function(){clear();w.classList.toggle("free",toggle.checked)})}
  w.querySelectorAll('.category-filter input').forEach(function(input){
   input.checked=true;input.addEventListener("change",function(){clear();w.classList.toggle("hide-"+input.getAttribute("data-cat"),!input.checked)})
  });
+ updateCategories("main");
  function show(el,x,y){
-  w.classList.add("hov");all.forEach(function(e){var m=e.getAttribute("data-c")===el.getAttribute("data-c");e.classList.toggle("hi",m);e.classList.toggle("dim",!m)});
+  w.classList.add("hov");all.forEach(function(e){var m=e.getAttribute("data-c")===el.getAttribute("data-c")&&e.getAttribute("data-set")===el.getAttribute("data-set");e.classList.toggle("hi",m);e.classList.toggle("dim",!m)});
   tip.textContent=el.getAttribute("data-tip")||"";tip.hidden=false;
   var wr=w.getBoundingClientRect(),tw=tip.offsetWidth,th=tip.offsetHeight;
   var l=Math.max(0,Math.min(x-wr.left+12,wr.width-tw)),t=y-wr.top+14;
