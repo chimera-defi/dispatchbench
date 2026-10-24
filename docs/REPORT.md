@@ -18,16 +18,16 @@ The main run was on 2026-10-22: $2.46 of Claude CLI-reported spend (function + a
 | luna-low | 77% (46/60) | 53%–95% | 7.2 | 11.6 | 0.00090 | 0.041 | proxy |
 | luna-medium | 78% (47/60) | 57%–97% | 8.2 | 11.8 | 0.00089 | 0.042 | proxy |
 | sol61-medium | 97% (58/60) | 87%–100% | 22.6 | 36.2 | 0.01499 | 0.869 | proxy |
-| astra-medium (exploratory) | 100% (60/60) | ≥78% (all passed) | 20.9 | 35.6 | 0.07526 | 4.516 | proxy |
-| astra-medium ⚡ (exploratory) | 100% (60/60) | ≥78% (all passed) | 9.9 | 13.6 | 0.15202 | 9.121 | proxy |
-| haiku-high (exploratory) | 100% (60/60) | ≥78% (all passed) | 14.7 | 37.6 | 0.00282 | 0.169 | measured |
-| luna-high (exploratory) | 92% (55/60) | 82%–100% | 12.2 | 22.9 | 0.00105 | 0.058 | proxy |
-| luna-low-bare (exploratory) | 73% (44/60) | 52%–92% | 6.8 | 11.1 | 0.00080 | 0.035 | proxy |
-| luna56-high (exploratory) | 93% (56/60) | 83%–100% | 11.4 | 35.5 | 0.00298 | 0.167 | proxy |
-| luna56-low (exploratory) | 80% (48/60) | 60%–97% | 9.2 | 17.4 | 0.00218 | 0.105 | proxy |
-| sol56-high (exploratory) | 100% (60/60) | ≥78% (all passed) | 14.5 | 48.4 | 0.04180 | 2.508 | proxy |
-| sol61-high (exploratory) | 100% (60/60) | ≥78% (all passed) | 27.4 | 50.2 | 0.01861 | 1.117 | proxy |
-| sol61-high ⚡ (exploratory) | 100% (60/60) | ≥78% (all passed) | 17.4 | 27.9 | 0.03587 | 2.152 | proxy |
+| astra-medium † | 100% (60/60) | ≥78% (all passed) | 20.9 | 35.6 | 0.07526 | 4.516 | proxy |
+| astra-medium ⚡ † | 100% (60/60) | ≥78% (all passed) | 9.9 | 13.6 | 0.15202 | 9.121 | proxy |
+| haiku-high † | 100% (60/60) | ≥78% (all passed) | 14.7 | 37.6 | 0.00282 | 0.169 | measured |
+| luna-high † | 92% (55/60) | 82%–100% | 12.2 | 22.9 | 0.00105 | 0.058 | proxy |
+| luna-low-bare † | 73% (44/60) | 52%–92% | 6.8 | 11.1 | 0.00080 | 0.035 | proxy |
+| luna56-high † | 93% (56/60) | 83%–100% | 11.4 | 35.5 | 0.00298 | 0.167 | proxy |
+| luna56-low † | 80% (48/60) | 60%–97% | 9.2 | 17.4 | 0.00218 | 0.105 | proxy |
+| sol56-high † | 100% (60/60) | ≥78% (all passed) | 14.5 | 48.4 | 0.04180 | 2.508 | proxy |
+| sol61-high † | 100% (60/60) | ≥78% (all passed) | 27.4 | 50.2 | 0.01861 | 1.117 | proxy |
+| sol61-high ⚡ † | 100% (60/60) | ≥78% (all passed) | 17.4 | 27.9 | 0.03587 | 2.152 | proxy |
 
 Function track: 12 problems × 5 attempts per config. Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
 
@@ -66,16 +66,16 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 | luna-low | 14,688 | 11,520 | 514 | 0 | 0.00005 |
 | luna-medium | 14,688 | 11,520 | 530 | 7 | 0.00005 |
 | sol61-medium | 15,380 | 12,346 | 718 | 209 | 0.00090 |
-| astra-medium (exploratory) | 15,319 | 12,207 | 639 | 127 | 0.00472 |
-| astra-medium ⚡ (exploratory) | 15,316 | 12,160 | 646 | 136 | 0.00952 |
-| haiku-high (exploratory) | 4,418 | 649 | 4,123 | 3,353 | 0.00033 |
-| luna-high (exploratory) | 14,688 | 11,520 | 1,060 | 526 | 0.00006 |
-| luna-low-bare (exploratory) | 6,144 | 3,255 | 528 | 0 | 0.00009 |
-| luna56-high (exploratory) | 12,962 | 10,240 | 1,693 | 1,147 | 0.00019 |
-| luna56-low (exploratory) | 12,965 | 10,281 | 835 | 295 | 0.00013 |
-| sol56-high (exploratory) | 14,504 | 11,315 | 1,226 | 668 | 0.00266 |
-| sol61-high (exploratory) | 15,380 | 12,083 | 1,081 | 565 | 0.00113 |
-| sol61-high ⚡ (exploratory) | 15,380 | 12,288 | 1,052 | 541 | 0.00218 |
+| astra-medium † | 15,319 | 12,207 | 639 | 127 | 0.00472 |
+| astra-medium ⚡ † | 15,316 | 12,160 | 646 | 136 | 0.00952 |
+| haiku-high † | 4,418 | 649 | 4,123 | 3,353 | 0.00033 |
+| luna-high † | 14,688 | 11,520 | 1,060 | 526 | 0.00006 |
+| luna-low-bare † | 6,144 | 3,255 | 528 | 0 | 0.00009 |
+| luna56-high † | 12,962 | 10,240 | 1,693 | 1,147 | 0.00019 |
+| luna56-low † | 12,965 | 10,281 | 835 | 295 | 0.00013 |
+| sol56-high † | 14,504 | 11,315 | 1,226 | 668 | 0.00266 |
+| sol61-high † | 15,380 | 12,083 | 1,081 | 565 | 0.00113 |
+| sol61-high ⚡ † | 15,380 | 12,288 | 1,052 | 541 | 0.00218 |
 
 ![Pass rate by difficulty rung, 10 attempts per rung per config.](../results/report/charts/pass_by_rung.svg)
 
@@ -109,14 +109,14 @@ Pass/fail stays the headline. These columns describe the passing solutions only,
 | luna-low | 46 | 37 | 9 | 0.13 | 1.12 | 4 | 1.00 |
 | luna-medium | 47 | 47 | 14 | 0.09 | 1.10 | 6 | 1.00 |
 | sol61-medium | 58 | 38 | 14 | 0.00 | 1.08 | 0 | 1.00 |
-| astra-medium | 60 | 46 | 16 | 0.00 | 0.70 | 0 | 1.00 |
-| haiku-high | 60 | 43 | 14 | 0.02 | 0.95 | 3 | 1.00 |
-| luna-high | 55 | 39 | 9 | 0.00 | 1.13 | 2 | 1.00 |
-| luna-low-bare | 44 | 37 | 11 | 0.11 | 1.13 | 6 | 1.00 |
-| luna56-high | 56 | 44 | 14 | 0.00 | 0.85 | 0 | 1.00 |
-| luna56-low | 48 | 38 | 14 | 0.02 | 0.80 | 1 | 1.00 |
-| sol56-high | 60 | 46 | 14 | 0.03 | 0.83 | 1 | 1.00 |
-| sol61-high | 60 | 51 | 16 | 0.03 | 0.72 | 0 | 1.00 |
+| astra-medium † | 60 | 46 | 16 | 0.00 | 0.70 | 0 | 1.00 |
+| haiku-high † | 60 | 43 | 14 | 0.02 | 0.95 | 3 | 1.00 |
+| luna-high † | 55 | 39 | 9 | 0.00 | 1.13 | 2 | 1.00 |
+| luna-low-bare † | 44 | 37 | 11 | 0.11 | 1.13 | 6 | 1.00 |
+| luna56-high † | 56 | 44 | 14 | 0.00 | 0.85 | 0 | 1.00 |
+| luna56-low † | 48 | 38 | 14 | 0.02 | 0.80 | 1 | 1.00 |
+| sol56-high † | 60 | 46 | 14 | 0.03 | 0.83 | 1 | 1.00 |
+| sol61-high † | 60 | 51 | 16 | 0.03 | 0.72 | 0 | 1.00 |
 
 Medians are over each config's passing L1–L6 solutions, so a config that fails p12 sheet, whose solutions are the longest, has a smaller median LOC for that reason alone. "Growth worse than reference" counts solutions whose fitted time exponent is more than 0.3 above the reference's on the same inputs. The medians hide per-problem patterns: on p08 recur (L4), 11 passing solutions from 7 configs run 29× to 2453× slower than the reference at the largest size, because the reference runs in near-constant time (fitted exponent 0.03) and theirs grow with the input. Per-problem rows are in each problem's table under results/solutions/.
 

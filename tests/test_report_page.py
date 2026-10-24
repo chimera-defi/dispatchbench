@@ -51,16 +51,23 @@ def test_agentic_leaders_stop_before_all_label_boxes(summary):
     labels = [e for e in svg.findall("s:text", NS) if re.search(r"\d+/\d+", e.text or "") and not e.text.startswith("All configs")]
     leaders = [e for e in svg.findall("s:line", NS) if e.get("class") == "leader"]
     assert len(labels) == len(leaders) == len(summary["agentic"])
-    left = min(float(e.get("x")) for e in labels)
-    assert all(max(float(e.get("x1")), float(e.get("x2"))) < left for e in leaders)
-    ys = sorted(float(e.get("y")) for e in labels)
-    assert all(b - a >= 15 for a, b in zip(ys, ys[1:]))
+    # Stubs leave each dot vertically, never along the shared 100% data line.
+    assert all(e.get("x1") == e.get("x2") for e in leaders)
+    assert all(abs(float(e.get("y1")) - float(e.get("y2"))) > 5 for e in leaders)
+    boxes = []
+    for e in labels:
+        x, y = float(e.get("x")), float(e.get("y"))
+        w = len(e.text) * 6.6
+        left = x - (w if e.get("text-anchor") == "end" else w / 2 if e.get("text-anchor") == "middle" else 0)
+        box = (left, y - 12, left + w, y + 3)
+        assert all(box[2] <= q[0] or q[2] <= box[0] or box[3] <= q[1] or q[3] <= box[1] for q in boxes)
+        boxes.append(box)
 
 
 def test_every_toc_target_has_a_direct_toggle_heading():
     template = (ROOT / "docs/page.tmpl.md").read_text()
     targets = re.findall(r'<a href="#([^\"]+)">', template)
-    assert len(targets) == 9
+    assert len(targets) == 10
     for target in targets:
         assert re.search(r'<section\b[^>]*\bid="' + target + r'"[^>]*>\s*<h2\b', template)
 
@@ -108,24 +115,25 @@ def test_marker_styles_distinguish_fast_generation_and_luna_variants():
     assert len({draw(c) for c in ('luna-low', 'luna-medium', 'luna-high', 'luna-low-bare', 'luna56-low')}) == 5
 
 
-def test_floor_charts_keep_natural_size(summary):
+def test_floor_charts_fit_mobile_viewport(summary):
     for body in (page.floor(summary), page.fast(summary), page.pipes()):
         assert 'class="svgscroll"' in body
-        assert '--natural-width:760px' in body
+        assert '--natural-width' not in body
+        assert 'viewBox="0 0 360 ' in body
         assert 'Scroll sideways' in body
 
 
 def test_quality_fast_coverage_keeps_main_and_separate_rescue_runs_apart(summary, monkeypatch):
     note = report.quality_fast_note(summary)
-    assert 'sol61-high-fast: main-ladder solutions not scored' in note
+    assert 'sol61-high ⚡: main-ladder solutions not scored' in note
     assert '35-attempt rescue run' in note
-    assert 'astra-medium-fast: main-ladder solutions not scored' in note
+    assert 'astra-medium ⚡: main-ladder solutions not scored' in note
     assert 'No separate rescue-run quality scores' in note
     scored = next(r for r in report.quality_rows() if r['config'] == 'sol61-high-fast' and r['outcome'] == 'pass')
     main = dict(scored, phase='exploratory')
     monkeypatch.setattr(report, 'quality_rows', lambda: [scored, main])
     table = report.quality_table({'configs': {}, 'exploratory': {'sol61-high-fast': {'passes': 1}}})
-    assert 'sol61-high ⚡ | 1 |' in table
+    assert 'sol61-high ⚡ † | 1 |' in table
 
 
 def test_rescue_label_leaders_start_at_the_named_point():
@@ -137,3 +145,44 @@ def test_rescue_label_leaders_start_at_the_named_point():
             dx = float(lead.get('x1')) - float(circle.get('cx'))
             dy = float(lead.get('y1')) - float(circle.get('cy'))
             assert (dx * dx + dy * dy) ** .5 == pytest.approx(8, abs=.15)
+
+
+
+def test_winner_and_conclusion_agree_and_sets_are_collapsed(summary):
+    template = (ROOT / "docs/page.tmpl.md").read_text()
+    verdict = "Use sol61-high when Codex has quota. Use haiku-low when it does not; use haiku-high when a miss would be costly or you need speed."
+    assert template.count(verdict) == 2
+    assert '<details class="sets"><summary>' in page.sets_box(summary)
+    assert ' open' not in page.sets_box(summary).split('>')[0]
+    assert template.index('{{w_sets}}') > template.index('{{w_pass_cost}}')
+    assert page.method(summary)[0].count('L7 has') == 1
+    assert 'L7 has' not in page.sets_box(summary)
+    problems = page.method(summary)[0]
+    assert 'p01 overlap_minutes (L1)' in problems
+    first = problems.split('<li class="prow">', 1)[1].split('</li>', 1)[0]
+    assert first.index('p01 overlap_minutes (L1)') < first.index('class="lc medium"')
+
+
+def test_winner_verdict_and_luna_high_tradeoff(summary):
+    E = page.every(summary)
+    assert page.verdict('haiku-high', E['haiku-high'], report.need, E) == '★ pick: 0 misses, cheapest'
+    assert page.verdict('luna-high', E['luna-high'], report.need, E) == 'trade-off: costs more than luna-low, passes more'
+
+
+def test_rung_dip_labels_clear_series_and_breaking_line(summary):
+    svg = ET.fromstring(charts.rung_chart(summary))
+    segments = []
+    for series in svg.findall('s:polyline', NS):
+        points = [tuple(map(float, pair.split(','))) for pair in series.get('points').split()]
+        segments.extend(zip(points, points[1:]))
+    for line in svg.findall('s:line', NS):
+        if line.get('stroke') == 'var(--bad,#b3261e)':
+            segments.append(((float(line.get('x1')), float(line.get('y1'))),
+                             (float(line.get('x2')), float(line.get('y2')))))
+    for label in svg.findall('s:text[@class="dip-label"]', NS):
+        x, y = float(label.get('x')), float(label.get('y'))
+        width = len(label.text) * 6.6  # 11px monospace text
+        left = x - (width if label.get('text-anchor') == 'end' else width / 2 if label.get('text-anchor') == 'middle' else 0)
+        for (ax, ay), (bx, by) in segments:
+            assert not any(left < ax + (bx - ax) * k / 200 < left + width and
+                           y - 11 < ay + (by - ay) * k / 200 < y + 2 for k in range(201)), label.text

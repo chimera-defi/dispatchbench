@@ -80,6 +80,18 @@ def family(name):
     return "Claude" if name.split("-")[0] in ("haiku", "sonnet") or name.startswith("pipeline C") else "Codex"
 
 
+# Page names of the rescue-set rows (arms and baselines), shared by every chart and table.
+RESCUE_NAMES = {c: display(c) for c in ("luna-low", "luna-high-bare", "haiku-low", "haiku-medium", "haiku-high", "sonnet-medium", "sol61-medium",
+                                   "sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast", "sol56-high", "luna56-high", "luna56-low")}
+for builder in ("sol61-high", "astra-medium", "luna-low", "luna-high-bare"):
+    RESCUE_NAMES[builder + "+haiku-on-fail"] = display(builder) + " → Haiku if samples fail"
+    if builder + "-fast" in RESCUE_NAMES:
+        RESCUE_NAMES[builder + "-fast+haiku-on-fail"] = display(builder + "-fast") + " → Haiku if samples fail"
+RESCUE_NAMES.update({"haiku-low-plan+luna-low": "Haiku plan → luna-low", "haiku-low-plan+luna-high-bare": "Haiku plan → luna-high-bare",
+             "luna-high-bare+retry-on-fail": "luna-high-bare → retry if samples fail",
+             "luna-low+haiku-review-all": "luna-low → Haiku fixes all", "luna-high-bare+haiku-review-all": "luna-high-bare → Haiku fixes all"})
+
+
 def entry(source, name):
     """Registry entry plus derived fields: id, display, family, files."""
     e = REGISTRY[(source, name)]
