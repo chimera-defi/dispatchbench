@@ -52,7 +52,9 @@ def config_marker(c, x, y, col=None, k=1.0):
 def point_category(c):
     if "+" in c: return "pipelines"
     if c.endswith("-fast"): return "fast"
-    return "main" if configs.REGISTRY.get(("main", c), {}).get("category") == "main ladder" else "exploratory"
+    # Winner picks sit with the main ladder in chart filters, even ones added after the main run (haiku-high).
+    main = configs.REGISTRY.get(("main", c), {}).get("category") == "main ladder" or c in WINNER_PICKS
+    return "main" if main else "exploratory"
 
 
 def marker(kind, x, y, fill, stroke, dash=False, k=1.0):

@@ -628,7 +628,8 @@ def test_scatter_categories_follow_registry_and_shared_rescue_names(summary):
         if c.endswith('-fast'):
             assert page.point_category(c) == 'fast'
         else:
-            expected = 'main' if configs.REGISTRY['main', c]['category'] == 'main ladder' else 'exploratory'
+            main = configs.REGISTRY['main', c]['category'] == 'main ladder' or c in page.WINNER_PICKS
+            expected = 'main' if main else 'exploratory'
             assert page.point_category(c) == expected
     points = page.ladder_repairs(False, 'pass', page.rescue_arms(summary))
     assert {p['c'] for p in points} == set(page.NAME)
