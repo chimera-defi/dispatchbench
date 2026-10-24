@@ -54,6 +54,12 @@
    "p75_s": 18.74,
    "tokens_in_mean": 4446,
    "tokens_out_mean": 3309,
+   "by_rung": {
+    "L7": [
+     12,
+     15
+    ]
+   },
    "cost_kind": "measured"
   },
   {
@@ -89,6 +95,12 @@
    "p75_s": 25.2,
    "tokens_in_mean": 4366,
    "tokens_out_mean": 3694,
+   "by_rung": {
+    "L7": [
+     13,
+     15
+    ]
+   },
    "cost_kind": "measured"
   },
   {
@@ -121,6 +133,12 @@
    "p75_s": 21.41,
    "tokens_in_mean": 3667,
    "tokens_out_mean": 1424,
+   "by_rung": {
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "measured"
   },
   {
@@ -153,6 +171,12 @@
    "p75_s": 40.57,
    "tokens_in_mean": 15351,
    "tokens_out_mean": 968,
+   "by_rung": {
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -185,6 +209,28 @@
    "p75_s": 15.64,
    "tokens_in_mean": 4436,
    "tokens_out_mean": 1676,
+   "by_rung": {
+    "L1": [
+     2,
+     2
+    ],
+    "L2": [
+     2,
+     2
+    ],
+    "L3": [
+     2,
+     2
+    ],
+    "L4": [
+     2,
+     2
+    ],
+    "L5": [
+     2,
+     2
+    ]
+   },
    "cost_kind": "measured"
   },
   {
@@ -217,6 +263,28 @@
    "p75_s": 14.77,
    "tokens_in_mean": 3660,
    "tokens_out_mean": 777,
+   "by_rung": {
+    "L1": [
+     2,
+     2
+    ],
+    "L2": [
+     2,
+     2
+    ],
+    "L3": [
+     2,
+     2
+    ],
+    "L4": [
+     2,
+     2
+    ],
+    "L5": [
+     2,
+     2
+    ]
+   },
    "cost_kind": "measured"
   },
   {
@@ -249,6 +317,28 @@
    "p75_s": 31.17,
    "tokens_in_mean": 15340,
    "tokens_out_mean": 580,
+   "by_rung": {
+    "L1": [
+     2,
+     2
+    ],
+    "L2": [
+     2,
+     2
+    ],
+    "L3": [
+     2,
+     2
+    ],
+    "L4": [
+     2,
+     2
+    ],
+    "L5": [
+     2,
+     2
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -284,6 +374,32 @@
    "p75_s": 13.73,
    "tokens_in_mean": 4498,
    "tokens_out_mean": 1805,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     8,
+     10
+    ],
+    "L6": [
+     9,
+     10
+    ]
+   },
    "cost_kind": "measured"
   },
   {
@@ -319,6 +435,32 @@
    "p75_s": 17.21,
    "tokens_in_mean": 4497,
    "tokens_out_mean": 2620,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     9,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
    "cost_kind": "measured"
   },
   {
@@ -351,6 +493,32 @@
    "p75_s": 12.93,
    "tokens_in_mean": 3719,
    "tokens_out_mean": 964,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
    "cost_kind": "measured"
   },
   {
@@ -386,6 +554,32 @@
    "p75_s": 9.34,
    "tokens_in_mean": 14688,
    "tokens_out_mean": 514,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     6,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     9,
+     10
+    ],
+    "L5": [
+     7,
+     10
+    ],
+    "L6": [
+     4,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -421,6 +615,32 @@
    "p75_s": 10.31,
    "tokens_in_mean": 14688,
    "tokens_out_mean": 530,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     5,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     2,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -456,6 +676,32 @@
    "p75_s": 26.9,
    "tokens_in_mean": 15380,
    "tokens_out_mean": 718,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     8,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -488,6 +734,12 @@
    "p75_s": 33.65,
    "tokens_in_mean": 4368,
    "tokens_out_mean": 5236,
+   "by_rung": {
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "measured"
   },
   {
@@ -520,6 +772,12 @@
    "p75_s": 33.16,
    "tokens_in_mean": 14660,
    "tokens_out_mean": 2229,
+   "by_rung": {
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -555,6 +813,12 @@
    "p75_s": 17.76,
    "tokens_in_mean": 12947,
    "tokens_out_mean": 1419,
+   "by_rung": {
+    "L7": [
+     8,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -590,6 +854,12 @@
    "p75_s": 36.9,
    "tokens_in_mean": 12932,
    "tokens_out_mean": 3259,
+   "by_rung": {
+    "L7": [
+     9,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -625,6 +895,12 @@
    "p75_s": 48.78,
    "tokens_in_mean": 14469,
    "tokens_out_mean": 2103,
+   "by_rung": {
+    "L7": [
+     13,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -657,6 +933,12 @@
    "p75_s": 69.61,
    "tokens_in_mean": 15351,
    "tokens_out_mean": 1625,
+   "by_rung": {
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -689,6 +971,12 @@
    "p75_s": 44.58,
    "tokens_in_mean": 15287,
    "tokens_out_mean": 791,
+   "by_rung": {
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -721,6 +1009,24 @@
    "p75_s": 40.6,
    "tokens_in_mean": 15432,
    "tokens_out_mean": 1372,
+   "by_rung": {
+    "L2": [
+     10,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -753,6 +1059,32 @@
    "p75_s": 23.27,
    "tokens_in_mean": 4418,
    "tokens_out_mean": 4123,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
    "cost_kind": "measured"
   },
   {
@@ -788,6 +1120,32 @@
    "p75_s": 14.93,
    "tokens_in_mean": 14688,
    "tokens_out_mean": 1060,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     9,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     8,
+     10
+    ],
+    "L6": [
+     8,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -823,6 +1181,32 @@
    "p75_s": 8.06,
    "tokens_in_mean": 6144,
    "tokens_out_mean": 528,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     4,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     9,
+     10
+    ],
+    "L5": [
+     9,
+     10
+    ],
+    "L6": [
+     2,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -858,6 +1242,32 @@
    "p75_s": 13.73,
    "tokens_in_mean": 12965,
    "tokens_out_mean": 835,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     9,
+     10
+    ],
+    "L3": [
+     6,
+     10
+    ],
+    "L4": [
+     8,
+     10
+    ],
+    "L5": [
+     9,
+     10
+    ],
+    "L6": [
+     6,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -893,6 +1303,32 @@
    "p75_s": 25.93,
    "tokens_in_mean": 12962,
    "tokens_out_mean": 1693,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     9,
+     10
+    ],
+    "L3": [
+     9,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     8,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -925,6 +1361,32 @@
    "p75_s": 34.5,
    "tokens_in_mean": 14504,
    "tokens_out_mean": 1226,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -957,6 +1419,32 @@
    "p75_s": 41.53,
    "tokens_in_mean": 15380,
    "tokens_out_mean": 1081,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -989,6 +1477,32 @@
    "p75_s": 28.73,
    "tokens_in_mean": 15319,
    "tokens_out_mean": 639,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -1021,6 +1535,12 @@
    "p75_s": 32.86,
    "tokens_in_mean": 15351,
    "tokens_out_mean": 1465,
+   "by_rung": {
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -1053,6 +1573,12 @@
    "p75_s": 17.42,
    "tokens_in_mean": 15287,
    "tokens_out_mean": 775,
+   "by_rung": {
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -1085,6 +1611,32 @@
    "p75_s": 21.4,
    "tokens_in_mean": 15380,
    "tokens_out_mean": 1052,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -1117,6 +1669,32 @@
    "p75_s": 11.77,
    "tokens_in_mean": 15316,
    "tokens_out_mean": 646,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -1149,6 +1727,24 @@
    "p75_s": 58.11,
    "tokens_in_mean": 15433,
    "tokens_out_mean": 2509,
+   "by_rung": {
+    "L2": [
+     10,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -1184,6 +1780,7 @@
    "p75_s": 11.03,
    "tokens_in_mean": 6217,
    "tokens_out_mean": 787,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1219,6 +1816,7 @@
    "p75_s": 11.05,
    "tokens_in_mean": 6217,
    "tokens_out_mean": 777,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1254,6 +1852,7 @@
    "p75_s": 31.75,
    "tokens_in_mean": 81011,
    "tokens_out_mean": 2632,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1289,6 +1888,7 @@
    "p75_s": 10.3,
    "tokens_in_mean": 6196,
    "tokens_out_mean": 684,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1324,6 +1924,7 @@
    "p75_s": 15.87,
    "tokens_in_mean": 6196,
    "tokens_out_mean": 1188,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1356,6 +1957,7 @@
    "p75_s": 32.27,
    "tokens_in_mean": 20299,
    "tokens_out_mean": 4987,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1391,6 +1993,7 @@
    "p75_s": 26.84,
    "tokens_in_mean": 20328,
    "tokens_out_mean": 3273,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1426,6 +2029,7 @@
    "p75_s": 32.17,
    "tokens_in_mean": 11785,
    "tokens_out_mean": 3771,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1461,6 +2065,7 @@
    "p75_s": 12.5,
    "tokens_in_mean": 6632,
    "tokens_out_mean": 1534,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1496,6 +2101,7 @@
    "p75_s": 12.5,
    "tokens_in_mean": 6672,
    "tokens_out_mean": 1255,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1531,6 +2137,7 @@
    "p75_s": 17.47,
    "tokens_in_mean": 17326,
    "tokens_out_mean": 2538,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1563,6 +2170,7 @@
    "p75_s": 25.76,
    "tokens_in_mean": 15369,
    "tokens_out_mean": 851,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1595,6 +2203,7 @@
    "p75_s": 39.74,
    "tokens_in_mean": 15432,
    "tokens_out_mean": 1430,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1627,6 +2236,7 @@
    "p75_s": 30.24,
    "tokens_in_mean": 11689,
    "tokens_out_mean": 4237,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1662,6 +2272,7 @@
    "p75_s": 27.16,
    "tokens_in_mean": 20760,
    "tokens_out_mean": 4709,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1694,6 +2305,7 @@
    "p75_s": 38.06,
    "tokens_in_mean": 61533,
    "tokens_out_mean": 5122,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -1726,6 +2338,7 @@
    "p75_s": 101.36,
    "tokens_in_mean": 170728,
    "tokens_out_mean": 13533,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -1758,6 +2371,7 @@
    "p75_s": 36.06,
    "tokens_in_mean": 29728,
    "tokens_out_mean": 2611,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -1790,6 +2404,7 @@
    "p75_s": 43.57,
    "tokens_in_mean": 150943,
    "tokens_out_mean": 2269,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1822,6 +2437,7 @@
    "p75_s": 117.89,
    "tokens_in_mean": 162787,
    "tokens_out_mean": 2901,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1854,6 +2470,7 @@
    "p75_s": 130.41,
    "tokens_in_mean": 213735,
    "tokens_out_mean": 4090,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1886,6 +2503,7 @@
    "p75_s": 97.58,
    "tokens_in_mean": 160564,
    "tokens_out_mean": 2481,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1918,6 +2536,7 @@
    "p75_s": 5.53,
    "tokens_in_mean": 14406,
    "tokens_out_mean": 133,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1950,6 +2569,7 @@
    "p75_s": 6.0,
    "tokens_in_mean": 9945,
    "tokens_out_mean": 132,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -1982,6 +2602,7 @@
    "p75_s": 4.12,
    "tokens_in_mean": 5860,
    "tokens_out_mean": 132,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2014,6 +2635,7 @@
    "p75_s": 6.48,
    "tokens_in_mean": 6485,
    "tokens_out_mean": 98,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2046,6 +2668,7 @@
    "p75_s": 7.0,
    "tokens_in_mean": 14210,
    "tokens_out_mean": 98,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2078,6 +2701,7 @@
    "p75_s": 5.88,
    "tokens_in_mean": 14389,
    "tokens_out_mean": 98,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2110,6 +2734,7 @@
    "p75_s": 6.69,
    "tokens_in_mean": 14214,
    "tokens_out_mean": 129,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2142,6 +2767,7 @@
    "p75_s": 6.02,
    "tokens_in_mean": 9484,
    "tokens_out_mean": 128,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2174,6 +2800,7 @@
    "p75_s": 8.66,
    "tokens_in_mean": 5303,
    "tokens_out_mean": 127,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2206,6 +2833,7 @@
    "p75_s": 4.81,
    "tokens_in_mean": 5928,
    "tokens_out_mean": 84,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2238,6 +2866,7 @@
    "p75_s": 5.13,
    "tokens_in_mean": 14020,
    "tokens_out_mean": 84,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2270,6 +2899,7 @@
    "p75_s": 4.87,
    "tokens_in_mean": 14197,
    "tokens_out_mean": 84,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2302,6 +2932,7 @@
    "p75_s": 5.41,
    "tokens_in_mean": 4114,
    "tokens_out_mean": 186,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -2334,6 +2965,7 @@
    "p75_s": 5.37,
    "tokens_in_mean": 5032,
    "tokens_out_mean": 198,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -2366,6 +2998,7 @@
    "p75_s": 6.02,
    "tokens_in_mean": 5620,
    "tokens_out_mean": 220,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -2398,6 +3031,7 @@
    "p75_s": 6.18,
    "tokens_in_mean": 5123,
    "tokens_out_mean": 178,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -2430,6 +3064,7 @@
    "p75_s": 6.42,
    "tokens_in_mean": 4059,
    "tokens_out_mean": 198,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -2462,6 +3097,7 @@
    "p75_s": 7.3,
    "tokens_in_mean": 37845,
    "tokens_out_mean": 188,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -2494,6 +3130,7 @@
    "p75_s": 10.83,
    "tokens_in_mean": 37074,
    "tokens_out_mean": 182,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -2526,6 +3163,7 @@
    "p75_s": 5.33,
    "tokens_in_mean": 28079,
    "tokens_out_mean": 129,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2558,6 +3196,7 @@
    "p75_s": 5.66,
    "tokens_in_mean": 28279,
    "tokens_out_mean": 134,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2590,6 +3229,7 @@
    "p75_s": 8.15,
    "tokens_in_mean": 24450,
    "tokens_out_mean": 136,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2622,6 +3262,7 @@
    "p75_s": 5.84,
    "tokens_in_mean": 14523,
    "tokens_out_mean": 126,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2654,6 +3295,7 @@
    "p75_s": 6.17,
    "tokens_in_mean": 24361,
    "tokens_out_mean": 132,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2686,6 +3328,7 @@
    "p75_s": 5.81,
    "tokens_in_mean": 23740,
    "tokens_out_mean": 150,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2718,6 +3361,7 @@
    "p75_s": 6.63,
    "tokens_in_mean": 23733,
    "tokens_out_mean": 132,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2750,6 +3394,7 @@
    "p75_s": 5.98,
    "tokens_in_mean": 23702,
    "tokens_out_mean": 169,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2782,6 +3427,7 @@
    "p75_s": 6.66,
    "tokens_in_mean": 23543,
    "tokens_out_mean": 126,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2814,6 +3460,7 @@
    "p75_s": 5.06,
    "tokens_in_mean": 23912,
    "tokens_out_mean": 132,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2846,6 +3493,7 @@
    "p75_s": 5.89,
    "tokens_in_mean": 28280,
    "tokens_out_mean": 130,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2878,6 +3526,7 @@
    "p75_s": 7.8,
    "tokens_in_mean": 28280,
    "tokens_out_mean": 134,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2910,6 +3559,7 @@
    "p75_s": 76.14,
    "tokens_in_mean": 100980,
    "tokens_out_mean": 1674,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2942,6 +3592,7 @@
    "p75_s": 20.74,
    "tokens_in_mean": 136182,
    "tokens_out_mean": 1687,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -2974,6 +3625,7 @@
    "p75_s": 32.01,
    "tokens_in_mean": 115018,
    "tokens_out_mean": 1866,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -3009,6 +3661,36 @@
    "p75_s": 15.51,
    "tokens_in_mean": 4481,
    "tokens_out_mean": 2055,
+   "by_rung": {
+    "L1": [
+     12,
+     12
+    ],
+    "L2": [
+     12,
+     12
+    ],
+    "L3": [
+     12,
+     12
+    ],
+    "L4": [
+     12,
+     12
+    ],
+    "L5": [
+     10,
+     12
+    ],
+    "L6": [
+     9,
+     10
+    ],
+    "L7": [
+     12,
+     15
+    ]
+   },
    "cost_kind": "measured"
   },
   {
@@ -3044,6 +3726,36 @@
    "p75_s": 19.56,
    "tokens_in_mean": 4471,
    "tokens_out_mean": 2835,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     9,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ],
+    "L7": [
+     13,
+     15
+    ]
+   },
    "cost_kind": "measured"
   },
   {
@@ -3076,6 +3788,36 @@
    "p75_s": 14.85,
    "tokens_in_mean": 3703,
    "tokens_out_mean": 1023,
+   "by_rung": {
+    "L1": [
+     12,
+     12
+    ],
+    "L2": [
+     12,
+     12
+    ],
+    "L3": [
+     12,
+     12
+    ],
+    "L4": [
+     12,
+     12
+    ],
+    "L5": [
+     12,
+     12
+    ],
+    "L6": [
+     10,
+     10
+    ],
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "measured"
   },
   {
@@ -3111,6 +3853,32 @@
    "p75_s": 9.34,
    "tokens_in_mean": 14688,
    "tokens_out_mean": 514,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     6,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     9,
+     10
+    ],
+    "L5": [
+     7,
+     10
+    ],
+    "L6": [
+     4,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -3146,6 +3914,32 @@
    "p75_s": 10.31,
    "tokens_in_mean": 14688,
    "tokens_out_mean": 530,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     5,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     2,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -3181,6 +3975,36 @@
    "p75_s": 30.67,
    "tokens_in_mean": 15370,
    "tokens_out_mean": 746,
+   "by_rung": {
+    "L1": [
+     12,
+     12
+    ],
+    "L2": [
+     12,
+     12
+    ],
+    "L3": [
+     12,
+     12
+    ],
+    "L4": [
+     12,
+     12
+    ],
+    "L5": [
+     12,
+     12
+    ],
+    "L6": [
+     8,
+     10
+    ],
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -3213,6 +4037,36 @@
    "p75_s": 27.53,
    "tokens_in_mean": 4408,
    "tokens_out_mean": 4346,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ],
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "measured"
   },
   {
@@ -3248,6 +4102,36 @@
    "p75_s": 21.78,
    "tokens_in_mean": 14682,
    "tokens_out_mean": 1294,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     9,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     8,
+     10
+    ],
+    "L6": [
+     8,
+     10
+    ],
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -3283,6 +4167,32 @@
    "p75_s": 8.06,
    "tokens_in_mean": 6144,
    "tokens_out_mean": 528,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     4,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     9,
+     10
+    ],
+    "L5": [
+     9,
+     10
+    ],
+    "L6": [
+     2,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -3318,6 +4228,36 @@
    "p75_s": 13.89,
    "tokens_in_mean": 12962,
    "tokens_out_mean": 951,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     9,
+     10
+    ],
+    "L3": [
+     6,
+     10
+    ],
+    "L4": [
+     8,
+     10
+    ],
+    "L5": [
+     9,
+     10
+    ],
+    "L6": [
+     6,
+     10
+    ],
+    "L7": [
+     8,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -3353,6 +4293,36 @@
    "p75_s": 29.32,
    "tokens_in_mean": 12956,
    "tokens_out_mean": 2006,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     9,
+     10
+    ],
+    "L3": [
+     9,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     8,
+     10
+    ],
+    "L7": [
+     9,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -3388,6 +4358,36 @@
    "p75_s": 40.36,
    "tokens_in_mean": 14497,
    "tokens_out_mean": 1402,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ],
+    "L7": [
+     13,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -3420,6 +4420,36 @@
    "p75_s": 43.94,
    "tokens_in_mean": 15393,
    "tokens_out_mean": 1248,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     20,
+     20
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     15,
+     15
+    ],
+    "L5": [
+     20,
+     20
+    ],
+    "L6": [
+     20,
+     20
+    ],
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -3452,6 +4482,36 @@
    "p75_s": 30.63,
    "tokens_in_mean": 15313,
    "tokens_out_mean": 669,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ],
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -3484,6 +4544,36 @@
    "p75_s": 25.4,
    "tokens_in_mean": 15374,
    "tokens_out_mean": 1135,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ],
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -3516,6 +4606,36 @@
    "p75_s": 12.74,
    "tokens_in_mean": 15310,
    "tokens_out_mean": 672,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ],
+    "L7": [
+     15,
+     15
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -3548,6 +4668,24 @@
    "p75_s": 58.11,
    "tokens_in_mean": 15433,
    "tokens_out_mean": 2509,
+   "by_rung": {
+    "L2": [
+     10,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
    "cost_kind": "proxy"
   },
   {
@@ -3583,6 +4721,7 @@
    "p75_s": 11.03,
    "tokens_in_mean": 6217,
    "tokens_out_mean": 787,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -3618,6 +4757,7 @@
    "p75_s": 11.05,
    "tokens_in_mean": 6217,
    "tokens_out_mean": 777,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -3653,6 +4793,7 @@
    "p75_s": 31.75,
    "tokens_in_mean": 81011,
    "tokens_out_mean": 2632,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -3688,6 +4829,7 @@
    "p75_s": 10.3,
    "tokens_in_mean": 6196,
    "tokens_out_mean": 684,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -3723,6 +4865,7 @@
    "p75_s": 15.87,
    "tokens_in_mean": 6196,
    "tokens_out_mean": 1188,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -3755,6 +4898,7 @@
    "p75_s": 32.27,
    "tokens_in_mean": 20299,
    "tokens_out_mean": 4987,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -3790,6 +4934,7 @@
    "p75_s": 26.84,
    "tokens_in_mean": 20328,
    "tokens_out_mean": 3273,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -3825,6 +4970,7 @@
    "p75_s": 32.17,
    "tokens_in_mean": 11785,
    "tokens_out_mean": 3771,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -3860,6 +5006,7 @@
    "p75_s": 12.5,
    "tokens_in_mean": 6632,
    "tokens_out_mean": 1534,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -3895,6 +5042,7 @@
    "p75_s": 12.5,
    "tokens_in_mean": 6672,
    "tokens_out_mean": 1255,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -3930,6 +5078,7 @@
    "p75_s": 17.47,
    "tokens_in_mean": 17326,
    "tokens_out_mean": 2538,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -3962,6 +5111,7 @@
    "p75_s": 25.76,
    "tokens_in_mean": 15369,
    "tokens_out_mean": 851,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -3994,6 +5144,7 @@
    "p75_s": 39.74,
    "tokens_in_mean": 15432,
    "tokens_out_mean": 1430,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4026,6 +5177,7 @@
    "p75_s": 30.24,
    "tokens_in_mean": 11689,
    "tokens_out_mean": 4237,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4061,6 +5213,7 @@
    "p75_s": 27.16,
    "tokens_in_mean": 20760,
    "tokens_out_mean": 4709,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4093,6 +5246,7 @@
    "p75_s": 38.06,
    "tokens_in_mean": 61533,
    "tokens_out_mean": 5122,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -4125,6 +5279,7 @@
    "p75_s": 101.36,
    "tokens_in_mean": 170728,
    "tokens_out_mean": 13533,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -4157,6 +5312,7 @@
    "p75_s": 36.06,
    "tokens_in_mean": 29728,
    "tokens_out_mean": 2611,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -4189,6 +5345,7 @@
    "p75_s": 43.57,
    "tokens_in_mean": 150943,
    "tokens_out_mean": 2269,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4221,6 +5378,7 @@
    "p75_s": 117.89,
    "tokens_in_mean": 162787,
    "tokens_out_mean": 2901,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4253,6 +5411,7 @@
    "p75_s": 130.41,
    "tokens_in_mean": 213735,
    "tokens_out_mean": 4090,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4285,6 +5444,7 @@
    "p75_s": 97.58,
    "tokens_in_mean": 160564,
    "tokens_out_mean": 2481,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4317,6 +5477,7 @@
    "p75_s": 5.53,
    "tokens_in_mean": 14406,
    "tokens_out_mean": 133,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4349,6 +5510,7 @@
    "p75_s": 6.0,
    "tokens_in_mean": 9945,
    "tokens_out_mean": 132,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4381,6 +5543,7 @@
    "p75_s": 4.12,
    "tokens_in_mean": 5860,
    "tokens_out_mean": 132,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4413,6 +5576,7 @@
    "p75_s": 6.48,
    "tokens_in_mean": 6485,
    "tokens_out_mean": 98,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4445,6 +5609,7 @@
    "p75_s": 7.0,
    "tokens_in_mean": 14210,
    "tokens_out_mean": 98,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4477,6 +5642,7 @@
    "p75_s": 5.88,
    "tokens_in_mean": 14389,
    "tokens_out_mean": 98,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4509,6 +5675,7 @@
    "p75_s": 6.69,
    "tokens_in_mean": 14214,
    "tokens_out_mean": 129,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4541,6 +5708,7 @@
    "p75_s": 6.02,
    "tokens_in_mean": 9484,
    "tokens_out_mean": 128,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4573,6 +5741,7 @@
    "p75_s": 8.66,
    "tokens_in_mean": 5303,
    "tokens_out_mean": 127,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4605,6 +5774,7 @@
    "p75_s": 4.81,
    "tokens_in_mean": 5928,
    "tokens_out_mean": 84,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4637,6 +5807,7 @@
    "p75_s": 5.13,
    "tokens_in_mean": 14020,
    "tokens_out_mean": 84,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4669,6 +5840,7 @@
    "p75_s": 4.87,
    "tokens_in_mean": 14197,
    "tokens_out_mean": 84,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4701,6 +5873,7 @@
    "p75_s": 5.41,
    "tokens_in_mean": 4114,
    "tokens_out_mean": 186,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -4733,6 +5906,7 @@
    "p75_s": 5.37,
    "tokens_in_mean": 5032,
    "tokens_out_mean": 198,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -4765,6 +5939,7 @@
    "p75_s": 6.02,
    "tokens_in_mean": 5620,
    "tokens_out_mean": 220,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -4797,6 +5972,7 @@
    "p75_s": 6.18,
    "tokens_in_mean": 5123,
    "tokens_out_mean": 178,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -4829,6 +6005,7 @@
    "p75_s": 6.42,
    "tokens_in_mean": 4059,
    "tokens_out_mean": 198,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -4861,6 +6038,7 @@
    "p75_s": 7.3,
    "tokens_in_mean": 37845,
    "tokens_out_mean": 188,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -4893,6 +6071,7 @@
    "p75_s": 10.83,
    "tokens_in_mean": 37074,
    "tokens_out_mean": 182,
+   "by_rung": {},
    "cost_kind": "measured"
   },
   {
@@ -4925,6 +6104,7 @@
    "p75_s": 5.33,
    "tokens_in_mean": 28079,
    "tokens_out_mean": 129,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4957,6 +6137,7 @@
    "p75_s": 5.66,
    "tokens_in_mean": 28279,
    "tokens_out_mean": 134,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -4989,6 +6170,7 @@
    "p75_s": 8.15,
    "tokens_in_mean": 24450,
    "tokens_out_mean": 136,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -5021,6 +6203,7 @@
    "p75_s": 5.84,
    "tokens_in_mean": 14523,
    "tokens_out_mean": 126,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -5053,6 +6236,7 @@
    "p75_s": 6.17,
    "tokens_in_mean": 24361,
    "tokens_out_mean": 132,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -5085,6 +6269,7 @@
    "p75_s": 5.81,
    "tokens_in_mean": 23740,
    "tokens_out_mean": 150,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -5117,6 +6302,7 @@
    "p75_s": 6.63,
    "tokens_in_mean": 23733,
    "tokens_out_mean": 132,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -5149,6 +6335,7 @@
    "p75_s": 5.98,
    "tokens_in_mean": 23702,
    "tokens_out_mean": 169,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -5181,6 +6368,7 @@
    "p75_s": 6.66,
    "tokens_in_mean": 23543,
    "tokens_out_mean": 126,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -5213,6 +6401,7 @@
    "p75_s": 5.06,
    "tokens_in_mean": 23912,
    "tokens_out_mean": 132,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -5245,6 +6434,7 @@
    "p75_s": 5.89,
    "tokens_in_mean": 28280,
    "tokens_out_mean": 130,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -5277,6 +6467,7 @@
    "p75_s": 7.8,
    "tokens_in_mean": 28280,
    "tokens_out_mean": 134,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -5309,6 +6500,7 @@
    "p75_s": 76.14,
    "tokens_in_mean": 100980,
    "tokens_out_mean": 1674,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -5341,6 +6533,7 @@
    "p75_s": 20.74,
    "tokens_in_mean": 136182,
    "tokens_out_mean": 1687,
+   "by_rung": {},
    "cost_kind": "proxy"
   },
   {
@@ -5373,6 +6566,7 @@
    "p75_s": 32.01,
    "tokens_in_mean": 115018,
    "tokens_out_mean": 1866,
+   "by_rung": {},
    "cost_kind": "measured"
   }
  ]

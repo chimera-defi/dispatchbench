@@ -145,6 +145,8 @@ tr.grp th::after{content:none}
 .svgscroll{max-width:100%;overflow-x:auto}
 @media (max-width:640px){
  .extras figure .svgscroll svg{min-width:max(760px,var(--natural-width,760px))}
+ .extras figure .svgscroll svg.rung{min-width:0} /* the rung table is drawn for phone width already */
+ .extras figure svg text{font-size:16px}
 }
 .grid .set-separator{font-weight:700;text-align:left;background:var(--line)}
 .notes .tablewrap th{letter-spacing:0;font-size:11px}

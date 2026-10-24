@@ -13,7 +13,7 @@ Sets (mutually exclusive; every row lands in exactly one, or this module raises)
   pilot, pilot repo task, trim probe, harness bias   one set per file
 Columns: id, source, config, display, family, category, what, set, passes, n, pass_rate, ci95, usd_per_pass, claude_usd_per_pass,
 codex_usd_per_pass, usd_per_call, spend, spend_claude, spend_codex, unknown_usd, median_s, p25_s, p75_s, tokens_in_mean, tokens_out_mean,
-cost_kind, groups (problems or tasks). No model calls. Run: python3 -m analysis.dataset"""
+cost_kind, by_rung ({L1: [passed, n]}), groups (problems or tasks). No model calls. Run: python3 -m analysis.dataset"""
 import json, os, statistics
 from collections import defaultdict
 
@@ -55,7 +55,7 @@ def _rows():
     """[(source, name, set, row dict with _usd/_claude/_pass/_sec/_group)] from every results file."""
     out = []
     def add(src, name, st, r, ok, sec, group, usd, tin, tout):
-        out.append((src, name, st, {"ok": bool(ok), "sec": sec, "group": group, "usd": usd, "claude": _claude(r, src, usd), "in": tin, "out": tout, "cli": r.get("cli", r.get("builder_kind", ""))}))
+        out.append((src, name, st, {"ok": bool(ok), "sec": sec, "group": group, "usd": usd, "claude": _claude(r, src, usd), "in": tin, "out": tout, "cli": r.get("cli", r.get("builder_kind", "")), "rung": r.get("rung")}))
     func = [r for r in load(os.path.join(RES, configs.SOURCES["main"][0])) if r["phase"] != "warmup"]
     cover = defaultdict(set)
     for r in func:
@@ -96,6 +96,9 @@ def _row(src, name, st, rr):
     for x in rr: cells[x["group"]].append(1 if x["ok"] else 0)
     ci = None
     if len(cells) > 1 and 0 < k < n: _, lo, hi = stats.hier_boot(dict(cells)); ci = [round(lo, 4), round(hi, 4)]
+    by_rung = {}
+    for x in rr:
+        if x["rung"] is not None: g = by_rung.setdefault(f"L{x['rung']}", [0, 0]); g[0] += x["ok"]; g[1] += 1
     p25, p75 = _quart(secs)
     spend = sum(known); sc = sum(cl)
     return {"id": e["id"], "source": src, "config": name, "display": e["display"], "family": e["family"], "category": e["category"], "what": e["what"], "set": st, "files": e["files"],
@@ -105,7 +108,7 @@ def _row(src, name, st, rr):
             "spend": round(spend, 6), "spend_claude": round(sc, 6), "spend_codex": round(spend - sc, 6), "unknown_usd": n - len(known),
             "median_s": round(statistics.median(secs), 2), "p25_s": round(p25, 2), "p75_s": round(p75, 2),
             "tokens_in_mean": round(statistics.mean(x["in"] or 0 for x in rr)), "tokens_out_mean": round(statistics.mean(x["out"] or 0 for x in rr)),
-            "cost_kind": "measured" if rr[0]["cli"].startswith("claude") else "proxy"}
+            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "measured" if rr[0]["cli"].startswith("claude") else "proxy"}
 
 
 def build():

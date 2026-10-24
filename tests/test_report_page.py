@@ -32,18 +32,13 @@ def test_speed_whiskers_fit_axis_even_with_a_slower_config(summary, monkeypatch)
     assert seen and min(seen) >= 84 and max(seen) <= 544
 
 
-def test_rung_series_have_distinct_keys_above_the_plot(summary):
+def test_rung_table_names_every_config_and_rung(summary):
     svg = ET.fromstring(charts.rung_chart(summary))
-    series = svg.findall("s:polyline", NS)
-    assert len({e.get("stroke-dasharray") for e in series}) == len(series)
-    keys = svg.findall("s:line[@class='rung-key']", NS)
-    assert len(keys) == len(series)
-    top = min(float(p.split(',')[1]) for e in series for p in e.get('points').split())
-    assert max(float(e.get('y1')) for e in keys) < top
-    labels = {e.text: e for e in svg.findall("s:text", NS)}
-    for c in ("astra-medium", "astra-medium-fast"):
-        label = labels[page.DISP(c)]
-        assert float(label.get("x")) + len(label.text) * 6.6 < 760
+    words = {e.text for e in svg.findall("s:text", NS)}
+    ex = summary.get("exploratory") or {}
+    shown = list(summary["configs"]) + [c for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex]
+    assert {page.DISP(c) for c in shown} <= words
+    assert {g for c in summary["configs"].values() for g in c["by_rung"]} <= words
 
 
 def test_agentic_leaders_stop_before_all_label_boxes(summary):
@@ -96,15 +91,6 @@ def test_rescue_triangle_labels_lead_to_their_own_points():
         assert 'luna-high-bare→retry' in labels
         assert 'luna-low→H fail' in labels
         assert svg.findall("s:line[@class='label-leader']", NS)
-
-
-def test_rung_points_explain_per_problem_passes(summary):
-    svg = ET.fromstring(charts.rung_chart(summary))
-    titles = [e.text for e in svg.findall('.//s:title', NS)]
-    assert any('haiku-low' in t and 'p11' in t and '/5' in t for t in titles)
-    labels = [e for e in svg.findall('s:text', NS) if e.get('class') == 'dip-label']
-    assert labels
-    assert len({e.tag for e in svg.findall('.//*[@class="rung-marker"]')}) >= 3
 
 
 def test_marker_styles_distinguish_fast_generation_and_luna_variants():

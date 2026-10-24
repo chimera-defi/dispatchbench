@@ -1,5 +1,5 @@
 """Draw the report charts as plain SVG from results/summary.json. Standard library only; no model calls."""
-import json, math, os
+import json, math, os, re
 from analysis import dataset
 from analysis.labels import DISP, TESTS, plabel
 from xml.sax.saxutils import escape
@@ -9,6 +9,7 @@ OUT = os.path.join(ROOT, "results", "report", "charts")
 FONT = "font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, sans-serif'"
 INK, MUTED, GRID, PLATE = "var(--fg,#1d2321)", "var(--muted,#5d6763)", "var(--line,#dde2de)", "var(--panel,#ffffff)"
 HOST_AGENTS_MD = "1.3k"  # tokens of the host's ~/.codex/AGENTS.md, measured once by hand (bytes / 4); not in the result rows
+BADC, WARNC = "var(--bad,#b3261e)", "var(--warn,#a86b00)"
 FAMILY = lambda c: "var(--claude,#b4572e)" if c.startswith("haiku") else "var(--sonnet,#2f8f7d)" if c.startswith("sonnet") else "var(--codex,#3a5bb8)"
 
 
@@ -119,66 +120,46 @@ def cost_time_chart(s):
     return svg(W, H, b)
 
 
-def rung_chart(s):
-    from analysis.page import config_marker, place
-    ex = s.get("exploratory") or {}
-    cfg = {**s["configs"], **{c: ex[c] for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex}}
-    rungs = sorted({g for v in cfg.values() for g in v["by_rung"]}, key=lambda g: int(g[1:]))
-    W, H, L, R, T, B = 760, 650, 72, 220, 200, 72
-    X = lambda i: L + i / max(1, len(rungs) - 1) * (W - L - R)
-    Y = lambda p: H - B - p * (H - T - B)
-    b = [text(L, 24, "Pass rate by difficulty rung (main ladder p01-p12)", 14, weight="600"),
-         text(L, 46, "L7 excluded. Solid = normal speed; hollow = fast mode. Hover a point for per-problem passes.", 11, fill=MUTED)]
-    patterns = ("none", "8 3", "2 3", "8 3 2 3", "12 4", "4 2 1 2", "12 3 2 3", "2 2 2 5", "10 2 4 2", "1 4")
-    dashes = {c: patterns[k] if k < len(patterns) else f"{k + 3} 2 1 4" for k, c in enumerate(cfg)}
-    # The key precedes the plot; each entry repeats the series dash and model marker.
-    for k, c in enumerate(cfg):
-        x, y = L + (k % 3) * 220, 72 + (k // 3) * 25
-        b.append(f"<line class='rung-key' x1='{x}' x2='{x + 24}' y1='{y}' y2='{y}' stroke='{FAMILY(c)}' stroke-width='2' stroke-dasharray='{dashes[c]}'/>")
-        b.append(config_marker(c, x + 12, y, FAMILY(c), .55))
-        b.append(text(x + 31, y + 4, DISP(c), 11, fill=FAMILY(c)))
-    for rate in (0, 0.2, 0.4, 0.6, 0.8, 1.0):
-        b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(rate):.1f}' y2='{Y(rate):.1f}' stroke='{GRID}'/>",
-              text(L - 8, Y(rate) + 4, f"{100 * rate:.0f}%", 11, "end", MUTED)]
-    b.append(f"<line x1='{L}' x2='{W - R}' y1='{Y(0.4):.1f}' y2='{Y(0.4):.1f}' stroke='var(--bad,#b3261e)' stroke-dasharray='4 3'/>")
-    b.append(text(L + 6, Y(0.4) - 6, "breaking point (≤ 40%)", 11, fill="var(--bad,#b3261e)"))
+def rung_rows(s, ds=None):
+    """The one place the rung chart reads data: ({config: {rung 'L1': (passed, n)}}, rungs L1..L6 in order). Reads the dataset's main-ladder set."""
+    ds = ds or dataset.read(); ex = s.get("exploratory") or {}
+    keep = list(s["configs"]) + [c for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex]  # fast mode beside its default tier
+    by = {r["config"]: r["by_rung"] for r in ds["rows"] if r["source"] == "main" and r["set"] == "main ladder"}
+    rows = {c: {g: tuple(v) for g, v in by[c].items()} for c in keep}
+    return rows, sorted({g for r in rows.values() for g in r}, key=lambda g: int(g[1:]))
+
+
+def rung_chart(s, ds=None):
+    """Heat table, one row per config (family shape + colour + name, grouped by family), one column per rung L1-L6;
+    each cell is passes out of the attempts on that rung. Perfect cells stay plain, so the misses stand out."""
+    from analysis.page import ORDER, SHAPE, marker  # lazy: page imports this module
+    cfg, rungs = rung_rows(s, ds)
+    names = sorted(cfg, key=lambda c: ORDER.index(c) if c in ORDER else len(ORDER))
+    W, L, T, cw, rh = 560, 190, 96, 58, 30
+    H = T + rh * len(names) + 40
+    probs = {g: " ".join(q[:3] for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g) for g in rungs}
+    b = [text(12, 24, "Pass rate by difficulty rung (main ladder p01-p12)", 15, weight="600"),
+         text(12, 46, "Passes per rung. Tinted = a miss. L7 excluded.", 11, fill=MUTED)]
     for i, g in enumerate(rungs):
-        b.append(text(X(i), H - B + 18, g, 11, "middle", MUTED))
-        b.append(text(X(i), H - B + 34, " ".join(q[:3] for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g), 11, "middle", MUTED))
-    b.append(text((L + W - R) / 2, H - 8, "rung (L1 easiest; problems listed underneath)", 12, "middle", MUTED))
-    dots = []
-    walls = [(L, Y(.4) - 3, W - R, Y(.4) + 3),
-             (L + 6, Y(.4) - 20, L + 180, Y(.4) - 3)]
-    for k, (c, v) in enumerate(cfg.items()):
-        off = (k - (len(cfg) - 1) / 2) * 2.5
-        pts = []
+        x = L + i * cw + cw / 2
+        b += [text(x, T - 22, g, 14, "middle", INK, "600"), text(x, T - 8, probs[g], 9, "middle", MUTED)]
+    for r, c in enumerate(names):
+        y = T + r * rh; col = FAMILY(c)
+        b.append(f"<line x1='8' x2='{L + len(rungs) * cw}' y1='{y}' y2='{y}' stroke='{GRID}'/>")
+        b.append(marker(SHAPE(c), 22, y + rh / 2, col, col, k=0.8))
+        b.append(text(40, y + rh / 2 + 5, DISP(c), 14, fill=col, weight="600"))
         for i, g in enumerate(rungs):
-            if g not in v["by_rung"]: continue
-            z = v["by_rung"][g]; rate = z["passed"] / z["n"]
-            px, py = X(i) + off, Y(rate); pts.append((px, py))
-            probs = [q for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g]
-            detail = ", ".join(f"{q[:3]}: {(v.get('by_problem') or {}).get(q, s['problems'][q].get(c))}/{v['n'] // len(s['problems'])}" for q in probs)
-            title = f"{DISP(c)}, {g}: {z['passed']}/{z['n']} passed; {detail}"
-            mark = config_marker(c, px, py, FAMILY(c), .6).replace(" ", ' class="rung-marker" ', 1)
-            b.append(f"<g><title>{escape(title)}</title>{mark}</g>")
-            dots.append(dict(c=f"{c}/{g}", name=f"{DISP(c)} {z['passed']}/{z['n']}", x=px, y=py, on=False, dip=rate < 1))
-        # Thin boxes follow each segment instead of blocking its entire diagonal bounds.
-        for (ax, ay), (bx, by) in zip(pts, pts[1:]):
-            steps = max(1, math.ceil(math.hypot(bx - ax, by - ay) / 6))
-            for j in range(steps):
-                x0, y0 = ax + (bx - ax) * j / steps, ay + (by - ay) * j / steps
-                x1, y1 = ax + (bx - ax) * (j + 1) / steps, ay + (by - ay) * (j + 1) / steps
-                walls.append((min(x0, x1) - 2, min(y0, y1) - 2, max(x0, x1) + 2, max(y0, y1) + 2))
-        # Lines behind markers, without hiding each point's hover title.
-        b.insert(0, f"<polyline points='{' '.join(f'{x:.1f},{y:.1f}' for x, y in pts)}' fill='none' stroke='{FAMILY(c)}' stroke-width='2' stroke-dasharray='{dashes[c]}'/>")
-    for p, (x, y, anchor) in place([p for p in dots if p["dip"]], lambda v: v, lambda v: v,
-                                   {p["c"]: (14, -14, "start") for p in dots if p["c"].endswith("/L6")},
-                                   (L - 20, W - 10, T - 28, H - B - 4), walls=walls, also=dots, char_width=6.6, label_height=15):
-        if p["lead"]:
-            a, b0, c, d = p["lead"]
-            b.append(f"<line x1='{a:.1f}' y1='{b0:.1f}' x2='{c:.1f}' y2='{d:.1f}' stroke='{MUTED}'/>")
-        b.append(text(x, y, p["name"], 11, anchor).replace("<text ", "<text class='dip-label' ", 1))
-    return svg(W, H, b)
+            v = cfg[c].get(g); x = L + i * cw
+            if not v: b.append(text(x + cw / 2, y + rh / 2 + 5, "-", 13, "middle", MUTED)); continue
+            k, n = v
+            tint = "" if k == n else f"<rect x='{x + 2}' y='{y + 2}' width='{cw - 4}' height='{rh - 4}' rx='3' style='fill:{BADC if k / n <= 0.4 else WARNC}' fill-opacity='0.3'/>"
+            b.append(f"<g><title>{escape(DISP(c))} on {g}: {k} of {n} passed</title>{tint}"
+                     + text(x + cw / 2, y + rh / 2 + 5, f"{k}/{n}", 13, "middle", INK, "normal" if k == n else "700") + "</g>")
+    yb = T + rh * len(names)
+    b.append(f"<line x1='8' x2='{L + len(rungs) * cw}' y1='{yb}' y2='{yb}' stroke='{GRID}'/>")
+    b.append(text(12, yb + 24, "Rung L1 is easiest. Red tint: 40% or less, the breaking point.", 11, fill=MUTED))
+    out = svg(W, H, b).replace(f"width='{W}' height='{H}'", "class='rung' width='100%' height='auto' style='max-width:560px'", 1)
+    return re.sub(r"font-size='([\d.]+)'( text-anchor='\w+' style=')", r"\2font-size:\1px;", out)  # inline size: the page's phone CSS does not rescale this chart
 
 
 def heatmap(s):
@@ -308,7 +289,7 @@ def check_design(s):
 def build(s, ds=None):
     """{file name: SVG text or None} for every chart."""
     check_design(s); ds = ds or dataset.read()
-    charts = {"pareto.svg": pareto_chart(s), "cost_time.svg": cost_time_chart(s), "pass_by_rung.svg": rung_chart(s), "heatmap.svg": heatmap(s),
+    charts = {"pareto.svg": pareto_chart(s), "cost_time.svg": cost_time_chart(s), "pass_by_rung.svg": rung_chart(s, ds), "heatmap.svg": heatmap(s),
               "token_floor.svg": floor_chart(s), "agentic.svg": agentic_chart(s), "token_in.svg": token_in_chart(s, ds)}
     charts["cost_total.svg"], charts["cost_per_1k.svg"] = cost_tokens_chart(s, ds)
     return charts
