@@ -76,7 +76,7 @@ if (!all.length) return { findings: 0 }
 phase('Triage')
 const plan = await agent(
   `You own the fix plan for a report page. Findings from independent reviewers (JSON):\n${JSON.stringify(all)}\n
-Repo ${REPO}. Dedupe; verify each "wrong" finding by reading the cited source and summary.json (drop any you cannot confirm, and say so);
+${A.extra ? `Also include these operator-requested changes as items:\n${A.extra}\n` : ''}Repo ${REPO}. Dedupe; verify each "wrong" finding by reading the cited source and summary.json (drop any you cannot confirm, and say so);
 accept consolidations whose reader loss is small, reject the rest with a reason. Write ONE brief for Codex to ${OUT}/fix-brief.md:
 numbered items, each with file:line, the change, and how to check it. Constraints in the brief: no model calls; do not touch results/*.jsonl or cache/;
 \`make report\` then \`python3 -m analysis.audit\` must print OK; \`python3 -m pytest -q tests\` passes; leave changes uncommitted.
