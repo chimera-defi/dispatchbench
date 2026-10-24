@@ -196,3 +196,10 @@ section.collapsible>h2>.sec-toggle:hover .sec-chevron,section.collapsible>h2>.se
 @keyframes sec-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 section.collapsible>.sec-body:not([hidden]){animation:sec-in var(--sec-dur,0s) ease-out}
 .sec-anim{--sec-dur:.15s}
+
+/* Engineering-paper grid behind scatter plot areas only (never behind text, tables or keys); fainter than the chart's own gridlines. */
+.cplot{
+  --paper:color-mix(in srgb,var(--line) 40%,transparent);
+  background-image:linear-gradient(var(--paper) 1px,transparent 1px),linear-gradient(90deg,var(--paper) 1px,transparent 1px);
+  background-size:20px 20px;border-radius:4px;
+}
