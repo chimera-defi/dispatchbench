@@ -118,13 +118,14 @@
 </section>
 <section id="pipes">
 <h2><span class="num"></span>🔗 Pipelines: plan, check, fix</h2>
-<p class="small">Checking examples can catch some bad answers, but haiku-medium alone beat the best luna repair pipeline on cost with no rescue-set misses.</p>
-<div class="chart floor"><h3>Rescue set: passes, $ per pass, median seconds</h3><p class="sub">{{w_rescue_subtitle}}</p>{{w_pipes}}</div>
+<p class="small">haiku-medium had no rescue-set misses; the best luna repair pipeline cost {{hm_vs_pipe_x}} as much.</p>
+<div class="chart floor"><h3>Rescue set: passes, $ per pass, median seconds</h3>{{w_pipes}}</div>
+<p class="small">{{w_rescue_subtitle}}</p>
 <ul class="tight small">
-<li>✅ Haiku fixing every luna-high-bare answer: {{r_luna_high_bare_haiku_review_all_k}}. But haiku-medium alone also had 0 misses, {{hm_vs_pipe_x}} cheaper.</li>
-<li>The example check is leaky. In a fresh luna-high-bare run, {{g_hi_bad}} answers were bad: the check caught {{g_hi_fixed}} (Haiku fixed {{g_hi_fixed_words}}) and missed {{g_hi_missed}}. With no check at all, {{r_luna_high_bare_miss}} were bad.</li>
-<li>✅ sol61-high and astra-medium → Haiku if samples fail: {{r_sol61_high_haiku_on_fail_k}} and {{r_astra_medium_haiku_on_fail_k}}; no repairs fired. Fast-mode pipelines equal their builders because every example check passed (derived from cached answers).</li>
-<li>❌ A Haiku plan before luna helped luna-low ({{r_luna_low_k}} → {{r_haiku_low_plan_luna_low_k}}) but not luna-high-bare ({{r_luna_high_bare_k}} either way), and both cost more than Haiku checking after.</li>
+<li>Haiku reviewing every luna-high-bare answer: {{r_luna_high_bare_haiku_review_all_k}}.</li>
+<li>Example checks leak: a fresh luna-high-bare run had {{g_hi_bad}} bad answers; checks caught {{g_hi_fixed}} (Haiku fixed {{g_hi_fixed_words}}), missed {{g_hi_missed}}. Without checks: {{r_luna_high_bare_miss}} bad answers.</li>
+<li>Haiku on failed samples: sol61-high {{r_sol61_high_haiku_on_fail_k}}, astra-medium {{r_astra_medium_haiku_on_fail_k}}; no repairs fired. Fast-mode pipelines equal their builders.</li>
+<li>Planning first helped luna-low ({{r_luna_low_k}} → {{r_haiku_low_plan_luna_low_k}}), not luna-high-bare ({{r_luna_high_bare_k}} either way). Both Haiku-plan pipelines cost more than Haiku checking after.</li>
 </ul>
 </section>
 <section class="verdict conclusion" id="conclusion">

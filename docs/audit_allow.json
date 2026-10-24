@@ -27,7 +27,6 @@
  {"context": "Liu et al. 2023", "literals": ["2023"], "reason": "citation year"},
  {"context": "0 misses on the rescue set (its {{rescue_n}} main-run attempts", "literals": ["0"], "reason": "haiku-medium had no hard-set miss; checked by need() in analysis/report.py"},
  {"context": "<b>0 misses</b>: every attempt passed", "literals": ["0", "0"], "reason": "verdict names, defined by the numbers in analysis/page.py"},
- {"context": "alone also had 0 misses", "literals": ["0"], "reason": "haiku-medium rescue-set result; checked by need() in analysis/report.py"},
  {"context": "finding 5", "literals": ["5"], "reason": "cross-reference to finding 5 in docs/REPORT.md"},
  {"context": "finding 7", "literals": ["7"], "reason": "cross-reference to finding 7 in docs/REPORT.md"},
  {"context": "Findings 5 and 6 are exploratory", "literals": ["5", "6"], "reason": "cross-reference to findings 5 and 6"},
