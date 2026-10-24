@@ -10,9 +10,10 @@
 <script>
 (function(){
 var D=__DATA__;
-function tf(k,v){if(k=="pass")return (100*v).toFixed(0)+"%";var t=+v.toPrecision(3);if(k=="usd")return "$"+t;if(k=="med")return t+" s";return t>=1000?(t/1000)+"k":String(t)}
+var USD=Object.fromEntries(__USD_TICKS__.map(function(p){return [p[0],p[1]]}));
+function tf(k,v){if(k=="pass")return (100*v).toFixed(0)+"%";var t=+v.toPrecision(3);if(k=="usd")return USD[+v.toPrecision(10)];if(k=="med")return t+" s";return t>=1000?(t/1000)+"k":String(t)}
 var M={pass:{l:"pass rate",f:function(v){return (100*v).toFixed(0)+"%"},up:1},
- usd:{l:"$ per pass",f:function(v){return "$"+v.toPrecision(2)}},
+ usd:{l:"$ per pass"},
  med:{l:"median seconds",f:function(v){return v.toFixed(1)+" s"}},
  inp:{l:"input tokens per call",f:function(v){return Math.round(v).toLocaleString()}},
  rsn:{l:"reasoning tokens per call",f:function(v){return Math.round(v).toLocaleString()}}};
@@ -61,7 +62,7 @@ function draw(){try{localStorage.setItem("rb-x2",JSON.stringify(st))}catch(e){}
   if(ly>H-B-4){ly=H-B-4;for(n=0;n<8&&hit();n++)ly-=13}placed.push([lx,ly,w]);g.push('<text x="'+lx+'" y="'+ly+'" style="fill:'+(p.exp?"var(--muted)":"var(--fg)")+'" pointer-events="none">'+esc(p.d)+'</text>')});
  box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="'+(small?11:12)+'" role="img" aria-label="'+M[st.y].l+' against '+M[st.x].l+'">'+g.join("")+'</svg>';
  box.querySelectorAll("circle").forEach(function(c){function show(){var d=D[+c.getAttribute("data-i")],t=document.getElementById("tip");
-   t.innerHTML='<b>'+esc(d.d)+'</b>'+(d.exp?' <span class="tag">exploratory</span>':'')+'<br>'+Object.keys(M).map(function(k){return M[k].l+': '+M[k].f(d[k])}).join("<br>")+'<br>$ kind: '+d.kind;
+   t.innerHTML='<b>'+esc(d.d)+'</b>'+(d.exp?' <span class="tag">exploratory</span>':'')+'<br>'+Object.keys(M).map(function(k){return M[k].l+': '+(k=="usd"?d.usd_text:M[k].f(d[k]))}).join("<br>")+'<br>$ kind: '+d.kind;
    t.hidden=false;var bx=box.getBoundingClientRect(),cx=+c.getAttribute("cx"),cy=+c.getAttribute("cy");
    t.style.left=Math.min(cx+12,bx.width-t.offsetWidth-4)+"px";t.style.top=Math.max(0,cy-t.offsetHeight-10)+"px"}
   c.onmouseenter=show;c.onclick=show;c.onmouseleave=function(){document.getElementById("tip").hidden=true}})}

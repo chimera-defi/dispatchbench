@@ -15,7 +15,7 @@ NS = {"s": "http://www.w3.org/2000/svg"}
 
 @pytest.fixture(scope="module")
 def summary():
-    return json.loads((ROOT / "results/summary.json").read_text())
+    return dataset.view(dataset.read())
 
 
 def test_speed_whiskers_fit_axis_even_with_a_slower_config(summary, monkeypatch):
@@ -109,8 +109,8 @@ def test_chart_costs_and_tooltips_share_precision(summary, render, stat, problem
         assert dataset.usd(p["free_usd"]) in p["tip"]
         assert dataset.usd(cost) in page.point_values(p, stat)
         if free and p["normal_usd"] != p["free_usd"]:
-            assert f'saved {dataset.usd(p["normal_usd"] - p["free_usd"])}' in page.point_values(p, stat)
-    # Tick labels use exact, compact amounts; key and tooltip values keep 3 sig figs.
+            assert f'saved {dataset.usd(p["saved_usd"])}' in page.point_values(p, stat)
+    # Every displayed dollar value uses the dataset formatter.
     without_plot = re.sub(r'<svg\b.*?</svg>', '', output, flags=re.S)
     for value in re.findall(r'\$\d+(?:\.\d+)?', without_plot):
         assert value == dataset.usd(float(value[1:]))
@@ -119,13 +119,13 @@ def test_chart_costs_and_tooltips_share_precision(summary, render, stat, problem
 @pytest.mark.parametrize("render", [page.pass_cost, page.speed_cost])
 @pytest.mark.parametrize("problem_set", ["main", "rescue"])
 @pytest.mark.parametrize("free", [False, True])
-def test_scatter_ticks_are_compact_and_mobile_endpoint_fits(summary, render, problem_set, free):
+def test_scatter_ticks_use_dataset_usd_and_mobile_endpoint_fits(summary, render, problem_set, free):
     output, _ = render(summary, free=free, problem_set=problem_set)
     svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
     costs = [t.text for t in svg.findall("s:text", NS) if (t.text or "").startswith("$0.")]
-    expected = ["$0.001", "$0.003", "$0.01", "$0.03", "$0.1", "$0.3"]
+    expected = [dataset.usd(v) for v in (0.001, 0.003, 0.01, 0.03, 0.1, 0.3)]
     if free and problem_set == "rescue":
-        expected.insert(0, "$0.0003")
+        expected.insert(0, dataset.usd(0.0003))
     assert costs == expected
     ticks = [t for t in svg.findall("s:text", NS) if "x-tick" in t.get("class", "").split()]
     assert ticks
@@ -153,9 +153,23 @@ def test_frontier_caption_uses_computed_costs(summary):
     medium, low = values["luna-medium"], values["luna-low"]
     caption = page.frontier_caption(summary)
     assert (f'luna-low is off the frontier: luna-medium costs about the same '
-            f'({dataset.usd(medium["usd_per_pass"])} vs {dataset.usd(low["usd_per_pass"])}) '
+            f'({dataset.usd(medium["usd_per_pass"], sig=3)} vs {dataset.usd(low["usd_per_pass"], sig=3)}) '
             f'and passes more ({medium["passes"]}/{medium["n"]} vs {low["passes"]}/{low["n"]}).') in caption
     assert 'shown precision' not in caption
+    assert '($0.00089 vs $0.000899)' in caption
+
+
+def test_measured_luna_rescue_keeps_its_own_page_metrics(summary):
+    arm = page.rescue_arms(summary)["luna-low+haiku-on-fail"]
+    assert (arm["passes"], arm["n"]) == (34, 35)
+    assert (arm["usd_per_pass"], arm["claude_usd_per_pass"], arm["median_s"]) == (.002161, .001335, 7.88)
+    assert arm["derived"] is False
+    assert arm["metrics_from"] == {"source": "rescue", "config": "luna-low+haiku-on-fail", "set": "rescue arms"}
+    for render in (page.pass_cost, page.speed_cost):
+        output, _ = render(summary, free=False, problem_set="rescue")
+        points = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
+        point = next(p for p in points.findall("s:g", NS) if p.get("data-c") == "luna-low+haiku-on-fail")
+        assert '34/35 passed' in point.get("data-tip")
 
 
 def test_rung_series_have_distinct_keys_past_all_endpoints(summary):
@@ -194,11 +208,11 @@ def test_every_toc_target_has_a_direct_toggle_heading():
 
 
 def test_codex_orchestrator_status_requires_attributed_results():
-    assert report.codex_orchestrator_status([{"cli": "codex", "passed": True}]) == "not run yet"
-    assert report.codex_orchestrator_status([{"orchestrator": "Codex"}]) == "not run yet"
-    assert report.codex_orchestrator_status([{"orchestrator": "Claude Opus", "passed": True}]) == "not run yet"
+    assert dataset.codex_orchestrator_status([{"cli": "codex", "passed": True}]) == "not run yet"
+    assert dataset.codex_orchestrator_status([{"orchestrator": "Codex"}]) == "not run yet"
+    assert dataset.codex_orchestrator_status([{"orchestrator": "Claude Opus", "passed": True}]) == "not run yet"
     for attribution in ("Codex", {"cli": "codex"}, {"model": "gpt-6.1-sol"}):
-        assert report.codex_orchestrator_status([{"orchestrator": attribution, "passed": False}]) == "results available"
+        assert dataset.codex_orchestrator_status([{"orchestrator": attribution, "passed": False}]) == "results available"
 
 
 def test_fairness_qa_renders_counts_and_runtime_from_appendix():
@@ -230,10 +244,13 @@ def test_fairness_qa_renders_counts_and_runtime_from_appendix():
 
 
 def test_fairness_qa_updates_when_appendix_data_change(monkeypatch):
-    original = report.load
+    original = dataset.load
     rows = original(str(ROOT / 'results/appendix/harness_bias.jsonl'))
     changed = [dict(r, passed=False) if r['config'] == 'luna-low' else r for r in rows]
-    monkeypatch.setattr(report, 'load', lambda path: changed if str(path).endswith('/appendix/harness_bias.jsonl') else original(path))
+    monkeypatch.setattr(dataset, 'load', lambda path: changed if str(path).endswith('/appendix/harness_bias.jsonl') else original(path))
+    updated = dataset.read()
+    updated["facts"].update(dataset.fairness_facts())
+    monkeypatch.setattr(dataset, "read", lambda: updated)
     rendered = report.render()[2]
     n = sum(r['config'] == 'luna-low' and r['harness'] == 'claude-one-shot' for r in changed)
     passes = sum(r['passed'] for r in changed if r['config'] == 'luna-low')
@@ -245,7 +262,7 @@ def test_fairness_qa_updates_when_appendix_data_change(monkeypatch):
 
 @pytest.mark.parametrize('change', ['bias', 'timeout', 'missing'])
 def test_fairness_qa_rejects_data_that_invalidate_its_claims(monkeypatch, change):
-    rows = report.load(str(ROOT / 'results/appendix/harness_bias.jsonl'))
+    rows = dataset.load(str(ROOT / 'results/appendix/harness_bias.jsonl'))
     if change == 'bias':
         rows = [dict(r, passed=r['harness'] == 'codex-tool-loop') if r['config'] == 'luna-low'
                 else dict(r, passed=True) for r in rows]
@@ -253,9 +270,9 @@ def test_fairness_qa_rejects_data_that_invalidate_its_claims(monkeypatch, change
         next(r for r in rows if r['harness'] == 'codex-tool-loop')['outcome'] = 'timeout'
     else:
         rows.pop()
-    monkeypatch.setattr(report, 'load', lambda path: rows)
+    monkeypatch.setattr(dataset, 'load', lambda path: rows)
     with pytest.raises(AssertionError, match='template wording no longer matches the data'):
-        report.fairness_facts()
+        dataset.fairness_facts()
 
 
 def test_speed_frontier_treats_sub_half_second_gap_as_tie(summary):
@@ -290,16 +307,16 @@ def test_floor_charts_keep_natural_size(summary):
 
 
 def test_quality_fast_coverage_keeps_main_and_separate_rescue_runs_apart(summary, monkeypatch):
-    note = report.quality_fast_note(summary)
+    note = dataset.read()["facts"]["quality_fast_note"]
     assert 'sol61-high ⚡: main-ladder solutions not scored' in note
     assert '35-attempt rescue run' in note
     assert 'astra-medium ⚡: main-ladder solutions not scored' in note
     assert 'No separate rescue-run quality scores' in note
-    scored = next(r for r in report.quality_rows() if r['config'] == 'sol61-high-fast' and r['outcome'] == 'pass')
+    scored = next(r for r in dataset.quality_rows() if r['config'] == 'sol61-high-fast' and r['outcome'] == 'pass')
     main = dict(scored, phase='exploratory')
-    monkeypatch.setattr(report, 'quality_rows', lambda: [scored, main])
-    table = report.quality_table({'configs': {}, 'exploratory': {'sol61-high-fast': {'passes': 1}}})
-    assert 'sol61-high ⚡ † | 1 |' in table
+    monkeypatch.setattr(dataset, 'quality_rows', lambda: [scored, main])
+    table = dataset.quality_table({'configs': {}, 'exploratory': {'sol61-high-fast': {'passes': 1}}})
+    assert table['rows'][0][:2] == ['sol61-high ⚡ †', '1']
 
 
 def test_rescue_label_leaders_start_at_the_named_point():

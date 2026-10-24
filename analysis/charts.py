@@ -1,5 +1,5 @@
-"""Draw the report charts as plain SVG from results/summary.json. Standard library only; no model calls."""
-import json, math, os, re
+"""Draw the report charts as plain SVG from results/dataset.json. Standard library only; no model calls."""
+import math, os, re
 from analysis import dataset
 from analysis.labels import DISP, TESTS, plabel
 from xml.sax.saxutils import escape
@@ -8,7 +8,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "results", "report", "charts")
 FONT = "font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, sans-serif'"
 INK, MUTED, GRID, PLATE = "var(--fg,#1d2321)", "var(--muted,#5d6763)", "var(--line,#dde2de)", "var(--panel,#ffffff)"
-HOST_AGENTS_MD = "1.3k"  # tokens of the host's ~/.codex/AGENTS.md, measured once by hand (bytes / 4); not in the result rows
+HOST_AGENTS_MD = dataset.HOST_AGENTS_MD
 BADC, WARNC = "var(--bad,#b3261e)", "var(--warn,#a86b00)"
 FAMILY = lambda c: "var(--claude,#b4572e)" if c.startswith("haiku") else "var(--sonnet,#2f8f7d)" if c.startswith("sonnet") else "var(--codex,#3a5bb8)"
 
@@ -73,7 +73,7 @@ def pareto_chart(s):
     return svg(W, H, b)
 
 
-MIN_PASS = 0.90
+MIN_PASS = dataset.MIN_PASS
 PURPLE = "var(--frontier,#7b3fe4)"
 
 
@@ -216,8 +216,7 @@ def agentic_chart(s):
     b += [text((L + W - R) / 2, H - B + 38, "$ per run", 12, "middle", MUTED), text(20, (T + H - B) / 2, "runs passing all hidden tests", 12, "middle", MUTED, rotate=-90)]
     # Direct labels above the dots, with vertical stubs clear of the shared 100% line.
     for i, (c, v) in enumerate(sorted(ag.items(), key=lambda kv: kv[1]["usd_per_run"])):
-        x, y = X(v["usd_per_run"]), Y(v["hidden_pass_rate"]); lo, hi = v["ci95"]
-        if v["hidden_pass"] == v["n"]: lo = 0.05 ** (1 / len(v["by_task"]))  # bootstrap collapses at 100%; one-sided bound over tasks, as in the tables
+        x, y = X(v["usd_per_run"]), Y(v["hidden_pass_rate"]); lo, hi = v["ci95_plot"]
         b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(lo):.1f}' y2='{Y(hi):.1f}' stroke='{FAMILY(c)}' stroke-width='2' opacity='0.5'/>")
         b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='6' fill='{FAMILY(c)}'/>")
         lab = f"{DISP(c)} {v['hidden_pass']}/{v['n']}{' *' if v['cost_kind'] == 'proxy' else ''}"
@@ -257,8 +256,8 @@ def cost_tokens_chart(s, ds=None):
     """Total $ for the 60 function-track calls, and $ per 1,000 tokens processed (input plus output), per config. Reads the dataset."""
     rows = ladder(ds or dataset.read(), s)
     tot = [(r["display"] + (" *" if r["cost_kind"] == "proxy" else ""), r["spend"], FAMILY(c), x) for c, r, x in rows]
-    per = [(r["display"] + (" *" if r["cost_kind"] == "proxy" else ""), 1000 * r["usd_per_call"] / (r["tokens_in_mean"] + r["tokens_out_mean"]), FAMILY(c), x) for c, r, x in rows]
-    a = bars("Total $ for the main ladder p01-p12", tot, lambda v: f"${v:.3f}", "Solid: normal speed; hollow: fast mode. * Codex cost is proxy; Claude is measured.")
+    per = [(r["display"] + (" *" if r["cost_kind"] == "proxy" else ""), r["usd_per_1k_tokens"], FAMILY(c), x) for c, r, x in rows]
+    a = bars("Total $ for the main ladder p01-p12", tot, dataset.usd, "Solid: normal speed; hollow: fast mode. * Codex cost is proxy; Claude is measured.")
     b = bars("$ per 1,000 tokens processed (input + output, mean per call)", per, dataset.usd,
                 "Cached input costs less per token. * Codex cost is proxy.")
     return a, b
@@ -282,9 +281,10 @@ def check_design(s):
         raise SystemExit(f"chart text assumes 12 problems, 60 calls per config and 10 per rung; check {bad or 'the problem count'}")
 
 
-def build(s, ds=None):
-    """{file name: SVG text or None} for every chart."""
-    check_design(s); ds = ds or dataset.read()
+def build(ds=None):
+    """{file name: SVG text or None}, using only the dataset."""
+    ds = ds or dataset.read(); s = dataset.view(ds)
+    check_design(s)
     charts = {"pareto.svg": pareto_chart(s), "cost_time.svg": cost_time_chart(s), "pass_by_rung.svg": rung_chart(s, ds), "heatmap.svg": heatmap(s),
               "token_floor.svg": floor_chart(s), "agentic.svg": agentic_chart(s), "token_in.svg": token_in_chart(s, ds)}
     charts["cost_total.svg"], charts["cost_per_1k.svg"] = cost_tokens_chart(s, ds)
@@ -292,9 +292,8 @@ def build(s, ds=None):
 
 
 def main():
-    s = json.load(open(os.path.join(ROOT, "results", "summary.json")))
     os.makedirs(OUT, exist_ok=True)
-    charts = build(s)
+    charts = build()
     for name, body in charts.items():
         if body: open(os.path.join(OUT, name), "w").write(body)
     print("charts ->", os.path.relpath(OUT, ROOT), ", ".join(n for n, b in charts.items() if b))

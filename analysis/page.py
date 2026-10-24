@@ -1,9 +1,9 @@
-"""Widgets for the page (results/report/page.html), all drawn from results/summary.json: the two Pareto scatters, the
+"""Widgets for the page (results/report/page.html), all drawn from results/dataset.json: the two Pareto scatters, the
 problem × config grid, the token-floor bars and the short result table. Inline SVG and HTML that take their colours
 from the page's CSS variables, so both themes work. Standard library only."""
 import html, json, math, os, re
 
-from analysis import dataset, fast_gate, luna_rescue
+from analysis import dataset
 from analysis.charts import FAMILY, MIN_PASS
 from analysis.labels import TESTS, DISP, pshort, plabel, plabel_html
 
@@ -117,7 +117,7 @@ def point_values(p, stat):
     usd = p["y"] if stat == "speed" else p["x"]
     value = f'{metric} · {dataset.usd(usd)}'
     if p.get("free_mode") and p["normal_usd"] != p["free_usd"]:
-        value += f' · saved {dataset.usd(p["normal_usd"] - p["free_usd"])}'
+        value += f' · saved {dataset.usd(p["saved_usd"])}'
     return value
 
 
@@ -242,7 +242,7 @@ def frontier_caption(s):
         d = min(dominators, key=lambda p: (p["y"], p["x"]))["c"]; q = E[d]
         relation = "costs about the same" if math.isclose(q["usd_per_pass"], v["usd_per_pass"], rel_tol=.05) else "costs less"
         reason = (f'{DISP(c)} is off the frontier: {DISP(d)} {relation} '
-                  f'({dataset.usd(q["usd_per_pass"])} vs {dataset.usd(v["usd_per_pass"])}) and passes more '
+                  f'({dataset.usd(q["usd_per_pass"], sig=3)} vs {dataset.usd(v["usd_per_pass"], sig=3)}) and passes more '
                   f'({q["passes"]}/{q["n"]} vs {v["passes"]}/{v["n"]}).')
     else:
         reason = f'{DISP(c)} has no cost/pass-rate dominator on the eligible frontier'
@@ -265,7 +265,7 @@ def ladder_toggle(render, s):
     sets = (f'<div class="set-filter" role="group" aria-label="Problem set">'
             f'<label><input type="radio" name="{set_name}" value="main" checked> Main ladder</label>'
             f'<label><input type="radio" name="{set_name}" value="rescue"> Rescue set</label></div>')
-    rescue_n = next(iter(rescue_arms().values()))["n"]
+    rescue_n = next(iter(rescue_arms(s).values()))["n"]
     return ('<div class="cwrap"><label class="cost-toggle"><input type="checkbox"> Codex is free (subscription quota)</label>'
             + sets + filters + note + '<div class="cset s-main">' + normal + free + frontier_caption(s) + '</div>'
             + '<div class="cset s-rescue"><p class="set-note">Rescue set: '
@@ -273,41 +273,41 @@ def ladder_toggle(render, s):
             + rescue_normal + rescue_free + '</div><div class="ctip" hidden></div></div>'), fr
 
 
-def quota_tip(normal, free):
+def quota_tip(normal, free, saving):
     return (f'Normal: {dataset.usd(normal)} per pass; Codex free: {dataset.usd(free)} per pass '
-            f'(saving {dataset.usd(normal - free)} per pass).')
+            f'(saving {dataset.usd(saving)} per pass).')
 
 
-def ladder_repairs(free, stat):
+def ladder_repairs(free, stat, arms=None):
     """All rescue configs, including baselines measured on this same subset."""
     pts = []
-    for c, v in rescue_arms().items():
+    for c, v in (arms if arms is not None else rescue_arms()).items():
         name = NAME.get(c) or " → ".join(DISP(part) for part in c.split("+"))
         pipeline = "+" in c
         builder = c.split("+", 1)[-1] if c.startswith("haiku-low-plan+") else c.split("+", 1)[0]
         usd = v["claude_usd_per_pass"] if free else v["usd_per_pass"]
         pts.append({"c": c, "name": name, "set": "rescue", "x": v["median_s"] if stat == "speed" else usd,
-                    "y": usd if stat == "speed" else v["passes"] / v["n"], "rate": v["passes"] / v["n"], "hollow": pipeline,
+                    "y": usd if stat == "speed" else v["pass_rate"], "rate": v["pass_rate"], "hollow": pipeline,
                     "shape": SHAPE(builder), "w": None, "on": False, "free_mode": free,
-                    "normal_usd": v["usd_per_pass"], "free_usd": v["claude_usd_per_pass"],
+                    "saved_usd": v["usd_saved_per_pass"], "normal_usd": v["usd_per_pass"], "free_usd": v["claude_usd_per_pass"],
                     "tip": f"{name}: {v['passes']}/{v['n']} passed, {dataset.usd(usd)} per pass, median {v['median_s']:.1f} s; rescue set, not the full ladder. "
-                    + quota_tip(v["usd_per_pass"], v["claude_usd_per_pass"])
-                    + (" (" + v["derived"] + ")" if "derived" in v else "")})
+                    + quota_tip(v["usd_per_pass"], v["claude_usd_per_pass"], v["usd_saved_per_pass"])
+                    + (" (" + v["derived_note"] + ")" if "derived_note" in v else "")})
     return pts
 
 
 def ladder_points(s, free, stat, problem_set):
-    if problem_set == "rescue": return ladder_repairs(free, stat)
+    if problem_set == "rescue": return ladder_repairs(free, stat, rescue_arms(s))
     pts = []
     for c in ORDER:
         v = every(s)[c]; normal = v["usd_per_pass"]
-        quota = normal if c.startswith(("haiku", "sonnet")) else 0
+        quota = v["claude_usd_per_pass"]
         usd = quota if free else normal
         w = (("x", v["latency_s"]["p25"], v["latency_s"]["p75"]) if "p25" in v["latency_s"] else None) if stat == "speed" else ("y", v["ci95"][0], v["ci95"][1])
         pts.append({"c": c, "name": DISP(c), "set": "main", "x": v["latency_s"]["median"] if stat == "speed" else usd,
                     "y": usd if stat == "speed" else v["pass_at_1"], "rate": v["pass_at_1"], "hollow": False, "w": w,
-                    "normal_usd": normal, "free_usd": quota, "free_mode": free,
-                    "tip": tip(c, dict(v, usd_per_pass=usd)) + ". " + quota_tip(normal, quota)})
+                    "saved_usd": v["usd_saved_per_pass"], "normal_usd": normal, "free_usd": quota, "free_mode": free,
+                    "tip": tip(c, dict(v, usd_per_pass=usd)) + ". " + quota_tip(normal, quota, v["usd_saved_per_pass"])})
     return pts
 
 
@@ -333,7 +333,7 @@ def pass_cost(s, free=None, problem_set="main"):
         p["on"] = p in fr
         if p["w"]: p["w"] = ("y", max(ymin, p["w"][1]), p["w"][2])
     d = (f"M{X(fr[0]['x']):.1f} {B} V{Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}") if fr else ""
-    xt = [(v, f"${v:g}") for v in (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1) if v >= lo]
+    xt = [(v, dataset.usd(v)) for v in (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1) if v >= lo]
     yt = [(v / 100, f"{v}%") for v in range(round(ymin * 100), 101, 10)]
     lab = {"luna-low": (12, 16, "start"), "luna-medium": (12, -8, "start"), "luna-high": (12, 14, "start"), "haiku-low": (-14, 16, "end"),
            "haiku-medium": (14, 22, "start"), "sonnet-medium": (-14, -10, "end"), "sol61-medium": (0, 26, "middle"),
@@ -358,7 +358,7 @@ def speed_cost(s, free=None, problem_set="main"):
     for p in pts: p["on"] = p in fr
     d = (f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}") if fr else ""
     xt = [(v, f"{v} s") for v in range(5, xmax + 1, 5)]
-    yt = [(v, f"${v:g}") for v in (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1) if v >= lo]
+    yt = [(v, dataset.usd(v)) for v in (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1) if v >= lo]
     lab = {"luna-low": (0, -14, "middle"), "luna-medium": (14, 10, "start"), "haiku-low": (0, -20, "middle"), "luna-high": (14, -10, "start"),
            "haiku-medium": (14, 5, "start"), "sonnet-medium": (14, 4, "start"), "sol61-medium": (-14, -12, "end"),
            "luna56-high": (-14, 5, "end"), "luna56-low": (0, 26, "middle"), "haiku-high": (0, -14, "middle")}
@@ -375,42 +375,27 @@ SHORT = lambda n: n.replace("Haiku plan → ", "plan→").replace(" → Haiku if
 DECODER = "plan→ = Haiku plan; →H fail = Haiku fixes if examples fail; →retry = same-model retry; →H all = Haiku checks every answer."
 
 
-def rescue_arms():
-    """Display-only counterfactual arms; the measured rescue table stays unchanged."""
-    from analysis.report import need
-    a = luna_rescue.arms()
-    checked = fast_gate.summary()
-    for c in ("sol61-high-fast", "astra-medium-fast"):
-        evidence = checked[c]
-        need(evidence["all"]["failures"] == 0, f"{c} would need a Haiku call; pipeline was not run")
-        v = evidence["rescue"]["pipeline"]
-        need(v is not None and all(v[k] == a[c][k] for k in ("passes", "n", "usd_per_pass", "median_s", "claude_usd_per_pass")),
-             f"{c} derived pipeline equals the measured builder alone")
-        a[c + "+haiku-on-fail"] = dict(a[c], derived=evidence["rescue"]["status"])
-    ds = dataset.read()
-    for c, v in a.items():  # the dataset's rescue-set row is the source of the numbers (derived arms use their builder's row)
-        try: r = dataset.get(ds, c.split("+")[0] if c.endswith("+haiku-on-fail") else c, "rescue set")
-        except StopIteration: continue
-        v.update({k: r[k] for k in ("passes", "n", "usd_per_pass", "claude_usd_per_pass", "median_s")})
-    return a
+def rescue_arms(ds=None):
+    """Cached measured and derived arms, including their validated provenance."""
+    return (ds or dataset.read())["rescue"]
 
 
-def hard_pts():
-    a = rescue_arms()
-    return [{"c": c, "name": SHORT(n) if "→" in n else n, "set": "rescue", "col": "var(--frontier)" if "→" in n else FAM(c), "hollow": False, "w": None, "k": a[c]["passes"] / a[c]["n"],
+def hard_pts(arms=None):
+    a = arms if arms is not None else rescue_arms()
+    return [{"c": c, "name": SHORT(n) if "→" in n else n, "set": "rescue", "col": "var(--frontier)" if "→" in n else FAM(c), "hollow": False, "w": None, "k": a[c]["pass_rate"],
              "usd": a[c]["usd_per_pass"], "sec": a[c]["median_s"],
-             "tip": f"{n} [rescue set]: {a[c]['passes']}/{a[c]['n']} passed, {dataset.usd(a[c]['usd_per_pass'])} per pass, median {a[c]['median_s']:.1f} s" + (" (" + a[c]["derived"] + ")" if "derived" in a[c] else "")} for c, n in HARD_PTS]
+             "tip": f"{n} [rescue set]: {a[c]['passes']}/{a[c]['n']} passed, {dataset.usd(a[c]['usd_per_pass'])} per pass, median {a[c]['median_s']:.1f} s" + (" (" + a[c]["derived_note"] + ")" if "derived_note" in a[c] else "")} for c, n in HARD_PTS]
 
 
-def hard_pass_cost():
+def hard_pass_cost(arms=None):
     """Rescue set: pass rate against $ per pass (log), single models and the Haiku pipelines; no intervals (n is small and post hoc)."""
     L, R, T, B, W = 84, 16, 14, 382, 560
     X = logscale(5e-4, 4e-1, L, W - R); Y = lambda v: B - (v - 0.55) / 0.5 * (B - T)
-    pts = [dict(p, x=p["usd"], y=p["k"]) for p in hard_pts()]
+    pts = [dict(p, x=p["usd"], y=p["k"]) for p in hard_pts(arms)]
     fr = sorted(front(pts, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
     d = f"M{X(fr[0]['x']):.1f} {B} V{Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
-    xt = [(v, f"${v:g}") for v in (1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1)]
+    xt = [(v, dataset.usd(v)) for v in (1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1)]
     yt = [(v / 100, f"{v}%") for v in (55, 65, 75, 85, 95, 100)]
     lab = {"luna-high-bare": (14, 20, "start"), "haiku-low": (14, 5, "start"), "haiku-medium": (0, -16, "middle"),
            "sonnet-medium": (0, -14, "middle"), "sol61-medium": (0, 24, "middle"), "luna-high-bare+retry-on-fail": (-14, 28, "end"),
@@ -420,17 +405,17 @@ def hard_pass_cost():
     return g, [p["c"] for p in fr]
 
 
-def hard_speed_cost():
+def hard_speed_cost(arms=None):
     """Rescue set: median seconds against $ per pass (log); frontier among rows passing at least MIN_PASS."""
     L, R, T, B, W = 84, 16, 14, 462, 560
     X = lambda v: L + (v - 6) / 30 * (W - R - L); Y = logscale(8e-4, 4e-1, B, T)
-    pts = [dict(p, x=p["sec"], y=p["usd"]) for p in hard_pts()]
+    pts = [dict(p, x=p["sec"], y=p["usd"]) for p in hard_pts(arms)]
     ok = [p for p in pts if p["k"] >= MIN_PASS]
     fr = sorted(front(ok, speed_dominates), key=lambda p: p["x"])
     for p in pts: p["on"] = p in fr
     d = f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}"
     xt = [(v, f"{v} s") for v in (10, 15, 20, 25, 30, 35)]
-    yt = [(v, f"${v:g}") for v in (1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1)]
+    yt = [(v, dataset.usd(v)) for v in (1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1)]
     lab = {"luna-low": (-12, 5, "end"), "luna-high-bare": (14, 5, "start"), "haiku-low": (14, 1, "start"), "haiku-medium": (14, 5, "start"),
            "sonnet-medium": (14, 5, "start"), "sol61-medium": (-14, 4, "end"), "luna-high-bare+retry-on-fail": (-20, 28, "middle"),
            "luna-high-bare+haiku-on-fail": (12, 6, "start"), "luna-low+haiku-on-fail": (0, -16, "middle"),
@@ -445,10 +430,9 @@ def grid(s):
     main = set(probs)
     hard = sorted({p for v in s["hard"].values() for p in v["by_problem"]})
     def cell(p, c):
-        if p in main:
-            return s["problems"][p].get(c, E[c].get("by_problem", {}).get(p)), E[c]["n"] // len(probs)
-        v = s["hard"].get(c)
-        return (v["by_problem"][p], v["n"] // len(v["by_problem"])) if v and p in v["by_problem"] else (None, None)
+        v = E.get(c) if p in main else s["hard"].get(c)
+        cell = v["by_group"].get(p) if v else None
+        return (cell["passes"], cell["n"]) if cell else (None, None)
     out = [f'<div class="grid" style="--n:{len(ORDER)};grid-template-columns:minmax(150px,auto) repeat({len(ORDER)},minmax(40px,1fr))">', '<div class="h m">problem</div>']
     out += [f'<div class="h{" fast" if c.endswith("-fast") else ""}">{esc(DISP(c))}</div>' for c in ORDER]
     for p in probs + hard:
@@ -488,15 +472,15 @@ def floor(s):
     return scroll_chart("".join(g), W)
 
 
-def pipes():
+def pipes(arms=None):
     """Rescue set: the single models, then every pipeline (plan first, check then fix, fix everything)."""
-    a = rescue_arms()
+    a = arms if arms is not None else rescue_arms()
     bars = [(c, SHORT(n), "var(--frontier)" if "→" in n else FAM(c)) for c, n in HARD_PTS]
     W, BL, BR, H = 760, 330, 530, 16 + 40 * len(bars)
     g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="Passes on the rescue set: single models and the Haiku review and repair pipelines">']
     for i, (c, name, col) in enumerate(bars):
-        v = a[c]; y = 8 + i * 40; w = v["passes"] / v["n"] * (BR - BL)
-        g.append(f'<g><title>{esc(NAME[c])}{" (" + v["derived"] + ")" if "derived" in v else ""}</title>')
+        v = a[c]; y = 8 + i * 40; w = v["pass_rate"] * (BR - BL)
+        g.append(f'<g><title>{esc(NAME[c])}{" (" + v["derived_note"] + ")" if "derived_note" in v else ""}</title>')
         g.append(f'<text x="{BL - 10}" y="{y + 19}" text-anchor="end" class="lbl">{esc(name)}</text>')
         g.append(f'<rect x="{BL}" y="{y}" width="{BR - BL}" height="28" rx="3" fill="var(--line)"/>')
         g.append(f'<rect x="{BL}" y="{y}" width="{w:.1f}" height="28" rx="3" fill="{col}"/>')
@@ -524,13 +508,13 @@ def fast(s):
 
 
 def explorer(s):
-    """Enhance the shared explorer at render time; the source template stays unchanged."""
+    """Render interactive geometry around cached measurements and dollar labels."""
     data = [{"c": c, "d": DISP(c), "exp": e, "col": FAM(c), "fast": "-fast" in c,
-             "mark": config_marker(c, 0, 0), "kind": v["cost_kind"], "pass": v["pass_at_1"], "usd": v["usd_per_pass"],
+             "mark": config_marker(c, 0, 0), "kind": v["cost_kind"], "pass": v["pass_at_1"], "usd": v["usd_per_pass"], "usd_text": v["usd_text"],
              "med": v["latency_s"]["median"], "inp": v["tokens_mean"]["in_tok"], "rsn": v["tokens_mean"]["reasoning_tok"]}
             for e, group in ((False, s["configs"]), (True, s["exploratory"])) for c, v in group.items()]
     src = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "page", "explorer.html")
-    body = open(src).read().replace("__DATA__", json.dumps(data, separators=(",", ":")))
+    body = open(src).read().replace("__DATA__", json.dumps(data, separators=(",", ":"))).replace("__USD_TICKS__", json.dumps(s["design"]["usd_ticks"], separators=(",", ":")))
     body = body.replace("Hollow = exploratory config. Codex $ is a proxy.",
                         "Solid = normal speed; hollow = fast mode; dashed edge = bare prompt; lighter blue = 5.6 generation. Shapes match the charts above. Labels connect to their own points. Codex $ is a proxy.")
     # Match the static speed chart: differences below both 0.5 s and 5% are ties.
@@ -569,10 +553,10 @@ def explorer(s):
     return body
 
 
-def verdict(c, v, need, E):
+def verdict(c, v, need, E, arms=None):
     """One word per config; each is checked against the data so the table cannot drift from it."""
     if c == "haiku-medium":
-        need(v["passes"] == v["n"] - 1 and luna_rescue.arms()[c]["passes"] == luna_rescue.arms()[c]["n"], "haiku-medium: one miss, none on the rescue set")
+        need(v["passes"] == v["n"] - 1 and (arms if arms is not None else rescue_arms())[c]["passes"] == (arms if arms is not None else rescue_arms())[c]["n"], "haiku-medium: one miss, none on the rescue set")
         return "one miss"
     if c == "haiku-high":
         need(v["passes"] == v["n"] and v["usd_per_pass"] == min(E[d]["usd_per_pass"] for d in ORDER if E[d]["passes"] == E[d]["n"]), "haiku-high is the cheapest with 0 misses")
@@ -596,8 +580,8 @@ def verdict(c, v, need, E):
 HARD = list(NAME.items())
 
 
-def row(set_name, name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived=""):
-    r = k / n; cls = "good" if r >= 0.95 else "warn" if r >= MIN_PASS else "bad"
+def row(set_name, name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, rate):
+    r = rate; cls = "good" if r >= 0.95 else "warn" if r >= MIN_PASS else "bad"
     attr = f' title="{esc(derived)}"' if derived else ""
     return (f'<tr{attr}><td>{set_name}</td><td><span class="dot" style="background:{col}"></span>{esc(name)}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
             f'<td>{"~" if proxy else ""}{dataset.usd(usd)}</td><td>{dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell">{verdict}</td></tr>')
@@ -610,23 +594,23 @@ def short_table(s, need):
     """One table, two groups that sort separately: every config on all problems, then single models and pipelines on the hard
     set. Passed reads "95% (57/60)" so it sorts by rate. Hard-set verdicts come from the numbers: never failed, the cheapest of
     those, or how many attempts missed."""
-    E = every(s); a = rescue_arms()
+    E = every(s); a = rescue_arms(s)
     top = [row("Ladder", DISP(c), FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], None if CODEX(c) else E[c]["usd_per_pass"],
-               E[c]["latency_s"]["median"], verdict(c, E[c], need, E),
-               E[c]["cost_kind"] == "proxy") for c in ORDER]
+               E[c]["latency_s"]["median"], verdict(c, E[c], need, E, a),
+               E[c]["cost_kind"] == "proxy", rate=E[c]["pass_at_1"]) for c in ORDER]
     clean = [c for c, _ in HARD if a[c]["passes"] == a[c]["n"]]; need(clean, "some rescue-set row never failed")
     best = min(clean, key=lambda c: a[c]["usd_per_pass"])
     need(best == "haiku-medium", "haiku-medium is the cheapest rescue-set row with no miss")
-    hv = lambda c: "0 misses, cheapest" if c == best else "0 misses" if c in clean else f"missed {a[c]['n'] - a[c]['passes']}"
+    hv = lambda c: "0 misses, cheapest" if c == best else "0 misses" if c in clean else f"missed {a[c]['misses']}"
     hard = [row("Rescue", name, "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], None if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
-                a[c]["median_s"], hv(c), CODEX(c), a[c].get("derived", "")) for c, name in HARD]
+                a[c]["median_s"], hv(c), CODEX(c), a[c].get("derived_note", ""), rate=a[c]["pass_rate"]) for c, name in HARD]
     problems = sorted(s["problems"]); rungs = [v["rung"] for v in s["problems"].values()]
     return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>set</th><th>config</th><th>passed</th><th>total $ per pass</th>'
             '<th>Claude $ per pass</th><th>median s</th><th>verdict</th></tr></thead>'
             f'<tbody>{"".join(top)}</tbody><tbody>{"".join(hard)}</tbody></table></div>'
             '<ul class="tight small">'
             f'<li>Ladder = {len(problems)} problems, {problems[0][:3]}–{problems[-1][:3]} (L{min(rungs)}–L{max(rungs)}).</li>'
-            f'<li>Rescue = {a[HARD[0][0]]["n"]} attempts on the {len(luna_rescue.PIDS)} ladder problems luna missed most: {", ".join(plabel(q) for q in luna_rescue.PIDS)}.</li></ul>')
+            f'<li>Rescue = {a[HARD[0][0]]["n"]} attempts on the {len(s["design"]["rescue_problems"])} ladder problems luna missed most: {", ".join(plabel(q) for q in s["design"]["rescue_problems"])}.</li></ul>')
 
 
 
@@ -635,10 +619,7 @@ REPO = "https://github.com/chimera-defi/model-routing-bench/blob/main/bench/prob
 
 
 # Closest LeetCode difficulty for each new problem: my estimate from the nearest LeetCode analogue, not a measurement.
-LC = {"p01_overlap_minutes": "Medium", "p02_squash": "Easy", "p03_ledger": "Medium", "p04_taller_within": "Medium",
-      "p05_pass_route": "Medium", "p06_calc": "Hard", "p07_weighted_distance_sums": "Hard", "p08_recur": "Medium",
-      "p09_k_machine_schedule": "Hard", "p10_avoid_count": "Hard", "p11_best_average": "Hard", "p12_sheet": "Hard",
-      "p13_xor_ring": "Hard", "p14_bounce_board": "Hard", "p15_paint_erase": "Hard"}
+from analysis.configs import LC
 # Closest LeetCode analogue per problem, chosen by hand by core technique and shape. It is NOT the source (the problems
 # were written for this bench) and is not a measurement. None = nothing on LeetCode is genuinely close.
 ANALOGUE = {"p01_overlap_minutes": ("My Calendar III", "my-calendar-iii"),
@@ -665,7 +646,7 @@ PILOT = [("Fizz Buzz", "fizz-buzz", "Easy"), ("Course Schedule II", "course-sche
 def set_definitions(s):
     main = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
     hard = sorted({p for v in s["hard"].values() for p in v["by_problem"]})
-    per = len(main) // len({s["problems"][p]["rung"] for p in main})
+    per = s["design"]["per_rung"]
     l7 = ", ".join(DISP(c) for c in ORDER if c in s["hard"])
     return main, hard, per, l7
 
@@ -715,10 +696,9 @@ def method(s):
 
 def sets_box(s):
     """Collapsed reading guide below the cost/accuracy charts and their notes."""
-    from analysis.summarize import RES
     main, hard, per, l7 = set_definitions(s)
     rungs = sorted({s["problems"][p]["rung"] for p in main})
-    fast_multiplier = json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]
+    fast_multiplier = s["design"]["fast_mode_multiplier"]
     lab = lambda ps: ", ".join(f'<span class="pl" title="{esc(TESTS[p])}">{esc(plabel(p))}</span>' for p in ps)
     return ('<details class="sets"><summary>How to read the problems, rungs and sets</summary><ul class="tight small">'
             '<li>Compare each set separately.</li>'
@@ -726,16 +706,17 @@ def sets_box(s):
             f'<li><b>Main ladder</b>: {len(main)} problems, {main[0].split("_")[0]}–{main[-1].split("_")[0]}, rungs L{rungs[0]}–L{rungs[-1]} ({per} per rung, easiest first). Every config ran it.</li>'
             f'<li><b>L7 set</b>: {len(hard)} extra-hard problems ({lab(hard)}), scored separately. Added after every strong config passed L{rungs[-1]} to seek a breaking point, with more than the usual {per} problems per rung.</li>'
             f'<li>Later-run configs: {l7}.</li>'
-            f'<li><b>Rescue set</b>: {len(luna_rescue.PIDS)} main-ladder problems ({lab(luna_rescue.PIDS)}), selected afterwards for luna\'s most misses at low/medium effort, stock/bare. Used by pipeline and repair charts; distinct from the extra-hard set.</li>'
+            f'<li><b>Rescue set</b>: {len(s["design"]["rescue_problems"])} main-ladder problems ({lab(s["design"]["rescue_problems"])}), selected afterwards for luna\'s most misses at low/medium effort, stock/bare. Used by pipeline and repair charts; distinct from the extra-hard set.</li>'
             '<li>Easy/Medium/Hard badges estimate LeetCode difficulty; rungs use this bench\'s own order and may differ.</li>'
             '<li>Config names: haiku/sonnet = Claude; luna/sol/astra = Codex; suffix = effort; -bare = stripped Codex CLI system prompt.</li>'
             f'<li>⚡ = Codex fast mode (priority tier): same model and effort at {fast_multiplier:g}× the price. A thin line joins its default-tier twin in the speed chart; both overlap at full marks in the pass-rate chart.</li>'
             '</ul></details>')
 
 
-def rescue_subtitle():
-    attempts = luna_rescue.arms()["sol61-high"]["n"]
-    return (f'Rescue set = the {len(luna_rescue.PIDS)} ladder problems luna missed most. Purple = pipelines.<br>'
+def rescue_subtitle(s=None):
+    s = s or dataset.view(dataset.read())
+    attempts = rescue_arms(s)["sol61-high"]["n"]
+    return (f'Rescue set = the {len(s["design"]["rescue_problems"])} ladder problems luna missed most. Purple = pipelines.<br>'
             + esc(DECODER) + '<br>'
             f'Examples never failed for sol61-high and astra-medium (normal: separate runs; ⚡: cached answers). '
             f'{attempts} attempts per row, no intervals.')
@@ -747,9 +728,10 @@ def speed_frontier_text(s, names):
                      + (f", {100 * E[c]['pass_at_1']:.1f}% passed" if E[c]['passes'] < E[c]['n'] else "") + ")" for c in names)
 
 
-def widgets(s, need):
-    a, fa = pass_cost(s); b, fb = speed_cost(s); ha, hfa = hard_pass_cost(); hb, hfb = hard_speed_cost(); nm = dict(HARD_PTS)
+def widgets(s, need, ds=None):
+    arms = rescue_arms(ds or s)
+    a, fa = pass_cost(s); b, fb = speed_cost(s); ha, hfa = hard_pass_cost(arms); hb, hfb = hard_speed_cost(arms); nm = dict(HARD_PTS)
     return {"pass_cost": a, "speed_cost": b, "hard_pass_cost": ha, "hard_speed_cost": hb,
-            "hard_front_pass": ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": ", ".join(SHORT(nm[c]) for c in hfb), "sets": sets_box(s), "grid": grid(s), "floor": floor(s), "pipes": pipes(), "fast": fast(s), "explorer": explorer(s), "short_table": short_table(s, need),
+            "hard_front_pass": ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": ", ".join(SHORT(nm[c]) for c in hfb), "sets": sets_box(s), "grid": grid(s), "floor": floor(s), "pipes": pipes(arms), "fast": fast(s), "explorer": explorer(s), "short_table": short_table(s, need),
             "front_pass": ", ".join(map(DISP, fa)), "front_speed": speed_frontier_text(s, fb),
-            "decoder": DECODER, "rescue_subtitle": rescue_subtitle(), "problems": method(s)[0], "flags": method(s)[1]}
+            "decoder": DECODER, "rescue_subtitle": rescue_subtitle(s), "problems": method(s)[0], "flags": method(s)[1]}

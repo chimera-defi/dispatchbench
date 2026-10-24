@@ -8,9 +8,9 @@ Claude and Codex are billed separately, so the table shows both: Claude $ is Cla
 
 | Route to | When | Passed | Claude $ per pass | List $ per pass | Median s |
 |---|---|---|---|---|---|
-| **sol61-high**, haiku-low repairs only if a check fails | default while Codex has quota | 60/60 | $0 | $0.01861 | 27.4 |
-| astra-medium, same repair | faster, about 4.0× the list price (Codex usage assumed to track it) | 60/60 | $0 | $0.07526 | 20.9 |
-| haiku-low | Codex out | 57/60 | $0.00112 | $0.00112 | 10.0 |
+| **sol61-high**, haiku-low repairs only if a check fails | default while Codex has quota | 60/60 | $0 | $0.019 | 27.4 |
+| astra-medium, same repair | faster, about 4.0× the list price (Codex usage assumed to track it) | 60/60 | $0 | $0.075 | 20.9 |
+| haiku-low | Codex out | 57/60 | $0.0011 | $0.0011 | 10.0 |
 | haiku-high | Codex out and a miss is costly (exploratory) | 60/60 | $0.0028 | $0.0028 | 14.7 |
 
 Main ladder: 12 problems × 5 attempts per config.
