@@ -573,18 +573,23 @@ def method(s):
 
 
 def sets_box(s):
-    """The key to the problem sets and rungs, shown before the first chart that uses them."""
+    """Collapsed reading guide below the cost/accuracy charts and their notes."""
+    from analysis.summarize import RES
     main, hard, per, l7 = set_definitions(s)
+    rungs = sorted({s["problems"][p]["rung"] for p in main})
+    fast_multiplier = json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]
     lab = lambda ps: ", ".join(f'<span class="pl" title="{esc(TESTS[p])}">{esc(plabel(p))}</span>' for p in ps)
-    return ('<div class="sets"><b>How to read the problems, rungs and sets</b><ul class="tight small">'
-            '<li>A problem reads <span class="pl" title="spreadsheet evaluator with references, ranges, division and cycle errors">p12 sheet (L6)</span>: its number, its short name, its rung. Hover for a one-line description.</li>'
-            f'<li><b>Main ladder</b>: {len(main)} problems, p01–p12, rungs L1–L6. {per} problems per rung, rising difficulty (L1 easiest). Every config ran it.</li>'
-            f'<li><b>L7 set</b>: {len(hard)} extra-hard problems ({lab(hard)}), rung L7. {l7_reason(s)} Run later, only on: {l7}.</li>'
-            f'<li><b>Rescue set</b>: {len(luna_rescue.PIDS)} main-ladder problems chosen after the main ladder where luna, at low or medium effort, stock or bare, missed most ({lab(luna_rescue.PIDS)}). The pipeline and repair charts use it. It is a subset of the main ladder, not the L7 set.</li>'
-            '<li>Easy, Medium and Hard badges are my guess at the closest LeetCode difficulty. The rungs are this bench\'s own order, so they need not agree.</li>'
-            '<li>Config names: haiku, sonnet = Claude; luna, sol, astra = Codex; suffix = effort; -bare = Codex CLI system prompt stripped; ⚡ fast marker = fast mode.</li>'
-            '<li>⚡ after a config = Codex fast mode (priority tier): same model and effort, about twice the price, joined to its default-tier twin by a thin line (visible in the speed chart; on the pass-rate chart both twins sit on the 100% line).</li>'
-            '</ul></div>')
+    return ('<details class="sets"><summary>How to read the problems, rungs and sets</summary><ul class="tight small">'
+            '<li>Compare each set separately.</li>'
+            f'<li>Problem labels show number, short name and rung: {lab([main[-1]])}. Hover for a one-line description.</li>'
+            f'<li><b>Main ladder</b>: {len(main)} problems, {main[0].split("_")[0]}–{main[-1].split("_")[0]}, rungs L{rungs[0]}–L{rungs[-1]} ({per} per rung, easiest first). Every config ran it.</li>'
+            f'<li><b>L7 set</b>: {len(hard)} extra-hard problems ({lab(hard)}), scored separately. Added after every strong config passed L{rungs[-1]} to seek a breaking point, with more than the usual {per} problems per rung.</li>'
+            f'<li>Later-run configs: {l7}.</li>'
+            f'<li><b>Rescue set</b>: {len(luna_rescue.PIDS)} main-ladder problems ({lab(luna_rescue.PIDS)}), selected afterwards for luna\'s most misses at low/medium effort, stock/bare. Used by pipeline and repair charts; distinct from the extra-hard set.</li>'
+            '<li>Easy/Medium/Hard badges estimate LeetCode difficulty; rungs use this bench\'s own order and may differ.</li>'
+            '<li>Config names: haiku/sonnet = Claude; luna/sol/astra = Codex; suffix = effort; -bare = stripped Codex CLI system prompt.</li>'
+            f'<li>⚡ = Codex fast mode (priority tier): same model and effort at {fast_multiplier:g}× the price. A thin line joins its default-tier twin in the speed chart; both overlap at full marks in the pass-rate chart.</li>'
+            '</ul></details>')
 
 
 def rescue_subtitle():

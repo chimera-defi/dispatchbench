@@ -47,8 +47,7 @@
 </section>
 <section id="pareto">
 <h2><span class="num"></span>📊 Cost vs accuracy</h2>
-<p class="small">Haiku is cheap and accurate; Codex’s strongest configs trade more usage for reliable passes. Compare each set separately.</p>
-{{w_sets}}
+<p class="small">Haiku is cheap and accurate; Codex’s strongest configs trade more usage for reliable passes.</p>
 <div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="ring"></span>Pareto frontier</span><span>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet · triangles luna (up = low, right = medium, down = high) · ◆ sol · ★ astra. Lighter blue = the {{older_generation}} generation; dashed edge = bare prompt. Solid = normal speed; hollow = fast mode; a thin line joins it to the same config at normal speed. ⚡ also marks fast mode.</span><span>Frontier points and selected pipeline triangles are labelled; hover, tap or focus a point or a key row for the rest.</span></div>
 <div class="tabs"><input type="radio" name="pset" id="pset-all" checked><label for="pset-all">Main ladder</label><input type="radio" name="pset" id="pset-hard"><label for="pset-hard">Rescue set + pipelines</label>
 <div class="tab tab-all">
@@ -74,6 +73,7 @@
 </ul>
 </div>
 </div>
+{{w_sets}}
 </section>
 <section id="fail">
 <h2><span class="num"></span>🟥 Where they fail</h2>
