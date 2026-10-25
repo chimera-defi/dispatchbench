@@ -4,6 +4,8 @@ LeetCode-style problems, written fresh for this bench.
 
 **[Interactive report](results/report/page.html)** · [Full report](docs/REPORT.md) · [Raw data](results/) · [Reproduce](#reproduce) · [Cite](#cite)
 
+![Pass rate against $ per passing solution on the main ladder; up and left is better](results/report/charts/hero.svg)
+
 Which model and reasoning effort should a coding task be routed to? This repo measures 6 Claude Code and Codex CLI configs, plus 5 Codex configs added on 2026-10-23, on 15 Python problems written after the models' training cutoff, plus 4 small repo tasks.
 
 ## The answer
@@ -44,6 +46,15 @@ make report && make audit
 ```
 
 This rebuilds every table, chart and page from the committed cache. It makes no model calls. Needs Python and make; `pip install -r requirements.txt` adds pytest for `python3 -m pytest tests`.
+
+## Add a model
+
+1. Add a line to `CONFIGS` in `bench/run.py`: name → (CLI, model id, effort).
+2. Register it with `add(...)` in `analysis/configs.py`. A Codex model also needs its price in `results/prices.json`.
+3. Run `python3 -m bench.run --phase exploratory --configs <name>`. This makes real model calls and spends money.
+4. Run `make grade && make report && make audit`. The audit names anything left to wire up.
+
+The grader runs model-written code with CPU and memory limits only, not network or file isolation. Grade new code in a container or VM.
 
 ## For agents
 

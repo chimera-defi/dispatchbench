@@ -16,6 +16,7 @@ FAMILY = lambda c: "var(--claude,#b4572e)" if c.startswith("haiku") else "var(--
 # Per-label vertical offsets so neighbouring points' labels do not collide.
 LABEL_DY = {"luna-low": 18, "luna-low-bare": 18, "sol61-medium": 18, "sol56-high": 18}  # the 100% row holds three configs
 LABEL_LEFT = {"haiku-low", "sonnet-medium"}  # left of the point, clear of luna-high and the 100% row
+HERO_LEFT = {"sonnet-medium": 18, "haiku-medium": 4}  # README hero: left of the point, label dy; clear of the 100% row picks
 
 
 def svg(w, h, body):
@@ -37,7 +38,9 @@ def log_ticks(lo, hi):
     return out
 
 
-def pareto_chart(s):
+def pareto_chart(s, hero=False):
+    """hero: README version, no intervals, labels only on the frontier and the Winner picks."""
+    from analysis.page import WINNER_PICKS  # late import: page imports this module
     cfg = {c: v for c, v in s["configs"].items() if v["usd_per_pass"]}
     extra = {c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"]}  # exploratory, not on the pre-registered frontier
     allc = {**cfg, **extra}
@@ -46,7 +49,7 @@ def pareto_chart(s):
     x0, x1 = min(xs) / 1.6, max(xs) * 1.6; y0 = 0.6
     X = lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R)
     Y = lambda p: H - B - (p - y0) / (1 - y0) * (H - T - B)
-    b = [text(L, 24, "Pass rate vs cost per passing solution (main ladder p01-p12, x log)", 14, weight="600")]
+    b = [text(L, 24, "Pass rate vs $ per pass, main ladder (up and left is better)" if hero else "Pass rate vs cost per passing solution (main ladder p01-p12, x log)", 14, weight="600")]
     for p in (0.6, 0.7, 0.8, 0.9, 1.0):
         b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
     for v in log_ticks(x0, x1):
@@ -61,15 +64,25 @@ def pareto_chart(s):
         x, y = X(v["usd_per_pass"]), Y(v["pass_at_1"]); on = c in front; hollow = "-fast" in c
         lo, hi = v["ci95"]
         col = FAMILY(c)
-        b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(max(lo, y0)):.1f}' y2='{Y(hi):.1f}' stroke='{col}' stroke-width='2' opacity='0.35'/>")
+        if not hero:
+            b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(max(lo, y0)):.1f}' y2='{Y(hi):.1f}' stroke='{col}' stroke-width='2' opacity='0.35'/>")
         if hollow:
             b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='5.5' fill='{PLATE}' stroke='{col}' stroke-width='2'/>")
         else:
             b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='{7 if on else 5.5}' fill='{col}' stroke='{INK if on else PLATE}' stroke-width='1.5'/>")
         right = x > W - R - 170 or c in LABEL_LEFT
         label = f"{DISP(c)} ({100 * v['pass_at_1']:.0f}%){' *' if v['cost_kind'] == 'proxy' else ''}{', exploratory' if c in extra else ''}"
+        if hero:
+            if not (on or c in WINNER_PICKS): continue
+            pick = WINNER_PICKS.get(c)
+            label = f"{DISP(c)}{' ✓ ' + pick if pick else ''}"
+            left = c in HERO_LEFT or (c in LABEL_LEFT and v["pass_at_1"] < 1)
+            dy = HERO_LEFT.get(c, -10 if v["pass_at_1"] == 1 else 4)
+            b.append(text(x - 10 if left else x + 10, y + dy, label, 12, "end" if left else "start", INK, "600" if pick else "normal"))
+            continue
         b.append(text(x - 10 if right else x + 10, y + LABEL_DY.get(c, -8), label, 11, "end" if right else "start", MUTED if hollow else INK))
-    b.append(text(L, H - 10, "Dashed: Pareto. Bars: 95% CI. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
+    b.append(text(L, H - 10, "Dashed: Pareto frontier. Hollow: fast mode. Codex $ is a token-price estimate." if hero else
+                  "Dashed: Pareto. Bars: 95% CI. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
     return svg(W, H, b)
 
 
@@ -350,7 +363,7 @@ def build(ds=None):
     """{file name: SVG text or None}, using only the dataset."""
     ds = ds or dataset.read(); s = dataset.view(ds)
     check_design(s)
-    charts = {"pareto.svg": pareto_chart(s), "cost_time.svg": cost_time_chart(s), "pass_by_rung.svg": rung_chart(s, ds), "heatmap.svg": heatmap(s),
+    charts = {"pareto.svg": pareto_chart(s), "hero.svg": pareto_chart(s, hero=True), "cost_time.svg": cost_time_chart(s), "pass_by_rung.svg": rung_chart(s, ds), "heatmap.svg": heatmap(s),
               "token_floor.svg": floor_chart(s), "agentic.svg": agentic_chart(s), "token_in.svg": token_in_chart(s, ds), "harness_bias.svg": harness_chart(s)}
     charts["cost_total.svg"], charts["cost_per_1k.svg"] = cost_tokens_chart(s, ds)
     return charts
