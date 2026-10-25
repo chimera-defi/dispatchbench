@@ -992,8 +992,10 @@ def _equivalents(ds):
     for r in claude:
         m = min((q for q in codex if q["pass_rate"] >= r["pass_rate"]), key=lambda q: q["usd_per_pass"])
         pairs.append((r, m))
-        out.append([r["display"], pct(r), usd(r["usd_per_pass"]), f'{r["median_s"]:.0f}', m["display"], pct(m), usd(m["usd_per_pass"]), f'{m["median_s"]:.0f}'])
-    ds["tables"]["equiv"] = md_table(["Claude", "passed", "$ per pass", "median s", "Codex match", "passed", "$ per pass (est.)", "median s"], out)
+        # one column per measure, "Claude → Codex", so both sides stay visible on a narrow screen
+        out.append([f'{r["display"]} → {m["display"]}', f'{pct(r)} → {pct(m)}', f'{usd(r["usd_per_pass"])} → ~{usd(m["usd_per_pass"])}',
+                    f'{r["median_s"]:.0f} → {m["median_s"]:.0f}'])
+    ds["tables"]["equiv"] = md_table(["Claude → Codex match", "passed", "$ per pass", "median s"], out)
     need(all(m["usd_per_pass"] > r["usd_per_pass"] for r, m in pairs), "every Codex match costs more per pass at list price")
     need(all(m["median_s"] > r["median_s"] for r, m in pairs), "every cheapest Codex match is slower")
     top = [r for r in claude if r["pass_rate"] == 1]

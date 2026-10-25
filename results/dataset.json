@@ -23947,55 +23947,35 @@
   },
   "equiv": {
    "head": [
-    "Claude",
+    "Claude → Codex match",
     "passed",
     "$ per pass",
-    "median s",
-    "Codex match",
-    "passed",
-    "$ per pass (est.)",
     "median s"
    ],
    "rows": [
     [
-     "haiku-low",
-     "95%",
-     "$0.0011",
-     "10",
-     "sol61-medium",
-     "97%",
-     "$0.015",
-     "23"
+     "haiku-low → sol61-medium",
+     "95% → 97%",
+     "$0.0011 → ~$0.015",
+     "10 → 23"
     ],
     [
-     "haiku-medium",
-     "98%",
-     "$0.0015",
-     "13",
-     "sol61-high",
-     "100%",
-     "$0.019",
-     "27"
+     "haiku-medium → sol61-high",
+     "98% → 100%",
+     "$0.0015 → ~$0.019",
+     "13 → 27"
     ],
     [
-     "haiku-high",
-     "100%",
-     "$0.0028",
-     "15",
-     "sol61-high",
-     "100%",
-     "$0.019",
-     "27"
+     "haiku-high → sol61-high",
+     "100% → 100%",
+     "$0.0028 → ~$0.019",
+     "15 → 27"
     ],
     [
-     "sonnet-medium",
-     "100%",
-     "$0.012",
-     "10",
-     "sol61-high",
-     "100%",
-     "$0.019",
-     "27"
+     "sonnet-medium → sol61-high",
+     "100% → 100%",
+     "$0.012 → ~$0.019",
+     "10 → 27"
     ]
    ]
   },
