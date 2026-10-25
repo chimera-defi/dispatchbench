@@ -655,6 +655,10 @@ def _facts(s, arms):
     hmx = cfg["haiku-medium"]; need(hmx["passes"] < hmx["n"] and hm7["passes"] < hm7["n"], "haiku-medium misses on L1-L6 and L7; haiku-high is where parity starts")
     need(all(ag[c]["hidden_pass"] == ag[c]["n"] for c in ("astra-medium", "sol61-high")), "both trusted Codex configs passed every repo task")
     F["x_s61h_vs_sm"] = x(ex["sol61-high"]["usd_per_pass"], sm_all)
+    # Winner: the Codex pick against the Claude config that matches it (both perfect on L1-L6 and L7)
+    for k, c in (("s61h", "sol61-high"), ("s61f", "sol61-high-fast")):
+        v = ex[c]; need(v["passes"] == v["n"] and v["latency_s"]["median"] > hx["latency_s"]["median"] and v["usd_per_pass"] > hx["usd_per_pass"], f"{c} matches haiku-high's passes but is slower and dearer")
+        F[f"{k}_hh_t"] = f"{v['latency_s']['median'] / hx['latency_s']['median']:.1f}×"; F[f"{k}_hh_c"] = f"{v['usd_per_pass'] / hx['usd_per_pass']:.0f}×"
     # trusted Codex builders: who bills what. Codex calls bill the Codex subscription, so their Claude $ is zero by construction.
     ah, sh = ex["astra-medium"], ex["sol61-high"]
     F["x_astra_vs_s61h"] = x(ah["usd_per_pass"], sh["usd_per_pass"])
@@ -818,6 +822,11 @@ def method_appendix(ds):
     need(sub and all(r['passed'] and ours[r['config'], r['problem'], r['repeat']] for r in sub),
          "every subset cell passed on both benches")
     ds['facts']['hb_subset'] = f"It first replayed {len(sub)} of our {' and '.join(sorted({r['config'] for r in sub}))} results. All passed on both."
+    hh1, hh2 = cell['haiku-low', 'claude-one-shot'], cell['haiku-low', 'codex-tool-loop']
+    need(0.8 < hh2['s'] / hh1['s'] < 1.25 and hh2['usd'] / hh1['usd'] < 1.5, "Codex's bench barely moved haiku-low's time and cost")
+    ds['facts']['hb_haiku_cost'] = f"haiku-low cost {hh2['usd'] / hh1['usd']:.1f}× as much there, in about the same time."
+    tot = lambda h: sum(cell[c, h]['usd'] for c in harness_bias.CFGS)
+    ds['facts']['hb_total_x'] = f"{tot('codex-tool-loop') / tot('claude-one-shot'):.1f}×"
     ds['facts']['hb_luna_cost'] = f"luna-low cost {loop['usd'] / one['usd']:.0f}× more and took {loop['s'] / one['s']:.0f}× longer there."
     s = ds['report']
     counts = []

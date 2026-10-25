@@ -6,6 +6,7 @@
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
 <p><b>{{winner_line}}</b></p>
+<p class="small">Against haiku-high, sol61-high takes {{s61h_hh_t}} the time and ~{{s61h_hh_c}} the $ per pass. ⚡ makes that {{s61f_hh_t}} the time at ~{{s61f_hh_c}} the $.</p>
 <details class="small"><summary>Picks and model names</summary>
 {{w_winner}}
 <details class="small names"><summary>Model names</summary>
@@ -144,7 +145,7 @@
 </section>
 <section id="pipes">
 <h2><span class="num"></span>🔗 Pipelines: plan, check, fix</h2>
-<p class="small">Best luna fix: luna-high-bare →H all (Haiku checks every answer). Here, bare means Codex's system prompt was trimmed. It passed {{r_luna_high_bare_haiku_review_all_k}} at {{r_luna_high_bare_haiku_review_all_upp}} per pass. Pipelines ran only on the {{n_rescue_problems}}-problem {{set_label}}.</p>
+<p class="small">A pipeline chains two steps, e.g. one model writes and Haiku checks. "→H fail" = Haiku fixes only failed examples. "→H all" = Haiku checks every answer. The best luna pipeline, luna-high-bare →H all, passed {{r_luna_high_bare_haiku_review_all_k}} at {{r_luna_high_bare_haiku_review_all_upp}} per pass (bare = Codex's system prompt trimmed). Pipelines ran only on the {{n_rescue_problems}}-problem {{set_label}}.</p>
 <div class="chart floor"><h3>Passes, $ per pass, median seconds</h3><p class="sub">{{pipes_caption}}</p>{{w_pipes}}</div>
 <ul class="tight small">
 <li>sol61-high and astra-medium never failed an example, so Haiku never ran.</li>
@@ -163,15 +164,15 @@
 <ul class="tight small">
 <li>Claude designed this bench. Each model answers once, tools off.</li>
 <li>Codex designed a second bench. Each model runs inside its vendor's agent CLI.</li>
-<li>luna-low ran in Codex CLI. haiku-low ran in Claude Code.</li>
-<li>That loop runs code and retries.</li>
+<li>We tested each vendor's cheapest model at low effort: luna-low in Codex CLI, haiku-low in Claude Code.</li>
+<li>sol61-high was skipped: it already passed every try, so a better bench cannot raise it.</li>
+<li>That CLI loop runs code and retries.</li>
 <li>luna-low went {{hb_luna_low_change}}. haiku-low went {{hb_haiku_low_change}}.</li>
 <li>Why luna-low gained: wrong answers fell from {{hb_luna_wrong_one}} to {{hb_luna_wrong_agent}} once it could run code.</li>
-<li>{{hb_luna_cost}}</li>
+<li>{{hb_luna_cost}} {{hb_haiku_cost}} Overall, Codex's bench cost {{hb_total_x}} as much.</li>
 <li>Running code, not who built the bench, may explain the gain.</li>
 <li>The gap moved {{hb_diff_points}} points, below our {{hb_bar_points}}-point bias bar.</li>
 <li>The range is {{hb_range_points}} points, so a larger bias is possible.</li>
-<li>sol61-high already passed every try on our bench. A better bench cannot raise it.</li>
 <li>Two more luna-low variants are listed under Everything we tried. luna-low-noshell-B1 removes shell context and asks for edge cases first. luna-low-noshell-B2 also asks for a detailed reasoning summary. {{noshell_comparison}}</li>
 </ul>
 {{table:harness_strengths}}
@@ -192,13 +193,14 @@
 <h2 class="eyebrow"><span class="num"></span>✅ CONCLUSION</h2>
 <b>{{winner_line}}</b>
 <ol class="tight">
-<li>Codex quota left? Send the task to sol61-high ⚡.</li>
-<li>Run the worked examples. If one fails, hand it to haiku-low. {{default_route_scope}}</li>
-<li>Quota out? Use haiku-high, the cheapest with no misses on the main ladder.</li>
+<li>With Codex quota left, send each task to sol61-high ⚡.</li>
+<li>Then run the worked examples. If one fails, haiku-low fixes it. {{default_route_scope}}</li>
+<li>With Codex quota gone, use haiku-high. It is the cheapest config with no misses.</li>
 </ol>
 <ul class="tight">
-<li>Need speed? sonnet-medium takes {{sonnet_medium_med}} s to haiku-high's {{haiku_high_med}} s. It costs {{sm_vs_hh_x}} as much.</li>
-<li>Avoid luna-low or luna-medium alone.</li>
+<li>If speed matters most, use sonnet-medium. It takes {{sonnet_medium_med}} s to haiku-high's {{haiku_high_med}} s.</li>
+<li>sonnet-medium costs {{sm_vs_hh_x}} as much per pass.</li>
+<li>Don't use luna-low or luna-medium alone: they miss about {{cheap_miss_words}}.</li>
 <li>{{hb_conclusion_copy}}</li>
 </ul>
 </section>

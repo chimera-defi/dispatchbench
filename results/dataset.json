@@ -22402,6 +22402,10 @@
   "hh_astra_hx": "25×",
   "l7_astra_med": "31",
   "x_s61h_vs_sm": "1.5×",
+  "s61h_hh_t": "1.9×",
+  "s61h_hh_c": "7×",
+  "s61f_hh_t": "1.2×",
+  "s61f_hh_c": "13×",
   "x_astra_vs_s61h": "4.0×",
   "ag_n": "12",
   "claude_zero": "$0",
@@ -22449,6 +22453,8 @@
   "equiv_fastest": "Fastest Codex at 100%: astra-medium ⚡, 10 s. It costs $0.15 per pass.",
   "equiv_near": "At haiku-low's price, the best Codex is luna-high: 92% to 95%.",
   "hb_subset": "It first replayed 12 of our haiku-low and sol61-medium results. All passed on both.",
+  "hb_haiku_cost": "haiku-low cost 1.1× as much there, in about the same time.",
+  "hb_total_x": "1.8×",
   "hb_luna_cost": "luna-low cost 4× more and took 3× longer there."
  },
  "tables": {
