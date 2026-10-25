@@ -73,6 +73,10 @@ def _claude(r, source, usd):
     return usd if str(r.get("cli", "")).startswith("claude") else 0.0
 
 
+def _harness_rows():
+    return summarize.harness_rows(load(os.path.join(RES, "appendix", "harness_bias.jsonl")))
+
+
 def _rows():
     """[(source, name, set, row dict with _usd/_claude/_pass/_sec/_group)] from every results file."""
     out = []
@@ -97,12 +101,12 @@ def _rows():
         add("trim", r["config"], "trim probe", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "trim"), r["in_tok"], r["out_tok"])
     for r in load(os.path.join(RES, configs.SOURCES["pilot"][0])):
         add("pilot", r["config"], "pilot", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "pilot"), r["in_tok"], r["out_tok"])
-    for r in load(os.path.join(RES, configs.SOURCES["rescue"][0])):
+    for r in summarize.rescue_rows():
         add("rescue", r["config"], "rescue arms", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "rescue"), r["in_tok"], r["out_tok"])
     for r in load(os.path.join(RES, configs.SOURCES["pilot-agentic"][0])):
         add("pilot-agentic", f"pipeline {r['pipeline']}", "pilot repo task", r, r["hidden_pass"], r["builder_wall_s"], f"round {r['round']}", _usd(r, "pilot-agentic"), r["builder_in"], r["builder_out"])
     for f in configs.SOURCES["harness-bias"]:
-        for r in load(os.path.join(RES, f)):
+        for r in (_harness_rows() if f == configs.SOURCES["harness-bias"][0] else load(os.path.join(RES, f))):
             add("harness-bias", f"{r['config']} / {'Codex' if r['phase'] == 'codex_harness' else 'Claude'} harness", "harness bias", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "harness-bias"), r["in_tok"], r["out_tok"])
     return out
 
@@ -237,7 +241,7 @@ def vs(s, c, b):
 
 def fairness_facts():
     """Page facts from committed appendix rows; never regenerate or grade the experiment."""
-    rows = load(os.path.join(RES, "appendix", "harness_bias.jsonl"))
+    rows = _harness_rows()
     result = harness_bias.pass_summary(rows)
     lo, hi = result['ci']
     need(result['missing'] == 0, "harness comparison has complete pairs")
@@ -823,12 +827,12 @@ def _tables(s, arms):
             legacy[r["_file"], r["config"], r.get("phase", "agentic")] += 1
     # The one-shot arm used bench.run; the tool-loop arm used codex_harness.
     bias_file = "results/appendix/harness_bias.jsonl"
-    for r in load(os.path.join(ROOT, bias_file)):
+    for r in _harness_rows():
         if r["cli"] == "codex" and r["harness"] == "claude-one-shot" and r.get("codex_home") != "isolated":
             legacy[bias_file, r["config"], r["phase"]] += 1
     # These committed pipeline producers import bench.run.call_codex.
     rescue_file = "results/appendix/luna_rescue.jsonl"
-    for r in load(os.path.join(ROOT, rescue_file)):
+    for r in summarize.rescue_rows():
         if r["arm"] in ("F", "G") and r.get("codex_home") != "isolated":
             legacy[rescue_file, r["config"], "rescue " + r["arm"]] += 1
     T["unisolated"] = md_table(["file", "config", "track", "rows"],
@@ -837,7 +841,7 @@ def _tables(s, arms):
                                     [[f, str(count)] for f, count in sorted(provenance.items())])
     changes = []
     old_function, old_agentic = load(FUNC), load(AGENT)
-    for track, c in [(ph, c) for ph, c in summarize.ISOLATED] + [("agentic", c) for c in sorted(ag) if ag[c]["cli"] == "codex"]:
+    for track, c in dict.fromkeys((r.get("phase", "agentic"), r["config"]) for r in selected if r.get("codex_home") == "isolated"):
         cells = []
         for raw in ((old_agentic if track == "agentic" else old_function), selected):
             rr = [r for r in raw if r["config"] == c and r.get("phase", "agentic") == track]
@@ -854,7 +858,7 @@ def _tables(s, arms):
 def method_appendix(ds):
     """Pooled harness outcomes and failure counts, with their scopes stated on the page."""
     # The paired run only (60 tries per cell), so both benches compare like for like.
-    rows = load(os.path.join(RES, "appendix", "harness_bias.jsonl"))
+    rows = _harness_rows()
     bench = {'claude-one-shot': "Claude's bench", 'codex-tool-loop': "Codex's bench"}
     cell, cells = {}, []
     for c in harness_bias.CFGS:
@@ -1138,7 +1142,7 @@ def _interesting(ds):
     F["int_repo"] = (f'On repo edits, sol61-high took {rp["sol61-high"]["median_s"]:.0f} s; astra-medium took {rp["astra-medium"]["median_s"]:.0f} s. '
                      f'sonnet-medium and haiku-low took about {rp["sonnet-medium"]["median_s"]:.0f} s. '
                      'Both Codex picks took over twice as long. All passed every hidden test.')
-    harness_rows = load(os.path.join(RES, "appendix", "harness_bias.jsonl"))
+    harness_rows = _harness_rows()
     comparisons = {}
     for c in harness_bias.CFGS:
         cells = []
