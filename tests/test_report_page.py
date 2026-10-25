@@ -723,5 +723,30 @@ def test_regressed_facts_stay_restored():
     output = open("results/report/page.html").read()
     for phrase in ("The 95% range is", "plan and reorient", "repeat cap, a two-line change", "that pipeline cost",
                    "Planted wrong answers must fail", "after seeing the main-run results", "via radon", "ruff style warnings",
-                   "not a measured bill", "slower, no better code"):
+                   "not a measured bill", "slower, no better code",
+                   "Claude designed and ran this bench; Codex built only its own harness.",
+                   "Codex-as-orchestrator run: not run yet.",
+                   "Codex out? haiku-low passed 57/60.", "$0.0011 per pass; use haiku-high when a miss is costly.",
+                   "Would block = would not merge as is.",
+                   "~$0.40", "~$0.37",
+                   "Fast-mode pipelines equal their builders because every example check passed.", "Haiku made 0 repairs.",
+                   "luna-low failed sample tests more often: 13 repairs, so the gate helped it more.",
+                   "Codex's bench dry runs missed 2 sandbox bugs; a live call found them.",
+                   'Its "plan and reorient" nudge changed no code.',
+                   "On L7, luna-high passed 15/15; sol56-high missed.",
+                   "luna-high cost ~$0.0015 per pass versus sol56-high's ~$0.069.",
+                   "Disabling luna-low's tool features cut input 31%, yet raised estimated cost 2.1×."):
         assert phrase in output, phrase
+    for config in ("luna-low", "sol61-medium"):
+        label = f"{config} / Codex&#x27;s bench (Codex CLI)"
+        row = next(r for r in re.findall(r"<tr\b.*?</tr>", output, re.S) if f">{label}</td>" in r)
+        assert "–" not in row
+        assert "~$" in row
+
+
+@pytest.mark.parametrize("fact", ["bench_authorship", "winner_fallback", "fast_pipeline_note",
+                                 "int_build", "int_l7", "int_trim"])
+def test_restored_prose_stays_short(fact):
+    for sentence in re.split(r"(?<=[.!?])\s+", dataset.read()["facts"][fact]):
+        assert len(sentence.split()) <= 15, sentence
+        assert len(re.findall(r"(?<![\w.])\d+(?:\.\d+)?(?![\w.])", sentence)) <= 2, sentence

@@ -6,6 +6,7 @@
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
 <p><b>{{winner_line}}</b></p>
+<p class="small">{{winner_fallback}}</p>
 <p class="small">Against haiku-high, sol61-high takes {{s61h_hh_t}} the time and ~{{s61h_hh_c}} the $ per pass. ⚡ makes that {{s61f_hh_t}} the time at ~{{s61f_hh_c}} the $.</p>
 <details class="small"><summary>Picks and model names</summary>
 {{w_winner}}
@@ -150,6 +151,8 @@
 <li>→H fail: Haiku fixes an answer only if a sample test fails. →H all: Haiku checks every answer.</li>
 <li>bare = Codex's system prompt trimmed.</li>
 <li>sol61-high and astra-medium never failed a sample test, so Haiku never ran.</li>
+<li>{{fast_pipeline_note}}</li>
+<li>luna-low failed sample tests more often: {{g_lo_fixed}} repairs, so the gate helped it more.</li>
 <li>⚡ pipeline rows reuse cached ⚡ answers. Other pipeline rows are new calls.</li>
 <li>Router: per main-ladder problem, the cheapest config that passed tries {{router_fit}}.</li>
 <li>On tries {{router_held}} it passed {{router_k}}.</li>
@@ -163,6 +166,7 @@
 {{chart:harness_bias.svg|{{hb_n_problems}} hard problems, {{hb_repeats}} tries each}}
 <details class="small"><summary>What we tested and what we found</summary>
 <ul class="tight small">
+<li>{{bench_authorship}}</li>
 <li>Claude's bench: one answer per try, tools off.</li>
 <li>Codex's bench: each model runs in its vendor's agent CLI, which runs code and retries.</li>
 <li>luna-low ran in Codex CLI, haiku-low in Claude Code: each vendor's cheapest model.</li>
@@ -209,6 +213,7 @@
 <details><summary>What could mislead</summary>
 <ul class="tight">
 <li>Scope: {{n_problems}} main problems, written for this bench.</li>
+<li>Codex-as-orchestrator run: {{codex_orchestrator_status}}.</li>
 <li>Most have a LeetCode analogue, so models may have seen similar code.</li>
 <li>The problems ship with this repo, so later models may train on them.</li>
 <li>Intervals resample whole problems, since tries on one problem are related.</li>
@@ -349,6 +354,9 @@
 <li>{{int_luna}}</li>
 <li>{{int_semi}}</li>
 <li>{{int_harness}}</li>
+<li>{{int_build}}</li>
+<li>{{int_l7}}</li>
+<li>{{int_trim}}</li>
 <li>{{int_repo}}</li>
 </ul>
 </section>

@@ -200,8 +200,9 @@ def section(rest, ds, root, chart_bodies=None):
         out.append(f"<details><summary>{html.escape(label)}: {ds['categories'][cat]['n_configs']} configs, {money(ds['categories'][cat]['spend'])} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
         for e in es:
             spend = None if e["unknown_usd"] else e["spend"]
+            proxy = "~" if e["cost_kind"] == "proxy" else ""
             out.append(f"<tr><td title=\"{html.escape(', '.join(e['files']))}\">{html.escape(e['display'])}</td><td>{html.escape(e['what'])}</td><td>{e['passes']}/{e['n']}</td>"
-                       f"<td>{money(e['usd_per_pass'])}</td><td>{e['median_s']:.1f}</td><td>{money(spend)}</td><td>{where(e, rest, chart_bodies)}</td></tr>")
+                       f"<td>{proxy if e['usd_per_pass'] is not None else ''}{money(e['usd_per_pass'])}</td><td>{e['median_s']:.1f}</td><td>{proxy if spend is not None else ''}{money(spend)}</td><td>{where(e, rest, chart_bodies)}</td></tr>")
         out.append("</tbody></table></div></details>")
     out += [f"<details><summary>unregistered</summary><p>{html.escape(r['display'])} ({r['source']})</p></details>" for es in by.values() for r in es]
     return "\n".join(out + ["</details>"])

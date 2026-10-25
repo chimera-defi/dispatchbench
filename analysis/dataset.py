@@ -54,7 +54,7 @@ def _mult(r):
 
 
 def _usd(r, source):
-    if source in ("rescue", "harness-bias") and "cost_usd" in r: return r["cost_usd"]
+    if source in ("rescue", "harness-bias") and r.get("cost_usd") is not None: return r["cost_usd"]
     if source == "pilot-agentic":
         c = r.get("builder_cost_usd")
         if c is None:
@@ -146,6 +146,7 @@ def _base():
     groups = defaultdict(list)
     for src, name, st, x in _rows(): groups[(src, name, st)].append(x)
     rows = [_row(src, name, st, rr) for (src, name, st), rr in groups.items()]
+    need(all(not r["unknown_usd"] for r in rows), "every table row has complete measured or proxy costs")
     allr = defaultdict(list)
     for (src, name, st), rr in groups.items():
         if src == "main" and st in ALL_RUN_SETS: allr[(src, name)] += rr
@@ -338,6 +339,7 @@ def _facts(s, arms):
     need(all(v["n"] == cfg["haiku-low"]["n"] for v in every.values()), "every function-track config has the same number of calls")
     attributed = (r for path in sorted(glob.glob(os.path.join(RES, "**", "*.jsonl"), recursive=True)) for r in load(path))
     F["codex_orchestrator_status"] = codex_orchestrator_status(attributed)
+    need(F["codex_orchestrator_status"] == "not run yet", "Codex has not orchestrated this benchmark")
     F.update(fairness_facts())
     # Models and versions: one CLI version per vendor across the function track.
     by_cli = defaultdict(set)
@@ -521,6 +523,10 @@ def _facts(s, arms):
     F["r_e_luna"] = f"{sum(r['luna_passed'] for r in ee['rows'])}/{ee['n']}"; F["r_e_changed"] = str(sum(r["haiku_changed"] for r in ee["rows"]))
     F["r_e_haiku_share"] = pct(sum(r["haiku_cost_usd"] for r in ee["rows"]) / ee["usd_total"])
     F["orchestrator"] = "Claude Opus 5.5"  # the model that designed, ran and checked this benchmark; not a measured config
+    need(F["orchestrator"].startswith("Claude ") and F["codex_orchestrator_status"] == "not run yet"
+         and any(r.get("harness") == "codex-designed" for r in load(os.path.join(RES, "appendix", "codex_harness.jsonl"))),
+         "Claude designed and ran the bench; Codex built its own harness, not the whole experiment")
+    F["bench_authorship"] = "Claude designed and ran this bench; Codex built only its own harness."
     hr, lr, hv, sm = a["luna-high-bare+haiku-on-fail"], a["luna-low+haiku-on-fail"], a["luna-high-bare+haiku-review-all"], a["sonnet-medium"]
     need(hv["passes"] == hv["n"] == sm["passes"], "luna-high + Haiku review and sonnet-medium never failed on the rescue set")
     hm = a["haiku-medium"]; need(hm["passes"] == hm["n"] and hm["usd_per_pass"] < hv["usd_per_pass"], "haiku-medium alone: no miss, cheaper than the pipeline")
@@ -537,6 +543,8 @@ def _facts(s, arms):
     need(a["haiku-low-plan+luna-low"]["passes"] > a["luna-low"]["passes"], "planning helps luna-low")
     need(all(a["haiku-low-plan+" + c]["usd_per_pass"] > a[c + "+haiku-on-fail"]["usd_per_pass"] for c in ("luna-low", "luna-high-bare")), "both plan-first arms cost more than their corresponding check-after arms")
     F["g_hi_missed"] = str(hr["n"] - hr["passes"]); F["g_lo_fixed"] = str(sum(r["repaired"] for r in lr["rows"]))
+    need(int(F["g_lo_fixed"]) > fixed and lr["passes"] - a["luna-low"]["passes"] > hr["passes"] - a["luna-high-bare"]["passes"] > 0,
+         "luna-low triggers more sample-test repairs and gains more passes than luna-high-bare")
     # appendix: the pilot (results/2026-10-22-pilot.jsonl) and the trim probe's pair step on three of its problems
     pl = s["pilot"]; prow = load(os.path.join(RES, "2026-10-22-pilot.jsonl"))
     need(all(v["passes"] == v["n"] for v in pl.values()), "every pilot run passed")
@@ -591,8 +599,10 @@ def _facts(s, arms):
             sentence_case = lambda t: ". ".join(part[0].upper() + part[1:] for part in t.split("; "))
             method = b['method'].replace("; the reviewer saw code only", "").replace("A-E", "A–E")
             scale = re.sub(r";?\s*block =[^;]*", "", b["scale"]).replace("1-10", "1–10")
+            need("block = would not merge as is" in b["scale"], "blind-review blocks mean would not merge as is")
             F["blind_caption"] = (f"Reader: {b['reviewer']}. Method: {sentence_case(method)}. "
-                                  f"Score: {sentence_case(scale)}. {next(iter(counts.values()))} solutions per config.")
+                                  f"Score: {sentence_case(scale)}. {next(iter(counts.values()))} solutions per config. "
+                                  "Would block = would not merge as is.")
             scores = {c: statistics.mean(i['score'] for i in b['items'] if i['config'] == c) for c in counts}
             others = [v for c, v in scores.items() if c != 'sonnet-medium']
             F['bl_sonnet_score'] = f"{scores['sonnet-medium']:.1f}/{10}"
@@ -1044,6 +1054,20 @@ def _equivalents(ds):
 def _interesting(ds):
     """Findings the operator flagged as worth sharing. Each line is computed and pinned."""
     F, ml = ds["facts"], "main ladder"
+    hl, hh = (get(ds, c, ml) for c in ("haiku-low", "haiku-high"))
+    need(hl["passes"] < hl["n"] == hh["n"] == hh["passes"] and hl["usd_per_pass"] < hh["usd_per_pass"],
+         "haiku-low is a cheaper fallback; haiku-high avoids its main-ladder misses")
+    F["winner_fallback"] = (f'Codex out? haiku-low passed {hl["passes"]}/{hl["n"]}. '
+                            f'It costs {usd(hl["usd_per_pass"])} per pass; use haiku-high when a miss is costly.')
+    checks = ds["derived_pipelines"]
+    need(all(checks[c]["all"]["n"] > 0 and checks[c]["all"]["failures"] == 0
+             and checks[c]["rescue"]["pipeline"] is not None
+             for c in ("sol61-high-fast", "astra-medium-fast")),
+         "fast-mode pipelines equal their builders because every cached example check passed")
+    repairs = sum(checks[c]["all"]["failures"] for c in ("sol61-high-fast", "astra-medium-fast"))
+    need(repairs == 0, "Haiku made zero repairs in the derived fast-mode arms")
+    F["fast_pipeline_note"] = ("Fast-mode pipelines equal their builders because every example check passed. "
+                               f"Haiku made {repairs} repairs.")
     for c in ("sol61-high", "astra-medium"):
         pipe, plain = get(ds, c + "+haiku-on-fail", "rescue arms", "rescue"), get(ds, c, "rescue set")
         need(pipe["spend_claude"] == 0 and pipe["passes"] == plain["passes"], f"{c} →H fail: Haiku never ran and passes match the plain row")
@@ -1086,6 +1110,26 @@ def _interesting(ds):
                      f'sonnet-medium and haiku-low took about {rp["sonnet-medium"]["median_s"]:.0f} s. All passed every task.')
     F["int_harness"] = (f'Codex CLI lifted luna-low from {F["hb_luna_low_change"].replace("→", " to ")} passes. '
                         f'haiku-low moved {F["hb_haiku_low_change"]} in Claude Code, near its ceiling.')
+    # Build history lives in the existing fair-section narrative, not graded rows.
+    template = open(os.path.join(ROOT, "docs", "page.tmpl.md")).read()
+    history = template.split('<summary>How Codex built its bench</summary>', 1)[1].split('</details>', 1)[0]
+    bugs = re.search(r'Its dry runs missed (\w+) sandbox bugs\. A live call found them; Codex fixed both\.', history)
+    need(bugs is not None and bugs[1] == "two" and 'A final "plan and reorient" nudge changed no code.' in history,
+         "the recorded bench-build history reports two dry-run misses found live and a code-neutral nudge")
+    F["int_build"] = (f'Codex\'s bench dry runs missed {dict(two=2)[bugs[1]]} sandbox bugs; a live call found them. '
+                      'Its "plan and reorient" nudge changed no code.')
+    cheap, dear = (get(ds, c, "L7 set") for c in ("luna-high", "sol56-high"))
+    need(cheap["passes"] == cheap["n"] == dear["n"] > dear["passes"]
+         and 0 < cheap["usd_per_pass"] < dear["usd_per_pass"],
+         "luna-high beats sol56-high on L7 passes and estimated cost")
+    F["int_l7"] = (f'On L7, luna-high passed {cheap["passes"]}/{cheap["n"]}; sol56-high missed. '
+                   f'luna-high cost ~{usd(cheap["usd_per_pass"])} per pass versus sol56-high\'s ~{usd(dear["usd_per_pass"])}.')
+    stock, trim = (get(ds, c, "trim probe", "trim") for c in ("luna/base", "luna/nofeat"))
+    need(stock["passes"] == stock["n"] == trim["n"] == trim["passes"]
+         and trim["tokens_in_mean"] < stock["tokens_in_mean"] and trim["usd_per_call"] > 2 * stock["usd_per_call"],
+         "tool-feature trimming reduces mean input but more than doubles estimated call cost at equal passes")
+    F["int_trim"] = (f'Disabling luna-low\'s tool features cut input {1 - trim["tokens_in_mean"] / stock["tokens_in_mean"]:.0%}, '
+                     f'yet raised estimated cost {x(trim["usd_per_call"], stock["usd_per_call"])}.')
 
 def build(summary=None):
     from bench.problems.p13_xor_ring import STATEMENT as xor_statement
