@@ -10,7 +10,7 @@
  {"context": "2 GB memory cap", "literals": ["2", "10"], "reason": "grader limits (bench/sandbox_exec.py, bench/grade.py)"},
  {"context": "(PLAN.md, deviation 5)", "literals": ["5"], "reason": "deviation number in PLAN.md"},
  {"context": "passes 2/5 or fewer", "literals": ["2", "5"], "reason": "pre-registered escalation rule (PLAN.md)"},
- {"context": "pass@1 is the fraction", "literals": ["1"], "reason": "metric name"},
+ {"context": "pass@1", "literals": ["1"], "reason": "metric name"},
  {"context": "hierarchical bootstrap intervals", "literals": ["95", "2024"], "reason": "confidence level; citation year"},
  {"context": "collapses to 100", "literals": ["100", "95", "0.05", "1"], "reason": "formula for the one-sided bound"},
  {"context": "Identical prompts got between 0 and", "literals": ["0"], "reason": "minimum cached tokens; checked by need() in analysis/report.py"},

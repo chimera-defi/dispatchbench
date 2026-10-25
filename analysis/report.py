@@ -110,7 +110,7 @@ def to_html(md):
             cells = [[c.strip() for c in r.strip().strip("|").split(" | ")] for r in L[i:j]]
             head, body = cells[0], cells[2:]
             th = "".join(f"<th>{inline(c)}</th>" for c in head)
-            trs = "".join("<tr>" + "".join(f"<td>{inline(c)}</td>" for c in r) + "</tr>" for r in body)
+            trs = "".join("<tr>" + "".join(f"<td>{configs.cell_markup(inline(c))}</td>" for c in r) + "</tr>" for r in body)
             out.append(f"<div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table></div>"); i = j; continue
         if line.startswith("> "):
             j = i; buf = []

@@ -55,7 +55,7 @@ def pareto_chart(s, hero=False):
     for v in log_ticks(x0, x1):
         b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{H - B}' stroke='{GRID}'/>", text(X(v), H - B + 18, dataset.usd(v, tick=True), 11, "middle", MUTED)]
     b += [text((L + W - R) / 2, H - B + 38, "$ per passing call", 12, "middle", MUTED),
-          text(26, (T + H - B) / 2, "pass@1 (12 problems × 5 attempts)", 12, "middle", MUTED, rotate=-90)]
+          text(26, (T + H - B) / 2, "pass rate (12 problems × 5 attempts)", 12, "middle", MUTED, rotate=-90)]
     front = s["pareto"]
     if len(front) > 1:
         pts = " ".join(f"{X(cfg[c]['usd_per_pass']):.1f},{Y(cfg[c]['pass_at_1']):.1f}" for c in front)
@@ -81,7 +81,7 @@ def pareto_chart(s, hero=False):
             b.append(text(x - 10 if left else x + 10, y + dy, label, 12, "end" if left else "start", INK, "600" if pick else "normal"))
             continue
         b.append(text(x - 10 if right else x + 10, y + LABEL_DY.get(c, -8), label, 11, "end" if right else "start", MUTED if hollow else INK))
-    b.append(text(L, H - 10, "Dashed: Pareto frontier. Hollow: fast mode. Codex $ is a token-price estimate." if hero else
+    b.append(text(L, H - 10, "Dashed: best trade-offs. Hollow: fast mode. Codex $ is a token-price estimate." if hero else
                   "Dashed: Pareto. Bars: 95% CI. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
     return svg(W, H, b)
 
@@ -125,7 +125,7 @@ def cost_time_chart(s):
         lanes[0].append((xl, xl + w, ly))
         if lane: b.append(f"<line x1='{px:.1f}' x2='{px:.1f}' y1='{py - 7:.1f}' y2='{ly + 3:.1f}' stroke='{col}' stroke-width='1' opacity='0.6'/>")
         b.append(text(xl, ly, lab, 11, fill=MUTED if hollow else INK))
-    b.append(text(L, H - 10, f"Purple ring: frontier, pass@1 ≥ {100 * MIN_PASS:.0f}%, then cost and time. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
+    b.append(text(L, H - 10, f"Purple ring: best trade-offs, pass rate ≥ {100 * MIN_PASS:.0f}%, then cost and time. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
     return svg(W, H, b)
 
 

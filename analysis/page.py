@@ -290,9 +290,10 @@ def ladder_toggle(render, s):
     sets = (f'<div class="set-filter" role="group" aria-label="Problem set">'
             f'<label><input type="radio" name="{set_name}" value="main" checked> {configs.set_label("main ladder", capital=True)}</label>'
             f'<label><input type="radio" name="{set_name}" value="rescue"> {configs.set_label("rescue set", capital=True)} + pipelines</label></div>')
+    pass_note = '<p class="small">Nothing is both cheaper and more accurate.</p>' if render is pass_cost else ""
     return ('<div class="cwrap"><label class="cost-toggle"><input type="checkbox"> Codex is free (subscription quota)</label>'
-            + sets + filters + note + '<div class="cset s-main">' + normal + free + frontier_caption(s) + '</div>'
-            + '<div class="cset s-rescue">' + rescue_normal + rescue_free + '</div><div class="ctip" hidden></div></div>'), fr
+            + sets + filters + note + '<div class="cset s-main">' + pass_note + normal + free + frontier_caption(s) + '</div>'
+            + '<div class="cset s-rescue">' + pass_note + rescue_normal + rescue_free + '</div><div class="ctip" hidden></div></div>'), fr
 
 
 def quota_tip(normal, free, saving):
@@ -334,7 +335,7 @@ def ladder_points(s, free, stat, problem_set):
     return pts
 
 
-PICKS_NOTE = {"pass": "Nothing is both cheaper and more accurate. Shaded: beaten by a numbered point.",
+PICKS_NOTE = {"pass": "Shaded: beaten by a numbered point.",
               "speed": f"Nothing is both faster and cheaper. Shaded: a numbered point is cheaper and about as fast. Faded: under {MIN_PASS:.0%} pass."}
 ZERO_LANE = {"pass": 110, "speed": 64}  # px kept for $0 points before a log $ axis starts
 
@@ -543,6 +544,7 @@ def explorer(s):
             for e, group in ((False, s["configs"]), (True, s["exploratory"])) for c, v in group.items()]
     src = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "page", "explorer.html")
     body = open(src).read().replace("__DATA__", json.dumps(data, separators=(",", ":"))).replace("__USD_TICKS__", json.dumps(s["design"]["usd_ticks"], separators=(",", ":")))
+    body = body.replace("frontier over", "best trade-offs over")
     older = s["exploratory"]["sol56-high"]["model"].split("-")[1]
     body = body.replace("Hollow = exploratory config. Codex $ is a proxy.",
                         f"Solid = normal speed. Hollow = fast mode. Dashed edge = bare prompt. Alternate Codex colour = {older} generation. Shapes match the charts above. Labels connect to their own points. Codex $ is a list-price estimate.")
@@ -614,7 +616,7 @@ def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, ra
     attr = f' title="{esc(derived)}"' if derived else ""
     suffix = f'<span class="muted"> · {esc(set_name)}</span>' if set_name else ""
     return (f'<tr{attr}><td><span class="dot" style="background:{col}"></span>{esc(name)}{suffix}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
-            f'<td>{"~" if proxy else ""}{dataset.usd(usd)}</td><td>{dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell" title="{esc(key)}">{verdict}</td></tr>')
+            f'<td>{configs.cell_markup(("~" if proxy else "") + dataset.usd(usd))}</td><td>{dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell" title="{esc(key)}">{verdict}</td></tr>')
 
 
 CODEX = lambda c: any(x in c for x in ("luna", "sol", "astra"))
@@ -662,7 +664,7 @@ def full_table(ds):
     label = configs.set_label("main ladder", capital=True)
     low_names = {configs.display(c) + " †" for source, c in configs.REGISTRY if source == "main" and configs.low_context(c)}
     def rows(low):
-        return "".join('<tr>' + "".join(f'<td>{esc(cell)}</td>' for cell in r) + '</tr>'
+        return "".join('<tr>' + "".join(f'<td>{configs.cell_markup(esc(cell))}</td>' for cell in r) + '</tr>'
                        for r in spec["rows"] if (r[0] in low_names) == low)
     return ('<div class="tablewrap"><table class="sortable"><thead><tr>'
             + "".join(f'<th>{esc(h)}</th>' for h in spec["head"]) + '</tr></thead>'
@@ -822,7 +824,7 @@ def notation_tooltips(body, ds):
     symbols = sorted(meanings, key=len, reverse=True)
     for i, symbol in enumerate(symbols):
         pattern = aliases.get(symbol, re.escape(symbol))
-        if symbol in ("H", "retry", "p90", "pass@1"):
+        if symbol in ("H", "retry", "slow-call time", "pass@1"):
             pattern = r"(?<!\w)" + pattern + r"(?!\w)"
         patterns.append(f"(?P<n{i}>{pattern})")
     match_symbol = re.compile("|".join(patterns), re.I)
@@ -922,7 +924,7 @@ def winner_table(ds, need):
         price = ("~" if r["cost_kind"] == "proxy" else "") + dataset.usd(r["usd_per_pass"])
         cells = (f"{i}. {use}", r["display"], f"{r['passes']}/{r['n']}", price, f"{r['median_s']:.1f} s", why)
         rows.append('<tr>' + "".join(
-            f'<td data-label="{esc(label)}"><span>{esc(cell)}</span></td>' for label, cell in zip(head, cells)) + '</tr>')
+            f'<td data-label="{esc(label)}"><span>{configs.cell_markup(esc(cell))}</span></td>' for label, cell in zip(head, cells)) + '</tr>')
     caption = ds["facts"]["winner_caption"]
     return ('<div class="tablewrap"><table class="winner-table">'
             f'<caption>{esc(caption)}</caption><thead><tr>{th}</tr></thead>'

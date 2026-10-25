@@ -1,4 +1,6 @@
 {
-  "dropped_facts": {},
-  "placeholder_cells": {}
+ "dropped_facts": {
+  "codex_orchestrator_status": "10-25 operator: no caveats before v1; the 'not run yet' line is removed on purpose."
+ },
+ "placeholder_cells": {}
 }

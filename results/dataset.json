@@ -21878,9 +21878,8 @@
   "agent_repeats": "3",
   "n_rungs": "6",
   "per_rung": "2",
-  "codex_orchestrator_status": "not run yet",
-  "hb_answer": "Slightly, and possibly more.",
-  "hb_detail": "Gap moved 13 points (95% range 3 to 23); bias bar was 15.",
+  "hb_answer": "Slightly: gap 13 points, range 3 to 23.",
+  "hb_detail": "Gap moved 13 points (95% range 3 to 23); bias threshold was 15.",
   "hb_diff": "+0.133",
   "hb_takeaway": "luna-low: 36→47 of 60 inside Codex CLI. haiku-low: 57→60 of 60 inside Claude Code.",
   "hb_uncertainty": "A bigger bias is possible.",
@@ -21900,13 +21899,13 @@
   "hb_haiku_low_gain": "3",
   "hb_haiku_low_change": "57→60",
   "hb_haiku_low_n": "60",
-  "hb_summary": "luna-low: 36→47 of 60 inside Codex CLI. haiku-low: 57→60 of 60 inside Claude Code. Gap moved 13 points (95% range 3 to 23); bias bar was 15.",
+  "hb_summary": "luna-low: 36→47 of 60 inside Codex CLI. haiku-low: 57→60 of 60 inside Claude Code. Gap moved 13 points (95% range 3 to 23); bias threshold was 15.",
   "hb_qa": [
-   "A: Slightly, and possibly more.",
+   "A: Slightly: gap 13 points, range 3 to 23.",
    "Inside Codex CLI, luna-low went from 36 to 47 passes.",
    "Inside Claude Code, haiku-low went from 57 to 60 passes.",
-   "The gap moved 13 points, below our 15-point bias bar.",
-   "We used 95% confidence. The range spans 3 to 23 points.",
+   "The gap moved 13 points, below our 15-point bias threshold.",
+   "The 95% range is 3 to 23 points.",
    "A larger bias is possible."
   ],
   "hb_conclusion": "Vendor agent CLIs improved both models.",
@@ -22445,16 +22444,16 @@
   "hb_subset": "It first replayed 12 of our haiku-low and sol61-medium results. All passed on both.",
   "hb_haiku_cost": "haiku-low cost 1.1× as much there, in about the same time.",
   "hb_total_x": "1.8×",
-  "hb_luna_cost": "luna-low cost 4× more and took 3× longer there."
+  "hb_luna_cost": "luna-low cost 4× more in total and took 3× longer there."
  },
  "tables": {
   "result": {
    "head": [
     "config",
-    "pass@1",
+    "pass rate",
     "95% CI",
     "median s",
-    "p90 s",
+    "slow-call time s",
     "$ per pass",
     "total $ (60 calls)",
     "$ kind"
@@ -22625,8 +22624,8 @@
   "result_detail": {
    "head": [
     "config",
-    "pass@1 95% CI",
-    "p90 s",
+    "pass rate 95% CI",
+    "slow-call time s",
     "total $ (60 calls)"
    ],
    "rows": [

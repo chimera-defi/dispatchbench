@@ -281,14 +281,6 @@ def test_every_toc_target_has_a_direct_toggle_heading():
         assert re.search(r'<section\b[^>]*\bid="' + target + r'"[^>]*>\s*<h2\b', template)
 
 
-def test_codex_orchestrator_status_requires_attributed_results():
-    assert dataset.codex_orchestrator_status([{"cli": "codex", "passed": True}]) == "not run yet"
-    assert dataset.codex_orchestrator_status([{"orchestrator": "Codex"}]) == "not run yet"
-    assert dataset.codex_orchestrator_status([{"orchestrator": "Claude Opus", "passed": True}]) == "not run yet"
-    for attribution in ("Codex", {"cli": "codex"}, {"model": "gpt-6.1-sol"}):
-        assert dataset.codex_orchestrator_status([{"orchestrator": attribution, "passed": False}]) == "results available"
-
-
 def test_fairness_qa_renders_counts_and_runtime_from_appendix():
     rows = [json.loads(line) for line in (ROOT / 'results/appendix/harness_bias.jsonl').read_text().splitlines()]
     facts = dataset.read()['facts']
@@ -304,15 +296,15 @@ def test_fairness_qa_renders_counts_and_runtime_from_appendix():
     codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
     start = min(datetime.fromisoformat(r['ts']).timestamp() for r in codex)
     end = max(datetime.fromisoformat(r['ts']).timestamp() + r['wall_s'] for r in codex)
-    assert f"{sum(r['outcome'] == 'harness_error' for r in codex)} harness errors and no timeouts" in fair
+    assert f"{sum(r['outcome'] == 'harness_error' for r in codex)} runner errors and no timeouts" in fair
     assert facts['hb_minutes'] == f"{(end - start) / 60:.0f}"
     assert f"in about {facts['hb_minutes']} minutes." in fair
     comparison = harness_bias.pass_summary(rows)
     lo, hi = comparison['ci']
     assert f"{facts['hb_answer']} haiku-low still led on both" in fair
     assert (f"<li>The gap moved {100 * comparison['diff']:.0f} points, "
-            f"below our {facts['hb_bar_points']}-point bias bar.</li>") in fair
-    assert f"range is {100 * lo:.0f} to {100 * hi:.0f} points, so a larger bias is possible." in fair
+            f"below our {facts['hb_bar_points']}-point bias threshold.</li>") in fair
+    assert f"The {facts['ci_level']} range is {100 * lo:.0f} to {100 * hi:.0f} points." in fair
     wrong = [sum(r['outcome'] == 'wrong' for r in rows if (r['harness'], r['config']) == (h, 'luna-low')) for h in ('claude-one-shot', 'codex-tool-loop')]
     assert f"wrong outputs from {wrong[0]} to {wrong[1]}" in fair
 
@@ -483,7 +475,7 @@ def test_cost_accuracy_has_one_selector_per_chart_and_one_sets_guide():
     section = re.search(r'<section id="pareto">(.*?)</section>', rendered, re.S)[1]
     assert section.count('class="cost-toggle"') == 2
     assert section.count('class="set-filter"') == 2
-    assert section.index('class="cplot"') < section.index('<summary>How to read these charts</summary>') < section.index('Ringed, numbered points are best trade-offs')
+    assert section.index('class="cplot"') < section.index('<summary>How to read this data</summary>') < section.index('Ringed, numbered points are best trade-offs')
 
 
 def test_main_markers_follow_config_encoding(summary):
