@@ -4,7 +4,7 @@ RUN_CONFIGS ?= haiku-low,haiku-medium,sonnet-medium,luna-low,luna-medium,sol61-m
 AGENT_CONFIGS ?= haiku-low,sonnet-medium,luna-low,sol61-medium
 HARD_CONFIGS ?= sonnet-medium,sol61-medium,haiku-low,luna-high
 
-.PHONY: land-check selftest run hard agentic grade report audit solutions clean-report escalate trim plan-first gated-repair agentic-tests
+.PHONY: land-check selftest run hard agentic grade report audit solutions clean-report escalate trim plan-first gated-repair
 
 land-check:          ## before landing: list page text and merge lines this branch removes; rerun with ACK=1 once each is intended
 	$(PY) -m analysis.landcheck --base $${BASE:-fast-mode-main} $(if $(ACK),--ack)
@@ -31,8 +31,6 @@ plan-first:          ## Appendix F: plan-first rescue arm (costs money for uncac
 gated-repair:        ## Appendix G: gated repair arms (costs money for uncached calls)
 	$(PY) -m bench.gated_repair
 
-agentic-tests:       ## grade agentic runs from committed transcripts
-	$(PY) -m analysis.agentic_tests
 
 agentic:             ## agentic track (cached runs are skipped)
 	$(PY) -m bench.agentic.run --configs $(AGENT_CONFIGS) --tasks all --repeats 1-3 --lanes 4

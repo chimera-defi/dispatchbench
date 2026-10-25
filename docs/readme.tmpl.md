@@ -7,8 +7,9 @@ Which model should a coding task go to?
 ## What it measures
 
 We compare {{n_ladder_configs}} model-and-effort configs on fresh Python problems.
+The main run used {{n_configs}} of them on {{n_problems}} problems.
 The set contains {{n_all_problems}} problems and {{n_tasks}} small repository tasks.
-Function tasks require one answer, with tools disabled.
+Function tasks ask for one answer, with no tool use allowed.
 Repository tasks use agent CLIs, with code execution and retries.
 
 ## The answer
