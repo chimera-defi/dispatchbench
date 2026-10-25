@@ -4,7 +4,10 @@ RUN_CONFIGS ?= haiku-low,haiku-medium,sonnet-medium,luna-low,luna-medium,sol61-m
 AGENT_CONFIGS ?= haiku-low,sonnet-medium,luna-low,sol61-medium
 HARD_CONFIGS ?= sonnet-medium,sol61-medium,haiku-low,luna-high
 
-.PHONY: selftest run hard agentic grade report audit solutions clean-report escalate trim plan-first gated-repair agentic-tests
+.PHONY: land-check selftest run hard agentic grade report audit solutions clean-report escalate trim plan-first gated-repair agentic-tests
+
+land-check:          ## before landing: list page text and merge lines this branch removes; rerun with ACK=1 once each is intended
+	$(PY) -m analysis.landcheck --base $${BASE:-fast-mode-main} $(if $(ACK),--ack)
 
 selftest:            ## check every problem: reference == brute force, planted bugs fail, examples hold (about 12 min)
 	$(PY) -m bench.selftest

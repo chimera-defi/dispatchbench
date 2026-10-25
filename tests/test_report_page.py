@@ -698,3 +698,11 @@ def test_equiv_rows_pair_a_claude_config_with_a_codex_config_in_the_rendered_pag
     html = (ROOT / "results" / "report" / "page.html").read_text()
     sec = html[html.index('id="equiv"'):]
     assert all(r[0].split(" → ")[1] in sec for r in rows)
+
+
+def test_landcheck_lists_removed_page_text_and_header():
+    from analysis import landcheck
+    old = landcheck.read('<h2>A</h2><table><tr><th>Claude</th><th>Codex match</th></tr></table><p>gone line</p>')
+    new = landcheck.read('<h2>A</h2><table><tr><th>Claude</th></tr></table>')
+    assert old.lines - new.lines == {"Codex match", "gone line"}
+    assert set(old.heads) - set(new.heads) == {"Claude | Codex match"}
