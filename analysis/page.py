@@ -363,7 +363,7 @@ def zero_lane(log, at):
 def pass_cost(s, free=None, problem_set="main"):
     """Pass rate (up is better) against paid $ per pass, log (left is better)."""
     if free is None: return ladder_toggle(pass_cost, s)
-    L, R, T, B, W = 84, 16, 14, 302, 560
+    L, R, T, B, W = 84, 16, 14, 302 if problem_set == "main" else 214, 560  # the rescue plot is shorter: its list under the plot must not lengthen the page
     pts = ladder_points(s, free, "pass", problem_set)
     ymin = min(.7, math.floor(min(p["y"] for p in pts) * 10) / 10)
     paid = [p["x"] for p in pts if p["x"] > 0]
@@ -385,18 +385,18 @@ def pass_cost(s, free=None, problem_set="main"):
     lab = {"luna-low": (12, 16, "start"), "luna-medium": (12, -8, "start"), "luna-high": (12, 14, "start"), "haiku-low": (-14, 16, "end"),
            "haiku-medium": (14, 22, "start"), "sonnet-medium": (-14, -10, "end"), "sol61-medium": (0, 26, "middle"),
            "haiku-high": (14, 20, "start"), "luna56-high": (14, 5, "start")}
-    if problem_set == "main":
-        for p in pts:
-            if p["c"] in WINNER_PICKS: p["label"] = True
-    return scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, H=360, B=B,
+    for p in pts:
+        if pick(p["c"]): p["label"] = True
+    return scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, H=B + 58, B=B,
                    extra=zero + fast_pairs(pts, X, Y), stat="pass", variant="free" if free else "normal",
-                   badges=problem_set == "main", picks_note=PICKS_NOTE["pass"]), [p["c"] for p in fr]
+                   badges=True, picks_note=PICKS_NOTE["pass"]), [p["c"] for p in fr]
 
 
 def speed_cost(s, free=None, problem_set="main"):
     """Median seconds against paid $ per pass, log; frontier requires MIN_PASS."""
     if free is None: return ladder_toggle(speed_cost, s)
-    L, R, T, B, W, H = 84, 16, 14, 410, 560, 468
+    L, R, T, B, W = 84, 16, 14, 410 if problem_set == "main" else 316, 560
+    H = B + 58
     pts = ladder_points(s, free, "speed", problem_set)
     # Axis spans the medians plus a margin, in 5 s blocks; whiskers are clipped to it.
     xmin = max(0, math.floor((min(p["x"] for p in pts) - 1) / 5) * 5)
@@ -421,13 +421,12 @@ def speed_cost(s, free=None, problem_set="main"):
     lab = {"luna-low": (0, -14, "middle"), "luna-medium": (14, 10, "start"), "haiku-low": (0, -20, "middle"), "luna-high": (14, -10, "start"),
            "haiku-medium": (14, 5, "start"), "sonnet-medium": (14, 4, "start"), "sol61-medium": (-14, -12, "end"),
            "luna56-high": (-14, 5, "end"), "luna56-low": (0, 26, "middle"), "haiku-high": (0, -14, "middle")}
-    if problem_set == "main":
-        for p in pts:
-            if p["c"] in WINNER_PICKS: p["label"] = True
+    for p in pts:
+        if pick(p["c"]): p["label"] = True
     xlab = "median seconds per call" + (" (bar on hover: middle half of calls)" if any(p["w"] for p in pts) else "")
     g = scatter(pts, d, X, Y, xt, yt, xlab, "$ per pass (log)", "", lab,
                 H=H, B=B, extra=zero + fast_pairs(pts, X, Y), stat="speed", variant="free" if free else "normal",
-                badges=problem_set == "main", picks_note=PICKS_NOTE["speed"],
+                badges=True, picks_note=PICKS_NOTE["speed"],
                 minor=[v for v in range(xmin + 1, xmax) if v % 5])
     return g.replace("</svg>", f'<text x="{W - R - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>', 1), [p["c"] for p in fr]
 
@@ -793,9 +792,8 @@ def rescue_subtitle(s=None):
     s = s or dataset.view(dataset.read())
     attempts = rescue_arms(s)["sol61-high"]["n"]
     return (f'{configs.set_label("rescue set", capital=True)}: the {len(s["design"]["rescue_problems"])} problems luna failed most. '
-            f'Each row has {attempts} attempts. No intervals are shown. '
-            'Purple-filled points are pipelines; a purple ring is the frontier. '
-            'This set includes exploratory configs and pipelines in its frontier.')
+            f'{attempts} attempts each, no intervals. Purple-filled points are pipelines. '
+            'Numbered points are the best trade-offs.')
 
 
 def speed_frontier_text(s, names):

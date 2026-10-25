@@ -360,11 +360,18 @@ def test_speed_frontier_treats_sub_half_second_gap_as_tie(summary):
     assert not page.speed_dominates(dict(x=10, y=1), dict(x=9, y=2))
 
 
-def test_rescue_triangle_labels_lead_to_their_own_points():
+def test_rescue_tab_names_best_trade_offs_in_a_numbered_list_not_on_the_plot():
     for render in (page.hard_pass_cost, page.hard_speed_cost):
-        svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', render()[0], re.S)[0])
+        html, front = render()
+        svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', html, re.S)[0])
         labels = [e.text for e in svg.findall('s:text', NS)]
-        assert 'luna-high-bare→retry' in labels
+        assert 'luna-high-bare→retry' not in labels and not any(l in labels for l in ('plan→luna-low', 'luna-low→H fail'))
+        chips = [e.text for e in svg.findall(".//s:text[@class='rk-n']", NS)]
+        assert chips == [str(i) for i in range(1, len(front) + 1)] and chips
+        assert svg.find(".//s:path[@class='zone']", NS) is not None
+        listed = re.findall(r'<li data-c="([^"]+)"[^>]*tabindex="0">.*?<b>\d</b>', re.search(r'<div class="picks">.*?</div>', html, re.S)[0])
+        assert sorted(listed) == sorted(front)
+        assert 'a numbered point' in html
 
 
 def test_marker_styles_distinguish_fast_generation_and_luna_variants():
@@ -537,8 +544,9 @@ def test_luna_miss_views_share_points_and_separate_coincident_models(summary):
         points = {g.get('data-c'): g for g in svg.findall("s:g[@class='pt']", NS)}
         targets = {c: (g[-1].get('cx'), g[-1].get('cy')) for c, g in points.items()}
         labels = {t.text for t in svg.findall('s:text', NS) if 'lbl' in t.get('class', '')}
-        expected_labels = {page.NAME[c] for c in targets if c in frontier or '+' in c}
-        assert labels == expected_labels
+        # Names stay off the plot: only a pick that is not a numbered best trade-off keeps one (the rest are in the list).
+        assert 'sonnet-medium' in labels and labels <= {page.NAME[c] for c in page.WINNER_PICKS}
+        assert not labels & {page.NAME[c] for c in frontier}
         stat = 'pass' if primary is page.pass_cost else 'speed'
         expected_points = page.ladder_repairs(False, stat, page.rescue_arms(summary))
         assert set(targets) == {p['c'] for p in expected_points}
@@ -548,7 +556,6 @@ def test_luna_miss_views_share_points_and_separate_coincident_models(summary):
         for builder in builders:
             pipeline = builder + '+haiku-on-fail'
             assert targets[builder] != targets[pipeline]
-            assert page.NAME[pipeline] in labels
         assert set(targets) == set(page.NAME)
 
 
