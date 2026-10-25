@@ -1,0 +1,5 @@
+{"date": "2026-10-25", "track": "function", "note": "Clean-HOME rerun of function-track Codex cells, stopped early: no material difference. Matched by config, phase, problem, repeat; graded with bench.grade.",
+ "calls_matched": 860, "passes_isolated": 797, "passes_original": 793, "flipped_outcomes": 66,
+ "median_input_token_delta": -1254, "tool_items_isolated": 0,
+ "per_config": {"astra-medium":[75,75,75],"astra-medium-fast":[75,74,75],"luna-high":[75,68,70],"luna-low-bare":[60,48,44],"luna-medium":[60,49,47],"luna56-high":[75,62,65],"luna56-low":[75,59,56],"sol56-high":[75,74,73],"sol61-high":[95,95,95],"sol61-high-fast":[75,75,75],"sol61-medium":[85,83,83],"sol61-xhigh":[35,35,35]},
+ "per_config_fields": ["n", "passes_isolated", "passes_original"]}
