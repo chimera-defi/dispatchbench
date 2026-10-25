@@ -1,7 +1,10 @@
 {
  "generated_from": [
+  "results/2026-10-22b-agentic.jsonl",
   "results/2026-10-22b-function.jsonl",
-  "results/2026-10-22b-agentic.jsonl"
+  "results/2026-10-25-isolated-agentic.jsonl",
+  "results/2026-10-25-isolated-hard.jsonl",
+  "results/2026-10-25-isolated-main.jsonl"
  ],
  "configs": {
   "haiku-low": {
@@ -216,11 +219,11 @@
    "model": "gpt-6-luna",
    "effort": "low",
    "n": 60,
-   "passes": 46,
-   "pass_at_1": 0.7667,
+   "passes": 44,
+   "pass_at_1": 0.7333,
    "ci95": [
-    0.5333,
-    0.95
+    0.5,
+    0.9167
    ],
    "by_rung": {
     "L1": {
@@ -228,7 +231,7 @@
      "n": 10
     },
     "L2": {
-     "passed": 6,
+     "passed": 3,
      "n": 10
     },
     "L3": {
@@ -236,7 +239,7 @@
      "n": 10
     },
     "L4": {
-     "passed": 9,
+     "passed": 10,
      "n": 10
     },
     "L5": {
@@ -248,36 +251,35 @@
      "n": 10
     }
    },
-   "breaking_point": "L6",
+   "breaking_point": "L2",
    "outcomes": {
-    "pass": 46,
-    "wrong": 6,
-    "crash": 4,
-    "timeout": 4
+    "pass": 44,
+    "wrong": 8,
+    "crash": 8
    },
    "latency_s": {
-    "median": 7.22,
-    "p25": 6.31,
-    "p75": 9.34,
-    "p90": 11.57,
-    "max": 14.48
+    "median": 7.7,
+    "p25": 6.07,
+    "p75": 9.25,
+    "p90": 10.71,
+    "max": 16.54
    },
    "tokens_mean": {
-    "in_tok": 14688,
+    "in_tok": 13434,
     "cached_tok": 11520,
-    "out_tok": 514,
+    "out_tok": 532,
     "reasoning_tok": 0
    },
    "input_floor": [
-    14494,
+    13238,
     11520
    ],
-   "usd_per_call": 0.000689,
-   "usd_total": 0.0414,
-   "usd_per_pass": 0.000899,
-   "usd_per_pass_L1_L2": 0.00073,
+   "usd_per_call": 0.000573,
+   "usd_total": 0.0344,
+   "usd_per_pass": 0.000781,
+   "usd_per_pass_L1_L2": 0.000707,
    "pass_L1_L2": [
-    16,
+    13,
     20
    ],
    "cost_kind": "proxy"
@@ -456,7 +458,7 @@
    "haiku-low": 5,
    "haiku-medium": 5,
    "sonnet-medium": 5,
-   "luna-low": 5,
+   "luna-low": 3,
    "luna-medium": 4,
    "sol61-medium": 5
   },
@@ -465,7 +467,7 @@
    "haiku-low": 5,
    "haiku-medium": 5,
    "sonnet-medium": 5,
-   "luna-low": 1,
+   "luna-low": 0,
    "luna-medium": 1,
    "sol61-medium": 5
   },
@@ -501,7 +503,7 @@
    "haiku-low": 5,
    "haiku-medium": 5,
    "sonnet-medium": 5,
-   "luna-low": 4,
+   "luna-low": 5,
    "luna-medium": 5,
    "sol61-medium": 5
   },
@@ -510,7 +512,7 @@
    "haiku-low": 3,
    "haiku-medium": 5,
    "sonnet-medium": 5,
-   "luna-low": 2,
+   "luna-low": 4,
    "luna-medium": 5,
    "sol61-medium": 5
   },
@@ -519,7 +521,7 @@
    "haiku-low": 5,
    "haiku-medium": 5,
    "sonnet-medium": 5,
-   "luna-low": 5,
+   "luna-low": 3,
    "luna-medium": 5,
    "sol61-medium": 5
   },
@@ -556,10 +558,10 @@
   {
    "a": "luna-medium",
    "b": "luna-low",
-   "diff": 0.0167,
+   "diff": 0.05,
    "ci95": [
-    -0.1333,
-    0.1667
+    -0.0833,
+    0.1833
    ],
    "problems": 12
   },
@@ -586,10 +588,10 @@
   {
    "a": "haiku-low",
    "b": "luna-low",
-   "diff": 0.1833,
+   "diff": 0.2167,
    "ci95": [
     0.0167,
-    0.3833
+    0.4333
    ],
    "problems": 12
   },
@@ -698,10 +700,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.2333,
+     "diff": 0.2667,
      "ci95": [
-      0.05,
-      0.45
+      0.0667,
+      0.5
      ],
      "problems": 12
     },
@@ -810,10 +812,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.2333,
+     "diff": 0.2667,
      "ci95": [
-      0.05,
-      0.45
+      0.0667,
+      0.5
      ],
      "problems": 12
     },
@@ -922,10 +924,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.2333,
+     "diff": 0.2667,
      "ci95": [
-      0.05,
-      0.45
+      0.0667,
+      0.5
      ],
      "problems": 12
     },
@@ -1036,10 +1038,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.15,
+     "diff": 0.1833,
      "ci95": [
-      -0.0333,
-      0.35
+      0.0,
+      0.4
      ],
      "problems": 12
     },
@@ -1151,9 +1153,9 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": -0.0333,
+     "diff": 0.0,
      "ci95": [
-      -0.2,
+      -0.1333,
       0.1333
      ],
      "problems": 12
@@ -1265,10 +1267,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.1667,
+     "diff": 0.2,
      "ci95": [
-      0.0,
-      0.35
+      0.0333,
+      0.4
      ],
      "problems": 12
     },
@@ -1380,10 +1382,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.0333,
+     "diff": 0.0667,
      "ci95": [
-      -0.2,
-      0.25
+      -0.1667,
+      0.3
      ],
      "problems": 12
     },
@@ -1492,10 +1494,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.2333,
+     "diff": 0.2667,
      "ci95": [
-      0.05,
-      0.45
+      0.0667,
+      0.5
      ],
      "problems": 12
     },
@@ -1604,10 +1606,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.2333,
+     "diff": 0.2667,
      "ci95": [
-      0.05,
-      0.45
+      0.0667,
+      0.5
      ],
      "problems": 12
     },
@@ -1716,10 +1718,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.2333,
+     "diff": 0.2667,
      "ci95": [
-      0.05,
-      0.45
+      0.0667,
+      0.5
      ],
      "problems": 12
     },
@@ -1994,25 +1996,25 @@
     "pass": 15
    },
    "latency_s": {
-    "median": 52.68,
-    "p25": 25.21,
-    "p75": 69.61,
-    "p90": 78.15,
-    "max": 96.8
+    "median": 55.82,
+    "p25": 29.71,
+    "p75": 78.79,
+    "p90": 130.72,
+    "max": 242.45
    },
    "tokens_mean": {
-    "in_tok": 15351,
+    "in_tok": 14097,
     "cached_tok": 12288,
-    "out_tok": 1625,
-    "reasoning_tok": 1151
+    "out_tok": 1812,
+    "reasoning_tok": 1277
    },
    "input_floor": [
-    15298,
+    14042,
     12288
    ],
-   "usd_per_call": 0.023603,
-   "usd_total": 0.354,
-   "usd_per_pass": 0.023603,
+   "usd_per_call": 0.022969,
+   "usd_total": 0.3445,
+   "usd_per_pass": 0.022969,
    "usd_per_pass_L1_L2": null,
    "pass_L1_L2": [
     0,
@@ -2478,9 +2480,11 @@
      "fails": {}
     },
     "luna-low": {
-     "passed": 5,
+     "passed": 3,
      "n": 5,
-     "fails": {}
+     "fails": {
+      "crash": 2
+     }
     },
     "luna-medium": {
      "passed": 4,
@@ -2568,11 +2572,10 @@
      "fails": {}
     },
     "luna-low": {
-     "passed": 1,
+     "passed": 0,
      "n": 5,
      "fails": {
-      "timeout": 2,
-      "wrong": 2
+      "wrong": 5
      }
     },
     "luna-medium": {
@@ -2931,11 +2934,9 @@
      "fails": {}
     },
     "luna-low": {
-     "passed": 4,
+     "passed": 5,
      "n": 5,
-     "fails": {
-      "wrong": 1
-     }
+     "fails": {}
     },
     "luna-medium": {
      "passed": 5,
@@ -3022,11 +3023,10 @@
      "fails": {}
     },
     "luna-low": {
-     "passed": 2,
+     "passed": 4,
      "n": 5,
      "fails": {
-      "wrong": 1,
-      "timeout": 2
+      "crash": 1
      }
     },
     "luna-medium": {
@@ -3112,9 +3112,12 @@
      "fails": {}
     },
     "luna-low": {
-     "passed": 5,
+     "passed": 3,
      "n": 5,
-     "fails": {}
+     "fails": {
+      "crash": 1,
+      "wrong": 1
+     }
     },
     "luna-medium": {
      "passed": 5,
@@ -3613,6 +3616,7 @@
   }
  },
  "pareto": [
+  "luna-low",
   "luna-medium",
   "haiku-low",
   "haiku-medium",
@@ -3633,7 +3637,7 @@
    "task_complete": 12,
    "own_tests_written": 12,
    "tests_tampered_runs": 0,
-   "delegate_calls": 16,
+   "delegate_calls": 0,
    "errors": 0,
    "by_task": {
     "t1_discount": {
@@ -3674,21 +3678,21 @@
     }
    },
    "latency_s": {
-    "median": 85.2,
-    "p90": 99.5
+    "median": 65.6,
+    "p90": 95.7
    },
    "input_floor": [
-    98876,
-    88064
+    130168,
+    123264
    ],
    "tokens_mean": {
-    "in_tok": 160564,
-    "cached_tok": 149984,
-    "out_tok": 2481
+    "in_tok": 191282,
+    "cached_tok": 178016,
+    "out_tok": 2702
    },
-   "usd_per_run": 0.37984,
-   "usd_total": 4.5581,
-   "usd_per_hidden_pass": 0.37984,
+   "usd_per_run": 0.44575,
+   "usd_total": 5.3491,
+   "usd_per_hidden_pass": 0.44575,
    "cost_kind": "proxy"
   },
   "haiku-high": {
@@ -3845,8 +3849,8 @@
     1.0,
     1.0
    ],
-   "visible_pass": 11,
-   "task_complete": 11,
+   "visible_pass": 7,
+   "task_complete": 7,
    "own_tests_written": 12,
    "tests_tampered_runs": 0,
    "delegate_calls": 0,
@@ -3890,21 +3894,21 @@
     }
    },
    "latency_s": {
-    "median": 28.5,
-    "p90": 48.5
+    "median": 24.1,
+    "p90": 43.1
    },
    "input_floor": [
-    92906,
-    79104
+    71903,
+    67328
    ],
    "tokens_mean": {
-    "in_tok": 150943,
-    "cached_tok": 135947,
-    "out_tok": 2269
+    "in_tok": 123125,
+    "cached_tok": 114389,
+    "out_tok": 2478
    },
-   "usd_per_run": 0.00399,
-   "usd_total": 0.0479,
-   "usd_per_hidden_pass": 0.00399,
+   "usd_per_run": 0.00326,
+   "usd_total": 0.0391,
+   "usd_per_hidden_pass": 0.00326,
    "cost_kind": "proxy"
   },
   "sol61-high": {
@@ -3921,7 +3925,7 @@
    "task_complete": 12,
    "own_tests_written": 12,
    "tests_tampered_runs": 0,
-   "delegate_calls": 35,
+   "delegate_calls": 0,
    "errors": 0,
    "by_task": {
     "t1_discount": {
@@ -3962,21 +3966,21 @@
     }
    },
    "latency_s": {
-    "median": 108.6,
-    "p90": 158.7
+    "median": 117.9,
+    "p90": 309.0
    },
    "input_floor": [
-    162168,
-    142592
+    137915,
+    124672
    ],
    "tokens_mean": {
-    "in_tok": 213735,
-    "cached_tok": 196608,
-    "out_tok": 4090
+    "in_tok": 234135,
+    "cached_tok": 216384,
+    "out_tok": 4014
    },
-   "usd_per_run": 0.09482,
-   "usd_total": 1.1378,
-   "usd_per_hidden_pass": 0.09482,
+   "usd_per_run": 0.09728,
+   "usd_total": 1.1674,
+   "usd_per_hidden_pass": 0.09728,
    "cost_kind": "proxy"
   },
   "sol61-medium": {
@@ -3993,7 +3997,7 @@
    "task_complete": 12,
    "own_tests_written": 12,
    "tests_tampered_runs": 0,
-   "delegate_calls": 23,
+   "delegate_calls": 0,
    "errors": 0,
    "by_task": {
     "t1_discount": {
@@ -4034,21 +4038,21 @@
     }
    },
    "latency_s": {
-    "median": 89.0,
-    "p90": 121.6
+    "median": 84.5,
+    "p90": 239.4
    },
    "input_floor": [
-    116924,
-    101504
+    149886,
+    138112
    ],
    "tokens_mean": {
-    "in_tok": 162787,
-    "cached_tok": 147029,
-    "out_tok": 2901
+    "in_tok": 202506,
+    "cached_tok": 187285,
+    "out_tok": 3023
    },
-   "usd_per_run": 0.07523,
-   "usd_total": 0.9027,
-   "usd_per_hidden_pass": 0.07523,
+   "usd_per_run": 0.0794,
+   "usd_total": 0.9528,
+   "usd_per_hidden_pass": 0.0794,
    "cost_kind": "proxy"
   },
   "sonnet-medium": {
@@ -4628,7 +4632,7 @@
   "claude_measured_usd": 2.4624,
   "claude_function_usd": 1.6128,
   "claude_agentic_usd": 0.8496,
-  "codex_proxy_usd": 35.4036,
+  "codex_proxy_usd": 36.2489,
   "codex_fastmode_usd": 3.4069,
   "calls": {
    "function": 1261,
@@ -4643,19 +4647,19 @@
     "haiku-low": "20/20",
     "haiku-medium": "20/20",
     "sonnet-medium": "20/20",
-    "luna-low": "16/20",
+    "luna-low": "13/20",
     "luna-medium": "15/20",
     "sol61-medium": "20/20"
    }
   },
   "H2": {
    "claim": "within a model, higher effort moves the breaking point up by at least one rung, or removes it",
-   "holds": false,
+   "holds": true,
    "data": {
     "haiku-low": null,
     "haiku-medium": null,
     "sonnet-medium": null,
-    "luna-low": "L6",
+    "luna-low": "L2",
     "luna-medium": "L6",
     "sol61-medium": null
    }
@@ -4669,16 +4673,16 @@
     "sonnet-medium": 0.008234,
     "sol61-medium": 0.011168
    },
-   "note": "luna-low was not 100% on L1-L2 (16/20), so it is not in the set"
+   "note": "luna-low was not 100% on L1-L2 (13/20), so it is not in the set"
   },
   "H4": {
    "claim": "at least one config breaks at or below L5",
-   "holds": false,
+   "holds": true,
    "data": {
     "haiku-low": null,
     "haiku-medium": null,
     "sonnet-medium": null,
-    "luna-low": "L6",
+    "luna-low": "L2",
     "luna-medium": "L6",
     "sol61-medium": null
    }
@@ -4687,7 +4691,7 @@
    "claim": "agentic Codex min input tokens > Claude's",
    "holds": true,
    "data": {
-    "codex_min_in": 92906,
+    "codex_min_in": 71903,
     "claude_min_in": 27425
    }
   }

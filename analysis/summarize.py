@@ -15,6 +15,11 @@ FUNC = os.path.join(RES, "2026-10-22b-function.jsonl")
 AGENT = os.path.join(RES, "2026-10-22b-agentic.jsonl")
 PILOT = os.path.join(RES, "2026-10-22-pilot.jsonl")
 TRIM = os.path.join(RES, "2026-10-22b-trim.jsonl")
+ISOLATED = {
+    ("main", "luna-low"): os.path.join(RES, "2026-10-25-isolated-main.jsonl"),
+    ("hard", "sol61-high"): os.path.join(RES, "2026-10-25-isolated-hard.jsonl"),
+}
+ISOLATED_AGENT = os.path.join(RES, "2026-10-25-isolated-agentic.jsonl")
 BASE = ["haiku-low", "haiku-medium", "sonnet-medium", "luna-low", "luna-medium", "sol61-medium"]
 ESCALATE = {"haiku-high": "haiku-medium", "sonnet-high": "sonnet-medium", "luna-high": "luna-medium", "sol61-high": "sol61-medium"}
 PAIRS = [("haiku-medium", "haiku-low"), ("luna-medium", "luna-low"), ("sonnet-medium", "haiku-medium"),
@@ -24,6 +29,38 @@ BREAK_AT = 0.40
 
 def load(p):
     return [json.loads(l) for l in open(p)] if os.path.exists(p) else []
+
+
+def _sourced(path):
+    return [dict(r, _file=os.path.relpath(path, ROOT)) for r in load(path)]
+
+
+def _replace(rows, replacements, fields):
+    identity = lambda r: tuple(r[k] for k in fields)
+    old, new = [identity(r) for r in rows], [identity(r) for r in replacements]
+    assert len(new) == len(set(new)) and set(old) == set(new), "replacement coverage differs"
+    assert all(r.get("codex_home") == "isolated" and r["cli"] == "codex" for r in replacements), "replacement is not isolated"
+    return replacements
+
+
+def function_rows():
+    """Replace whole config/track cells; preserve historical files and all other cells."""
+    rows = _sourced(FUNC)
+    for (phase, config), path in ISOLATED.items():
+        matches = lambda r: (r["phase"], r["config"]) == (phase, config)
+        replacements = [dict(r, phase=phase) for r in _sourced(path)]
+        selected = _replace([r for r in rows if matches(r)], replacements,
+                            ("config", "phase", "problem", "repeat"))
+        rows = [r for r in rows if not matches(r)] + selected
+    return rows
+
+
+def agentic_rows():
+    rows, replacements = _sourced(AGENT), _sourced(ISOLATED_AGENT)
+    configs = {"luna-low", "sol61-medium", "sol61-high", "astra-medium"}
+    selected = _replace([r for r in rows if r["config"] in configs], replacements,
+                        ("config", "task", "repeat"))
+    return [r for r in rows if r["config"] not in configs] + selected
 
 
 PRICES = json.load(open(os.path.join(RES, "prices.json")))["models"]
@@ -249,9 +286,9 @@ def trim_block():
 
 def build():
     """Everything summarize writes, computed in memory: (summary, tables.md text, manifest). make audit calls this too."""
-    rows = load(FUNC); agent = load(AGENT)
+    rows = function_rows(); agent = agentic_rows()
     main_rows = [r for r in rows if r["phase"] == "main"]
-    s = {"generated_from": [os.path.relpath(p, ROOT) for p in (FUNC, AGENT) if os.path.exists(p)], "configs": {}, "phases": {}}
+    s = {"generated_from": sorted({r["_file"] for r in rows + agent}), "configs": {}, "phases": {}}
     for ph in sorted({r["phase"] for r in rows}):
         s["phases"][ph] = len([r for r in rows if r["phase"] == ph])
     for c in BASE:
@@ -340,7 +377,7 @@ def manifest(rows, agent, s):
             "lanes": sorted({r["lanes"] for r in allr if r.get("lanes")}),
             "first_call_utc": min(r["ts"] for r in allr) if allr else None, "last_call_utc": max(r["ts"] for r in allr) if allr else None,
             "rows_by_phase": s["phases"], "agentic_runs": len(agent), "claude_budget_cap_usd": R.CLAUDE_BUDGET_USD, "spend": s["spend"],
-            "errors": errs, "prices": "results/prices.json", "exploratory": exploratory_manifest()}
+            "errors": errs, "prices": "results/prices.json", "generated_from": s["generated_from"], "exploratory": exploratory_manifest()}
     sha = git_sha()
     if sha: out["git_sha"] = sha
     return out

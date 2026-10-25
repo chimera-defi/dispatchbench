@@ -172,7 +172,7 @@
 </details>
 {{w_grid}}
 <ul class="tight small">
-<li>p04 taller_within: luna-low, luna-medium and luna-low-bare each passed only {{p04_passes}} of {{repeats}} tries.</li>
+<li>On p04 taller_within, luna-low passed {{p04_low_passes}}/{{repeats}}. luna-medium and luna-low-bare each passed {{p04_passes}}/{{repeats}}.</li>
 <li>haiku-low never gave a wrong answer.</li>
 <li>Its {{hl_main_misses}} main-ladder misses: {{hl_main_timeouts}} too slow. {{hl_main_crashes}} crash.</li>
 <li>Its {{l7_hl_fail}} L7 misses: all too slow.</li>
@@ -180,7 +180,7 @@
 </section>
 <section id="tokens">
 <h2><span class="num"></span>🧱 Baseline input tokens per call</h2>
-<p class="small">Trimming luna-low's Codex system prompt and tool features cuts mean input by {{in_cut}}.</p>
+<p class="small">Historical trimmed luna-low used {{in_cut}} less input than isolated stock luna-low. Isolation differs between these runs.</p>
 <div class="chart floor">{{w_floor}}</div>
 <details class="small"><summary>How to read this data</summary>
 <ul class="tight small">
@@ -340,6 +340,7 @@
 <h4>Code quality scope</h4>
 <ul class="tight small">
 <li>Scored: main-ladder passing solutions, {{q_rows}} rows.</li>
+<li>The isolated replacements have no matching quality measurements.</li>
 <li>All {{n_solutions}} solutions are in <code>results/solutions</code>.</li>
 <li>On {{q_worst_problem}}, {{q_slow_n}} solutions run slower than the reference.</li>
 <li>Slower means at least {{q_slow_bar}} longer.</li>
@@ -370,12 +371,13 @@
 <li>Codex also answered through its own CLI in the main benchmark.</li>
 <li>We ignored personal settings and disabled tools.</li>
 <li>The <code>luna-*-bare</code> rows test how much Codex's system prompt and tool text matter.</li>
-<li>On repo tasks the host's <code>AGENTS.md</code> triggered extra shell commands:<ul>
-<li>sol61-medium: {{host_sol61_medium}} of {{shell_sol61_medium}} commands.</li>
-<li>luna-low: {{host_luna_low}} of {{shell_luna_low}} commands.</li>
-</ul></li>
-<li>Codex's measured time includes those extra commands.</li>
 </ul>
+<h3>Selected result sources</h3>
+{{table:selected_sources}}
+<h3>Other Codex cells without isolation</h3>
+<p class="small">These retained cells used the function runner or its Codex caller before isolation.</p>
+<p class="small">Separate pilot and trim runners fall outside this inventory. Earlier rescue arms lack retained producers.</p>
+{{table:unisolated}}
 <h3>Failures and later runs</h3>
 <p class="small">haiku-low misses:</p>
 {{table:haiku_failures}}

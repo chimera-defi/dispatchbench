@@ -18,9 +18,9 @@ Function track: {{n_problems}} problems × {{repeats}} attempts per config. Clic
 @page 
 ## Can luna run on fewer tokens?
 
-Codex has no single switch like Claude's `--tools ""`. Turning off its tool features, shell tools, environment context and stock system prompt, six config knobs in all, cuts luna-low's mean input from {{luna_low_in}} to {{luna_low_bare_in}} tokens per call, {{in_cut}} less. No measurable change in accuracy: the stripped config passes {{luna_low_bare_pass}} against stock luna-low's {{luna_low_pass}} ({{lb_vs_ll}} pts, CI {{lb_vs_ll_ci}}, which rules out neither a gain nor a loss). Its proxy cost per pass falls from {{luna_low_upp}} to {{luna_low_bare_upp}}.
+Codex has no single switch like Claude's `--tools ""`. Isolated stock luna-low averages {{luna_low_in}} input tokens; historical trimmed luna-low averages {{luna_low_bare_in}}. The difference is {{in_cut}}; isolation differs between these runs. No measurable change in accuracy: the stripped config passes {{luna_low_bare_pass}} against stock luna-low's {{luna_low_pass}} ({{lb_vs_ll}} pts, CI {{lb_vs_ll_ci}}, which rules out neither a gain nor a loss). Its proxy cost per pass falls from {{luna_low_upp}} to {{luna_low_bare_upp}}.
 
-Even stripped, luna's input is larger than Claude's with tools off: haiku-low's mean is {{haiku_low_in}}. About {{host_agents_md}} (estimated from file size) of luna's remaining tokens are the host's user-level `~/.codex/AGENTS.md`, which no Codex flag removes. Removing it needs a separate Codex home directory with its own copy of the login file, which this run did not do.
+Even stripped, luna's input is larger than Claude's with tools off: haiku-low's mean is {{haiku_low_in}}. Historical trimmed rows retain host instructions. Isolated stock luna-low excludes them.
 
 {{chart:token_in.svg|Mean input tokens per call, function track. Stripping the Codex harness removes more than half of luna's input.}}
 @page </div>
@@ -29,8 +29,8 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 
 1. **"Low effort" is not the same budget on both CLIs, and on the point estimates that explains most of luna's gap.** At low and medium effort luna emits a mean of {{luna_low_rsn}} and {{luna_medium_rsn}} reasoning tokens per call; haiku-low emits about {{haiku_low_rsn10}}. At those settings luna passes {{luna_low_pass}} and {{luna_medium_pass}}, and haiku-low passes {{haiku_low_pass}} (paired difference {{hl_vs_ll}} pts, CI {{hl_vs_ll_ci}}). At high effort luna emits about {{luna_high_rsn10}} reasoning tokens and passes {{luna_high_pass}} ({{luna_high_k}}), {{lh_below_hl}} pts below haiku-low (CI {{lh_vs_hl_ci}}). Its cost per pass, {{luna_high_upp}}, is close to haiku-low's {{haiku_low_upp}}, and its median latency is {{luna_high_med}} s against {{haiku_low_med}} s.
 2. **Luna's misses at low and medium effort cluster on three problems.** Together they pass {{p04_luna}} attempts on p04 taller_within (L2), {{p11_luna}} on p11 best_average (L6) and {{p12_luna}} on p12 sheet (L6). The pre-registered escalation re-ran those three at high effort: {{esc_k}} against {{esc_vs}}'s {{esc_base}}. The three were chosen because luna failed them, so that ratio overstates the general gain; the full-ladder luna-high run is the unbiased version ({{lh_vs_lm}} pts against luna-medium, CI {{lh_vs_lm_ci}}).
-3. **Stripping the Codex harness halves luna's input but does not make it as accurate as Haiku.** On the full ladder stripped luna passes {{luna_low_bare_pass}} against haiku-low's {{haiku_low_pass}}: {{lb_vs_hl}} pts, CI {{lb_vs_hl_ci}}, so the interval's upper end touches zero. Its cost per pass, {{luna_low_bare_upp}}, depends on Codex's prompt cache: with no input served from cache it would be {{lb_upp_nocache}}, {{lb_nocache_above}} above Haiku's measured {{haiku_low_upp}} (which includes Claude's own cache discount).
-4. **The repo tasks did not separate the configs.** The four configs first run passed every hidden test, {{ag_k}} runs each (so did the two added later, finding 5). What differs is cost per run: luna-low {{ag_luna_low_usd}}, haiku-low {{ag_haiku_low_usd}}, sonnet-medium {{ag_sonnet_medium_usd}}, sol61-medium {{ag_sol61_medium_usd}}, a {{ag_spread}} spread for the same outcome. sol61-medium also took {{ag_sol61_medium_med}} s at the median against about {{ag_other_med}} s for the other three. Part of the Codex cost and time comes from the host's `AGENTS.md`, which Codex loads and which tells the agent to look for more `AGENTS.md` files and to run a search helper and a review delegate. Commands that do one of those, or clean up after the delegate, account for {{host_sol61_medium}} of sol61's {{shell_sol61_medium}} shell commands and {{host_luna_low}} of luna's {{shell_luna_low}}. The Codex agentic costs and times were measured with host instructions present.
+3. **Historical stripped luna uses less input, with isolation differing from the stock rerun.** On the full ladder stripped luna passes {{luna_low_bare_pass}} against haiku-low's {{haiku_low_pass}}: {{lb_vs_hl}} pts, CI {{lb_vs_hl_ci}}, so the interval's upper end touches zero. Its cost per pass, {{luna_low_bare_upp}}, depends on Codex's prompt cache: with no input served from cache it would be {{lb_upp_nocache}}, {{lb_nocache_above}} above Haiku's measured {{haiku_low_upp}} (which includes Claude's own cache discount).
+4. **The repo tasks did not separate the configs.** The four configs first run passed every hidden test, {{ag_k}} runs each (so did the two added later, finding 5). What differs is cost per run: luna-low {{ag_luna_low_usd}}, haiku-low {{ag_haiku_low_usd}}, sonnet-medium {{ag_sonnet_medium_usd}}, sol61-medium {{ag_sol61_medium_usd}}, a {{ag_spread}} spread for the same outcome. sol61-medium took {{ag_sol61_medium_med}} s; luna-low took {{ag_luna_low_med}} s. The two Claude configs took about {{ag_other_med}} s.
 
 5. **Two later Codex configs never failed, and they move the cost to the Codex bill** (exploratory, added {{new_date}}). sol61-high (gpt-6.1-sol at high effort) and astra-medium (gpt-6-astra) passed every L1–L6 attempt ({{x_sol61_high_k}}, {{x_astra_medium_k}}), every L7 attempt ({{x_sol61_high_hk}}, {{x_astra_medium_hk}}) and all {{ag_n}} repo-task runs. On luna's hardest problems, with haiku-low repairing only when the statement's examples fail, they needed {{g_sol61_repairs}} and {{g_astra_repairs}} repairs ({{r_sol61_high_haiku_on_fail_k}}, {{r_astra_medium_haiku_on_fail_k}}), so their Claude cost there was {{g_sol61_cupp}} and {{g_astra_cupp}} per pass. By list price they are dear: {{x_sol61_high_upp}} and {{x_astra_medium_upp}} per pass on L1–L6, {{x_s61h_vs_sm}} and {{x_astra_vs_sm}} sonnet-medium's. astra-medium is faster ({{x_astra_medium_med}} s against {{x_sol61_high_med}} s on L1–L6, {{ag_astra_medium_med}} s against {{ag_sol61_high_med}} s on the repo tasks) and uses about {{x_astra_vs_s61h}} as much at list price; both are much slower than a Claude builder on the repo tasks (about {{ag_claude_med}} s for haiku-low and sonnet-medium).
 6. **The other later Codex configs change nothing.** sol56-high (gpt-5.6-sol) never fails on L1–L6 but misses on L7 ({{x_sol56_high_hk}}) at {{x_sol56_vs_hm}} haiku-medium's price per pass. The older luna is worse and dearer: luna56-high passes {{x_luna56_high_hk}} on L7 against gpt-6 luna-high's {{x_base_luna_high_hk}}, and costs {{x_l56_vs_lh}} as much per pass on L1–L6 (gpt-5.6-luna lists at twice gpt-6-luna's input price and more than twice its output price). Findings 5 and 6 are exploratory: the configs were chosen after the main results were known, and Codex dollars are list-price proxies.
@@ -63,9 +63,37 @@ Each trim level adds Codex CLI 0.163.0 config knobs to the one before. The probe
 
 gpt-5.6-terra at the smallest prompt costs {{terra_call}} per call on the pilot problems, about {{terra_x}} haiku-low, so it was not run on the full ladder.
 
+## Isolation replacement changes
+
+Each cell shows the archived value followed by the selected isolated value.
+
+{{table:isolation_changes}}
+
+Claims updated for the new data:
+
+- Codex now uses multiple CLI versions; its rerun matches the appendix version.
+- Only Claude adds a CLI version in the appendix.
+- On p04, isolated luna-low trails luna-medium and historical stripped luna-low.
+- luna-low's repo-task median is below the two close Claude medians.
+- Stock and stripped luna-low first break at L2.
+- luna-medium costs more and passes more; neither dominates on these measures.
+- Historical B2 ties isolated luna-low; B1 passes more.
+- Both Codex picks take over twice the fast Claude repo-task medians.
+- Isolated replacements have no matching quality measurements.
+- Host-command counts and claims were removed for the replaced repo runs.
+
+## Selected result provenance
+
+{{table:selected_sources}}
+
+These retained cells used the function runner or its Codex caller before isolation.
+Separate pilot and trim runners fall outside this inventory. Earlier rescue arms lack retained producers.
+
+{{table:unisolated}}
+
 ## Code quality
 
-Pass/fail stays the headline. These columns describe the passing solutions only, measured by `make quality` with no model calls; every solution is on disk under [results/solutions/](results/solutions/README.md) ({{n_solutions}} files, one table per problem with links), so each number can be checked by hand. The factors and how they are measured are in PLAN.md (deviation 17). None of them is folded into a single score.
+The isolated replacements have no matching quality measurements. Pass/fail stays the headline. These columns describe the passing solutions only, measured by `make quality` with no model calls; every solution is on disk under [results/solutions/](results/solutions/README.md) ({{n_solutions}} files, one table per problem with links), so each number can be checked by hand. The factors and how they are measured are in PLAN.md (deviation 17). None of them is folded into a single score.
 
 {{table:quality}}
 
@@ -139,10 +167,10 @@ rebuilds every table, chart and number in this README and the page from the cach
 ## Limitations
 
 - **Small sample.** {{n_problems}} problems and {{n_tasks}} repo tasks, with {{repeats}} and {{agent_repeats}} attempts. The intervals are wide; read them before the point estimates.
-- **The breaking point is unstable at this size.** With {{rung_attempts}} attempts per rung, two attempts move it. Stripped luna breaks at L2 ({{lb_l2}}) and stock luna at L6, yet stripped luna then scores {{lb_l3}} on L3. The rung order is the author's prior about difficulty, not a measurement, and the per-problem chart shows where it was wrong (for luna, p04 taller_within at L2 is harder than every problem except p12 sheet).
+- **The breaking point is unstable at this size.** With {{rung_attempts}} attempts per rung, two attempts move it. Stripped and isolated stock luna-low first break at L2. Stripped luna passes {{lb_l2}} there, then {{lb_l3}} on L3. The rung order is the author's prior about difficulty, not a measurement, and the per-problem chart shows where it was wrong (for luna, p04 taller_within at L2 is harder than every problem except p12 sheet).
 - **The repo tasks hit a ceiling.** All {{ag_runs}} runs passed. They show cost and latency differences, not capability differences.
 - **Codex cost is a proxy**, and it depends on the provider's prompt cache. Identical prompts got between 0 and {{cache_max}} cached tokens (stripped luna on p06 calc), which moves a Codex call's cost by up to {{cache_swing}}. The stripped-luna figures give a no-cache bound for that reason. Claude cost is measured, but it is the CLI's own accounting.
-- **Harnesses are matched, not identical.** Codex cannot turn tools off on the function track; it gets a read-only sandbox and an instruction. Codex also injects the host's user-level `AGENTS.md` (about {{host_agents_md}} tokens), so every Codex input count includes tokens a clean install would not have. Claude Code keeps its own default system prompt.
+- **Harnesses are matched, not identical.** Codex cannot turn tools off on the function track; it gets a read-only sandbox and an instruction. The selected sources distinguish isolated reruns from historical Codex cells. Claude Code keeps its own default system prompt.
 - **Latency is wall-clock through the CLI** on one host with up to {{lanes}} calls in flight. It includes CLI start-up and network time, and is not comparable to API time-to-first-token. The exploratory stripped-luna run used one lane at a different time of day, so its latency is not a clean comparison with luna-low.
 - **The cache key leaves out a few inputs.** The effort and model literals inside the trim probe are not hashed. The one-line system prompt and the grader's source are pinned by SHA-256 instead: the runners and the grader refuse to run if either file changes while cached results exist.
 - **The repo-task runs are not sandboxed alike.** Claude Code ran with permission prompts bypassed and no sandbox; Codex ran in its workspace-write sandbox. The hidden tests run the agent's code with pytest outside the grader's sandbox. All of it ran in throwaway directories on one host.
@@ -159,12 +187,11 @@ After the main run, several changes were tried on the {{n_rescue_problems}} prob
 {{table:rescue}}
 
 - **Raising effort is the only cheap fix.** Stripped luna-high passes {{r_luna_high_bare_k}} at {{r_luna_high_bare_upp}} per pass (proxy), next to haiku-low's {{r_haiku_low_k}} at {{r_haiku_low_upp}}. Medium effort does nothing ({{r_luna_medium_bare_k}}), which fits the reasoning-token counts above: luna barely reasons below high.
-- **Prompting helps a little or hurts.** The "trace the examples first" nudge adds {{r_b1_gain}} passes; asking for a reasoning summary on top of it loses {{r_b2_loss}}.
+- **Prompting helps a little or hurts.** Historical B1 exceeds the isolated baseline by {{r_b1_gain}} passes. Historical B2 trails B1 by {{r_b2_loss}} passes. The runs also differ in isolation.
 - **Letting luna test its own code works but costs more than switching models.** Self-testing reaches {{r_luna_low_selftest_k}} at {{r_c_cost_x}} the baseline's cost per pass and {{r_c_time_x}} its latency, more than haiku-low for fewer passes.
 - **A Haiku review of every answer fixes almost everything, but Haiku does the work.** In the original arm E run, luna-low's own answers passed {{r_e_luna}}; Haiku changed {{r_e_changed}} of them and accounted for {{r_e_haiku_share}} of the spend, reaching {{r_luna_low_haiku_low_repair_k}}. Rerun from committed code (arm G, reconstructed prompt) it reached {{r_luna_low_haiku_review_all_k}}. With luna-high building, the review reached {{r_luna_high_bare_haiku_review_all_k}} at {{r_luna_high_bare_haiku_review_all_upp}} per pass.
 - **Repairing only when the statement's examples fail is cheap and fast, but the examples are a weak check.** They flagged {{g_hi_fixed}} luna-high answers and let {{g_hi_missed}} failing ones through ({{r_luna_high_bare_haiku_on_fail_k}}; a luna-high retry instead of Haiku: {{r_luna_high_bare_retry_on_fail_k}}). luna-low fails them more often, so its gate fired {{g_lo_fixed}} times and reached {{r_luna_low_haiku_on_fail_k}} in a median {{r_luna_low_haiku_on_fail_s}}, the fastest row.
 - **Planning first (arm F) did not help luna-high:** {{r_haiku_low_plan_luna_high_bare_k}}, against {{r_luna_high_bare_k}} alone.
-- Not measured: luna without the host's `AGENTS.md`, for the reason given in the token section above.
 
 ## Appendix C: Codex fast mode and xhigh effort (exploratory, added later)
 

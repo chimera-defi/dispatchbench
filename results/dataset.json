@@ -5,6 +5,9 @@
   "results/2026-10-22b-agentic.jsonl",
   "results/2026-10-22b-function.jsonl",
   "results/2026-10-22b-trim.jsonl",
+  "results/2026-10-25-isolated-agentic.jsonl",
+  "results/2026-10-25-isolated-hard.jsonl",
+  "results/2026-10-25-isolated-main.jsonl",
   "results/appendix/codex_harness.jsonl",
   "results/appendix/harness_bias.jsonl",
   "results/appendix/luna_rescue.jsonl"
@@ -1375,37 +1378,37 @@
    "set": "main ladder",
    "derived": false,
    "files": [
-    "results/2026-10-22b-function.jsonl"
+    "results/2026-10-25-isolated-main.jsonl"
    ],
-   "passes": 46,
+   "passes": 44,
    "n": 60,
-   "pass_rate": 0.7667,
+   "pass_rate": 0.7333,
    "ci95": [
-    0.5333,
-    0.95
+    0.5,
+    0.9167
    ],
    "groups": 12,
-   "usd_per_pass": 0.000899,
+   "usd_per_pass": 0.000781,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000899,
-   "usd_per_call": 0.000689,
-   "spend": 0.041353,
+   "codex_usd_per_pass": 0.000781,
+   "usd_per_call": 0.000573,
+   "spend": 0.034359,
    "spend_claude": 0.0,
-   "spend_codex": 0.041353,
+   "spend_codex": 0.034359,
    "unknown_usd": 0,
-   "median_s": 7.22,
-   "p25_s": 6.31,
-   "p75_s": 9.34,
-   "tokens_in_mean": 14688,
-   "tokens_out_mean": 514,
+   "median_s": 7.7,
+   "p25_s": 6.07,
+   "p75_s": 9.25,
+   "tokens_in_mean": 13434,
+   "tokens_out_mean": 532,
    "tokens_cached_mean": 11520,
    "tokens_reasoning_mean": 0,
    "input_floor": [
-    14494,
+    13238,
     11520
    ],
-   "p90_s": 11.57,
-   "max_s": 14.48,
+   "p90_s": 10.71,
+   "max_s": 16.54,
    "by_group": {
     "p01_overlap_minutes": {
      "passes": 5,
@@ -1416,11 +1419,11 @@
      "n": 5
     },
     "p03_ledger": {
-     "passes": 5,
+     "passes": 3,
      "n": 5
     },
     "p04_taller_within": {
-     "passes": 1,
+     "passes": 0,
      "n": 5
     },
     "p05_pass_route": {
@@ -1436,15 +1439,15 @@
      "n": 5
     },
     "p08_recur": {
-     "passes": 4,
+     "passes": 5,
      "n": 5
     },
     "p09_k_machine_schedule": {
-     "passes": 2,
+     "passes": 4,
      "n": 5
     },
     "p10_avoid_count": {
-     "passes": 5,
+     "passes": 3,
      "n": 5
     },
     "p11_best_average": {
@@ -1456,20 +1459,20 @@
      "n": 5
     }
    },
-   "misses": 14,
+   "misses": 16,
    "ci95_plot": [
-    0.5333,
-    0.95
+    0.5,
+    0.9167
    ],
-   "usd_saved_per_pass": 0.000899,
-   "usd_per_1k_tokens": 4.53229838179187e-05,
+   "usd_saved_per_pass": 0.000781,
+   "usd_per_1k_tokens": 4.102821137047115e-05,
    "by_rung": {
     "L1": [
      10,
      10
     ],
     "L2": [
-     6,
+     3,
      10
     ],
     "L3": [
@@ -1477,7 +1480,7 @@
      10
     ],
     "L4": [
-     9,
+     10,
      10
     ],
     "L5": [
@@ -1494,52 +1497,50 @@
    "model": "gpt-6-luna",
    "effort": "low",
    "outcomes": {
-    "pass": 46,
-    "wrong": 6,
-    "crash": 4,
-    "timeout": 4
+    "pass": 44,
+    "wrong": 8,
+    "crash": 8
    },
-   "breaking_point": "L6",
+   "breaking_point": "L2",
    "details": {
     "cli": "codex",
     "model": "gpt-6-luna",
     "effort": "low",
     "n": 60,
-    "passes": 46,
-    "pass_at_1": 0.7667,
+    "passes": 44,
+    "pass_at_1": 0.7333,
     "ci95": [
-     0.5333,
-     0.95
+     0.5,
+     0.9167
     ],
-    "breaking_point": "L6",
+    "breaking_point": "L2",
     "outcomes": {
-     "pass": 46,
-     "wrong": 6,
-     "crash": 4,
-     "timeout": 4
+     "pass": 44,
+     "wrong": 8,
+     "crash": 8
     },
     "input_floor": [
-     14494,
+     13238,
      11520
     ],
-    "usd_per_call": 0.000689,
-    "usd_total": 0.041353,
-    "usd_per_pass": 0.000899,
-    "usd_per_pass_L1_L2": 0.00073,
+    "usd_per_call": 0.000573,
+    "usd_total": 0.034359,
+    "usd_per_pass": 0.000781,
+    "usd_per_pass_L1_L2": 0.000707,
     "pass_L1_L2": [
-     16,
+     13,
      20
     ],
     "cost_kind": "proxy",
-    "misses": 14,
+    "misses": 16,
     "ci95_plot": [
-     0.5333,
-     0.95
+     0.5,
+     0.9167
     ],
-    "usd_text": "$0.00090",
+    "usd_text": "$0.00078",
     "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.000899,
-    "usd_per_1k_tokens": 4.53229838179187e-05
+    "usd_saved_per_pass": 0.000781,
+    "usd_per_1k_tokens": 4.102821137047115e-05
    }
   },
   {
@@ -2196,56 +2197,56 @@
    "set": "rescue set",
    "derived": true,
    "files": [
-    "results/2026-10-22b-function.jsonl"
+    "results/2026-10-25-isolated-main.jsonl"
    ],
-   "passes": 21,
+   "passes": 19,
    "n": 35,
-   "pass_rate": 0.6,
+   "pass_rate": 0.5429,
    "ci95": [
-    0.2857,
-    0.8857
+    0.2286,
+    0.8286
    ],
    "groups": 7,
-   "usd_per_pass": 0.001287,
+   "usd_per_pass": 0.00121,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.001287,
-   "usd_per_call": 0.000772,
-   "spend": 0.02703,
+   "codex_usd_per_pass": 0.00121,
+   "usd_per_call": 0.000657,
+   "spend": 0.022994,
    "spend_claude": 0.0,
-   "spend_codex": 0.02703,
+   "spend_codex": 0.022994,
    "unknown_usd": 0,
-   "median_s": 8.53,
-   "p25_s": 6.32,
-   "p75_s": 10.7,
-   "tokens_in_mean": 14740,
-   "tokens_out_mean": 670,
+   "median_s": 9.01,
+   "p25_s": 7.35,
+   "p75_s": 10.32,
+   "tokens_in_mean": 13486,
+   "tokens_out_mean": 690,
    "tokens_cached_mean": 11520,
    "tokens_reasoning_mean": 0,
    "input_floor": [
-    14497,
+    13241,
     11520
    ],
-   "p90_s": 11.72,
-   "max_s": 14.48,
+   "p90_s": 14.16,
+   "max_s": 16.54,
    "by_group": {
     "p03_ledger": {
-     "passes": 5,
+     "passes": 3,
      "n": 5
     },
     "p04_taller_within": {
-     "passes": 1,
+     "passes": 0,
      "n": 5
     },
     "p08_recur": {
-     "passes": 4,
+     "passes": 5,
      "n": 5
     },
     "p09_k_machine_schedule": {
-     "passes": 2,
+     "passes": 4,
      "n": 5
     },
     "p10_avoid_count": {
-     "passes": 5,
+     "passes": 3,
      "n": 5
     },
     "p11_best_average": {
@@ -2257,20 +2258,20 @@
      "n": 5
     }
    },
-   "misses": 14,
+   "misses": 16,
    "ci95_plot": [
-    0.2857,
-    0.8857
+    0.2286,
+    0.8286
    ],
-   "usd_saved_per_pass": 0.001287,
-   "usd_per_1k_tokens": 5.0097339390006494e-05,
+   "usd_saved_per_pass": 0.00121,
+   "usd_per_1k_tokens": 4.6345936794582395e-05,
    "by_rung": {
     "L2": [
-     6,
+     3,
      10
     ],
     "L4": [
-     4,
+     5,
      5
     ],
     "L5": [
@@ -3102,34 +3103,34 @@
    "set": "L7 set",
    "derived": false,
    "files": [
-    "results/2026-10-22b-function.jsonl"
+    "results/2026-10-25-isolated-hard.jsonl"
    ],
    "passes": 15,
    "n": 15,
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 3,
-   "usd_per_pass": 0.023603,
+   "usd_per_pass": 0.022969,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.023603,
-   "usd_per_call": 0.023603,
-   "spend": 0.354038,
+   "codex_usd_per_pass": 0.022969,
+   "usd_per_call": 0.022969,
+   "spend": 0.344538,
    "spend_claude": 0.0,
-   "spend_codex": 0.354038,
+   "spend_codex": 0.344538,
    "unknown_usd": 0,
-   "median_s": 52.68,
-   "p25_s": 25.21,
-   "p75_s": 69.61,
-   "tokens_in_mean": 15351,
-   "tokens_out_mean": 1625,
+   "median_s": 55.82,
+   "p25_s": 29.71,
+   "p75_s": 78.79,
+   "tokens_in_mean": 14097,
+   "tokens_out_mean": 1812,
    "tokens_cached_mean": 12288,
-   "tokens_reasoning_mean": 1151,
+   "tokens_reasoning_mean": 1277,
    "input_floor": [
-    15298,
+    14042,
     12288
    ],
-   "p90_s": 78.15,
-   "max_s": 96.8,
+   "p90_s": 130.72,
+   "max_s": 242.45,
    "by_group": {
     "p13_xor_ring": {
      "passes": 5,
@@ -3149,8 +3150,8 @@
     0.3684031498640387,
     1.0
    ],
-   "usd_saved_per_pass": 0.023603,
-   "usd_per_1k_tokens": 0.001390374646559849,
+   "usd_saved_per_pass": 0.022969,
+   "usd_per_1k_tokens": 0.001443773964422654,
    "by_rung": {
     "L7": [
      15,
@@ -3181,12 +3182,12 @@
      "pass": 15
     },
     "input_floor": [
-     15298,
+     14042,
      12288
     ],
-    "usd_per_call": 0.023603,
-    "usd_total": 0.354038,
-    "usd_per_pass": 0.023603,
+    "usd_per_call": 0.022969,
+    "usd_total": 0.344538,
+    "usd_per_pass": 0.022969,
     "usd_per_pass_L1_L2": null,
     "pass_L1_L2": [
      0,
@@ -3203,10 +3204,10 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.024",
+    "usd_text": "$0.023",
     "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.023603,
-    "usd_per_1k_tokens": 0.001390374646559849
+    "usd_saved_per_pass": 0.022969,
+    "usd_per_1k_tokens": 0.001443773964422654
    }
   },
   {
@@ -3584,10 +3585,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.2333,
+      "diff": 0.2667,
       "ci95": [
-       0.05,
-       0.45
+       0.0667,
+       0.5
       ],
       "problems": 12
      },
@@ -3804,10 +3805,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.15,
+      "diff": 0.1833,
       "ci95": [
-       -0.0333,
-       0.35
+       0.0,
+       0.4
       ],
       "problems": 12
      },
@@ -4026,10 +4027,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.0333,
+      "diff": 0.0667,
       "ci95": [
-       -0.2,
-       0.25
+       -0.1667,
+       0.3
       ],
       "problems": 12
      },
@@ -4246,10 +4247,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.1667,
+      "diff": 0.2,
       "ci95": [
-       0.0,
-       0.35
+       0.0333,
+       0.4
       ],
       "problems": 12
      },
@@ -4459,10 +4460,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.2333,
+      "diff": 0.2667,
       "ci95": [
-       0.05,
-       0.45
+       0.0667,
+       0.5
       ],
       "problems": 12
      },
@@ -4672,10 +4673,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.2333,
+      "diff": 0.2667,
       "ci95": [
-       0.05,
-       0.45
+       0.0667,
+       0.5
       ],
       "problems": 12
      },
@@ -4885,10 +4886,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.2333,
+      "diff": 0.2667,
       "ci95": [
-       0.05,
-       0.45
+       0.0667,
+       0.5
       ],
       "problems": 12
      },
@@ -5999,10 +6000,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.2333,
+      "diff": 0.2667,
       "ci95": [
-       0.05,
-       0.45
+       0.0667,
+       0.5
       ],
       "problems": 12
      },
@@ -6212,10 +6213,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.2333,
+      "diff": 0.2667,
       "ci95": [
-       0.05,
-       0.45
+       0.0667,
+       0.5
       ],
       "problems": 12
      },
@@ -7984,34 +7985,34 @@
    "set": "repo tasks",
    "derived": false,
    "files": [
-    "results/2026-10-22b-agentic.jsonl"
+    "results/2026-10-25-isolated-agentic.jsonl"
    ],
    "passes": 12,
    "n": 12,
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 4,
-   "usd_per_pass": 0.003994,
+   "usd_per_pass": 0.003257,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.003994,
-   "usd_per_call": 0.003994,
-   "spend": 0.047922,
+   "codex_usd_per_pass": 0.003257,
+   "usd_per_call": 0.003257,
+   "spend": 0.039078,
    "spend_claude": 0.0,
-   "spend_codex": 0.047922,
+   "spend_codex": 0.039078,
    "unknown_usd": 0,
-   "median_s": 28.5,
-   "p25_s": 23.33,
-   "p75_s": 43.57,
-   "tokens_in_mean": 150943,
-   "tokens_out_mean": 2269,
-   "tokens_cached_mean": 135947,
-   "tokens_reasoning_mean": 9,
+   "median_s": 24.12,
+   "p25_s": 21.69,
+   "p75_s": 33.72,
+   "tokens_in_mean": 123125,
+   "tokens_out_mean": 2478,
+   "tokens_cached_mean": 114389,
+   "tokens_reasoning_mean": 306,
    "input_floor": [
-    92906,
-    79104
+    71903,
+    67328
    ],
-   "p90_s": 48.54,
-   "max_s": 51.11,
+   "p90_s": 43.13,
+   "max_s": 72.15,
    "by_group": {
     "t1_discount": {
      "passes": 3,
@@ -8035,8 +8036,8 @@
     0.4728708045015879,
     1.0
    ],
-   "usd_saved_per_pass": 0.003994,
-   "usd_per_1k_tokens": 2.606845416808083e-05,
+   "usd_saved_per_pass": 0.003257,
+   "usd_per_1k_tokens": 2.593090929356783e-05,
    "by_rung": {},
    "cost_kind": "proxy",
    "cli": "codex",
@@ -8051,8 +8052,8 @@
      1.0,
      1.0
     ],
-    "visible_pass": 11,
-    "task_complete": 11,
+    "visible_pass": 7,
+    "task_complete": 7,
     "own_tests_written": 12,
     "tests_tampered_runs": 0,
     "delegate_calls": 0,
@@ -8096,12 +8097,12 @@
      }
     },
     "input_floor": [
-     92906,
-     79104
+     71903,
+     67328
     ],
-    "usd_per_run": 0.003994,
-    "usd_total": 0.047922,
-    "usd_per_hidden_pass": 0.00399,
+    "usd_per_run": 0.003257,
+    "usd_total": 0.039078,
+    "usd_per_hidden_pass": 0.00326,
     "cost_kind": "proxy",
     "passes": 12,
     "pass_at_1": 1.0,
@@ -8110,12 +8111,12 @@
      0.4728708045015879,
      1.0
     ],
-    "usd_per_pass": 0.003994,
-    "usd_text": "$0.0040",
-    "usd_per_call": 0.003994,
+    "usd_per_pass": 0.003257,
+    "usd_text": "$0.0033",
+    "usd_per_call": 0.003257,
     "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.003994,
-    "usd_per_1k_tokens": 2.606845416808083e-05
+    "usd_saved_per_pass": 0.003257,
+    "usd_per_1k_tokens": 2.593090929356783e-05
    }
   },
   {
@@ -8129,34 +8130,34 @@
    "set": "repo tasks",
    "derived": false,
    "files": [
-    "results/2026-10-22b-agentic.jsonl"
+    "results/2026-10-25-isolated-agentic.jsonl"
    ],
    "passes": 12,
    "n": 12,
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 4,
-   "usd_per_pass": 0.075229,
+   "usd_per_pass": 0.079403,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.075229,
-   "usd_per_call": 0.075229,
-   "spend": 0.902749,
+   "codex_usd_per_pass": 0.079403,
+   "usd_per_call": 0.079403,
+   "spend": 0.95284,
    "spend_claude": 0.0,
-   "spend_codex": 0.902749,
+   "spend_codex": 0.95284,
    "unknown_usd": 0,
-   "median_s": 89.04,
-   "p25_s": 70.68,
-   "p75_s": 117.89,
-   "tokens_in_mean": 162787,
-   "tokens_out_mean": 2901,
-   "tokens_cached_mean": 147029,
-   "tokens_reasoning_mean": 300,
+   "median_s": 84.55,
+   "p25_s": 65.13,
+   "p75_s": 126.28,
+   "tokens_in_mean": 202506,
+   "tokens_out_mean": 3023,
+   "tokens_cached_mean": 187285,
+   "tokens_reasoning_mean": 272,
    "input_floor": [
-    116924,
-    101504
+    149886,
+    138112
    ],
-   "p90_s": 121.61,
-   "max_s": 138.77,
+   "p90_s": 239.38,
+   "max_s": 423.68,
    "by_group": {
     "t1_discount": {
      "passes": 3,
@@ -8180,8 +8181,8 @@
     0.4728708045015879,
     1.0
    ],
-   "usd_saved_per_pass": 0.075229,
-   "usd_per_1k_tokens": 0.0004540401236058133,
+   "usd_saved_per_pass": 0.079403,
+   "usd_per_1k_tokens": 0.00038633477514122096,
    "by_rung": {},
    "cost_kind": "proxy",
    "cli": "codex",
@@ -8200,7 +8201,7 @@
     "task_complete": 12,
     "own_tests_written": 12,
     "tests_tampered_runs": 0,
-    "delegate_calls": 23,
+    "delegate_calls": 0,
     "errors": 0,
     "by_task": {
      "t1_discount": {
@@ -8241,12 +8242,12 @@
      }
     },
     "input_floor": [
-     116924,
-     101504
+     149886,
+     138112
     ],
-    "usd_per_run": 0.075229,
-    "usd_total": 0.902749,
-    "usd_per_hidden_pass": 0.07523,
+    "usd_per_run": 0.079403,
+    "usd_total": 0.95284,
+    "usd_per_hidden_pass": 0.0794,
     "cost_kind": "proxy",
     "passes": 12,
     "pass_at_1": 1.0,
@@ -8255,12 +8256,12 @@
      0.4728708045015879,
      1.0
     ],
-    "usd_per_pass": 0.075229,
-    "usd_text": "$0.075",
-    "usd_per_call": 0.075229,
+    "usd_per_pass": 0.079403,
+    "usd_text": "$0.079",
+    "usd_per_call": 0.079403,
     "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.075229,
-    "usd_per_1k_tokens": 0.0004540401236058133
+    "usd_saved_per_pass": 0.079403,
+    "usd_per_1k_tokens": 0.00038633477514122096
    }
   },
   {
@@ -8274,34 +8275,34 @@
    "set": "repo tasks",
    "derived": false,
    "files": [
-    "results/2026-10-22b-agentic.jsonl"
+    "results/2026-10-25-isolated-agentic.jsonl"
    ],
    "passes": 12,
    "n": 12,
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 4,
-   "usd_per_pass": 0.094819,
+   "usd_per_pass": 0.097282,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.094819,
-   "usd_per_call": 0.094819,
-   "spend": 1.137826,
+   "codex_usd_per_pass": 0.097282,
+   "usd_per_call": 0.097282,
+   "spend": 1.167383,
    "spend_claude": 0.0,
-   "spend_codex": 1.137826,
+   "spend_codex": 1.167383,
    "unknown_usd": 0,
-   "median_s": 108.58,
-   "p25_s": 102.91,
-   "p75_s": 130.41,
-   "tokens_in_mean": 213735,
-   "tokens_out_mean": 4090,
-   "tokens_cached_mean": 196608,
-   "tokens_reasoning_mean": 886,
+   "median_s": 117.93,
+   "p25_s": 90.62,
+   "p75_s": 263.54,
+   "tokens_in_mean": 234135,
+   "tokens_out_mean": 4014,
+   "tokens_cached_mean": 216384,
+   "tokens_reasoning_mean": 759,
    "input_floor": [
-    162168,
-    142592
+    137915,
+    124672
    ],
-   "p90_s": 158.68,
-   "max_s": 188.49,
+   "p90_s": 308.99,
+   "max_s": 578.43,
    "by_group": {
     "t1_discount": {
      "passes": 3,
@@ -8325,8 +8326,8 @@
     0.4728708045015879,
     1.0
    ],
-   "usd_saved_per_pass": 0.094819,
-   "usd_per_1k_tokens": 0.00043529897853781705,
+   "usd_saved_per_pass": 0.097282,
+   "usd_per_1k_tokens": 0.0004084921624697143,
    "by_rung": {},
    "cost_kind": "proxy",
    "cli": "codex",
@@ -8345,7 +8346,7 @@
     "task_complete": 12,
     "own_tests_written": 12,
     "tests_tampered_runs": 0,
-    "delegate_calls": 35,
+    "delegate_calls": 0,
     "errors": 0,
     "by_task": {
      "t1_discount": {
@@ -8386,12 +8387,12 @@
      }
     },
     "input_floor": [
-     162168,
-     142592
+     137915,
+     124672
     ],
-    "usd_per_run": 0.094819,
-    "usd_total": 1.137826,
-    "usd_per_hidden_pass": 0.09482,
+    "usd_per_run": 0.097282,
+    "usd_total": 1.167383,
+    "usd_per_hidden_pass": 0.09728,
     "cost_kind": "proxy",
     "passes": 12,
     "pass_at_1": 1.0,
@@ -8400,12 +8401,12 @@
      0.4728708045015879,
      1.0
     ],
-    "usd_per_pass": 0.094819,
-    "usd_text": "$0.095",
-    "usd_per_call": 0.094819,
+    "usd_per_pass": 0.097282,
+    "usd_text": "$0.097",
+    "usd_per_call": 0.097282,
     "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.094819,
-    "usd_per_1k_tokens": 0.00043529897853781705
+    "usd_saved_per_pass": 0.097282,
+    "usd_per_1k_tokens": 0.0004084921624697143
    }
   },
   {
@@ -8419,34 +8420,34 @@
    "set": "repo tasks",
    "derived": false,
    "files": [
-    "results/2026-10-22b-agentic.jsonl"
+    "results/2026-10-25-isolated-agentic.jsonl"
    ],
    "passes": 12,
    "n": 12,
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 4,
-   "usd_per_pass": 0.379841,
+   "usd_per_pass": 0.445754,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.379841,
-   "usd_per_call": 0.379841,
-   "spend": 4.558088,
+   "codex_usd_per_pass": 0.445754,
+   "usd_per_call": 0.445754,
+   "spend": 5.349052,
    "spend_claude": 0.0,
-   "spend_codex": 4.558088,
+   "spend_codex": 5.349052,
    "unknown_usd": 0,
-   "median_s": 85.22,
-   "p25_s": 67.31,
-   "p75_s": 97.58,
-   "tokens_in_mean": 160564,
-   "tokens_out_mean": 2481,
-   "tokens_cached_mean": 149984,
-   "tokens_reasoning_mean": 135,
+   "median_s": 65.63,
+   "p25_s": 63.21,
+   "p75_s": 87.41,
+   "tokens_in_mean": 191282,
+   "tokens_out_mean": 2702,
+   "tokens_cached_mean": 178016,
+   "tokens_reasoning_mean": 110,
    "input_floor": [
-    98876,
-    88064
+    130168,
+    123264
    ],
-   "p90_s": 99.49,
-   "max_s": 101.21,
+   "p90_s": 95.72,
+   "max_s": 101.22,
    "by_group": {
     "t1_discount": {
      "passes": 3,
@@ -8470,8 +8471,8 @@
     0.4728708045015879,
     1.0
    ],
-   "usd_saved_per_pass": 0.379841,
-   "usd_per_1k_tokens": 0.0023296697230825846,
+   "usd_saved_per_pass": 0.445754,
+   "usd_per_1k_tokens": 0.002297890547674035,
    "by_rung": {},
    "cost_kind": "proxy",
    "cli": "codex",
@@ -8490,7 +8491,7 @@
     "task_complete": 12,
     "own_tests_written": 12,
     "tests_tampered_runs": 0,
-    "delegate_calls": 16,
+    "delegate_calls": 0,
     "errors": 0,
     "by_task": {
      "t1_discount": {
@@ -8531,12 +8532,12 @@
      }
     },
     "input_floor": [
-     98876,
-     88064
+     130168,
+     123264
     ],
-    "usd_per_run": 0.379841,
-    "usd_total": 4.558088,
-    "usd_per_hidden_pass": 0.37984,
+    "usd_per_run": 0.445754,
+    "usd_total": 5.349052,
+    "usd_per_hidden_pass": 0.44575,
     "cost_kind": "proxy",
     "passes": 12,
     "pass_at_1": 1.0,
@@ -8545,12 +8546,12 @@
      0.4728708045015879,
      1.0
     ],
-    "usd_per_pass": 0.379841,
-    "usd_text": "$0.38",
-    "usd_per_call": 0.379841,
+    "usd_per_pass": 0.445754,
+    "usd_text": "$0.45",
+    "usd_per_call": 0.445754,
     "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.379841,
-    "usd_per_1k_tokens": 0.0023296697230825846
+    "usd_saved_per_pass": 0.445754,
+    "usd_per_1k_tokens": 0.002297890547674035
    }
   },
   {
@@ -10569,9 +10570,9 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": -0.0333,
+      "diff": 0.0,
       "ci95": [
-       -0.2,
+       -0.1333,
        0.1333
       ],
       "problems": 12
@@ -12193,37 +12194,37 @@
    "set": "all runs",
    "derived": false,
    "files": [
-    "results/2026-10-22b-function.jsonl"
+    "results/2026-10-25-isolated-main.jsonl"
    ],
-   "passes": 46,
+   "passes": 44,
    "n": 60,
-   "pass_rate": 0.7667,
+   "pass_rate": 0.7333,
    "ci95": [
-    0.5333,
-    0.95
+    0.5,
+    0.9167
    ],
    "groups": 12,
-   "usd_per_pass": 0.000899,
+   "usd_per_pass": 0.000781,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.000899,
-   "usd_per_call": 0.000689,
-   "spend": 0.041353,
+   "codex_usd_per_pass": 0.000781,
+   "usd_per_call": 0.000573,
+   "spend": 0.034359,
    "spend_claude": 0.0,
-   "spend_codex": 0.041353,
+   "spend_codex": 0.034359,
    "unknown_usd": 0,
-   "median_s": 7.22,
-   "p25_s": 6.31,
-   "p75_s": 9.34,
-   "tokens_in_mean": 14688,
-   "tokens_out_mean": 514,
+   "median_s": 7.7,
+   "p25_s": 6.07,
+   "p75_s": 9.25,
+   "tokens_in_mean": 13434,
+   "tokens_out_mean": 532,
    "tokens_cached_mean": 11520,
    "tokens_reasoning_mean": 0,
    "input_floor": [
-    14494,
+    13238,
     11520
    ],
-   "p90_s": 11.57,
-   "max_s": 14.48,
+   "p90_s": 10.71,
+   "max_s": 16.54,
    "by_group": {
     "p01_overlap_minutes": {
      "passes": 5,
@@ -12234,11 +12235,11 @@
      "n": 5
     },
     "p03_ledger": {
-     "passes": 5,
+     "passes": 3,
      "n": 5
     },
     "p04_taller_within": {
-     "passes": 1,
+     "passes": 0,
      "n": 5
     },
     "p05_pass_route": {
@@ -12254,15 +12255,15 @@
      "n": 5
     },
     "p08_recur": {
-     "passes": 4,
+     "passes": 5,
      "n": 5
     },
     "p09_k_machine_schedule": {
-     "passes": 2,
+     "passes": 4,
      "n": 5
     },
     "p10_avoid_count": {
-     "passes": 5,
+     "passes": 3,
      "n": 5
     },
     "p11_best_average": {
@@ -12274,20 +12275,20 @@
      "n": 5
     }
    },
-   "misses": 14,
+   "misses": 16,
    "ci95_plot": [
-    0.5333,
-    0.95
+    0.5,
+    0.9167
    ],
-   "usd_saved_per_pass": 0.000899,
-   "usd_per_1k_tokens": 4.53229838179187e-05,
+   "usd_saved_per_pass": 0.000781,
+   "usd_per_1k_tokens": 4.102821137047115e-05,
    "by_rung": {
     "L1": [
      10,
      10
     ],
     "L2": [
-     6,
+     3,
      10
     ],
     "L3": [
@@ -12295,7 +12296,7 @@
      10
     ],
     "L4": [
-     9,
+     10,
      10
     ],
     "L5": [
@@ -13302,34 +13303,35 @@
    "set": "all runs",
    "derived": false,
    "files": [
-    "results/2026-10-22b-function.jsonl"
+    "results/2026-10-22b-function.jsonl",
+    "results/2026-10-25-isolated-hard.jsonl"
    ],
    "passes": 110,
    "n": 110,
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 15,
-   "usd_per_pass": 0.02013,
+   "usd_per_pass": 0.020044,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.02013,
-   "usd_per_call": 0.02013,
-   "spend": 2.214301,
+   "codex_usd_per_pass": 0.020044,
+   "usd_per_call": 0.020044,
+   "spend": 2.204801,
    "spend_claude": 0.0,
-   "spend_codex": 2.214301,
+   "spend_codex": 2.204801,
    "unknown_usd": 0,
    "median_s": 30.54,
-   "p25_s": 18.93,
-   "p75_s": 43.94,
-   "tokens_in_mean": 15393,
-   "tokens_out_mean": 1248,
+   "p25_s": 19.25,
+   "p75_s": 44.6,
+   "tokens_in_mean": 15221,
+   "tokens_out_mean": 1274,
    "tokens_cached_mean": 12176,
-   "tokens_reasoning_mean": 685,
+   "tokens_reasoning_mean": 702,
    "input_floor": [
-    15184,
+    14042,
     12288
    ],
-   "p90_s": 77.08,
-   "max_s": 129.34,
+   "p90_s": 94.04,
+   "max_s": 242.45,
    "by_group": {
     "p01_overlap_minutes": {
      "passes": 5,
@@ -13397,8 +13399,8 @@
     0.8189637274779153,
     1.0
    ],
-   "usd_saved_per_pass": 0.02013,
-   "usd_per_1k_tokens": 0.0012096628808364882,
+   "usd_saved_per_pass": 0.020044,
+   "usd_per_1k_tokens": 0.0012151561079114883,
    "by_rung": {
     "L1": [
      10,
@@ -14078,17 +14080,17 @@
  "rescue": {
   "luna-low": {
    "label": "luna-low baseline",
-   "passes": 21,
+   "passes": 19,
    "n": 35,
-   "usd_per_pass": 0.001287,
-   "median_s": 8.53,
-   "usd_total": 0.02703,
+   "usd_per_pass": 0.00121,
+   "median_s": 9.01,
+   "usd_total": 0.022994,
    "claude_usd_per_pass": 0.0,
-   "pass_rate": 0.6,
-   "p25_s": 6.32,
-   "p75_s": 10.7,
-   "misses": 14,
-   "usd_saved_per_pass": 0.001287,
+   "pass_rate": 0.5429,
+   "p25_s": 7.35,
+   "p75_s": 10.32,
+   "misses": 16,
+   "usd_saved_per_pass": 0.00121,
    "derived": true,
    "metrics_from": {
     "source": "main",
@@ -14912,8 +14914,32 @@
     "$0"
    ],
    [
+    0.0007,
+    "$0.00070"
+   ],
+   [
     0.00075,
     "$0.00075"
+   ],
+   [
+    0.000775,
+    "$0.00077"
+   ],
+   [
+    0.00078,
+    "$0.00078"
+   ],
+   [
+    0.000785,
+    "$0.00078"
+   ],
+   [
+    0.00079,
+    "$0.00079"
+   ],
+   [
+    0.000795,
+    "$0.00080"
    ],
    [
     0.0008,
@@ -14946,26 +14972,6 @@
    [
     0.00088,
     "$0.00088"
-   ],
-   [
-    0.00089,
-    "$0.00089"
-   ],
-   [
-    0.000892,
-    "$0.00089"
-   ],
-   [
-    0.000894,
-    "$0.00089"
-   ],
-   [
-    0.000896,
-    "$0.00090"
-   ],
-   [
-    0.000898,
-    "$0.00090"
    ],
    [
     0.0009,
@@ -15268,11 +15274,11 @@
  "categories": {
   "main ladder": {
    "n_configs": 6,
-   "spend": 2.718465
+   "spend": 2.711471
   },
   "exploratory": {
    "n_configs": 7,
-   "spend": 12.052173
+   "spend": 12.042673
   },
   "fast mode and xhigh": {
    "n_configs": 3,
@@ -15284,7 +15290,7 @@
   },
   "repo tasks": {
    "n_configs": 7,
-   "spend": 7.496191
+   "spend": 8.357959000000001
   },
   "trim": {
    "n_configs": 3,
@@ -15305,8 +15311,11 @@
  },
  "report": {
   "generated_from": [
+   "results/2026-10-22b-agentic.jsonl",
    "results/2026-10-22b-function.jsonl",
-   "results/2026-10-22b-agentic.jsonl"
+   "results/2026-10-25-isolated-agentic.jsonl",
+   "results/2026-10-25-isolated-hard.jsonl",
+   "results/2026-10-25-isolated-main.jsonl"
   ],
   "configs": {
    "haiku-low": {
@@ -15698,11 +15707,11 @@
     "model": "gpt-6-luna",
     "effort": "low",
     "n": 60,
-    "passes": 46,
-    "pass_at_1": 0.7667,
+    "passes": 44,
+    "pass_at_1": 0.7333,
     "ci95": [
-     0.5333,
-     0.95
+     0.5,
+     0.9167
     ],
     "by_rung": {
      "L1": {
@@ -15710,7 +15719,7 @@
       "n": 10
      },
      "L2": {
-      "passed": 6,
+      "passed": 3,
       "n": 10
      },
      "L3": {
@@ -15718,7 +15727,7 @@
       "n": 10
      },
      "L4": {
-      "passed": 9,
+      "passed": 10,
       "n": 10
      },
      "L5": {
@@ -15730,48 +15739,47 @@
       "n": 10
      }
     },
-    "breaking_point": "L6",
+    "breaking_point": "L2",
     "outcomes": {
-     "pass": 46,
-     "wrong": 6,
-     "crash": 4,
-     "timeout": 4
+     "pass": 44,
+     "wrong": 8,
+     "crash": 8
     },
     "latency_s": {
-     "median": 7.22,
-     "p25": 6.31,
-     "p75": 9.34,
-     "p90": 11.57,
-     "max": 14.48
+     "median": 7.7,
+     "p25": 6.07,
+     "p75": 9.25,
+     "p90": 10.71,
+     "max": 16.54
     },
     "tokens_mean": {
-     "in_tok": 14688,
+     "in_tok": 13434,
      "cached_tok": 11520,
-     "out_tok": 514,
+     "out_tok": 532,
      "reasoning_tok": 0
     },
     "input_floor": [
-     14494,
+     13238,
      11520
     ],
-    "usd_per_call": 0.000689,
-    "usd_total": 0.041353,
-    "usd_per_pass": 0.000899,
-    "usd_per_pass_L1_L2": 0.00073,
+    "usd_per_call": 0.000573,
+    "usd_total": 0.034359,
+    "usd_per_pass": 0.000781,
+    "usd_per_pass_L1_L2": 0.000707,
     "pass_L1_L2": [
-     16,
+     13,
      20
     ],
     "cost_kind": "proxy",
-    "misses": 14,
+    "misses": 16,
     "ci95_plot": [
-     0.5333,
-     0.95
+     0.5,
+     0.9167
     ],
-    "usd_text": "$0.00090",
+    "usd_text": "$0.00078",
     "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.000899,
-    "usd_per_1k_tokens": 4.53229838179187e-05,
+    "usd_saved_per_pass": 0.000781,
+    "usd_per_1k_tokens": 4.102821137047115e-05,
     "by_group": {
      "p01_overlap_minutes": {
       "passes": 5,
@@ -15782,11 +15790,11 @@
       "n": 5
      },
      "p03_ledger": {
-      "passes": 5,
+      "passes": 3,
       "n": 5
      },
      "p04_taller_within": {
-      "passes": 1,
+      "passes": 0,
       "n": 5
      },
      "p05_pass_route": {
@@ -15802,15 +15810,15 @@
       "n": 5
      },
      "p08_recur": {
-      "passes": 4,
+      "passes": 5,
       "n": 5
      },
      "p09_k_machine_schedule": {
-      "passes": 2,
+      "passes": 4,
       "n": 5
      },
      "p10_avoid_count": {
-      "passes": 5,
+      "passes": 3,
       "n": 5
      },
      "p11_best_average": {
@@ -16115,7 +16123,7 @@
     "haiku-low": 5,
     "haiku-medium": 5,
     "sonnet-medium": 5,
-    "luna-low": 5,
+    "luna-low": 3,
     "luna-medium": 4,
     "sol61-medium": 5
    },
@@ -16124,7 +16132,7 @@
     "haiku-low": 5,
     "haiku-medium": 5,
     "sonnet-medium": 5,
-    "luna-low": 1,
+    "luna-low": 0,
     "luna-medium": 1,
     "sol61-medium": 5
    },
@@ -16160,7 +16168,7 @@
     "haiku-low": 5,
     "haiku-medium": 5,
     "sonnet-medium": 5,
-    "luna-low": 4,
+    "luna-low": 5,
     "luna-medium": 5,
     "sol61-medium": 5
    },
@@ -16169,7 +16177,7 @@
     "haiku-low": 3,
     "haiku-medium": 5,
     "sonnet-medium": 5,
-    "luna-low": 2,
+    "luna-low": 4,
     "luna-medium": 5,
     "sol61-medium": 5
    },
@@ -16178,7 +16186,7 @@
     "haiku-low": 5,
     "haiku-medium": 5,
     "sonnet-medium": 5,
-    "luna-low": 5,
+    "luna-low": 3,
     "luna-medium": 5,
     "sol61-medium": 5
    },
@@ -16215,10 +16223,10 @@
    {
     "a": "luna-medium",
     "b": "luna-low",
-    "diff": 0.0167,
+    "diff": 0.05,
     "ci95": [
-     -0.1333,
-     0.1667
+     -0.0833,
+     0.1833
     ],
     "problems": 12
    },
@@ -16245,10 +16253,10 @@
    {
     "a": "haiku-low",
     "b": "luna-low",
-    "diff": 0.1833,
+    "diff": 0.2167,
     "ci95": [
      0.0167,
-     0.3833
+     0.4333
     ],
     "problems": 12
    },
@@ -16357,10 +16365,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.2333,
+      "diff": 0.2667,
       "ci95": [
-       0.05,
-       0.45
+       0.0667,
+       0.5
       ],
       "problems": 12
      },
@@ -16528,10 +16536,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.2333,
+      "diff": 0.2667,
       "ci95": [
-       0.05,
-       0.45
+       0.0667,
+       0.5
       ],
       "problems": 12
      },
@@ -16699,10 +16707,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.2333,
+      "diff": 0.2667,
       "ci95": [
-       0.05,
-       0.45
+       0.0667,
+       0.5
       ],
       "problems": 12
      },
@@ -16872,10 +16880,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.15,
+      "diff": 0.1833,
       "ci95": [
-       -0.0333,
-       0.35
+       0.0,
+       0.4
       ],
       "problems": 12
      },
@@ -17046,9 +17054,9 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": -0.0333,
+      "diff": 0.0,
       "ci95": [
-       -0.2,
+       -0.1333,
        0.1333
       ],
       "problems": 12
@@ -17219,10 +17227,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.1667,
+      "diff": 0.2,
       "ci95": [
-       0.0,
-       0.35
+       0.0333,
+       0.4
       ],
       "problems": 12
      },
@@ -17393,10 +17401,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.0333,
+      "diff": 0.0667,
       "ci95": [
-       -0.2,
-       0.25
+       -0.1667,
+       0.3
       ],
       "problems": 12
      },
@@ -17564,10 +17572,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.2333,
+      "diff": 0.2667,
       "ci95": [
-       0.05,
-       0.45
+       0.0667,
+       0.5
       ],
       "problems": 12
      },
@@ -17735,10 +17743,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.2333,
+      "diff": 0.2667,
       "ci95": [
-       0.05,
-       0.45
+       0.0667,
+       0.5
       ],
       "problems": 12
      },
@@ -17906,10 +17914,10 @@
     "vs": [
      {
       "b": "luna-low",
-      "diff": 0.2333,
+      "diff": 0.2667,
       "ci95": [
-       0.05,
-       0.45
+       0.0667,
+       0.5
       ],
       "problems": 12
      },
@@ -18335,25 +18343,25 @@
      "pass": 15
     },
     "latency_s": {
-     "median": 52.68,
-     "p25": 25.21,
-     "p75": 69.61,
-     "p90": 78.15,
-     "max": 96.8
+     "median": 55.82,
+     "p25": 29.71,
+     "p75": 78.79,
+     "p90": 130.72,
+     "max": 242.45
     },
     "tokens_mean": {
-     "in_tok": 15351,
+     "in_tok": 14097,
      "cached_tok": 12288,
-     "out_tok": 1625,
-     "reasoning_tok": 1151
+     "out_tok": 1812,
+     "reasoning_tok": 1277
     },
     "input_floor": [
-     15298,
+     14042,
      12288
     ],
-    "usd_per_call": 0.023603,
-    "usd_total": 0.354038,
-    "usd_per_pass": 0.023603,
+    "usd_per_call": 0.022969,
+    "usd_total": 0.344538,
+    "usd_per_pass": 0.022969,
     "usd_per_pass_L1_L2": null,
     "pass_L1_L2": [
      0,
@@ -18370,10 +18378,10 @@
      0.3684031498640387,
      1.0
     ],
-    "usd_text": "$0.024",
+    "usd_text": "$0.023",
     "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.023603,
-    "usd_per_1k_tokens": 0.001390374646559849,
+    "usd_saved_per_pass": 0.022969,
+    "usd_per_1k_tokens": 0.001443773964422654,
     "by_group": {
      "p13_xor_ring": {
       "passes": 5,
@@ -19026,9 +19034,11 @@
       "fails": {}
      },
      "luna-low": {
-      "passed": 5,
+      "passed": 3,
       "n": 5,
-      "fails": {}
+      "fails": {
+       "crash": 2
+      }
      },
      "luna-medium": {
       "passed": 4,
@@ -19116,11 +19126,10 @@
       "fails": {}
      },
      "luna-low": {
-      "passed": 1,
+      "passed": 0,
       "n": 5,
       "fails": {
-       "timeout": 2,
-       "wrong": 2
+       "wrong": 5
       }
      },
      "luna-medium": {
@@ -19479,11 +19488,9 @@
       "fails": {}
      },
      "luna-low": {
-      "passed": 4,
+      "passed": 5,
       "n": 5,
-      "fails": {
-       "wrong": 1
-      }
+      "fails": {}
      },
      "luna-medium": {
       "passed": 5,
@@ -19570,11 +19577,10 @@
       "fails": {}
      },
      "luna-low": {
-      "passed": 2,
+      "passed": 4,
       "n": 5,
       "fails": {
-       "wrong": 1,
-       "timeout": 2
+       "crash": 1
       }
      },
      "luna-medium": {
@@ -19660,9 +19666,12 @@
       "fails": {}
      },
      "luna-low": {
-      "passed": 5,
+      "passed": 3,
       "n": 5,
-      "fails": {}
+      "fails": {
+       "crash": 1,
+       "wrong": 1
+      }
      },
      "luna-medium": {
       "passed": 5,
@@ -20161,6 +20170,7 @@
    }
   },
   "pareto": [
+   "luna-low",
    "luna-medium",
    "haiku-low",
    "haiku-medium",
@@ -20181,7 +20191,7 @@
     "task_complete": 12,
     "own_tests_written": 12,
     "tests_tampered_runs": 0,
-    "delegate_calls": 16,
+    "delegate_calls": 0,
     "errors": 0,
     "by_task": {
      "t1_discount": {
@@ -20222,25 +20232,25 @@
      }
     },
     "latency_s": {
-     "median": 85.22,
-     "p25": 67.31,
-     "p75": 97.58,
-     "p90": 99.49,
-     "max": 101.21
+     "median": 65.63,
+     "p25": 63.21,
+     "p75": 87.41,
+     "p90": 95.72,
+     "max": 101.22
     },
     "input_floor": [
-     98876,
-     88064
+     130168,
+     123264
     ],
     "tokens_mean": {
-     "in_tok": 160564,
-     "cached_tok": 149984,
-     "out_tok": 2481,
-     "reasoning_tok": 135
+     "in_tok": 191282,
+     "cached_tok": 178016,
+     "out_tok": 2702,
+     "reasoning_tok": 110
     },
-    "usd_per_run": 0.379841,
-    "usd_total": 4.558088,
-    "usd_per_hidden_pass": 0.37984,
+    "usd_per_run": 0.445754,
+    "usd_total": 5.349052,
+    "usd_per_hidden_pass": 0.44575,
     "cost_kind": "proxy",
     "passes": 12,
     "pass_at_1": 1.0,
@@ -20249,12 +20259,12 @@
      0.4728708045015879,
      1.0
     ],
-    "usd_per_pass": 0.379841,
-    "usd_text": "$0.38",
-    "usd_per_call": 0.379841,
+    "usd_per_pass": 0.445754,
+    "usd_text": "$0.45",
+    "usd_per_call": 0.445754,
     "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.379841,
-    "usd_per_1k_tokens": 0.0023296697230825846,
+    "usd_saved_per_pass": 0.445754,
+    "usd_per_1k_tokens": 0.002297890547674035,
     "by_group": {
      "t1_discount": {
       "passes": 3,
@@ -20501,8 +20511,8 @@
      1.0,
      1.0
     ],
-    "visible_pass": 11,
-    "task_complete": 11,
+    "visible_pass": 7,
+    "task_complete": 7,
     "own_tests_written": 12,
     "tests_tampered_runs": 0,
     "delegate_calls": 0,
@@ -20546,25 +20556,25 @@
      }
     },
     "latency_s": {
-     "median": 28.5,
-     "p25": 23.33,
-     "p75": 43.57,
-     "p90": 48.54,
-     "max": 51.11
+     "median": 24.12,
+     "p25": 21.69,
+     "p75": 33.72,
+     "p90": 43.13,
+     "max": 72.15
     },
     "input_floor": [
-     92906,
-     79104
+     71903,
+     67328
     ],
     "tokens_mean": {
-     "in_tok": 150943,
-     "cached_tok": 135947,
-     "out_tok": 2269,
-     "reasoning_tok": 9
+     "in_tok": 123125,
+     "cached_tok": 114389,
+     "out_tok": 2478,
+     "reasoning_tok": 306
     },
-    "usd_per_run": 0.003994,
-    "usd_total": 0.047922,
-    "usd_per_hidden_pass": 0.00399,
+    "usd_per_run": 0.003257,
+    "usd_total": 0.039078,
+    "usd_per_hidden_pass": 0.00326,
     "cost_kind": "proxy",
     "passes": 12,
     "pass_at_1": 1.0,
@@ -20573,12 +20583,12 @@
      0.4728708045015879,
      1.0
     ],
-    "usd_per_pass": 0.003994,
-    "usd_text": "$0.0040",
-    "usd_per_call": 0.003994,
+    "usd_per_pass": 0.003257,
+    "usd_text": "$0.0033",
+    "usd_per_call": 0.003257,
     "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.003994,
-    "usd_per_1k_tokens": 2.606845416808083e-05,
+    "usd_saved_per_pass": 0.003257,
+    "usd_per_1k_tokens": 2.593090929356783e-05,
     "by_group": {
      "t1_discount": {
       "passes": 3,
@@ -20613,7 +20623,7 @@
     "task_complete": 12,
     "own_tests_written": 12,
     "tests_tampered_runs": 0,
-    "delegate_calls": 35,
+    "delegate_calls": 0,
     "errors": 0,
     "by_task": {
      "t1_discount": {
@@ -20654,25 +20664,25 @@
      }
     },
     "latency_s": {
-     "median": 108.58,
-     "p25": 102.91,
-     "p75": 130.41,
-     "p90": 158.68,
-     "max": 188.49
+     "median": 117.93,
+     "p25": 90.62,
+     "p75": 263.54,
+     "p90": 308.99,
+     "max": 578.43
     },
     "input_floor": [
-     162168,
-     142592
+     137915,
+     124672
     ],
     "tokens_mean": {
-     "in_tok": 213735,
-     "cached_tok": 196608,
-     "out_tok": 4090,
-     "reasoning_tok": 886
+     "in_tok": 234135,
+     "cached_tok": 216384,
+     "out_tok": 4014,
+     "reasoning_tok": 759
     },
-    "usd_per_run": 0.094819,
-    "usd_total": 1.137826,
-    "usd_per_hidden_pass": 0.09482,
+    "usd_per_run": 0.097282,
+    "usd_total": 1.167383,
+    "usd_per_hidden_pass": 0.09728,
     "cost_kind": "proxy",
     "passes": 12,
     "pass_at_1": 1.0,
@@ -20681,12 +20691,12 @@
      0.4728708045015879,
      1.0
     ],
-    "usd_per_pass": 0.094819,
-    "usd_text": "$0.095",
-    "usd_per_call": 0.094819,
+    "usd_per_pass": 0.097282,
+    "usd_text": "$0.097",
+    "usd_per_call": 0.097282,
     "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.094819,
-    "usd_per_1k_tokens": 0.00043529897853781705,
+    "usd_saved_per_pass": 0.097282,
+    "usd_per_1k_tokens": 0.0004084921624697143,
     "by_group": {
      "t1_discount": {
       "passes": 3,
@@ -20721,7 +20731,7 @@
     "task_complete": 12,
     "own_tests_written": 12,
     "tests_tampered_runs": 0,
-    "delegate_calls": 23,
+    "delegate_calls": 0,
     "errors": 0,
     "by_task": {
      "t1_discount": {
@@ -20762,25 +20772,25 @@
      }
     },
     "latency_s": {
-     "median": 89.04,
-     "p25": 70.68,
-     "p75": 117.89,
-     "p90": 121.61,
-     "max": 138.77
+     "median": 84.55,
+     "p25": 65.13,
+     "p75": 126.28,
+     "p90": 239.38,
+     "max": 423.68
     },
     "input_floor": [
-     116924,
-     101504
+     149886,
+     138112
     ],
     "tokens_mean": {
-     "in_tok": 162787,
-     "cached_tok": 147029,
-     "out_tok": 2901,
-     "reasoning_tok": 300
+     "in_tok": 202506,
+     "cached_tok": 187285,
+     "out_tok": 3023,
+     "reasoning_tok": 272
     },
-    "usd_per_run": 0.075229,
-    "usd_total": 0.902749,
-    "usd_per_hidden_pass": 0.07523,
+    "usd_per_run": 0.079403,
+    "usd_total": 0.95284,
+    "usd_per_hidden_pass": 0.0794,
     "cost_kind": "proxy",
     "passes": 12,
     "pass_at_1": 1.0,
@@ -20789,12 +20799,12 @@
      0.4728708045015879,
      1.0
     ],
-    "usd_per_pass": 0.075229,
-    "usd_text": "$0.075",
-    "usd_per_call": 0.075229,
+    "usd_per_pass": 0.079403,
+    "usd_text": "$0.079",
+    "usd_per_call": 0.079403,
     "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.075229,
-    "usd_per_1k_tokens": 0.0004540401236058133,
+    "usd_saved_per_pass": 0.079403,
+    "usd_per_1k_tokens": 0.00038633477514122096,
     "by_group": {
      "t1_discount": {
       "passes": 3,
@@ -21428,7 +21438,7 @@
    "claude_measured_usd": 2.4624,
    "claude_function_usd": 1.6128,
    "claude_agentic_usd": 0.8496,
-   "codex_proxy_usd": 35.4036,
+   "codex_proxy_usd": 36.2489,
    "codex_fastmode_usd": 3.4069,
    "calls": {
     "function": 1261,
@@ -21443,19 +21453,19 @@
      "haiku-low": "20/20",
      "haiku-medium": "20/20",
      "sonnet-medium": "20/20",
-     "luna-low": "16/20",
+     "luna-low": "13/20",
      "luna-medium": "15/20",
      "sol61-medium": "20/20"
     }
    },
    "H2": {
     "claim": "within a model, higher effort moves the breaking point up by at least one rung, or removes it",
-    "holds": false,
+    "holds": true,
     "data": {
      "haiku-low": null,
      "haiku-medium": null,
      "sonnet-medium": null,
-     "luna-low": "L6",
+     "luna-low": "L2",
      "luna-medium": "L6",
      "sol61-medium": null
     }
@@ -21469,16 +21479,16 @@
      "sonnet-medium": 0.008234,
      "sol61-medium": 0.011168
     },
-    "note": "luna-low was not 100% on L1-L2 (16/20), so it is not in the set"
+    "note": "luna-low was not 100% on L1-L2 (13/20), so it is not in the set"
    },
    "H4": {
     "claim": "at least one config breaks at or below L5",
-    "holds": false,
+    "holds": true,
     "data": {
      "haiku-low": null,
      "haiku-medium": null,
      "sonnet-medium": null,
-     "luna-low": "L6",
+     "luna-low": "L2",
      "luna-medium": "L6",
      "sol61-medium": null
     }
@@ -21487,7 +21497,7 @@
     "claim": "agentic Codex min input tokens > Claude's",
     "holds": true,
     "data": {
-     "codex_min_in": 92906,
+     "codex_min_in": 71903,
      "claude_min_in": 27425
     }
    }
@@ -21513,8 +21523,32 @@
      "$0"
     ],
     [
+     0.0007,
+     "$0.00070"
+    ],
+    [
      0.00075,
      "$0.00075"
+    ],
+    [
+     0.000775,
+     "$0.00077"
+    ],
+    [
+     0.00078,
+     "$0.00078"
+    ],
+    [
+     0.000785,
+     "$0.00078"
+    ],
+    [
+     0.00079,
+     "$0.00079"
+    ],
+    [
+     0.000795,
+     "$0.00080"
     ],
     [
      0.0008,
@@ -21547,26 +21581,6 @@
     [
      0.00088,
      "$0.00088"
-    ],
-    [
-     0.00089,
-     "$0.00089"
-    ],
-    [
-     0.000892,
-     "$0.00089"
-    ],
-    [
-     0.000894,
-     "$0.00089"
-    ],
-    [
-     0.000896,
-     "$0.00090"
-    ],
-    [
-     0.000898,
-     "$0.00090"
     ],
     [
      0.0009,
@@ -21917,17 +21931,17 @@
   "hb_full_calls": "240",
   "hb_minutes": "74",
   "versions_claude": "Main bench, Claude Code 2.1.308: claude-haiku-5-5, claude-sonnet-5-5.",
-  "versions_codex": "Main bench, Codex CLI 0.163.0: gpt-5.6-luna, gpt-5.6-sol, gpt-6-astra, gpt-6-luna, gpt-6.1-sol.",
-  "versions_extra": "Whose bench? also used Codex CLI 0.164.0 and Claude Code 2.1.293.",
-  "run_dates": "All calls ran 2026-10-22 to 2026-10-24.",
+  "versions_codex": "Main bench, Codex CLI 0.163.0: gpt-5.6-luna, gpt-5.6-sol, gpt-6-astra, gpt-6-luna, gpt-6.1-sol. Main bench, Codex CLI 0.164.0: gpt-6-luna, gpt-6.1-sol.",
+  "versions_extra": "Whose bench? also used Claude Code 2.1.293. Its Codex CLI version matches the isolated rerun.",
+  "run_dates": "All calls ran 2026-10-22 to 2026-10-25.",
   "cite": "Cite as: DispatchBench (2026), github.com/chimera-defi/dispatchbench.",
   "codex_tool_free": "938 of 938",
   "router_fit": "1–3",
   "router_held": "4–5",
-  "router_k": "22/24",
+  "router_k": "23/24",
   "router_share": "40%",
   "sep_gap": "18",
-  "nosep_gap": "3",
+  "nosep_gap": "5",
   "main_set_label": "main ladder",
   "l7_set_label": "L7 set",
   "l7_n": "15",
@@ -21943,7 +21957,7 @@
   "min_pass": "90%",
   "rung_attempts": "10",
   "claude_usd": "$2.46",
-  "codex_usd": "$35.40",
+  "codex_usd": "$36.25",
   "haiku_low_pass": "95%",
   "haiku_low_k": "57/60",
   "haiku_low_upp": "$0.0011",
@@ -21965,13 +21979,13 @@
   "sonnet_medium_rsn": "292",
   "sonnet_medium_rsn10": "290",
   "sonnet_medium_in": "3,719",
-  "luna_low_pass": "77%",
-  "luna_low_k": "46/60",
-  "luna_low_upp": "$0.00090",
-  "luna_low_med": "7.2",
+  "luna_low_pass": "73%",
+  "luna_low_k": "44/60",
+  "luna_low_upp": "$0.00078",
+  "luna_low_med": "7.7",
   "luna_low_rsn": "0",
   "luna_low_rsn10": "0",
-  "luna_low_in": "14,688",
+  "luna_low_in": "13,434",
   "luna_medium_pass": "78%",
   "luna_medium_k": "47/60",
   "luna_medium_upp": "$0.00089",
@@ -22060,11 +22074,12 @@
   "ref_unit": "1.00",
   "cheap_miss_words": "1 answer in 4",
   "p04_passes": "1",
-  "hl_vs_ll": "+18.3",
-  "hl_vs_ll_ci": "+1.7 to +38.3",
+  "p04_low_passes": "0",
+  "hl_vs_ll": "+21.7",
+  "hl_vs_ll_ci": "+1.7 to +43.3",
   "lh_below_hl": "3.3",
   "lh_vs_hl_ci": "−13.3 to +6.7",
-  "p04_luna": "2/10",
+  "p04_luna": "1/10",
   "p11_luna": "6/10",
   "p12_luna": "0/10",
   "escalation_problem_items": "<li>p04 taller_within</li><li>p11 best_average</li><li>p12 sheet</li>",
@@ -22073,35 +22088,31 @@
   "esc_vs": "luna-medium",
   "lh_vs_lm": "+13.3",
   "lh_vs_lm_ci": "−5.0 to +35.0",
-  "in_cut": "58%",
+  "in_cut": "54%",
   "lb_vs_hl": "−21.7",
   "lb_vs_hl_ci": "−43.3 to 0.0",
-  "lb_vs_ll": "−3.3",
-  "lb_vs_ll_ci": "−20.0 to +13.3",
+  "lb_vs_ll": "0.0",
+  "lb_vs_ll_ci": "−13.3 to +13.3",
   "lb_upp_nocache": "$0.0012",
   "lb_nocache_above": "7%",
   "ag_k": "12/12",
   "ag_runs": "84",
-  "ag_astra_medium_usd": "$0.38",
-  "ag_astra_medium_med": "85",
+  "ag_astra_medium_usd": "$0.45",
+  "ag_astra_medium_med": "66",
   "ag_haiku_high_usd": "$0.012",
   "ag_haiku_high_med": "58",
   "ag_haiku_low_usd": "$0.0051",
   "ag_haiku_low_med": "28",
-  "ag_luna_low_usd": "$0.0040",
-  "ag_luna_low_med": "28",
-  "ag_sol61_high_usd": "$0.095",
-  "ag_sol61_high_med": "109",
-  "ag_sol61_medium_usd": "$0.075",
-  "ag_sol61_medium_med": "89",
+  "ag_luna_low_usd": "$0.0033",
+  "ag_luna_low_med": "24",
+  "ag_sol61_high_usd": "$0.097",
+  "ag_sol61_high_med": "118",
+  "ag_sol61_medium_usd": "$0.079",
+  "ag_sol61_medium_med": "85",
   "ag_sonnet_medium_usd": "$0.054",
   "ag_sonnet_medium_med": "28",
-  "ag_spread": "19×",
+  "ag_spread": "24×",
   "ag_other_med": "28",
-  "host_luna_low": "26",
-  "shell_luna_low": "62",
-  "host_sol61_medium": "57",
-  "shell_sol61_medium": "97",
   "sm_all": "75/75",
   "sm_vs_hl_x": "11×",
   "terra_call": "$0.0080",
@@ -22124,10 +22135,10 @@
   "l7_luna_high_rsn_a": "526",
   "l7_luna_high_rsn_b": "1,569",
   "p12_luna_n": "15",
-  "p12_parse": "9",
-  "p12_rec": "3",
-  "p04_wrong": "9",
-  "p04_wrong_ex1": "8",
+  "p12_parse": "8",
+  "p12_rec": "4",
+  "p04_wrong": "12",
+  "p04_wrong_ex1": "12",
   "hl_main_failures": "2 too slow, 1 crash in 60 tries",
   "hl_l7_failures": "3 too slow, 0 crash in 15 tries",
   "worst_failure": "p12 sheet (L6) has misses in 8 of 16 configs",
@@ -22147,8 +22158,8 @@
   "cache_swing": "5.8×",
   "lanes": "4",
   "rescue_n": "35",
-  "r_luna_low_k": "21/35",
-  "r_luna_low_upp": "$0.0013",
+  "r_luna_low_k": "19/35",
+  "r_luna_low_upp": "$0.0012",
   "r_luna_low_s": "9s",
   "r_luna_low_noshell_B1_k": "25/35",
   "r_luna_low_noshell_B1_upp": "$0.00097",
@@ -22231,10 +22242,10 @@
   "r_luna56_low_k": "29/35",
   "r_luna56_low_upp": "$0.0025",
   "r_luna56_low_s": "12s",
-  "r_b1_gain": "4",
+  "r_b1_gain": "6",
   "r_b2_loss": "6",
-  "r_c_cost_x": "2.8×",
-  "r_c_time_x": "2.6×",
+  "r_c_cost_x": "3.0×",
+  "r_c_time_x": "2.4×",
   "r_e_luna": "21/35",
   "r_e_changed": "22",
   "r_e_haiku_share": "78%",
@@ -22267,13 +22278,13 @@
   "pilot_luna_call": "$0.00030",
   "pilot_haiku_call": "$0.00028",
   "pilot_luna_k": "9/9",
-  "q_rows": "770",
+  "q_rows": "724",
   "q_worst_x": "2453×",
   "q_worst_problem": "p08 recur (L4)",
   "q_worst_cfg": "sol56-high",
   "q_slow_bar": "10×",
-  "q_slow_n": "11",
-  "q_slow_cfgs": "7",
+  "q_slow_n": "8",
+  "q_slow_cfgs": "6",
   "q_slow_lo": "29×",
   "q_worst_ref_exp": "0.03",
   "fm_n": "35",
@@ -22331,15 +22342,15 @@
   "n_solutions": "1166",
   "new_date": "2026-10-23",
   "n_new_codex": "5",
-  "codex_new_usd": "$16.70",
-  "codex_old_usd": "$2.42",
+  "codex_new_usd": "$17.52",
+  "codex_old_usd": "$2.45",
   "ff_usd": "$12.88",
   "fx_usd": "$16.28",
   "x_sol61_high_k": "60/60",
   "x_sol61_high_upp": "$0.019",
   "x_sol61_high_med": "27.4",
   "x_sol61_high_hk": "15/15",
-  "x_sol61_high_hupp": "$0.024",
+  "x_sol61_high_hupp": "$0.023",
   "x_sol56_high_k": "60/60",
   "x_sol56_high_upp": "$0.042",
   "x_sol56_high_med": "14.5",
@@ -22377,7 +22388,7 @@
   "l7_sm_med": "15",
   "hh_s61h_x": "7×",
   "hh_s61h_hx": "7×",
-  "l7_s61h_med": "53",
+  "l7_s61h_med": "56",
   "hh_astra_x": "27×",
   "hh_astra_hx": "25×",
   "l7_astra_med": "31",
@@ -22403,7 +22414,7 @@
   "r_luna_high_bare_miss": "4",
   "n_exploratory": "10",
   "badge_disagreement_items": "<li>p01 overlap_minutes (L1) is Medium.</li><li>p06 calc (L3) is Hard.</li><li>p08 recur (L4) is Medium.</li>",
-  "frontier_caption": "luna-low is not a best trade-off: luna-medium costs the same, $0.0009 per pass. It passes 47/60 to luna-low's 46/60. Main ladder only; every point counts.",
+  "frontier_caption": "luna-low costs $0.00078 per pass; luna-medium costs $0.00089. luna-medium passes 47/60 versus luna-low's 44/60. Main ladder only; every point counts.",
   "winner_caption": "Numbers: the 12-problem main ladder, 60 tries per config. Time = median seconds. ~ = estimated from tokens; Claude costs are measured.",
   "winner_other_routes": [
    "⚡ = fast mode: same answers, about 2× list price, faster."
@@ -22415,12 +22426,12 @@
   "l7_bound": "15/15",
   "l7_lo": "37%",
   "budget_why": "Cheapest with no misses. haiku-low costs less but misses 3 of 60",
-  "noshell_comparison": "On the retest set, B1 passed 25/35. Plain luna-low passed 21; B2 passed 19.",
+  "noshell_comparison": "Historical B1 passed 25/35 on the retest set. Isolated plain luna-low and historical B2 each passed 19/35.",
   "verdict_key": "✓ pick = a Winner pick. 0 misses / missed N = raw miss count, no ranking. beaten = another row is as cheap and passes as often. trade-off = pricier but passes more. avoid = below 90%.",
   "dropped_pipeline_models": "sol61-high and astra-medium (normal and ⚡)",
   "l7_config_count": "13",
   "l7_absent": "luna-low, luna-medium and luna-low-bare",
-  "rung_breaks": "luna-low and luna-medium break at L6",
+  "rung_breaks": "luna-low breaks at L2; luna-medium breaks at L6",
   "bare_rung_break": "L2",
   "rung_caption": "Passes per rung. Tint = a miss; red = 40% or less, the breaking point. L7 excluded.",
   "pipes_caption": "Bar length = passes out of 35. Text by each bar = passes · $ per pass · median seconds.",
@@ -22434,9 +22445,9 @@
   "winner_fallback": "Codex out? haiku-low passed 57/60. It costs $0.0011 per pass; use haiku-high when a miss is costly.",
   "fast_pipeline_note": "Fast-mode pipelines equal their builders because every example check passed. Haiku made 0 repairs.",
   "int_sol": "sol56-high is a generation older than sol61-high. Both pass every main-ladder try. sol56-high takes 14.5 s at ~$0.042 per pass. sol61-high takes 27.4 s at ~$0.019. ⚡ cuts that to 17.4 s, at ~$0.036. So the newer model is cheaper but slower, and ⚡ does not close the gap.",
-  "int_luna": "luna-low is cheaper per pass than haiku-low: ~$0.00090 to $0.0011. But it passes 77% to 95%.",
+  "int_luna": "luna-low is cheaper per pass than haiku-low: ~$0.00078 to $0.0011. But it passes 73% to 95%.",
   "int_semi": "<a href=\"https://newsletter.semianalysis.com/p/anthropic-subscriptions-offer-5x\">SemiAnalysis</a>: Anthropic plans give ~5× OpenAI's API-priced value at the Opus/Sol tier. We price list-rate calls, not plan quotas, so we can’t test that. At list price, haiku-high beats sol61-high ~7× per pass; tiers differ. On repo tasks the gap is ~8×. But luna-low was cheapest there and passed every repo task.",
-  "int_repo": "On real repo edits, sol61-high took 109 s and astra-medium 85 s. sonnet-medium and haiku-low took about 28 s. All passed every task.",
+  "int_repo": "On repo edits, sol61-high took 118 s; astra-medium took 66 s. sonnet-medium and haiku-low took about 28 s. Both Codex picks took over twice as long. All passed every hidden test.",
   "int_harness": "On Codex's bench, both families gained. luna-low rose from 36 to 47 passes. It cost ~3× per pass and took ~3× the median time. haiku-low rose from 57 to 60 passes. It cost ~1.1× per pass, with the same median time.",
   "int_build": "Codex's bench dry runs missed 2 sandbox bugs; a live call found them. Its \"plan and reorient\" nudge changed no code.",
   "int_l7": "On L7, luna-high passed 15/15; sol56-high missed. luna-high cost ~$0.0015 per pass versus sol56-high's ~$0.069.",
@@ -22491,12 +22502,12 @@
     ],
     [
      "luna-low",
-     "77% (46/60)",
-     "53%–95%",
-     "7.2",
-     "11.6",
-     "$0.00090",
-     "$0.041",
+     "73% (44/60)",
+     "50%–92%",
+     "7.7",
+     "10.7",
+     "$0.00078",
+     "$0.034",
      "proxy"
     ],
     [
@@ -22649,9 +22660,9 @@
     ],
     [
      "luna-low",
-     "53%–95%",
-     "11.6",
-     "~$0.041"
+     "50%–92%",
+     "10.7",
+     "~$0.034"
     ],
     [
      "luna-medium",
@@ -22763,11 +22774,11 @@
     ],
     [
      "luna-low",
-     "14,688",
+     "13,434",
      "11,520",
-     "514",
+     "532",
      "0",
-     "$0.000045"
+     "$0.000041"
     ],
     [
      "luna-medium",
@@ -22967,9 +22978,9 @@
      "5/5",
      "5/5",
      "5/5",
-     "52.7",
-     "1,151",
-     "$0.024",
+     "55.8",
+     "1,277",
+     "$0.023",
      "proxy"
     ],
     [
@@ -23096,7 +23107,7 @@
      "5",
      "5",
      "5",
-     "5",
+     "3 (2c)",
      "4 (1c)",
      "5",
      "5",
@@ -23115,7 +23126,7 @@
      "5",
      "5",
      "5",
-     "**1** (2t 2w)",
+     "**0** (5w)",
      "**1** (1t 3w)",
      "5",
      "5",
@@ -23191,7 +23202,7 @@
      "5",
      "5",
      "5",
-     "4 (1w)",
+     "5",
      "5",
      "5",
      "5",
@@ -23210,7 +23221,7 @@
      "3 (2t)",
      "5",
      "5",
-     "**2** (2t 1w)",
+     "4 (1c)",
      "5",
      "5",
      "5",
@@ -23229,7 +23240,7 @@
      "5",
      "5",
      "5",
-     "5",
+     "3 (1c 1w)",
      "5",
      "5",
      "5",
@@ -23355,11 +23366,11 @@
     [
      "luna-low",
      "12/12",
-     "11/12",
+     "7/12",
      "12/12",
-     "≥5",
-     "28.5",
-     "$0.0040",
+     "no transcripts",
+     "24.1",
+     "$0.0033",
      "proxy"
     ],
     [
@@ -23397,9 +23408,9 @@
      "12/12",
      "12/12",
      "12/12",
-     "≥8",
-     "89.0",
-     "$0.075",
+     "no transcripts",
+     "84.5",
+     "$0.079",
      "proxy"
     ],
     [
@@ -23408,8 +23419,8 @@
      "12/12",
      "12/12",
      "no transcripts",
-     "108.6",
-     "$0.095",
+     "117.9",
+     "$0.097",
      "proxy"
     ],
     [
@@ -23418,8 +23429,8 @@
      "12/12",
      "12/12",
      "no transcripts",
-     "85.2",
-     "$0.38",
+     "65.6",
+     "$0.45",
      "proxy"
     ]
    ]
@@ -23434,9 +23445,9 @@
    "rows": [
     [
      "luna-low baseline",
-     "21/35",
-     "$0.0013",
-     "8.5"
+     "19/35",
+     "$0.0012",
+     "9.0"
     ],
     [
      "B1: no shell, plus a \"list edge cases and trace the examples first\" nudge",
@@ -23689,16 +23700,6 @@
      "0.99"
     ],
     [
-     "luna-low",
-     "46",
-     "37",
-     "9",
-     "0.13",
-     "1.12",
-     "4",
-     "1.00"
-    ],
-    [
      "luna-medium",
      "47",
      "47",
@@ -23934,6 +23935,336 @@
     ]
    ]
   },
+  "unisolated": {
+   "head": [
+    "file",
+    "config",
+    "track",
+    "rows"
+   ],
+   "rows": [
+    [
+     "results/2026-10-22b-function.jsonl",
+     "astra-medium",
+     "exploratory",
+     "60"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "astra-medium",
+     "hard",
+     "15"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "astra-medium-fast",
+     "exploratory",
+     "60"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "astra-medium-fast",
+     "hard",
+     "15"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "luna-high",
+     "escalation",
+     "15"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "luna-high",
+     "exploratory",
+     "45"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "luna-high",
+     "hard",
+     "15"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "luna-low-bare",
+     "exploratory",
+     "60"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "luna-medium",
+     "main",
+     "60"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "luna56-high",
+     "exploratory",
+     "60"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "luna56-high",
+     "hard",
+     "15"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "luna56-low",
+     "exploratory",
+     "60"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "luna56-low",
+     "hard",
+     "15"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "sol56-high",
+     "exploratory",
+     "60"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "sol56-high",
+     "hard",
+     "15"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "sol61-high",
+     "exploratory",
+     "60"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "sol61-high",
+     "fastmode",
+     "35"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "sol61-high-fast",
+     "exploratory",
+     "25"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "sol61-high-fast",
+     "fastmode",
+     "35"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "sol61-high-fast",
+     "hard",
+     "15"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "sol61-medium",
+     "calibration",
+     "10"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "sol61-medium",
+     "hard",
+     "15"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "sol61-medium",
+     "main",
+     "60"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "sol61-xhigh",
+     "fastmode",
+     "35"
+    ],
+    [
+     "results/appendix/harness_bias.jsonl",
+     "luna-low",
+     "harness_bias",
+     "60"
+    ],
+    [
+     "results/appendix/luna_rescue.jsonl",
+     "astra-medium+haiku-on-fail",
+     "rescue G",
+     "35"
+    ],
+    [
+     "results/appendix/luna_rescue.jsonl",
+     "haiku-low-plan+luna-high-bare",
+     "rescue F",
+     "35"
+    ],
+    [
+     "results/appendix/luna_rescue.jsonl",
+     "haiku-low-plan+luna-low",
+     "rescue F",
+     "35"
+    ],
+    [
+     "results/appendix/luna_rescue.jsonl",
+     "luna-high-bare+haiku-on-fail",
+     "rescue G",
+     "35"
+    ],
+    [
+     "results/appendix/luna_rescue.jsonl",
+     "luna-high-bare+haiku-review-all",
+     "rescue G",
+     "35"
+    ],
+    [
+     "results/appendix/luna_rescue.jsonl",
+     "luna-high-bare+retry-on-fail",
+     "rescue G",
+     "35"
+    ],
+    [
+     "results/appendix/luna_rescue.jsonl",
+     "luna-low+haiku-on-fail",
+     "rescue G",
+     "35"
+    ],
+    [
+     "results/appendix/luna_rescue.jsonl",
+     "luna-low+haiku-review-all",
+     "rescue G",
+     "35"
+    ],
+    [
+     "results/appendix/luna_rescue.jsonl",
+     "sol61-high+haiku-on-fail",
+     "rescue G",
+     "35"
+    ]
+   ]
+  },
+  "selected_sources": {
+   "head": [
+    "selected result file",
+    "rows (warmups excluded)"
+   ],
+   "rows": [
+    [
+     "results/2026-10-22b-agentic.jsonl",
+     "36"
+    ],
+    [
+     "results/2026-10-22b-function.jsonl",
+     "1180"
+    ],
+    [
+     "results/2026-10-25-isolated-agentic.jsonl",
+     "48"
+    ],
+    [
+     "results/2026-10-25-isolated-hard.jsonl",
+     "15"
+    ],
+    [
+     "results/2026-10-25-isolated-main.jsonl",
+     "60"
+    ]
+   ]
+  },
+  "isolation_changes": {
+   "head": [
+    "config",
+    "track",
+    "passed",
+    "$ per pass",
+    "median s",
+    "slow-call s",
+    "mean input",
+    "mean cached",
+    "mean output",
+    "mean reasoning"
+   ],
+   "rows": [
+    [
+     "luna-low",
+     "main",
+     "46/60 (77%) → 44/60 (73%)",
+     "$0.00090 → $0.00078",
+     "7.22 → 7.70",
+     "11.57 → 10.71",
+     "14,688 → 13,434",
+     "11,520 → 11,520",
+     "514 → 532",
+     "0 → 0"
+    ],
+    [
+     "sol61-high",
+     "hard",
+     "15/15 (100%) → 15/15 (100%)",
+     "$0.024 → $0.023",
+     "52.68 → 55.82",
+     "78.15 → 130.72",
+     "15,351 → 14,097",
+     "12,288 → 12,288",
+     "1,625 → 1,812",
+     "1,151 → 1,277"
+    ],
+    [
+     "astra-medium",
+     "agentic",
+     "12/12 (100%) → 12/12 (100%)",
+     "$0.38 → $0.45",
+     "85.22 → 65.63",
+     "99.49 → 95.72",
+     "160,564 → 191,282",
+     "149,984 → 178,016",
+     "2,481 → 2,702",
+     "135 → 110"
+    ],
+    [
+     "luna-low",
+     "agentic",
+     "12/12 (100%) → 12/12 (100%)",
+     "$0.0040 → $0.0033",
+     "28.50 → 24.12",
+     "48.54 → 43.13",
+     "150,943 → 123,125",
+     "135,947 → 114,389",
+     "2,269 → 2,478",
+     "9 → 306"
+    ],
+    [
+     "sol61-high",
+     "agentic",
+     "12/12 (100%) → 12/12 (100%)",
+     "$0.095 → $0.097",
+     "108.58 → 117.93",
+     "158.68 → 308.99",
+     "213,735 → 234,135",
+     "196,608 → 216,384",
+     "4,090 → 4,014",
+     "886 → 759"
+    ],
+    [
+     "sol61-medium",
+     "agentic",
+     "12/12 (100%) → 12/12 (100%)",
+     "$0.075 → $0.079",
+     "89.04 → 84.55",
+     "121.61 → 239.38",
+     "162,787 → 202,506",
+     "147,029 → 187,285",
+     "2,901 → 3,023",
+     "300 → 272"
+    ]
+   ]
+  },
   "equiv": {
    "head": [
     "Claude → Codex match",
@@ -23977,15 +24308,15 @@
    ],
    "rows": [
     [
+     "luna-low → haiku-low",
+     "73% → 95%",
+     "~$0.00078 → $0.0011",
+     "8 → 10"
+    ],
+    [
      "luna-low-bare → haiku-low",
      "73% → 95%",
      "~$0.00080 → $0.0011",
-     "7 → 10"
-    ],
-    [
-     "luna-low → haiku-low",
-     "77% → 95%",
-     "~$0.00090 → $0.0011",
      "7 → 10"
     ],
     [
