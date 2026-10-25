@@ -24,7 +24,7 @@
 <p class="small">haiku-high passes {{haiku_high_pass}} at {{haiku_high_upp}} per pass. sol61-high also passes {{sol61_high_pass}} at ~{{sol61_high_upp}} per pass. It costs {{claude_zero}} on Codex quota. luna-low and luna-medium cost less but miss about {{cheap_miss_words}}.</p>
 <div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="ring"></span>Pareto frontier</span></div>
 <div class="chart"><h3>🎯 Pass rate vs $ per pass</h3>{{w_pass_cost}}</div>
-<div class="chart"><h3>⏱️ Speed vs $ per pass</h3><p class="sub">Best trade-offs among configs passing at least {{min_pass}}.</p>{{w_speed_cost}}</div>
+<details><summary>⏱️ Speed vs $ per pass</summary><div class="chart"><p class="sub">Best trade-offs among configs passing at least {{min_pass}}.</p>{{w_speed_cost}}</div></details>
 {{w_sets}}
 <details class="small"><summary>How to read these charts</summary>
 <ul class="tight small">
@@ -72,7 +72,7 @@
 </section>
 <section class="method" id="method">
 <h2><span class="num"></span>❓ How it was run</h2>
-<p class="small">Every config (model + effort) got the same new problems and hidden tests. Tools were off: no code runs, file reads or search.</p>
+<p class="small">Every config (model + effort) got the same new problems and hidden tests. Tools were off: no code runs, file reads or search. Logs confirm it for {{codex_tool_free}} Codex calls.</p>
 <details><summary>📚 Problems by round (Easy/Medium/Hard)</summary>
 <ul class="tight small">
 <li>We wrote these problems for this bench.</li>
@@ -148,6 +148,9 @@
 <div class="chart floor"><h3>Passes, $ per pass, median seconds</h3><p class="sub">{{pipes_caption}}</p>{{w_pipes}}</div>
 <ul class="tight small">
 <li>sol61-high and astra-medium never failed an example, so Haiku never ran.</li>
+<li>Per-problem routing on the main ladder: pick the cheapest config that passed tries {{router_fit}}.</li>
+<li>It passed {{router_k}} held-out tries ({{router_held}}).</li>
+<li>Its estimated $ per pass is ~{{router_share}} of haiku-high's.</li>
 <li>Normal speed uses separate runs. ⚡ pipeline rows replay cached answers.</li>
 <li><a href="#notation">See Notation.</a></li>
 </ul>
@@ -206,7 +209,9 @@
 <ul class="tight">
 <li>Scope: {{n_problems}} main problems, written for this bench.</li>
 <li>Most have a LeetCode analogue, so models may have seen similar code.</li>
+<li>The problems ship with this repo, so later models may train on them.</li>
 <li>Intervals resample whole problems, since tries on one problem are related.</li>
+<li>Paired gaps of {{nosep_gap}} points or less did not separate; {{sep_gap}}-point gaps did.</li>
 <li><code>PLAN.md</code> was committed before the main run; a same-day pilot came first.</li>
 <li>{{n_exploratory}} configs were added after the main run (†), including the haiku-high and sol61-high picks:<ul>{{exploratory_items}}</ul></li>
 <li>A Codex call's estimated $ drops up to {{cache_swing}} when the prompt cache hits.</li>

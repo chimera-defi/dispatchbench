@@ -357,6 +357,32 @@ def _facts(s, arms):
     days = sorted(r["ts"][:10] for path in glob.glob(os.path.join(RES, "**", "*.jsonl"), recursive=True) for r in load(path) if r.get("ts"))
     F["run_dates"] = f"All calls ran {days[0]} to {days[-1]}."
     F["cite"] = f"Cite as: DispatchBench ({days[-1][:4]}), github.com/chimera-defi/dispatchbench."
+    # Function-track Codex calls never used a tool, so none could read the reference solutions.
+    func = [r for r in load(os.path.join(RES, configs.SOURCES["main"][0])) if r["cli"] == "codex"]
+    need(all(isinstance(r.get("tool_items"), int) for r in func), "every function-track Codex row records tool_items")
+    need(not any(r["tool_items"] for r in func), "no function-track Codex call used a tool")
+    F["codex_tool_free"] = f"{n(len(func))} of {n(len(func))}"
+    # Held-out router: per problem, the cheapest config that passed tries 1-3; scored on tries 4-5.
+    ladder = [r for r in load(os.path.join(RES, configs.SOURCES["main"][0])) if r["phase"] in ("main", "exploratory", "fastmode") and r["repeat"] <= REPEATS and r["rung"] <= 6]
+    cell = defaultdict(list)
+    for r in ladder: cell[(r["config"], r["problem"])].append(r)
+    full = {c for c in {c for c, _ in cell} if sum(len(v) for (cc, _), v in cell.items() if cc == c) == REPORT_PROBLEMS * REPEATS}
+    FIT = 3; F["router_fit"] = f"1–{FIT}"; F["router_held"] = f"{FIT + 1}–{REPEATS}"
+    k = tot = spent = 0
+    for p in sorted({p for _, p in cell}):
+        sure = [(statistics.mean(_usd(r, "main") for r in cell[(c, p)] if r["repeat"] <= FIT), c) for c in full
+                if all(r["passed"] for r in cell[(c, p)] if r["repeat"] <= FIT)]
+        test = [r for r in cell[(min(sure)[1], p)] if r["repeat"] > FIT]
+        k += sum(r["passed"] for r in test); tot += len(test); spent += sum(_usd(r, "main") for r in test)
+    hh = [r for (c, _), v in cell.items() if c == "haiku-high" for r in v]
+    need(all(r["passed"] for r in hh), "haiku-high, the reference, never missed on the main ladder")
+    need(tot == REPORT_PROBLEMS * (REPEATS - FIT), "the router is scored on every held-out try")
+    F["router_k"] = f"{k}/{tot}"; F["router_share"] = f"{round(100 * (spent / k) / (sum(_usd(r, 'main') for r in hh) / len(hh)), -1):.0f}%"
+    # Smallest paired gap that separated from zero; every smaller gap did not.
+    sep = [d for d in s["paired"] if d["ci95"][0] > 0 or d["ci95"][1] < 0]
+    need(sep and all(abs(d["diff"]) < min(abs(x["diff"]) for x in sep) for d in s["paired"] if d not in sep), "paired gaps separate only above a threshold")
+    F["sep_gap"] = f"{round(100 * min(abs(d['diff']) for d in sep))}"
+    F["nosep_gap"] = f"{round(100 * max(abs(d['diff']) for d in s['paired'] if d not in sep))}"
     F.update(main_set_label=configs.set_label("main ladder"), l7_set_label=configs.set_label("L7 set"))
     F["l7_n"] = str(len({p for v in hard.values() for p in v["by_problem"]}) * int(F["repeats"]))
     F["n_rescue_problems"] = str(len(luna_rescue.PIDS))

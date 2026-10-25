@@ -2,6 +2,8 @@
 
 LeetCode-style problems, written fresh for this bench.
 
+**[Interactive report](results/report/page.html)** · [Full report](docs/REPORT.md) · [Raw data](results/) · [Reproduce](#reproduce) · [Cite](#cite)
+
 Which model and reasoning effort should a coding task be routed to? This repo measures 6 Claude Code and Codex CLI configs, plus 5 Codex configs added on 2026-10-23, on 15 Python problems written after the models' training cutoff, plus 4 small repo tasks.
 
 ## The answer
@@ -34,11 +36,24 @@ Function + agentic spend only (auxiliary runs and pilot excluded): $2.46 Claude,
 - **[Pre-registration](PLAN.md)**: what was planned before any model call, and each deviation.
 - Raw data: `results/*.jsonl`; prices: [results/prices.json](results/prices.json).
 
+## Reproduce
+
+```bash
+git clone https://github.com/chimera-defi/dispatchbench.git && cd dispatchbench
+make report && make audit
+```
+
+This rebuilds every table, chart and page from the committed cache. It makes no model calls. Needs Python and make; `pip install -r requirements.txt` adds pytest for `python3 -m pytest tests`.
+
 ## For agents
 
 - `README.md`, `docs/REPORT.md` and `results/report/page.html` are generated. Edit `docs/readme.tmpl.md`, `docs/report.tmpl.md` or `docs/page.tmpl.md`, then run `make report && make audit`.
 - Every number in a template is a fact computed in `analysis/report.py`. A bare number fails `make audit` unless `docs/audit_allow.json` lists it.
 - `make report` makes no model calls. New runs go through `bench/run.py` (cache-first, with a Claude spend cap).
 - Repo layout: the Layout section of [docs/REPORT.md](docs/REPORT.md).
+
+## Cite
+
+Cite as: DispatchBench (2026), github.com/chimera-defi/dispatchbench. Metadata: [CITATION.cff](CITATION.cff).
 
 MIT licence, see [LICENSE](LICENSE).

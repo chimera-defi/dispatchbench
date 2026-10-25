@@ -6,7 +6,7 @@ python3 -m bench.run --phase fastmode --configs sol61-high-fast,sol61-xhigh --pr
 
 Cache entry: cache/calls/<sha256>.json with the completion text, token usage, wall time and CLI metadata.
 Grading is a separate step (bench.grade_all), so lanes never compete with timed test runs."""
-import argparse, datetime, hashlib, json, os, re, shutil, subprocess, sys, tempfile, time
+import argparse, datetime, hashlib, json, os, re, shutil, subprocess, sys, tempfile, threading, time
 from concurrent.futures import ThreadPoolExecutor
 
 from bench import problems
@@ -213,8 +213,12 @@ def one(config, pid, rep, phase, lanes):
     if prior: entry["previous_attempt"] = prior
     if stop_message(entry): entry["quota_error"] = True
     os.makedirs(CALLS, exist_ok=True); os.makedirs(RAW, exist_ok=True)
-    json.dump(entry, open(fp + ".tmp", "w"), indent=1); os.replace(fp + ".tmp", fp)
-    open(os.path.join(RAW, key + ".out"), "w").write(raw)
+    tmp = f"{fp}.{os.getpid()}.{threading.get_ident()}.tmp"
+    with open(tmp, "w") as f:
+        json.dump(entry, f, indent=1)
+    os.replace(tmp, fp)
+    with open(os.path.join(RAW, key + ".out"), "w") as f:
+        f.write(raw)
     return stop_message(entry) or f"{'ERR ' if entry['is_error'] else ''}{entry['wall_s']:.1f}s out={entry.get('out_tok')}"
 
 
