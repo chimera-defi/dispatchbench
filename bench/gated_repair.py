@@ -113,6 +113,35 @@ def repair_call(kind, pid, rep, prompt, code, report, mid, effort, flags):
     return cached("repair", blob, lambda cwd: call_codex(mid, effort, p, cwd, flags))
 
 
+def result_row(cfg, pid, rep, mid, effort, flags, b, code, build_ok, did_repair, rb):
+    g = grade_text(pid, code) if code.strip() else {"outcome": "harness_error" if (rb or b)["is_error"] else "no_code"}
+    build_cost = cost({"config": cfg, "cli": "codex", "model": mid, **b})
+    repair_cost = rb.get("cost_usd") if rb and CONFIGS[cfg][3] != "retry" else (cost({"config": cfg, "cli": "codex", "model": mid, **rb}) if rb else 0.0)
+    calls = [b] + ([rb] if rb else [])
+    return {"arm": "G", "config": cfg, "problem": pid, "repeat": rep,
+                        "in_tok": sum(c.get("in_tok") or 0 for c in calls),
+                        "cached_tok": sum(c.get("cached_tok") or 0 for c in calls),
+                        "out_tok": sum(c.get("out_tok") or 0 for c in calls),
+                        "reasoning_tok": sum(c.get("reasoning_tok") or 0 for c in calls),
+                        "wall_s": round(sum(c.get("wall_s") or 0 for c in calls), 2),
+                        "cost_usd": usd([build_cost, repair_cost], digits=None), "passed": g["outcome"] == "pass", "check": g["outcome"],
+                        "build_passed_visible": build_ok, "repaired": did_repair,
+                        "build_cost_usd": build_cost, "repair_cost_usd": repair_cost,
+                        "claude_cli": cli_version("claude"), "codex_cli": cli_version("codex")}
+
+
+def one(cfg, pid, rep):
+    mid, effort, flags, kind = CONFIGS[cfg]
+    b = build(pid, rep, mid, effort, flags)
+    code = extract(b.get("text"))
+    ok, report = visible(pid, code)
+    rb = None
+    if not ok or kind == "review":
+        rb = repair_call(kind, pid, rep, prompt_for(pid), code, report, mid, effort, flags)
+        code = extract(rb.get("text"))
+    return result_row(cfg, pid, rep, mid, effort, flags, b, code, ok, rb is not None, rb)
+
+
 def main():
     jobs = [(pid, rep) for rep in REPS for pid in PIDS]
     build_jobs = {}
@@ -146,20 +175,7 @@ def main():
 
     output_rows = []
     for cfg, pid, rep, mid, effort, flags, b, code, build_ok, did_repair, rb in rows:
-        g = grade_text(pid, code) if code.strip() else {"outcome": "harness_error" if (rb or b)["is_error"] else "no_code"}
-        build_cost = cost({"cli": "codex", "model": mid, **b})
-        repair_cost = rb.get("cost_usd") if rb and CONFIGS[cfg][3] != "retry" else (cost({"cli": "codex", "model": mid, **rb}) if rb else 0.0)
-        calls = [b] + ([rb] if rb else [])
-        output_rows.append({"arm": "G", "config": cfg, "problem": pid, "repeat": rep,
-                            "in_tok": sum(c.get("in_tok") or 0 for c in calls),
-                            "cached_tok": sum(c.get("cached_tok") or 0 for c in calls),
-                            "out_tok": sum(c.get("out_tok") or 0 for c in calls),
-                            "reasoning_tok": sum(c.get("reasoning_tok") or 0 for c in calls),
-                            "wall_s": round(sum(c.get("wall_s") or 0 for c in calls), 2),
-                            "cost_usd": usd([build_cost, repair_cost], digits=None), "passed": g["outcome"] == "pass", "check": g["outcome"],
-                            "build_passed_visible": build_ok, "repaired": did_repair,
-                            "build_cost_usd": build_cost, "repair_cost_usd": repair_cost,
-                            "claude_cli": cli_version("claude"), "codex_cli": cli_version("codex")})
+        output_rows.append(result_row(cfg, pid, rep, mid, effort, flags, b, code, build_ok, did_repair, rb))
     keep = [line for line in open(OUT) if json.loads(line)["arm"] != "G"]
     with open(OUT, "w") as f:
         f.writelines(keep); f.writelines(json.dumps(r) + "\n" for r in output_rows)

@@ -66,6 +66,24 @@ def build(cfg, pid, rep, pl):
     return cached("build", blob, lambda cwd: call_codex(mid, eff, p, cwd, flags))
 
 
+def result_row(c, pid, rep, pl, b):
+    code = extract(b.get("text"))
+    g = grade_text(pid, code) if code.strip() else {"outcome": "harness_error" if b["is_error"] else "no_code"}
+    luna = cost({"config": c, "cli": "codex", "model": BUILDERS[c][0], **b}); haiku = pl.get("cost_usd")
+    return {"arm": "F", "config": c, "problem": pid, "repeat": rep,
+                 "in_tok": pl["in_tok"] + b["in_tok"], "cached_tok": pl["cached_tok"] + b["cached_tok"], "out_tok": pl["out_tok"] + b["out_tok"],
+                 "reasoning_tok": pl["reasoning_tok"] + b["reasoning_tok"], "wall_s": round(pl["wall_s"] + b["wall_s"], 2),
+                 "cost_usd": usd([luna, haiku], digits=None), "passed": g["outcome"] == "pass", "check": g["outcome"],
+                 "luna_cost_usd": luna, "haiku_cost_usd": haiku,
+                 "claude_cli": cli_version("claude"), "codex_cli": cli_version("codex")}
+
+
+def one(c, pid, rep):
+    pl = plan(pid, rep)
+    assert not pl["is_error"] and pl["text"].strip(), "planner error"
+    return result_row(c, pid, rep, pl, build(c, pid, rep, pl))
+
+
 def main():
     jobs = [(pid, rep) for rep in REPS for pid in PIDS]
     with ThreadPoolExecutor(4) as ex:
@@ -78,16 +96,8 @@ def main():
                           ex.map(lambda t: build(t[0], t[1], t[2], plans[(t[1], t[2])]), [(c, *j) for c in BUILDERS for j in jobs])))
     rows = []
     for (c, pid, rep), b in builds.items():
-        pl = plans[(pid, rep)]; code = extract(b.get("text"))
-        g = grade_text(pid, code) if code.strip() else {"outcome": "harness_error" if b["is_error"] else "no_code"}
-        luna = cost({"cli": "codex", "model": BUILDERS[c][0], **b}); haiku = pl.get("cost_usd")
-        rows.append({"arm": "F", "config": c, "problem": pid, "repeat": rep,
-                     "in_tok": pl["in_tok"] + b["in_tok"], "cached_tok": pl["cached_tok"] + b["cached_tok"], "out_tok": pl["out_tok"] + b["out_tok"],
-                     "reasoning_tok": pl["reasoning_tok"] + b["reasoning_tok"], "wall_s": round(pl["wall_s"] + b["wall_s"], 2),
-                     "cost_usd": usd([luna, haiku], digits=None), "passed": g["outcome"] == "pass", "check": g["outcome"],
-                     "luna_cost_usd": luna, "haiku_cost_usd": haiku,
-                     "claude_cli": cli_version("claude"), "codex_cli": cli_version("codex")})
-        print(f"{c} {pid} r{rep}: {g['outcome']}", flush=True)
+        rows.append(result_row(c, pid, rep, plans[(pid, rep)], b))
+        print(f"{c} {pid} r{rep}: {rows[-1]['check']}", flush=True)
     keep = [l for l in open(OUT) if json.loads(l)["arm"] != "F"]
     with open(OUT, "w") as f:
         f.writelines(keep); f.writelines(json.dumps(r) + "\n" for r in rows)

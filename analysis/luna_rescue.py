@@ -3,7 +3,7 @@
 Rows for arms B-G are in results/appendix/luna_rescue.jsonl; the baselines are the main run's rows (and the exploratory
 configs' rows) for the same problems and repeats. Prints a markdown table. Run: python3 -m analysis.luna_rescue"""
 import json, os
-from analysis.summarize import cost, ROOT, usd, money, function_rows
+from analysis.summarize import cost, ROOT, usd, money, function_rows, rescue_rows
 
 PIDS = ["p03_ledger", "p04_taller_within", "p08_recur", "p09_k_machine_schedule", "p10_avoid_count", "p11_best_average", "p12_sheet"]
 ARMS = [("luna-low", "luna-low baseline"),
@@ -47,7 +47,7 @@ def arms():
     """Per arm: label, passes, n, $ per pass, median seconds, total $, and its rows."""
     main_rows = function_rows()
     main_rows = [dict(r, cost_usd=cost(r)) for r in main_rows if r["phase"] in ("main", "exploratory", "fastmode") and r["problem"] in PIDS]
-    arm_rows = [json.loads(l) for l in open(os.path.join(ROOT, "results", "appendix", "luna_rescue.jsonl"))]
+    arm_rows = rescue_rows()
     out = {}
     for c, label in ARMS:
         rr = [r for r in main_rows + arm_rows if r["config"] == c and r["problem"] in PIDS and 1 <= r["repeat"] <= 5]

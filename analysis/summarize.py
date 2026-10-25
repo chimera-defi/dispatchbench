@@ -15,11 +15,6 @@ FUNC = os.path.join(RES, "2026-10-22b-function.jsonl")
 AGENT = os.path.join(RES, "2026-10-22b-agentic.jsonl")
 PILOT = os.path.join(RES, "2026-10-22-pilot.jsonl")
 TRIM = os.path.join(RES, "2026-10-22b-trim.jsonl")
-ISOLATED = {
-    ("main", "luna-low"): os.path.join(RES, "2026-10-25-isolated-main.jsonl"),
-    ("hard", "sol61-high"): os.path.join(RES, "2026-10-25-isolated-hard.jsonl"),
-}
-ISOLATED_AGENT = os.path.join(RES, "2026-10-25-isolated-agentic.jsonl")
 BASE = ["haiku-low", "haiku-medium", "sonnet-medium", "luna-low", "luna-medium", "sol61-medium"]
 ESCALATE = {"haiku-high": "haiku-medium", "sonnet-high": "sonnet-medium", "luna-high": "luna-medium", "sol61-high": "sol61-medium"}
 PAIRS = [("haiku-medium", "haiku-low"), ("luna-medium", "luna-low"), ("sonnet-medium", "haiku-medium"),
@@ -35,32 +30,49 @@ def _sourced(path):
     return [dict(r, _file=os.path.relpath(path, ROOT)) for r in load(path)]
 
 
-def _replace(rows, replacements, fields):
-    identity = lambda r: tuple(r[k] for k in fields)
-    old, new = [identity(r) for r in rows], [identity(r) for r in replacements]
-    assert len(new) == len(set(new)) and set(old) == set(new), "replacement coverage differs"
-    assert all(r.get("codex_home") == "isolated" and r["cli"] == "codex" for r in replacements), "replacement is not isolated"
-    return replacements
+def selected_rows(rows, tracks, cell_fields, item_fields):
+    """Prefer complete isolated cells, identified from row metadata, in track order.
 
-
-def function_rows():
-    """Replace whole config/track cells; preserve historical files and all other cells."""
-    rows = _sourced(FUNC)
-    for (phase, config), path in ISOLATED.items():
-        matches = lambda r: (r["phase"], r["config"]) == (phase, config)
-        replacements = [dict(r, phase=phase) for r in _sourced(path)]
-        selected = _replace([r for r in rows if matches(r)], replacements,
-                            ("config", "phase", "problem", "repeat"))
-        rows = [r for r in rows if not matches(r)] + selected
+    Missing reruns leave historical cells intact. A present but partial or invalid
+    cell is rejected, so an early stopped rerun cannot silently change its scope.
+    """
+    cell = lambda r: tuple(r.get(k) for k in cell_fields)
+    identity = lambda r: tuple(r.get(k) for k in (*cell_fields, *item_fields))
+    for track in tracks:
+        path = os.path.join(RES, f"2026-10-25-isolated-{track}.jsonl")
+        replacements = _sourced(path)
+        # Original staged ablations wrote phase=isolated; their track is the phase.
+        if track in ("main", "hard"):
+            replacements = [dict(r, phase=track) if r.get("phase") == "isolated" else r for r in replacements]
+        grouped = defaultdict(list)
+        for r in replacements: grouped[cell(r)].append(r)
+        for key, new in grouped.items():
+            old = [r for r in rows if cell(r) == key]
+            ids = [identity(r) for r in new]
+            assert old and len(ids) == len(set(ids)) and set(map(identity, old)) == set(ids), "replacement coverage differs"
+            assert all(r.get("codex_home") == "isolated" and r.get("cli", "codex") == "codex" for r in new), "replacement is not isolated"
+            rows = [r for r in rows if cell(r) != key] + new
     return rows
 
 
+def function_rows():
+    return selected_rows(_sourced(FUNC), ("main", "hard", "function"),
+                         ("config", "phase"), ("problem", "repeat"))
+
+
 def agentic_rows():
-    rows, replacements = _sourced(AGENT), _sourced(ISOLATED_AGENT)
-    configs = {"luna-low", "sol61-medium", "sol61-high", "astra-medium"}
-    selected = _replace([r for r in rows if r["config"] in configs], replacements,
-                        ("config", "task", "repeat"))
-    return [r for r in rows if r["config"] not in configs] + selected
+    return selected_rows(_sourced(AGENT), ("agentic",), ("config",), ("task", "repeat"))
+
+
+def rescue_rows():
+    return selected_rows(load(os.path.join(RES, "appendix", "luna_rescue.jsonl")),
+                         ("rescue",), ("config", "arm"), ("problem", "repeat"))
+
+
+def harness_rows(rows=None):
+    if rows is None: rows = load(os.path.join(RES, "appendix", "harness_bias.jsonl"))
+    return selected_rows(rows,
+                         ("harness_bias",), ("config", "phase", "harness"), ("problem", "repeat"))
 
 
 PRICES = json.load(open(os.path.join(RES, "prices.json")))["models"]
