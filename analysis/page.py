@@ -637,7 +637,7 @@ def short_table(s, need):
     hard = [(c, row(SHORT(name), "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], 0.0 if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
                 a[c]["median_s"], hv(c), CODEX(c), a[c].get("derived_note", ""), rate=a[c]["pass_rate"], key=s["facts"]["verdict_key"],
                 set_name=configs.set_label("rescue set") if configs.low_context(c, "rescue") else "")) for c, name in HARD if c not in duplicates]
-    problems = sorted(s["problems"]); rungs = [v["rung"] for v in s["problems"].values()]
+    problems = sorted(s["problems"])
     def group(label, rows, source):
         regular = "".join(body for c, body in rows if not configs.low_context(c, source))
         return f'<tbody><tr class="grp"><th colspan="6">{esc(label)}</th></tr>{regular}</tbody>'
@@ -651,10 +651,14 @@ def short_table(s, need):
     subset_label = f'{configs.set_label("rescue set", capital=True)}: {len(s["design"]["rescue_problems"])} problems × {repeats} tries = {a[HARD[0][0]]["n"]} attempts'
     return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>$ per pass</th>'
             '<th>Claude $</th><th>median s</th><th>verdict</th></tr></thead>'
-            + group(ladder_label, top, "main") + group(subset_label, hard, "rescue") + low_group + '</table></div>'
-            '<ul class="tight small">'
-            f'<li>Ladder problems: {problems[0][:3]}–{problems[-1][:3]}.</li><li>Rungs: L{min(rungs)}–L{max(rungs)}.</li>'
-            f'<li>{configs.set_label("rescue set", capital=True)}: {s["facts"]["n_rescue_problems"]} problems, see How to read.</li>'
+            + group(ladder_label, top, "main") + group(subset_label, hard, "rescue") + low_group + '</table></div>')
+
+
+def result_notes(s):
+    """Shared scope notes for the Results section's tables."""
+    problems = sorted(s["problems"]); rungs = [v["rung"] for v in s["problems"].values()]
+    return ('<ul class="tight small">'
+            f'<li>Ladder problems: {problems[0][:3]}–{problems[-1][:3]}. Rungs: L{min(rungs)}–L{max(rungs)}.</li>'
             '<li>Low-context rows use trimmed prompts. Other variants: Notes → Everything we tried.</li></ul>')
 
 
@@ -944,7 +948,8 @@ def widgets(s, need, ds=None, names=None):
             "hard_front_pass": lambda: ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": lambda: ", ".join(SHORT(nm[c]) for c in hfb),
             "sets": lambda: sets_box(s), "grid": lambda: grid(s), "floor": lambda: floor(s), "pipes": lambda: pipes(arms),
             "fast": lambda: fast(s), "explorer": lambda: explorer(s), "short_table": lambda: short_table(s, need),
-            "full_table": lambda: full_table(ds or dataset.read()), "front_pass": lambda: ", ".join(map(DISP, fa)),
+            "full_table": lambda: full_table(ds or dataset.read()), "result_notes": lambda: result_notes(s),
+            "front_pass": lambda: ", ".join(map(DISP, fa)),
             "front_speed": lambda: speed_frontier_text(s, fb), "winner": lambda: winner_table(ds or dataset.read(), need),
             "hb_qa": lambda: "".join(f'<li>{esc(line)}</li>' for line in s["facts"]["hb_qa"]),
             "legend": lambda: legend(ds or dataset.read()), "rescue_subtitle": lambda: rescue_subtitle(s),
