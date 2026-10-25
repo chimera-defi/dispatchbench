@@ -26,8 +26,8 @@
 <h2><span class="num"></span>📊 Cost vs accuracy</h2>
 <div class="chart"><h3>🎯 Pass rate vs $ per pass</h3>{{w_pass_cost}}</div>
 <details open><summary>⏱️ Speed vs $ per pass</summary><div class="chart"><p class="sub">Best trade-offs, pass rate at least {{min_pass}}.</p>{{w_speed_cost}}</div></details>
-<details class="small"><summary>How to read this data</summary>
 <div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="ring"></span>Best trade-off (ringed, numbered)</span></div>
+<details class="small"><summary>How to read this data</summary>
 <h4>Colour and shape</h4>
 <ul class="tight small">
 <li>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet.</li>
@@ -84,7 +84,7 @@
 </ul>
 <h4>Retest set</h4>
 <ul class="tight small">
-<li>{{set_label_title}} rows use the {{n_rescue_problems}} problems defined under Cost vs accuracy.</li>
+<li>{{set_label_title}} = the {{n_rescue_problems}} problems a cheap luna config missed. Its single-model rows reuse earlier attempts.</li>
 <li>Not listed: →H fail rows for {{dropped_pipeline_models}}. Haiku never ran, so their results match the plain rows.</li>
 </ul>
 <h4>Pass rate and time</h4>

@@ -21878,7 +21878,7 @@
   "agent_repeats": "3",
   "n_rungs": "6",
   "per_rung": "2",
-  "hb_answer": "Slightly: gap 13 points, range 3 to 23.",
+  "hb_answer": "Slightly: the gap moved 13 points.",
   "hb_detail": "Gap moved 13 points (95% range 3 to 23); bias threshold was 15.",
   "hb_diff": "+0.133",
   "hb_takeaway": "luna-low: 36→47 of 60 inside Codex CLI. haiku-low: 57→60 of 60 inside Claude Code.",
@@ -21901,7 +21901,7 @@
   "hb_haiku_low_n": "60",
   "hb_summary": "luna-low: 36→47 of 60 inside Codex CLI. haiku-low: 57→60 of 60 inside Claude Code. Gap moved 13 points (95% range 3 to 23); bias threshold was 15.",
   "hb_qa": [
-   "A: Slightly: gap 13 points, range 3 to 23.",
+   "A: Slightly: the gap moved 13 points.",
    "Inside Codex CLI, luna-low went from 36 to 47 passes.",
    "Inside Claude Code, haiku-low went from 57 to 60 passes.",
    "The gap moved 13 points, below our 15-point bias threshold.",

@@ -82,7 +82,7 @@ def pareto_chart(s, hero=False):
             continue
         b.append(text(x - 10 if right else x + 10, y + LABEL_DY.get(c, -8), label, 11, "end" if right else "start", MUTED if hollow else INK))
     b.append(text(L, H - 10, "Dashed: best trade-offs. Hollow: fast mode. Codex $ is a token-price estimate." if hero else
-                  "Dashed: Pareto. Bars: 95% CI. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
+                  "Dashed: best trade-offs. Bars: 95% CI. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
     return svg(W, H, b)
 
 

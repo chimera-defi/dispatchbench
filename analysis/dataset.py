@@ -283,8 +283,7 @@ def fairness_facts():
         facts[f'hb_{key}_change'] = f"{sum(r['passed'] for r in one)}→{sum(r['passed'] for r in agent)}"
         facts[f'hb_{key}_n'] = str(len(one))
     if lo > 0:
-        facts['hb_answer'] = (f"Slightly: gap {facts['hb_diff_points']} points, "
-                              f"range {facts['hb_range_points']}.")
+        facts['hb_answer'] = f"Slightly: the gap moved {facts['hb_diff_points']} points."
         facts['hb_takeaway'] = (
             f"luna-low: {facts['hb_luna_low_change']} of {facts['hb_luna_low_n']} inside Codex CLI. "
             f"haiku-low: {facts['hb_haiku_low_change']} of {facts['hb_haiku_low_n']} inside Claude Code.")
