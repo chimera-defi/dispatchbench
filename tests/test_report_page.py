@@ -110,7 +110,7 @@ def test_chart_free_mode_plots_zero_lane_and_set_attribution(summary, render, st
     assert "$0.00000" not in output and "log" in output
     for point in points.values():
         assert point.get("data-set") == problem_set
-        assert ("luna-miss set" if problem_set == "rescue" else "main ladder") in point.get("data-tip").lower()
+        assert ("retest set" if problem_set == "rescue" else "main ladder") in point.get("data-tip").lower()
     for c in zero:
         assert "saved" in re.search(r'<li tabindex="0" data-c="' + re.escape(c) + r'"[^>]*>.*?</li>', output, re.S)[0]
 
@@ -139,7 +139,7 @@ def test_speed_axis_is_trimmed_with_one_second_gridlines(summary):
 def test_chart_set_toggle_and_grouped_keys(summary, render):
     output, _ = render(summary)
     assert 'Codex is free (subscription quota)</label>' in output
-    assert 'Main ladder' in output and '> Luna-miss set + pipelines</label>' in output
+    assert 'Main ladder' in output and '> Retest set + pipelines</label>' in output
     for cat in ("main", "fast", "pipelines", "exploratory"):
         assert f'data-cat="{cat}" checked' in output
         groups = re.findall(r'<details class="key-group" data-cat="' + cat + r'"([^>]*)>(.*?)</details>', output, re.S)
@@ -150,7 +150,7 @@ def test_chart_set_toggle_and_grouped_keys(summary, render):
             assert "(0)" not in body
     pipeline_chip = re.search(r'<label[^>]*><input[^>]*data-cat="pipelines"[^>]*> pipelines</label>', output)[0]
     assert "disabled" in pipeline_chip
-    assert 'title="only on the luna-miss set"' in pipeline_chip
+    assert 'title="only on the retest set"' in pipeline_chip
     assert output.count('class="cset s-main"') == 1
     assert output.count('class="cset s-rescue"') == 1
 
@@ -200,7 +200,7 @@ def test_scatter_ticks_use_dataset_usd_and_mobile_endpoint_fits(summary, render,
 @pytest.mark.parametrize("free", [False, True])
 def test_rescue_labels_and_markers_are_clean(summary, render, free):
     output, _ = render(summary, free=free, problem_set="rescue")
-    assert "[luna-miss set]" not in output
+    assert "[retest set]" not in output
     svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
     for point in svg.findall("s:g[@class='pt']", NS):
         marker = point[-2]
@@ -396,8 +396,8 @@ def test_bar_charts_fit_phone_without_scrolling(summary):
 def test_quality_fast_coverage_keeps_main_and_separate_rescue_runs_apart(summary, monkeypatch):
     note = dataset.read()["facts"]["quality_fast_note"]
     assert 'sol61-high ⚡ and astra-medium ⚡: main-ladder solutions not scored' in note
-    assert f'{dataset.read()["rescue"]["sol61-high"]["n"]}-attempt luna-miss run' in note
-    assert 'astra-medium ⚡ has no luna-miss scores' in note
+    assert f'{dataset.read()["rescue"]["sol61-high"]["n"]}-attempt retest run' in note
+    assert 'astra-medium ⚡ has no retest scores' in note
     scored = next(r for r in dataset.quality_rows() if r['config'] == 'sol61-high-fast' and r['outcome'] == 'pass')
     main = dict(scored, phase='exploratory')
     monkeypatch.setattr(dataset, 'quality_rows', lambda: [scored, main])
@@ -569,7 +569,7 @@ def test_winner_has_three_rows_and_metric_columns_before_why():
     assert 'table-layout:fixed' not in output and 'min-width:720px' not in output
     for label in head:
         assert body.count(f'data-label="{label}"') == 3
-    assert 'Numbers:' in output and 'luna-miss set' not in output  # pipelines are not Winner picks
+    assert 'Numbers:' in output and 'retest set' not in output  # pipelines are not Winner picks
     assert ds['facts']['speed_why'] in output
 
 

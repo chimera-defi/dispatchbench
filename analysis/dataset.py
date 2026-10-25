@@ -406,7 +406,7 @@ def _facts(s, arms):
         k = c.replace("-", "_")
         F[f"{k}_pass"] = pct(v["pass_at_1"]); F[f"{k}_k"] = f"{v['passes']}/{v['n']}"; F[f"{k}_upp"] = usd(v["usd_per_pass"])
         F[f"{k}_med"] = f"{v['latency_s']['median']:.1f}"; F[f"{k}_rsn"] = n(v["tokens_mean"]["reasoning_tok"]); F[f"{k}_rsn10"] = about(v["tokens_mean"]["reasoning_tok"])
-        F[f"{k}_in"] = n(v["tokens_mean"]["in_tok"]); F[f"{k}_total"] = usd(v['usd_total'])
+        F[f"{k}_in"] = n(v["tokens_mean"]["in_tok"])
     F["model_names"] = f"luna = {cfg['luna-low']['model']}, sol61 = {ex['sol61-high']['model']}, astra = {ex['astra-medium']['model']}"
     F["ref_unit"] = f"{1:.2f}"
     missed = statistics.mean(1 - every[c]["pass_at_1"] for c in ("luna-low", "luna-low-bare", "luna-medium"))
@@ -573,7 +573,7 @@ def _facts(s, arms):
         F["fm_n"] = str(c0["n"]); F["fm_rep_lo"] = str(min(c0["repeats"])); F["fm_rep_hi"] = str(max(c0["repeats"]))
         F["fm_ctrl_s"] = f"{c0['median_s']:.1f}"; F["fm_fast_s"] = f"{cf['median_s']:.1f}"; F["fm_x_s"] = f"{cx['median_s']:.1f}"
         F["fm_faster"] = f"{(1 - cf['median_s'] / c0['median_s']) * 100:.0f}%"
-        need({r["problem"] for r in rows if r["phase"] == "fastmode"} == set(luna_rescue.PIDS), "the fast-mode runs use the luna-miss problems")
+        need({r["problem"] for r in rows if r["phase"] == "fastmode"} == set(luna_rescue.PIDS), "the fast-mode runs use the retest problems")
         F["fm_mult"] = f"{json.load(open(os.path.join(RES, 'prices.json')))['fast_mode_multiplier']:g}×"
         F["fm_x_cost"] = x(cx["usd_per_pass"], c0["usd_per_pass"], money=True, sig=3); F["fm_x_out"] = f"{cx['out_median'] / c0['out_median']:.1f}×"
         b = json.load(open(BLIND)) if os.path.exists(BLIND) else None

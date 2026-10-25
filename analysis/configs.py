@@ -9,8 +9,8 @@ A source is one results file; the same name in two sources is two entries (a pil
 import html, os, re
 
 
-SET_LABELS = {"rescue set": "luna-miss set", "rescue arms": "luna-miss pipelines",
-              "rescue pipeline": "luna-miss pipeline", "main ladder": "main ladder", "L7 set": "L7 set"}
+SET_LABELS = {"rescue set": "retest set", "rescue arms": "retest pipelines",
+              "rescue pipeline": "retest pipeline", "main ladder": "main ladder", "L7 set": "L7 set"}
 
 
 def set_label(key, capital=False):
