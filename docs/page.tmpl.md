@@ -411,9 +411,6 @@
 <p><b>{{equiv_takeaway}}</b></p>
 {{table:equiv_all}}
 <details><summary>📝 How to read this data: matches</summary>
-<h4>Codex → Claude</h4>
-<p class="small">{{equiv_back_takeaway}}</p>
-<h4>Claude → Codex</h4>
 <ul class="tight small">
 <li>Match = the cheapest other-vendor config passing at least as often.</li>
 <li>{{equiv_fastest}}</li>

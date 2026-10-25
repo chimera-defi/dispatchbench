@@ -1,7 +1,8 @@
 {
  "dropped_facts": {
   "codex_usd": "The page intentionally rounds the estimated Codex total to the nearest five dollars; exact spend remains in results/dataset.json and docs/REPORT.md.",
-  "winner_fallback": "Removed the duplicate Winner fallback paragraph; winner_price and the budget-pick row retain the recommendation, perfect score and price."
+  "winner_fallback": "Removed the duplicate Winner fallback paragraph; winner_price and the budget-pick row retain the recommendation, perfect score and price.",
+  "equiv_back_takeaway": "The section lead now states both directions (all 12 Codex configs matched, Claude cheaper for 8, only luna undercuts); this note repeated it."
  },
  "placeholder_cells": {},
  "removals": {
@@ -155,6 +156,9 @@
   "page text: On repo edits, sol61-high took 118 s; astra-medium took 66 s.": "Restored int_repo as one Interesting finding bullet; every original sentence and measurement remains together.",
   "page text: sonnet-medium and haiku-low took about 28 s.": "Restored int_repo as one Interesting finding bullet; every original sentence and measurement remains together.",
   "page text: Both Codex picks took over twice as long.": "Restored int_repo as one Interesting finding bullet; every original sentence and measurement remains together.",
-  "page text: All passed every hidden test.": "Restored int_repo as one Interesting finding bullet; every original sentence and measurement remains together."
+  "page text: All passed every hidden test.": "Restored int_repo as one Interesting finding bullet; every original sentence and measurement remains together.",
+  "page text: Every Codex config has a Claude match. It is cheaper for 8 of 12. Only luna (not luna56) costs less, and it misses more.": "The section lead now states both directions (all 12 Codex configs matched, Claude cheaper for 8, only luna undercuts); this note repeated it.",
+  "page text: Claude → Codex": "Sub-headings dropped with the repeated note; the remaining How-to-read bullets cover only Claude → Codex matching.",
+  "page text: Codex → Claude": "Sub-headings dropped with the repeated note; the remaining How-to-read bullets cover only Claude → Codex matching."
  }
 }
