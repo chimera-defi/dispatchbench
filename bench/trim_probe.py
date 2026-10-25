@@ -15,6 +15,7 @@ import argparse, datetime, hashlib, json, os, re, shutil, subprocess, tempfile, 
 from concurrent.futures import ThreadPoolExecutor
 
 from bench.run import CLAUDE, CODEX, CLAUDE_FLAGS, CODEX_FLAGS, cli_version, call_claude
+from bench.codex_env import isolated_codex_env
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PILOT = os.path.join(ROOT, "bench", "pilot")
@@ -49,7 +50,10 @@ def flags(level):
 def codex(mid, level, p):
     cwd = tempfile.mkdtemp(prefix="mrb-"); last = os.path.join(cwd, "last.txt")
     cmd = [CODEX, "exec", "-m", mid, "-c", "model_reasoning_effort=low"] + flags(level) + ["-C", cwd, "-o", last, p]
-    t0 = time.monotonic(); r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=600); wall = time.monotonic() - t0
+    t0 = time.monotonic()
+    with isolated_codex_env() as env:
+        r = subprocess.run(cmd, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=600)
+    wall = time.monotonic() - t0
     u = {}; err = None; tools = 0
     for line in r.stdout.splitlines():
         try: ev = json.loads(line)
@@ -82,8 +86,9 @@ def one(config, prob, rnd, step):
     fam, level = config.split("/") if "/" in config else (config, None)
     p = prompt(prob); cli = "claude" if fam == "haiku" else "codex"
     fl = CLAUDE_FLAGS if cli == "claude" else CODEX_FLAGS + LEVELS[level]  # placeholder path keeps the key portable
-    key = hashlib.sha256(json.dumps({"track": "trim", "config": config, "cli_version": cli_version(cli), "flags": fl, "prompt": p, "round": rnd},
-                                    sort_keys=True).encode()).hexdigest()
+    identity = {"track": "trim", "config": config, "cli_version": cli_version(cli), "flags": fl, "prompt": p, "round": rnd}
+    if cli == "codex": identity["codex_home"] = "isolated"
+    key = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
     fp = os.path.join(CACHE, key + ".json")
     if os.path.exists(fp): return json.load(open(fp))
     if hashlib.sha256(open(MIN_INST, "rb").read()).hexdigest() != MIN_INST_SHA:

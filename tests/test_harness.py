@@ -38,6 +38,35 @@ def fake_agent(edit):
     return call
 
 
+def test_codex_calls_use_clean_home(tmp_path, monkeypatch):
+    host = tmp_path / "host"; host.mkdir()
+    codex = host / ".codex"; codex.mkdir()
+    (codex / "AGENTS.md").write_text("Host instructions must not load")
+    monkeypatch.setenv("HOME", str(host))
+    monkeypatch.setenv("CODEX_HOME", str(codex))
+    homes = []
+
+    def run(cmd, **kwargs):
+        env = kwargs.get("env", {})
+        assert "CODEX_HOME" in env
+        clean = Path(env["CODEX_HOME"])
+        assert clean != codex and clean.is_dir()
+        assert not (clean / "AGENTS.md").exists()
+        assert {p.name for p in clean.iterdir()} == {"auth.json"}
+        assert (clean / "auth.json").is_symlink()
+        assert (clean / "auth.json").readlink() == codex / "auth.json"
+        assert Path(env["HOME"]) != host
+        assert "--ignore-user-config" in cmd
+        homes.append(clean)
+        return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+    monkeypatch.setattr(subprocess, "run", run)
+    for call in (R.call_codex, A.run_codex):
+        call("test-model", "low", "offline prompt", str(tmp_path))
+    assert len(homes) == 2 and homes[0] != homes[1]
+    assert all(not p.exists() for p in homes)
+
+
 def agent_row():
     return json.loads(next(Path(A.CACHE).glob("*.json")).read_text())
 
@@ -210,25 +239,31 @@ def legacy_entry(config, task):
 
 
 @pytest.mark.parametrize("config", ["luna-low", "haiku-low"])
-def test_legacy_cache_hit_never_calls_model(task, monkeypatch, config):
+def test_legacy_cache_reuse_respects_codex_isolation(task, monkeypatch, config):
     legacy = legacy_entry(config, task); before = legacy.read_bytes()
     current = Path(A.CACHE) / (A.key_for(config, "t1", 1) + ".json")
     assert not current.exists()
     forbidden = Mock(side_effect=AssertionError("legacy verdict must prevent model calls"))
-    monkeypatch.setattr(A, "run_claude", forbidden); monkeypatch.setattr(A, "run_codex", forbidden)
+    codex = Mock(side_effect=subprocess.TimeoutExpired("offline", 1))
+    monkeypatch.setattr(A, "run_claude", forbidden); monkeypatch.setattr(A, "run_codex", codex)
     status = A.one(config, "t1", 1, 1)
-    assert status == "cached (grader_version=1)"
     assert not forbidden.called
-    assert legacy.read_bytes() == before and not current.exists()
+    assert legacy.read_bytes() == before
+    if config == "luna-low":
+        assert codex.call_count == 1
+        assert json.loads(current.read_text())["outcome"] == "timeout"
+    else:
+        assert status == "cached (grader_version=1)"
+        assert not codex.called and not current.exists()
 
 
 def test_regrade_explicitly_bypasses_legacy_cache(task, monkeypatch):
-    legacy = legacy_entry("luna-low", task); before = legacy.read_bytes()
+    legacy = legacy_entry("haiku-low", task); before = legacy.read_bytes()
     call = Mock(side_effect=subprocess.TimeoutExpired("mock", 1))
-    monkeypatch.setattr(A, "run_codex", call)
-    A.one("luna-low", "t1", 1, 1, regrade=True)
+    monkeypatch.setattr(A, "run_claude", call)
+    A.one("haiku-low", "t1", 1, 1, regrade=True)
     assert call.call_count == 1 and legacy.read_bytes() == before
-    current = json.loads((Path(A.CACHE) / (A.key_for("luna-low", "t1", 1) + ".json")).read_text())
+    current = json.loads((Path(A.CACHE) / (A.key_for("haiku-low", "t1", 1) + ".json")).read_text())
     assert current["grader_version"] == A.GRADER_VERSION and current["outcome"] == "timeout"
 
 

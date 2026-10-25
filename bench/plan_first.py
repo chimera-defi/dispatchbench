@@ -62,7 +62,7 @@ def plan(pid, rep):
 
 def build(cfg, pid, rep, pl):
     mid, eff, flags = BUILDERS[cfg]; p = BUILD.format(prompt=prompt_for(pid), plan=pl["text"].strip())
-    blob = {"config": cfg, "model": mid, "effort": eff, "cli": cli_version("codex"), "flags": flags, "prompt": p, "repeat": rep}
+    blob = {"codex_home": "isolated", "config": cfg, "model": mid, "effort": eff, "cli": cli_version("codex"), "flags": flags, "prompt": p, "repeat": rep}
     return cached("build", blob, lambda cwd: call_codex(mid, eff, p, cwd, flags))
 
 

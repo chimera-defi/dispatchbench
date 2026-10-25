@@ -9,6 +9,7 @@ import argparse, datetime, hashlib, json, os, re, shutil, subprocess, tempfile, 
 from concurrent.futures import ThreadPoolExecutor
 
 from bench.run import CONFIGS, CLAUDE, CODEX, check_claude_budget, SpendLimit, cache_state, failure, stop_message, cli_version, parse_reps
+from bench.codex_env import isolated_codex_env
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TASKS = os.path.join(ROOT, "bench", "agentic", "tasks")
@@ -43,6 +44,7 @@ def key_for(config, task, rep, legacy=False):
                        "flags": CLAUDE_FLAGS if cli == "claude" else CODEX_FLAGS, "prompt": open(os.path.join(t, "TASK.md")).read(),
                        "task": task, "task_tree": tree_hash(*dirs), "repeat": rep}
     if not legacy: identity["grader_version"] = GRADER_VERSION
+    if cli == "codex": identity["codex_home"] = "isolated"
     blob = json.dumps(identity, sort_keys=True)
     return hashlib.sha256(blob.encode()).hexdigest()
 
@@ -70,7 +72,8 @@ def run_claude(mid, eff, prompt, w):
 
 def run_codex(mid, eff, prompt, w):
     cmd = [CODEX, "exec", "-m", mid, "-c", f"model_reasoning_effort={eff}"] + CODEX_FLAGS + ["-C", w, prompt]
-    r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=1500)
+    with isolated_codex_env() as env:
+        r = subprocess.run(cmd, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=1500)
     i = c = o = rs = 0; tools = {}; err = None; turns = 0; deleg = 0
     for line in r.stdout.splitlines():
         try: ev = json.loads(line)
@@ -172,6 +175,7 @@ def one(config, task, rep, lanes, regrade=False):
                  visible_pass=vis["ok"], visible=vis, hidden_pass=hid["ok"], hidden=hid, task_complete=vis["ok"] and hid["ok"], own_tests=own, tests_tampered=tampered,
                  diff_stat=diff[-1] if diff else "", patch=os.path.relpath(os.path.join(PATCHES, key + ".patch"), ROOT))
     entry["retry_count"] = (prior.get("retry_count", 0) + 1) if prior else 0
+    if cli == "codex": entry["codex_home"] = "isolated"
     if prior: entry["previous_attempt"] = prior
     if stop_message(entry): entry["quota_error"] = True
     os.makedirs(CACHE, exist_ok=True); os.makedirs(RAW, exist_ok=True)
@@ -180,14 +184,16 @@ def one(config, task, rep, lanes, regrade=False):
     return stop_message(entry) or f"{'ERR ' if entry['is_error'] else ''}{wall:.0f}s hidden={hid['passed']}/{hid['passed'] + hid['failed']} visible={vis['ok']}"
 
 
-def export():
+def export(output=None, keys=None):
     rows = [json.load(open(os.path.join(CACHE, f))) for f in sorted(os.listdir(CACHE)) if f.endswith(".json")] if os.path.isdir(CACHE) else []
+    if keys is not None: rows = [r for r in rows if r["key"] in keys]
     rows.sort(key=lambda r: (r.get("grader_version", 1), r.get("ts", ""), r.get("key", "")))
     latest = {(r["config"], r["task"], r["repeat"]): r for r in rows}
     rows = [latest[k] for k in sorted(latest)]
-    with open(OUT, "w") as f:
+    output = output or OUT
+    with open(output, "w") as f:
         for r in rows: f.write(json.dumps(r, sort_keys=True) + "\n")
-    print(f"{len(rows)} agentic runs -> {os.path.relpath(OUT, ROOT)}")
+    print(f"{len(rows)} agentic runs -> {os.path.relpath(output, ROOT)}")
 
 
 def main():

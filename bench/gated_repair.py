@@ -91,7 +91,7 @@ def visible(pid, code):
 
 def build_key(pid, rep, mid, effort, flags):
     p = prompt_for(pid)
-    blob = {"model": mid, "effort": effort, "cli": cli_version("codex"), "flags": flags,
+    blob = {"codex_home": "isolated", "model": mid, "effort": effort, "cli": cli_version("codex"), "flags": flags,
             "prompt": p, "repeat": rep}
     return blob, p
 
@@ -108,7 +108,7 @@ def repair_call(kind, pid, rep, prompt, code, report, mid, effort, flags):
         blob = {"model": (model, "low"), "cli": cli_version(cli), "flags": CLAUDE_FLAGS,
                 "prompt": p, "repeat": rep}
         return cached("repair", blob, lambda cwd: call_claude(model, "low", p, cwd))
-    blob = {"model": mid, "effort": effort, "cli": cli_version("codex"), "flags": flags,
+    blob = {"codex_home": "isolated", "model": mid, "effort": effort, "cli": cli_version("codex"), "flags": flags,
             "prompt": p, "repeat": rep}
     return cached("repair", blob, lambda cwd: call_codex(mid, effort, p, cwd, flags))
 

@@ -1,6 +1,8 @@
 """Agentic e2e: python3 e2e.py <pipeline A|B|C> <round>. Appends a row to ../results_e2e.jsonl."""
 import json, os, shutil, subprocess, sys, time, datetime
 D = os.path.dirname(os.path.abspath(__file__)); CLAUDE = os.environ.get("CLAUDE_BIN", "claude"); CODEX = os.environ.get("CODEX_BIN", "codex")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(D))))
+from bench.codex_env import isolated_codex_env
 PRICES = {"gpt-6.1-sol": (2.0, 0.10, 10.0), "gpt-6-luna": (0.10, 0.01, 0.50)}
 TRIM = ["-c", "skills.include_instructions=false", "--disable", "multi_agent", "-c", "project_doc_max_bytes=0"]
 PIPE = {"A": ("codex", "gpt-6.1-sol"), "B": ("codex", "gpt-6-luna"), "C": ("claude", "claude-sonnet-5-5")}
@@ -11,9 +13,10 @@ g("init", "-q"); g("add", "-A"); g("-c", "user.name=bench", "-c", "user.email=be
 task = open(f"{D}/TASK.md").read()
 t = time.monotonic()
 if kind == "codex":
-    cmd = [CODEX, "exec", "-m", model, "-c", "model_reasoning_effort=low", "-c", "service_tier=default", "--json", "--ephemeral",
+    cmd = [CODEX, "exec", "--ignore-user-config", "-m", model, "-c", "model_reasoning_effort=low", "-c", "service_tier=default", "--json", "--ephemeral",
            "--skip-git-repo-check", "-s", "workspace-write", "-C", w] + TRIM + [task]
-    r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=1200)
+    with isolated_codex_env() as env:
+        r = subprocess.run(cmd, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=1200)
     open(f"{w}.builder.jsonl", "w").write(r.stdout)
     i = c = o = 0; tools = 0
     for line in r.stdout.splitlines():

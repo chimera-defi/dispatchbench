@@ -10,6 +10,7 @@ import argparse, datetime, hashlib, json, os, re, shutil, subprocess, sys, tempf
 from concurrent.futures import ThreadPoolExecutor
 
 from bench import problems
+from bench.codex_env import isolated_codex_env
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CALLS = os.path.join(ROOT, "cache", "calls")
@@ -52,8 +53,8 @@ def codex_flags(config, portable=False):
     return CODEX_FLAGS + T.LEVELS[TRIM_LEVEL[config]] if portable else T.flags(TRIM_LEVEL[config])
 
 
-# Function track harness. Claude: no tools, no user/project settings. Codex: user config ignored, host skill list
-# dropped, default (non-priority) tier, read-only sandbox (Codex tools cannot be switched off).
+# Function track harness. Claude: no tools, no user/project settings. Codex: fresh HOME/CODEX_HOME,
+# auth symlink only, user config ignored, default tier, read-only sandbox.
 CLAUDE_FLAGS = ["--output-format", "json", "--no-session-persistence", "--tools", "", "--setting-sources", "", "--strict-mcp-config"]
 CODEX_FLAGS = ["--ignore-user-config", "-c", "skills.include_instructions=false", "-c", "service_tier=default",
                "--json", "--ephemeral", "--skip-git-repo-check", "-s", "read-only"]
@@ -74,7 +75,12 @@ _versions = {}
 def cli_version(cli):
     if cli not in _versions:
         exe = CLAUDE if cli == "claude" else CODEX
-        _versions[cli] = subprocess.run([exe, "--version"], capture_output=True, text=True).stdout.strip().split()[-1 if cli == "codex" else 0]
+        if cli == "codex":
+            with isolated_codex_env() as env:
+                version = subprocess.run([exe, "--version"], env=env, capture_output=True, text=True).stdout
+        else:
+            version = subprocess.run([exe, "--version"], capture_output=True, text=True).stdout
+        _versions[cli] = version.strip().split()[-1 if cli == "codex" else 0]
     return _versions[cli]
 
 
@@ -86,8 +92,10 @@ def prompt_for(pid):
 def key_for(config, pid, rep, prompt):
     cli, mid, eff = CONFIGS[config]
     flags = CLAUDE_FLAGS if cli == "claude" else codex_flags(config, portable=True)
-    blob = json.dumps({"config": config, "model": mid, "effort": eff, "cli": cli, "cli_version": cli_version(cli),
-                       "flags": flags, "prompt": prompt, "problem": pid, "repeat": rep}, sort_keys=True)
+    identity = {"config": config, "model": mid, "effort": eff, "cli": cli, "cli_version": cli_version(cli),
+                "flags": flags, "prompt": prompt, "problem": pid, "repeat": rep}
+    if cli == "codex": identity["codex_home"] = "isolated"
+    blob = json.dumps(identity, sort_keys=True)
     return hashlib.sha256(blob.encode()).hexdigest()
 
 
@@ -180,7 +188,9 @@ def parse_codex(stdout):
 
 def call_codex(mid, eff, prompt, cwd, flags=CODEX_FLAGS):
     cmd = [CODEX, "exec", "-m", mid, "-c", f"model_reasoning_effort={eff}"] + flags + ["-C", cwd, prompt]
-    t = time.monotonic(); r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=1200)
+    t = time.monotonic()
+    with isolated_codex_env() as env:
+        r = subprocess.run(cmd, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=1200)
     wall = time.monotonic() - t
     p = parse_codex(r.stdout)
     p.update(wall_s=wall, is_error=bool(p["error"]) or r.returncode != 0, cost_usd=None, cost_kind="proxy (list price x tokens)")
@@ -210,6 +220,7 @@ def one(config, pid, rep, phase, lanes):
                  cli_version=cli_version(cli), model=mid, effort=eff, problem=pid, repeat=rep, lanes=lanes,
                  prompt_sha=hashlib.sha256(prompt.encode()).hexdigest()[:12], **res)
     entry["retry_count"] = (prior.get("retry_count", 0) + 1) if prior else 0
+    if cli == "codex": entry["codex_home"] = "isolated"
     if prior: entry["previous_attempt"] = prior
     if stop_message(entry): entry["quota_error"] = True
     os.makedirs(CALLS, exist_ok=True); os.makedirs(RAW, exist_ok=True)

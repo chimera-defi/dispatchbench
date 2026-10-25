@@ -1,6 +1,8 @@
 """One run: python3 bench.py <config> <problem> <round> [--tag pilot|main]. Appends one row to results.jsonl."""
 import json, re, subprocess, sys, time, os, datetime
 D = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(D)))
+from bench.codex_env import isolated_codex_env
 CLAUDE = os.environ.get("CLAUDE_BIN", "claude")
 CODEX = os.environ.get("CODEX_BIN", "codex")
 VERS = {"claude": "2.1.308", "claude-agent": "2.1.308", "codex": "0.163.0", "codex-lean": "0.163.0", "codex-bare": "0.163.0"}
@@ -57,9 +59,12 @@ def run_claude(mid, eff, p, agent=False):
 def run_codex(mid, eff, p, tag, lean=False, tier=None, bare=False):
     last = f"{D}/runs/{tag}.last.txt"
     cmd = [CODEX, "exec", "-m", mid, "-c", f"model_reasoning_effort={eff}", "--json", "--ephemeral",
-           "--skip-git-repo-check", "-s", "read-only", "-C", f"{D}/sandbox", "-o", last] + (["--ignore-user-config"] if lean else []) + (["-c", f"service_tier={tier}"] if tier else []) + (BARE + ["-c", "service_tier=priority"] if bare else []) + [p]
+           "--skip-git-repo-check", "-s", "read-only", "-C", f"{D}/sandbox", "-o", last, "--ignore-user-config"] + (["-c", f"service_tier={tier}"] if tier else []) + (BARE + ["-c", "service_tier=priority"] if bare else []) + [p]
     if os.path.exists(last): os.remove(last)
-    t = time.monotonic(); r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=900); wall = time.monotonic() - t
+    t = time.monotonic()
+    with isolated_codex_env() as env:
+        r = subprocess.run(cmd, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=900)
+    wall = time.monotonic() - t
     open(f"{D}/runs/{tag}.jsonl", "w").write(r.stdout)
     u = {}; tools = 0; err = None
     for line in r.stdout.splitlines():

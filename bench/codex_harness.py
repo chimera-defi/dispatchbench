@@ -405,6 +405,7 @@ def key_for(config, pid, rep, prompt, version, bwrap_version):
     blob = dict(config=config, model=CONFIGS[config][0], effort=CONFIGS[config][1],
                 cli_version=version, bwrap_version=bwrap_version, problem=pid,
                 repeat=rep, prompt_flags_sha=prompt_flags_sha)
+    if cli_for(config) == "codex": blob["codex_home"] = "isolated"
     return digest(json.dumps(blob, sort_keys=True))
 
 
