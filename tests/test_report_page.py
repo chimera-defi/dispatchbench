@@ -46,6 +46,8 @@ def test_reader_set_labels_and_complete_notation_legend():
 
     output = report.render()[2]
     assert "we can’t test that" in output and "SemiAnalysis" in output
+    res = output[output.find('id="results"'):output.find('id="method"')]
+    assert "<td>all</td>" not in res and "<td>–</td>" not in res and "<td>$0</td>" in res and "<td>$0.0028</td><td>$0.0028</td>" in res
     reader = Reader()
     reader.feed(output)
     assert not re.search(r"rescue[ -]set", "".join(reader.text + reader.titles), re.I)

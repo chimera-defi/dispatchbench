@@ -609,12 +609,12 @@ def verdict(c, v, need, E, arms=None):
 HARD = list(NAME.items())
 
 
-def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, rate, claude_only=False, key="", set_name=""):
+def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, rate, key="", set_name=""):
     r = rate; cls = "good" if r >= 0.95 else "warn" if r >= MIN_PASS else "bad"
     attr = f' title="{esc(derived)}"' if derived else ""
     suffix = f'<span class="muted"> · {esc(set_name)}</span>' if set_name else ""
     return (f'<tr{attr}><td><span class="dot" style="background:{col}"></span>{esc(name)}{suffix}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
-            f'<td>{"~" if proxy else ""}{dataset.usd(usd)}</td><td>{"all" if claude_only else dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell" title="{esc(key)}">{verdict}</td></tr>')
+            f'<td>{"~" if proxy else ""}{dataset.usd(usd)}</td><td>{dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell" title="{esc(key)}">{verdict}</td></tr>')
 
 
 CODEX = lambda c: any(x in c for x in ("luna", "sol", "astra"))
@@ -625,15 +625,15 @@ def short_table(s, need):
     set. Passed reads "95% (57/60)" so it sorts by rate. Hard-set verdicts come from the numbers: never failed, the cheapest of
     those, or how many attempts missed."""
     E = every(s); a = rescue_arms(s)
-    top = [(c, row(DISP(c), FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], None,
+    top = [(c, row(DISP(c), FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], 0.0 if CODEX(c) else E[c]["usd_per_pass"],
                E[c]["latency_s"]["median"], verdict(c, E[c], need, E, a),
-               E[c]["cost_kind"] == "proxy", rate=E[c]["pass_at_1"], claude_only=not CODEX(c), key=s["facts"]["verdict_key"],
+               E[c]["cost_kind"] == "proxy", rate=E[c]["pass_at_1"], key=s["facts"]["verdict_key"],
                set_name=configs.set_label("main ladder") if configs.low_context(c) else "")) for c in ORDER]
     clean = [c for c, _ in HARD if a[c]["passes"] == a[c]["n"]]; need(clean, "some rescue-set row never failed")
     hv = lambda c: "0 misses" if c in clean else f"missed {a[c]['misses']}"
     duplicates = set(configs.PLAIN_PIPELINE_DUPLICATES)
-    hard = [(c, row(SHORT(name), "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], None if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
-                a[c]["median_s"], hv(c), CODEX(c), a[c].get("derived_note", ""), rate=a[c]["pass_rate"], claude_only=not CODEX(c), key=s["facts"]["verdict_key"],
+    hard = [(c, row(SHORT(name), "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], 0.0 if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
+                a[c]["median_s"], hv(c), CODEX(c), a[c].get("derived_note", ""), rate=a[c]["pass_rate"], key=s["facts"]["verdict_key"],
                 set_name=configs.set_label("rescue set") if configs.low_context(c, "rescue") else "")) for c, name in HARD if c not in duplicates]
     problems = sorted(s["problems"]); rungs = [v["rung"] for v in s["problems"].values()]
     def group(label, rows, source):
