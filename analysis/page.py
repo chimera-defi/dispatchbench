@@ -442,10 +442,6 @@ def rescue_arms(ds=None):
     return (ds or dataset.read())["rescue"]
 
 
-def hard_pts(arms=None):
-    return ladder_repairs(False, "pass", arms)
-
-
 def hard_pass_cost(arms=None):
     return pass_cost({"rescue": arms or rescue_arms()}, free=False, problem_set="rescue")
 
@@ -478,11 +474,6 @@ def grid(s):
             out.append(f'<div class="{cls}" title="{esc(DISP(c))} on {esc(plabel(p, rung))}: {k} of {n} passed">{k}/{n}</div>')
     out.append("</div>")
     return "".join(out)
-
-
-def scroll_chart(body, width):
-    return (f'<div class="svgscroll" style="--natural-width:{width}px" tabindex="0" role="region" aria-label="Scrollable chart">{body}</div>'
-            '<p class="scroll-hint">Scroll sideways on narrow screens.</p>')
 
 
 def floor(s):

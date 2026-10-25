@@ -275,7 +275,7 @@ def test_every_toc_target_has_a_direct_toggle_heading():
     template = (ROOT / "docs/page.tmpl.md").read_text()
     toc = re.search(r'<nav class="toc"[^>]*>(.*?)</nav>', template, re.S)[1]
     targets = re.findall(r'<a href="#([^\"]+)">', toc)
-    assert len(targets) == 13
+    assert len(targets) == 14
     for target in targets:
         assert re.search(r'<section\b[^>]*\bid="' + target + r'"[^>]*>\s*<h2\b', template)
 
@@ -313,7 +313,7 @@ def test_fairness_qa_renders_counts_and_runtime_from_appendix():
             f"below our {facts['hb_bar_points']}-point bias bar.</li>") in fair
     assert f"range is {100 * lo:.0f} to {100 * hi:.0f} points, so a larger bias is possible." in fair
     wrong = [sum(r['outcome'] == 'wrong' for r in rows if (r['harness'], r['config']) == (h, 'luna-low')) for h in ('claude-one-shot', 'codex-tool-loop')]
-    assert f"wrong answers fell from {wrong[0]} to {wrong[1]}" in fair
+    assert f"wrong outputs from {wrong[0]} to {wrong[1]}" in fair
 
 
 

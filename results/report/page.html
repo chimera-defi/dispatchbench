@@ -50,7 +50,7 @@ svg .axis{fill:var(--muted);font-size:12px}
 svg .lbl{font-size:13px;font-weight:600;paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round}
 svg .lbl.on{fill:var(--frontier)}
 svg .better{font:700 14px var(--body);fill:var(--accent)}
-ol.recs,ul.tight,ol.tight{margin:0;padding-left:22px;display:grid;gap:4px;max-width:72ch}
+ul.tight,ol.tight{margin:0;padding-left:22px;display:grid;gap:4px;max-width:72ch}
 .small{font-size:14px}
 .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
 details.legend{display:block}
@@ -145,14 +145,6 @@ tr.grp th::after{content:none}
 .key-group summary{cursor:pointer;padding:6px 8px;font-size:13px;font-weight:600}
 .key-group summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .ckey{list-style:none;margin:0;padding:2px;display:grid;gap:2px;font-size:12px}
-.free-strip{list-style:decimal;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:4px;counter-reset:free-rank}
-.free-strip li{counter-increment:free-rank;display:grid;grid-template-columns:22px 18px minmax(0,1fr);grid-template-areas:"r i n" ". . v";column-gap:4px;padding:4px;border-radius:4px;font-size:12px;min-width:0;cursor:pointer}
-.free-strip li::before{content:counter(free-rank) ".";grid-area:r;color:var(--muted);font:11px var(--mono);padding-top:3px}
-.chart .free-strip svg{grid-area:i;width:18px;height:18px;margin:0}
-.free-strip .n{grid-area:n;overflow-wrap:anywhere}
-.free-strip .v{grid-area:v;color:var(--muted);font:11px var(--mono);overflow-wrap:anywhere}
-.free-strip li:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-.free-strip li.hi{background:var(--bg)}
 .ckey li{display:grid;grid-template-columns:20px 1fr;grid-template-areas:"i n" ". v";column-gap:6px;padding:3px 6px;border-radius:4px;border:1px solid transparent;cursor:default;min-width:0}
 .ckey li:focus-visible,.cplot .pt:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .chart .ckey svg{grid-area:i;width:18px;height:18px;max-width:none;margin:2px 0 0}
@@ -162,7 +154,7 @@ tr.grp th::after{content:none}
 .ckey li.on .n{color:var(--frontier)}
 .cplot .pt{cursor:pointer;outline:none}
 .cwrap.hov .dim{opacity:.18}
-.cwrap .pt,.cwrap .ckey li,.cwrap .free-strip li{transition:opacity .12s}
+.cwrap .pt,.cwrap .ckey li{transition:opacity .12s}
 .cwrap .ckey li.hi{background:var(--bg);border-color:var(--muted)}
 .cwrap .ckey li.hi.on{border-color:var(--frontier)}
 .cplot .pt.hi{filter:drop-shadow(0 0 3px var(--muted))}
@@ -198,8 +190,6 @@ tr.grp th::after{content:none}
 .chart.floor .svgscroll .lbl{font-size:12px}
 .chart.floor .scroll-hint{display:none}
 
-.inventory td{vertical-align:top}
-.inventory-metric{white-space:nowrap}
 @media (max-width:640px){
  .chart.floor .svgscroll svg{width:var(--natural-width);min-width:var(--natural-width);max-width:none}
  .chart.floor .scroll-hint{display:block}
@@ -354,7 +344,7 @@ svg .rk-n{font:700 13px var(--body);fill:var(--panel)}
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
-<p><b>Four configs passed every test we ran: haiku-high, sonnet-medium, sol61-high and astra-medium. haiku-high is the cheapest, at $0.0028 per pass.</b></p>
+<p><b>Four configs passed every try in every set: haiku-high, sonnet-medium, sol61-high and astra-medium. haiku-high is the cheapest, at $0.0028 per pass.</b></p>
 <p class="small">Against haiku-high, sol61-high takes 1.9× the time and <abbr class="notation-use" data-notation="~" title="Codex cost estimated from tokens and list prices.">~</abbr>7× the $ per pass. <abbr class="notation-use" data-notation="⚡" title="Fast mode: 2× list price at the same model and effort.">⚡</abbr> makes that 1.2× the time at ~13× the $.</p>
 <details class="small"><summary>Picks and model names</summary>
 <div class="tablewrap"><table class="winner-table"><caption>Numbers: the 12-problem main ladder, 60 tries per config. Time = median seconds. ~ = estimated from tokens; Claude costs are measured.</caption><thead><tr><th scope="col">Use case</th><th scope="col">Pick</th><th scope="col">Pass</th><th scope="col">$ per pass</th><th scope="col">Time</th><th scope="col">Why</th></tr></thead><tbody><tr><td data-label="Use case"><span>1. Default</span></td><td data-label="Pick"><span>sol61-high ⚡</span></td><td data-label="Pass"><span>60/60</span></td><td data-label="$ per pass"><span>~$0.036</span></td><td data-label="Time"><span>17.4 s</span></td><td data-label="Why"><span>No misses. Free on Codex quota. ⚡ saves 10 s. astra ⚡ is faster but uses 4× the quota</span></td></tr><tr><td data-label="Use case"><span>2. Budget</span></td><td data-label="Pick"><span>haiku-high</span></td><td data-label="Pass"><span>60/60</span></td><td data-label="$ per pass"><span>$0.0028</span></td><td data-label="Time"><span>14.7 s</span></td><td data-label="Why"><span>Cheapest with no misses. haiku-low costs less but misses 3 of 60</span></td></tr><tr><td data-label="Use case"><span>3. Speed</span></td><td data-label="Pick"><span>sonnet-medium</span></td><td data-label="Pass"><span>60/60</span></td><td data-label="$ per pass"><span>$0.012</span></td><td data-label="Time"><span>10.1 s</span></td><td data-label="Why"><span>No misses. 4.6 s faster than haiku-high.</span></td></tr></tbody></table></div><ul class="tight small"><li>⚡ = fast mode: same answers, about 2× list price, faster.</li></ul><p class="small">Caveat: sonnet-medium's code read worst in a blind review (see Notes).</p>
@@ -409,7 +399,7 @@ svg .rk-n{font:700 13px var(--body);fill:var(--panel)}
 <li>Each config ran 60 calls. † = exploratory, added after the main run.</li>
 <li>pass@1 is the fraction of individual attempts passing all hidden tests.</li>
 <li>p90 = time within which 90% of calls finished.</li>
-<li>≥N% (all passed) = lower 95% bound when nothing failed.</li>
+<li>≥N% (all passed) = lower 95% bound over the problems, when nothing failed.</li>
 </ul>
 <div class="chart floor"><h3>⚡ Codex fast mode: seconds and $ per pass</h3><div class="compact-bars"><svg class='bar-phone' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 548' width='360' height='548' font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, sans-serif' font-size='12'><rect width='360' height='548' fill='var(--panel,#ffffff)'/><text x='8.0' y='20.0' font-size='13' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='600'>Normal and fast mode</text><text x='8.0' y='55.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>ladder · sol61-high</text><rect x='129.8' y='40' width='115.7' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='129.8' y='82.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>27.4s · $0.019</text><text x='8.0' y='117.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>ladder · sol61-high</text><text x='8.0' y='131.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>⚡</text><rect x='129.8' y='102' width='73.3' height='22' fill='var(--panel,#ffffff)' stroke='var(--codex)' stroke-width='2'/><rect x='129.8' y='102' width='73.3' height='22' fill='var(--codex)' fill-opacity='.3'/><text x='129.8' y='144.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>17.4s · $0.036</text><text x='8.0' y='179.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>ladder ·</text><text x='8.0' y='193.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>astra-medium</text><rect x='129.8' y='164' width='88.2' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='129.8' y='206.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>20.9s · $0.075</text><text x='8.0' y='241.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>ladder ·</text><text x='8.0' y='255.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>astra-medium ⚡</text><rect x='129.8' y='226' width='41.8' height='22' fill='var(--panel,#ffffff)' stroke='var(--codex)' stroke-width='2'/><rect x='129.8' y='226' width='41.8' height='22' fill='var(--codex)' fill-opacity='.3'/><text x='129.8' y='268.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>9.9s · $0.15</text><text x='8.0' y='303.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>L7 · sol61-high</text><rect x='129.8' y='288' width='222.2' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='129.8' y='330.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>52.7s · $0.024</text><text x='8.0' y='365.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>L7 · sol61-high ⚡</text><rect x='129.8' y='350' width='124.2' height='22' fill='var(--panel,#ffffff)' stroke='var(--codex)' stroke-width='2'/><rect x='129.8' y='350' width='124.2' height='22' fill='var(--codex)' fill-opacity='.3'/><text x='129.8' y='392.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>29.4s · $0.044</text><text x='8.0' y='427.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>L7 · astra-medium</text><rect x='129.8' y='412' width='129.2' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='129.8' y='454.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>30.6s · $0.083</text><text x='8.0' y='489.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>L7 · astra-medium ⚡</text><rect x='129.8' y='474' width='65.1' height='22' fill='var(--panel,#ffffff)' stroke='var(--codex)' stroke-width='2'/><rect x='129.8' y='474' width='65.1' height='22' fill='var(--codex)' fill-opacity='.3'/><text x='129.8' y='516.0' font-size='11' text-anchor='start' style='fill:var(--fg,#1d2321)' font-weight='normal'>15.4s · $0.16</text></svg>
 <div class="bar-wide" style="--bar-value-width:14ch"><b class="bar-title">Normal and fast mode</b><div class="bar-row"><span class="bar-name">ladder · sol61-high</span><span class="bar-track"><span class="bar-fill" style="--bar-color:var(--codex);--bar-width:52.069%"></span></span><span class="bar-value">27.4s · $0.019</span></div><div class="bar-row"><span class="bar-name">ladder · sol61-high ⚡</span><span class="bar-track"><span class="bar-fill bar-hollow" style="--bar-color:var(--codex);--bar-width:33.011%"></span></span><span class="bar-value">17.4s · $0.036</span></div><div class="bar-row"><span class="bar-name">ladder · astra-medium</span><span class="bar-track"><span class="bar-fill" style="--bar-color:var(--codex);--bar-width:39.711%"></span></span><span class="bar-value">20.9s · $0.075</span></div><div class="bar-row"><span class="bar-name">ladder · astra-medium ⚡</span><span class="bar-track"><span class="bar-fill bar-hollow" style="--bar-color:var(--codex);--bar-width:18.793%"></span></span><span class="bar-value">9.9s · $0.15</span></div><div class="bar-row"><span class="bar-name">L7 · sol61-high</span><span class="bar-track"><span class="bar-fill" style="--bar-color:var(--codex);--bar-width:100.000%"></span></span><span class="bar-value">52.7s · $0.024</span></div><div class="bar-row"><span class="bar-name">L7 · sol61-high ⚡</span><span class="bar-track"><span class="bar-fill bar-hollow" style="--bar-color:var(--codex);--bar-width:55.904%"></span></span><span class="bar-value">29.4s · $0.044</span></div><div class="bar-row"><span class="bar-name">L7 · astra-medium</span><span class="bar-track"><span class="bar-fill" style="--bar-color:var(--codex);--bar-width:58.144%"></span></span><span class="bar-value">30.6s · $0.083</span></div><div class="bar-row"><span class="bar-name">L7 · astra-medium ⚡</span><span class="bar-track"><span class="bar-fill bar-hollow" style="--bar-color:var(--codex);--bar-width:29.309%"></span></span><span class="bar-value">15.4s · $0.16</span></div></div></div></div>
@@ -520,12 +510,12 @@ svg .rk-n{font:700 13px var(--body);fill:var(--panel)}
 <li>sol61-high was skipped: it already passed every try, so a better bench cannot raise it.</li>
 <li>That CLI loop runs code and retries.</li>
 <li>luna-low went 36→47. haiku-low went 57→60.</li>
-<li>Why luna-low gained: wrong answers fell from 14 to 6 once it could run code.</li>
+<li>Running code cut luna-low's wrong outputs from 14 to 6. Crashes fell from 10 to 7.</li>
 <li>luna-low cost 4× more and took 3× longer there. haiku-low cost 1.1× as much there, in about the same time. Overall, Codex's bench cost 1.8× as much.</li>
 <li>Running code, not who built the bench, may explain the gain.</li>
 <li>The gap moved 13 points, below our 15-point bias bar.</li>
 <li>The range is 3 to 23 points, so a larger bias is possible.</li>
-<li>Two more luna-low variants are listed under Everything we tried. luna-low-noshell-B1 removes shell context and asks for edge cases first. luna-low-noshell-B2 also asks for a detailed reasoning summary. B1 passed more often than plain luna-low. B2 passed less often.</li>
+<li>Two more luna-low variants are listed under Everything we tried. luna-low-noshell-B1 removes shell context and asks for edge cases first. luna-low-noshell-B2 also asks for a detailed reasoning summary. On the luna-miss set, B1 passed 25/35. Plain luna-low passed 21; B2 passed 19.</li>
 </ul>
 <div class="tablewrap"><table class="sortable"><thead><tr><th>model</th><th>bench</th><th>passed</th><th>$ total</th><th>median s</th></tr></thead><tbody><tr><td>luna-low</td><td>Claude's bench</td><td>36/60</td><td><abbr class="notation-use" data-notation="~" title="Codex cost estimated from tokens and list prices.">~</abbr>$0.047</td><td>7</td></tr><tr><td>luna-low</td><td>Codex's bench (Codex CLI)</td><td>47/60</td><td>~$0.19</td><td>21</td></tr><tr><td>haiku-low</td><td>Claude's bench</td><td>57/60</td><td>$0.14</td><td>14</td></tr><tr><td>haiku-low</td><td>Codex's bench (Claude Code)</td><td>60/60</td><td>$0.16</td><td>14</td></tr></tbody></table></div>
 </details>
@@ -543,7 +533,7 @@ svg .rk-n{font:700 13px var(--body);fill:var(--panel)}
 </section>
 <section class="verdict conclusion" id="conclusion">
 <h2 class="eyebrow"><span class="num"></span>✅ CONCLUSION</h2>
-<b>Four configs passed every test we ran: haiku-high, sonnet-medium, sol61-high and astra-medium. haiku-high is the cheapest, at $0.0028 per pass.</b>
+<b>Four configs passed every try in every set: haiku-high, sonnet-medium, sol61-high and astra-medium. haiku-high is the cheapest, at $0.0028 per pass.</b>
 <ol class="tight">
 <li>With Codex quota left, send each task to sol61-high <abbr class="notation-use" data-notation="⚡" title="Fast mode: 2× list price at the same model and effort.">⚡</abbr>.</li>
 <li>Then run the worked examples. If one fails, haiku-low fixes it. Tested with plain sol61-high: 35/35 on the luna-miss set. Haiku never ran.</li>
@@ -553,7 +543,7 @@ svg .rk-n{font:700 13px var(--body);fill:var(--panel)}
 <li>If speed matters most, use sonnet-medium. It takes 10.1 s to haiku-high's 14.7 s.</li>
 <li>sonnet-medium costs 4.4× as much per pass.</li>
 <li>Don't use luna-low or luna-medium alone: they miss about 1 answer in 4.</li>
-<li>Codex's own CLI helped luna-low a little more than Claude Code helped haiku-low. No pick changes.</li>
+<li>Codex CLI lifted luna-low by 11 passes; Claude Code lifted haiku-low by 3. No pick changes.</li>
 </ul>
 </section>
 <section id="limits">
@@ -565,7 +555,7 @@ svg .rk-n{font:700 13px var(--body);fill:var(--panel)}
 <li>Most have a LeetCode analogue, so models may have seen similar code.</li>
 <li>The problems ship with this repo, so later models may train on them.</li>
 <li>Intervals resample whole problems, since tries on one problem are related.</li>
-<li>15/15 on L7 only shows a pass rate of at least 82% (95% confidence).</li>
+<li>15/15 on L7's 3 problems only shows a pass rate of at least 37%.</li>
 <li>Every repo task passed, so they rank cost and speed, not skill.</li>
 <li>Paired gaps of 3 points or less did not separate; 18-point gaps did.</li>
 <li><code>PLAN.md</code> was committed before the main run; a same-day pilot came first.</li>
@@ -705,7 +695,7 @@ var rt,lw=0,bx=document.getElementById("xplot");function re(){var w=bx.clientWid
 </ul>
 </details>
 <details><summary>⚡ Codex fast mode and xhigh</summary>
-<p class="small">Fast mode: same passes, 37% faster per call. Median times: 18.9 s vs 30.1 s. Price: 2× list. xhigh effort (above high): same passes, 1.5× the cost, slower.</p>
+<p class="small">On the luna-miss set, fast mode kept every pass and was 37% faster. Median times: 18.9 s vs 30.1 s. Price: 2× list. xhigh effort (above high): same passes, 1.5× the cost, slower.</p>
 <div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>median s</th><th>median output tokens</th><th>$ per pass (proxy)</th><th>median LOC</th><th>median max complexity</th><th>lint per solution</th><th>time vs ref</th></tr></thead><tbody><tr><td>sol61-high, default tier (separate control run, repeats 6-10)</td><td>35/35</td><td>30.1</td><td>1,092</td><td>$0.0212</td><td>63</td><td>22</td><td>0.00</td><td>0.73</td></tr><tr><td>sol61-high ⚡</td><td>35/35</td><td>18.9</td><td>1,063</td><td>$0.0435</td><td>62</td><td>22</td><td>0.09</td><td>0.71</td></tr><tr><td>sol61-xhigh, default tier</td><td>35/35</td><td>44.3</td><td>1,662</td><td>$0.0326</td><td>64</td><td>23</td><td>0.00</td><td>0.72</td></tr></tbody></table></div>
 <p class="small">The default-tier control is a separate 35-try run. Its 30.1 s differs from the Results row.</p>
 <p class="small">The blind read covered 20 solutions. A code-only reviewer would refuse to merge 3, all sonnet-medium. It scored 4.0/10. Other configs scored 6.75–7.5 with none blocked.</p>
@@ -792,7 +782,7 @@ var rt,lw=0,bx=document.getElementById("xplot");function re(){var w=bx.clientWid
 </ul>
 </details>
 <details><summary>Everything we tried</summary>
-<ul class="tight small"><li>Every config with rows in results/, grouped by kind.</li><li>Each row combines that config's runs within its category.</li><li>Codex dollars are list-price estimates. Dash means the full cost is unavailable.</li><li>Hover over a name for its source file.</li><li>Pilot repo pipelines include builder and review time and cost.</li></ul>
+<ul class="tight small"><li>Every config with rows in results/, grouped by kind.</li><li>Pass pools all of a config's runs, so it can exceed the Results counts.</li><li>Codex dollars are list-price estimates. Dash means the full cost is unavailable.</li><li>Hover over a name for its source file.</li><li>Pilot repo pipelines include builder and review time and cost.</li></ul>
 <details><summary>main ladder: 6 configs, $2.72 spent</summary><div class="tablewrap"><table class="sortable"><thead><tr><th>name</th><th>what it was</th><th>pass</th><th>$ per pass</th><th>median s</th><th>spend</th><th>where it appears</th></tr></thead><tbody>
 <tr><td title="results/2026-10-22b-function.jsonl">haiku-low</td><td>Claude Haiku, low effort, tools off</td><td>79/85</td><td>$0.0013</td><td>11.3</td><td>$0.10</td><td>charts and tables</td></tr>
 <tr><td title="results/2026-10-22b-function.jsonl">haiku-medium</td><td>Claude Haiku, medium effort</td><td>72/75</td><td>$0.0018</td><td>14.8</td><td>$0.13</td><td>charts and tables</td></tr>

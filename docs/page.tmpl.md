@@ -60,7 +60,7 @@
 <li>Each config ran {{n_calls}} calls. † = exploratory, added after the main run.</li>
 <li>pass@1 is the fraction of individual attempts passing all hidden tests.</li>
 <li>p90 = time within which {{p90_percent}} of calls finished.</li>
-<li>≥N% (all passed) = lower {{ci_level}} bound when nothing failed.</li>
+<li>≥N% (all passed) = lower {{ci_level}} bound over the problems, when nothing failed.</li>
 </ul>
 <div class="chart floor"><h3>⚡ Codex fast mode: seconds and $ per pass</h3>{{w_fast}}</div>
 <ul class="tight small">
@@ -169,7 +169,7 @@
 <li>sol61-high was skipped: it already passed every try, so a better bench cannot raise it.</li>
 <li>That CLI loop runs code and retries.</li>
 <li>luna-low went {{hb_luna_low_change}}. haiku-low went {{hb_haiku_low_change}}.</li>
-<li>Why luna-low gained: wrong answers fell from {{hb_luna_wrong_one}} to {{hb_luna_wrong_agent}} once it could run code.</li>
+<li>Running code cut luna-low's wrong outputs from {{hb_luna_wrong_one}} to {{hb_luna_wrong_agent}}. Crashes fell from {{hb_luna_crash_one}} to {{hb_luna_crash_agent}}.</li>
 <li>{{hb_luna_cost}} {{hb_haiku_cost}} Overall, Codex's bench cost {{hb_total_x}} as much.</li>
 <li>Running code, not who built the bench, may explain the gain.</li>
 <li>The gap moved {{hb_diff_points}} points, below our {{hb_bar_points}}-point bias bar.</li>
@@ -214,7 +214,7 @@
 <li>Most have a LeetCode analogue, so models may have seen similar code.</li>
 <li>The problems ship with this repo, so later models may train on them.</li>
 <li>Intervals resample whole problems, since tries on one problem are related.</li>
-<li>{{l7_bound}} on L7 only shows a pass rate of at least {{l7_lo}} ({{l7_conf}} confidence).</li>
+<li>{{l7_bound}} on L7's {{n_l7}} problems only shows a pass rate of at least {{l7_lo}}.</li>
 <li>Every repo task passed, so they rank cost and speed, not skill.</li>
 <li>Paired gaps of {{nosep_gap}} points or less did not separate; {{sep_gap}}-point gaps did.</li>
 <li><code>PLAN.md</code> was committed before the main run; a same-day pilot came first.</li>
@@ -269,7 +269,7 @@
 </ul>
 </details>
 <details><summary>⚡ Codex fast mode and xhigh</summary>
-<p class="small">Fast mode: same passes, {{fm_faster}} faster per call. Median times: {{fm_fast_s}} s vs {{fm_ctrl_s}} s. Price: {{fm_mult}} list. xhigh effort (above high): same passes, {{fm_x_cost}} the cost, slower.</p>
+<p class="small">On the {{set_label}}, fast mode kept every pass and was {{fm_faster}} faster. Median times: {{fm_fast_s}} s vs {{fm_ctrl_s}} s. Price: {{fm_mult}} list. xhigh effort (above high): same passes, {{fm_x_cost}} the cost, slower.</p>
 {{table:fastmode}}
 <p class="small">The default-tier control is a separate {{fm_n}}-try run. Its {{fm_ctrl_s}} s differs from the Results row.</p>
 <p class="small">The blind read covered {{bl_n}} solutions. A code-only reviewer would refuse to merge {{bl_blocks}}, all sonnet-medium. It scored {{bl_sonnet_score}}. Other configs scored {{bl_other_scores}} with none blocked.</p>

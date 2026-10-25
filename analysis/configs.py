@@ -190,7 +190,7 @@ def section(rest, ds, root, chart_bodies=None):
         by.setdefault(r["category"], []).append(r)
     head = "".join(f"<th>{h}</th>" for h in ("name", "what it was", "pass", "$ per pass", "median s", "spend", "where it appears"))
     out = ["<details><summary>Everything we tried</summary>", "<ul class=\"tight small\"><li>Every config with rows in results/, grouped by kind.</li>"
-           "<li>Each row combines that config's runs within its category.</li>"
+           "<li>Pass pools all of a config's runs, so it can exceed the Results counts.</li>"
            "<li>Codex dollars are list-price estimates. Dash means the full cost is unavailable.</li>"
            "<li>Hover over a name for its source file.</li><li>Pilot repo pipelines include builder and review time and cost.</li></ul>"]
     for cat in CATEGORIES:
