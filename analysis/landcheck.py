@@ -127,7 +127,8 @@ def page_integrity(base="fast-mode-main"):
     rendered = report.render(used_facts=used)[2]
     built = Path(PAGE).read_text()
     shown = git("show", f"{base}:{USED}")
-    dropped = sorted(set(json.loads(shown)) - used) if shown else []
+    # No list on base (first landing with this guard): say so rather than report a silent zero.
+    dropped = sorted(set(json.loads(shown)) - used) if shown else None
     return dropped, placeholder_cells(built), built == rendered
 
 
@@ -135,6 +136,8 @@ def page_findings(base="fast-mode-main"):
     dropped, cells, current = page_integrity(base)
     allow = json.loads(Path(ALLOW).read_text())
     items = [] if current else ["page differs from current render; rebuild before landcheck"]
+    if dropped is None:  # first landing with this guard: say so rather than report a silent zero
+        print(f"landcheck: dropped-facts check SKIPPED: {base} has no {USED}"); dropped = []
     for kind, found in (("dropped_facts", dropped), ("placeholder_cells", cells)):
         reasons = allow.get(kind, {})
         items += [f"{kind}: {key}" for key in found if not isinstance(reasons.get(key), str) or not reasons[key].strip()]

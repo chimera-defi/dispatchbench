@@ -197,7 +197,7 @@ def section(rest, ds, root, chart_bodies=None):
         es = by.pop(cat, [])
         if not es: continue
         label = "Low context (prompt or tool text trimmed)" if cat == "low context" else set_label(cat)
-        out.append(f"<details><summary>{html.escape(label)}: {ds['categories'][cat]['n_configs']} configs, {money(ds['categories'][cat]['spend'])} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
+        out.append(f"<details><summary>{html.escape(label)}: {ds['categories'][cat]['n_configs']} configs, {'~' if any(e['cost_kind'] == 'proxy' for e in es) else ''}{money(ds['categories'][cat]['spend'])} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
         for e in es:
             spend = None if e["unknown_usd"] else e["spend"]
             proxy = "~" if e["cost_kind"] == "proxy" else ""
