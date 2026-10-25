@@ -715,8 +715,9 @@ def _facts(s, arms):
          "both ⚡ variants pass every main and L7 try")
     need(every['haiku-high']['usd_per_pass'] < min(every[c]['usd_per_pass'] for c in tied + ('sol61-high-fast', 'astra-medium-fast') if c != 'haiku-high'),
          "haiku-high is the cheapest of these")
-    F['winner_line'] = (f"sol61-high and astra-medium (both also ⚡), haiku-high and sonnet-medium passed every try. "
-                        f"haiku-high is cheapest of these at {F['hh_upp']} per pass.")
+    word = {3: "Three", 4: "Four", 5: "Five"}[len(tied)]
+    F['winner_line'] = (f"{word} configs passed every try: haiku-high, sonnet-medium, sol61-high and astra-medium. "
+                        f"haiku-high is the cheapest, at {F['hh_upp']} per pass.")
     nl7 = hard['sonnet-medium']['n']
     need(all(v['passes'] == v['n'] == nl7 for c, v in hard.items() if c in tied), "every tied config is perfect on the same number of L7 tries")
     F['l7_bound'] = f"{nl7}/{nl7}"; CONF = 0.95; F['l7_conf'] = f"{CONF:.0%}"; F['l7_lo'] = f"{100 * (1 - CONF) ** (1 / nl7):.0f}%"
@@ -1025,6 +1026,20 @@ def _equivalents(ds):
     near = max((q for q in codex if q["usd_per_pass"] <= 1.5 * lo["usd_per_pass"]), key=lambda q: q["pass_rate"])
     need(near["pass_rate"] < lo["pass_rate"], f"{near['config']} passes less often than {lo['config']}")
     F["equiv_near"] = f'At {lo["display"]}\'s price, the best Codex is {near["display"]}: {pct(near)} to {pct(lo)}.'
+    # The other way: every Codex config, matched to the cheapest Claude config that passes at least as often.
+    back = []
+    for q in sorted(codex, key=lambda q: (q["pass_rate"], q["usd_per_pass"])):
+        m = min((r for r in claude if r["pass_rate"] >= q["pass_rate"]), key=lambda r: r["usd_per_pass"])
+        back.append((q, m))
+    ds["tables"]["equiv_back"] = md_table(["Codex → Claude match", "passed", "$ per pass", "median s"],
+        [[f'{q["display"]} → {m["display"]}', f'{pct(q)} → {pct(m)}', f'~{usd(q["usd_per_pass"])} → {usd(m["usd_per_pass"])}',
+          f'{q["median_s"]:.0f} → {m["median_s"]:.0f}'] for q, m in back])
+    cheaper = [q for q, m in back if m["usd_per_pass"] < q["usd_per_pass"]]
+    dearer = [q for q, m in back if m["usd_per_pass"] >= q["usd_per_pass"]]
+    need(dearer and all(q["display"].startswith("luna-") for q in dearer), "only luna configs undercut their Claude match on price")
+    need(all(m["pass_rate"] > q["pass_rate"] for q, m in back if q in dearer), "and each of those passes less often than its match")
+    F["equiv_back_takeaway"] = (f'Every Codex config has a Claude match too. It is cheaper for {len(cheaper)} of {len(back)}. '
+                                'Only luna costs less, and it misses more.')
 
 
 def build(summary=None):

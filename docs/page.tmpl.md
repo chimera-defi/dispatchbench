@@ -359,9 +359,11 @@
 </section>
 <section id="equiv">
 <h2><span class="num"></span>🔁 Codex vs Claude</h2>
+<p><b>{{equiv_back_takeaway}}</b></p>
+{{table:equiv_back}}
 <p><b>{{equiv_takeaway}}</b></p>
+<details><summary>📝 Claude → Codex table, how we matched</summary>
 {{table:equiv}}
-<details><summary>📝 How we matched</summary>
 <ul class="tight small">
 <li>Match = the cheapest Codex config that passes at least as often.</li>
 <li>{{equiv_fastest}}</li>

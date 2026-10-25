@@ -698,6 +698,13 @@ def test_equiv_rows_pair_a_claude_config_with_a_codex_config_in_the_rendered_pag
     html = (ROOT / "results" / "report" / "page.html").read_text()
     sec = html[html.index('id="equiv"'):]
     assert all(r[0].split(" → ")[1] in sec for r in rows)
+    # The reverse table gives every Codex main-ladder config its own row.
+    back = d["tables"]["equiv_back"]["rows"]
+    codex = {r["display"] for r in d["rows"] if r["family"] == "Codex" and r["source"] == "main" and r["set"] == "main ladder"}
+    assert {r[0].split(" → ")[0] for r in back} == codex
+    assert all(fam[r[0].split(" → ")[1]] == "Claude" for r in back)
+    text = " ".join(re.sub(r"<[^>]+>", "", sec).split())
+    assert all(c in text for c in codex)
 
 
 def test_landcheck_lists_removed_page_text_and_header():

@@ -22436,7 +22436,7 @@
    "⚡ = fast mode: same answers, about 2× list price, faster."
   ],
   "speed_why": "No misses. 4.6 s faster than haiku-high.",
-  "winner_line": "sol61-high and astra-medium (both also ⚡), haiku-high and sonnet-medium passed every try. haiku-high is cheapest of these at $0.0028 per pass.",
+  "winner_line": "Four configs passed every try: haiku-high, sonnet-medium, sol61-high and astra-medium. haiku-high is the cheapest, at $0.0028 per pass.",
   "l7_conf": "95%",
   "l7_lo": "82%",
   "budget_why": "Cheapest with no misses. haiku-low costs less but misses 3 of 60",
@@ -22457,6 +22457,7 @@
   "equiv_takeaway": "Every Claude config has a Codex match. haiku-high and sonnet-medium hit 100%; sol61-high matches them. Each match costs more at list price and runs slower.",
   "equiv_fastest": "Fastest Codex at 100%: astra-medium ⚡, 10 s. It costs $0.15 per pass.",
   "equiv_near": "At haiku-low's price, the best Codex is luna-high: 92% to 95%.",
+  "equiv_back_takeaway": "Every Codex config has a Claude match too. It is cheaper for 8 of 12. Only luna costs less, and it misses more.",
   "hb_subset": "It first replayed 12 of our haiku-low and sol61-medium results. All passed on both.",
   "hb_haiku_cost": "haiku-low cost 1.1× as much there, in about the same time.",
   "hb_total_x": "1.8×",
@@ -23981,6 +23982,88 @@
      "100% → 100%",
      "$0.012 → ~$0.019",
      "10 → 27"
+    ]
+   ]
+  },
+  "equiv_back": {
+   "head": [
+    "Codex → Claude match",
+    "passed",
+    "$ per pass",
+    "median s"
+   ],
+   "rows": [
+    [
+     "luna-low-bare → haiku-low",
+     "73% → 95%",
+     "~$0.00080 → $0.0011",
+     "7 → 10"
+    ],
+    [
+     "luna-low → haiku-low",
+     "77% → 95%",
+     "~$0.00090 → $0.0011",
+     "7 → 10"
+    ],
+    [
+     "luna-medium → haiku-low",
+     "78% → 95%",
+     "~$0.00089 → $0.0011",
+     "8 → 10"
+    ],
+    [
+     "luna56-low → haiku-low",
+     "80% → 95%",
+     "~$0.0022 → $0.0011",
+     "9 → 10"
+    ],
+    [
+     "luna-high → haiku-low",
+     "92% → 95%",
+     "~$0.0010 → $0.0011",
+     "12 → 10"
+    ],
+    [
+     "luna56-high → haiku-low",
+     "93% → 95%",
+     "~$0.0030 → $0.0011",
+     "11 → 10"
+    ],
+    [
+     "sol61-medium → haiku-medium",
+     "97% → 98%",
+     "~$0.015 → $0.0015",
+     "23 → 13"
+    ],
+    [
+     "sol61-high → haiku-high",
+     "100% → 100%",
+     "~$0.019 → $0.0028",
+     "27 → 15"
+    ],
+    [
+     "sol61-high ⚡ → haiku-high",
+     "100% → 100%",
+     "~$0.036 → $0.0028",
+     "17 → 15"
+    ],
+    [
+     "sol56-high → haiku-high",
+     "100% → 100%",
+     "~$0.042 → $0.0028",
+     "14 → 15"
+    ],
+    [
+     "astra-medium → haiku-high",
+     "100% → 100%",
+     "~$0.075 → $0.0028",
+     "21 → 15"
+    ],
+    [
+     "astra-medium ⚡ → haiku-high",
+     "100% → 100%",
+     "~$0.15 → $0.0028",
+     "10 → 15"
     ]
    ]
   },
