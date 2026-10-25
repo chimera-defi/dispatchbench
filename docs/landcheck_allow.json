@@ -50,6 +50,8 @@
   "README text: The grader runs model-written code with CPU and memory limits only, not network or file isolation. Grade new code in a container or VM.": "Removed duplicated grader guidance from the front page; the full report retains the trusted-grader execution boundary.",
   "README text: - `README.md`, `docs/REPORT.md` and `results/report/page.html` are generated. Edit `docs/readme.tmpl.md`, `docs/report.tmpl.md` or `docs/page.tmpl.md`, then run `make report && make audit`.": "Replaced agent-specific generation instructions with the Data layout table naming editable templates and generated outputs.",
   "README text: - Every number in a template is a fact computed in `analysis/report.py`. A bare number fails `make audit` unless `docs/audit_allow.json` lists it.": "Removed agent-facing audit implementation detail from the front page; the reproduce commands still run that audit.",
-  "README text: - `make report` makes no model calls. New runs go through `bench/run.py` (cache-first, with a Claude spend cap).": "Replaced paid-run and cache guidance with explicit offline commands; the runners and their spend controls remain."
+  "README text: - `make report` makes no model calls. New runs go through `bench/run.py` (cache-first, with a Claude spend cap).": "Replaced paid-run and cache guidance with explicit offline commands; the runners and their spend controls remain.",
+  "page text: Nothing is both cheaper and more accurate.": "Both sentences now render as one chart caption under the plot (v42 placement); the loose paragraph squeezed the cost chart into the key column.",
+  "page text: Shaded: beaten by a numbered point.": "Both sentences now render as one chart caption under the plot (v42 placement); the loose paragraph squeezed the cost chart into the key column."
  }
 }

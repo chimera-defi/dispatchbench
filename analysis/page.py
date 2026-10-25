@@ -290,10 +290,9 @@ def ladder_toggle(render, s):
     sets = (f'<div class="set-filter" role="group" aria-label="Problem set">'
             f'<label><input type="radio" name="{set_name}" value="main" checked> {configs.set_label("main ladder", capital=True)}</label>'
             f'<label><input type="radio" name="{set_name}" value="rescue"> {configs.set_label("rescue set", capital=True)} + pipelines</label></div>')
-    pass_note = '<p class="small">Nothing is both cheaper and more accurate.</p>' if render is pass_cost else ""
     return ('<div class="cwrap"><label class="cost-toggle"><input type="checkbox"> Codex is free (subscription quota)</label>'
-            + sets + filters + note + '<div class="cset s-main">' + pass_note + normal + free + frontier_caption(s) + '</div>'
-            + '<div class="cset s-rescue">' + pass_note + rescue_normal + rescue_free + '</div><div class="ctip" hidden></div></div>'), fr
+            + sets + filters + note + '<div class="cset s-main">' + normal + free + frontier_caption(s) + '</div>'
+            + '<div class="cset s-rescue">' + rescue_normal + rescue_free + '</div><div class="ctip" hidden></div></div>'), fr
 
 
 def quota_tip(normal, free, saving):
@@ -335,7 +334,7 @@ def ladder_points(s, free, stat, problem_set):
     return pts
 
 
-PICKS_NOTE = {"pass": "Shaded: beaten by a numbered point.",
+PICKS_NOTE = {"pass": "Nothing is both cheaper and more accurate. Shaded: beaten by a numbered point.",
               "speed": f"Nothing is both faster and cheaper. Shaded: a numbered point is cheaper and about as fast. Faded: under {MIN_PASS:.0%} pass."}
 ZERO_LANE = {"pass": 110, "speed": 64}  # px kept for $0 points before a log $ axis starts
 
