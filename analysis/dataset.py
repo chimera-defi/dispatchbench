@@ -576,6 +576,9 @@ def _facts(s, arms):
         F["fm_faster"] = f"{(1 - cf['median_s'] / c0['median_s']) * 100:.0f}%"
         need({r["problem"] for r in rows if r["phase"] == "fastmode"} == set(luna_rescue.PIDS), "the fast-mode runs use the retest problems")
         F["fm_mult"] = f"{json.load(open(os.path.join(RES, 'prices.json')))['fast_mode_multiplier']:g}×"
+        qx = {c: [r for r in quality_rows() if r.get("phase") == "fastmode" and r.get("outcome") == "pass" and r["config"] == c] for c in ("sol61-high", "sol61-xhigh")}
+        med = lambda c, k: statistics.median(r[k] for r in qx[c])
+        need(all(med("sol61-xhigh", k) >= med("sol61-high", k) for k in ("loc", "cc_max", "lint_warnings")), "xhigh code is no better: LOC, complexity and lint no lower than high")
         F["fm_x_cost"] = x(cx["usd_per_pass"], c0["usd_per_pass"], money=True, sig=3); F["fm_x_out"] = f"{cx['out_median'] / c0['out_median']:.1f}×"
         b = json.load(open(BLIND)) if os.path.exists(BLIND) else None
         if b:

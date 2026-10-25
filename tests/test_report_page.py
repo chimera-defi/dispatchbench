@@ -716,3 +716,12 @@ def test_landcheck_lists_removed_page_text_and_header():
     new = landcheck.read('<h2>A</h2><table><tr><th>Claude</th></tr></table>')
     assert old.lines - new.lines == {"Codex match", "gone line"}
     assert set(old.heads) - set(new.heads) == {"Claude | Codex match"}
+
+
+def test_regressed_facts_stay_restored():
+    # each phrase was lost in a past edit and restored in v41; a rewording must keep the fact
+    output = open("results/report/page.html").read()
+    for phrase in ("The 95% range is", "plan and reorient", "repeat cap, a two-line change", "that pipeline cost",
+                   "Planted wrong answers must fail", "after seeing the main-run results", "via radon", "ruff style warnings",
+                   "not a measured bill", "slower, no better code"):
+        assert phrase in output, phrase

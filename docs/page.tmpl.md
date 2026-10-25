@@ -56,7 +56,7 @@
 <p class="small">Intervals show pass-rate uncertainty. p90 covers slower calls.</p>
 {{w_full_table}}
 <ul class="tight small">
-<li>Each config ran {{n_calls}} calls. † = exploratory, added after the main run.</li>
+<li>Each config ran {{n_calls}} calls. † = exploratory, added after seeing the main-run results.</li>
 <li>pass@1 is the fraction of individual attempts passing all hidden tests.</li>
 <li>p90 = time within which {{p90_percent}} of calls finished.</li>
 <li>≥N% (all passed) = lower {{ci_level}} bound over the problems, when nothing failed.</li>
@@ -86,7 +86,7 @@
 </details>
 <ul class="tight small">
 <li>Each config tries each problem {{repeats}} times, tools off.</li>
-<li>Pass = every hidden test passes. Sample tests = the worked examples the model sees.</li>
+<li>Pass = every hidden test passes. Planted wrong answers must fail them. Sample tests = the worked examples the model sees.</li>
 <li>The bench cost {{claude_usd}} on Claude. Codex quota use is estimated at {{codex_usd}}.</li>
 </ul>
 <details><summary>📐 Sets, tests, prices and intervals</summary>
@@ -143,7 +143,7 @@
 </section>
 <section id="pipes">
 <h2><span class="num"></span>🔗 Pipelines: plan, check, fix</h2>
-<p class="small">A pipeline chains two steps. Usually one model writes, then Haiku checks. The best, luna-high-bare →H all, passed {{r_luna_high_bare_haiku_review_all_k}} at {{r_luna_high_bare_haiku_review_all_upp}} per pass.</p>
+<p class="small">A pipeline chains two steps. Usually one model writes, then Haiku checks. The best, luna-high-bare →H all, passed {{r_luna_high_bare_haiku_review_all_k}} at {{r_luna_high_bare_haiku_review_all_upp}} per pass. haiku-medium alone also passed every try; that pipeline cost {{hm_vs_pipe_x}} as much.</p>
 <div class="chart floor"><h3>Passes, $ per pass, median seconds</h3><p class="sub">{{pipes_caption}}</p>{{w_pipes}}</div>
 <ul class="tight small">
 <li>Pipelines ran only on the {{set_label}}.</li>
@@ -172,7 +172,7 @@
 <li>{{hb_luna_cost}} {{hb_haiku_cost}} Overall, Codex's bench cost {{hb_total_x}} as much.</li>
 <li>Running code, not who built the bench, may explain the gain.</li>
 <li>The gap moved {{hb_diff_points}} points, below our {{hb_bar_points}}-point bias bar.</li>
-<li>The range is {{hb_range_points}} points, so a larger bias is possible.</li>
+<li>The 95% range is {{hb_range_points}} points, so a larger bias is possible.</li>
 <li>Two more luna-low variants are listed under Everything we tried. luna-low-noshell-B1 removes shell context and asks for edge cases first. luna-low-noshell-B2 also asks for a detailed reasoning summary. {{noshell_comparison}}</li>
 </ul>
 {{table:harness_strengths}}
@@ -181,7 +181,9 @@
 <ul class="tight small">
 <li>gpt-6.1-sol high designed and wrote it in five turns.</li>
 <li>Its dry runs missed two sandbox bugs. A live call found them; Codex fixed both.</li>
+<li>A final "plan and reorient" nudge changed no code.</li>
 <li>{{hb_subset}}</li>
+<li>We lifted its repeat cap, a two-line change, then ran the full test.</li>
 <li>It finished with {{hb_errors}} harness errors and no timeouts, in about {{hb_minutes}} minutes.</li>
 </ul>
 </details>
@@ -214,7 +216,7 @@
 <li>Every repo task passed, so they rank cost and speed, not skill.</li>
 <li>Paired gaps of {{nosep_gap}} points or less did not separate; {{sep_gap}}-point gaps did.</li>
 <li><code>PLAN.md</code> was committed before the main run; a same-day pilot came first.</li>
-<li>{{n_exploratory}} configs were added after the main run (†), including the haiku-high and sol61-high picks:<ul>{{exploratory_items}}</ul></li>
+<li>{{n_exploratory}} configs were added after seeing the main-run results (†), including the haiku-high and sol61-high picks:<ul>{{exploratory_items}}</ul></li>
 <li>A Codex call's estimated $ drops up to {{cache_swing}} when the prompt cache hits.</li>
 <li>Latency is CLI wall clock.</li>
 <li>We ran up to {{lanes}} calls at once on one host.</li>
@@ -248,8 +250,8 @@
 {{table:quality}}
 <ul class="tight small">{{quality_fast_items}}</ul>
 <ul class="tight small">
-<li>Complexity = branch count of the most complex function.</li>
-<li>Lint = style warnings per solution.</li>
+<li>Complexity = cyclomatic complexity (branch count) of the most complex function, via radon.</li>
+<li>Lint = ruff style warnings per solution.</li>
 <li>Worse growth = time-growth exponent more than {{growth_margin}} above the reference's.</li>
 <li>Time vs ref = run time divided by the reference solution's.</li>
 <li>Mem vs ref = memory divided by the reference solution's.</li>
@@ -265,7 +267,7 @@
 </ul>
 </details>
 <details><summary>⚡ Codex fast mode and xhigh</summary>
-<p class="small">On the {{set_label}}, fast mode kept every pass and was {{fm_faster}} faster. Median times: {{fm_fast_s}} s vs {{fm_ctrl_s}} s. Price: {{fm_mult}} list. xhigh effort (above high): same passes, {{fm_x_cost}} the cost, slower.</p>
+<p class="small">On the {{set_label}}, fast mode kept every pass and was {{fm_faster}} faster. Median times: {{fm_fast_s}} s vs {{fm_ctrl_s}} s. Price: {{fm_mult}} list, not a measured bill. xhigh effort (above high): same passes, {{fm_x_cost}} the cost, slower, no better code.</p>
 {{table:fastmode}}
 <p class="small">The default-tier control is a separate {{fm_n}}-try run. Its {{fm_ctrl_s}} s differs from the Results row.</p>
 <p class="small">The blind read covered {{bl_n}} solutions. A code-only reviewer would refuse to merge {{bl_blocks}}, all sonnet-medium. It scored {{bl_sonnet_score}}. Other configs scored {{bl_other_scores}} with none blocked.</p>
