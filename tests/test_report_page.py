@@ -379,6 +379,7 @@ def test_bar_charts_fit_phone_without_scrolling(summary):
     for body in (page.floor(summary), page.fast(summary), page.pipes()):
         assert 'svgscroll' not in body
         assert 'Scroll sideways' not in body
+        if '<svg' not in body: continue  # pipes is plain HTML rows that wrap on a phone
         svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', body, re.S)[0])
         assert float(svg.get('viewBox').split()[2]) <= 390
         for label in svg.findall('s:text', NS):
@@ -473,7 +474,7 @@ def test_cost_accuracy_has_one_selector_per_chart_and_one_sets_guide():
     section = re.search(r'<section id="pareto">(.*?)</section>', rendered, re.S)[1]
     assert section.count('class="cost-toggle"') == 2
     assert section.count('class="set-filter"') == 2
-    assert section.index('class="cplot"') < section.index('<summary>How to read these charts</summary>') < section.index('Purple line = best trade-offs')
+    assert section.index('class="cplot"') < section.index('<summary>How to read these charts</summary>') < section.index('Ringed, numbered points are best trade-offs')
 
 
 def test_main_markers_follow_config_encoding(summary):
@@ -495,12 +496,17 @@ def test_speed_frontier_lines_and_single_point_free_mode(summary):
     path = next(p for p in svg.findall('s:path', NS) if p.get('stroke') == 'var(--frontier)')
     assert path.get('d')
     labels = {t.text for t in svg.findall('s:text', NS) if 'lbl' in t.get('class', '')}
-    assert {'haiku-low', 'luna-high', 'sol61-high ⚡'} <= labels
+    assert {'sol61-high ⚡', 'sonnet-medium'} <= labels  # picks off the frontier keep a name
+    assert not {'haiku-low', 'luna-high'} & labels  # frontier points are numbered chips named in the list under the plot
+    assert [t.text for t in svg.findall('.//s:text[@class="rk-n"]', NS)] == ['1', '2']
+    assert re.findall(r'<b>(\d)</b><span>([^<]+)</span>', output.split('class="picks"', 1)[1])[:2] == [('1', 'haiku-low'), ('2', 'luna-high')]
+    assert svg.find('s:path[@class="zone"]', NS).get('d').endswith('Z')
     output, names = page.speed_cost(summary, free=True)
     assert names == ['astra-medium-fast']
     svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
     labels = {t.text for t in svg.findall('s:text', NS) if 'lbl' in t.get('class', '')}
-    assert 'astra-medium ⚡' in labels
+    assert '<b>1</b><span>astra-medium ⚡</span>' in output
+    assert svg.find('s:path[@class="zone"]', NS) is not None  # a single best point still shades what it beats
 
 
 def test_svg_data_lets_sort_js_rebuild_the_frontier(summary):
@@ -659,3 +665,14 @@ def test_monetary_ratios_use_raw_prices(summary):
     table = dataset.read()['tables']['fastmode']['rows']
     a, b = (float(table[i][4].replace('$', '')) for i in (2, 0))
     assert facts['fm_x_cost'] == f"{a / b:.1f}×"
+
+
+def test_pipes_are_grouped_under_plain_headings_and_fast_rows_are_filled():
+    body = page.pipes()
+    headings = re.findall(r'<p class="pg-h">([^<]+)</p>', body)
+    assert headings[0] == 'Single models' and len(headings) == len(page.PIPE_GROUPS)
+    assert all(h.count('(') == 0 or '→' in h for h in headings)
+    assert body.count('class="pg-row"') == len(page.NAME)  # every row stays
+    fast_rows = [c for c in page.NAME if '-fast' in c]
+    assert body.count('bar-fill bar-hollow') == len(fast_rows) > 0
+    assert 'fast mode' in body

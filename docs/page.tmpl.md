@@ -23,7 +23,7 @@
 <section id="pareto">
 <h2><span class="num"></span>📊 Cost vs accuracy</h2>
 <p class="small">haiku-high passes {{haiku_high_pass}} at {{haiku_high_upp}} per pass. sol61-high also passes {{sol61_high_pass}} at ~{{sol61_high_upp}} per pass. It costs {{claude_zero}} on Codex quota. luna-low and luna-medium cost less but miss about {{cheap_miss_words}}.</p>
-<div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="ring"></span>Pareto frontier</span></div>
+<div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="ring"></span>Best trade-off (ringed, numbered)</span></div>
 <div class="chart"><h3>🎯 Pass rate vs $ per pass</h3>{{w_pass_cost}}</div>
 <details><summary>⏱️ Speed vs $ per pass</summary><div class="chart"><p class="sub">Best trade-offs among configs passing at least {{min_pass}}.</p>{{w_speed_cost}}</div></details>
 {{w_sets}}
@@ -31,8 +31,8 @@
 <ul class="tight small">
 <li>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet. Triangles = luna · ◆ sol · ★ astra. Luna triangle direction = effort: up low, right medium, down high. Alternate Codex colour = the older gpt-{{older_generation}} models (luna56, sol56).</li>
 <li>Filled = normal speed. Hollow (⚡) = fast mode, joined by a thin line to its normal-speed point. Dashed edge = bare prompt.</li>
-<li>Labels mark frontier points, the picks named above, and older-generation and fast-mode points. Pipeline views label frontier points and pipelines. In the {{claude_zero}} lane only the picks keep a label. Hover, tap or focus a point or key row for the rest.</li>
-<li>Purple line = best trade-offs: nothing is both cheaper and more accurate.</li>
+<li>Numbered points are named under each chart. Labels mark only the named picks. Hover or tap any point or key row for the rest.</li>
+<li>Ringed, numbered points are best trade-offs. Shading marks what they beat.</li>
 <li>Whiskers: {{ci_level}} confidence interval (bootstrap).</li>
 <li>The three cheapest points miss about {{cheap_miss_words}}.</li>
 <li>luna-low {{luna_low_pass}}. luna-low-bare {{luna_low_bare_pass}}. luna-medium {{luna_medium_pass}}.</li>

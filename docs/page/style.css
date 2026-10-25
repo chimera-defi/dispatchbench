@@ -281,7 +281,8 @@ section.collapsible>.sec-body:not([hidden]){animation:sec-in var(--sec-dur,0s) e
 .bar-name{overflow-wrap:anywhere}
 .bar-track{display:block;width:100%;min-width:0}
 .bar-fill{display:block;width:max(1px,var(--bar-width));height:20px;background:var(--bar-color)}
-.bar-hollow{background:transparent;border:2px solid var(--bar-color)}
+/* Fast mode: tinted, striped bar with a solid edge, so it reads as filled, not empty. */
+.bar-hollow{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--bar-color) 55%,transparent) 0 3px,color-mix(in srgb,var(--bar-color) 14%,transparent) 3px 7px);border:2px solid var(--bar-color)}
 .bar-uncached{background:color-mix(in srgb,var(--bar-color) 35%,transparent)}
 .bar-cached{display:block;height:100%;background:var(--bar-color)}
 .bar-value{overflow-wrap:anywhere}
@@ -302,3 +303,37 @@ section.collapsible>.sec-body:not([hidden]){animation:sec-in var(--sec-dur,0s) e
 #fair figcaption{font-size:13px;color:var(--muted)}
 
 #results .sortable th[colspan]{white-space:normal}
+
+/* Best trade-offs: ringed points, numbered chips, a shaded corner for what they beat; whiskers show on picks and hover. */
+svg .zone{pointer-events:none}
+svg .rk-n{font:700 13px var(--body);fill:var(--panel)}
+.chart svg text.rk-n{font-size:13px;font-weight:700;fill:var(--panel)}
+.cplot .pt[data-out]{opacity:.45}
+.cplot .pt>line{opacity:0;transition:opacity .12s}
+.cplot .pt[data-best]>line,.cplot .pt:hover>line,.cplot .pt:focus>line,.cplot .pt.hi>line{opacity:1}
+.picks{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin:0;padding:6px 2px 2px;background:var(--panel);font-size:13px}
+.picks ol{display:contents;list-style:none;margin:0;padding:0}
+.pk-h{font-weight:700;margin-right:2px}
+.picks li{display:inline-flex;align-items:center;gap:4px;padding:1px 9px 1px 4px;border:1.5px solid var(--frontier);border-radius:999px;font-weight:600;cursor:default}
+.picks li svg{width:16px;height:16px;flex:none}
+.picks li b{display:inline-grid;place-items:center;min-width:18px;height:18px;border-radius:50%;background:var(--frontier);color:var(--panel);font-size:12px}
+.picks li.hi{background:var(--bg)}
+.picks li:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.pk-n{flex-basis:100%;color:var(--muted);font-size:12.5px}
+@media (max-width:640px){.chart svg text.rk-n{font-size:16px}}
+
+/* Pipelines: headed groups of rows; the bar is the pass rate. */
+.pipes{display:grid;gap:8px;font:12px/1.4 var(--mono)}
+.pg-h{margin:0 0 4px;font:700 13px/1.4 var(--body)}
+.pg-d{margin:4px 0 0;font:600 12px/1.4 var(--body);color:var(--muted)}
+.pg-key{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0;font:12px/1.4 var(--body);color:var(--muted)}
+.pg-key i{display:inline-block;width:14px;height:12px;margin-right:5px;vertical-align:-1px;background:var(--bar-color);border:2px solid var(--bar-color)}
+.pg-key i.bar-hollow{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--bar-color) 55%,transparent) 0 3px,color-mix(in srgb,var(--bar-color) 14%,transparent) 3px 7px)}
+.pg-row{display:grid;grid-template-areas:"n v" "b b";gap:1px 10px;align-items:center;padding:2px 0}
+.pg-row .bar-name{grid-area:n}.pg-row .bar-value{grid-area:v;color:var(--muted)}.pg-row .bar-track{grid-area:b}
+.pg-row{grid-template-columns:minmax(0,1fr) auto}
+.pg-row .bar-value{justify-self:end}
+@media(min-width:700px){
+ .pg-row{grid-template-columns:26ch minmax(0,1fr) 24ch;grid-template-areas:"n b v";gap:10px;padding:1px 0}
+ .pg-row .bar-value{justify-self:start}
+}
