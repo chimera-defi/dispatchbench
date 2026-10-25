@@ -50,7 +50,7 @@
 <li>Claude $ column: all = every dollar of that row went to Claude.</li>
 <li>Pipeline rows show only the Haiku share.</li>
 <li>Click a header to sort within a group. <a href="#notation">Symbols: see Notation.</a></li>
-<li>haiku-medium's {{set_label}} row reuses its {{rescue_n}} main-run attempts.</li>
+<li>Single-model {{set_label}} rows reuse earlier attempts; pipeline rows are new calls.</li>
 <li>Not listed: →H fail rows for {{dropped_pipeline_models}} equal their plain rows; see Pipelines.</li>
 </ul>
 <details><summary>Full table: intervals and p90</summary>
@@ -92,7 +92,7 @@
 <li>Sets:<ul>
 <li>{{main_set_label}}: {{n_problems}} problems, {{repeats}} tries each. Total: {{n_calls}} calls.</li>
 <li>{{l7_set_label}}: {{n_l7}} problems, {{repeats}} tries each. Total: {{l7_n}} calls.</li>
-<li>{{set_label_title}}: the {{n_rescue_problems}} main-ladder problems luna-low missed most, chosen after the main run. Each config made {{rescue_n}} calls.</li>
+<li>{{set_label_title}}: the {{n_rescue_problems}} main-ladder problems {{rescue_rule}}, chosen after the main run. Each config made {{rescue_n}} calls.</li>
 <li>Repo tasks: {{n_tasks}} edits, {{agent_repeats}} tries each. Total: {{ag_n}} calls.</li>
 </ul></li>
 <li>Pass = every hidden test passes:<ul>
@@ -134,7 +134,7 @@
 </section>
 <section id="tokens">
 <h2><span class="num"></span>🧱 Token floor: input tokens per call</h2>
-<p class="small">Trimming luna-low's Codex system prompt cuts mean input by {{in_cut}}.</p>
+<p class="small">Trimming luna-low's Codex system prompt and tool features cuts mean input by {{in_cut}}.</p>
 <div class="chart floor">{{w_floor}}</div>
 <ul class="tight small">
 <li>Token floor = text Codex's runner (its harness) adds before the task. This includes the system prompt and tool descriptions.</li>
@@ -260,7 +260,7 @@
 <ul class="tight">
 <li>Scored: main-ladder passing solutions, {{q_rows}} rows.</li>
 <li>All {{n_solutions}} solutions are in <code>results/solutions</code>.</li>
-<li>On {{q_worst_problem}}, {{q_slow_n}} solutions run slower than the reference.</li>
+<li>On {{q_worst_problem}}, {{q_slow_n}} solutions run at least {{q_slow_bar}} slower than the reference.</li>
 <li>The smallest slowdown is {{q_slow_lo}}.</li>
 <li>They come from {{q_slow_cfgs}} configs.</li>
 <li>The worst is one {{q_worst_cfg}} solution at {{q_worst_x}}.</li>

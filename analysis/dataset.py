@@ -386,6 +386,11 @@ def _facts(s, arms):
     F.update(main_set_label=configs.set_label("main ladder"), l7_set_label=configs.set_label("L7 set"))
     F["l7_n"] = str(len({p for v in hard.values() for p in v["by_problem"]}) * int(F["repeats"]))
     F["n_rescue_problems"] = str(len(luna_rescue.PIDS))
+    rule = ('luna-low', 'luna-medium', 'luna-low-bare')
+    raw = (json.loads(l) for l in open(os.path.join(RES, "2026-10-22b-function.jsonl")))
+    missed = {r['problem'] for r in raw if r["config"] in rule and r['problem'] in s['problems'] and not r['passed']}
+    need(missed == set(luna_rescue.PIDS), "the rescue set is exactly the problems luna-low, luna-medium or luna-low-bare missed")
+    F["rescue_rule"] = "luna-low, luna-medium or luna-low-bare missed"
     F["older_generation"] = "5.6"
     F["quality_fast_note"] = quality_fast_note(s)
     F["quality_fast_items"] = "".join(f"<li>{part}</li>" for part in quality_fast_parts(s))
@@ -553,13 +558,14 @@ def _facts(s, arms):
     need(all(cfg[c]["by_rung"]["L1"]["passed"] == cfg[c]["by_rung"]["L1"]["n"] > cfg[c]["by_rung"]["L2"]["passed"] for c in ("luna-low", "luna-medium")), "luna low/medium pass L1 and already fail at L2")
     F["pilot_luna_call"] = usd(pr["luna/noshell"]["usd_per_call"]); F["pilot_haiku_call"] = usd(pr["haiku"]["usd_per_call"])
     F["pilot_luna_k"] = f"{pr['luna/noshell']['passes']}/{pr['luna/noshell']['n']}"
+    SLOW_X = 10
     q = [r for r in quality_rows() if r["outcome"] == "pass" and r["phase"] in ("main", "exploratory", "escalation") and r.get("time_ratio") is not None]
     F["q_rows"] = str(len([r for r in quality_rows() if r["outcome"] == "pass" and r["phase"] in ("main", "exploratory", "escalation")]))
     if q:
         w = max(q, key=lambda r: r["time_ratio"])
         F["q_worst_x"] = f"{w['time_ratio']:.0f}×"; F["q_worst_problem"] = plabel(w["problem"]); F["q_worst_cfg"] = DISP(w["config"])
-        slow = [r for r in q if r["problem"] == w["problem"] and r["time_ratio"] >= 10]  # 10x: one config's extreme outlier must not hide the rest
-        F["q_slow_n"] = str(len(slow)); F["q_slow_cfgs"] = str(len({r["config"] for r in slow})); F["q_slow_lo"] = f"{min(r['time_ratio'] for r in slow):.0f}×"
+        slow = [r for r in q if r["problem"] == w["problem"] and r["time_ratio"] >= SLOW_X]  # 10x: one config's extreme outlier must not hide the rest
+        F["q_slow_bar"] = f"{SLOW_X}×"; F["q_slow_n"] = str(len(slow)); F["q_slow_cfgs"] = str(len({r["config"] for r in slow})); F["q_slow_lo"] = f"{min(r['time_ratio'] for r in slow):.0f}×"
         need(w["ref_time_exp"] < 0.2, "the slowest problem's reference is near constant time"); F["q_worst_ref_exp"] = f"{w['ref_time_exp']:.2f}"
         need(len({r["config"] for r in slow}) > 1, "the slowest problem is slow across configs, not one config's outlier")
     fm = s.get("fastmode") or {}
@@ -626,7 +632,7 @@ def _facts(s, arms):
     nr = [r for r in rows if r["config"] in NEW_CODEX and r["phase"] != "fastmode"]; F["new_date"] = min(r["ts"] for r in nr)[:10]; F["n_new_codex"] = str(len(NEW_CODEX))
     nu = sum(map(cost, nr + [r for r in agent if r["config"] in NEW_CODEX]))  # function and repo-task runs alike
     ffu = sum(map(cost, [r for r in rows if r["config"] in FAST_CONFIGS and r["phase"] != "fastmode"]))  # fast-mode runs on the main ladder and L7 (2026-10-24)
-    F["codex_new_usd"] = usd(nu); F["codex_old_usd"] = usd(sp['codex_proxy_usd'] - nu - sp['codex_fastmode_usd'] - ffu); F["ff_usd"] = usd(ffu); F["fm_usd"] = usd(sp['codex_fastmode_usd'])
+    F["codex_new_usd"] = usd(nu); F["codex_old_usd"] = usd(sp['codex_proxy_usd'] - nu - sp['codex_fastmode_usd'] - ffu); F["ff_usd"] = usd(ffu); F["fm_usd"] = usd(sp['codex_fastmode_usd']); F["fx_usd"] = usd(sp['codex_fastmode_usd'] + ffu)
     for c in NEW_CODEX:
         k = "x_" + c.replace("-", "_"); e, h = ex[c], hard[c]
         F[k + "_k"] = f"{e['passes']}/{e['n']}"; F[k + "_upp"] = usd(e["usd_per_pass"]); F[k + "_med"] = f"{e['latency_s']['median']:.1f}"
@@ -701,12 +707,15 @@ def _facts(s, arms):
     gap = every['haiku-high']['latency_s']['median'] - cfg['sonnet-medium']['latency_s']['median']
     need(gap > 0, "sonnet-medium is faster than the budget pick haiku-high")
     F['speed_why'] = f"No misses. {gap:.1f} s faster than haiku-high."
-    tied = ('sol61-high', 'haiku-high', 'sonnet-medium')
-    need(all(every[c]['passes'] == every[c]['n'] and hard[c]['passes'] == hard[c]['n'] and ag[c]['hidden_pass'] == ag[c]['n'] for c in tied),
-         "sol61-high, haiku-high and sonnet-medium pass every main, L7 and repo try")
-    need(every['haiku-high']['usd_per_pass'] < min(every[c]['usd_per_pass'] for c in ('sol61-high', 'sol61-high-fast', 'sonnet-medium')), "haiku-high is the cheapest of these")
-    need(all(v['passes'] == v['n'] for v in (every['sol61-high-fast'], hard['sol61-high-fast'])), "sol61-high ⚡ passes every main and L7 try")
-    F['winner_line'] = (f"sol61-high (normal and ⚡), haiku-high and sonnet-medium passed every try. "
+    tied = ('sol61-high', 'astra-medium', 'haiku-high', 'sonnet-medium')
+    perfect = {c for c in every if every[c]['passes'] == every[c]['n'] and c in hard and hard[c]['passes'] == hard[c]['n']
+               and c in ag and ag[c]['hidden_pass'] == ag[c]['n']}
+    need(perfect == set(tied), "exactly these configs pass every main, L7 and repo try")
+    need(all(every[c]['passes'] == every[c]['n'] and hard[c]['passes'] == hard[c]['n'] for c in ('sol61-high-fast', 'astra-medium-fast')),
+         "both ⚡ variants pass every main and L7 try")
+    need(every['haiku-high']['usd_per_pass'] < min(every[c]['usd_per_pass'] for c in tied + ('sol61-high-fast', 'astra-medium-fast') if c != 'haiku-high'),
+         "haiku-high is the cheapest of these")
+    F['winner_line'] = (f"sol61-high and astra-medium (both also ⚡), haiku-high and sonnet-medium passed every try. "
                         f"haiku-high is cheapest of these at {F['hh_upp']} per pass.")
     F['budget_why'] = f"Cheapest with no misses. haiku-low costs less but misses {hl['n'] - hl['passes']} of {hl['n']}"
     F['model_names'] += (f", luna56 = {ex['luna56-high']['model']}, "

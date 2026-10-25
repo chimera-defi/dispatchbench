@@ -24,11 +24,11 @@ Main ladder: {{n_problems}} problems × {{repeats}} attempts per config.
 - **Trust first, then save.** A cheap model plus a Haiku reviewer costs more than haiku-medium alone, because Haiku redoes the work. Savings come only from a builder that is right on its own.
 - **sol61-high and astra-medium never failed**: every main-ladder attempt, every attempt on the hardest rung, and all {{ag_n}} repo-task runs. With the Haiku repair gated on the statement's examples, they needed {{g_sol61_repairs}} and {{g_astra_repairs}} repairs on luna's hardest problems ({{r_sol61_high_haiku_on_fail_k}} and {{r_astra_medium_haiku_on_fail_k}}).
 - **The price is time.** On the repo tasks they take {{ag_sol61_high_med}} s and {{ag_astra_medium_med}} s at the median, against about {{ag_claude_med}} s for haiku-low and sonnet-medium.
-- **Skip luna at low or medium effort.** It barely reasons there and misses easy problems. luna-high is the cheapest Codex config but misses some.
+- **Skip luna at low or medium effort.** It barely reasons there and misses easy problems. luna-high does better but still misses some.
 - **Fast mode (⚡) keeps the passes and costs about twice as much per pass.** sol61-high ⚡: {{ff_s61_k}}, {{ff_s61_med}} s against {{ff_s61_dmed}} s; astra-medium ⚡: {{ff_ast_k}}, {{ff_ast_med}} s against {{ff_ast_dmed}} s. Neither missed on L7 ({{ff_s61_hk}}, {{ff_ast_hk}}).
 - **haiku-high and sonnet-medium also never failed.** haiku-high: {{hh_k}}, {{hh_hk}} on L7 and {{ag_hh_k}} repo tasks at {{hh_upp}} per pass, {{hh_s61h_x}} cheaper than sol61-high and faster ({{hh_med}} s against {{sol61_high_med}} s). haiku-medium still misses ({{hm_l7_k}} on L7). sonnet-medium: {{sm_all}}, the fastest of them.
 
-Function + agentic spend only (auxiliary runs and pilot excluded): {{claude_usd}} Claude, {{codex_usd}} Codex at list prices ({{codex_new_usd}} of it for the Codex models added on {{new_date}}, {{fm_usd}} for the fast-mode and xhigh runs).
+Function + agentic spend only (auxiliary runs and pilot excluded): {{claude_usd}} Claude, {{codex_usd}} Codex at list prices ({{codex_new_usd}} of it for the Codex models added on {{new_date}}, {{fx_usd}} for the fast-mode and xhigh runs).
 
 ## Read more
 

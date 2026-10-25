@@ -721,7 +721,8 @@ def set_definitions(s):
 def l7_reason(s):
     main, hard, per, _ = set_definitions(s)
     last_rung = max(s["problems"][p]["rung"] for p in main)
-    return (f"Every strong config passed L{last_rung}. We added L7 to find a breaking point. "
+    never = [c for c, v in s["configs"].items() if v["breaking_point"] is None]
+    return (f"{len(never)} of {len(s['configs'])} main configs never broke by L{last_rung}. We added L7 to find their limit. "
             f"It has {len(hard)} problems instead of the usual {per}. We score it separately.")
 
 
@@ -791,7 +792,7 @@ def sets_box(s):
 def rescue_subtitle(s=None):
     s = s or dataset.view(dataset.read())
     attempts = rescue_arms(s)["sol61-high"]["n"]
-    return (f'{configs.set_label("rescue set", capital=True)}: the {len(s["design"]["rescue_problems"])} problems luna failed most. '
+    return (f'{configs.set_label("rescue set", capital=True)}: the {len(s["design"]["rescue_problems"])} problems {s["facts"]["rescue_rule"]}. '
             f'{attempts} attempts each, no intervals. Purple-filled points are pipelines. '
             'Numbered points are the best trade-offs.')
 

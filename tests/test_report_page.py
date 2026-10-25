@@ -426,7 +426,7 @@ def test_winner_and_conclusion_agree_and_sets_are_collapsed(summary):
     assert '<details class="sets"><summary>' in page.sets_box(summary)
     assert ' open' not in page.sets_box(summary).split('>')[0]
     assert template.index('{{w_sets}}') > template.index('{{w_pass_cost}}')
-    assert page.method(summary)[0].count('We added L7 to find a breaking point.') == 1
+    assert page.method(summary)[0].count('We added L7 to find their limit.') == 1
     assert 'L7 has' not in page.sets_box(summary)
     problems = page.method(summary)[0]
     assert 'p01 overlap_minutes (L1)' in problems
@@ -683,3 +683,18 @@ def test_pipes_are_grouped_under_plain_headings_and_fast_rows_are_filled():
     fast_rows = [c for c in page.NAME if '-fast' in c]
     assert body.count('bar-fill bar-hollow') == len(fast_rows) > 0
     assert 'fast mode' in body
+
+
+def test_equiv_rows_pair_a_claude_config_with_a_codex_config_in_the_rendered_page():
+    # Regression: the 8-column table hid every Codex column on a narrow screen.
+    d = json.loads((ROOT / "results" / "dataset.json").read_text())
+    fam = {r["display"]: r["family"] for r in d["rows"]}
+    rows = d["tables"]["equiv"]["rows"]
+    assert rows
+    for r in rows:
+        left, right = r[0].split(" → ")
+        assert (fam[left], fam[right]) == ("Claude", "Codex"), r
+        assert all(" → " in c for c in r[1:]), r
+    html = (ROOT / "results" / "report" / "page.html").read_text()
+    sec = html[html.index('id="equiv"'):]
+    assert all(r[0].split(" → ")[1] in sec for r in rows)
