@@ -22428,7 +22428,7 @@
   "equiv_fastest": "Fastest Codex at 100%: astra-medium ⚡, 10 s. It costs $0.15 per pass.",
   "equiv_near": "At haiku-low's price, the best Codex is luna-high: 92% to 95%.",
   "equiv_back_takeaway": "Every Codex config has a Claude match too. It is cheaper for 8 of 12. Only luna (not luna56) costs less, and it misses more.",
-  "int_sol": "sol56-high is a generation older than sol61-high. Both pass every main-ladder try. sol56-high takes 14.5 s at ~$0.042 per pass. sol61-high takes 27.4 s. Even with ⚡ it takes 17.4 s, at ~$0.036. So the newer model is slower, and ⚡ does not close the gap.",
+  "int_sol": "sol56-high is a generation older than sol61-high. Both pass every main-ladder try. sol56-high takes 14.5 s at ~$0.042 per pass. sol61-high takes 27.4 s at ~$0.019. ⚡ cuts that to 17.4 s, at ~$0.036. So the newer model is cheaper but slower, and ⚡ does not close the gap.",
   "int_luna": "luna-low is cheaper per pass than haiku-low: ~$0.00090 to $0.0011. But it passes 77% to 95%.",
   "int_repo": "On real repo edits, sol61-high took 109 s and astra-medium 85 s. sonnet-medium and haiku-low took about 28 s. All passed every task.",
   "int_harness": "Each vendor's own agent CLI lifts its model. luna-low went 36→47 of 60 in Codex CLI. haiku-low went 57→60 in Claude Code.",

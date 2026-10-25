@@ -1044,11 +1044,12 @@ def _interesting(ds):
     need(fast["pass_rate"] == old["pass_rate"] == new["pass_rate"] == 1, "sol61-high, its ⚡ run and sol56-high all pass every main try")
     need(old["median_s"] < fast["median_s"] < new["median_s"], "older sol56-high beats sol61-high ⚡ on speed, which beats plain sol61-high")
     need(old["usd_per_pass"] < 1.25 * fast["usd_per_pass"], "sol56-high costs under 25% more than sol61-high ⚡")
+    need(new["usd_per_pass"] < fast["usd_per_pass"] < old["usd_per_pass"], "plain sol61-high is the cheapest of the three, sol56-high the dearest")
     F["int_sol"] = " ".join([
         f'sol56-high is a generation older than sol61-high. Both pass every main-ladder try.',
         f'sol56-high takes {old["median_s"]:.1f} s at ~{usd(old["usd_per_pass"])} per pass.',
-        f'sol61-high takes {new["median_s"]:.1f} s. Even with ⚡ it takes {fast["median_s"]:.1f} s, at ~{usd(fast["usd_per_pass"])}.',
-        'So the newer model is slower, and ⚡ does not close the gap.'])
+        f'sol61-high takes {new["median_s"]:.1f} s at ~{usd(new["usd_per_pass"])}. ⚡ cuts that to {fast["median_s"]:.1f} s, at ~{usd(fast["usd_per_pass"])}.',
+        'So the newer model is cheaper but slower, and ⚡ does not close the gap.'])
     lo, hl = get(ds, "luna-low", ml), get(ds, "haiku-low", ml)
     need(lo["usd_per_pass"] < hl["usd_per_pass"] and lo["pass_rate"] < hl["pass_rate"], "luna-low is cheaper per pass than haiku-low but passes less")
     F["int_luna"] = (f'luna-low is cheaper per pass than haiku-low: ~{usd(lo["usd_per_pass"])} to {usd(hl["usd_per_pass"])}. '

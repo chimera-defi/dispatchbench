@@ -866,7 +866,7 @@ var rt,lw=0,bx=document.getElementById("xplot");function re(){var w=bx.clientWid
 <section id="interesting">
 <h2><span class="num"></span>💡 Interesting findings</h2>
 <ul class="tight">
-<li>sol56-high is a generation older than sol61-high. Both pass every main-ladder try. sol56-high takes 14.5 s at <abbr class="notation-use" data-notation="~" title="Codex cost estimated from tokens and list prices.">~</abbr>$0.042 per pass. sol61-high takes 27.4 s. Even with <abbr class="notation-use" data-notation="⚡" title="Fast mode: 2× list price at the same model and effort.">⚡</abbr> it takes 17.4 s, at ~$0.036. So the newer model is slower, and ⚡ does not close the gap.</li>
+<li>sol56-high is a generation older than sol61-high. Both pass every main-ladder try. sol56-high takes 14.5 s at <abbr class="notation-use" data-notation="~" title="Codex cost estimated from tokens and list prices.">~</abbr>$0.042 per pass. sol61-high takes 27.4 s at ~$0.019. <abbr class="notation-use" data-notation="⚡" title="Fast mode: 2× list price at the same model and effort.">⚡</abbr> cuts that to 17.4 s, at ~$0.036. So the newer model is cheaper but slower, and ⚡ does not close the gap.</li>
 <li>luna-low is cheaper per pass than haiku-low: ~$0.00090 to $0.0011. But it passes 77% to 95%.</li>
 <li>Each vendor's own agent CLI lifts its model. luna-low went 36→47 of 60 in Codex CLI. haiku-low went 57→60 in Claude Code.</li>
 <li>On real repo edits, sol61-high took 109 s and astra-medium 85 s. sonnet-medium and haiku-low took about 28 s. All passed every task.</li>
