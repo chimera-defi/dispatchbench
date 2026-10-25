@@ -138,7 +138,7 @@ Medians are over each config's passing L1–L6 solutions, so a config that fails
 
 Three more problems, written and checked before any model saw them (PLAN.md, deviation 16), each harder than p12 sheet: a cellular automaton on a ring run for up to 10^18 steps (p13 xor_ring), exact expected turns on a board game with bounce-back and chained jumps (p14 bounce_board), and paint/erase operations on 10^9 cells (p15 paint_erase). 5 attempts per config: the four original configs first, then the five later Codex models. These rows are kept apart from L1–L6 and change no number above.
 
-| config | passed | 95% CI | p13 | p14 | p15 | median s | mean reasoning tokens | $ per pass | $ kind |
+| config | passed | 95% CI | p13 xor_ring (L7) | p14 bounce_board (L7) | p15 paint_erase (L7) | median s | mean reasoning tokens | $ per pass | $ kind |
 |---|---|---|---|---|---|---|---|---|---|
 | astra-medium | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 30.6 | 315 | $0.083 | proxy |
 | astra-medium-fast | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 15.4 | 327 | $0.16 | proxy |
@@ -164,19 +164,19 @@ Every problem with at least one failure, over all phases. Cells are passes out o
 
 | problem | haiku-low | haiku-medium | sonnet-medium | luna-low | luna-medium | sol61-medium | astra-medium | astra-medium-fast | haiku-high | luna-high | luna-low-bare | luna56-high | luna56-low | sol56-high | sol61-high | sol61-high-fast |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| p03 L2 | 5 | 5 | 5 | 5 | 4 (1c) | 5 | 5 | 5 | 5 | 5 | 3 (1c 1w) | 5 | 5 | 5 | 5 | 5 |
-| p04 L2 | 5 | 5 | 5 | **1** (2t 2w) | **1** (1t 3w) | 5 | 5 | 5 | 5 | 5 | **1** (4w) | 4 (1w) | 4 (1w) | 5 | 5 | 5 |
-| p05 L3 | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 5 | 5 |
-| p06 L3 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1w) | **1** (4w) | 5 | 5 | 5 |
-| p07 L4 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 3 (1t 1w) | 5 | 5 | 5 |
-| p08 L4 | 5 | 5 | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1t) | 5 | 5 | 5 | 5 | 5 |
-| p09 L5 | 3 (2t) | 5 | 5 | **2** (2t 1w) | 5 | 5 | 5 | 5 | 5 | 4 (1c) | 5 | 5 | 5 | 5 | 5 | 5 |
-| p10 L5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1c) | 4 (1w) | 5 | 4 (1w) | 5 | 5 | 5 |
-| p11 L6 | 5 | 5 | 5 | 4 (1w) | **2** (3w) | 5 | 5 | 5 | 5 | 5 | **2** (1c 2w) | 5 | 5 | 5 | 5 | 5 |
-| p12 L6 | 4 (1c) | 5 | 5 | **0** (4c 1w) | **0** (4c 1w) | 3 (2c) | 5 | 5 | 5 | 3 (2c) | **0** (4c 1w) | 3 (2c) | **1** (3c 1w) | 5 | 5 | 5 |
-| p13 L7 | 5 | 5 | 5 | – | – | 5 | 5 | 5 | 5 | 5 | – | 4 (1c) | 3 (2w) | 5 | 5 | 5 |
-| p14 L7 | 5 | 4 (1c) | 5 | – | – | 5 | 5 | 5 | 5 | 5 | – | **2** (3c) | **2** (3c) | 3 (2c) | 5 | 5 |
-| p15 L7 | **2** (3t) | 4 (1t) | 5 | – | – | 5 | 5 | 5 | 5 | 5 | – | 3 (2w) | 3 (2w) | 5 | 5 | 5 |
+| p03 ledger (L2) | 5 | 5 | 5 | 5 | 4 (1c) | 5 | 5 | 5 | 5 | 5 | 3 (1c 1w) | 5 | 5 | 5 | 5 | 5 |
+| p04 taller_within (L2) | 5 | 5 | 5 | **1** (2t 2w) | **1** (1t 3w) | 5 | 5 | 5 | 5 | 5 | **1** (4w) | 4 (1w) | 4 (1w) | 5 | 5 | 5 |
+| p05 pass_route (L3) | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 5 | 5 |
+| p06 calc (L3) | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1w) | **1** (4w) | 5 | 5 | 5 |
+| p07 weighted_distance_sums (L4) | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 3 (1t 1w) | 5 | 5 | 5 |
+| p08 recur (L4) | 5 | 5 | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1t) | 5 | 5 | 5 | 5 | 5 |
+| p09 k_machine_schedule (L5) | 3 (2t) | 5 | 5 | **2** (2t 1w) | 5 | 5 | 5 | 5 | 5 | 4 (1c) | 5 | 5 | 5 | 5 | 5 | 5 |
+| p10 avoid_count (L5) | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1c) | 4 (1w) | 5 | 4 (1w) | 5 | 5 | 5 |
+| p11 best_average (L6) | 5 | 5 | 5 | 4 (1w) | **2** (3w) | 5 | 5 | 5 | 5 | 5 | **2** (1c 2w) | 5 | 5 | 5 | 5 | 5 |
+| p12 sheet (L6) | 4 (1c) | 5 | 5 | **0** (4c 1w) | **0** (4c 1w) | 3 (2c) | 5 | 5 | 5 | 3 (2c) | **0** (4c 1w) | 3 (2c) | **1** (3c 1w) | 5 | 5 | 5 |
+| p13 xor_ring (L7) | 5 | 5 | 5 | – | – | 5 | 5 | 5 | 5 | 5 | – | 4 (1c) | 3 (2w) | 5 | 5 | 5 |
+| p14 bounce_board (L7) | 5 | 4 (1c) | 5 | – | – | 5 | 5 | 5 | 5 | 5 | – | **2** (3c) | **2** (3c) | 3 (2c) | 5 | 5 |
+| p15 paint_erase (L7) | **2** (3t) | 4 (1t) | 5 | – | – | 5 | 5 | 5 | 5 | 5 | – | 3 (2w) | 3 (2w) | 5 | 5 | 5 |
 
 - **sonnet-medium never failed**: 75/75 across L1–L7. Of the configs added later, haiku-high, sol61-high and astra-medium matched it.
 - **p12 sheet (a spreadsheet evaluator) is where most configs break, and they break by crashing.** Of the 15 attempts by luna-low, luna-medium and stripped luna, 9 raise a parse error on one of the statement's own worked examples and 3 hit Python's recursion limit on a long chain of cell references; haiku-low's one miss is also the recursion limit.
@@ -364,7 +364,7 @@ docs/             README, report and page templates, style and sort code; REPORT
 cache/            cached model calls and grades; the source of every number
   plan_first/     Appendix F calls
   gated_repair/   Appendix G calls
-  agentic_raw/    committed agentic transcripts
+  agentic/        historical verdicts; selected reruns live under results/
 results/          graded rows (jsonl), prices, manifest, summary, quality, solutions, report and page
   appendix/       appendix graded rows
 PLAN.md           pre-registration and deviations

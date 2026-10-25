@@ -21870,6 +21870,7 @@
   }
  },
  "facts": {
+  "n_ladder_configs": "16",
   "n_problems": "12",
   "n_tasks": "4",
   "n_configs": "6",
@@ -21939,13 +21940,15 @@
   "quality_fast_note": "sol61-high ⚡ and astra-medium ⚡: main-ladder solutions not scored. sol61-high ⚡'s 35-attempt retest run is scored below; astra-medium ⚡ has no retest scores.",
   "quality_fast_items": "<li>sol61-high ⚡ and astra-medium ⚡: main-ladder solutions not scored.</li><li>sol61-high ⚡'s 35-attempt retest run is scored below; astra-medium ⚡ has no retest scores.</li>",
   "exploratory_items": "<li>astra-medium</li><li>astra-medium ⚡</li><li>haiku-high</li><li>luna-high</li><li>luna-low-bare</li><li>luna56-high</li><li>luna56-low</li><li>sol56-high</li><li>sol61-high</li><li>sol61-high ⚡</li>",
-  "l7_problem_items": "<li>p13 xor_ring</li><li>p14 bounce_board</li><li>p15 paint_erase</li>",
+  "l7_problem_items": "<li>p13 xor_ring (L7)</li><li>p14 bounce_board (L7)</li><li>p15 paint_erase (L7)</li>",
   "p90_percent": "90%",
   "host_agents_md": "1.3k",
   "min_pass": "90%",
   "rung_attempts": "10",
   "claude_usd": "$2.46",
   "codex_usd": "$36.27",
+  "codex_usd_rounded": "$35",
+  "agentic_fast_caption": "No ⚡ repo-task data.",
   "haiku_low_pass": "95%",
   "haiku_low_k": "57/60",
   "haiku_low_upp": "$0.0011",
@@ -22058,7 +22061,7 @@
   "sol61_high_fast_rsn": "541",
   "sol61_high_fast_rsn10": "540",
   "sol61_high_fast_in": "15,380",
-  "model_names": "luna = gpt-6-luna, sol61 = gpt-6.1-sol, astra = gpt-6-astra, luna56 = gpt-5.6-luna, sol56 = gpt-5.6-sol (older generation)",
+  "model_names": "luna = gpt-6-luna, sol61 = gpt-6.1-sol, astra = gpt-6-astra. luna56 = gpt-5.6-luna, sol56 = gpt-5.6-sol (older generation)",
   "ref_unit": "1.00",
   "cheap_miss_words": "1 answer in 4",
   "p04_passes": "1",
@@ -22069,7 +22072,7 @@
   "p04_luna": "2/10",
   "p11_luna": "6/10",
   "p12_luna": "0/10",
-  "escalation_problem_items": "<li>p04 taller_within</li><li>p11 best_average</li><li>p12 sheet</li>",
+  "escalation_problem_items": "<li>p04 taller_within (L2)</li><li>p11 best_average (L6)</li><li>p12 sheet (L6)</li>",
   "esc_k": "13/15",
   "esc_base": "3/15",
   "esc_vs": "luna-medium",
@@ -22424,20 +22427,20 @@
   "pipes_caption": "Bar length = passes out of 35. Text by each bar = passes · $ per pass · median seconds.",
   "default_route_scope": "Tested with plain sol61-high: 35/35 on the retest set. Haiku never ran.",
   "hb_conclusion_copy": "Codex CLI lifted luna-low by 11 passes. haiku-low gained 3, near its ceiling. No pick changes.",
-  "l7_set_description": "L7 set: p13 xor_ring, p14 bounce_board, p15 paint_erase; scored separately. Added after every strong config passed L6.",
+  "l7_set_description": "L7 set: p13 xor_ring (L7), p14 bounce_board (L7), p15 paint_erase (L7); scored separately. Added after every strong config passed L6.",
   "equiv_takeaway": "Every Claude config has a Codex match. haiku-high and sonnet-medium hit 100%; sol61-high matches them. Each match costs more at list price and runs slower.",
   "equiv_fastest": "Fastest Codex at 100%: astra-medium ⚡, 10 s. It costs $0.15 per pass.",
   "equiv_near": "At haiku-low's price, the best Codex is luna-high: 92% to 95%.",
   "equiv_back_takeaway": "Every Codex config has a Claude match. It is cheaper for 8 of 12. Only luna (not luna56) costs less, and it misses more.",
   "winner_fallback": "Codex out? Use haiku-high: 60/60 passed on the main ladder. It costs $0.0028 per pass, cheapest among configs with no misses.",
   "fast_pipeline_note": "Fast-mode pipelines equal their builders because every example check passed. Haiku made 0 repairs.",
-  "int_sol": "sol56-high is a generation older than sol61-high. Both pass every main-ladder try. sol56-high takes 14.5 s at ~$0.042 per pass. sol61-high takes 27.4 s at ~$0.019. ⚡ cuts that to 17.4 s, at ~$0.036. So the newer model is cheaper but slower, and ⚡ does not close the gap.",
-  "int_luna": "luna-low is cheaper per pass than haiku-low: ~$0.00090 to $0.0011. But it passes 77% to 95%.",
-  "int_semi": "<a href=\"https://newsletter.semianalysis.com/p/anthropic-subscriptions-offer-5x\">SemiAnalysis</a>: Anthropic plans give ~5× OpenAI's API-priced value at the Opus/Sol tier. We price list-rate calls, not plan quotas, so we can’t test that. At list price, haiku-high beats sol61-high ~7× per pass; tiers differ. On repo tasks the gap is ~8×. But luna-low was cheapest there and passed every repo task.",
-  "int_repo": "On repo edits, sol61-high took 118 s; astra-medium took 66 s. sonnet-medium and haiku-low took about 28 s. Both Codex picks took over twice as long. All passed every hidden test.",
-  "int_harness": "On Codex's bench, both families gained. luna-low rose from 36 to 47 passes. It cost ~3× per pass and took ~3× the median time. haiku-low rose from 57 to 60 passes. It cost ~1.1× per pass, with the same median time.",
-  "int_build": "Codex's bench dry runs missed 2 sandbox bugs; a live call found them. Its \"plan and reorient\" nudge changed no code.",
-  "int_l7": "On L7, luna-high passed 15/15; sol56-high missed. luna-high cost ~$0.0015 per pass versus sol56-high's ~$0.069.",
+  "int_sol": "sol56-high is a generation older than sol61-high.</li>\n<li>Both pass every main-ladder try.</li>\n<li>sol56-high takes 14.5 s at ~$0.042 per pass.</li>\n<li>sol61-high takes 27.4 s at ~$0.019.</li>\n<li>⚡ cuts that to 17.4 s, at ~$0.036.</li>\n<li>So the newer model is cheaper but slower, and ⚡ does not close the gap.",
+  "int_luna": "luna-low is cheaper per pass than haiku-low: ~$0.00090 to $0.0011.</li>\n<li>But it passes 77% to 95%.",
+  "int_semi": "<a href=\"https://newsletter.semianalysis.com/p/anthropic-subscriptions-offer-5x\">SemiAnalysis</a>: Anthropic plans give ~5× OpenAI's API-priced value at the Opus/Sol tier.</li>\n<li>We price list-rate calls, not plan quotas, so we can’t test that.</li>\n<li>At list price, haiku-high beats sol61-high ~7× per pass; tiers differ.</li>\n<li>On repo tasks the gap is ~8×.</li>\n<li>But luna-low was cheapest there and passed every repo task.",
+  "int_repo": "On repo edits, sol61-high took 118 s; astra-medium took 66 s.</li>\n<li>sonnet-medium and haiku-low took about 28 s.</li>\n<li>Both Codex picks took over twice as long.</li>\n<li>All passed every hidden test.",
+  "int_harness": "On Codex's bench, both families gained.</li>\n<li>luna-low rose from 36 to 47 passes.</li>\n<li>It cost ~3× per pass and took ~3× the median time.</li>\n<li>haiku-low rose from 57 to 60 passes.</li>\n<li>It cost ~1.1× per pass, with the same median time.",
+  "int_build": "Codex's bench dry runs missed 2 sandbox bugs; a live call found them.</li>\n<li>Its \"plan and reorient\" nudge changed no code.",
+  "int_l7": "On L7, luna-high passed 15/15; sol56-high missed.</li>\n<li>luna-high cost ~$0.0015 per pass versus sol56-high's ~$0.069.",
   "int_trim": "Disabling luna-low's tool features cut input 31%, yet raised estimated cost 2.1×.",
   "isolation_calls_matched": "995",
   "isolation_passes_isolated": "889",
@@ -22904,9 +22907,9 @@
     "config",
     "passed",
     "95% CI",
-    "p13",
-    "p14",
-    "p15",
+    "p13 xor_ring (L7)",
+    "p14 bounce_board (L7)",
+    "p15 paint_erase (L7)",
     "median s",
     "mean reasoning tokens",
     "$ per pass",
@@ -23093,7 +23096,7 @@
    ],
    "rows": [
     [
-     "p03 L2",
+     "p03 ledger (L2)",
      "5",
      "5",
      "5",
@@ -23112,7 +23115,7 @@
      "5"
     ],
     [
-     "p04 L2",
+     "p04 taller_within (L2)",
      "5",
      "5",
      "5",
@@ -23131,7 +23134,7 @@
      "5"
     ],
     [
-     "p05 L3",
+     "p05 pass_route (L3)",
      "5",
      "4 (1w)",
      "5",
@@ -23150,7 +23153,7 @@
      "5"
     ],
     [
-     "p06 L3",
+     "p06 calc (L3)",
      "5",
      "5",
      "5",
@@ -23169,7 +23172,7 @@
      "5"
     ],
     [
-     "p07 L4",
+     "p07 weighted_distance_sums (L4)",
      "5",
      "5",
      "5",
@@ -23188,7 +23191,7 @@
      "5"
     ],
     [
-     "p08 L4",
+     "p08 recur (L4)",
      "5",
      "5",
      "5",
@@ -23207,7 +23210,7 @@
      "5"
     ],
     [
-     "p09 L5",
+     "p09 k_machine_schedule (L5)",
      "3 (2t)",
      "5",
      "5",
@@ -23226,7 +23229,7 @@
      "5"
     ],
     [
-     "p10 L5",
+     "p10 avoid_count (L5)",
      "5",
      "5",
      "5",
@@ -23245,7 +23248,7 @@
      "5"
     ],
     [
-     "p11 L6",
+     "p11 best_average (L6)",
      "5",
      "5",
      "5",
@@ -23264,7 +23267,7 @@
      "5"
     ],
     [
-     "p12 L6",
+     "p12 sheet (L6)",
      "4 (1c)",
      "5",
      "5",
@@ -23283,7 +23286,7 @@
      "5"
     ],
     [
-     "p13 L7",
+     "p13 xor_ring (L7)",
      "5",
      "5",
      "5",
@@ -23302,7 +23305,7 @@
      "5"
     ],
     [
-     "p14 L7",
+     "p14 bounce_board (L7)",
      "5",
      "4 (1c)",
      "5",
@@ -23321,7 +23324,7 @@
      "5"
     ],
     [
-     "p15 L7",
+     "p15 paint_erase (L7)",
      "**2** (3t)",
      "4 (1t)",
      "5",

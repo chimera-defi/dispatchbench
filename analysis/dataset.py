@@ -333,7 +333,7 @@ def _facts(s, arms):
     rows = summarize.function_rows(); agent = summarize.agentic_rows(); main_rows = [r for r in rows if r["phase"] == "main"]
     every = {**cfg, **ex}
     nprob = len(s["problems"]); ntask = len(next(iter(ag.values()))["by_task"])
-    F.update(n_problems=str(nprob), n_tasks=str(ntask), n_configs=str(len(cfg)), n_l7=str(len({p for v in hard.values() for p in v["by_problem"]})),
+    F.update(n_ladder_configs=str(len(every)), n_problems=str(nprob), n_tasks=str(ntask), n_configs=str(len(cfg)), n_l7=str(len({p for v in hard.values() for p in v["by_problem"]})),
              repeats=str(cfg["haiku-low"]["n"] // nprob), n_calls=str(cfg["haiku-low"]["n"]), n_all_problems=str(nprob + len({p for v in hard.values() for p in v["by_problem"]})),
              agent_repeats=str(next(iter(ag.values()))["n"] // ntask), n_rungs=str(len(cfg["haiku-low"]["by_rung"])), per_rung=str(nprob // len(cfg["haiku-low"]["by_rung"])))
     need(all(v["n"] == cfg["haiku-low"]["n"] for v in every.values()), "every function-track config has the same number of calls")
@@ -398,12 +398,15 @@ def _facts(s, arms):
     F["quality_fast_note"] = quality_fast_note(s)
     F["quality_fast_items"] = "".join(f"<li>{part}</li>" for part in quality_fast_parts(s))
     F["exploratory_items"] = "".join(f"<li>{DISP(c)}</li>" for c in ex)
-    F["l7_problem_items"] = "".join(f"<li>{pshort(p)}</li>" for p in sorted({p for v in hard.values() for p in v["by_problem"]}))
+    F["l7_problem_items"] = "".join(f"<li>{plabel(p)}</li>" for p in sorted({p for v in hard.values() for p in v["by_problem"]}))
     F["p90_percent"] = pct(0.90)
     F["host_agents_md"] = HOST_AGENTS_MD; F["min_pass"] = pct(MIN_PASS)
     F["rung_attempts"] = str(cfg["haiku-low"]["by_rung"]["L1"]["n"])
     sp = s["spend"]
     F["claude_usd"] = usd(sp['claude_measured_usd']); F["codex_usd"] = usd(sp['codex_proxy_usd'])
+    # Round the estimated total to the nearest five dollars for the front page.
+    F["codex_usd_rounded"] = f"${5 * round(sp['codex_proxy_usd'] / 5):.0f}"
+    F["agentic_fast_caption"] = ("⚡ configs are included." if any(c.endswith("-fast") for c in ag) else "No ⚡ repo-task data.")
     for c, v in every.items():
         k = c.replace("-", "_")
         F[f"{k}_pass"] = pct(v["pass_at_1"]); F[f"{k}_k"] = f"{v['passes']}/{v['n']}"; F[f"{k}_upp"] = usd(v["usd_per_pass"])
@@ -429,7 +432,7 @@ def _facts(s, arms):
     for p in ("p04_taller_within", "p11_best_average", "p12_sheet"):
         F[f"{p[:3]}_luna"] = f"{s['problems'][p]['luna-low'] + s['problems'][p]['luna-medium']}/{2 * cfg['luna-low']['n'] // nprob}"
     e = next(e for e in s["escalation"] if e["config"] == "luna-high")
-    F["escalation_problem_items"] = "".join(f"<li>{pshort(p)}</li>" for p in e["problems"])
+    F["escalation_problem_items"] = "".join(f"<li>{plabel(p)}</li>" for p in e["problems"])
     F["esc_k"] = f"{e['passes']}/{e['n']}"; F["esc_base"] = f"{e['base_passes']}/{e['base_n']}"; F["esc_vs"] = e["vs"]
     d = vs(s, "luna-high", "luna-medium"); F["lh_vs_lm"] = p1(d["diff"]); F["lh_vs_lm_ci"] = ci_pts(d["ci95"])
     # finding 3 and the token callout: stripped harness
@@ -730,7 +733,7 @@ def _facts(s, arms):
     F['l7_bound'] = f"{nl7}/{nl7}"; F['l7_lo'] = ci_text(nl7, nl7, None, len(probs)).split()[0].lstrip("≥")  # same bound as the tables: over problems, not tries
     need(all(v['hidden_pass'] == v['n'] for v in ag.values()), "every repo-task run passed, so repo tasks only rank cost and speed")
     F['budget_why'] = f"Cheapest with no misses. haiku-low costs less but misses {hl['n'] - hl['passes']} of {hl['n']}"
-    F['model_names'] += (f", luna56 = {ex['luna56-high']['model']}, "
+    F['model_names'] += (f". luna56 = {ex['luna56-high']['model']}, "
                          f"sol56 = {ex['sol56-high']['model']} (older generation)")
     need(a['luna-low-noshell-B1']['passes'] > a['luna-low']['passes'] > a['luna-low-noshell-B2']['passes'], "B1 improves over plain luna-low; B2 passes less often")
     F['noshell_comparison'] = (f"On the {configs.set_label('rescue set')}, B1 passed {a['luna-low-noshell-B1']['passes']}/{a['luna-low']['n']}. "
@@ -762,7 +765,7 @@ def _facts(s, arms):
     need(gain['luna_low'] > gain['haiku_low'] > 0, "Codex CLI lifted luna-low more than Claude Code lifted haiku-low")
     F['hb_conclusion_copy'] = (f"Codex CLI lifted luna-low by {gain['luna_low']} passes. haiku-low gained {gain['haiku_low']}, near its ceiling. "
                                "No pick changes.")
-    F['l7_set_description'] = (f"{configs.set_label('L7 set')}: " + ", ".join(pshort(p) for p in probs)
+    F['l7_set_description'] = (f"{configs.set_label('L7 set')}: " + ", ".join(plabel(p) for p in probs)
                                + f"; scored separately. Added after every strong config passed L{max(v['rung'] for v in s['problems'].values())}.")
     return F
 
@@ -793,7 +796,7 @@ def _tables(s, arms):
     T["floor"] = md_table(["model"] + [names[l] for l in lv],
                           [[{"luna": "gpt-6-luna", "terra": "gpt-5.6-terra"}[m]] + [n(fl[f"{m}/{l}"]["in_tok"]) for l in lv] for m in dict.fromkeys(k.split("/")[0] for k in fl)])
     hard = s["hard"]; hp = sorted({p for v in hard.values() for p in v["by_problem"]})
-    T["l7"] = md_table(["config", "passed", "95% CI"] + [p[:3] for p in hp] + ["median s", "mean reasoning tokens", "$ per pass", "$ kind"],
+    T["l7"] = md_table(["config", "passed", "95% CI"] + [plabel(p) for p in hp] + ["median s", "mean reasoning tokens", "$ per pass", "$ kind"],
                        [[c, f"{v['passes']}/{v['n']}", ci_text(v["passes"], v["n"], v["ci95"], len(hp))] + [f"{v['by_problem'].get(p, 0)}/5" for p in hp]
                         + [f"{v['latency_s']['median']:.1f}", n(v["tokens_mean"]["reasoning_tok"]), f"{usd(v['usd_per_pass'])}", v["cost_kind"]] for c, v in hard.items()])
     fail = s["failures"]; cols = list(dict.fromkeys(c for f in fail.values() for c in f["cells"]))
@@ -804,7 +807,7 @@ def _tables(s, arms):
         f = " ".join(f"{k}{ab[o]}" for o, k in sorted(d["fails"].items()))
         k = f"**{d['passed']}**" if d["passed"] * 5 <= 2 * d["n"] else str(d["passed"])
         return k + (f" ({f})" if f else "")
-    T["fail"] = md_table(["problem"] + cols, [[f"{p[:3]} L{f['rung']}"] + [cell(f["cells"].get(c)) for c in cols] for p, f in fail.items()])
+    T["fail"] = md_table(["problem"] + cols, [[plabel(p, f["rung"])] + [cell(f["cells"].get(c)) for c in cols] for p, f in fail.items()])
     ag = s["agentic"]; selected_keys = {r["key"] for r in summarize.agentic_rows()}
     at = [r for r in json.load(open(os.path.join(RES, "agentic_tests.json"))) if r["key"] in selected_keys]
     T["agentic"] = md_table(["config", "hidden tests passed", "complete task", "runs that wrote the requested test file", "test functions added", "median s", "$ per run", "$ kind"],
@@ -1171,6 +1174,10 @@ def _interesting(ds):
          "tool-feature trimming reduces mean input but more than doubles estimated call cost at equal passes")
     F["int_trim"] = (f'Disabling luna-low\'s tool features cut input {1 - trim["tokens_in_mean"] / stock["tokens_in_mean"]:.0%}, '
                      f'yet raised estimated cost {x(trim["usd_per_call"], stock["usd_per_call"])}.')
+
+    # Each finding sentence is a separate bullet; numeric comparisons keep their facts.
+    for key in ("int_sol", "int_luna", "int_semi", "int_harness", "int_build", "int_l7", "int_trim", "int_repo"):
+        F[key] = "</li>\n<li>".join(re.split(r'(?<=[.!?])\s+', F[key]))
 
 def build(summary=None):
     from bench.problems.p13_xor_ring import STATEMENT as xor_statement
