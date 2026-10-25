@@ -359,13 +359,20 @@ def harness_chart(s):
     return svg(W, H, b)
 
 
-def build(ds=None):
+def build(ds=None, names=None):
     """{file name: SVG text or None}, using only the dataset."""
     ds = ds or dataset.read(); s = dataset.view(ds)
     check_design(s)
-    charts = {"pareto.svg": pareto_chart(s), "hero.svg": pareto_chart(s, hero=True), "cost_time.svg": cost_time_chart(s), "pass_by_rung.svg": rung_chart(s, ds), "heatmap.svg": heatmap(s),
-              "token_floor.svg": floor_chart(s), "agentic.svg": agentic_chart(s), "token_in.svg": token_in_chart(s, ds), "harness_bias.svg": harness_chart(s)}
-    charts["cost_total.svg"], charts["cost_per_1k.svg"] = cost_tokens_chart(s, ds)
+    renderers = {"pareto.svg": lambda: pareto_chart(s), "hero.svg": lambda: pareto_chart(s, hero=True),
+                 "cost_time.svg": lambda: cost_time_chart(s), "pass_by_rung.svg": lambda: rung_chart(s, ds),
+                 "heatmap.svg": lambda: heatmap(s), "token_floor.svg": lambda: floor_chart(s),
+                 "agentic.svg": lambda: agentic_chart(s), "token_in.svg": lambda: token_in_chart(s, ds),
+                 "harness_bias.svg": lambda: harness_chart(s)}
+    charts = {name: draw() for name, draw in renderers.items() if names is None or name in names}
+    if names is None or names & {"cost_total.svg", "cost_per_1k.svg"}:
+        total, per = cost_tokens_chart(s, ds)
+        charts.update({k: v for k, v in (("cost_total.svg", total), ("cost_per_1k.svg", per))
+                       if names is None or k in names})
     return charts
 
 

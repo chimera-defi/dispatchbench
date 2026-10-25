@@ -22,6 +22,7 @@ from analysis.luna_rescue import PIDS, claude_usd
 from analysis.summarize import RES, ROOT, cost, load, scale
 
 PATH = os.path.join(RES, "dataset.json")
+FACTS_USED = os.path.join(RES, "report", "facts_used.json")  # facts the page renders; landcheck compares it with base
 SEMI_URL = "https://newsletter.semianalysis.com/p/anthropic-subscriptions-offer-5x"
 
 import glob, re, copy, math
@@ -319,6 +320,10 @@ def fairness_facts():
          "haiku-low led luna-low in both runners")
     codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
     facts['hb_errors'] = str(sum(r['outcome'] == 'harness_error' for r in codex))
+    facts['hb_full_calls'] = str(len(rows))
+    need(len(rows) == sum(len([r for r in rows if r['config'] == c and r['harness'] == h])
+                         for c in harness_bias.CFGS for h in ('claude-one-shot', 'codex-tool-loop')),
+         "full harness run counts every paired call")
     need(not any(r['outcome'] == 'timeout' or re.search(r'timeout|timed out|exceeded', r.get('error') or '', re.I)
                  for r in codex), "agent-CLI run had no timeouts")
     # Codex harness ts is recorded before invocation; wall_s is that invocation's duration.
@@ -726,6 +731,8 @@ def _facts(s, arms):
     word = {3: "Three", 4: "Four", 5: "Five"}[len(tied)]
     F['winner_line'] = (f"{word} configs passed every try in every set: haiku-high, sonnet-medium, sol61-high and astra-medium. "
                         f"haiku-high is the cheapest, at {F['hh_upp']} per pass.")
+    F['winner_intro'], F['winner_price'] = F['winner_line'].split('. ', 1)
+    F['winner_intro'] += '.'
     nl7 = hard['sonnet-medium']['n']
     need(all(v['passes'] == v['n'] == nl7 for c, v in hard.items() if c in tied), "every tied config is perfect on the same number of L7 tries")
     F['l7_bound'] = f"{nl7}/{nl7}"; F['l7_lo'] = ci_text(nl7, nl7, None, len(probs)).split()[0].lstrip("≥")  # same bound as the tables: over problems, not tries
@@ -1108,8 +1115,28 @@ def _interesting(ds):
          "the Codex picks are over 2.5x slower than the fast Claude configs on repo tasks")
     F["int_repo"] = (f'On real repo edits, sol61-high took {rp["sol61-high"]["median_s"]:.0f} s and astra-medium {rp["astra-medium"]["median_s"]:.0f} s. '
                      f'sonnet-medium and haiku-low took about {rp["sonnet-medium"]["median_s"]:.0f} s. All passed every task.')
-    F["int_harness"] = (f'Codex CLI lifted luna-low from {F["hb_luna_low_change"].replace("→", " to ")} passes. '
-                        f'haiku-low moved {F["hb_haiku_low_change"]} in Claude Code, near its ceiling.')
+    harness_rows = load(os.path.join(RES, "appendix", "harness_bias.jsonl"))
+    comparisons = {}
+    for c in harness_bias.CFGS:
+        cells = []
+        for h in ('claude-one-shot', 'codex-tool-loop'):
+            rr = [r for r in harness_rows if (r['config'], r['harness']) == (c, h)]
+            passed = sum(r['passed'] for r in rr)
+            need(passed > 0, f"{c} has passes in {h}")
+            cells.append(dict(passes=passed, n=len(rr), upp=sum(r['cost_usd'] for r in rr) / passed,
+                              median=statistics.median(r['wall_s'] for r in rr)))
+        one, loop = cells
+        need(one['n'] == loop['n'] and loop['passes'] > one['passes'], f"Codex's bench improved {c}")
+        comparisons[c] = one, loop, loop['upp'] / one['upp'], loop['median'] / one['median']
+    lo, la, lc, lt = comparisons['luna-low']
+    ho, ha, hc, ht = comparisons['haiku-low']
+    need(2.5 <= lc < 3.5 and 2.5 <= lt < 3.5, "luna-low costs about three times per pass and takes about three times the median time")
+    need(1 < hc < 1.2 and 0.95 < ht < 1.05, "haiku-low costs slightly more per pass with the same median time")
+    F["int_harness"] = ("On Codex's bench, both families gained. "
+                        f"luna-low rose from {lo['passes']} to {la['passes']} passes. "
+                        f"It cost ~{lc:.0f}× per pass and took ~{lt:.0f}× the median time. "
+                        f"haiku-low rose from {ho['passes']} to {ha['passes']} passes. "
+                        f"It cost ~{hc:.1f}× per pass, with the same median time.")
     # Build history lives in the existing fair-section narrative, not graded rows.
     template = open(os.path.join(ROOT, "docs", "page.tmpl.md")).read()
     history = template.split('<summary>How Codex built its bench</summary>', 1)[1].split('</details>', 1)[0]

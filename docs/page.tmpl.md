@@ -5,10 +5,11 @@
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
-<p><b>{{winner_line}}</b></p>
+<p><b>{{winner_intro}}</b></p>
+<details class="small"><summary>Picks and model names</summary>
+<p>{{winner_price}}</p>
 <p class="small">{{winner_fallback}}</p>
 <p class="small">Against haiku-high, sol61-high takes {{s61h_hh_t}} the time and ~{{s61h_hh_c}} the $ per pass. ⚡ makes that {{s61f_hh_t}} the time at ~{{s61f_hh_c}} the $.</p>
-<details class="small"><summary>Picks and model names</summary>
 {{w_winner}}
 <details class="small names"><summary>Model names</summary>
 <ul class="tight small">
@@ -23,12 +24,13 @@
 </section>
 <section id="pareto">
 <h2><span class="num"></span>📊 Cost vs accuracy</h2>
-<p class="small">haiku-high passes {{haiku_high_pass}} at {{haiku_high_upp}} per pass. sol61-high also passes {{sol61_high_pass}} at ~{{sol61_high_upp}} per pass. It costs {{claude_zero}} on Codex quota. The three cheapest luna configs cost less but miss about {{cheap_miss_words}}.</p>
 <div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="ring"></span>Best trade-off (ringed, numbered)</span></div>
 <div class="chart"><h3>🎯 Pass rate vs $ per pass</h3>{{w_pass_cost}}</div>
 <details open><summary>⏱️ Speed vs $ per pass</summary><div class="chart"><p class="sub">Best trade-offs among configs passing at least {{min_pass}}.</p>{{w_speed_cost}}</div></details>
-{{w_sets}}
 <details class="small"><summary>How to read these charts</summary>
+<p class="small">haiku-high passes {{haiku_high_pass}} at {{haiku_high_upp}} per pass. sol61-high also passes {{sol61_high_pass}} at ~{{sol61_high_upp}} per pass. It costs {{claude_zero}} on Codex quota. The three cheapest luna configs cost less but miss about {{cheap_miss_words}}.</p>
+<p class="set-note">{{w_rescue_subtitle}}</p>
+{{w_sets}}
 <ul class="tight small">
 <li>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet. Triangles = luna · ◆ sol · ★ astra. Luna triangle direction = effort: up low, right medium, down high. Alternate Codex colour = the older gpt-{{older_generation}} models (luna56, sol56).</li>
 <li>Filled = normal speed. Hollow (⚡) = fast mode, joined by a thin line to its normal-speed point. Dashed edge = bare prompt.</li>
@@ -176,7 +178,7 @@
 <li>{{hb_luna_cost}} {{hb_haiku_cost}} Overall, Codex's bench cost {{hb_total_x}} as much.</li>
 <li>Running code, not who built the bench, may explain the gain.</li>
 <li>The gap moved {{hb_diff_points}} points, below our {{hb_bar_points}}-point bias bar.</li>
-<li>The 95% range is {{hb_range_points}} points, so a larger bias is possible.</li>
+<li>The range is {{hb_range_points}} points, so a larger bias is possible. Confidence: {{ci_level}}.</li>
 <li>Two more luna-low variants are listed under Everything we tried. luna-low-noshell-B1 removes shell context and asks for edge cases first. luna-low-noshell-B2 also asks for a detailed reasoning summary. {{noshell_comparison}}</li>
 </ul>
 {{table:harness_strengths}}
@@ -187,7 +189,7 @@
 <li>Its dry runs missed two sandbox bugs. A live call found them; Codex fixed both.</li>
 <li>A final "plan and reorient" nudge changed no code.</li>
 <li>{{hb_subset}}</li>
-<li>We lifted its repeat cap, a two-line change, then ran the full test.</li>
+<li>We lifted its repeat cap, a two-line change, then ran {{hb_full_calls}} calls.</li>
 <li>It finished with {{hb_errors}} harness errors and no timeouts, in about {{hb_minutes}} minutes.</li>
 </ul>
 </details>

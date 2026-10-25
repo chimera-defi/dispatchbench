@@ -17,6 +17,18 @@ CHARTS = os.path.join(RES, "report", "charts")
 PAGE_DIR = os.path.join(ROOT, "docs", "page")
 
 class Facts(dict):
+    def __init__(self, *args, used=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.used = used
+
+    def __getitem__(self, k):
+        value = super().__getitem__(k)
+        if self.used is not None: self.used.add(k)
+        return value
+
+    def get(self, k, default=None):
+        return self[k] if k in self else default
+
     def __missing__(self, k):
         raise KeyError(f"template uses unknown fact {{{{{k}}}}}")
 
@@ -117,7 +129,7 @@ def to_html(md):
     return "\n".join(out)
 
 
-def render():
+def render(used_facts=None):
     """(README text, full report text, page HTML), all rendered from the dataset and the templates."""
     ds = dataset.read(); s = dataset.view(ds)
     F = facts(ds); T = tables_md(ds); chart_bodies = charts.build(ds)
@@ -125,11 +137,19 @@ def render():
     readme = fill(open(README_TEMPLATE).read(), F, T, "readme", chart_bodies).strip() + "\n"
     up = lambda m: m.group(0) if re.match(r"https?:|#|mailto:", m.group(2)) else f"{m.group(1)}(../{m.group(2)})"
     report = re.sub(r"(\]|!\[[^\]]*\])\(([^)\s]+)\)", up, fill(open(TEMPLATE).read(), F, T, "readme", chart_bodies).strip() + "\n")  # it lives in docs/
-    W = pagew.widgets(s, need, ds)
     page_tmpl = open(PAGE_TEMPLATE).read()
-    body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}, "w_everything": ""}), T, "page", chart_bodies)  # first pass: the page without the section
+    if used_facts is not None:
+        # Track page dependencies only: README/report facts and unused widgets do not count.
+        ds["facts"] = Facts(ds["facts"], used=used_facts)
+        s["facts"] = ds["facts"]
+        F = Facts(F, used=used_facts)
+        chart_names = set(re.findall(r"\{\{chart:([^|]+)\|", page_tmpl))
+        chart_bodies = charts.build(ds, names=chart_names)
+    widget_names = {k[2:] for k in PLACE.findall(page_tmpl) if k.startswith("w_")}
+    W = pagew.widgets(s, need, ds, names=widget_names)
+    body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}, "w_everything": ""}, used=used_facts), T, "page", chart_bodies)  # first pass: the page without the section
     W["everything"] = configs.section(body, ds, ROOT, chart_bodies)  # every registered config, with 'where it appears' read from that first pass
-    body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}}), T, "page", chart_bodies)
+    body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}}, used=used_facts), T, "page", chart_bodies)
     body = pagew.notation_tooltips(body, ds)
     shell = open(os.path.join(PAGE_DIR, "shell.html")).read()
     script = open(os.path.join(PAGE_DIR, "sort.js")).read().strip().replace("__RESCUE_SET_LABEL__", json.dumps(configs.set_label("rescue set")))
@@ -138,7 +158,10 @@ def render():
 
 
 def main():
-    readme, report, page = render()
+    used = set()
+    readme, report, page = render(used_facts=used)
+    # The facts the page renders; landcheck flags any that a later branch stops rendering.
+    open(dataset.FACTS_USED, "w").write(json.dumps(sorted(used), indent=0) + "\n")
     open(README, "w").write(readme); open(REPORT, "w").write(report)
     os.makedirs(os.path.dirname(PAGE), exist_ok=True); open(PAGE, "w").write(page)
     print(f"report -> README.md ({len(readme):,} chars), docs/REPORT.md ({len(report):,} chars), {os.path.relpath(PAGE, ROOT)} ({len(page):,} chars)")

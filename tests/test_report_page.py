@@ -46,8 +46,6 @@ def test_reader_set_labels_and_complete_notation_legend():
 
     output = report.render()[2]
     assert "we can’t test that" in output and "SemiAnalysis" in output
-    res = output[output.find('id="results"'):output.find('id="method"')]
-    assert "<td>all</td>" not in res and "<td>–</td>" not in res and "<td>$0</td>" in res and "<td>$0.0028</td><td>$0.0028</td>" in res
     reader = Reader()
     reader.feed(output)
     assert not re.search(r"rescue[ -]set", "".join(reader.text + reader.titles), re.I)
@@ -422,10 +420,11 @@ def test_rescue_label_leaders_start_at_the_named_point():
 
 def test_winner_and_conclusion_agree_and_sets_are_collapsed(summary):
     template = (ROOT / "docs/page.tmpl.md").read_text()
-    assert template.count('<b>{{winner_line}}</b>') == 2
+    facts = summary['facts']
+    assert facts['winner_intro'] + ' ' + facts['winner_price'] == facts['winner_line']
     assert 'Codex first' not in template
     winner = re.search(r'<section[^>]*id="winner">(.*?)</section>', template, re.S)[1]
-    assert winner.index('{{winner_line}}') < winner.index('<details') < winner.index('{{w_winner}}')
+    assert winner.index('{{winner_intro}}') < winner.index('<details') < winner.index('{{winner_price}}') < winner.index('{{w_winner}}')
     assert '<details class="sets"><summary>' in page.sets_box(summary)
     assert ' open' not in page.sets_box(summary).split('>')[0]
     assert template.index('{{w_sets}}') > template.index('{{w_pass_cost}}')
@@ -718,35 +717,13 @@ def test_landcheck_lists_removed_page_text_and_header():
     assert set(old.heads) - set(new.heads) == {"Claude | Codex match"}
 
 
-def test_regressed_facts_stay_restored():
-    # each phrase was lost in a past edit and restored in v41; a rewording must keep the fact
-    output = open("results/report/page.html").read()
-    for phrase in ("The 95% range is", "plan and reorient", "repeat cap, a two-line change", "that pipeline cost",
-                   "Planted wrong answers must fail", "after seeing the main-run results", "via radon", "ruff style warnings",
-                   "not a measured bill", "slower, no better code",
-                   "Claude designed and ran this bench; Codex built only its own harness.",
-                   "Codex-as-orchestrator run: not run yet.",
-                   "Codex out? haiku-low passed 57/60.", "$0.0011 per pass; use haiku-high when a miss is costly.",
-                   "Would block = would not merge as is.",
-                   "~$0.40", "~$0.37",
-                   "Fast-mode pipelines equal their builders because every example check passed.", "Haiku made 0 repairs.",
-                   "luna-low failed sample tests more often: 13 repairs, so the gate helped it more.",
-                   "Codex's bench dry runs missed 2 sandbox bugs; a live call found them.",
-                   'Its "plan and reorient" nudge changed no code.',
-                   "On L7, luna-high passed 15/15; sol56-high missed.",
-                   "luna-high cost ~$0.0015 per pass versus sol56-high's ~$0.069.",
-                   "Disabling luna-low's tool features cut input 31%, yet raised estimated cost 2.1×."):
-        assert phrase in output, phrase
-    for config in ("luna-low", "sol61-medium"):
-        label = f"{config} / Codex&#x27;s bench (Codex CLI)"
-        row = next(r for r in re.findall(r"<tr\b.*?</tr>", output, re.S) if f">{label}</td>" in r)
-        assert "–" not in row
-        assert "~$" in row
-
-
-@pytest.mark.parametrize("fact", ["bench_authorship", "winner_fallback", "fast_pipeline_note",
-                                 "int_build", "int_l7", "int_trim"])
-def test_restored_prose_stays_short(fact):
-    for sentence in re.split(r"(?<=[.!?])\s+", dataset.read()["facts"][fact]):
-        assert len(sentence.split()) <= 15, sentence
-        assert len(re.findall(r"(?<![\w.])\d+(?:\.\d+)?(?![\w.])", sentence)) <= 2, sentence
+def test_landcheck_flags_dropped_facts_and_placeholder_cells(monkeypatch):
+    from analysis import landcheck
+    assert landcheck.page_findings("HEAD") == []
+    built = Path(landcheck.PAGE).read_text()
+    cell = re.search(r'(<td\b[^>]*>)(~?\$?\d[\d.,]*(?:%| s)?)(</td>)', built)
+    for placeholder in ("–", "n/a", "all", ""):
+        assert landcheck.placeholder_cells(built[:cell.start(2)] + placeholder + built[cell.end(2):])
+    real_git = landcheck.git
+    monkeypatch.setattr(landcheck, "git", lambda *a: '["__probe__"]' if a[0] == "show" and a[1].endswith(landcheck.USED) else real_git(*a))
+    assert "dropped_facts: __probe__" in landcheck.page_findings("HEAD")

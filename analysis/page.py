@@ -292,7 +292,7 @@ def ladder_toggle(render, s):
             f'<label><input type="radio" name="{set_name}" value="rescue"> {configs.set_label("rescue set", capital=True)} + pipelines</label></div>')
     return ('<div class="cwrap"><label class="cost-toggle"><input type="checkbox"> Codex is free (subscription quota)</label>'
             + sets + filters + note + '<div class="cset s-main">' + normal + free + frontier_caption(s) + '</div>'
-            + f'<div class="cset s-rescue"><p class="set-note">{esc(rescue_subtitle(s))}</p>' + rescue_normal + rescue_free + '</div><div class="ctip" hidden></div></div>'), fr
+            + '<div class="cset s-rescue">' + rescue_normal + rescue_free + '</div><div class="ctip" hidden></div></div>'), fr
 
 
 def quota_tip(normal, free, saving):
@@ -931,12 +931,20 @@ def winner_table(ds, need):
             + '</ul><p class="small">Caveat: sonnet-medium\'s code read worst in a blind review (see Notes).</p>')
 
 
-def widgets(s, need, ds=None):
+def widgets(s, need, ds=None, names=None):
     arms = rescue_arms(ds or s)
-    a, fa = pass_cost(s); b, fb = speed_cost(s); ha, hfa = hard_pass_cost(arms); hb, hfb = hard_speed_cost(arms); nm = {c: DISP(c) for c in arms}
-    return {"pass_cost": a, "speed_cost": b, "hard_pass_cost": ha, "hard_speed_cost": hb,
-            "hard_front_pass": ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": ", ".join(SHORT(nm[c]) for c in hfb), "sets": sets_box(s), "grid": grid(s), "floor": floor(s), "pipes": pipes(arms), "fast": fast(s), "explorer": explorer(s), "short_table": short_table(s, need), "full_table": full_table(ds or dataset.read()),
-            "front_pass": ", ".join(map(DISP, fa)), "front_speed": speed_frontier_text(s, fb),
-            "winner": winner_table(ds or dataset.read(), need),
-            "hb_qa": "".join(f'<li>{esc(line)}</li>' for line in s["facts"]["hb_qa"]),
-            "legend": legend(ds or dataset.read()), "rescue_subtitle": rescue_subtitle(s), "problems": method(s)[0], "flags": method(s)[1]}
+    if names is None or names & {"pass_cost", "front_pass"}: a, fa = pass_cost(s)
+    if names is None or names & {"speed_cost", "front_speed"}: b, fb = speed_cost(s)
+    if names is None or names & {"hard_pass_cost", "hard_front_pass"}: ha, hfa = hard_pass_cost(arms)
+    if names is None or names & {"hard_speed_cost", "hard_front_speed"}: hb, hfb = hard_speed_cost(arms)
+    nm = {c: DISP(c) for c in arms}
+    renderers = {"pass_cost": lambda: a, "speed_cost": lambda: b, "hard_pass_cost": lambda: ha, "hard_speed_cost": lambda: hb,
+            "hard_front_pass": lambda: ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": lambda: ", ".join(SHORT(nm[c]) for c in hfb),
+            "sets": lambda: sets_box(s), "grid": lambda: grid(s), "floor": lambda: floor(s), "pipes": lambda: pipes(arms),
+            "fast": lambda: fast(s), "explorer": lambda: explorer(s), "short_table": lambda: short_table(s, need),
+            "full_table": lambda: full_table(ds or dataset.read()), "front_pass": lambda: ", ".join(map(DISP, fa)),
+            "front_speed": lambda: speed_frontier_text(s, fb), "winner": lambda: winner_table(ds or dataset.read(), need),
+            "hb_qa": lambda: "".join(f'<li>{esc(line)}</li>' for line in s["facts"]["hb_qa"]),
+            "legend": lambda: legend(ds or dataset.read()), "rescue_subtitle": lambda: rescue_subtitle(s),
+            "problems": lambda: method(s)[0], "flags": lambda: method(s)[1]}
+    return {name: draw() for name, draw in renderers.items() if names is None or name in names}
