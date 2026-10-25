@@ -18,6 +18,11 @@ def set_label(key, capital=False):
     return label[0].upper() + label[1:] if capital else label
 
 
+def cell_markup(markup):
+    """Keep an estimate prefix and its dollar value on the same line."""
+    return re.sub(r"~\s*\$[\d.,]+", lambda m: '<span style="white-space:nowrap">' + m[0] + '</span>', markup)
+
+
 # Meanings may interpolate existing dataset facts; prose and tooltips share them.
 NOTATION = {
     "⚡": "Fast mode: {fm_mult} list price at the same model and effort.",
@@ -33,7 +38,7 @@ NOTATION = {
     "–": "No Claude step, unavailable cost, or an unrun failure-grid cell.",
     "$0": "The Haiku step never ran, or subscription quota covers the Codex call.",
     "≥N%": "The lower {ci_level} bound when every attempt passed.",
-    "p90": "The time within which {p90_percent} of calls finished.",
+    "slow-call time": "The time within which {p90_percent} of calls finished.",
 }
 
 
@@ -197,12 +202,12 @@ def section(rest, ds, root, chart_bodies=None):
         es = by.pop(cat, [])
         if not es: continue
         label = "Low context (prompt or tool text trimmed)" if cat == "low context" else set_label(cat)
-        out.append(f"<details><summary>{html.escape(label)}: {ds['categories'][cat]['n_configs']} configs, {money(ds['categories'][cat]['spend'])} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
+        out.append(f"<details><summary>{html.escape(label)}: {ds['categories'][cat]['n_configs']} configs, {'~' if any(e['cost_kind'] == 'proxy' for e in es) else ''}{money(ds['categories'][cat]['spend'])} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
         for e in es:
             spend = None if e["unknown_usd"] else e["spend"]
             proxy = "~" if e["cost_kind"] == "proxy" else ""
             out.append(f"<tr><td title=\"{html.escape(', '.join(e['files']))}\">{html.escape(e['display'])}</td><td>{html.escape(e['what'])}</td><td>{e['passes']}/{e['n']}</td>"
-                       f"<td>{proxy if e['usd_per_pass'] is not None else ''}{money(e['usd_per_pass'])}</td><td>{e['median_s']:.1f}</td><td>{proxy if spend is not None else ''}{money(spend)}</td><td>{where(e, rest, chart_bodies)}</td></tr>")
+                       f"<td>{cell_markup((proxy if e['usd_per_pass'] is not None else '') + money(e['usd_per_pass']))}</td><td>{e['median_s']:.1f}</td><td>{cell_markup((proxy if spend is not None else '') + money(spend))}</td><td>{where(e, rest, chart_bodies)}</td></tr>")
         out.append("</tbody></table></div></details>")
     out += [f"<details><summary>unregistered</summary><p>{html.escape(r['display'])} ({r['source']})</p></details>" for es in by.values() for r in es]
     return "\n".join(out + ["</details>"])

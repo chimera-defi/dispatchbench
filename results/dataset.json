@@ -21878,9 +21878,8 @@
   "agent_repeats": "3",
   "n_rungs": "6",
   "per_rung": "2",
-  "codex_orchestrator_status": "not run yet",
-  "hb_answer": "Slightly, and possibly more.",
-  "hb_detail": "Gap moved 13 points (95% range 3 to 23); bias bar was 15.",
+  "hb_answer": "Slightly: the gap moved 13 points.",
+  "hb_detail": "Gap moved 13 points (95% range 3 to 23); bias threshold was 15.",
   "hb_diff": "+0.133",
   "hb_takeaway": "luna-low: 36→47 of 60 inside Codex CLI. haiku-low: 57→60 of 60 inside Claude Code.",
   "hb_uncertainty": "A bigger bias is possible.",
@@ -21900,13 +21899,13 @@
   "hb_haiku_low_gain": "3",
   "hb_haiku_low_change": "57→60",
   "hb_haiku_low_n": "60",
-  "hb_summary": "luna-low: 36→47 of 60 inside Codex CLI. haiku-low: 57→60 of 60 inside Claude Code. Gap moved 13 points (95% range 3 to 23); bias bar was 15.",
+  "hb_summary": "luna-low: 36→47 of 60 inside Codex CLI. haiku-low: 57→60 of 60 inside Claude Code. Gap moved 13 points (95% range 3 to 23); bias threshold was 15.",
   "hb_qa": [
-   "A: Slightly, and possibly more.",
+   "A: Slightly: the gap moved 13 points.",
    "Inside Codex CLI, luna-low went from 36 to 47 passes.",
    "Inside Claude Code, haiku-low went from 57 to 60 passes.",
-   "The gap moved 13 points, below our 15-point bias bar.",
-   "We used 95% confidence. The range spans 3 to 23 points.",
+   "The gap moved 13 points, below our 15-point bias threshold.",
+   "The 95% range is 3 to 23 points.",
    "A larger bias is possible."
   ],
   "hb_conclusion": "Vendor agent CLIs improved both models.",
@@ -21915,6 +21914,7 @@
   "hb_luna_wrong_agent": "6",
   "hb_luna_crash_agent": "7",
   "hb_errors": "0",
+  "hb_full_calls": "240",
   "hb_minutes": "74",
   "versions_claude": "Main bench, Claude Code 2.1.308: claude-haiku-5-5, claude-sonnet-5-5.",
   "versions_codex": "Main bench, Codex CLI 0.163.0: gpt-5.6-luna, gpt-5.6-sol, gpt-6-astra, gpt-6-luna, gpt-6.1-sol.",
@@ -22410,6 +22410,8 @@
   ],
   "speed_why": "No misses. 4.6 s faster than haiku-high.",
   "winner_line": "Four configs passed every try in every set: haiku-high, sonnet-medium, sol61-high and astra-medium. haiku-high is the cheapest, at $0.0028 per pass.",
+  "winner_intro": "Four configs passed every try in every set: haiku-high, sonnet-medium, sol61-high and astra-medium.",
+  "winner_price": "haiku-high is the cheapest, at $0.0028 per pass.",
   "l7_bound": "15/15",
   "l7_lo": "37%",
   "budget_why": "Cheapest with no misses. haiku-low costs less but misses 3 of 60",
@@ -22435,23 +22437,23 @@
   "int_luna": "luna-low is cheaper per pass than haiku-low: ~$0.00090 to $0.0011. But it passes 77% to 95%.",
   "int_semi": "<a href=\"https://newsletter.semianalysis.com/p/anthropic-subscriptions-offer-5x\">SemiAnalysis</a>: Anthropic plans give ~5× OpenAI's API-priced value at the Opus/Sol tier. We price list-rate calls, not plan quotas, so we can’t test that. At list price, haiku-high beats sol61-high ~7× per pass; tiers differ. On repo tasks the gap is ~8×. But luna-low was cheapest there and passed every repo task.",
   "int_repo": "On real repo edits, sol61-high took 109 s and astra-medium 85 s. sonnet-medium and haiku-low took about 28 s. All passed every task.",
-  "int_harness": "Codex CLI lifted luna-low from 36 to 47 passes. haiku-low moved 57→60 in Claude Code, near its ceiling.",
+  "int_harness": "On Codex's bench, both families gained. luna-low rose from 36 to 47 passes. It cost ~3× per pass and took ~3× the median time. haiku-low rose from 57 to 60 passes. It cost ~1.1× per pass, with the same median time.",
   "int_build": "Codex's bench dry runs missed 2 sandbox bugs; a live call found them. Its \"plan and reorient\" nudge changed no code.",
   "int_l7": "On L7, luna-high passed 15/15; sol56-high missed. luna-high cost ~$0.0015 per pass versus sol56-high's ~$0.069.",
   "int_trim": "Disabling luna-low's tool features cut input 31%, yet raised estimated cost 2.1×.",
   "hb_subset": "It first replayed 12 of our haiku-low and sol61-medium results. All passed on both.",
   "hb_haiku_cost": "haiku-low cost 1.1× as much there, in about the same time.",
   "hb_total_x": "1.8×",
-  "hb_luna_cost": "luna-low cost 4× more and took 3× longer there."
+  "hb_luna_cost": "luna-low cost 4× more in total and took 3× longer there."
  },
  "tables": {
   "result": {
    "head": [
     "config",
-    "pass@1",
+    "pass rate",
     "95% CI",
     "median s",
-    "p90 s",
+    "slow-call time s",
     "$ per pass",
     "total $ (60 calls)",
     "$ kind"
@@ -22622,8 +22624,8 @@
   "result_detail": {
    "head": [
     "config",
-    "pass@1 95% CI",
-    "p90 s",
+    "pass rate 95% CI",
+    "slow-call time s",
     "total $ (60 calls)"
    ],
    "rows": [

@@ -22,6 +22,7 @@ from analysis.luna_rescue import PIDS, claude_usd
 from analysis.summarize import RES, ROOT, cost, load, scale
 
 PATH = os.path.join(RES, "dataset.json")
+FACTS_USED = os.path.join(RES, "report", "facts_used.json")  # facts the page renders; landcheck compares it with base
 SEMI_URL = "https://newsletter.semianalysis.com/p/anthropic-subscriptions-offer-5x"
 
 import glob, re, copy, math
@@ -234,15 +235,6 @@ def vs(s, c, b):
     return next(d for d in s["exploratory"][c]["vs"] if d["b"] == b)
 
 
-def codex_orchestrator_status(rows):
-    """Only attributed result rows count; running the tested config in Codex is not orchestration."""
-    def is_codex(value):
-        if isinstance(value, dict):
-            return any(is_codex(value.get(k, "")) for k in ("cli", "model", "name"))
-        return str(value).lower().startswith(("codex", "gpt-"))
-    return "results available" if any(r.get("passed") is not None and is_codex(r.get("orchestrator", "")) for r in rows) else "not run yet"
-
-
 def fairness_facts():
     """Page facts from committed appendix rows; never regenerate or grade the experiment."""
     rows = load(os.path.join(RES, "appendix", "harness_bias.jsonl"))
@@ -291,13 +283,13 @@ def fairness_facts():
         facts[f'hb_{key}_change'] = f"{sum(r['passed'] for r in one)}→{sum(r['passed'] for r in agent)}"
         facts[f'hb_{key}_n'] = str(len(one))
     if lo > 0:
-        facts['hb_answer'] = "Slightly, and possibly more."
+        facts['hb_answer'] = f"Slightly: the gap moved {facts['hb_diff_points']} points."
         facts['hb_takeaway'] = (
             f"luna-low: {facts['hb_luna_low_change']} of {facts['hb_luna_low_n']} inside Codex CLI. "
             f"haiku-low: {facts['hb_haiku_low_change']} of {facts['hb_haiku_low_n']} inside Claude Code.")
         facts['hb_detail'] = (
             f"Gap moved {facts['hb_diff_points']} points "
-            f"({95}% range {facts['hb_range_points']}); bias bar was {facts['hb_bar_points']}.")
+            f"({95}% range {facts['hb_range_points']}); bias threshold was {facts['hb_bar_points']}.")
         facts['hb_uncertainty'] = "A bigger bias is possible."
     facts['hb_summary'] = " ".join(facts[k] for k in ('hb_takeaway', 'hb_detail'))
     facts['hb_qa'] = ([f"A: {facts['hb_answer']}",
@@ -305,8 +297,8 @@ def fairness_facts():
         f"to {facts['hb_codex_luna_low'].split('/')[0]} passes.",
         f"Inside Claude Code, haiku-low went from {facts['hb_claude_haiku_low'].split('/')[0]} "
         f"to {facts['hb_codex_haiku_low'].split('/')[0]} passes.",
-        f"The gap moved {facts['hb_diff_points']} points, below our {facts['hb_bar_points']}-point bias bar.",
-        f"We used {95}% confidence. The range spans {facts['hb_range_points']} points.",
+        f"The gap moved {facts['hb_diff_points']} points, below our {facts['hb_bar_points']}-point bias threshold.",
+        f"The {95}% range is {facts['hb_range_points']} points.",
         "A larger bias is possible."] if lo > 0 else [facts['hb_answer']])
     facts['hb_conclusion'] = ("Vendor agent CLIs improved both models." if improved
                               else "The runner comparison uses paired attempts.")
@@ -319,6 +311,10 @@ def fairness_facts():
          "haiku-low led luna-low in both runners")
     codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
     facts['hb_errors'] = str(sum(r['outcome'] == 'harness_error' for r in codex))
+    facts['hb_full_calls'] = str(len(rows))
+    need(len(rows) == sum(len([r for r in rows if r['config'] == c and r['harness'] == h])
+                         for c in harness_bias.CFGS for h in ('claude-one-shot', 'codex-tool-loop')),
+         "full harness run counts every paired call")
     need(not any(r['outcome'] == 'timeout' or re.search(r'timeout|timed out|exceeded', r.get('error') or '', re.I)
                  for r in codex), "agent-CLI run had no timeouts")
     # Codex harness ts is recorded before invocation; wall_s is that invocation's duration.
@@ -337,9 +333,6 @@ def _facts(s, arms):
              repeats=str(cfg["haiku-low"]["n"] // nprob), n_calls=str(cfg["haiku-low"]["n"]), n_all_problems=str(nprob + len({p for v in hard.values() for p in v["by_problem"]})),
              agent_repeats=str(next(iter(ag.values()))["n"] // ntask), n_rungs=str(len(cfg["haiku-low"]["by_rung"])), per_rung=str(nprob // len(cfg["haiku-low"]["by_rung"])))
     need(all(v["n"] == cfg["haiku-low"]["n"] for v in every.values()), "every function-track config has the same number of calls")
-    attributed = (r for path in sorted(glob.glob(os.path.join(RES, "**", "*.jsonl"), recursive=True)) for r in load(path))
-    F["codex_orchestrator_status"] = codex_orchestrator_status(attributed)
-    need(F["codex_orchestrator_status"] == "not run yet", "Codex has not orchestrated this benchmark")
     F.update(fairness_facts())
     # Models and versions: one CLI version per vendor across the function track.
     by_cli = defaultdict(set)
@@ -523,7 +516,7 @@ def _facts(s, arms):
     F["r_e_luna"] = f"{sum(r['luna_passed'] for r in ee['rows'])}/{ee['n']}"; F["r_e_changed"] = str(sum(r["haiku_changed"] for r in ee["rows"]))
     F["r_e_haiku_share"] = pct(sum(r["haiku_cost_usd"] for r in ee["rows"]) / ee["usd_total"])
     F["orchestrator"] = "Claude Opus 5.5"  # the model that designed, ran and checked this benchmark; not a measured config
-    need(F["orchestrator"].startswith("Claude ") and F["codex_orchestrator_status"] == "not run yet"
+    need(F["orchestrator"].startswith("Claude ")
          and any(r.get("harness") == "codex-designed" for r in load(os.path.join(RES, "appendix", "codex_harness.jsonl"))),
          "Claude designed and ran the bench; Codex built its own harness, not the whole experiment")
     F["bench_authorship"] = "Claude designed and ran this bench; Codex built only its own harness."
@@ -726,6 +719,8 @@ def _facts(s, arms):
     word = {3: "Three", 4: "Four", 5: "Five"}[len(tied)]
     F['winner_line'] = (f"{word} configs passed every try in every set: haiku-high, sonnet-medium, sol61-high and astra-medium. "
                         f"haiku-high is the cheapest, at {F['hh_upp']} per pass.")
+    F['winner_intro'], F['winner_price'] = F['winner_line'].split('. ', 1)
+    F['winner_intro'] += '.'
     nl7 = hard['sonnet-medium']['n']
     need(all(v['passes'] == v['n'] == nl7 for c, v in hard.items() if c in tied), "every tied config is perfect on the same number of L7 tries")
     F['l7_bound'] = f"{nl7}/{nl7}"; F['l7_lo'] = ci_text(nl7, nl7, None, len(probs)).split()[0].lstrip("≥")  # same bound as the tables: over problems, not tries
@@ -775,11 +770,11 @@ def md_table(head, rows, bold=None):
 
 def _tables(s, arms):
     T = {}; cfg, ex = s["configs"], s["exploratory"]; nprob = len(s["problems"])
-    T["result"] = md_table(["config", "pass@1", "95% CI", "median s", "p90 s", "$ per pass", f"total $ ({cfg['haiku-low']['n']} calls)", "$ kind"],
+    T["result"] = md_table(["config", "pass rate", "95% CI", "median s", "slow-call time s", "$ per pass", f"total $ ({cfg['haiku-low']['n']} calls)", "$ kind"],
                            [[DISP(c) + (" †" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], nprob),
                              f"{v['latency_s']['median']:.1f}", f"{v['latency_s']['p90']:.1f}", f"{usd(v['usd_per_pass'])}", f"{usd(v['usd_total'])}", v["cost_kind"]]
                             for c, v in {**cfg, **ex}.items()])
-    T["result_detail"] = md_table(["config", "pass@1 95% CI", "p90 s", f"total $ ({cfg['haiku-low']['n']} calls)"],
+    T["result_detail"] = md_table(["config", "pass rate 95% CI", "slow-call time s", f"total $ ({cfg['haiku-low']['n']} calls)"],
                                   [[DISP(c) + (" †" if c in ex else ""), ci_text(v["passes"], v["n"], v["ci95"], nprob),
                                     f"{v['latency_s']['p90']:.1f}", ("~" if v["cost_kind"] == "proxy" else "") + usd(v["usd_total"])]
                                    for c, v in sorted({**cfg, **ex}.items(), key=lambda pair: configs.low_context(pair[0]))])
@@ -849,7 +844,7 @@ def method_appendix(ds):
     ds['facts']['hb_haiku_cost'] = f"haiku-low cost {hh2['usd'] / hh1['usd']:.1f}× as much there, in about the same time."
     tot = lambda h: sum(cell[c, h]['usd'] for c in harness_bias.CFGS)
     ds['facts']['hb_total_x'] = f"{tot('codex-tool-loop') / tot('claude-one-shot'):.1f}×"
-    ds['facts']['hb_luna_cost'] = f"luna-low cost {loop['usd'] / one['usd']:.0f}× more and took {loop['s'] / one['s']:.0f}× longer there."
+    ds['facts']['hb_luna_cost'] = f"luna-low cost {loop['usd'] / one['usd']:.0f}× more in total and took {loop['s'] / one['s']:.0f}× longer there."
     s = ds['report']
     counts = []
     for key, label in (('configs', 'main ladder'), ('hard', 'L7 set')):
@@ -1108,8 +1103,28 @@ def _interesting(ds):
          "the Codex picks are over 2.5x slower than the fast Claude configs on repo tasks")
     F["int_repo"] = (f'On real repo edits, sol61-high took {rp["sol61-high"]["median_s"]:.0f} s and astra-medium {rp["astra-medium"]["median_s"]:.0f} s. '
                      f'sonnet-medium and haiku-low took about {rp["sonnet-medium"]["median_s"]:.0f} s. All passed every task.')
-    F["int_harness"] = (f'Codex CLI lifted luna-low from {F["hb_luna_low_change"].replace("→", " to ")} passes. '
-                        f'haiku-low moved {F["hb_haiku_low_change"]} in Claude Code, near its ceiling.')
+    harness_rows = load(os.path.join(RES, "appendix", "harness_bias.jsonl"))
+    comparisons = {}
+    for c in harness_bias.CFGS:
+        cells = []
+        for h in ('claude-one-shot', 'codex-tool-loop'):
+            rr = [r for r in harness_rows if (r['config'], r['harness']) == (c, h)]
+            passed = sum(r['passed'] for r in rr)
+            need(passed > 0, f"{c} has passes in {h}")
+            cells.append(dict(passes=passed, n=len(rr), upp=sum(r['cost_usd'] for r in rr) / passed,
+                              median=statistics.median(r['wall_s'] for r in rr)))
+        one, loop = cells
+        need(one['n'] == loop['n'] and loop['passes'] > one['passes'], f"Codex's bench improved {c}")
+        comparisons[c] = one, loop, loop['upp'] / one['upp'], loop['median'] / one['median']
+    lo, la, lc, lt = comparisons['luna-low']
+    ho, ha, hc, ht = comparisons['haiku-low']
+    need(2.5 <= lc < 3.5 and 2.5 <= lt < 3.5, "luna-low costs about three times per pass and takes about three times the median time")
+    need(1 < hc < 1.2 and 0.95 < ht < 1.05, "haiku-low costs slightly more per pass with the same median time")
+    F["int_harness"] = ("On Codex's bench, both families gained. "
+                        f"luna-low rose from {lo['passes']} to {la['passes']} passes. "
+                        f"It cost ~{lc:.0f}× per pass and took ~{lt:.0f}× the median time. "
+                        f"haiku-low rose from {ho['passes']} to {ha['passes']} passes. "
+                        f"It cost ~{hc:.1f}× per pass, with the same median time.")
     # Build history lives in the existing fair-section narrative, not graded rows.
     template = open(os.path.join(ROOT, "docs", "page.tmpl.md")).read()
     history = template.split('<summary>How Codex built its bench</summary>', 1)[1].split('</details>', 1)[0]

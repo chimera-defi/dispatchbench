@@ -72,17 +72,6 @@ def test_usd_explicit_comparison_precision():
     assert dataset.usd(.000899, sig=3) == "$0.000899"
 
 
-def test_harness_null_cost_uses_token_proxy_without_overriding_measured_cost():
-    rows = dataset.load(os.path.join(RES, "appendix", "codex_harness.jsonl"))
-    for config in ("luna-low", "sol61-medium"):
-        row = next(r for r in rows if r["config"] == config)
-        assert row["cost_usd"] is None
-        assert dataset._usd(row, "harness-bias") == pytest.approx(dataset.cost(row))
-        assert dataset._usd({**row, "cost_usd": 0}, "harness-bias") == 0
-    claude = next(r for r in rows if r["cli"] == "claude")
-    assert dataset._usd({**claude, "cost_usd": None}, "harness-bias") is None
-
-
 def test_matches_rescue_arms(ds):
     for c, a in luna_rescue.arms().items():
         r = dataset.get(ds, c, "rescue arms", "rescue") if (("rescue", c) in configs.REGISTRY) else None

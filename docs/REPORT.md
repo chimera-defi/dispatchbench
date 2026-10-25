@@ -10,7 +10,7 @@ The main run was on 2026-10-22: $2.46 of Claude CLI-reported spend (function + a
 
 ## Result
 
-| config | pass@1 | 95% CI | median s | p90 s | $ per pass | total $ (60 calls) | $ kind |
+| config | pass rate | 95% CI | median s | slow-call time s | $ per pass | total $ (60 calls) | $ kind |
 |---|---|---|---|---|---|---|---|
 | haiku-low | 95% (57/60) | 85%–100% | 10.0 | 16.0 | $0.0011 | $0.064 | measured |
 | haiku-medium | 98% (59/60) | 93%–100% | 13.0 | 26.8 | $0.0015 | $0.088 | measured |

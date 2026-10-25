@@ -290,9 +290,10 @@ def ladder_toggle(render, s):
     sets = (f'<div class="set-filter" role="group" aria-label="Problem set">'
             f'<label><input type="radio" name="{set_name}" value="main" checked> {configs.set_label("main ladder", capital=True)}</label>'
             f'<label><input type="radio" name="{set_name}" value="rescue"> {configs.set_label("rescue set", capital=True)} + pipelines</label></div>')
+    pass_note = '<p class="small">Nothing is both cheaper and more accurate.</p>' if render is pass_cost else ""
     return ('<div class="cwrap"><label class="cost-toggle"><input type="checkbox"> Codex is free (subscription quota)</label>'
-            + sets + filters + note + '<div class="cset s-main">' + normal + free + frontier_caption(s) + '</div>'
-            + f'<div class="cset s-rescue"><p class="set-note">{esc(rescue_subtitle(s))}</p>' + rescue_normal + rescue_free + '</div><div class="ctip" hidden></div></div>'), fr
+            + sets + filters + note + '<div class="cset s-main">' + pass_note + normal + free + frontier_caption(s) + '</div>'
+            + '<div class="cset s-rescue">' + pass_note + rescue_normal + rescue_free + '</div><div class="ctip" hidden></div></div>'), fr
 
 
 def quota_tip(normal, free, saving):
@@ -334,7 +335,7 @@ def ladder_points(s, free, stat, problem_set):
     return pts
 
 
-PICKS_NOTE = {"pass": "Nothing is both cheaper and more accurate. Shaded: beaten by a numbered point.",
+PICKS_NOTE = {"pass": "Shaded: beaten by a numbered point.",
               "speed": f"Nothing is both faster and cheaper. Shaded: a numbered point is cheaper and about as fast. Faded: under {MIN_PASS:.0%} pass."}
 ZERO_LANE = {"pass": 110, "speed": 64}  # px kept for $0 points before a log $ axis starts
 
@@ -543,6 +544,7 @@ def explorer(s):
             for e, group in ((False, s["configs"]), (True, s["exploratory"])) for c, v in group.items()]
     src = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "page", "explorer.html")
     body = open(src).read().replace("__DATA__", json.dumps(data, separators=(",", ":"))).replace("__USD_TICKS__", json.dumps(s["design"]["usd_ticks"], separators=(",", ":")))
+    body = body.replace("frontier over", "best trade-offs over")
     older = s["exploratory"]["sol56-high"]["model"].split("-")[1]
     body = body.replace("Hollow = exploratory config. Codex $ is a proxy.",
                         f"Solid = normal speed. Hollow = fast mode. Dashed edge = bare prompt. Alternate Codex colour = {older} generation. Shapes match the charts above. Labels connect to their own points. Codex $ is a list-price estimate.")
@@ -614,7 +616,7 @@ def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, ra
     attr = f' title="{esc(derived)}"' if derived else ""
     suffix = f'<span class="muted"> · {esc(set_name)}</span>' if set_name else ""
     return (f'<tr{attr}><td><span class="dot" style="background:{col}"></span>{esc(name)}{suffix}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
-            f'<td>{"~" if proxy else ""}{dataset.usd(usd)}</td><td>{dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell" title="{esc(key)}">{verdict}</td></tr>')
+            f'<td>{configs.cell_markup(("~" if proxy else "") + dataset.usd(usd))}</td><td>{dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell" title="{esc(key)}">{verdict}</td></tr>')
 
 
 CODEX = lambda c: any(x in c for x in ("luna", "sol", "astra"))
@@ -662,7 +664,7 @@ def full_table(ds):
     label = configs.set_label("main ladder", capital=True)
     low_names = {configs.display(c) + " †" for source, c in configs.REGISTRY if source == "main" and configs.low_context(c)}
     def rows(low):
-        return "".join('<tr>' + "".join(f'<td>{esc(cell)}</td>' for cell in r) + '</tr>'
+        return "".join('<tr>' + "".join(f'<td>{configs.cell_markup(esc(cell))}</td>' for cell in r) + '</tr>'
                        for r in spec["rows"] if (r[0] in low_names) == low)
     return ('<div class="tablewrap"><table class="sortable"><thead><tr>'
             + "".join(f'<th>{esc(h)}</th>' for h in spec["head"]) + '</tr></thead>'
@@ -822,7 +824,7 @@ def notation_tooltips(body, ds):
     symbols = sorted(meanings, key=len, reverse=True)
     for i, symbol in enumerate(symbols):
         pattern = aliases.get(symbol, re.escape(symbol))
-        if symbol in ("H", "retry", "p90", "pass@1"):
+        if symbol in ("H", "retry", "slow-call time", "pass@1"):
             pattern = r"(?<!\w)" + pattern + r"(?!\w)"
         patterns.append(f"(?P<n{i}>{pattern})")
     match_symbol = re.compile("|".join(patterns), re.I)
@@ -922,7 +924,7 @@ def winner_table(ds, need):
         price = ("~" if r["cost_kind"] == "proxy" else "") + dataset.usd(r["usd_per_pass"])
         cells = (f"{i}. {use}", r["display"], f"{r['passes']}/{r['n']}", price, f"{r['median_s']:.1f} s", why)
         rows.append('<tr>' + "".join(
-            f'<td data-label="{esc(label)}"><span>{esc(cell)}</span></td>' for label, cell in zip(head, cells)) + '</tr>')
+            f'<td data-label="{esc(label)}"><span>{configs.cell_markup(esc(cell))}</span></td>' for label, cell in zip(head, cells)) + '</tr>')
     caption = ds["facts"]["winner_caption"]
     return ('<div class="tablewrap"><table class="winner-table">'
             f'<caption>{esc(caption)}</caption><thead><tr>{th}</tr></thead>'
@@ -931,12 +933,20 @@ def winner_table(ds, need):
             + '</ul><p class="small">Caveat: sonnet-medium\'s code read worst in a blind review (see Notes).</p>')
 
 
-def widgets(s, need, ds=None):
+def widgets(s, need, ds=None, names=None):
     arms = rescue_arms(ds or s)
-    a, fa = pass_cost(s); b, fb = speed_cost(s); ha, hfa = hard_pass_cost(arms); hb, hfb = hard_speed_cost(arms); nm = {c: DISP(c) for c in arms}
-    return {"pass_cost": a, "speed_cost": b, "hard_pass_cost": ha, "hard_speed_cost": hb,
-            "hard_front_pass": ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": ", ".join(SHORT(nm[c]) for c in hfb), "sets": sets_box(s), "grid": grid(s), "floor": floor(s), "pipes": pipes(arms), "fast": fast(s), "explorer": explorer(s), "short_table": short_table(s, need), "full_table": full_table(ds or dataset.read()),
-            "front_pass": ", ".join(map(DISP, fa)), "front_speed": speed_frontier_text(s, fb),
-            "winner": winner_table(ds or dataset.read(), need),
-            "hb_qa": "".join(f'<li>{esc(line)}</li>' for line in s["facts"]["hb_qa"]),
-            "legend": legend(ds or dataset.read()), "rescue_subtitle": rescue_subtitle(s), "problems": method(s)[0], "flags": method(s)[1]}
+    if names is None or names & {"pass_cost", "front_pass"}: a, fa = pass_cost(s)
+    if names is None or names & {"speed_cost", "front_speed"}: b, fb = speed_cost(s)
+    if names is None or names & {"hard_pass_cost", "hard_front_pass"}: ha, hfa = hard_pass_cost(arms)
+    if names is None or names & {"hard_speed_cost", "hard_front_speed"}: hb, hfb = hard_speed_cost(arms)
+    nm = {c: DISP(c) for c in arms}
+    renderers = {"pass_cost": lambda: a, "speed_cost": lambda: b, "hard_pass_cost": lambda: ha, "hard_speed_cost": lambda: hb,
+            "hard_front_pass": lambda: ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": lambda: ", ".join(SHORT(nm[c]) for c in hfb),
+            "sets": lambda: sets_box(s), "grid": lambda: grid(s), "floor": lambda: floor(s), "pipes": lambda: pipes(arms),
+            "fast": lambda: fast(s), "explorer": lambda: explorer(s), "short_table": lambda: short_table(s, need),
+            "full_table": lambda: full_table(ds or dataset.read()), "front_pass": lambda: ", ".join(map(DISP, fa)),
+            "front_speed": lambda: speed_frontier_text(s, fb), "winner": lambda: winner_table(ds or dataset.read(), need),
+            "hb_qa": lambda: "".join(f'<li>{esc(line)}</li>' for line in s["facts"]["hb_qa"]),
+            "legend": lambda: legend(ds or dataset.read()), "rescue_subtitle": lambda: rescue_subtitle(s),
+            "problems": lambda: method(s)[0], "flags": lambda: method(s)[1]}
+    return {name: draw() for name, draw in renderers.items() if names is None or name in names}

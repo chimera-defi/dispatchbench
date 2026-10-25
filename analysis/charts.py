@@ -55,7 +55,7 @@ def pareto_chart(s, hero=False):
     for v in log_ticks(x0, x1):
         b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{H - B}' stroke='{GRID}'/>", text(X(v), H - B + 18, dataset.usd(v, tick=True), 11, "middle", MUTED)]
     b += [text((L + W - R) / 2, H - B + 38, "$ per passing call", 12, "middle", MUTED),
-          text(26, (T + H - B) / 2, "pass@1 (12 problems × 5 attempts)", 12, "middle", MUTED, rotate=-90)]
+          text(26, (T + H - B) / 2, "pass rate (12 problems × 5 attempts)", 12, "middle", MUTED, rotate=-90)]
     front = s["pareto"]
     if len(front) > 1:
         pts = " ".join(f"{X(cfg[c]['usd_per_pass']):.1f},{Y(cfg[c]['pass_at_1']):.1f}" for c in front)
@@ -81,8 +81,8 @@ def pareto_chart(s, hero=False):
             b.append(text(x - 10 if left else x + 10, y + dy, label, 12, "end" if left else "start", INK, "600" if pick else "normal"))
             continue
         b.append(text(x - 10 if right else x + 10, y + LABEL_DY.get(c, -8), label, 11, "end" if right else "start", MUTED if hollow else INK))
-    b.append(text(L, H - 10, "Dashed: Pareto frontier. Hollow: fast mode. Codex $ is a token-price estimate." if hero else
-                  "Dashed: Pareto. Bars: 95% CI. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
+    b.append(text(L, H - 10, "Dashed: best trade-offs. Hollow: fast mode. Codex $ is a token-price estimate." if hero else
+                  "Dashed: best trade-offs. Bars: 95% CI. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
     return svg(W, H, b)
 
 
@@ -125,7 +125,7 @@ def cost_time_chart(s):
         lanes[0].append((xl, xl + w, ly))
         if lane: b.append(f"<line x1='{px:.1f}' x2='{px:.1f}' y1='{py - 7:.1f}' y2='{ly + 3:.1f}' stroke='{col}' stroke-width='1' opacity='0.6'/>")
         b.append(text(xl, ly, lab, 11, fill=MUTED if hollow else INK))
-    b.append(text(L, H - 10, f"Purple ring: frontier, pass@1 ≥ {100 * MIN_PASS:.0f}%, then cost and time. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
+    b.append(text(L, H - 10, f"Purple ring: best trade-offs, pass rate ≥ {100 * MIN_PASS:.0f}%, then cost and time. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
     return svg(W, H, b)
 
 
@@ -359,13 +359,20 @@ def harness_chart(s):
     return svg(W, H, b)
 
 
-def build(ds=None):
+def build(ds=None, names=None):
     """{file name: SVG text or None}, using only the dataset."""
     ds = ds or dataset.read(); s = dataset.view(ds)
     check_design(s)
-    charts = {"pareto.svg": pareto_chart(s), "hero.svg": pareto_chart(s, hero=True), "cost_time.svg": cost_time_chart(s), "pass_by_rung.svg": rung_chart(s, ds), "heatmap.svg": heatmap(s),
-              "token_floor.svg": floor_chart(s), "agentic.svg": agentic_chart(s), "token_in.svg": token_in_chart(s, ds), "harness_bias.svg": harness_chart(s)}
-    charts["cost_total.svg"], charts["cost_per_1k.svg"] = cost_tokens_chart(s, ds)
+    renderers = {"pareto.svg": lambda: pareto_chart(s), "hero.svg": lambda: pareto_chart(s, hero=True),
+                 "cost_time.svg": lambda: cost_time_chart(s), "pass_by_rung.svg": lambda: rung_chart(s, ds),
+                 "heatmap.svg": lambda: heatmap(s), "token_floor.svg": lambda: floor_chart(s),
+                 "agentic.svg": lambda: agentic_chart(s), "token_in.svg": lambda: token_in_chart(s, ds),
+                 "harness_bias.svg": lambda: harness_chart(s)}
+    charts = {name: draw() for name, draw in renderers.items() if names is None or name in names}
+    if names is None or names & {"cost_total.svg", "cost_per_1k.svg"}:
+        total, per = cost_tokens_chart(s, ds)
+        charts.update({k: v for k, v in (("cost_total.svg", total), ("cost_per_1k.svg", per))
+                       if names is None or k in names})
     return charts
 
 
