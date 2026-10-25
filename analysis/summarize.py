@@ -41,9 +41,6 @@ def selected_rows(rows, tracks, cell_fields, item_fields):
     for track in tracks:
         path = os.path.join(RES, f"2026-10-25-isolated-{track}.jsonl")
         replacements = _sourced(path)
-        # Original staged ablations wrote phase=isolated; their track is the phase.
-        if track in ("main", "hard"):
-            replacements = [dict(r, phase=track) if r.get("phase") == "isolated" else r for r in replacements]
         grouped = defaultdict(list)
         for r in replacements: grouped[cell(r)].append(r)
         for key, new in grouped.items():
@@ -56,9 +53,8 @@ def selected_rows(rows, tracks, cell_fields, item_fields):
 
 
 def function_rows():
-    # Only these completed reruns replace rows; the later comparison stopped early.
-    return selected_rows(_sourced(FUNC), ("main", "hard"),
-                         ("config", "phase"), ("problem", "repeat"))
+    # Clean-home replacements apply only to repo tasks.
+    return _sourced(FUNC)
 
 
 def agentic_rows():

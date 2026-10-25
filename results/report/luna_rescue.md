@@ -1,6 +1,6 @@
 | config | passed | $ per pass | Claude $ per pass | median s |
 |---|---|---|---|---|
-| luna-low baseline | 19/35 | $0.0012 | $0 | 9.0 |
+| luna-low baseline | 21/35 | $0.0013 | $0 | 8.5 |
 | B1: no shell, plus a "list edge cases and trace the examples first" nudge | 25/35 | $0.00097 | $0 | 8.6 |
 | B2: B1 plus a detailed reasoning summary | 19/35 | $0.0012 | $0 | 8.9 |
 | C: shell on, told to test its code before answering | 29/35 | $0.0036 | $0 | 21.9 |

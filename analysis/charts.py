@@ -211,7 +211,7 @@ def floor_chart(s):
               f"<rect x='{L}' y='{y}' width='{X(cached) - L:.1f}' height='{bh}' fill='{FAMILY(c)}'/>",
               text(L - 8, y + 14, DISP(c), 11, "end"), text(X(tot) + 6, y + 14, f"{tot:,}", 11, fill=MUTED)]
         y += bh + 8
-    b.append(text(12, y + 22, "Solid: cached. Pale: uncached. See the selected sources and isolation inventory.", 11, fill=MUTED))
+    b.append(text(12, y + 22, f"Solid: cached. Pale: uncached. Codex includes ~{HOST_AGENTS_MD} host AGENTS.md tokens.", 11, fill=MUTED))
     return svg(W, y + 40, b)
 
 
@@ -326,7 +326,7 @@ def token_in_chart(s, ds=None):
     rows = [(lab[c], allc[c]["tokens_in_mean"], FAMILY(c), "-fast" in c) for c in order]
     low_start = next((i for i, c in enumerate(order) if configs.low_context(c)), None)
     return bars(f'Mean input per call: {configs.set_label("main ladder")}', rows, lambda v: f"{v:,.0f}",
-                "Includes cached input. Tools were off. Stock luna-low is isolated; trimmed luna-low is historical.", low_start=low_start)
+                f"Includes cached input. Tools were off. Codex includes ~{HOST_AGENTS_MD} host AGENTS.md tokens.", low_start=low_start)
 
 
 def check_design(s):
