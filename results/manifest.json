@@ -3,7 +3,8 @@
  "pre_registration": "PLAN.md (committed before any model call)",
  "cli_versions": [
   "claude 2.1.308",
-  "codex 0.163.0"
+  "codex 0.163.0",
+  "codex 0.164.0"
  ],
  "configs": {
   "haiku-low": {
@@ -152,7 +153,7 @@
   4
  ],
  "first_call_utc": "2026-10-22T08:32:54+00:00",
- "last_call_utc": "2026-10-24T06:36:36+00:00",
+ "last_call_utc": "2026-10-25T17:50:08+00:00",
  "rows_by_phase": {
   "calibration": 30,
   "escalation": 15,
@@ -168,7 +169,7 @@
   "claude_measured_usd": 2.4624,
   "claude_function_usd": 1.6128,
   "claude_agentic_usd": 0.8496,
-  "codex_proxy_usd": 35.4036,
+  "codex_proxy_usd": 36.2653,
   "codex_fastmode_usd": 3.4069,
   "calls": {
    "function": 1261,
@@ -177,6 +178,11 @@
  },
  "errors": [],
  "prices": "results/prices.json",
+ "generated_from": [
+  "results/2026-10-22b-agentic.jsonl",
+  "results/2026-10-22b-function.jsonl",
+  "results/2026-10-25-isolated-agentic.jsonl"
+ ],
  "exploratory": {
   "results/2026-10-22b-trim.jsonl": {
    "file": "results/2026-10-22b-trim.jsonl",
@@ -356,5 +362,5 @@
    }
   }
  },
- "git_sha": "e89eb863a80df0cbcdec895fbf9b42b40ea929ef"
+ "git_sha": "d2285db657f4239a30649190c9c49e61ce226526"
 }

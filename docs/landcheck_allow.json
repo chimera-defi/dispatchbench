@@ -33,6 +33,6 @@
   "page text: ~$4.56": "Recomputed from the selected clean-home agentic rows; original rows remain selected for every other track.",
   "table header: Claude → Codex match | passed | $ per pass | median s": "The retained v44 section 14 fix combines both match directions in one table without dropping rows.",
   "table header: Codex → Claude match | passed | $ per pass | median s": "The retained v44 section 14 fix combines both match directions in one table without dropping rows.",
-  "table header: model | bench | passed | $ total | median s": "The retained v44 Whose-bench fix reports cost and time per pass, alongside median time."
+  "table header: model | bench | passed | $ total | median s": "The retained v44 Whose-bench fix reports cost and time per pass instead of total cost and median time."
  }
 }
