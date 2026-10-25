@@ -85,14 +85,14 @@ def separate_points(pts, X, Y):
     for (x, y), group in groups:
         if len(group) < 2: continue
         for i, p in enumerate(group):
-            p.update(plot_x=x + (i - (len(group) - 1) / 2) * 18, plot_y=y, label=True)
+            p.update(plot_x=x + (i - (len(group) - 1) / 2) * 18, plot_y=y, label=True, jitter=True)
 
 
-def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=84, R=16, T=14, B=322, extra="", stat=None, variant=None, minor=()):
+def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=84, R=16, T=14, B=322, extra="", stat=None, variant=None, minor=(), badges=False, picks_note=""):
     """pts: dicts with c, x, y, w (whisker (axis, lo, hi) or None), tip, hollow. fr: the frontier path. Only frontier points
     get a text label; every point is in the key beside the chart, and hovering (or tapping) a point or a key row shows its tip."""
     separate_points(pts, X, Y)
-    g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="{esc(ylab)} against {esc(xlab)}, Pareto frontier in purple; the key lists every point">']
+    g = [f'<svg viewBox="0 0 {W} {H}" width="100%" {NS} role="img" aria-label="{esc(ylab)} against {esc(xlab)}, best trade-offs ringed and numbered in purple; the key lists every point">']
     g += [f'<line x1="{X(v):.1f}" x2="{X(v):.1f}" y1="{T}" y2="{B}" stroke="var(--line)" stroke-opacity=".45"/>' for v in minor]
     for i, (v, t) in enumerate(xt):
         # Thin labels from the right on mobile, retaining the inset final label.
@@ -105,29 +105,46 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
     g.append(f'<text x="16" y="{(T + B) / 2}" text-anchor="middle" class="axis" transform="rotate(-90 16 {(T + B) / 2})">{esc(ylab)}</text>')
     g.append(f'<text x="{L + 10}" y="{T + 18 if corner.startswith("↖") else B - 10}" class="better">{corner}</text>')
     # data-front/b/end let sort.js redraw this path from the visible points when a category is filtered out.
-    g.append(f'<path d="{fr}" data-front="{stat or ""}" data-b="{B}" data-end="{W - R}" fill="none" stroke="var(--frontier)" stroke-width="4" stroke-dasharray="9 6" stroke-linejoin="round"/>' + extra)
+    start = re.match(r"M([\d.]+)", fr)
+    if badges and start:  # shade what the best trade-offs beat: the corner on the worse side of the staircase
+        g.append(f'<path class="zone" data-t="{T}" d="{fr}{f" V{B} Z" if stat == "pass" else f" V{T} H{start[1]} Z"}" fill="var(--frontier)" fill-opacity=".09" stroke="none" pointer-events="none"/>')
+    g.append(f'<path d="{fr}" data-front="{stat or ""}" data-b="{B}" data-end="{W - R}" data-t="{T}" fill="none" stroke="var(--frontier)" stroke-width="{2.5 if badges else 4}"{"" if badges else " stroke-dasharray=\"9 6\""} stroke-linejoin="round"/>' + extra)
     for p in sorted(pts, key=lambda p: p["on"]):  # frontier points drawn last, on top
         px, py = plot_xy(p, X, Y)
         col = p.get("col") or FAM(p["c"])
         g.append(f'<g class="pt" {point_attrs(p)} data-v="{p["x"]!r} {p["y"]!r}" data-f="{X(p["x"]):.1f} {Y(p["y"]):.1f}"'
-                 f'{"" if p.get("ok", True) else " data-out=\"1\""}>')
+                 f'{"" if p.get("ok", True) else " data-out=\"1\""}{" data-best=\"\"" if p["on"] else ""}>')
         if p["w"]:
             ax, lo, hi = p["w"]
             if ax == "x": g.append(f'<line x1="{X(lo):.1f}" x2="{X(hi):.1f}" y1="{py:.1f}" y2="{py:.1f}" stroke="{col}" stroke-width="2.5" stroke-opacity=".4"/>')
             else: g.append(f'<line x1="{px:.1f}" x2="{px:.1f}" y1="{Y(lo):.1f}" y2="{Y(hi):.1f}" stroke="{col}" stroke-width="2" stroke-opacity=".3"/>')
-        if p["on"]: g.append(f'<circle class="ring" cx="{px:.1f}" cy="{py:.1f}" r="13" fill="none" stroke="var(--frontier)" stroke-width="3"/>')
+        if p["on"]: g.append(f'<circle class="ring" cx="{px:.1f}" cy="{py:.1f}" r="13" fill="none" stroke="var(--frontier)" stroke-width="{2.5 if badges else 3}"/>')
         g.append(marker(p.get("shape", SHAPE(p["c"])), px, py, "var(--panel)" if p["hollow"] else col, col, p.get("dash")))
         g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="14" fill="transparent"/></g>')  # hover target
+    ranked = sorted((p for p in pts if p["on"]), key=lambda p: p["x"]) if badges else []
+    if ranked:  # numbered chips on the best trade-offs; the names sit in the list under the plot
+        g.append('<g class="ranks" pointer-events="none">' + "".join(
+            f'<g class="rk" data-c="{esc(p["c"])}" data-cat="{point_category(p["c"])}"><circle cx="{min(plot_xy(p, X, Y)[0] + 13, W - R - 11):.1f}" cy="{max(plot_xy(p, X, Y)[1] - 13, T + 11):.1f}" r="10.5" fill="var(--frontier)" stroke="var(--panel)" stroke-width="1.5"/>'
+            f'<text x="{min(plot_xy(p, X, Y)[0] + 13, W - R - 11):.1f}" y="{max(plot_xy(p, X, Y)[1] - 13, T + 11) + 4.5:.1f}" text-anchor="middle" class="rk-n">{i}</text></g>'
+            for i, p in enumerate(ranked, 1)) + '</g>')
     cx, cy = L + 10, T + 18 if corner.startswith("↖") else B - 10
     walls = path_boxes(fr) + [(cx, cy - LH + 3, cx + CW * len(corner), cy + 3)]
-    labelled = [p for p in pts if not p.get("quiet") and (p["on"] or ("+" in p["c"] if p.get("set") == "rescue" else p.get("label")))]
+    if badges: labelled = [p for p in pts if not p.get("quiet") and not p["on"] and p.get("label") and not p.get("jitter")]  # picks off the frontier keep a name
+    else: labelled = [p for p in pts if not p.get("quiet") and (p["on"] or ("+" in p["c"] if p.get("set") == "rescue" else p.get("label")))]
     for p, (x, y, a) in place(labelled, X, Y, labels, (L, W - 2, T - 6, B - 2), walls, also=pts):
         if p["lead"]: g.append((f'<line class="label-leader" data-c="{esc(p["c"])}" data-cat="{point_category(p["c"])}" x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="var(--muted)" stroke-width="1"/>') % p["lead"])
         g.append(f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{a}" class="lbl{' on' if p["on"] else ''}" data-cat="{point_category(p["c"])}" data-set="{p.get("set", "main")}">{esc(p.get("name", p["c"]))}</text>')
     g.append("</svg>")
+    strip = picks(ranked, picks_note) if badges else ""
     if variant:
-        return f'<div class="cvariant v-{variant}"><div class="cplot">{"".join(g)}</div>{key(pts, stat)}</div>'
-    return f'<div class="cwrap"><div class="cplot">{"".join(g)}</div>{key(pts, stat)}<div class="ctip" hidden></div></div>'
+        return f'<div class="cvariant v-{variant}"><div class="cplot">{"".join(g)}{strip}</div>{key(pts, stat)}</div>'
+    return f'<div class="cwrap"><div class="cplot">{"".join(g)}{strip}</div>{key(pts, stat)}<div class="ctip" hidden></div></div>'
+
+
+def picks(ranked, note):
+    """The numbered best trade-offs, named once, in plain words. sort.js rebuilds this list when a category is filtered out."""
+    items = "".join(f'<li {point_attrs(p)} tabindex="0">{point_icon(p)}<b>{i}</b><span>{esc(p.get("name", p["c"]))}</span></li>' for i, p in enumerate(ranked, 1))
+    return f'<div class="picks"><span class="pk-h">Best trade-offs</span><ol>{items}</ol><span class="pk-n">{esc(note)}</span></div>'
 
 
 def point_attrs(p):
@@ -317,6 +334,8 @@ def ladder_points(s, free, stat, problem_set):
     return pts
 
 
+PICKS_NOTE = {"pass": "Nothing is both cheaper and more accurate. Shaded: beaten by a numbered point.",
+              "speed": f"Nothing is both faster and cheaper. Shaded: beaten by a numbered point. Faded: under {MIN_PASS:.0%} pass."}
 ZERO_LANE = {"pass": 110, "speed": 64}  # px kept for $0 points before a log $ axis starts
 
 
@@ -344,9 +363,9 @@ def zero_lane(log, at):
 def pass_cost(s, free=None, problem_set="main"):
     """Pass rate (up is better) against paid $ per pass, log (left is better)."""
     if free is None: return ladder_toggle(pass_cost, s)
-    L, R, T, B, W = 84, 16, 14, 322, 560
+    L, R, T, B, W = 84, 16, 14, 302, 560
     pts = ladder_points(s, free, "pass", problem_set)
-    ymin = min(.6, math.floor(min(p["y"] for p in pts) * 10) / 10)
+    ymin = min(.7, math.floor(min(p["y"] for p in pts) * 10) / 10)
     paid = [p["x"] for p in pts if p["x"] > 0]
     lo = 5e-4 if min(paid) >= 5e-4 else 10 ** math.floor(math.log10(min(paid)))
     lane = any(p["x"] == 0 for p in pts)
@@ -368,17 +387,16 @@ def pass_cost(s, free=None, problem_set="main"):
            "haiku-high": (14, 20, "start"), "luna56-high": (14, 5, "start")}
     if problem_set == "main":
         for p in pts:
-            if p["c"] == "haiku-low": p["pin"] = (-18, 36, "end")
-            if p["c"] in ("haiku-low", "haiku-high", "sol61-high", "sonnet-medium") or p["c"].startswith(("luna56", "sol56")) or p["hollow"]:
-                p["label"] = True
-    return scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab,
-                   extra=zero + fast_pairs(pts, X, Y), stat="pass", variant="free" if free else "normal"), [p["c"] for p in fr]
+            if p["c"] in WINNER_PICKS: p["label"] = True
+    return scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, H=360, B=B,
+                   extra=zero + fast_pairs(pts, X, Y), stat="pass", variant="free" if free else "normal",
+                   badges=problem_set == "main", picks_note=PICKS_NOTE["pass"]), [p["c"] for p in fr]
 
 
 def speed_cost(s, free=None, problem_set="main"):
     """Median seconds against paid $ per pass, log; frontier requires MIN_PASS."""
     if free is None: return ladder_toggle(speed_cost, s)
-    L, R, T, B, W = 84, 16, 14, 462, 560
+    L, R, T, B, W, H = 84, 16, 14, 410, 560, 468
     pts = ladder_points(s, free, "speed", problem_set)
     # Axis spans the medians plus a margin, in 5 s blocks; whiskers are clipped to it.
     xmin = max(0, math.floor((min(p["x"] for p in pts) - 1) / 5) * 5)
@@ -396,11 +414,7 @@ def speed_cost(s, free=None, problem_set="main"):
     for p in pts:
         p["on"] = p in fr
         p["quiet"] = p["y"] == 0 and not p["on"] and not pick(p["c"])
-    d = (f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}") if len(fr) > 1 else ""
-    if len(fr) == 1 and problem_set == "main":
-        nearest = sorted((p for p in pts if p not in fr and p["rate"] == 1),
-                         key=lambda p: math.hypot(X(p["x"]) - X(fr[0]["x"]), Y(p["y"]) - Y(fr[0]["y"])))[:3]
-        for p in nearest: p["label"] = True
+    d = (f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}") if fr else ""
     xt = [(v, f"{v} s") for v in range(xmin, xmax + 1, 5)]
     yt = [(v, dataset.usd(v)) for v in (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1) if v >= lo] + [(0, "$0")] * lane
     zero = f'<line x1="{L}" x2="{W - R}" y1="{B - 44}" y2="{B - 44}" stroke="var(--muted)" stroke-dasharray="2 4"/>' if lane else ""
@@ -409,10 +423,11 @@ def speed_cost(s, free=None, problem_set="main"):
            "luna56-high": (-14, 5, "end"), "luna56-low": (0, 26, "middle"), "haiku-high": (0, -14, "middle")}
     if problem_set == "main":
         for p in pts:
-            if p["c"] == "luna-low" or p["c"] in WINNER_PICKS: p["label"] = True
-    xlab = "median seconds per call" + (" (bar: middle half of calls)" if any(p["w"] for p in pts) else "")
+            if p["c"] in WINNER_PICKS: p["label"] = True
+    xlab = "median seconds per call" + (" (bar on hover: middle half of calls)" if any(p["w"] for p in pts) else "")
     g = scatter(pts, d, X, Y, xt, yt, xlab, "$ per pass (log)", "", lab,
-                H=520, B=B, extra=zero + fast_pairs(pts, X, Y), stat="speed", variant="free" if free else "normal",
+                H=H, B=B, extra=zero + fast_pairs(pts, X, Y), stat="speed", variant="free" if free else "normal",
+                badges=problem_set == "main", picks_note=PICKS_NOTE["speed"],
                 minor=[v for v in range(xmin + 1, xmax) if v % 5])
     return g.replace("</svg>", f'<text x="{W - R - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>', 1), [p["c"] for p in fr]
 
@@ -486,15 +501,39 @@ def floor(s):
     return '<div class="compact-bars">' + body + '</div>'
 
 
+PIPE_GROUPS = [("Single models", lambda c: "+" not in c),
+               ("Build, then Haiku fixes it only if an example fails (→H fail)", lambda c: c.endswith("+haiku-on-fail")),
+               ("Haiku checks every answer (→H all)", lambda c: c.endswith("+haiku-review-all")),
+               ("Plan first, then build (plan→)", lambda c: c.startswith("haiku-low-plan+")),
+               ("Retry once if an example fails (→retry)", lambda c: c.endswith("+retry-on-fail"))]
+
+
 def pipes(arms=None):
+    """Rows grouped under plain headings; fast-mode rows get a striped fill so they never read as empty."""
     a = arms if arms is not None else rescue_arms()
     entries = sorted(NAME.items(), key=lambda row: configs.low_context(row[0], "rescue"))
-    rows = [(name, a[c]["pass_rate"], "var(--frontier)" if "+" in c else FAM(c), "-fast" in c)
-            for c, name in entries]
-    values = [f"{a[c]['passes']}/{a[c]['n']} · {dataset.usd(a[c]['usd_per_pass'])} · {a[c]['median_s']:.0f}s" for c, _ in entries]
-    low = next((i for i, (c, _) in enumerate(entries) if configs.low_context(c, "rescue")), None)
-    return '<div class="compact-bars">' + charts.bars(
-        configs.set_label("rescue set", capital=True), rows, str, "", low_start=low, values=values, responsive=True) + '</div>'
+    assert sorted(c for _, test in PIPE_GROUPS for c, _ in entries if test(c)) == sorted(NAME), "every pipeline row needs a group"
+    body = [f'<b class="bar-title">{esc(configs.set_label("rescue set", capital=True))}</b>',
+            '<p class="pg-key"><span><i style="--bar-color:var(--claude)"></i>Haiku</span><span><i style="--bar-color:var(--sonnet)"></i>Sonnet</span>'
+            '<span><i style="--bar-color:var(--codex)"></i>Codex</span><span><i style="--bar-color:var(--codex56)"></i>older Codex</span>'
+            '<span><i style="--bar-color:var(--frontier)"></i>pipeline</span><span><i class="bar-hollow" style="--bar-color:var(--muted)"></i>⚡ fast mode</span></p>']
+    for heading, test in PIPE_GROUPS:
+        rows = []
+        for c, name in (e for e in entries if test(e[0])):
+            v = a[c]; low = configs.low_context(c, "rescue")
+            if low and not any("Low context" in r for r in rows): rows.append('<p class="pg-d">Low context</p>')
+            col = "var(--frontier)" if "+" in c else FAM(c)
+            fill = f'<span class="bar-fill{" bar-hollow" if "-fast" in c else ""}" style="--bar-color:{col};--bar-width:{100 * v["pass_rate"]:.3f}%"></span>'
+            rows.append(f'<div class="pg-row"><span class="bar-name">{esc(name)}</span><span class="bar-track">{fill}</span>'
+                        f'<span class="bar-value">{v["passes"]}/{v["n"]} · {esc(dataset.usd(v["usd_per_pass"]))} · {v["median_s"]:.0f}s</span></div>')
+        body.append(f'<div class="pg" role="group" aria-label="{esc(heading)}"><p class="pg-h">{esc(heading)}</p>{"".join(rows)}</div>')
+    return '<div class="pipes">' + "".join(body) + '</div>'
+
+
+def hatch_phone(body):
+    """charts.bars draws a fast-mode bar on phones as an outline only: add the same tint behind it."""
+    return re.sub(r"<rect (x='[\d.]+' y='[\d.]+' width='[\d.]+' height='[\d.]+') fill='var\(--panel[^']*' stroke='([^']+)' stroke-width='2'/>",
+                  lambda m: m[0] + f"<rect {m[1]} fill='{m[2]}' fill-opacity='.3'/>", body)
 
 
 def fast(s):
@@ -503,7 +542,7 @@ def fast(s):
     rows = [(f"{'L7' if label == configs.set_label('L7 set') else 'ladder'} · {DISP(c)}",
              v["latency_s"]["median"], FAM(c), c.endswith("-fast")) for label, c, v in entries]
     values = [f"{v['latency_s']['median']:.1f}s · {dataset.usd(v['usd_per_pass'])}" for _, _, v in entries]
-    return '<div class="compact-bars">' + charts.bars("Normal and fast mode", rows, str, "", values=values, responsive=True) + '</div>'
+    return '<div class="compact-bars">' + hatch_phone(charts.bars("Normal and fast mode", rows, str, "", values=values, responsive=True)) + '</div>'
 
 
 def explorer(s):
