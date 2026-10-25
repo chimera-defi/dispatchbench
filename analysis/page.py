@@ -335,7 +335,7 @@ def ladder_points(s, free, stat, problem_set):
 
 
 PICKS_NOTE = {"pass": "Nothing is both cheaper and more accurate. Shaded: beaten by a numbered point.",
-              "speed": f"Nothing is both faster and cheaper. Shaded: beaten by a numbered point. Faded: under {MIN_PASS:.0%} pass."}
+              "speed": f"Nothing is both faster and cheaper. Shaded: a numbered point is cheaper and about as fast. Faded: under {MIN_PASS:.0%} pass."}
 ZERO_LANE = {"pass": 110, "speed": 64}  # px kept for $0 points before a log $ axis starts
 
 

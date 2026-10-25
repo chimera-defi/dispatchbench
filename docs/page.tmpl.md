@@ -145,7 +145,7 @@
 </section>
 <section id="pipes">
 <h2><span class="num"></span>🔗 Pipelines: plan, check, fix</h2>
-<p class="small">A pipeline chains two steps, e.g. one model writes and Haiku checks. "→H fail" = Haiku fixes only failed examples. "→H all" = Haiku checks every answer. The best luna pipeline, luna-high-bare →H all, passed {{r_luna_high_bare_haiku_review_all_k}} at {{r_luna_high_bare_haiku_review_all_upp}} per pass (bare = Codex's system prompt trimmed). Pipelines ran only on the {{n_rescue_problems}}-problem {{set_label}}.</p>
+<p class="small">A pipeline chains two steps, e.g. one model writes and Haiku checks. "→H fail" = Haiku fixes an answer only if its examples fail. "→H all" = Haiku checks every answer. The best luna pipeline was luna-high-bare →H all (bare = Codex's system prompt trimmed). It passed {{r_luna_high_bare_haiku_review_all_k}} at {{r_luna_high_bare_haiku_review_all_upp}} per pass. Pipelines ran only on the {{n_rescue_problems}}-problem {{set_label}}.</p>
 <div class="chart floor"><h3>Passes, $ per pass, median seconds</h3><p class="sub">{{pipes_caption}}</p>{{w_pipes}}</div>
 <ul class="tight small">
 <li>sol61-high and astra-medium never failed an example, so Haiku never ran.</li>
@@ -164,7 +164,8 @@
 <ul class="tight small">
 <li>Claude designed this bench. Each model answers once, tools off.</li>
 <li>Codex designed a second bench. Each model runs inside its vendor's agent CLI.</li>
-<li>We tested each vendor's cheapest model at low effort: luna-low in Codex CLI, haiku-low in Claude Code.</li>
+<li>We tested each vendor's cheapest model at low effort.</li>
+<li>luna-low ran in Codex CLI, haiku-low in Claude Code.</li>
 <li>sol61-high was skipped: it already passed every try, so a better bench cannot raise it.</li>
 <li>That CLI loop runs code and retries.</li>
 <li>luna-low went {{hb_luna_low_change}}. haiku-low went {{hb_haiku_low_change}}.</li>
