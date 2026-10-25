@@ -405,7 +405,7 @@ def _facts(s, arms):
     sp = s["spend"]
     F["claude_usd"] = usd(sp['claude_measured_usd']); F["codex_usd"] = usd(sp['codex_proxy_usd'])
     # Round the estimated total to the nearest five dollars for the front page.
-    F["codex_usd_rounded"] = f"${5 * round(sp['codex_proxy_usd'] / 5):.0f}"
+    F["codex_usd_rounded"] = f"${round(sp['codex_proxy_usd']):.0f}"
     F["agentic_fast_caption"] = ("⚡ configs are included." if any(c.endswith("-fast") for c in ag) else "No ⚡ repo-task data.")
     for c, v in every.items():
         k = c.replace("-", "_")

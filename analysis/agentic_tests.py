@@ -2,7 +2,7 @@
 
     python3 -m analysis.agentic_tests
 
-Rebuildable from the scrubbed transcripts in cache/agentic_raw/. Use --scrub to copy cache/raw/agentic-<key>.out there
+The pre-release transcripts were removed; results/agentic_tests.json is the committed output. Use --scrub to copy cache/raw/agentic-<key>.out there
 with local paths and email addresses scrubbed. It writes results/agentic_tests.json and never copies transcript text,
 paths or commands into it. Standard library only, no model calls.
 
