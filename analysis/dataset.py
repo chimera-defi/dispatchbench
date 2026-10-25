@@ -716,7 +716,7 @@ def _facts(s, arms):
     need(every['haiku-high']['usd_per_pass'] < min(every[c]['usd_per_pass'] for c in tied + ('sol61-high-fast', 'astra-medium-fast') if c != 'haiku-high'),
          "haiku-high is the cheapest of these")
     word = {3: "Three", 4: "Four", 5: "Five"}[len(tied)]
-    F['winner_line'] = (f"{word} configs passed every try: haiku-high, sonnet-medium, sol61-high and astra-medium. "
+    F['winner_line'] = (f"{word} configs passed every test we ran: haiku-high, sonnet-medium, sol61-high and astra-medium. "
                         f"haiku-high is the cheapest, at {F['hh_upp']} per pass.")
     nl7 = hard['sonnet-medium']['n']
     need(all(v['passes'] == v['n'] == nl7 for c, v in hard.items() if c in tied), "every tied config is perfect on the same number of L7 tries")
@@ -1039,8 +1039,34 @@ def _equivalents(ds):
     need(dearer and all(q["display"].startswith("luna-") for q in dearer), "only luna configs undercut their Claude match on price")
     need(all(m["pass_rate"] > q["pass_rate"] for q, m in back if q in dearer), "and each of those passes less often than its match")
     F["equiv_back_takeaway"] = (f'Every Codex config has a Claude match too. It is cheaper for {len(cheaper)} of {len(back)}. '
-                                'Only luna costs less, and it misses more.')
+                                'Only luna (not luna56) costs less, and it misses more.')
 
+
+
+def _interesting(ds):
+    """Findings the operator flagged as worth sharing. Each line is computed and pinned."""
+    F, ml = ds["facts"], "main ladder"
+    fast, old, new = (get(ds, c, ml) for c in ("sol61-high-fast", "sol56-high", "sol61-high"))
+    need(fast["pass_rate"] == old["pass_rate"] == new["pass_rate"] == 1, "sol61-high, its ⚡ run and sol56-high all pass every main try")
+    need(old["median_s"] < fast["median_s"] < new["median_s"], "older sol56-high beats sol61-high ⚡ on speed, which beats plain sol61-high")
+    need(old["usd_per_pass"] < 1.25 * fast["usd_per_pass"], "sol56-high costs under 25% more than sol61-high ⚡")
+    F["int_sol"] = " ".join([
+        f'sol56-high is a generation older than sol61-high. Both pass every main-ladder try.',
+        f'sol56-high takes {old["median_s"]:.1f} s at ~{usd(old["usd_per_pass"])} per pass.',
+        f'sol61-high takes {new["median_s"]:.1f} s. Even with ⚡ it takes {fast["median_s"]:.1f} s, at ~{usd(fast["usd_per_pass"])}.',
+        'So the newer model is slower, and ⚡ does not close the gap.'])
+    lo, hl = get(ds, "luna-low", ml), get(ds, "haiku-low", ml)
+    need(lo["usd_per_pass"] < hl["usd_per_pass"] and lo["pass_rate"] < hl["pass_rate"], "luna-low is cheaper per pass than haiku-low but passes less")
+    F["int_luna"] = (f'luna-low is cheaper per pass than haiku-low: ~{usd(lo["usd_per_pass"])} to {usd(hl["usd_per_pass"])}. '
+                     f'But it passes {lo["pass_rate"]:.0%} to {hl["pass_rate"]:.0%}.')
+    rp = {c: get(ds, c, "repo tasks", "agentic") for c in ("sol61-high", "astra-medium", "sonnet-medium", "haiku-low")}
+    need(all(v["passes"] == v["n"] for v in rp.values()), "all four pass every repo task")
+    need(min(rp["sol61-high"]["median_s"], rp["astra-medium"]["median_s"]) > 2.5 * max(rp["sonnet-medium"]["median_s"], rp["haiku-low"]["median_s"]),
+         "the Codex picks are over 2.5x slower than the fast Claude configs on repo tasks")
+    F["int_repo"] = (f'On real repo edits, sol61-high took {rp["sol61-high"]["median_s"]:.0f} s and astra-medium {rp["astra-medium"]["median_s"]:.0f} s. '
+                     f'sonnet-medium and haiku-low took about {rp["sonnet-medium"]["median_s"]:.0f} s. All passed every task.')
+    F["int_harness"] = (f'Each vendor\'s own agent CLI lifts its model. luna-low went {F["hb_luna_low_change"]} of {F["hb_luna_low_n"]} in Codex CLI. '
+                        f'haiku-low went {F["hb_haiku_low_change"]} in Claude Code.')
 
 def build(summary=None):
     from bench.problems.p13_xor_ring import STATEMENT as xor_statement
@@ -1063,6 +1089,7 @@ def build(summary=None):
     ds["facts"] = _facts(s, arms)
     ds["tables"] = _tables(s, arms)
     _equivalents(ds)
+    _interesting(ds)
     method_appendix(ds)
     return ds
 

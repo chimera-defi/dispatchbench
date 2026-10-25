@@ -1,7 +1,7 @@
 <header class="head">
 <h1>DispatchBench: which model should a coding task go to?</h1>
 <p class="small">LeetCode-style problems, written fresh for this bench. {{run_dates}}</p>
-<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#pareto">Cost vs accuracy</a><a href="#results">Results</a><a href="#method">How it was run</a><a href="#fail">Where they fail</a><a href="#tokens">Token floor</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#limits">Limitations</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#equiv">Codex vs Claude</a></nav>
+<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#pareto">Cost vs accuracy</a><a href="#results">Results</a><a href="#method">How it was run</a><a href="#fail">Where they fail</a><a href="#tokens">Token floor</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#limits">Limitations</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#interesting">Interesting</a><a href="#equiv">Codex vs Claude</a></nav>
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
@@ -25,7 +25,7 @@
 <p class="small">haiku-high passes {{haiku_high_pass}} at {{haiku_high_upp}} per pass. sol61-high also passes {{sol61_high_pass}} at ~{{sol61_high_upp}} per pass. It costs {{claude_zero}} on Codex quota. luna-low and luna-medium cost less but miss about {{cheap_miss_words}}.</p>
 <div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="ring"></span>Best trade-off (ringed, numbered)</span></div>
 <div class="chart"><h3>🎯 Pass rate vs $ per pass</h3>{{w_pass_cost}}</div>
-<details><summary>⏱️ Speed vs $ per pass</summary><div class="chart"><p class="sub">Best trade-offs among configs passing at least {{min_pass}}.</p>{{w_speed_cost}}</div></details>
+<details open><summary>⏱️ Speed vs $ per pass</summary><div class="chart"><p class="sub">Best trade-offs among configs passing at least {{min_pass}}.</p>{{w_speed_cost}}</div></details>
 {{w_sets}}
 <details class="small"><summary>How to read these charts</summary>
 <ul class="tight small">
@@ -356,6 +356,15 @@
 </ul>
 </details>
 {{w_everything}}
+</section>
+<section id="interesting">
+<h2><span class="num"></span>💡 Interesting findings</h2>
+<ul class="tight">
+<li>{{int_sol}}</li>
+<li>{{int_luna}}</li>
+<li>{{int_harness}}</li>
+<li>{{int_repo}}</li>
+</ul>
 </section>
 <section id="equiv">
 <h2><span class="num"></span>🔁 Codex vs Claude</h2>
