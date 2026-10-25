@@ -14,6 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 import hashlib
 import json
+import os
 from pathlib import Path
 import shlex
 import sys
@@ -85,8 +86,10 @@ def old_settings(track, row):
         if bare:
             flags += trim_probe.LEVELS['noshell']
         if track == 'rescue':
-            # Old pipeline keys held an absolute instruction-file path.
-            flags = [x.replace('<MIN_INST>', json.dumps('/home/agents/workspace/model-routing-bench/bench/pilot/min_instructions.txt')) for x in flags]
+            # Old pipeline keys held the original checkout's absolute instruction-file path;
+            # set DISPATCHBENCH_LEGACY_MIN_INST to it to reuse those cached calls.
+            legacy = os.environ.get('DISPATCHBENCH_LEGACY_MIN_INST', str(Path(__file__).parent / 'pilot' / 'min_instructions.txt'))
+            flags = [x.replace('<MIN_INST>', json.dumps(legacy)) for x in flags]
             blob = dict(model=mid, effort=effort, cli=row['codex_cli'], flags=flags,
                         prompt=run.prompt_for(row['problem']), repeat=row['repeat'])
             module = gated_repair
