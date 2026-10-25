@@ -345,6 +345,7 @@
 <ul class="tight">
 <li>{{int_sol}}</li>
 <li>{{int_luna}}</li>
+<li>{{int_semi}}</li>
 <li>{{int_harness}}</li>
 <li>{{int_repo}}</li>
 </ul>

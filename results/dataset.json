@@ -22430,6 +22430,7 @@
   "equiv_back_takeaway": "Every Codex config has a Claude match. It is cheaper for 8 of 12. Only luna (not luna56) costs less, and it misses more.",
   "int_sol": "sol56-high is a generation older than sol61-high. Both pass every main-ladder try. sol56-high takes 14.5 s at ~$0.042 per pass. sol61-high takes 27.4 s at ~$0.019. ⚡ cuts that to 17.4 s, at ~$0.036. So the newer model is cheaper but slower, and ⚡ does not close the gap.",
   "int_luna": "luna-low is cheaper per pass than haiku-low: ~$0.00090 to $0.0011. But it passes 77% to 95%.",
+  "int_semi": "<a href=\"https://newsletter.semianalysis.com/p/anthropic-subscriptions-offer-5x\">SemiAnalysis</a> found Anthropic plans give ~5× more API-priced tokens than OpenAI plans. We price list-rate calls, not plan quotas, so we can’t test that. At list price, haiku-high costs ~7× less per pass than sol61-high. On repo tasks the gap is ~8×. But luna-low was cheapest there and passed every repo task.",
   "int_repo": "On real repo edits, sol61-high took 109 s and astra-medium 85 s. sonnet-medium and haiku-low took about 28 s. All passed every task.",
   "int_harness": "Codex CLI lifted luna-low from 36 to 47 passes. haiku-low moved 57→60 in Claude Code, near its ceiling.",
   "hb_subset": "It first replayed 12 of our haiku-low and sol61-medium results. All passed on both.",

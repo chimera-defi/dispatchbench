@@ -45,6 +45,7 @@ def test_reader_set_labels_and_complete_notation_legend():
                 self.text.append(data)
 
     output = report.render()[2]
+    assert "we can’t test that" in output and "SemiAnalysis" in output
     reader = Reader()
     reader.feed(output)
     assert not re.search(r"rescue[ -]set", "".join(reader.text + reader.titles), re.I)

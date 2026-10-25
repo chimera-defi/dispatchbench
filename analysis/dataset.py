@@ -22,6 +22,7 @@ from analysis.luna_rescue import PIDS, claude_usd
 from analysis.summarize import RES, ROOT, cost, load, scale
 
 PATH = os.path.join(RES, "dataset.json")
+SEMI_URL = "https://newsletter.semianalysis.com/p/anthropic-subscriptions-offer-5x"
 
 import glob, re, copy, math
 from datetime import datetime
@@ -1057,6 +1058,23 @@ def _interesting(ds):
     need(lo["usd_per_pass"] < hl["usd_per_pass"] and lo["pass_rate"] < hl["pass_rate"], "luna-low is cheaper per pass than haiku-low but passes less")
     F["int_luna"] = (f'luna-low is cheaper per pass than haiku-low: ~{usd(lo["usd_per_pass"])} to {usd(hl["usd_per_pass"])}. '
                      f'But it passes {lo["pass_rate"]:.0%} to {hl["pass_rate"]:.0%}.')
+    hh, sh = (get(ds, c, ml) for c in ("haiku-high", "sol61-high"))
+    need(hh["pass_rate"] == sh["pass_rate"] == 1, "haiku-high and sol61-high pass every main-ladder try")
+    need(0 < hh["usd_per_pass"] < sh["usd_per_pass"], "haiku-high costs less per pass than sol61-high on the main ladder")
+    semi_repo = {c: get(ds, c, "repo tasks", "agentic") for c in
+                 ("luna-low", "haiku-low", "haiku-high", "sonnet-medium", "sol61-medium", "sol61-high", "astra-medium")}
+    need(all(semi_repo[c]["passes"] == semi_repo[c]["n"] for c in ("haiku-high", "sol61-high", "luna-low")),
+         "haiku-high, sol61-high and luna-low pass every repo task")
+    rh, rs, rl = (semi_repo[c] for c in ("haiku-high", "sol61-high", "luna-low"))
+    need(0 < rh["usd_per_pass"] < rs["usd_per_pass"], "haiku-high costs less per pass than sol61-high on repo tasks")
+    need(all(rl["usd_per_pass"] < r["usd_per_pass"] for c, r in semi_repo.items() if c != "luna-low"),
+         "luna-low is the cheapest per pass among all repo-task configs")
+    main_gap, repo_gap = round(sh["usd_per_pass"] / hh["usd_per_pass"]), round(rs["usd_per_pass"] / rh["usd_per_pass"])
+    F["int_semi"] = (f'<a href="{SEMI_URL}">SemiAnalysis</a> found Anthropic plans give ~5× more API-priced tokens than OpenAI plans. '
+                     'We price list-rate calls, not plan quotas, so we can’t test that. '
+                     f'At list price, haiku-high costs ~{main_gap}× less per pass than sol61-high. '
+                     f'On repo tasks the gap is ~{repo_gap}×. '
+                     'But luna-low was cheapest there and passed every repo task.')
     rp = {c: get(ds, c, "repo tasks", "agentic") for c in ("sol61-high", "astra-medium", "sonnet-medium", "haiku-low")}
     need(all(v["passes"] == v["n"] for v in rp.values()), "all four pass every repo task")
     need(min(rp["sol61-high"]["median_s"], rp["astra-medium"]["median_s"]) > 2.5 * max(rp["sonnet-medium"]["median_s"], rp["haiku-low"]["median_s"]),
