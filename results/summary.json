@@ -2,9 +2,7 @@
  "generated_from": [
   "results/2026-10-22b-agentic.jsonl",
   "results/2026-10-22b-function.jsonl",
-  "results/2026-10-25-isolated-agentic.jsonl",
-  "results/2026-10-25-isolated-hard.jsonl",
-  "results/2026-10-25-isolated-main.jsonl"
+  "results/2026-10-25-isolated-agentic.jsonl"
  ],
  "configs": {
   "haiku-low": {
@@ -219,11 +217,11 @@
    "model": "gpt-6-luna",
    "effort": "low",
    "n": 60,
-   "passes": 44,
-   "pass_at_1": 0.7333,
+   "passes": 46,
+   "pass_at_1": 0.7667,
    "ci95": [
-    0.5,
-    0.9167
+    0.5333,
+    0.95
    ],
    "by_rung": {
     "L1": {
@@ -231,7 +229,7 @@
      "n": 10
     },
     "L2": {
-     "passed": 3,
+     "passed": 6,
      "n": 10
     },
     "L3": {
@@ -239,7 +237,7 @@
      "n": 10
     },
     "L4": {
-     "passed": 10,
+     "passed": 9,
      "n": 10
     },
     "L5": {
@@ -251,35 +249,36 @@
      "n": 10
     }
    },
-   "breaking_point": "L2",
+   "breaking_point": "L6",
    "outcomes": {
-    "pass": 44,
-    "wrong": 8,
-    "crash": 8
+    "pass": 46,
+    "wrong": 6,
+    "crash": 4,
+    "timeout": 4
    },
    "latency_s": {
-    "median": 7.7,
-    "p25": 6.07,
-    "p75": 9.25,
-    "p90": 10.71,
-    "max": 16.54
+    "median": 7.22,
+    "p25": 6.31,
+    "p75": 9.34,
+    "p90": 11.57,
+    "max": 14.48
    },
    "tokens_mean": {
-    "in_tok": 13434,
+    "in_tok": 14688,
     "cached_tok": 11520,
-    "out_tok": 532,
+    "out_tok": 514,
     "reasoning_tok": 0
    },
    "input_floor": [
-    13238,
+    14494,
     11520
    ],
-   "usd_per_call": 0.000573,
-   "usd_total": 0.0344,
-   "usd_per_pass": 0.000781,
-   "usd_per_pass_L1_L2": 0.000707,
+   "usd_per_call": 0.000689,
+   "usd_total": 0.0414,
+   "usd_per_pass": 0.000899,
+   "usd_per_pass_L1_L2": 0.00073,
    "pass_L1_L2": [
-    13,
+    16,
     20
    ],
    "cost_kind": "proxy"
@@ -458,7 +457,7 @@
    "haiku-low": 5,
    "haiku-medium": 5,
    "sonnet-medium": 5,
-   "luna-low": 3,
+   "luna-low": 5,
    "luna-medium": 4,
    "sol61-medium": 5
   },
@@ -467,7 +466,7 @@
    "haiku-low": 5,
    "haiku-medium": 5,
    "sonnet-medium": 5,
-   "luna-low": 0,
+   "luna-low": 1,
    "luna-medium": 1,
    "sol61-medium": 5
   },
@@ -503,7 +502,7 @@
    "haiku-low": 5,
    "haiku-medium": 5,
    "sonnet-medium": 5,
-   "luna-low": 5,
+   "luna-low": 4,
    "luna-medium": 5,
    "sol61-medium": 5
   },
@@ -512,7 +511,7 @@
    "haiku-low": 3,
    "haiku-medium": 5,
    "sonnet-medium": 5,
-   "luna-low": 4,
+   "luna-low": 2,
    "luna-medium": 5,
    "sol61-medium": 5
   },
@@ -521,7 +520,7 @@
    "haiku-low": 5,
    "haiku-medium": 5,
    "sonnet-medium": 5,
-   "luna-low": 3,
+   "luna-low": 5,
    "luna-medium": 5,
    "sol61-medium": 5
   },
@@ -558,10 +557,10 @@
   {
    "a": "luna-medium",
    "b": "luna-low",
-   "diff": 0.05,
+   "diff": 0.0167,
    "ci95": [
-    -0.0833,
-    0.1833
+    -0.1333,
+    0.1667
    ],
    "problems": 12
   },
@@ -588,10 +587,10 @@
   {
    "a": "haiku-low",
    "b": "luna-low",
-   "diff": 0.2167,
+   "diff": 0.1833,
    "ci95": [
     0.0167,
-    0.4333
+    0.3833
    ],
    "problems": 12
   },
@@ -700,10 +699,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.2667,
+     "diff": 0.2333,
      "ci95": [
-      0.0667,
-      0.5
+      0.05,
+      0.45
      ],
      "problems": 12
     },
@@ -812,10 +811,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.2667,
+     "diff": 0.2333,
      "ci95": [
-      0.0667,
-      0.5
+      0.05,
+      0.45
      ],
      "problems": 12
     },
@@ -924,10 +923,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.2667,
+     "diff": 0.2333,
      "ci95": [
-      0.0667,
-      0.5
+      0.05,
+      0.45
      ],
      "problems": 12
     },
@@ -1038,10 +1037,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.1833,
+     "diff": 0.15,
      "ci95": [
-      0.0,
-      0.4
+      -0.0333,
+      0.35
      ],
      "problems": 12
     },
@@ -1153,9 +1152,9 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.0,
+     "diff": -0.0333,
      "ci95": [
-      -0.1333,
+      -0.2,
       0.1333
      ],
      "problems": 12
@@ -1267,10 +1266,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.2,
+     "diff": 0.1667,
      "ci95": [
-      0.0333,
-      0.4
+      0.0,
+      0.35
      ],
      "problems": 12
     },
@@ -1382,10 +1381,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.0667,
+     "diff": 0.0333,
      "ci95": [
-      -0.1667,
-      0.3
+      -0.2,
+      0.25
      ],
      "problems": 12
     },
@@ -1494,10 +1493,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.2667,
+     "diff": 0.2333,
      "ci95": [
-      0.0667,
-      0.5
+      0.05,
+      0.45
      ],
      "problems": 12
     },
@@ -1606,10 +1605,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.2667,
+     "diff": 0.2333,
      "ci95": [
-      0.0667,
-      0.5
+      0.05,
+      0.45
      ],
      "problems": 12
     },
@@ -1718,10 +1717,10 @@
    "vs": [
     {
      "b": "luna-low",
-     "diff": 0.2667,
+     "diff": 0.2333,
      "ci95": [
-      0.0667,
-      0.5
+      0.05,
+      0.45
      ],
      "problems": 12
     },
@@ -1996,25 +1995,25 @@
     "pass": 15
    },
    "latency_s": {
-    "median": 55.82,
-    "p25": 29.71,
-    "p75": 78.79,
-    "p90": 130.72,
-    "max": 242.45
+    "median": 52.68,
+    "p25": 25.21,
+    "p75": 69.61,
+    "p90": 78.15,
+    "max": 96.8
    },
    "tokens_mean": {
-    "in_tok": 14097,
+    "in_tok": 15351,
     "cached_tok": 12288,
-    "out_tok": 1812,
-    "reasoning_tok": 1277
+    "out_tok": 1625,
+    "reasoning_tok": 1151
    },
    "input_floor": [
-    14042,
+    15298,
     12288
    ],
-   "usd_per_call": 0.022969,
-   "usd_total": 0.3445,
-   "usd_per_pass": 0.022969,
+   "usd_per_call": 0.023603,
+   "usd_total": 0.354,
+   "usd_per_pass": 0.023603,
    "usd_per_pass_L1_L2": null,
    "pass_L1_L2": [
     0,
@@ -2480,11 +2479,9 @@
      "fails": {}
     },
     "luna-low": {
-     "passed": 3,
+     "passed": 5,
      "n": 5,
-     "fails": {
-      "crash": 2
-     }
+     "fails": {}
     },
     "luna-medium": {
      "passed": 4,
@@ -2572,10 +2569,11 @@
      "fails": {}
     },
     "luna-low": {
-     "passed": 0,
+     "passed": 1,
      "n": 5,
      "fails": {
-      "wrong": 5
+      "timeout": 2,
+      "wrong": 2
      }
     },
     "luna-medium": {
@@ -2934,9 +2932,11 @@
      "fails": {}
     },
     "luna-low": {
-     "passed": 5,
+     "passed": 4,
      "n": 5,
-     "fails": {}
+     "fails": {
+      "wrong": 1
+     }
     },
     "luna-medium": {
      "passed": 5,
@@ -3023,10 +3023,11 @@
      "fails": {}
     },
     "luna-low": {
-     "passed": 4,
+     "passed": 2,
      "n": 5,
      "fails": {
-      "crash": 1
+      "wrong": 1,
+      "timeout": 2
      }
     },
     "luna-medium": {
@@ -3112,12 +3113,9 @@
      "fails": {}
     },
     "luna-low": {
-     "passed": 3,
+     "passed": 5,
      "n": 5,
-     "fails": {
-      "crash": 1,
-      "wrong": 1
-     }
+     "fails": {}
     },
     "luna-medium": {
      "passed": 5,
@@ -3616,7 +3614,6 @@
   }
  },
  "pareto": [
-  "luna-low",
   "luna-medium",
   "haiku-low",
   "haiku-medium",
@@ -4632,7 +4629,7 @@
   "claude_measured_usd": 2.4624,
   "claude_function_usd": 1.6128,
   "claude_agentic_usd": 0.8496,
-  "codex_proxy_usd": 36.2489,
+  "codex_proxy_usd": 36.2653,
   "codex_fastmode_usd": 3.4069,
   "calls": {
    "function": 1261,
@@ -4647,19 +4644,19 @@
     "haiku-low": "20/20",
     "haiku-medium": "20/20",
     "sonnet-medium": "20/20",
-    "luna-low": "13/20",
+    "luna-low": "16/20",
     "luna-medium": "15/20",
     "sol61-medium": "20/20"
    }
   },
   "H2": {
    "claim": "within a model, higher effort moves the breaking point up by at least one rung, or removes it",
-   "holds": true,
+   "holds": false,
    "data": {
     "haiku-low": null,
     "haiku-medium": null,
     "sonnet-medium": null,
-    "luna-low": "L2",
+    "luna-low": "L6",
     "luna-medium": "L6",
     "sol61-medium": null
    }
@@ -4673,16 +4670,16 @@
     "sonnet-medium": 0.008234,
     "sol61-medium": 0.011168
    },
-   "note": "luna-low was not 100% on L1-L2 (13/20), so it is not in the set"
+   "note": "luna-low was not 100% on L1-L2 (16/20), so it is not in the set"
   },
   "H4": {
    "claim": "at least one config breaks at or below L5",
-   "holds": true,
+   "holds": false,
    "data": {
     "haiku-low": null,
     "haiku-medium": null,
     "sonnet-medium": null,
-    "luna-low": "L2",
+    "luna-low": "L6",
     "luna-medium": "L6",
     "sol61-medium": null
    }

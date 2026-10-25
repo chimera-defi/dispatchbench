@@ -28,7 +28,7 @@ Main ladder: 12 problems × 5 attempts per config.
 - **Fast mode (⚡) keeps the passes and costs about twice as much per pass.** sol61-high ⚡: 60/60, 17.4 s against 27.4 s; astra-medium ⚡: 60/60, 9.9 s against 20.9 s. Neither missed on L7 (15/15, 15/15).
 - **haiku-high and sonnet-medium also never failed.** haiku-high: 60/60, 15/15 on L7 and 12/12 repo tasks at $0.0028 per pass, 7× cheaper than sol61-high and faster (14.7 s against 27.4 s). haiku-medium still misses (13/15 on L7). sonnet-medium: 75/75, the fastest of them.
 
-Function + agentic spend only (auxiliary runs and pilot excluded): $2.46 Claude, $36.25 Codex at list prices ($17.52 of it for the Codex models added on 2026-10-23, $16.28 for the fast-mode and xhigh runs).
+Function + agentic spend only (auxiliary runs and pilot excluded): $2.46 Claude, $36.27 Codex at list prices ($17.52 of it for the Codex models added on 2026-10-23, $16.28 for the fast-mode and xhigh runs).
 
 ## Read more
 

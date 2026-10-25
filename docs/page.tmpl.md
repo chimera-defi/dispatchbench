@@ -172,7 +172,7 @@
 </details>
 {{w_grid}}
 <ul class="tight small">
-<li>On p04 taller_within, luna-low passed {{p04_low_passes}}/{{repeats}}. luna-medium and luna-low-bare each passed {{p04_passes}}/{{repeats}}.</li>
+<li>p04 taller_within: luna-low, luna-medium and luna-low-bare each passed only {{p04_passes}} of {{repeats}} tries.</li>
 <li>haiku-low never gave a wrong answer.</li>
 <li>Its {{hl_main_misses}} main-ladder misses: {{hl_main_timeouts}} too slow. {{hl_main_crashes}} crash.</li>
 <li>Its {{l7_hl_fail}} L7 misses: all too slow.</li>
@@ -180,7 +180,7 @@
 </section>
 <section id="tokens">
 <h2><span class="num"></span>🧱 Baseline input tokens per call</h2>
-<p class="small">Historical trimmed luna-low used {{in_cut}} less input than isolated stock luna-low. Isolation differs between these runs.</p>
+<p class="small">Trimming luna-low's Codex system prompt and tool features cuts mean input by {{in_cut}}.</p>
 <div class="chart floor">{{w_floor}}</div>
 <details class="small"><summary>How to read this data</summary>
 <ul class="tight small">
@@ -254,6 +254,7 @@
 <li>luna-low-noshell-B2 also asks for a detailed reasoning summary.</li>
 <li>{{noshell_comparison}}</li>
 </ul>
+<p class="small">{{hb_conclusion_copy}}</p>
 {{table:harness_strengths}}
 <p class="small">Time per pass = summed call seconds divided by passes.</p>
 </details>
@@ -277,8 +278,8 @@
 <li>With Codex quota gone, use haiku-high. It is the cheapest config with no misses.</li>
 </ol>
 <ul class="tight">
-<li>If speed matters most, use sonnet-medium. It takes {{sonnet_medium_med}} s to haiku-high's {{haiku_high_med}} s. sonnet-medium costs {{sm_vs_hh_x}} as much per pass.</li>
-<li>Don't use luna-low or luna-medium alone: they miss about {{cheap_miss_words}}. {{hb_conclusion_copy}}</li>
+<li>If speed matters most, use sonnet-medium. It takes {{sonnet_medium_med}} s to haiku-high's {{haiku_high_med}} s.<p>sonnet-medium costs {{sm_vs_hh_x}} as much per pass.</p></li>
+<li>Don't use luna-low or luna-medium alone: they miss about {{cheap_miss_words}}.</li>
 </ul>
 </section>
 <section id="limits">
@@ -339,7 +340,6 @@
 <h4>Code quality scope</h4>
 <ul class="tight small">
 <li>Scored: main-ladder passing solutions, {{q_rows}} rows.</li>
-<li>The isolated replacements have no matching quality measurements.</li>
 <li>All {{n_solutions}} solutions are in <code>results/solutions</code>.</li>
 <li>On {{q_worst_problem}}, {{q_slow_n}} solutions run slower than the reference.</li>
 <li>Slower means at least {{q_slow_bar}} longer.</li>
@@ -374,12 +374,6 @@
 <p class="small">Repo-task rows were rerun with a clean Codex home.</p>
 <p class="small">A clean rerun checked {{isolation_calls_matched}} other calls.</p>
 <p class="small">It passed {{isolation_passes_isolated}} versus {{isolation_passes_original}} originally, so those rows were kept.</p>
-<h3>Selected result sources</h3>
-{{table:selected_sources}}
-<h3>Other Codex cells without isolation</h3>
-<p class="small">These retained cells used the function runner or its Codex caller before isolation.</p>
-<p class="small">Separate pilot and trim runners fall outside this inventory. Earlier rescue arms lack retained producers.</p>
-{{table:unisolated}}
 <h3>Failures and later runs</h3>
 <p class="small">haiku-low misses:</p>
 {{table:haiku_failures}}

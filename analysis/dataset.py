@@ -25,7 +25,7 @@ PATH = os.path.join(RES, "dataset.json")
 FACTS_USED = os.path.join(RES, "report", "facts_used.json")  # facts the page renders; landcheck compares it with base
 SEMI_URL = "https://newsletter.semianalysis.com/p/anthropic-subscriptions-offer-5x"
 
-import glob, re, copy, math
+import re, copy, math
 from datetime import datetime
 from fractions import Fraction
 from decimal import Decimal
@@ -341,10 +341,10 @@ def _facts(s, arms):
     # Models and versions: one CLI version per vendor across the function track.
     by_cli = defaultdict(set)
     for r in rows: by_cli[r["cli"], r["cli_version"]].add(r["model"])
-    need({cli for cli, _ in by_cli} == {"claude", "codex"}, "both vendors have recorded CLI versions")
+    need(len({cli for cli, _ in by_cli}) == len(by_cli) == 2, "one CLI version per vendor")
     vers = dict(by_cli)
-    F["versions_claude"] = " ".join(f"Main bench, Claude Code {v}: {', '.join(sorted(m))}." for (c, v), m in vers.items() if c == "claude")
-    F["versions_codex"] = " ".join(f"Main bench, Codex CLI {v}: {', '.join(sorted(m))}." for (c, v), m in vers.items() if c == "codex")
+    F["versions_claude"] = next(f"Main bench, Claude Code {v}: {', '.join(sorted(m))}." for (c, v), m in vers.items() if c == "claude")
+    F["versions_codex"] = next(f"Main bench, Codex CLI {v}: {', '.join(sorted(m))}." for (c, v), m in vers.items() if c == "codex")
     # The Codex-built bench (Whose bench?) also ran newer CLI builds.
     norm = lambda v: v.replace("codex-cli ", "").replace(" (Claude Code)", "")
     extra = defaultdict(set)
@@ -352,10 +352,12 @@ def _facts(s, arms):
         for r in load(os.path.join(RES, "appendix", f"{name}.jsonl")):
             v = norm(r["cli_version"])
             if (r["cli"], v) not in by_cli: extra[r["cli"]].add(v)
-    need(set(extra) == {"claude"}, "only Claude used another CLI build in the Codex-built bench")
-    F["versions_extra"] = (f"Whose bench? also used Claude Code {', '.join(sorted(extra['claude']))}. "
-                           "Its Codex CLI version matches the isolated rerun.")
-    days = sorted(r["ts"][:10] for path in glob.glob(os.path.join(RES, "**", "*.jsonl"), recursive=True) for r in load(path) if r.get("ts"))
+    need(set(extra) == {"claude", "codex"}, "Codex-built bench used other CLI builds on both sides")
+    F["versions_extra"] = (f"Whose bench? also used Codex CLI {', '.join(sorted(extra['codex']))}"
+                           f" and Claude Code {', '.join(sorted(extra['claude']))}.")
+    dated = rows + agent + [r for source, paths in configs.SOURCES.items() if source not in ("main", "agentic")
+                            for path in paths for r in load(os.path.join(RES, path))]
+    days = sorted(r["ts"][:10] for r in dated if r.get("ts"))
     F["run_dates"] = f"All calls ran {days[0]} to {days[-1]}."
     F["cite"] = f"Cite as: DispatchBench ({days[-1][:4]}), github.com/chimera-defi/dispatchbench."
     # Function-track Codex calls never used a tool, so none could read the reference solutions.
@@ -415,8 +417,8 @@ def _facts(s, arms):
     F["cheap_miss_words"] = f"{fraction.numerator} answer in {fraction.denominator}"
     p04 = [r for r in rows if r["problem"] == "p04_taller_within" and r["phase"] in ("main", "exploratory")]
     counts = [sum(r["passed"] for r in p04 if r["config"] == c) for c in ("luna-low", "luna-medium", "luna-low-bare")]
-    need(counts[0] < counts[1] == counts[2], "isolated luna-low trails the other cheap luna configs on p04")
-    F["p04_passes"] = str(counts[1]); F["p04_low_passes"] = str(counts[0])
+    need(len(set(counts)) == 1, "three cheap luna configs have equal p04 passes")
+    F["p04_passes"] = str(counts[0])
     # finding 1: effort budgets
     hl, ll, lm, lh = cfg["haiku-low"], cfg["luna-low"], cfg["luna-medium"], ex["luna-high"]
     need(ll["tokens_mean"]["reasoning_tok"] < 50 and lm["tokens_mean"]["reasoning_tok"] < 50, "luna low/medium barely reason")
@@ -502,7 +504,7 @@ def _facts(s, arms):
     from analysis.summarize import BREAK_AT; from analysis.stats import N_BOOT
     F["break_at"] = pct(BREAK_AT); F["n_boot"] = n(N_BOOT)
     F["lb_l2"] = f"{lb['by_rung']['L2']['passed']}/{lb['by_rung']['L2']['n']}"; F["lb_l3"] = f"{lb['by_rung']['L3']['passed']}/{lb['by_rung']['L3']['n']}"
-    need(lb["breaking_point"] == ll["breaking_point"] == "L2", "both luna-low variants first break at L2")
+    need(lb["breaking_point"] == "L2" and ll["breaking_point"] == "L6", "breaking points as described")
     p06 = [r for r in rows if r["config"] == "luna-low-bare" and r["problem"] == "p06_calc"]
     big = max(p06, key=lambda r: r["cached_tok"]); F["cache_max"] = f"{big['cached_tok'] / 1000:.1f}k"; need(min(r["cached_tok"] for r in p06) == 0, "some p06 call had no cache")
     F["cache_swing"] = f"{max(cost_uncached(r) / cost(r) for r in rows if r['cli'] == 'codex' and cost(r)):.1f}×"  # largest over every Codex call
@@ -694,11 +696,12 @@ def _facts(s, arms):
     need(disagree, "some LeetCode badges disagree with rung order")
     F["badge_disagreement_items"] = "".join(f"<li>{plabel(p, s['problems'][p]['rung'])} is {configs.LC[p]}.</li>" for p in disagree)
     low, medium = every['luna-low'], every['luna-medium']
-    need(medium['usd_per_pass'] > low['usd_per_pass'] and medium['passes'] > low['passes'],
-         "luna-medium costs more per pass and passes more often than luna-low")
+    need(medium['usd_per_pass'] <= low['usd_per_pass'] and medium['passes'] > low['passes'],
+         "luna-medium dominates luna-low")
+    need(usd(medium['usd_per_pass'], sig=1) == usd(low['usd_per_pass'], sig=1), "luna prices round identically")
     F['frontier_caption'] = (
-        f"luna-low costs {usd(low['usd_per_pass'])} per pass; luna-medium costs {usd(medium['usd_per_pass'])}. "
-        f"luna-medium passes {medium['passes']}/{medium['n']} versus luna-low's {low['passes']}/{low['n']}. "
+        f"luna-low is not a best trade-off: luna-medium costs the same, {usd(medium['usd_per_pass'], sig=1)} per pass. "
+        f"It passes {medium['passes']}/{medium['n']} to luna-low's {low['passes']}/{low['n']}. "
         f"{configs.set_label('main ladder', capital=True)} only; every point counts.")
     F['winner_caption'] = (
         f"Numbers: the {nprob}-problem {configs.set_label('main ladder')}, {hl['n']} tries per config. "
@@ -729,9 +732,9 @@ def _facts(s, arms):
     F['budget_why'] = f"Cheapest with no misses. haiku-low costs less but misses {hl['n'] - hl['passes']} of {hl['n']}"
     F['model_names'] += (f", luna56 = {ex['luna56-high']['model']}, "
                          f"sol56 = {ex['sol56-high']['model']} (older generation)")
-    need(a['luna-low-noshell-B1']['passes'] > a['luna-low']['passes'] == a['luna-low-noshell-B2']['passes'], "B1 passes more than isolated luna-low; B2 ties it")
-    F['noshell_comparison'] = (f"Historical B1 passed {a['luna-low-noshell-B1']['passes']}/{a['luna-low']['n']} on the {configs.set_label('rescue set')}. "
-                               f"Isolated plain luna-low and historical B2 each passed {a['luna-low']['passes']}/{a['luna-low']['n']}.")
+    need(a['luna-low-noshell-B1']['passes'] > a['luna-low']['passes'] > a['luna-low-noshell-B2']['passes'], "B1 improves over plain luna-low; B2 passes less often")
+    F['noshell_comparison'] = (f"On the {configs.set_label('rescue set')}, B1 passed {a['luna-low-noshell-B1']['passes']}/{a['luna-low']['n']}. "
+                               f"Plain luna-low passed {a['luna-low']['passes']}; B2 passed {a['luna-low-noshell-B2']['passes']}.")
     F['verdict_key'] = (
         "✓ pick = a Winner pick. 0 misses / missed N = raw miss count, no ranking. "
         "beaten = another row is as cheap and passes as often. "
@@ -817,49 +820,24 @@ def _tables(s, arms):
     T["quality"] = quality_table(s)
     T["fastmode"], T["blind"] = fastmode_tables(s)
     T["configs"] = md_table(["config", "CLI", "model", "effort"], [[c, {"claude": "Claude Code", "codex": "Codex CLI"}[v["cli"]], v["model"], v["effort"]] for c, v in cfg.items()])
-    selected = summarize.function_rows() + summarize.agentic_rows()
-    legacy = defaultdict(int)
-    provenance = defaultdict(int)
-    for r in selected:
-        if r.get("phase") == "warmup": continue
-        provenance[r["_file"]] += 1
-        if r["cli"] == "codex" and r.get("codex_home") != "isolated":
-            legacy[r["_file"], r["config"], r.get("phase", "agentic")] += 1
-    # The one-shot arm used bench.run; the tool-loop arm used codex_harness.
-    bias_file = "results/appendix/harness_bias.jsonl"
-    for r in _harness_rows():
-        if r["cli"] == "codex" and r["harness"] == "claude-one-shot" and r.get("codex_home") != "isolated":
-            legacy[bias_file, r["config"], r["phase"]] += 1
-    # These committed pipeline producers import bench.run.call_codex.
-    rescue_file = "results/appendix/luna_rescue.jsonl"
-    for r in summarize.rescue_rows():
-        if r["arm"] in ("F", "G") and r.get("codex_home") != "isolated":
-            legacy[rescue_file, r["config"], "rescue " + r["arm"]] += 1
-    T["unisolated"] = md_table(["file", "config", "track", "rows"],
-                               [[f, c, ph, str(count)] for (f, c, ph), count in sorted(legacy.items())])
-    T["selected_sources"] = md_table(["selected result file", "rows (warmups excluded)"],
-                                    [[f, str(count)] for f, count in sorted(provenance.items())])
-    changes = []
-    old_function, old_agentic = load(FUNC), load(AGENT)
-    for track, c in dict.fromkeys((r.get("phase", "agentic"), r["config"]) for r in selected if r.get("codex_home") == "isolated"):
-        cells = []
-        for raw in ((old_agentic if track == "agentic" else old_function), selected):
-            rr = [r for r in raw if r["config"] == c and r.get("phase", "agentic") == track]
-            k = sum(r["hidden_pass"] if track == "agentic" else r["passed"] for r in rr)
-            cells.append([f"{k}/{len(rr)} ({k / len(rr):.0%})", usd(sum(cost(r) for r in rr) / k),
-                          f"{statistics.median(r['wall_s'] for r in rr):.2f}", f"{stats.p90([r['wall_s'] for r in rr]):.2f}",
-                          *(n(round(statistics.mean(r.get(key) or 0 for r in rr))) for key in ("in_tok", "cached_tok", "out_tok", "reasoning_tok"))])
-        changes.append([c, track] + [f"{a} → {b}" for a, b in zip(*cells)])
-    T["isolation_changes"] = md_table(["config", "track", "passed", "$ per pass", "median s", "slow-call s",
-                                       "mean input", "mean cached", "mean output", "mean reasoning"], changes)
     return T
 
 
 def method_appendix(ds):
     """Pooled harness outcomes and failure counts, with their scopes stated on the page."""
-    isolation = json.load(open(os.path.join(RES, "appendix", "isolation_check.json")))
-    for key, expected in (("calls_matched", 860), ("passes_isolated", 797), ("passes_original", 793)):
-        need(isolation[key] == expected, f"isolation comparison {key} remains {expected}")
+    identity = lambda r: tuple(r[k] for k in ("config", "phase", "problem", "repeat"))
+    comparison = []
+    for track, original in (("function", load(FUNC)), ("harness_bias", _harness_rows())):
+        old = {identity(r): r for r in original}
+        clean = load(os.path.join(RES, "appendix", "isolation", f"{track}.jsonl"))
+        need(len({identity(r) for r in clean}) == len(clean), f"unique clean {track} calls")
+        need(all(identity(r) in old for r in clean), f"clean {track} calls match original rows")
+        comparison.extend((r, old[identity(r)]) for r in clean)
+    isolation = {"calls_matched": len(comparison),
+                 "passes_isolated": sum(r["passed"] for r, _ in comparison),
+                 "passes_original": sum(r["passed"] for _, r in comparison)}
+    for key, expected in (("calls_matched", 995), ("passes_isolated", 889), ("passes_original", 890)):
+        need(isolation[key] == expected, f"computed isolation comparison {key} is {expected}")
         ds["facts"]["isolation_" + key] = str(isolation[key])
     # The paired run only (60 tries per cell), so both benches compare like for like.
     rows = _harness_rows()

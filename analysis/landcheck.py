@@ -5,8 +5,8 @@
 3. Page integrity: facts the base page rendered that this page no longer renders,
    and placeholders in otherwise numeric table columns.
 
-Exits 1 for unacknowledged findings. --ack acknowledges removals; intentional
-page findings need individual reasons in docs/landcheck_allow.json.
+Exits 1 for unacknowledged findings. Intentional removals and page findings need
+individual reasons in docs/landcheck_allow.json; --ack can also acknowledge removals.
 """
 import argparse, json, re, subprocess, sys
 from html.parser import HTMLParser
@@ -144,16 +144,23 @@ def page_findings(base="fast-mode-main"):
     return items
 
 
+def removal_findings(items):
+    reasons = json.loads(Path(ALLOW).read_text()).get("removals", {})
+    return [item for item in items if not isinstance(reasons.get(item), str) or not reasons[item].strip()]
+
+
 def main():
     a = argparse.ArgumentParser(); a.add_argument("--base", default="fast-mode-main"); a.add_argument("--ack", action="store_true")
     o = a.parse_args()
     integrity = page_findings(o.base)
     items = page_removals(o.base) + merge_drops(o.base)
+    pending = removal_findings(items)
     for i in items: print(i)
     print(f"landcheck: {len(items)} removal(s) vs {o.base}" + ("; acknowledged" if o.ack and items else ""))
+    print(f"landcheck: {len(pending)} removal(s) without individual reasons")
     for i in integrity: print(i)
     print(f"landcheck: {len(integrity)} unacknowledged page-integrity finding(s)")
-    sys.exit(1 if integrity or (items and not o.ack) else 0)
+    sys.exit(1 if integrity or (pending and not o.ack) else 0)
 
 
 if __name__ == "__main__":
