@@ -406,7 +406,7 @@ def _facts(s, arms):
     F["claude_usd"] = usd(sp['claude_measured_usd']); F["codex_usd"] = usd(sp['codex_proxy_usd'])
     # Round the estimated total to the nearest five dollars for the front page.
     F["codex_usd_rounded"] = f"${round(sp['codex_proxy_usd']):.0f}"
-    F["agentic_fast_caption"] = ("⚡ configs are included." if any(c.endswith("-fast") for c in ag) else "No ⚡ repo-task data.")
+    F["agentic_fast_caption"] = ("⚡ configs are included" if any(c.endswith("-fast") for c in ag) else "No ⚡ repo-task data")
     for c, v in every.items():
         k = c.replace("-", "_")
         F[f"{k}_pass"] = pct(v["pass_at_1"]); F[f"{k}_k"] = f"{v['passes']}/{v['n']}"; F[f"{k}_upp"] = usd(v["usd_per_pass"])
@@ -849,15 +849,17 @@ def method_appendix(ds):
     for c in harness_bias.CFGS:
         for h, name in bench.items():
             rs = [r for r in rows if (r['harness'], r['config']) == (h, c)]
-            cell[c, h] = dict(usd=sum(r['cost_usd'] for r in rs), s=statistics.median(r['wall_s'] for r in rs))
             cli = '' if h == 'claude-one-shot' else (' (Claude Code)' if c.startswith('haiku') else ' (Codex CLI)')
             passes = sum(r['passed'] for r in rs)
+            need(passes > 0, f"{c} has passes on {h} for per-pass measures")
+            cell[c, h] = dict(usd=sum(r['cost_usd'] for r in rs), seconds=sum(r['wall_s'] for r in rs), passes=passes)
+            cell[c, h].update(upp=cell[c, h]['usd'] / passes, tpp=cell[c, h]['seconds'] / passes)
             cells.append([c, name + cli, f"{passes}/{len(rs)}",
-                          ('~' if c.startswith('luna') else '') + usd(cell[c, h]['usd'] / passes),
-                          f"{sum(r['wall_s'] for r in rs) / passes:.1f}"])
+                          ('~' if c.startswith('luna') else '') + usd(cell[c, h]['upp']),
+                          f"{cell[c, h]['tpp']:.1f}"])
     ds['tables']['harness_strengths'] = md_table(['model', 'bench', 'passed', '$ per pass', 'time per pass (s)'], cells)
     one, loop = cell['luna-low', 'claude-one-shot'], cell['luna-low', 'codex-tool-loop']
-    need(loop['usd'] > 2 * one['usd'] and loop['s'] > 2 * one['s'], "Codex's bench costs luna-low over 2x in $ and time")
+    need(loop['upp'] > 2 * one['upp'] and loop['tpp'] > 2 * one['tpp'], "Codex's bench costs luna-low over 2x in $ and time per pass")
     # Codex's first step: replay a subset of our main-run cells before the paired run.
     sub = [r for r in load(os.path.join(RES, "appendix", "codex_harness.jsonl")) if r['repeat'] <= 2]
     ours = {(r['config'], r['problem'], r['repeat']): r['passed'] for r in summarize.function_rows() if r['phase'] == 'main'}
@@ -865,11 +867,14 @@ def method_appendix(ds):
          "every subset cell passed on both benches")
     ds['facts']['hb_subset'] = f"It first replayed {len(sub)} of our {' and '.join(sorted({r['config'] for r in sub}))} results. All passed on both."
     hh1, hh2 = cell['haiku-low', 'claude-one-shot'], cell['haiku-low', 'codex-tool-loop']
-    need(0.8 < hh2['s'] / hh1['s'] < 1.25 and hh2['usd'] / hh1['usd'] < 1.5, "Codex's bench barely moved haiku-low's time and cost")
-    ds['facts']['hb_haiku_cost'] = f"haiku-low cost {hh2['usd'] / hh1['usd']:.1f}× as much there, in about the same time."
-    tot = lambda h: sum(cell[c, h]['usd'] for c in harness_bias.CFGS)
+    need(0.8 < hh2['tpp'] / hh1['tpp'] < 1.25 and hh2['upp'] / hh1['upp'] < 1.5,
+         "Codex's bench barely moved haiku-low's time and cost per pass")
+    ds['facts']['hb_haiku_cost'] = (f"haiku-low cost {hh2['upp'] / hh1['upp']:.1f}× as much per pass. "
+                                     f"Time per pass was {hh2['tpp'] / hh1['tpp']:.1f}× as long.")
+    tot = lambda h: sum(cell[c, h]['usd'] for c in harness_bias.CFGS) / sum(cell[c, h]['passes'] for c in harness_bias.CFGS)
     ds['facts']['hb_total_x'] = f"{tot('codex-tool-loop') / tot('claude-one-shot'):.1f}×"
-    ds['facts']['hb_luna_cost'] = f"luna-low cost {loop['usd'] / one['usd']:.0f}× more in total and took {loop['s'] / one['s']:.0f}× longer there."
+    ds['facts']['hb_luna_cost'] = (f"luna-low cost {loop['upp'] / one['upp']:.1f}× as much per pass. "
+                                    f"Time per pass was {loop['tpp'] / one['tpp']:.1f}× as long.")
     s = ds['report']
     counts = []
     for key, label in (('configs', 'main ladder'), ('hard', 'L7 set')):
@@ -1046,8 +1051,6 @@ def _equivalents(ds):
     need(len(tops) == 1 and top, "the 100% Claude configs share one cheapest Codex match")
     tm = next(m for r, m in pairs if r["pass_rate"] == 1)
     F = ds["facts"]
-    F["equiv_takeaway"] = (f'Every Claude config has a Codex match. {" and ".join(r["display"] for r in top)} hit 100%; '
-                           f'{tm["display"]} matches them. Each match costs more at list price and runs slower.')
     fast = min((q for q in codex if q["pass_rate"] == 1), key=lambda q: q["median_s"])
     need(fast["usd_per_pass"] > tm["usd_per_pass"], "the fastest 100% Codex config costs more than the cheapest")
     F["equiv_fastest"] = f'Fastest Codex at 100%: {fast["display"]}, {fast["median_s"]:.0f} s. It costs {usd(fast["usd_per_pass"])} per pass.'
@@ -1068,7 +1071,15 @@ def _equivalents(ds):
     cheaper = [q for q, m in back if m["usd_per_pass"] < q["usd_per_pass"]]
     dearer = [q for q, m in back if m["usd_per_pass"] >= q["usd_per_pass"]]
     need(dearer and all(q["display"].startswith("luna-") for q in dearer), "only luna configs undercut their Claude match on price")
+    need(all(q["usd_per_pass"] < m["usd_per_pass"] for q, m in back if q in dearer),
+         "every luna price exception strictly undercuts its Claude match")
     need(all(m["pass_rate"] > q["pass_rate"] for q, m in back if q in dearer), "and each of those passes less often than its match")
+    need(len(pairs) == len(claude) and len(back) == len(codex), "the merged match table covers both vendors in both directions")
+    need(cheaper and len(cheaper) + len(dearer) == len(back), "every reverse match has a pinned price comparison")
+    F["equiv_takeaway"] = (
+        f'All {len(pairs)} Claude configs have Codex matches. Each match costs more at list price and runs slower. '
+        f'All {len(back)} Codex configs have Claude matches. Claude is cheaper for {len(cheaper)}. '
+        'Only luna undercuts its Claude match, with more misses.')
     F["equiv_back_takeaway"] = (f'Every Codex config has a Claude match. It is cheaper for {len(cheaper)} of {len(back)}. '
                                 'Only luna (not luna56) costs less, and it misses more.')
 
@@ -1103,7 +1114,7 @@ def _interesting(ds):
         f'sol56-high is a generation older than sol61-high. Both pass every main-ladder try.',
         f'sol56-high takes {old["median_s"]:.1f} s at ~{usd(old["usd_per_pass"])} per pass.',
         f'sol61-high takes {new["median_s"]:.1f} s at ~{usd(new["usd_per_pass"])}. ⚡ cuts that to {fast["median_s"]:.1f} s, at ~{usd(fast["usd_per_pass"])}.',
-        'So the newer model is cheaper but slower, and ⚡ does not close the gap.'])
+        'So the newer model is cheaper but slower. ⚡ does not close the gap.'])
     lo, hl = get(ds, "luna-low", ml), get(ds, "haiku-low", ml)
     need(lo["usd_per_pass"] < hl["usd_per_pass"] and lo["pass_rate"] < hl["pass_rate"], "luna-low is cheaper per pass than haiku-low but passes less")
     F["int_luna"] = (f'luna-low is cheaper per pass than haiku-low: ~{usd(lo["usd_per_pass"])} to {usd(hl["usd_per_pass"])}. '
@@ -1175,9 +1186,6 @@ def _interesting(ds):
     F["int_trim"] = (f'Disabling luna-low\'s tool features cut input {1 - trim["tokens_in_mean"] / stock["tokens_in_mean"]:.0%}, '
                      f'yet raised estimated cost {x(trim["usd_per_call"], stock["usd_per_call"])}.')
 
-    # Each finding sentence is a separate bullet; numeric comparisons keep their facts.
-    for key in ("int_sol", "int_luna", "int_semi", "int_harness", "int_build", "int_l7", "int_trim", "int_repo"):
-        F[key] = "</li>\n<li>".join(re.split(r'(?<=[.!?])\s+', F[key]))
 
 def build(summary=None):
     from bench.problems.p13_xor_ring import STATEMENT as xor_statement
