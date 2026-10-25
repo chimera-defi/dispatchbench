@@ -23,9 +23,9 @@ NOTATION = {
     "⚡": "Fast mode: {fm_mult} list price at the same model and effort.",
     "-bare": "Codex's system prompt and tool text are trimmed.",
     "H": "Haiku at low effort (haiku-low).",
-    "→H fail": "Haiku fixes answers only when the problem's worked examples fail.",
+    "→H fail": "Haiku fixes answers only when a sample test fails.",
     "→H all": "Haiku checks and fixes every answer.",
-    "→retry": "The same model tries again if the examples fail.",
+    "→retry": "The same model tries again if a sample test fails.",
     "plan→": "Haiku writes a plan before the named model answers.",
     "†": "An exploratory config added after the main run.",
     "✓ pick": "A Winner pick.",
@@ -60,17 +60,17 @@ add("main", "fast mode and xhigh",
     ("sol61-high-fast", "sol61-high on Codex priority tier (fast mode). Same model and effort, about twice the price."),
     ("astra-medium-fast", "astra-medium on the Codex priority tier (fast mode)"), ("sol61-xhigh", "gpt-6.1-sol at xhigh effort"))
 add("rescue", "rescue pipeline",
-    ("luna-low-noshell-B1", "Arm B1: luna-low without shell, nudged to list edge cases and trace the examples first"),
+    ("luna-low-noshell-B1", "Arm B1: luna-low without shell, nudged to list edge cases and trace the sample tests first"),
     ("luna-low-noshell-B2", "Arm B2: B1 plus a detailed reasoning summary"), ("luna-low-selftest", "Arm C: luna-low with shell on, told to test its code first"),
     ("luna-medium-bare", "Arm D: luna-medium, stripped harness"), ("luna-high-bare", "Arm D: luna-high, stripped harness"),
     ("luna-low+haiku-low-repair", "Arm E (original run, prompt not kept): luna-low answers, haiku-low reviews and repairs"),
     ("haiku-low-plan+luna-low", "Arm F: haiku-low writes a plan, luna-low builds from it"),
     ("haiku-low-plan+luna-high-bare", "Arm F: haiku-low plans, luna-high (stripped) builds"),
-    ("luna-high-bare+haiku-on-fail", "Arm G: luna-high builds; haiku-low repairs only if the statement's examples fail"),
-    ("luna-high-bare+retry-on-fail", "Arm G: luna-high builds; luna-high retries only if the examples fail"),
-    ("luna-low+haiku-on-fail", "Arm G: luna-low builds; haiku-low repairs only if the examples fail"),
-    ("astra-medium+haiku-on-fail", "Arm G: astra-medium builds; haiku-low repairs only if the examples fail"),
-    ("sol61-high+haiku-on-fail", "Arm G: sol61-high builds; haiku-low repairs only if the examples fail"),
+    ("luna-high-bare+haiku-on-fail", "Arm G: luna-high builds; haiku-low repairs only if a sample test fails"),
+    ("luna-high-bare+retry-on-fail", "Arm G: luna-high builds; luna-high retries only if a sample test fails"),
+    ("luna-low+haiku-on-fail", "Arm G: luna-low builds; haiku-low repairs only if a sample test fails"),
+    ("astra-medium+haiku-on-fail", "Arm G: astra-medium builds; haiku-low repairs only if a sample test fails"),
+    ("sol61-high+haiku-on-fail", "Arm G: sol61-high builds; haiku-low repairs only if a sample test fails"),
     ("luna-high-bare+haiku-review-all", "Arm G: luna-high builds; haiku-low reviews every answer"),
     ("luna-low+haiku-review-all", "Arm G: luna-low builds; haiku-low reviews every answer (arm E rerun from committed code)"))
 add("agentic", "repo tasks",
@@ -190,7 +190,7 @@ def section(rest, ds, root, chart_bodies=None):
         by.setdefault(r["category"], []).append(r)
     head = "".join(f"<th>{h}</th>" for h in ("name", "what it was", "pass", "$ per pass", "median s", "spend", "where it appears"))
     out = ["<details><summary>Everything we tried</summary>", "<ul class=\"tight small\"><li>Every config with rows in results/, grouped by kind.</li>"
-           "<li>Pass pools all of a config's runs, so it can exceed the Results counts.</li>"
+           "<li>Each row pools all of a config's runs. Pass, $ and seconds can differ from Results.</li>"
            "<li>Codex dollars are list-price estimates. Dash means the full cost is unavailable.</li>"
            "<li>Hover over a name for its source file.</li><li>Pilot repo pipelines include builder and review time and cost.</li></ul>"]
     for cat in CATEGORIES:

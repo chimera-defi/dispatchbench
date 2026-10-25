@@ -747,7 +747,7 @@ def _facts(s, arms):
                                 f"{configs.set_label('rescue set')}. Haiku never ran.")
     gain = {m: int(F[f'hb_codex_{m}'].split('/')[0]) - int(F[f'hb_claude_{m}'].split('/')[0]) for m in ('luna_low', 'haiku_low')}
     need(gain['luna_low'] > gain['haiku_low'] > 0, "Codex CLI lifted luna-low more than Claude Code lifted haiku-low")
-    F['hb_conclusion_copy'] = (f"Codex CLI lifted luna-low by {gain['luna_low']} passes; Claude Code lifted haiku-low by {gain['haiku_low']}. "
+    F['hb_conclusion_copy'] = (f"Codex CLI lifted luna-low by {gain['luna_low']} passes. haiku-low gained {gain['haiku_low']}, near its ceiling. "
                                "No pick changes.")
     F['l7_set_description'] = (f"{configs.set_label('L7 set')}: " + ", ".join(pshort(p) for p in probs)
                                + f"; scored separately. Added after every strong config passed L{max(v['rung'] for v in s['problems'].values())}.")
@@ -1032,7 +1032,7 @@ def _equivalents(ds):
     dearer = [q for q, m in back if m["usd_per_pass"] >= q["usd_per_pass"]]
     need(dearer and all(q["display"].startswith("luna-") for q in dearer), "only luna configs undercut their Claude match on price")
     need(all(m["pass_rate"] > q["pass_rate"] for q, m in back if q in dearer), "and each of those passes less often than its match")
-    F["equiv_back_takeaway"] = (f'Every Codex config has a Claude match too. It is cheaper for {len(cheaper)} of {len(back)}. '
+    F["equiv_back_takeaway"] = (f'Every Codex config has a Claude match. It is cheaper for {len(cheaper)} of {len(back)}. '
                                 'Only luna (not luna56) costs less, and it misses more.')
 
 
@@ -1040,6 +1040,9 @@ def _equivalents(ds):
 def _interesting(ds):
     """Findings the operator flagged as worth sharing. Each line is computed and pinned."""
     F, ml = ds["facts"], "main ladder"
+    for c in ("sol61-high", "astra-medium"):
+        pipe, plain = get(ds, c + "+haiku-on-fail", "rescue arms", "rescue"), get(ds, c, "rescue set")
+        need(pipe["spend_claude"] == 0 and pipe["passes"] == plain["passes"], f"{c} →H fail: Haiku never ran and passes match the plain row")
     fast, old, new = (get(ds, c, ml) for c in ("sol61-high-fast", "sol56-high", "sol61-high"))
     need(fast["pass_rate"] == old["pass_rate"] == new["pass_rate"] == 1, "sol61-high, its ⚡ run and sol56-high all pass every main try")
     need(old["median_s"] < fast["median_s"] < new["median_s"], "older sol56-high beats sol61-high ⚡ on speed, which beats plain sol61-high")
@@ -1060,8 +1063,8 @@ def _interesting(ds):
          "the Codex picks are over 2.5x slower than the fast Claude configs on repo tasks")
     F["int_repo"] = (f'On real repo edits, sol61-high took {rp["sol61-high"]["median_s"]:.0f} s and astra-medium {rp["astra-medium"]["median_s"]:.0f} s. '
                      f'sonnet-medium and haiku-low took about {rp["sonnet-medium"]["median_s"]:.0f} s. All passed every task.')
-    F["int_harness"] = (f'Each vendor\'s own agent CLI lifts its model. luna-low went {F["hb_luna_low_change"]} of {F["hb_luna_low_n"]} in Codex CLI. '
-                        f'haiku-low went {F["hb_haiku_low_change"]} in Claude Code.')
+    F["int_harness"] = (f'Codex CLI lifted luna-low from {F["hb_luna_low_change"].replace("→", " to ")} passes. '
+                        f'haiku-low moved {F["hb_haiku_low_change"]} in Claude Code, near its ceiling.')
 
 def build(summary=None):
     from bench.problems.p13_xor_ring import STATEMENT as xor_statement

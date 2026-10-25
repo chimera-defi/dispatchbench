@@ -492,10 +492,10 @@ def floor(s):
 
 
 PIPE_GROUPS = [("Single models", lambda c: "+" not in c),
-               ("Build, then Haiku fixes it only if an example fails (→H fail)", lambda c: c.endswith("+haiku-on-fail")),
+               ("Build, then Haiku fixes it only if a sample test fails (→H fail)", lambda c: c.endswith("+haiku-on-fail")),
                ("Haiku checks every answer (→H all)", lambda c: c.endswith("+haiku-review-all")),
                ("Plan first, then build (plan→)", lambda c: c.startswith("haiku-low-plan+")),
-               ("Retry once if an example fails (→retry)", lambda c: c.endswith("+retry-on-fail"))]
+               ("Retry once if a sample test fails (→retry)", lambda c: c.endswith("+retry-on-fail"))]
 
 
 def pipes(arms=None):
@@ -757,7 +757,7 @@ def method(s):
             base = ["service_tier=" + "|".join(tiers) if f.startswith("service_tier=") else f for f in base]
             command = f"codex exec -m {model} -c model_reasoning_effort={efforts} {flag(base)}"
         cmds.append(f'<li>{esc(names)} → <code>{command}</code></li>')
-    cmds.append('<li><code>python3 -m bench.gated_repair</code>: answer, then run the statement’s examples. haiku-low repairs failures.</li>')
+    cmds.append('<li><code>python3 -m bench.gated_repair</code>: answer, then run the sample tests. haiku-low repairs failures.</li>')
     return "".join(li), "".join(cmds)
 
 

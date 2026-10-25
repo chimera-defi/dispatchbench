@@ -50,7 +50,7 @@
 <li>Pipeline rows show only the Haiku share.</li>
 <li>Click a header to sort within a group. <a href="#notation">Symbols: see Notation.</a></li>
 <li>{{set_label_title}} = the {{n_rescue_problems}} problems a cheap luna config missed. Its single-model rows reuse earlier attempts.</li>
-<li>Not listed: →H fail rows for {{dropped_pipeline_models}} equal their plain rows; see Pipelines.</li>
+<li>Not listed: →H fail rows for {{dropped_pipeline_models}}. Haiku never ran, so they pass like their plain rows.</li>
 </ul>
 <details><summary>Full table: intervals and p90</summary>
 <p class="small">Intervals show pass-rate uncertainty. p90 covers slower calls.</p>
@@ -143,7 +143,7 @@
 </section>
 <section id="pipes">
 <h2><span class="num"></span>🔗 Pipelines: plan, check, fix</h2>
-<p class="small">A pipeline chains two models: one writes, then Haiku checks. The best, luna-high-bare →H all, passed {{r_luna_high_bare_haiku_review_all_k}} at {{r_luna_high_bare_haiku_review_all_upp}} per pass.</p>
+<p class="small">A pipeline chains two steps. Usually one model writes, then Haiku checks. The best, luna-high-bare →H all, passed {{r_luna_high_bare_haiku_review_all_k}} at {{r_luna_high_bare_haiku_review_all_upp}} per pass.</p>
 <div class="chart floor"><h3>Passes, $ per pass, median seconds</h3><p class="sub">{{pipes_caption}}</p>{{w_pipes}}</div>
 <ul class="tight small">
 <li>Pipelines ran only on the {{set_label}}.</li>
@@ -152,7 +152,8 @@
 <li>sol61-high and astra-medium never failed a sample test, so Haiku never ran.</li>
 <li>⚡ pipeline rows reuse cached ⚡ answers. Other pipeline rows are new calls.</li>
 <li>Router: per main-ladder problem, the cheapest config that passed tries {{router_fit}}.</li>
-<li>It passed {{router_k}} of tries {{router_held}}, at ~{{router_share}} of haiku-high's $ per pass.</li>
+<li>On tries {{router_held}} it passed {{router_k}}.</li>
+<li>That cost ~{{router_share}} of haiku-high's $ per pass.</li>
 <li><a href="#notation">See Notation.</a></li>
 </ul>
 </section>
@@ -209,7 +210,7 @@
 <li>Most have a LeetCode analogue, so models may have seen similar code.</li>
 <li>The problems ship with this repo, so later models may train on them.</li>
 <li>Intervals resample whole problems, since tries on one problem are related.</li>
-<li>{{l7_bound}} on L7's {{n_l7}} problems only shows a pass rate of at least {{l7_lo}}.</li>
+<li>L7 has {{n_l7}} problems. A perfect {{l7_bound}} there only shows a pass rate of at least {{l7_lo}}.</li>
 <li>Every repo task passed, so they rank cost and speed, not skill.</li>
 <li>Paired gaps of {{nosep_gap}} points or less did not separate; {{sep_gap}}-point gaps did.</li>
 <li><code>PLAN.md</code> was committed before the main run; a same-day pilot came first.</li>
