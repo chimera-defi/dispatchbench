@@ -1070,9 +1070,9 @@ def _interesting(ds):
     need(all(rl["usd_per_pass"] < r["usd_per_pass"] for c, r in semi_repo.items() if c != "luna-low"),
          "luna-low is the cheapest per pass among all repo-task configs")
     main_gap, repo_gap = round(sh["usd_per_pass"] / hh["usd_per_pass"]), round(rs["usd_per_pass"] / rh["usd_per_pass"])
-    F["int_semi"] = (f'<a href="{SEMI_URL}">SemiAnalysis</a> found Anthropic plans give ~5× more API-priced tokens than OpenAI plans. '
+    F["int_semi"] = (f'<a href="{SEMI_URL}">SemiAnalysis</a>: Anthropic plans give ~5× OpenAI\'s API-priced value at the Opus/Sol tier. '
                      'We price list-rate calls, not plan quotas, so we can’t test that. '
-                     f'At list price, haiku-high costs ~{main_gap}× less per pass than sol61-high. '
+                     f'At list price, haiku-high beats sol61-high ~{main_gap}× per pass; tiers differ. '
                      f'On repo tasks the gap is ~{repo_gap}×. '
                      'But luna-low was cheapest there and passed every repo task.')
     rp = {c: get(ds, c, "repo tasks", "agentic") for c in ("sol61-high", "astra-medium", "sonnet-medium", "haiku-low")}
