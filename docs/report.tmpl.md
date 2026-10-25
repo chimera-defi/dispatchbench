@@ -228,7 +228,7 @@ What we did not borrow: scale. These benchmarks run hundreds of problems, and Li
 @readme cache/            cached model calls and grades; the source of every number
 @readme   plan_first/     Appendix F calls
 @readme   gated_repair/   Appendix G calls
-@readme   agentic_raw/    committed agentic transcripts
+@readme   agentic/        historical verdicts; selected reruns live under results/
 @readme results/          graded rows (jsonl), prices, manifest, summary, quality, solutions, report and page
 @readme   appendix/       appendix graded rows
 @readme PLAN.md           pre-registration and deviations

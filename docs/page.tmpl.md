@@ -1,10 +1,10 @@
 <header class="head">
 <h1>DispatchBench: which model should a coding task go to?</h1>
-<p class="small">LeetCode-style problems, written fresh for this bench. {{run_dates}}</p>
 <nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#pareto">Cost vs accuracy</a><a href="#results">Results</a><a href="#method">How it was run</a><a href="#fail">Where they fail</a><a href="#tokens">Baseline input tokens</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#limits">Limitations</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#interesting">Interesting</a><a href="#equiv">Codex vs Claude</a></nav>
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
+<p class="small">LeetCode-style problems, written fresh for this bench. {{run_dates}}</p>
 <p><b>{{winner_intro}}</b></p>
 <details class="small"><summary>Picks and model names</summary>
 <p>{{winner_price}}</p>
@@ -127,7 +127,7 @@
 </details>
 <ul class="tight small">
 <li>Each config tries each problem {{repeats}} times, tools off.</li>
-<li>The bench cost {{claude_usd}} on Claude. Codex quota use is estimated at {{codex_usd}}.</li>
+<li>Total spend: {{claude_usd}} Claude, about {{codex_usd_rounded}} Codex (estimated).</li>
 </ul>
 <details><summary>📐 How to read this data: sets, tests, prices, intervals</summary>
 <ul class="tight small">
@@ -149,7 +149,6 @@
 <li>The {{ci_level}} range uses {{n_boot}} bootstrap resamples.</li>
 <li>It shows how much a rerun's pass rate can vary.</li>
 <li>Run by Wren, a {{orchestrator}} orchestrator.</li>
-<li>Wren is not among the configs tested.</li>
 </ul>
 </details>
 <details><summary>🧩 Models and versions</summary>
@@ -172,7 +171,7 @@
 </details>
 {{w_grid}}
 <ul class="tight small">
-<li>p04 taller_within: luna-low, luna-medium and luna-low-bare each passed only {{p04_passes}} of {{repeats}} tries.</li>
+<li>p04 taller_within (L2): luna-low, luna-medium and luna-low-bare each passed only {{p04_passes}} of {{repeats}} tries.</li>
 <li>haiku-low never gave a wrong answer.</li>
 <li>Its {{hl_main_misses}} main-ladder misses: {{hl_main_timeouts}} too slow. {{hl_main_crashes}} crash.</li>
 <li>Its {{l7_hl_fail}} L7 misses: all too slow.</li>
@@ -214,21 +213,23 @@
 <h4>Router</h4>
 <ul class="tight small">
 <li>Per main-ladder problem, the cheapest config that passed tries {{router_fit}}.</li>
-<li>On tries {{router_held}}, the router passed {{router_k}}.</li>
+<li>Router evaluation tries: {{router_held}}.</li>
+<li>The router passed {{router_k}}.</li>
 <li>That cost ~{{router_share}} of haiku-high's $ per pass.</li>
 </ul>
 <p class="small"><a href="#notation">See Notation.</a></p>
 </details>
 </section>
 <section id="fair">
-<h2><span class="num"></span>⚖️ Claude's bench vs Codex's bench</h2>
+<h2><span class="num"></span>⚖️ Whose bench?</h2>
+<p class="small">Our one-shot runner (Claude's bench): a single answer per try, tools off.</p>
+<p class="small">Codex CLI loop: runs code, retries (Codex's bench).</p>
 <p class="small"><b>Does a Codex-built bench favour Codex models? {{hb_answer}} haiku-low still led on both, so no pick changes.</b></p>
 {{chart:harness_bias.svg|{{hb_n_problems}} hard problems, {{hb_repeats}} tries each}}
 <details class="small"><summary>How to read this data</summary>
 <h4>The benches</h4>
 <ul class="tight small">
 <li>{{bench_authorship}}</li>
-<li>Claude's bench: a single answer per try, tools off.</li>
 <li>Codex's bench: each model runs in its vendor's agent CLI, which runs code and retries.</li>
 <li>luna-low ran in Codex CLI, haiku-low in Claude Code: each vendor's cheapest model.</li>
 <li>sol61-high was skipped: every try already passed.</li>
@@ -245,7 +246,8 @@
 <h4>Bias threshold</h4>
 <ul class="tight small">
 <li>The gap moved {{hb_diff_points}} points, below our {{hb_bar_points}}-point bias threshold.</li>
-<li>The {{ci_level}} range is {{hb_range_points}} points.</li>
+<li>Confidence level: {{ci_level}}.</li>
+<li>The range is {{hb_range_points}} points.</li>
 </ul>
 <h4>Variants</h4>
 <ul class="tight small">
@@ -291,11 +293,14 @@
 <li>Most have a LeetCode analogue, and LeetCode code is widely public.</li>
 <li>The problems ship with this repo, so later models can read them.</li>
 <li>The {{ci_level}} range resamples whole problems, since tries on the same problem are related.</li>
-<li>L7 has {{n_l7}} problems. A perfect {{l7_bound}} there only shows a pass rate of at least {{l7_lo}}.</li>
+<li>L7 has {{n_l7}} problems.</li>
+<li>Perfect score: {{l7_bound}}.</li>
+<li>That only shows a pass rate of at least {{l7_lo}}.</li>
 <li>Every repo task passed, so they rank cost and speed, not skill.</li>
 <li>Paired gaps of {{nosep_gap}} points or less did not separate; {{sep_gap}}-point gaps did.</li>
 <li><code>PLAN.md</code> was committed before the main run; a same-day pilot came first.</li>
-<li>{{n_exploratory}} configs were added after seeing the main-run results (†), including the haiku-high and sol61-high picks:<ul>{{exploratory_items}}</ul></li>
+<li>{{n_exploratory}} configs were added after seeing the main-run results (†).</li>
+<li>These include the haiku-high and sol61-high picks:<ul>{{exploratory_items}}</ul></li>
 <li>A Codex call's estimated $ drops up to {{cache_swing}} when the prompt cache hits.</li>
 <li>Latency is CLI wall clock.</li>
 <li>We ran up to {{lanes}} calls at once on one host.</li>
@@ -319,7 +324,7 @@
 <p class="small">Explorer plots any pair of measures.</p>
 <div class="chart"><h3>🎛️ Explorer</h3>{{w_explorer}}</div>
 {{chart:pass_by_rung.svg|Pass rate by difficulty rung}}
-{{chart:agentic.svg|Repo tasks: pass rate vs $ per run. All marks are circles here; read the labels}}
+{{chart:agentic.svg|Repo tasks: pass rate vs $ per run. {{agentic_fast_caption}}}}
 </details>
 
 <p class="small"><a href="#notation">See Notation.</a></p>

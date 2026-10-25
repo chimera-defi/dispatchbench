@@ -483,6 +483,7 @@ def floor(s):
     names = [("haiku-low", "haiku-low"), ("sonnet-medium", "sonnet-medium"),
              ("luna-low", "luna-low, Codex's normal prompt"), ("sol61-medium", "sol61-medium"),
              ("luna-low-bare", "luna-low, trimmed prompt")]
+    names += [(c, DISP(c)) for c in E if c.endswith("-fast")]
     names.sort(key=lambda row: configs.low_context(row[0]))
     rows = [(name, E[c]["tokens_mean"]["in_tok"], FAM(c), False) for c, name in names]
     low = next((i for i, (c, _) in enumerate(names) if configs.low_context(c)), None)

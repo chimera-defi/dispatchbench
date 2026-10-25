@@ -296,7 +296,8 @@ def test_fairness_qa_renders_counts_and_runtime_from_appendix():
     assert f"{facts['hb_answer']} haiku-low still led on both" in fair
     assert (f"<li>The gap moved {100 * comparison['diff']:.0f} points, "
             f"below our {facts['hb_bar_points']}-point bias threshold.</li>") in fair
-    assert f"The {facts['ci_level']} range is {100 * lo:.0f} to {100 * hi:.0f} points." in fair
+    assert f"Confidence level: {facts['ci_level']}." in fair
+    assert f"The range is {100 * lo:.0f} to {100 * hi:.0f} points." in fair
     wrong = [sum(r['outcome'] == 'wrong' for r in rows if (r['harness'], r['config']) == (h, 'luna-low')) for h in ('claude-one-shot', 'codex-tool-loop')]
     assert f"wrong outputs from {wrong[0]} to {wrong[1]}" in fair
 

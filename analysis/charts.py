@@ -144,15 +144,18 @@ def rung_chart(s, ds=None):
     from analysis.page import ORDER, config_marker  # lazy: page imports this module
     cfg, rungs = rung_rows(s, ds)
     names = sorted(cfg, key=lambda c: ORDER.index(c) if c in ORDER else len(ORDER))
-    W, L, T, cw, rh = 560, 190, 96, 58, 30
+    L, T, cw, rh = 190, 270, 90, 30
+    W = L + len(rungs) * cw + 12
     H = T + rh * len(names) + 40
-    probs = {g: " ".join(q[:3] for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g) for g in rungs}
+    probs = {g: [plabel(q) for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g] for g in rungs}
     caption = (ds or dataset.read())["facts"]["rung_caption"]
     b = [text(12, 24, "Pass rate by difficulty rung (main ladder p01-p12)", 15, weight="600"),
          text(12, 46, caption, 10, fill=MUTED)]
     for i, g in enumerate(rungs):
         x = L + i * cw + cw / 2
-        b += [text(x, T - 22, g, 14, "middle", INK, "600"), text(x, T - 8, probs[g], 11, "middle", MUTED)]
+        b.append(text(x, T - 8, g, 14, "middle", INK, "600"))
+        b += [text(x + (j - .5) * 40, T - 32, label, 11, fill=MUTED, rotate=-65)
+              for j, label in enumerate(probs[g])]
     for r, c in enumerate(names):
         y = T + r * rh; col = FAMILY(c)
         b.append(f"<line x1='8' x2='{L + len(rungs) * cw}' y1='{y}' y2='{y}' stroke='{GRID}'/>")
@@ -197,7 +200,8 @@ def heatmap(s):
 
 
 def floor_chart(s):
-    rows = [(c, configs.set_label("main ladder", capital=True), v["input_floor"][0], v["input_floor"][1]) for c, v in s["configs"].items()]
+    fast = {c: v for c, v in s["exploratory"].items() if c.endswith("-fast")}
+    rows = [(c, configs.set_label("main ladder", capital=True), v["input_floor"][0], v["input_floor"][1]) for c, v in {**s["configs"], **fast}.items()]
     rows += [(c, "Repo tasks: tools on", v["input_floor"][0], v["input_floor"][1]) for c, v in (s.get("agentic") or {}).items()]
     W, L, R, T, bh = 760, 200, 90, 50, 20
     H = T + len(rows) * (bh + 8) + 70
@@ -216,6 +220,7 @@ def floor_chart(s):
 
 
 def agentic_chart(s):
+    from analysis.page import config_marker
     ag = s.get("agentic") or {}
     if not ag: return None
     W, H, L, R, T, B = 760, 500, 80, 40, 200, 80
@@ -232,7 +237,7 @@ def agentic_chart(s):
     for i, (c, v) in enumerate(sorted(ag.items(), key=lambda kv: kv[1]["usd_per_run"])):
         x, y = X(v["usd_per_run"]), Y(v["hidden_pass_rate"]); lo, hi = v["ci95_plot"]
         b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(lo):.1f}' y2='{Y(hi):.1f}' stroke='{FAMILY(c)}' stroke-width='2' opacity='0.5'/>")
-        b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='6' fill='{FAMILY(c)}'/>")
+        b.append(config_marker(c, x, y, FAMILY(c)))
         lab = f"{DISP(c)} {v['hidden_pass']}/{v['n']}{' *' if v['cost_kind'] == 'proxy' else ''}"
         ly = T - 24 - i * 22
         anchor = "end" if x + len(lab) * 6.6 > W - 10 else "start"
