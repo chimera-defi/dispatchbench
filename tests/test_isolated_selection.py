@@ -20,6 +20,15 @@ def test_isolated_cells_replace_old_rows_everywhere():
         assert sum(r['sec'] for r in selected) == sum(r['wall_s'] for r in raw)
         assert sum(r['in'] for r in selected) == sum(r['in_tok'] for r in raw)
         assert sum(r['usd'] for r in selected) == sum(summarize.cost(r) for r in raw)
+    # The stopped comparison must not replace any additional cells, even complete ones.
+    for selected, original in (
+        (summarize.function_rows(), summarize._sourced(summarize.FUNC)),
+        (summarize.rescue_rows(), summarize.load('results/appendix/luna_rescue.jsonl')),
+        (summarize.harness_rows(), summarize.load('results/appendix/harness_bias.jsonl')),
+    ):
+        retained = [r for r in selected if r.get('codex_home') != 'isolated']
+        replaced = {(r['config'], r.get('phase')) for r in selected if r.get('codex_home') == 'isolated'}
+        assert retained == [r for r in original if (r['config'], r.get('phase')) not in replaced]
 
 
 
@@ -42,19 +51,22 @@ def test_generic_selection_prefers_function_cells_and_tracks(monkeypatch):
             if str(path).endswith(f'2026-10-25-isolated-{track}.jsonl'): return rows
         return original(path)
     monkeypatch.setattr(summarize, 'load', loaded)
-    selected = summarize.function_rows()
+    selected = summarize.selected_rows(summarize._sourced(summarize.FUNC), ('function',),
+                                       ('config', 'phase'), ('problem', 'repeat'))
     assert sum(r['wall_s'] == 123.0 for r in selected) == 15
     assert len(selected) == len(original(summarize.FUNC))
-    selected_rescue = summarize.rescue_rows()
+    selected_rescue = summarize.selected_rows(original('results/appendix/luna_rescue.jsonl'), ('rescue',),
+                                              ('config', 'arm'), ('problem', 'repeat'))
     assert len(selected_rescue) == len(original('results/appendix/luna_rescue.jsonl'))
     assert sum(r['wall_s'] == 234.0 for r in selected_rescue) == 70
-    selected_bias = summarize.harness_rows()
+    selected_bias = summarize.selected_rows(original('results/appendix/harness_bias.jsonl'), ('harness_bias',),
+                                            ('config', 'phase', 'harness'), ('problem', 'repeat'))
     assert sum(r['wall_s'] == 345.0 for r in selected_bias) == 60
     table = dataset._rows()
-    assert sum(r['sec'] == 234.0 for src, c, st, r in table if src == 'rescue') == 70
-    assert sum(r['sec'] == 345.0 for src, c, st, r in table if src == 'harness-bias') == 60
+    assert not any(r['sec'] == 234.0 for src, c, st, r in table if src == 'rescue')
+    assert not any(r['sec'] == 345.0 for src, c, st, r in table if src == 'harness-bias')
     from analysis import luna_rescue
-    assert luna_rescue.arms()['haiku-low-plan+luna-low']['median_s'] == 234.0
+    assert luna_rescue.arms()['haiku-low-plan+luna-low']['median_s'] != 234.0
 
 
 def test_generic_selection_rejects_wrong_identity_or_incomplete_cell(monkeypatch):
@@ -64,11 +76,13 @@ def test_generic_selection_rejects_wrong_identity_or_incomplete_cell(monkeypatch
             if (r['config'], r['phase']) == ('astra-medium-fast', 'hard')]
     monkeypatch.setattr(summarize, 'load', lambda path: cell
                         if str(path).endswith('isolated-function.jsonl') else original(path))
-    summarize.function_rows()
+    select = lambda: summarize.selected_rows(summarize._sourced(summarize.FUNC), ('function',),
+                                             ('config', 'phase'), ('problem', 'repeat'))
+    select()
     cell.pop()
     with pytest.raises(AssertionError, match='replacement coverage'):
-        summarize.function_rows()
+        select()
     cell.clear()
     cell.append(dict(config='invented', phase='main', problem='p01', repeat=1, cli='codex', codex_home='isolated'))
     with pytest.raises(AssertionError, match='replacement coverage'):
-        summarize.function_rows()
+        select()

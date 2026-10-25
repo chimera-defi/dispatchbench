@@ -1,6 +1,10 @@
 {
  "dropped_facts": {
-  "codex_orchestrator_status": "10-25 operator: no caveats before v1; the 'not run yet' line is removed on purpose."
+  "codex_orchestrator_status": "10-25 operator: no caveats before v1; the 'not run yet' line is removed on purpose.",
+  "host_luna_low": "v44 replaces host AGENTS.md command counts with clean-home reruns and the isolation comparison.",
+  "host_sol61_medium": "v44 replaces host AGENTS.md command counts with clean-home reruns and the isolation comparison.",
+  "shell_luna_low": "v44 replaces host AGENTS.md command counts with clean-home reruns and the isolation comparison.",
+  "shell_sol61_medium": "v44 replaces host AGENTS.md command counts with clean-home reruns and the isolation comparison."
  },
  "placeholder_cells": {}
 }
