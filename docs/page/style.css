@@ -338,3 +338,6 @@ svg .rk-n{font:700 13px var(--body);fill:var(--panel)}
  .pg-row{grid-template-columns:26ch minmax(0,1fr) 24ch;grid-template-areas:"n b v";gap:10px;padding:1px 0}
  .pg-row .bar-value{justify-self:start}
 }
+.tablewrap.more-r,.wrap.more-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 32px),transparent)}
+.tablewrap.more-l.more-r,.wrap.more-l.more-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 32px,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(to right,transparent,#000 32px,#000 calc(100% - 32px),transparent)}
+.tablewrap.more-l:not(.more-r),.wrap.more-l:not(.more-r){-webkit-mask-image:linear-gradient(to right,transparent,#000 32px);mask-image:linear-gradient(to right,transparent,#000 32px)}

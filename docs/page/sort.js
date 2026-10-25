@@ -162,3 +162,11 @@ function revealHash(hash){
 updateAll();revealHash(location.hash);
 window.addEventListener("hashchange",function(){revealHash(location.hash)})
 })();
+// Wide tables scroll inside their box; fade the edge that hides columns, so a narrow screen shows there is more.
+(function(){
+function edge(w){var more=w.scrollWidth>w.clientWidth+2;w.classList.toggle("more-r",more&&w.scrollLeft+w.clientWidth<w.scrollWidth-2);w.classList.toggle("more-l",more&&w.scrollLeft>2)}
+var ws=document.querySelectorAll(".tablewrap,.wrap");
+ws.forEach(function(w){w.addEventListener("scroll",function(){edge(w)},{passive:true})});
+function all(){ws.forEach(edge)}
+all();window.addEventListener("resize",all);document.addEventListener("toggle",all,true);
+})();
