@@ -154,7 +154,7 @@ rebuilds every table, chart and number in this README and the page from the cach
 
 ## Appendix A: can refinements rescue luna-low? (exploratory, post hoc)
 
-After the main run, several changes were tried on the seven problems luna-low fails most often, the rescue set (p03 ledger, p04 taller_within, p08 recur, p09 k_machine_schedule, p10 avoid_count, p11 best_average, p12 sheet), with 5 attempts each, n = {{rescue_n}} per row. The problems were picked because luna failed them, so these rows overstate any gain and carry no confidence intervals. The baselines are the main run's attempts on the same problems. Rows are in [results/appendix/luna_rescue.jsonl](results/appendix/luna_rescue.jsonl).
+After the main run, several changes were tried on the {{n_rescue_problems}} problems {{rescue_rule}}, the rescue set (p03 ledger, p04 taller_within, p08 recur, p09 k_machine_schedule, p10 avoid_count, p11 best_average, p12 sheet), with 5 attempts each, n = {{rescue_n}} per row. The problems were picked because luna failed them, so these rows overstate any gain and carry no confidence intervals. The baselines are the main run's attempts on the same problems. Rows are in [results/appendix/luna_rescue.jsonl](results/appendix/luna_rescue.jsonl).
 
 {{table:rescue}}
 

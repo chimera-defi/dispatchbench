@@ -192,7 +192,7 @@ def section(rest, ds, root, chart_bodies=None):
     out = ["<details><summary>Everything we tried</summary>", "<ul class=\"tight small\"><li>Every config with rows in results/, grouped by kind.</li>"
            "<li>Each row combines that config's runs within its category.</li>"
            "<li>Codex dollars are list-price estimates. Dash means the full cost is unavailable.</li>"
-           "<li>Hover over a name for its source file.</li></ul>"]
+           "<li>Hover over a name for its source file.</li><li>Pilot repo pipelines include builder and review time and cost.</li></ul>"]
     for cat in CATEGORIES:
         es = by.pop(cat, [])
         if not es: continue

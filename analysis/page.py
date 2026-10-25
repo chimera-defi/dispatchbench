@@ -721,8 +721,8 @@ def set_definitions(s):
 def l7_reason(s):
     main, hard, per, _ = set_definitions(s)
     last_rung = max(s["problems"][p]["rung"] for p in main)
-    never = [c for c, v in s["configs"].items() if v["breaking_point"] is None]
-    return (f"{len(never)} of {len(s['configs'])} main configs never broke by L{last_rung}. We added L7 to find their limit. "
+    broke = [DISP(c) for c, v in s["configs"].items() if v["breaking_point"] is not None]
+    return (f"Only {' and '.join(broke)} broke by L{last_rung}. We added L7 to find the others' limit. "
             f"It has {len(hard)} problems instead of the usual {per}. We score it separately.")
 
 

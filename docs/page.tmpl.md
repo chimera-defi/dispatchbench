@@ -162,7 +162,7 @@
 {{chart:harness_bias.svg|{{hb_n_problems}} hard problems, {{hb_repeats}} tries each}}
 <details class="small"><summary>What we tested and what we found</summary>
 <ul class="tight small">
-<li>Claude designed this bench. Each model answers once, tools off.</li>
+<li>Claude designed and ran this bench; Codex built only its own harness. Each model answers once, tools off.</li>
 <li>Codex designed a second bench. Each model runs inside its vendor's agent CLI.</li>
 <li>We tested each vendor's cheapest model at low effort.</li>
 <li>luna-low ran in Codex CLI, haiku-low in Claude Code.</li>

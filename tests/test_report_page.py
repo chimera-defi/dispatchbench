@@ -426,7 +426,7 @@ def test_winner_and_conclusion_agree_and_sets_are_collapsed(summary):
     assert '<details class="sets"><summary>' in page.sets_box(summary)
     assert ' open' not in page.sets_box(summary).split('>')[0]
     assert template.index('{{w_sets}}') > template.index('{{w_pass_cost}}')
-    assert page.method(summary)[0].count('We added L7 to find their limit.') == 1
+    assert page.method(summary)[0].count("We added L7 to find the others' limit.") == 1
     assert 'L7 has' not in page.sets_box(summary)
     problems = page.method(summary)[0]
     assert 'p01 overlap_minutes (L1)' in problems
