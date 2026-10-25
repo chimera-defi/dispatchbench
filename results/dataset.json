@@ -22442,7 +22442,7 @@
   "equiv_fastest": "Fastest Codex at 100%: astra-medium ⚡, 10 s. It costs $0.15 per pass.",
   "equiv_near": "At haiku-low's price, the best Codex is luna-high: 92% to 95%.",
   "equiv_back_takeaway": "Every Codex config has a Claude match. It is cheaper for 8 of 12. Only luna (not luna56) costs less, and it misses more.",
-  "winner_fallback": "Codex out? haiku-low passed 57/60. It costs $0.0011 per pass; use haiku-high when a miss is costly.",
+  "winner_fallback": "Codex out? Use haiku-high: 60/60 passed on the main ladder. It costs $0.0028 per pass, cheapest among configs with no misses.",
   "fast_pipeline_note": "Fast-mode pipelines equal their builders because every example check passed. Haiku made 0 repairs.",
   "int_sol": "sol56-high is a generation older than sol61-high. Both pass every main-ladder try. sol56-high takes 14.5 s at ~$0.042 per pass. sol61-high takes 27.4 s at ~$0.019. ⚡ cuts that to 17.4 s, at ~$0.036. So the newer model is cheaper but slower, and ⚡ does not close the gap.",
   "int_luna": "luna-low is cheaper per pass than haiku-low: ~$0.00078 to $0.0011. But it passes 73% to 95%.",
@@ -22452,6 +22452,9 @@
   "int_build": "Codex's bench dry runs missed 2 sandbox bugs; a live call found them. Its \"plan and reorient\" nudge changed no code.",
   "int_l7": "On L7, luna-high passed 15/15; sol56-high missed. luna-high cost ~$0.0015 per pass versus sol56-high's ~$0.069.",
   "int_trim": "Disabling luna-low's tool features cut input 31%, yet raised estimated cost 2.1×.",
+  "isolation_calls_matched": "860",
+  "isolation_passes_isolated": "797",
+  "isolation_passes_original": "793",
   "hb_subset": "It first replayed 12 of our haiku-low and sol61-medium results. All passed on both.",
   "hb_haiku_cost": "haiku-low cost 1.1× as much there, in about the same time.",
   "hb_total_x": "1.8×",
@@ -24381,42 +24384,148 @@
     ]
    ]
   },
+  "equiv_all": {
+   "head": [
+    "Config → cheapest match",
+    "passed",
+    "$ per pass",
+    "median s"
+   ],
+   "rows": [
+    [
+     "luna-low → haiku-low",
+     "73% → 95%",
+     "~$0.00078 → $0.0011",
+     "8 → 10"
+    ],
+    [
+     "luna-low-bare → haiku-low",
+     "73% → 95%",
+     "~$0.00080 → $0.0011",
+     "7 → 10"
+    ],
+    [
+     "luna-medium → haiku-low",
+     "78% → 95%",
+     "~$0.00089 → $0.0011",
+     "8 → 10"
+    ],
+    [
+     "luna56-low → haiku-low",
+     "80% → 95%",
+     "~$0.0022 → $0.0011",
+     "9 → 10"
+    ],
+    [
+     "luna-high → haiku-low",
+     "92% → 95%",
+     "~$0.0010 → $0.0011",
+     "12 → 10"
+    ],
+    [
+     "luna56-high → haiku-low",
+     "93% → 95%",
+     "~$0.0030 → $0.0011",
+     "11 → 10"
+    ],
+    [
+     "sol61-medium → haiku-medium",
+     "97% → 98%",
+     "~$0.015 → $0.0015",
+     "23 → 13"
+    ],
+    [
+     "sol61-high → haiku-high",
+     "100% → 100%",
+     "~$0.019 → $0.0028",
+     "27 → 15"
+    ],
+    [
+     "sol61-high ⚡ → haiku-high",
+     "100% → 100%",
+     "~$0.036 → $0.0028",
+     "17 → 15"
+    ],
+    [
+     "sol56-high → haiku-high",
+     "100% → 100%",
+     "~$0.042 → $0.0028",
+     "14 → 15"
+    ],
+    [
+     "astra-medium → haiku-high",
+     "100% → 100%",
+     "~$0.075 → $0.0028",
+     "21 → 15"
+    ],
+    [
+     "astra-medium ⚡ → haiku-high",
+     "100% → 100%",
+     "~$0.15 → $0.0028",
+     "10 → 15"
+    ],
+    [
+     "haiku-low → sol61-medium",
+     "95% → 97%",
+     "$0.0011 → ~$0.015",
+     "10 → 23"
+    ],
+    [
+     "haiku-medium → sol61-high",
+     "98% → 100%",
+     "$0.0015 → ~$0.019",
+     "13 → 27"
+    ],
+    [
+     "haiku-high → sol61-high",
+     "100% → 100%",
+     "$0.0028 → ~$0.019",
+     "15 → 27"
+    ],
+    [
+     "sonnet-medium → sol61-high",
+     "100% → 100%",
+     "$0.012 → ~$0.019",
+     "10 → 27"
+    ]
+   ]
+  },
   "harness_strengths": {
    "head": [
     "model",
     "bench",
     "passed",
-    "$ total",
-    "median s"
+    "$ per pass",
+    "time per pass (s)"
    ],
    "rows": [
     [
      "luna-low",
      "Claude's bench",
      "36/60",
-     "~$0.047",
-     "7"
+     "~$0.0013",
+     "12.7"
     ],
     [
      "luna-low",
      "Codex's bench (Codex CLI)",
      "47/60",
-     "~$0.19",
-     "21"
+     "~$0.0040",
+     "34.8"
     ],
     [
      "haiku-low",
      "Claude's bench",
      "57/60",
-     "$0.14",
-     "14"
+     "$0.0025",
+     "18.8"
     ],
     [
      "haiku-low",
      "Codex's bench (Claude Code)",
      "60/60",
-     "$0.16",
-     "14"
+     "$0.0027",
+     "17.6"
     ]
    ]
   },

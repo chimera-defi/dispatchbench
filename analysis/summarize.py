@@ -56,7 +56,8 @@ def selected_rows(rows, tracks, cell_fields, item_fields):
 
 
 def function_rows():
-    return selected_rows(_sourced(FUNC), ("main", "hard", "function"),
+    # Only these completed reruns replace rows; the later comparison stopped early.
+    return selected_rows(_sourced(FUNC), ("main", "hard"),
                          ("config", "phase"), ("problem", "repeat"))
 
 
@@ -65,14 +66,12 @@ def agentic_rows():
 
 
 def rescue_rows():
-    return selected_rows(load(os.path.join(RES, "appendix", "luna_rescue.jsonl")),
-                         ("rescue",), ("config", "arm"), ("problem", "repeat"))
+    return load(os.path.join(RES, "appendix", "luna_rescue.jsonl"))
 
 
 def harness_rows(rows=None):
     if rows is None: rows = load(os.path.join(RES, "appendix", "harness_bias.jsonl"))
-    return selected_rows(rows,
-                         ("harness_bias",), ("config", "phase", "harness"), ("problem", "repeat"))
+    return rows
 
 
 PRICES = json.load(open(os.path.join(RES, "prices.json")))["models"]

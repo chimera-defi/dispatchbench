@@ -857,6 +857,10 @@ def _tables(s, arms):
 
 def method_appendix(ds):
     """Pooled harness outcomes and failure counts, with their scopes stated on the page."""
+    isolation = json.load(open(os.path.join(RES, "appendix", "isolation_check.json")))
+    for key, expected in (("calls_matched", 860), ("passes_isolated", 797), ("passes_original", 793)):
+        need(isolation[key] == expected, f"isolation comparison {key} remains {expected}")
+        ds["facts"]["isolation_" + key] = str(isolation[key])
     # The paired run only (60 tries per cell), so both benches compare like for like.
     rows = _harness_rows()
     bench = {'claude-one-shot': "Claude's bench", 'codex-tool-loop': "Codex's bench"}
@@ -866,8 +870,11 @@ def method_appendix(ds):
             rs = [r for r in rows if (r['harness'], r['config']) == (h, c)]
             cell[c, h] = dict(usd=sum(r['cost_usd'] for r in rs), s=statistics.median(r['wall_s'] for r in rs))
             cli = '' if h == 'claude-one-shot' else (' (Claude Code)' if c.startswith('haiku') else ' (Codex CLI)')
-            cells.append([c, name + cli, f"{sum(r['passed'] for r in rs)}/{len(rs)}", ('~' if c.startswith('luna') else '') + usd(cell[c, h]['usd']), f"{cell[c, h]['s']:.0f}"])
-    ds['tables']['harness_strengths'] = md_table(['model', 'bench', 'passed', '$ total', 'median s'], cells)
+            passes = sum(r['passed'] for r in rs)
+            cells.append([c, name + cli, f"{passes}/{len(rs)}",
+                          ('~' if c.startswith('luna') else '') + usd(cell[c, h]['usd'] / passes),
+                          f"{sum(r['wall_s'] for r in rs) / passes:.1f}"])
+    ds['tables']['harness_strengths'] = md_table(['model', 'bench', 'passed', '$ per pass', 'time per pass (s)'], cells)
     one, loop = cell['luna-low', 'claude-one-shot'], cell['luna-low', 'codex-tool-loop']
     need(loop['usd'] > 2 * one['usd'] and loop['s'] > 2 * one['s'], "Codex's bench costs luna-low over 2x in $ and time")
     # Codex's first step: replay a subset of our main-run cells before the paired run.
@@ -1075,6 +1082,8 @@ def _equivalents(ds):
     ds["tables"]["equiv_back"] = md_table(["Codex → Claude match", "passed", "$ per pass", "median s"],
         [[f'{q["display"]} → {m["display"]}', f'{pct(q)} → {pct(m)}', f'~{usd(q["usd_per_pass"])} → {usd(m["usd_per_pass"])}',
           f'{q["median_s"]:.0f} → {m["median_s"]:.0f}'] for q, m in back])
+    ds["tables"]["equiv_all"] = md_table(["Config → cheapest match", "passed", "$ per pass", "median s"],
+                                         ds["tables"]["equiv_back"]["rows"] + out)
     cheaper = [q for q, m in back if m["usd_per_pass"] < q["usd_per_pass"]]
     dearer = [q for q, m in back if m["usd_per_pass"] >= q["usd_per_pass"]]
     need(dearer and all(q["display"].startswith("luna-") for q in dearer), "only luna configs undercut their Claude match on price")
@@ -1089,9 +1098,9 @@ def _interesting(ds):
     F, ml = ds["facts"], "main ladder"
     hl, hh = (get(ds, c, ml) for c in ("haiku-low", "haiku-high"))
     need(hl["passes"] < hl["n"] == hh["n"] == hh["passes"] and hl["usd_per_pass"] < hh["usd_per_pass"],
-         "haiku-low is a cheaper fallback; haiku-high avoids its main-ladder misses")
-    F["winner_fallback"] = (f'Codex out? haiku-low passed {hl["passes"]}/{hl["n"]}. '
-                            f'It costs {usd(hl["usd_per_pass"])} per pass; use haiku-high when a miss is costly.')
+         "haiku-high avoids cheaper haiku-low's main-ladder misses")
+    F["winner_fallback"] = (f'Codex out? Use haiku-high: {hh["passes"]}/{hh["n"]} passed on the main ladder. '
+                            f'It costs {usd(hh["usd_per_pass"])} per pass, cheapest among configs with no misses.')
     checks = ds["derived_pipelines"]
     need(all(checks[c]["all"]["n"] > 0 and checks[c]["all"]["failures"] == 0
              and checks[c]["rescue"]["pipeline"] is not None

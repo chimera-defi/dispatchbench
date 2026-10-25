@@ -255,6 +255,7 @@
 <li>{{noshell_comparison}}</li>
 </ul>
 {{table:harness_strengths}}
+<p class="small">Time per pass = summed call seconds divided by passes.</p>
 </details>
 <details class="small"><summary>How Codex built its bench</summary>
 <ul class="tight small">
@@ -276,10 +277,8 @@
 <li>With Codex quota gone, use haiku-high. It is the cheapest config with no misses.</li>
 </ol>
 <ul class="tight">
-<li>If speed matters most, use sonnet-medium. It takes {{sonnet_medium_med}} s to haiku-high's {{haiku_high_med}} s.</li>
-<li>sonnet-medium costs {{sm_vs_hh_x}} as much per pass.</li>
-<li>Don't use luna-low or luna-medium alone: they miss about {{cheap_miss_words}}.</li>
-<li>{{hb_conclusion_copy}}</li>
+<li>If speed matters most, use sonnet-medium. It takes {{sonnet_medium_med}} s to haiku-high's {{haiku_high_med}} s. sonnet-medium costs {{sm_vs_hh_x}} as much per pass.</li>
+<li>Don't use luna-low or luna-medium alone: they miss about {{cheap_miss_words}}. {{hb_conclusion_copy}}</li>
 </ul>
 </section>
 <section id="limits">
@@ -372,6 +371,9 @@
 <li>We ignored personal settings and disabled tools.</li>
 <li>The <code>luna-*-bare</code> rows test how much Codex's system prompt and tool text matter.</li>
 </ul>
+<p class="small">Repo-task rows were rerun with a clean Codex home.</p>
+<p class="small">A clean rerun checked {{isolation_calls_matched}} other calls.</p>
+<p class="small">It passed {{isolation_passes_isolated}} versus {{isolation_passes_original}} originally, so those rows were kept.</p>
 <h3>Selected result sources</h3>
 {{table:selected_sources}}
 <h3>Other Codex cells without isolation</h3>
@@ -449,14 +451,13 @@
 <section id="equiv">
 <h2><span class="num"></span>🔁 Codex vs Claude</h2>
 <p><b>{{equiv_takeaway}}</b></p>
-{{table:equiv_back}}
+{{table:equiv_all}}
 <details><summary>📝 How to read this data: matches</summary>
 <h4>Codex → Claude</h4>
 <p class="small">{{equiv_back_takeaway}}</p>
 <h4>Claude → Codex</h4>
-{{table:equiv}}
 <ul class="tight small">
-<li>Match = the cheapest Codex config with a pass rate at least as high.</li>
+<li>Match = the cheapest other-vendor config passing at least as often.</li>
 <li>{{equiv_fastest}}</li>
 <li>{{equiv_near}}</li>
 <li>All rows use the main ladder.</li>
