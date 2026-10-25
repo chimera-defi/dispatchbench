@@ -155,7 +155,7 @@ Three more problems, written and checked before any model saw them (PLAN.md, dev
 | luna56-low | 8/15 | 27%–80% | 3/5 | 2/5 | 3/5 | 11.6 | 761 | $0.0046 | proxy |
 
 - **Of the four configs first run on L7, only haiku-low failed, and only on speed.** All 3 misses are timeouts on the same p15 paint_erase case: 50,000 single cells painted with a high colour, then 50,000 paints across the whole strip. The failing solutions keep a sorted list of coloured intervals and visit every interval a paint covers, which is quadratic on that case; the 2 passing attempts used a segment tree. None of haiku-low's answers was wrong.
-- **The other three did not separate.** With three problems, a perfect score only bounds the pass rate at ≥37% (one-sided 95%), so this says L7 is still not hard enough for them, not that they are equally strong. What does separate them is price and time: luna-high costs $0.0015 per pass (proxy) against $0.017–$0.018 for sol61-medium and sonnet-medium, and sonnet-medium is the fastest at 15 s.
+- **The other three did not separate.** With three problems, a perfect score only bounds the pass rate at ≥15/15 (one-sided 95%), so this says L7 is still not hard enough for them, not that they are equally strong. What does separate them is price and time: luna-high costs $0.0015 per pass (proxy) against $0.017–$0.018 for sol61-medium and sonnet-medium, and sonnet-medium is the fastest at 15 s.
 - Both effort-adaptive configs spent more reasoning on L7 than on L1–L6: haiku-low 2.4× (1,027 → 2,506 tokens), luna-high 3.0× (526 → 1,569).
 
 ## Where they fail

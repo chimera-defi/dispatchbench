@@ -717,6 +717,10 @@ def _facts(s, arms):
          "haiku-high is the cheapest of these")
     F['winner_line'] = (f"sol61-high and astra-medium (both also ⚡), haiku-high and sonnet-medium passed every try. "
                         f"haiku-high is cheapest of these at {F['hh_upp']} per pass.")
+    nl7 = hard['sonnet-medium']['n']
+    need(all(v['passes'] == v['n'] == nl7 for c, v in hard.items() if c in tied), "every tied config is perfect on the same number of L7 tries")
+    F['l7_bound'] = f"{nl7}/{nl7}"; CONF = 0.95; F['l7_conf'] = f"{CONF:.0%}"; F['l7_lo'] = f"{100 * (1 - CONF) ** (1 / nl7):.0f}%"
+    need(all(v['hidden_pass'] == v['n'] for v in ag.values()), "every repo-task run passed, so repo tasks only rank cost and speed")
     F['budget_why'] = f"Cheapest with no misses. haiku-low costs less but misses {hl['n'] - hl['passes']} of {hl['n']}"
     F['model_names'] += (f", luna56 = {ex['luna56-high']['model']}, "
                          f"sol56 = {ex['sol56-high']['model']} (older generation)")

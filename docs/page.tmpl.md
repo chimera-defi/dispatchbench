@@ -214,6 +214,8 @@
 <li>Most have a LeetCode analogue, so models may have seen similar code.</li>
 <li>The problems ship with this repo, so later models may train on them.</li>
 <li>Intervals resample whole problems, since tries on one problem are related.</li>
+<li>{{l7_bound}} on L7 only shows a pass rate of at least {{l7_lo}} ({{l7_conf}} confidence).</li>
+<li>Every repo task passed, so they rank cost and speed, not skill.</li>
 <li>Paired gaps of {{nosep_gap}} points or less did not separate; {{sep_gap}}-point gaps did.</li>
 <li><code>PLAN.md</code> was committed before the main run; a same-day pilot came first.</li>
 <li>{{n_exploratory}} configs were added after the main run (†), including the haiku-high and sol61-high picks:<ul>{{exploratory_items}}</ul></li>
