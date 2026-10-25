@@ -426,26 +426,25 @@ svg .rk-n{font:700 13px var(--body);fill:var(--panel)}
 </details>
 <ul class="tight small">
 <li>Each config tries each problem 5 times, tools off.</li>
+<li>Pass = every hidden test passes. Sample tests = the worked examples the model sees.</li>
 <li>The bench cost $2.46 on Claude. Codex quota use is estimated at $35.40.</li>
-<li>These totals leave out the pilot, harness-bias, trim and retest set pipeline runs.</li>
+</ul>
+<details><summary>📐 Sets, tests, prices and intervals</summary>
+<ul class="tight small">
+<li>Cost totals leave out the pilot, harness-bias, trim and retest set pipeline runs.</li>
 <li>Sets:<ul>
 <li>main ladder: 12 problems, 5 tries each. Total: 60 calls.</li>
 <li>L7 set: 3 problems, 5 tries each. Total: 15 calls.</li>
 <li>Retest set: the 7 main-ladder problems luna-low, luna-medium or luna-low<abbr class="notation-use" data-notation="-bare" title="Codex&#x27;s system prompt and tool text are trimmed.">-bare</abbr> missed, chosen after the main run. Each config made 35 calls.</li>
 <li>Repo tasks: 4 edits, 3 tries each. Total: 12 calls.</li>
 </ul></li>
-<li>Pass = every hidden test passes:<ul>
-<li>Fixed cases.</li>
-<li>Random cases checked against the reference solution.</li>
-<li>Large cases for speed.</li>
-</ul></li>
-<li>Sample tests = the worked examples in the problem text. The model can see them.</li>
-<li>They are cheap to run.</li>
+<li>Hidden tests: fixed cases, random cases checked against a reference, and large cases for speed.</li>
 <li>Claude $: what the CLI reports.</li>
 <li>Codex $: tokens × list price. <abbr class="notation-use" data-notation="~" title="Codex cost estimated from tokens and list prices.">~</abbr> marks estimates, not bills.</li>
 <li>95% intervals from 10,000 bootstrap resamples: how much a rerun's pass rate could vary.</li>
 <li>Run by Wren, a Claude Opus 5.5 orchestrator. It is not one of the configs tested.</li>
 </ul>
+</details>
 <details><summary>🧩 Models and versions</summary>
 <ul class="tight small">
 <li>Main bench, Claude Code 2.1.308: claude-haiku-5-5, claude-sonnet-5-5.</li>

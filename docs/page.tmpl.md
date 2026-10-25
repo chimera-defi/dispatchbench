@@ -86,26 +86,25 @@
 </details>
 <ul class="tight small">
 <li>Each config tries each problem {{repeats}} times, tools off.</li>
+<li>Pass = every hidden test passes. Sample tests = the worked examples the model sees.</li>
 <li>The bench cost {{claude_usd}} on Claude. Codex quota use is estimated at {{codex_usd}}.</li>
-<li>These totals leave out the pilot, harness-bias, trim and {{set_label}} pipeline runs.</li>
+</ul>
+<details><summary>📐 Sets, tests, prices and intervals</summary>
+<ul class="tight small">
+<li>Cost totals leave out the pilot, harness-bias, trim and {{set_label}} pipeline runs.</li>
 <li>Sets:<ul>
 <li>{{main_set_label}}: {{n_problems}} problems, {{repeats}} tries each. Total: {{n_calls}} calls.</li>
 <li>{{l7_set_label}}: {{n_l7}} problems, {{repeats}} tries each. Total: {{l7_n}} calls.</li>
 <li>{{set_label_title}}: the {{n_rescue_problems}} main-ladder problems {{rescue_rule}}, chosen after the main run. Each config made {{rescue_n}} calls.</li>
 <li>Repo tasks: {{n_tasks}} edits, {{agent_repeats}} tries each. Total: {{ag_n}} calls.</li>
 </ul></li>
-<li>Pass = every hidden test passes:<ul>
-<li>Fixed cases.</li>
-<li>Random cases checked against the reference solution.</li>
-<li>Large cases for speed.</li>
-</ul></li>
-<li>Sample tests = the worked examples in the problem text. The model can see them.</li>
-<li>They are cheap to run.</li>
+<li>Hidden tests: fixed cases, random cases checked against a reference, and large cases for speed.</li>
 <li>Claude $: what the CLI reports.</li>
 <li>Codex $: tokens × list price. ~ marks estimates, not bills.</li>
 <li>{{ci_level}} intervals from {{n_boot}} bootstrap resamples: how much a rerun's pass rate could vary.</li>
 <li>Run by Wren, a {{orchestrator}} orchestrator. It is not one of the configs tested.</li>
 </ul>
+</details>
 <details><summary>🧩 Models and versions</summary>
 <ul class="tight small">
 <li>{{versions_claude}}</li>
