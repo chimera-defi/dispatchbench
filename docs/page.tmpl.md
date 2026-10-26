@@ -1,4 +1,5 @@
 <header class="head">
+<p class="headlinks"><a href="https://chimericlabs.xyz/">← Chimeric Labs</a><a href="https://github.com/chimera-defi/dispatchbench">Source on GitHub</a></p>
 <h1>DispatchBench: which model should a coding task go to?</h1>
 <nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#pareto">Cost vs accuracy</a><a href="#results">Results</a><a href="#method">How it was run</a><a href="#fail">Where they fail</a><a href="#tokens">Baseline input tokens</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#limits">Limitations</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#interesting">Interesting</a><a href="#equiv">Codex vs Claude</a></nav>
 </header>
