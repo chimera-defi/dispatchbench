@@ -1,13 +1,14 @@
 """Turn results/*.jsonl into results/summary.json and results/report/tables.md. No model calls.
 
 Every number in the README and the report comes from summary.json, and every summary.json number is computed here
-from rows in results/. Codex dollar figures are proxies (token counts x list price); Claude dollar figures are the
+from rows in results/. Codex dollar figures are proxies (token counts x list price); Claude and Grok dollar figures are the
 CLI's measured total_cost_usd."""
 import json, os, statistics
 from collections import defaultdict
 
 from analysis.stats import hier_boot, paired_boot, p90
 from analysis.labels import DISP, plabel, pshort
+from analysis.configs import GROK_CONFIGS
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RES = os.path.join(ROOT, "results")
@@ -82,25 +83,29 @@ def cost(r):
 
 
 def list_cost(r):
-    """Measured for Claude; proxy for Codex (uncached input, cached input and output at list price)."""
-    if r["cli"].startswith("claude"):  # "claude" and the pilot's "claude-agent"
-        return r.get("cost_usd")
+    """CLI-measured for Claude and Grok; token-price proxy for Codex."""
+    if measured(r):
+        return r.get("cost_usd") if r.get("cost_usd") is not None else r.get("total_cost_usd")
     if r.get("is_error"): return None
     p = PRICES[r["model"]]
     return ((r["in_tok"] - r["cached_tok"]) * p["input"] + r["cached_tok"] * p["cached_input"] + r["out_tok"] * p["output"]) / 1e6
 
 
 def cost_uncached(r):
-    """Codex proxy with no prompt-cache discount: an upper bound that does not depend on how many tokens the provider cached."""
+    """Remove the Codex prompt-cache discount; keep CLI-measured costs unchanged."""
     return scale(_uncached(r), fast_mult(r))
 
 
 def _uncached(r):
-    if r["cli"].startswith("claude"):  # "claude" and the pilot's "claude-agent"
-        return r.get("cost_usd")
+    if measured(r):
+        return list_cost(r)
     if r.get("is_error"): return None
     p = PRICES[r["model"]]
     return (r["in_tok"] * p["input"] + r["out_tok"] * p["output"]) / 1e6
+
+
+def measured(r):
+    return r["cli"].startswith("claude") or r["cli"] == "grok"
 
 
 def usd(values, divisor=1, digits=6):
@@ -159,7 +164,7 @@ def config_block(rows):
         "usd_per_pass": usd(dollars, passes),
         "usd_per_pass_L1_L2": usd(map(cost, l12), sum(r["passed"] for r in l12)) if l12 and any(r["passed"] for r in l12) else None,
         "pass_L1_L2": [sum(r["passed"] for r in l12), len(l12)],
-        "cost_kind": "measured" if rows[0]["cli"] == "claude" else "proxy",
+        "cost_kind": "measured" if measured(rows[0]) else "proxy",
     }
 
 
@@ -321,7 +326,16 @@ def build():
                                 "base_passes": sum(r["passed"] for r in br), "base_n": len(br), "diff": round(d, 4), "ci95": [round(lo, 4), round(hi, 4)],
                                 "median_latency_s": round(statistics.median(r["wall_s"] for r in er), 2),
                                 "usd_total": usd(map(cost, er), digits=4), "cost_kind": "measured" if er[0]["cli"] == "claude" else "proxy"})
-    xr = [r for r in rows if r["phase"] == "exploratory"]
+    gr = [r for r in rows if r["config"] in GROK_CONFIGS and r["phase"] == "exploratory" and r["repeat"] <= 5]
+    if gr:
+        s["grok"] = {}
+        for c in GROK_CONFIGS:
+            rr = [r for r in gr if r["config"] == c]
+            if rr:
+                blk = config_block(rr)
+                blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}
+                s["grok"][c] = blk
+    xr = [r for r in rows if r["phase"] == "exploratory" and r["config"] not in GROK_CONFIGS]
     s["exploratory"] = {}
     for c in sorted({r["config"] for r in xr}):
         # an exploratory config that the escalation step already ran on some problems reuses those cached calls
@@ -358,6 +372,7 @@ def build():
                   "codex_proxy_usd": usd((cost(r) for r in rows + agent if r["cli"] == "codex"), digits=4),
                   "codex_fastmode_usd": usd((cost(r) for r in rows if r["phase"] == "fastmode"), digits=4),
                   "calls": {"function": len(rows), "agentic": len(agent)}}
+    if gr: s["spend"]["grok_measured_usd"] = usd(map(cost, gr), digits=4)
     s["hypotheses"] = hypotheses(s)
     return s, tables(s), manifest(rows, agent, s)
 
@@ -386,6 +401,8 @@ def manifest(rows, agent, s):
             "rows_by_phase": s["phases"], "agentic_runs": len(agent), "claude_budget_cap_usd": R.CLAUDE_BUDGET_USD, "spend": s["spend"],
             "errors": errs, "prices": "results/prices.json", "generated_from": s["generated_from"], "exploratory": exploratory_manifest()}
     sha = git_sha()
+    for c, v in s.get("grok", {}).items():
+        out["configs"][c] = {k: v[k] for k in ("cli", "model", "effort")}
     if sha: out["git_sha"] = sha
     return out
 
@@ -505,6 +522,14 @@ def tables(s):
     L += ["", "## Passes per problem (out of 5)", "", "| problem | " + " | ".join(DISP(c) for c in byrung) + " |", "|---|" + "---|" * len(byrung)]
     for p, v in s["problems"].items():
         L.append(f"| {plabel(p, v['rung'])} | " + " | ".join(str(v[c]) if c in v else str(fast_cols[c]["by_problem"][p]) for c in byrung) + " |")
+    if s.get("grok"):
+        L += ["", "## Grok (first half)", "",
+              "Exploratory function lane, added 2026-10-26 at operator request: p01–p06 (L1–L3), 5 repeats. "
+              "CLI-reported cost; list price not used. L4–L6 were not run; excluded from full-ladder comparisons.", "",
+              "| config | coverage | passed | $ per pass | total $ | median s |", "|---|---|---|---|---|---|"]
+        for c, v in s["grok"].items():
+            L.append(f"| {DISP(c)} | {len(v['by_problem'])} of {len(s['problems'])} problems | {pct(v['pass_at_1'])} ({v['passes']}/{v['n']}) | "
+                     f"{money(v['usd_per_pass'])} | {money(v['usd_total'])} | {v['latency_s']['median']} |")
     L += ["", "## Paired differences in pass@1 (a − b, same problems)", "", "| a | b | diff | 95% CI |", "|---|---|---|---|"]
     for d in s["paired"]:
         L.append(f"| {d['a']} | {d['b']} | {100 * d['diff']:+.1f} pts | {100 * d['ci95'][0]:+.1f} to {100 * d['ci95'][1]:+.1f} |")
