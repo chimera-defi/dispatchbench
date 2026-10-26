@@ -346,10 +346,17 @@ svg .rk-n{font:700 13px var(--body);fill:var(--panel)}
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
+<ul class="tight">
+<li><b>Default delegate on Codex quota: sol61-high <abbr class="notation-use" data-notation="⚡" title="Fast mode: 2× list price at the same model and effort.">⚡</abbr>.</b></li>
+<li><b>Cheapest without misses: haiku-high.</b></li>
+<li><b>For speed, pick sonnet-medium.</b></li>
+<li>Cheapest main-ladder pass-rate matches, Claude → Codex: haiku-low → sol61-medium. haiku-medium, haiku-high and sonnet-medium → sol61-high.</li>
+<li>Cheapest main-ladder pass-rate matches, Codex → Claude: sol61-medium → haiku-medium; sol61-high → haiku-high.</li>
+</ul>
 <p><b>Four configs passed every try in every set: haiku-high, sonnet-medium, sol61-high and astra-medium.</b></p>
 <details class="small"><summary>Picks and model names</summary>
 <p>haiku-high is the cheapest, at $0.0028 per pass.</p>
-<p class="small">Against haiku-high, sol61-high takes 1.9× the time and <abbr class="notation-use" data-notation="~" title="Codex cost estimated from tokens and list prices.">~</abbr>7× the $ per pass. <abbr class="notation-use" data-notation="⚡" title="Fast mode: 2× list price at the same model and effort.">⚡</abbr> makes that 1.2× the time at ~13× the $.</p>
+<p class="small">Against haiku-high, sol61-high takes 1.9× the time and <abbr class="notation-use" data-notation="~" title="Codex cost estimated from tokens and list prices.">~</abbr>7× the $ per pass. ⚡ makes that 1.2× the time at ~13× the $.</p>
 <div class="tablewrap"><table class="winner-table"><caption>Numbers: the 12-problem main ladder, 60 tries per config. Time = median seconds. ~ = estimated from tokens; Claude costs are measured.</caption><thead><tr><th scope="col">Use case</th><th scope="col">Pick</th><th scope="col">Pass</th><th scope="col">$ per pass</th><th scope="col">Time</th><th scope="col">Why</th></tr></thead><tbody><tr><td data-label="Use case"><span>1. Default</span></td><td data-label="Pick"><span>sol61-high ⚡</span></td><td data-label="Pass"><span>60/60</span></td><td data-label="$ per pass"><span><span style="white-space:nowrap">~$0.036</span></span></td><td data-label="Time"><span>17.4 s</span></td><td data-label="Why"><span>No misses. Free on Codex quota. ⚡ saves 10 s. astra ⚡ is faster but uses 4× the quota</span></td></tr><tr><td data-label="Use case"><span>2. Budget</span></td><td data-label="Pick"><span>haiku-high</span></td><td data-label="Pass"><span>60/60</span></td><td data-label="$ per pass"><span>$0.0028</span></td><td data-label="Time"><span>14.7 s</span></td><td data-label="Why"><span>Cheapest with no misses. haiku-low costs less but misses 3 of 60</span></td></tr><tr><td data-label="Use case"><span>3. Speed</span></td><td data-label="Pick"><span>sonnet-medium</span></td><td data-label="Pass"><span>60/60</span></td><td data-label="$ per pass"><span>$0.012</span></td><td data-label="Time"><span>10.1 s</span></td><td data-label="Why"><span>No misses. 4.6 s faster than haiku-high.</span></td></tr></tbody></table></div><ul class="tight small"><li>⚡ = fast mode: same answers, about 2× list price, faster.</li></ul><p class="small">Caveat: sonnet-medium's code read worst in a blind review (see Notes).</p>
 <details class="small names"><summary>Model names</summary>
 <ul class="tight small">

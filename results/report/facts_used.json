@@ -195,10 +195,15 @@
 "w_short_table",
 "w_speed_cost",
 "w_winner",
+"winner_budget",
 "winner_caption",
+"winner_claude_to_codex",
+"winner_codex_to_claude",
+"winner_default",
 "winner_intro",
 "winner_line",
 "winner_other_routes",
 "winner_price",
+"winner_speed",
 "worst_failure"
 ]
