@@ -728,6 +728,9 @@ def _facts(s, arms):
                         f"haiku-high is the cheapest, at {F['hh_upp']} per pass.")
     F['winner_intro'], F['winner_price'] = F['winner_line'].split('. ', 1)
     F['winner_intro'] += '.'
+    F['winner_default'] = f"Default delegate on Codex quota: {DISP('sol61-high-fast')}."
+    F['winner_budget'] = f"Cheapest without misses: {DISP('haiku-high')}."
+    F['winner_speed'] = f"For speed, pick {DISP('sonnet-medium')}."
     nl7 = hard['sonnet-medium']['n']
     need(all(v['passes'] == v['n'] == nl7 for c, v in hard.items() if c in tied), "every tied config is perfect on the same number of L7 tries")
     F['l7_bound'] = f"{nl7}/{nl7}"; F['l7_lo'] = ci_text(nl7, nl7, None, len(probs)).split()[0].lstrip("≥")  # same bound as the tables: over problems, not tries
@@ -1068,6 +1071,21 @@ def _equivalents(ds):
           f'{q["median_s"]:.0f} → {m["median_s"]:.0f}'] for q, m in back])
     ds["tables"]["equiv_all"] = md_table(["Config → cheapest match", "passed", "$ per pass", "median s"],
                                          ds["tables"]["equiv_back"]["rows"] + out)
+    forward = {r['config']: m for r, m in pairs}
+    reverse = {q['config']: m for q, m in back}
+    need({c: m['config'] for c, m in forward.items()} == {
+        'haiku-low': 'sol61-medium', 'haiku-medium': 'sol61-high',
+        'haiku-high': 'sol61-high', 'sonnet-medium': 'sol61-high'},
+         "Winner Claude-to-Codex summary covers every cheapest main-ladder pass-rate match")
+    need(reverse['sol61-medium']['config'] == 'haiku-medium'
+         and reverse['sol61-high']['config'] == 'haiku-high',
+         "Winner Codex-to-Claude summary uses the cheapest main-ladder pass-rate matches")
+    F['winner_claude_to_codex'] = (
+        f"Cheapest main-ladder pass-rate matches, Claude → Codex: {claude[0]['display']} → {forward['haiku-low']['display']}. "
+        f"{', '.join(r['display'] for r in claude[1:-1])} and {claude[-1]['display']} → {forward['haiku-medium']['display']}.")
+    F['winner_codex_to_claude'] = (
+        "Cheapest main-ladder pass-rate matches, Codex → Claude: "
+        + "; ".join(f"{DISP(c)} → {reverse[c]['display']}" for c in ('sol61-medium', 'sol61-high')) + ".")
     cheaper = [q for q, m in back if m["usd_per_pass"] < q["usd_per_pass"]]
     dearer = [q for q, m in back if m["usd_per_pass"] >= q["usd_per_pass"]]
     need(dearer and all(q["display"].startswith("luna-") for q in dearer), "only luna configs undercut their Claude match on price")

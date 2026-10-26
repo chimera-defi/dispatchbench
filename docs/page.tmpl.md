@@ -5,6 +5,13 @@
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
+<ul class="tight">
+<li><b>{{winner_default}}</b></li>
+<li><b>{{winner_budget}}</b></li>
+<li><b>{{winner_speed}}</b></li>
+<li>{{winner_claude_to_codex}}</li>
+<li>{{winner_codex_to_claude}}</li>
+</ul>
 <p><b>{{winner_intro}}</b></p>
 <details class="small"><summary>Picks and model names</summary>
 <p>{{winner_price}}</p>
