@@ -21,6 +21,8 @@ body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--body)}
 main{max-width:920px;margin:0 auto;padding-block:32px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
 main>section{min-width:0}
 .head{display:grid;gap:8px}
+.headlinks{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0;font:600 13px var(--body)}
+.headlinks a{color:var(--muted);text-decoration:none}.headlinks a:hover{color:var(--accent)}
 h1{font:600 clamp(28px,5vw,40px)/1.1 var(--display);margin:0;text-wrap:balance}
 h2{font:700 13px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
 .eyebrow{font:600 12px var(--mono);color:var(--muted);letter-spacing:.04em}
@@ -338,6 +340,7 @@ svg .rk-n{font:700 13px var(--body);fill:var(--panel)}
 .tablewrap.more-l:not(.more-r),.wrap.more-l:not(.more-r),.svgscroll.more-l:not(.more-r){-webkit-mask-image:linear-gradient(to right,transparent,#000 32px);mask-image:linear-gradient(to right,transparent,#000 32px)}
 </style></head><body><main>
 <header class="head">
+<p class="headlinks"><a href="https://chimericlabs.xyz/">← Chimeric Labs</a><a href="https://github.com/chimera-defi/dispatchbench">Source on GitHub</a></p>
 <h1>DispatchBench: which model should a coding task go to?</h1>
 <nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#pareto">Cost vs accuracy</a><a href="#results">Results</a><a href="#method">How it was run</a><a href="#fail">Where they fail</a><a href="#tokens">Baseline input tokens</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#limits">Limitations</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#interesting">Interesting</a><a href="#equiv">Codex vs Claude</a></nav>
 </header>

@@ -2,7 +2,7 @@
 
 Which model should a coding task go to?
 
-[Interactive report](results/report/page.html) · [Full report](docs/REPORT.md) · [Answers](results/solutions/README.md)
+[Live report](https://chimericlabs.xyz/dispatchbench/) · [Interactive report](results/report/page.html) · [Full report](docs/REPORT.md) · [Answers](results/solutions/README.md)
 
 ## What it measures
 
@@ -71,6 +71,17 @@ python3 -m analysis.landcheck --base HEAD
 | `analysis/` | Offline analysis, charts, rendering, and audits |
 | `docs/*.tmpl.md` | Editable report templates |
 | `results/report/` | Generated charts and interactive page |
+
+## Publishing
+
+The live page is chimericlabs.xyz/dispatchbench/.
+The site downloads `results/report/page.html` from `main` at each deploy.
+It also redeploys daily, so a push to `main` goes live within a day.
+To publish at once, run the site's deploy workflow:
+
+```bash
+gh workflow run pages.yml -R chimera-defi/chimericlabs-llc
+```
 
 ## License
 

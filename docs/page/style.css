@@ -16,6 +16,8 @@ body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--body)}
 main{max-width:920px;margin:0 auto;padding-block:32px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
 main>section{min-width:0}
 .head{display:grid;gap:8px}
+.headlinks{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0;font:600 13px var(--body)}
+.headlinks a{color:var(--muted);text-decoration:none}.headlinks a:hover{color:var(--accent)}
 h1{font:600 clamp(28px,5vw,40px)/1.1 var(--display);margin:0;text-wrap:balance}
 h2{font:700 13px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
 .eyebrow{font:600 12px var(--mono);color:var(--muted);letter-spacing:.04em}
