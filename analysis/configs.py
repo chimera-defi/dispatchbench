@@ -1,12 +1,12 @@
 """The one registry of every config that has rows under results/: display name, family, category, source file, one-line description.
 
 Names come from here (analysis.labels.DISP delegates to display()). The page's "Everything we tried" section is built from it
-(section()), and analysis.audit fails when a config with rows is missing from it, when an entry has no rows, or when the page does not
-show every entry. Add new rows here when a new run lands. Standard library only, no model calls.
+(section()), and analysis.audit fails when a config with rows is missing from it, when an active entry has no rows, or when the page does not
+show every active entry. Grok declarations activate when their first rows arrive. Standard library only, no model calls.
 
-Entry: (source, name, category, what). Family comes from the name (Claude: haiku/sonnet; Codex: everything else).
+Entry: (source, name, category, what). Family comes from the name (Claude, Codex or Grok).
 A source is one results file; the same name in two sources is two entries (a pilot haiku-low is not the main-run haiku-low)."""
-import html, os, re
+import html, json, os, re
 
 
 SET_LABELS = {"rescue set": "retest set", "rescue arms": "retest pipelines",
@@ -61,6 +61,11 @@ add("main", "exploratory",
     ("luna-low-bare", "luna-low with the Codex system prompt and tool features stripped (trim level noshell)"),
     ("luna56-low", "gpt-5.6-luna, low effort"), ("luna56-high", "gpt-5.6-luna, high effort"), ("sol56-high", "gpt-5.6-sol, high effort"),
     ("sol61-high", "gpt-6.1-sol, high effort (default tier)"), ("astra-medium", "gpt-6-astra, medium effort"))
+GROK_CONFIGS = ("grok47-low", "grok47-medium", "grok47-high", "grok47fast-low")
+add("main", "exploratory", *((c,
+    f"Grok {'grok-4.7-build-fast' if c.startswith('grok47fast') else 'grok-4.7'}, {c.rsplit('-', 1)[1]} effort; "
+    "grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; "
+    "function track p01–p06 (L1–L3), 5 repeats, 6 of 12 problems") for c in GROK_CONFIGS))
 add("main", "fast mode and xhigh",
     ("sol61-high-fast", "sol61-high on Codex priority tier (fast mode). Same model and effort, about twice the price."),
     ("astra-medium-fast", "astra-medium on the Codex priority tier (fast mode)"), ("sol61-xhigh", "gpt-6.1-sol at xhigh effort"))
@@ -111,8 +116,27 @@ LOW_CONTEXT = {("main", "luna-low-bare"),
                *(("trim", f"{model}/{variant}") for model in ("luna", "terra")
                  for variant in ("nofeat", "noshell", "mininst", "noctx", "nodoc")),
                ("pilot", "codex-low-lean"), ("pilot", "codex-bare")}
-REGISTRY = {(s, n): {"source": s, "name": n, "category": "low context" if (s, n) in LOW_CONTEXT else c, "what": w} for s, n, c, w in R}
-assert len(REGISTRY) == len(R), "duplicate registry entry"
+DECLARED = {(s, n): {"source": s, "name": n, "category": "low context" if (s, n) in LOW_CONTEXT else c, "what": w} for s, n, c, w in R}
+assert len(DECLARED) == len(R), "duplicate registry entry"
+
+
+def active_registry(keys):
+    """Declare the parallel Grok lane ahead of its rows; the active catalog contains observed entries only."""
+    return {key: e for key, e in DECLARED.items() if key not in {("main", c) for c in GROK_CONFIGS} or key in keys}
+
+
+def _main_keys():
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    keys = set()
+    for name in SOURCES["main"]:
+        path = os.path.join(root, "results", name)
+        if os.path.exists(path):
+            with open(path) as rows:
+                keys.update(("main", json.loads(line)["config"]) for line in rows)
+    return keys
+
+
+REGISTRY = active_registry(_main_keys())
 
 
 def display(c):
@@ -137,6 +161,7 @@ def low_context(config, source="main"):
 
 
 def family(name):
+    if name.startswith("grok"): return "Grok"
     return "Claude" if name.split("-")[0] in ("haiku", "sonnet") or name.startswith("pipeline C") else "Codex"
 
 
@@ -163,7 +188,7 @@ def entry(source, name):
 
 
 def check_registry(keys):
-    """keys = {(source, name)} that have rows (dataset.keys()). Failures: rows but no entry, or an entry with no rows."""
+    """keys = {(source, name)} that have rows (dataset.keys()). Failures: rows but no entry, or an active entry with no rows."""
     fails = [f"configs: {s}/{n} has rows in results/ but is not in analysis/configs.py" for s, n in sorted(set(keys) - set(REGISTRY))]
     return fails + [f"configs: registry entry {s}/{n} has no rows" for s, n in sorted(set(REGISTRY) - set(keys))]
 

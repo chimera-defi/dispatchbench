@@ -11,8 +11,10 @@ from analysis.labels import TESTS, DISP, pshort, plabel, plabel_html
 # Plot order and family colour (a CSS variable of the page). luna-high is the exploratory full-ladder run.
 ORDER = ["haiku-low", "haiku-medium", "haiku-high", "sonnet-medium", "sol61-medium", "luna-high", "luna-medium", "luna-low", "luna-low-bare",
          "astra-medium", "astra-medium-fast", "sol61-high", "sol61-high-fast", "sol56-high", "luna56-high", "luna56-low"]
+# ORDER compares all 12 problems; Grok's first-half lane has its own table order.
+GROK_ORDER = configs.GROK_CONFIGS
 WINNER_PICKS = {"sol61-high-fast": "default", "haiku-high": "budget", "sonnet-medium": "speed"}
-FAM = lambda c: "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex56)" if c.startswith(("sol56", "luna56")) else "var(--codex)"
+FAM = lambda c: "var(--grok,#b34f91)" if c.startswith("grok") else "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex56)" if c.startswith(("sol56", "luna56")) else "var(--codex)"
 NS = 'xmlns="http://www.w3.org/2000/svg"'
 
 
@@ -38,6 +40,7 @@ def esc(t):
 
 # Marker shape by model (colour stays the vendor): read the chart without a label on every point.
 def SHAPE(c):
+    if c.startswith("grok"): return "star"
     if "luna" in c:
         return "triangle-down" if "high" in c else "triangle-right" if "medium" in c else "triangle"
     return "circle" if c.startswith("haiku") else "square" if c.startswith("sonnet") else "star" if c.startswith("astra") else "diamond"
@@ -651,7 +654,28 @@ def short_table(s, need):
     subset_label = f'{configs.set_label("rescue set", capital=True)}: {len(s["design"]["rescue_problems"])} problems × {repeats} tries = {a[HARD[0][0]]["n"]} attempts'
     return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>$ per pass</th>'
             '<th>Claude $</th><th>median s</th><th>verdict</th></tr></thead>'
-            + group(ladder_label, top, "main") + group(subset_label, hard, "rescue") + low_group + '</table></div>')
+            + group(ladder_label, top, "main") + group(subset_label, hard, "rescue") + low_group + '</table></div>' + grok_table(s))
+
+
+def grok_table(s):
+    """First-half results stand apart from every full-ladder comparison."""
+    lane = s.get("grok", {})
+    if not lane: return ""
+    rows = []
+    for c in GROK_ORDER:
+        if c not in lane: continue
+        v = lane[c]
+        rows.append(f'<tr><td><svg width="20" height="20" viewBox="0 0 20 20" {NS} aria-hidden="true">{config_marker(c, 10, 10)}</svg> {esc(DISP(c))}</td>'
+                    f'<td>{len(v["by_problem"])} of {len(s["problems"])} problems</td>'
+                    f'<td>{dataset.pct(v["pass_at_1"])} ({v["passes"]}/{v["n"]})</td>'
+                    f'<td>{dataset.usd(v["usd_per_pass"])}</td><td>{dataset.usd(v["usd_total"])}</td>'
+                    f'<td>{v["latency_s"]["median"]:.1f}</td></tr>')
+    return ('<h3>Grok (first half)</h3><p class="small">Exploratory function lane added 2026-10-26 at operator request: '
+            'p01–p06, L1–L3, 5 repeats. CLI-reported cost; list price not used. '
+            'L4–L6 were not run; excluded from full-ladder comparisons.</p>'
+            '<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>coverage</th>'
+            '<th>passed</th><th>$ per pass</th><th>total $</th><th>median s</th></tr></thead><tbody>'
+            + ''.join(rows) + '</tbody></table></div>')
 
 
 def result_notes(s):
