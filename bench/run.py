@@ -17,7 +17,9 @@ CALLS = os.path.join(ROOT, "cache", "calls")
 RAW = os.path.join(ROOT, "cache", "raw")  # full CLI stdout, gitignored (may contain local paths)
 CLAUDE = os.environ.get("CLAUDE_BIN", "claude")
 CODEX = os.environ.get("CODEX_BIN", "codex")
+GROK = os.environ.get("GROK_BIN", "grok")
 CLAUDE_BUDGET_USD = 8.00
+GROK_BUDGET_USD = 25.00
 
 CONFIGS = {}
 for fam, mid in [("haiku", "claude-haiku-5-5"), ("sonnet", "claude-sonnet-5-5")]:
@@ -40,6 +42,9 @@ CONFIGS.update({"sol61-high-fast": ("codex", "gpt-6.1-sol", "high"), "sol61-xhig
 # Exploratory, 2026-10-24, at the operator's request: both trusted Codex builders in fast mode on the main ladder and L7.
 CONFIGS["astra-medium-fast"] = ("codex", "gpt-6-astra", "medium")
 TIER = {"sol61-high-fast": "priority", "astra-medium-fast": "priority"}
+# Exploratory, 2026-10-26, operator request (hackathon): staged L1-L3 Grok lane; see PLAN.md.
+CONFIGS.update({f"grok47-{e}": ("grok", "grok-4.7", e) for e in ("low", "medium", "high")})
+CONFIGS["grok47fast-low"] = ("grok", "grok-4.7-build-fast", "low")
 
 
 def codex_flags(config, portable=False):
@@ -56,6 +61,11 @@ def codex_flags(config, portable=False):
 # Function track harness. Claude: no tools, no user/project settings. Codex: fresh HOME/CODEX_HOME,
 # auth symlink only, user config ignored, default tier, read-only sandbox.
 CLAUDE_FLAGS = ["--output-format", "json", "--no-session-persistence", "--tools", "", "--setting-sources", "", "--strict-mcp-config"]
+# Empty/unknown allowlists retain defaults. Allow one known tool, then deny it and the always-on MCP meta-tools.
+# https://github.com/xai-org/grok-build/blob/main/crates/codegen/xai-grok-agent/src/tool_list.rs
+GROK_FLAGS = ["--output-format", "json", "--tools", "read_file", "--disallowed-tools", "read_file,search_tool,use_tool",
+              "--no-subagents", "--disable-web-search",
+              "--max-turns", "1", "--no-plan", "--verbatim", "--permission-mode", "dontAsk", "--no-leader"]
 CODEX_FLAGS = ["--ignore-user-config", "-c", "skills.include_instructions=false", "-c", "service_tier=default",
                "--json", "--ephemeral", "--skip-git-repo-check", "-s", "read-only"]
 
@@ -74,13 +84,13 @@ _versions = {}
 
 def cli_version(cli):
     if cli not in _versions:
-        exe = CLAUDE if cli == "claude" else CODEX
+        exe = {"claude": CLAUDE, "codex": CODEX, "grok": GROK}[cli]
         if cli == "codex":
             with isolated_codex_env() as env:
                 version = subprocess.run([exe, "--version"], env=env, capture_output=True, text=True).stdout
         else:
             version = subprocess.run([exe, "--version"], capture_output=True, text=True).stdout
-        _versions[cli] = version.strip().split()[-1 if cli == "codex" else 0]
+        _versions[cli] = version.strip().split()[1 if cli == "grok" else -1 if cli == "codex" else 0]
     return _versions[cli]
 
 
@@ -91,7 +101,7 @@ def prompt_for(pid):
 
 def key_for(config, pid, rep, prompt):
     cli, mid, eff = CONFIGS[config]
-    flags = CLAUDE_FLAGS if cli == "claude" else codex_flags(config, portable=True)
+    flags = CLAUDE_FLAGS if cli == "claude" else GROK_FLAGS if cli == "grok" else codex_flags(config, portable=True)
     identity = {"config": config, "model": mid, "effort": eff, "cli": cli, "cli_version": cli_version(cli),
                 "flags": flags, "prompt": prompt, "problem": pid, "repeat": rep}
     if cli == "codex": identity["codex_home"] = "isolated"
@@ -103,8 +113,23 @@ def claude_spend(cache_root=None):
     """Known Claude CLI cost across every cache directory, including retained retry receipts."""
     def amount(d):
         if not isinstance(d, dict): return 0.0
-        claude = d.get("cli") == "claude" or d.get("cost_kind", "").startswith("measured") or str(d.get("model", "")).startswith("claude")
+        claude = (d.get("cli") == "claude" or str(d.get("model", "")).startswith("claude") or
+                  (not d.get("cli") and not d.get("model") and d.get("cost_kind", "").startswith("measured")))
         return ((d.get("cost_usd") or 0.0) if claude else 0.0) + amount(d.get("previous_attempt"))
+    total = 0.0
+    for base, _, files in os.walk(cache_root or os.path.join(ROOT, "cache")):
+        for f in files:
+            if f.endswith(".json"):
+                with open(os.path.join(base, f)) as src: total += amount(json.load(src))
+    return total
+
+
+def grok_spend(cache_root=None):
+    """Known Grok CLI cost, including the tool probe and retained retry receipts."""
+    def amount(d):
+        if not isinstance(d, dict): return 0.0
+        grok = d.get("cli") == "grok" or str(d.get("model", "")).startswith("grok-")
+        return ((d.get("cost_usd") or 0.0) if grok else 0.0) + amount(d.get("previous_attempt"))
     total = 0.0
     for base, _, files in os.walk(cache_root or os.path.join(ROOT, "cache")):
         for f in files:
@@ -120,6 +145,12 @@ def check_claude_budget():
     spent = claude_spend()
     if spent >= CLAUDE_BUDGET_USD:
         raise SpendLimit(f"refused: Claude spend ${spent:.2f} >= ${CLAUDE_BUDGET_USD}")
+
+
+def check_grok_budget():
+    spent = grok_spend()
+    if spent >= GROK_BUDGET_USD:
+        raise SpendLimit(f"refused: Grok spend ${spent:.2f} >= ${GROK_BUDGET_USD}")
 
 
 def error_kind(row):
@@ -186,6 +217,31 @@ def parse_codex(stdout):
     return dict(in_tok=i, cached_tok=c, cache_write_tok=0, out_tok=o, reasoning_tok=rs, tool_items=tools, error=err, text=text)
 
 
+def call_grok(mid, eff, prompt, cwd):
+    check_grok_budget()
+    cmd = [GROK, "-p", prompt, "-m", mid, "--reasoning-effort", eff] + GROK_FLAGS
+    t = time.monotonic()
+    r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, cwd=cwd, timeout=1200)
+    wall = time.monotonic() - t
+    try:
+        d = json.loads(r.stdout)
+        if not isinstance(d, dict): raise ValueError("expected a JSON object")
+    except (ValueError, TypeError):
+        return dict(wall_s=wall, text="", is_error=True, error=(r.stderr or r.stdout)[-300:],
+                    error_type="infrastructure", cost_usd=None), r.stdout
+    u = d.get("usage") or {}
+    error = d.get("error")
+    is_error = bool(d.get("is_error") or error or r.returncode)
+    return dict(wall_s=wall, text=d.get("text", ""), is_error=is_error,
+                error=str(r.stderr or error or d.get("text", ""))[-300:] if is_error else None,
+                error_type="infrastructure" if r.returncode else "model",
+                in_tok=u.get("input_tokens", 0) + u.get("cache_read_input_tokens", 0) + u.get("cache_creation_input_tokens", 0),
+                cached_tok=u.get("cache_read_input_tokens", 0), cache_write_tok=u.get("cache_creation_input_tokens", 0),
+                out_tok=u.get("output_tokens", 0), reasoning_tok=u.get("reasoning_tokens", 0),
+                cost_usd=d.get("total_cost_usd"), cost_kind="measured (CLI total_cost_usd)",
+                turns=d.get("num_turns")), r.stdout
+
+
 def call_codex(mid, eff, prompt, cwd, flags=CODEX_FLAGS):
     cmd = [CODEX, "exec", "-m", mid, "-c", f"model_reasoning_effort={eff}"] + flags + ["-C", cwd, prompt]
     t = time.monotonic()
@@ -207,7 +263,9 @@ def one(config, pid, rep, phase, lanes):
     cwd = tempfile.mkdtemp(prefix="mrb-")
     t0 = time.monotonic()
     try:
-        res, raw = call_claude(mid, eff, prompt, cwd) if cli == "claude" else call_codex(mid, eff, prompt, cwd, codex_flags(config))
+        if cli == "claude": res, raw = call_claude(mid, eff, prompt, cwd)
+        elif cli == "grok": res, raw = call_grok(mid, eff, prompt, cwd)
+        else: res, raw = call_codex(mid, eff, prompt, cwd, codex_flags(config))
     except SpendLimit as exc:
         return str(exc)
     except (subprocess.TimeoutExpired, OSError) as exc:
@@ -256,6 +314,8 @@ def main():
     with ThreadPoolExecutor(a.lanes) as ex:
         list(ex.map(lane, cfgs))
     print(f"Known Claude CLI cost across all cache dirs: ${claude_spend():.4f}")
+    if any(CONFIGS[c][0] == "grok" for c in cfgs):
+        print(f"Known Grok CLI cost across all cache dirs: ${grok_spend():.4f}")
 
 
 if __name__ == "__main__":
