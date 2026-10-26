@@ -2,7 +2,8 @@
  "generated_from": [
   "results/2026-10-22b-agentic.jsonl",
   "results/2026-10-22b-function.jsonl",
-  "results/2026-10-25-isolated-agentic.jsonl"
+  "results/2026-10-25-isolated-agentic.jsonl",
+  "results/2026-10-26-grok-function.jsonl"
  ],
  "configs": {
   "haiku-low": {
@@ -430,7 +431,7 @@
   "exploratory": 550,
   "fastmode": 105,
   "hard": 195,
-  "main": 360,
+  "main": 447,
   "warmup": 6
  },
  "problems": {
@@ -628,6 +629,267 @@
    "cost_kind": "proxy"
   }
  ],
+ "grok": {
+  "grok47-low": {
+   "cli": "grok",
+   "model": "grok-4.7",
+   "effort": "low",
+   "n": 24,
+   "passes": 23,
+   "pass_at_1": 0.9583,
+   "ci95": [
+    0.8095,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 10,
+     "n": 10
+    },
+    "L3": {
+     "passed": 3,
+     "n": 4
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 23,
+    "crash": 1
+   },
+   "latency_s": {
+    "median": 26.46,
+    "p25": 19.82,
+    "p75": 36.42,
+    "p90": 39.19,
+    "max": 55.96
+   },
+   "tokens_mean": {
+    "in_tok": 21594,
+    "cached_tok": 2048,
+    "out_tok": 1935,
+    "reasoning_tok": 1555
+   },
+   "input_floor": [
+    21195,
+    2048
+   ],
+   "usd_per_call": 0.051727,
+   "usd_total": 1.2414,
+   "usd_per_pass": 0.053975,
+   "usd_per_pass_L1_L2": 0.050451,
+   "pass_L1_L2": [
+    20,
+    20
+   ],
+   "cost_kind": "measured",
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 5,
+    "p05_pass_route": 2,
+    "p06_calc": 1
+   }
+  },
+  "grok47-medium": {
+   "cli": "grok",
+   "model": "grok-4.7",
+   "effort": "medium",
+   "n": 21,
+   "passes": 20,
+   "pass_at_1": 0.9524,
+   "ci95": [
+    0.7857,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 7,
+     "n": 7
+    },
+    "L3": {
+     "passed": 3,
+     "n": 4
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 20,
+    "crash": 1
+   },
+   "latency_s": {
+    "median": 32.56,
+    "p25": 27.32,
+    "p75": 65.42,
+    "p90": 92.05,
+    "max": 182.82
+   },
+   "tokens_mean": {
+    "in_tok": 21578,
+    "cached_tok": 1969,
+    "out_tok": 3855,
+    "reasoning_tok": 3475
+   },
+   "input_floor": [
+    21195,
+    2048
+   ],
+   "usd_per_call": 0.063332,
+   "usd_total": 1.33,
+   "usd_per_pass": 0.066498,
+   "usd_per_pass_L1_L2": 0.055716,
+   "pass_L1_L2": [
+    17,
+    17
+   ],
+   "cost_kind": "measured",
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 4,
+    "p04_taller_within": 3,
+    "p05_pass_route": 2,
+    "p06_calc": 1
+   }
+  },
+  "grok47-high": {
+   "cli": "grok",
+   "model": "grok-4.7",
+   "effort": "high",
+   "n": 18,
+   "passes": 18,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 4,
+     "n": 4
+    },
+    "L3": {
+     "passed": 4,
+     "n": 4
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 18
+   },
+   "latency_s": {
+    "median": 40.97,
+    "p25": 30.46,
+    "p75": 93.97,
+    "p90": 147.03,
+    "max": 280.77
+   },
+   "tokens_mean": {
+    "in_tok": 21557,
+    "cached_tok": 2048,
+    "out_tok": 5301,
+    "reasoning_tok": 4960
+   },
+   "input_floor": [
+    21196,
+    2048
+   ],
+   "usd_per_call": 0.07185,
+   "usd_total": 1.2933,
+   "usd_per_pass": 0.07185,
+   "usd_per_pass_L1_L2": 0.058843,
+   "pass_L1_L2": [
+    14,
+    14
+   ],
+   "cost_kind": "measured",
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 2,
+    "p04_taller_within": 2,
+    "p05_pass_route": 2,
+    "p06_calc": 2
+   }
+  },
+  "grok47fast-low": {
+   "cli": "grok",
+   "model": "grok-4.7-build-fast",
+   "effort": "low",
+   "n": 24,
+   "passes": 23,
+   "pass_at_1": 0.9583,
+   "ci95": [
+    0.8095,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 10,
+     "n": 10
+    },
+    "L3": {
+     "passed": 3,
+     "n": 4
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 23,
+    "crash": 1
+   },
+   "latency_s": {
+    "median": 19.38,
+    "p25": 15.01,
+    "p75": 25.7,
+    "p90": 34.5,
+    "max": 41.19
+   },
+   "tokens_mean": {
+    "in_tok": 21643,
+    "cached_tok": 2005,
+    "out_tok": 2178,
+    "reasoning_tok": 1796
+   },
+   "input_floor": [
+    21198,
+    2048
+   ],
+   "usd_per_call": 0.106694,
+   "usd_total": 2.5607,
+   "usd_per_pass": 0.111333,
+   "usd_per_pass_L1_L2": 0.102876,
+   "pass_L1_L2": [
+    20,
+    20
+   ],
+   "cost_kind": "measured",
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 5,
+    "p05_pass_route": 2,
+    "p06_calc": 1
+   }
+  }
+ },
  "exploratory": {
   "astra-medium": {
    "cli": "codex",
@@ -4632,9 +4894,10 @@
   "codex_proxy_usd": 36.2653,
   "codex_fastmode_usd": 3.4069,
   "calls": {
-   "function": 1261,
+   "function": 1348,
    "agentic": 84
-  }
+  },
+  "grok_measured_usd": 6.4254
  },
  "hypotheses": {
   "H1": {

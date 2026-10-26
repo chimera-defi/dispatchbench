@@ -44,7 +44,8 @@ def tables_md(ds):
     tables = {name: md_table(**spec) if isinstance(spec, dict) else spec for name, spec in ds["tables"].items()}
     if "grok" in tables:
         tables["result"] += ("\n\n### Grok (first half)\n\nExploratory function lane added 2026-10-26 at operator request: "
-                             "p01–p06, L1–L3, 5 repeats. CLI-reported cost; list price not used. "
+                             "p01–p06, L1–L3. L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained. "
+                             "CLI-reported cost; list price not used. "
                              "L4–L6 were not run; excluded from full-ladder comparisons.\n\n" + tables["grok"])
     return tables
 

@@ -29,6 +29,17 @@ The main run was on 2026-10-22: $2.46 of Claude CLI-reported spend (function + a
 | sol61-high † | 100% (60/60) | ≥78% (all passed) | 27.4 | 50.2 | $0.019 | $1.12 | proxy |
 | sol61-high ⚡ † | 100% (60/60) | ≥78% (all passed) | 17.4 | 27.9 | $0.036 | $2.15 | proxy |
 
+### Grok (first half)
+
+Exploratory function lane added 2026-10-26 at operator request: p01–p06, L1–L3. L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained. CLI-reported cost; list price not used. L4–L6 were not run; excluded from full-ladder comparisons.
+
+| config | coverage | passed | $ per pass | total $ (CLI-measured) | median s |
+|---|---|---|---|---|---|
+| grok47-low | 6 of 12 problems | 96% (23/24) | $0.054 | $1.24 | 26.5 |
+| grok47-medium | 6 of 12 problems | 95% (20/21) | $0.066 | $1.33 | 32.6 |
+| grok47-high | 6 of 12 problems | 100% (18/18) | $0.072 | $1.29 | 41.0 |
+| grok47fast-low | 6 of 12 problems | 96% (23/24) | $0.11 | $2.56 | 19.4 |
+
 Function track: 12 problems × 5 attempts per config. Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
 
 ## Can luna run on fewer tokens?

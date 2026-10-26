@@ -8,7 +8,7 @@ from collections import defaultdict
 
 from analysis.stats import hier_boot, paired_boot, p90
 from analysis.labels import DISP, plabel, pshort
-from analysis.configs import GROK_CONFIGS
+from analysis.configs import GROK_CONFIGS, SOURCES
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RES = os.path.join(ROOT, "results")
@@ -55,7 +55,7 @@ def selected_rows(rows, tracks, cell_fields, item_fields):
 
 def function_rows():
     # Clean-home replacements apply only to repo tasks.
-    return _sourced(FUNC)
+    return [row for name in SOURCES["main"] for row in _sourced(os.path.join(RES, name))]
 
 
 def agentic_rows():
@@ -299,7 +299,7 @@ def trim_block():
 def build():
     """Everything summarize writes, computed in memory: (summary, tables.md text, manifest). make audit calls this too."""
     rows = function_rows(); agent = agentic_rows()
-    main_rows = [r for r in rows if r["phase"] == "main"]
+    main_rows = [r for r in rows if r["phase"] == "main" and r["config"] not in GROK_CONFIGS]
     s = {"generated_from": sorted({r["_file"] for r in rows + agent}), "configs": {}, "phases": {}}
     for ph in sorted({r["phase"] for r in rows}):
         s["phases"][ph] = len([r for r in rows if r["phase"] == ph])
@@ -326,7 +326,7 @@ def build():
                                 "base_passes": sum(r["passed"] for r in br), "base_n": len(br), "diff": round(d, 4), "ci95": [round(lo, 4), round(hi, 4)],
                                 "median_latency_s": round(statistics.median(r["wall_s"] for r in er), 2),
                                 "usd_total": usd(map(cost, er), digits=4), "cost_kind": "measured" if er[0]["cli"] == "claude" else "proxy"})
-    gr = [r for r in rows if r["config"] in GROK_CONFIGS and r["phase"] == "exploratory" and r["repeat"] <= 5]
+    gr = [r for r in rows if r["config"] in GROK_CONFIGS and r["phase"] in ("main", "exploratory") and r["repeat"] <= 5]
     if gr:
         s["grok"] = {}
         for c in GROK_CONFIGS:
@@ -355,8 +355,9 @@ def build():
         rr = [r for r in hr if r["config"] == c]; blk = config_block(rr)
         blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}
         s["hard"][c] = blk
-    s["failures"] = failures([r for r in rows if r["phase"] in ("main", "exploratory", "escalation", "hard")
-                               or (r["phase"] == "fastmode" and r["config"] == "sol61-high-fast")])  # same rows as its exploratory block
+    s["failures"] = failures([r for r in rows if r["config"] not in GROK_CONFIGS and
+                              (r["phase"] in ("main", "exploratory", "escalation", "hard")
+                               or (r["phase"] == "fastmode" and r["config"] == "sol61-high-fast"))])  # full-ladder configs only
     cfg = s["configs"]
     s["pareto"] = pareto({c: (v["usd_per_pass"], v["pass_at_1"]) for c, v in cfg.items() if v["usd_per_pass"]})
     s["agentic"] = agentic_block(agent) if agent else {}
@@ -524,7 +525,8 @@ def tables(s):
         L.append(f"| {plabel(p, v['rung'])} | " + " | ".join(str(v[c]) if c in v else str(fast_cols[c]["by_problem"][p]) for c in byrung) + " |")
     if s.get("grok"):
         L += ["", "## Grok (first half)", "",
-              "Exploratory function lane, added 2026-10-26 at operator request: p01–p06 (L1–L3), 5 repeats. "
+              "Exploratory function lane, added 2026-10-26 at operator request: p01–p06 (L1–L3). "
+              "L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained. "
               "CLI-reported cost; list price not used. L4–L6 were not run; excluded from full-ladder comparisons.", "",
               "| config | coverage | passed | $ per pass | total $ | median s |", "|---|---|---|---|---|---|"]
         for c, v in s["grok"].items():

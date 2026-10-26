@@ -671,7 +671,8 @@ def grok_table(s):
                     f'<td>{dataset.usd(v["usd_per_pass"])}</td><td>{dataset.usd(v["usd_total"])}</td>'
                     f'<td>{v["latency_s"]["median"]:.1f}</td></tr>')
     return ('<h3>Grok (first half)</h3><p class="small">Exploratory function lane added 2026-10-26 at operator request: '
-            'p01–p06, L1–L3, 5 repeats. CLI-reported cost; list price not used. '
+            'p01–p06, L1–L3. L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained. '
+            'CLI-reported cost; list price not used. '
             'L4–L6 were not run; excluded from full-ladder comparisons.</p>'
             '<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>coverage</th>'
             '<th>passed</th><th>$ per pass</th><th>total $</th><th>median s</th></tr></thead><tbody>'
