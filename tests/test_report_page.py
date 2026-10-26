@@ -611,7 +611,7 @@ def test_winner_cells_have_one_content_element():
 
 def test_low_context_has_one_final_group_and_a_set_column(summary):
     body = page.short_table(summary, dataset.need)
-    groups = re.findall(r'<tbody[^>]*>(.*?)</tbody>', body, re.S)
+    groups = re.findall(r'<tbody[^>]*>(.*?)</tbody>', body.split('</table>', 1)[0], re.S)
     assert len(groups) == 3
     assert body.count('Low context (trimmed prompt):') == 1
     assert groups[-1].count('<tr') == 1  # one line, not one row per config

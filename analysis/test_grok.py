@@ -1,9 +1,20 @@
 """Exercise the pending Grok lane without changing any graded results files."""
 import copy
+import json
 
 import pytest
 
 from analysis import charts, configs, dataset, page, report, summarize
+
+
+def test_function_rows_loads_separate_grok_file(tmp_path, monkeypatch):
+    monkeypatch.setattr(summarize, "RES", str(tmp_path))
+    for name, config in zip(configs.SOURCES["main"], ("haiku-low", "grok47-low")):
+        (tmp_path / name).write_text(json.dumps({"config": config, "phase": "main"}) + "\n")
+    rows = summarize.function_rows()
+    assert {r["config"] for r in rows} == {"haiku-low", "grok47-low"}
+    assert all(r["phase"] == "main" for r in rows)
+    assert next(r for r in rows if r["config"] == "grok47-low")["_file"].endswith("2026-10-26-grok-function.jsonl")
 
 
 @pytest.mark.parametrize("model", ["grok-4.7", "grok-4.7-build-fast"])
@@ -41,7 +52,7 @@ def test_first_half_rows_render_without_changing_full_ladder(monkeypatch):
         for r in source:
             grok = copy.deepcopy(r)
             grok.update(config=c, cli="grok", model="grok-4.7-build-fast" if c.startswith("grok47fast") else "grok-4.7",
-                        effort=c.rsplit("-", 1)[1], phase="exploratory", cli_version="test-grok",
+                        effort=c.rsplit("-", 1)[1], phase="main", cli_version="test-grok",
                         ts="2026-10-26T10:00:00Z", key=c + r["key"], cost_usd=0.123456,
                         passed=c != "grok47-high", outcome="wrong" if c == "grok47-high" else "pass")
             rows.append(grok)
@@ -55,6 +66,7 @@ def test_first_half_rows_render_without_changing_full_ladder(monkeypatch):
     assert set(summary["grok"]) == set(configs.GROK_CONFIGS)
     for block in ("configs", "exploratory", "paired", "pareto"):
         assert ds["report"][block] == baseline["report"][block]
+    assert not any(c in configs.GROK_CONFIGS for problem in summary["failures"].values() for c in problem["cells"])
     assert charts.build(ds) == charts.build(baseline)
     assert "Grok (first half)" in tables
     for c in configs.GROK_CONFIGS:

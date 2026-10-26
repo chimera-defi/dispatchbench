@@ -43,7 +43,7 @@ NOTATION = {
 
 
 SOURCES = {  # source id -> files under results/ that hold its rows
-    "main": ["2026-10-22b-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
+    "main": ["2026-10-22b-function.jsonl", "2026-10-26-grok-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
     "rescue": ["appendix/luna_rescue.jsonl"], "pilot": ["2026-10-22-pilot.jsonl"], "pilot-agentic": ["2026-10-22-pilot-agentic.jsonl"],
     "harness-bias": ["appendix/harness_bias.jsonl", "appendix/codex_harness.jsonl"]}  # the last two land with the codex-own-harness branch
 CATEGORIES = ["main ladder", "exploratory", "fast mode and xhigh", "rescue pipeline", "repo tasks", "trim", "pilot", "harness-bias", "low context"]
@@ -65,7 +65,7 @@ GROK_CONFIGS = ("grok47-low", "grok47-medium", "grok47-high", "grok47fast-low")
 add("main", "exploratory", *((c,
     f"Grok {'grok-4.7-build-fast' if c.startswith('grok47fast') else 'grok-4.7'}, {c.rsplit('-', 1)[1]} effort; "
     "grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; "
-    "function track p01–p06 (L1–L3), 5 repeats, 6 of 12 problems") for c in GROK_CONFIGS))
+    "function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems") for c in GROK_CONFIGS))
 add("main", "fast mode and xhigh",
     ("sol61-high-fast", "sol61-high on Codex priority tier (fast mode). Same model and effort, about twice the price."),
     ("astra-medium-fast", "astra-medium on the Codex priority tier (fast mode)"), ("sol61-xhigh", "gpt-6.1-sol at xhigh effort"))

@@ -6,6 +6,7 @@
   "results/2026-10-22b-function.jsonl",
   "results/2026-10-22b-trim.jsonl",
   "results/2026-10-25-isolated-agentic.jsonl",
+  "results/2026-10-26-grok-function.jsonl",
   "results/appendix/codex_harness.jsonl",
   "results/appendix/harness_bias.jsonl",
   "results/appendix/luna_rescue.jsonl"
@@ -4936,6 +4937,589 @@
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.075264,
     "usd_per_1k_tokens": 0.004716380498809374
+   }
+  },
+  {
+   "id": "main/grok47-low",
+   "source": "main",
+   "config": "grok47-low",
+   "display": "grok47-low",
+   "family": "Grok",
+   "category": "exploratory",
+   "what": "Grok grok-4.7, low effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "set": "partial ladder",
+   "derived": false,
+   "files": [
+    "results/2026-10-26-grok-function.jsonl"
+   ],
+   "passes": 23,
+   "n": 24,
+   "pass_rate": 0.9583,
+   "ci95": [
+    0.8095,
+    1.0
+   ],
+   "groups": 6,
+   "usd_per_pass": 0.053975,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.0,
+   "usd_per_call": 0.051727,
+   "spend": 1.241436,
+   "spend_claude": 0.0,
+   "spend_codex": 0.0,
+   "unknown_usd": 0,
+   "spend_grok": 1.241436,
+   "median_s": 26.46,
+   "p25_s": 19.82,
+   "p75_s": 36.42,
+   "tokens_in_mean": 21594,
+   "tokens_out_mean": 1935,
+   "tokens_cached_mean": 2048,
+   "tokens_reasoning_mean": 1555,
+   "input_floor": [
+    21195,
+    2048
+   ],
+   "p90_s": 39.19,
+   "max_s": 55.96,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 5,
+     "n": 5
+    },
+    "p05_pass_route": {
+     "passes": 2,
+     "n": 2
+    },
+    "p06_calc": {
+     "passes": 1,
+     "n": 2
+    }
+   },
+   "misses": 1,
+   "ci95_plot": [
+    0.8095,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.0,
+   "usd_per_1k_tokens": 0.002198435972629521,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     3,
+     4
+    ]
+   },
+   "cost_kind": "measured",
+   "cli": "grok",
+   "model": "grok-4.7",
+   "effort": "low",
+   "outcomes": {
+    "pass": 23,
+    "crash": 1
+   },
+   "breaking_point": null,
+   "details": {
+    "cli": "grok",
+    "model": "grok-4.7",
+    "effort": "low",
+    "n": 24,
+    "passes": 23,
+    "pass_at_1": 0.9583,
+    "ci95": [
+     0.8095,
+     1.0
+    ],
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 23,
+     "crash": 1
+    },
+    "input_floor": [
+     21195,
+     2048
+    ],
+    "usd_per_call": 0.051727,
+    "usd_total": 1.241436,
+    "usd_per_pass": 0.053975,
+    "usd_per_pass_L1_L2": 0.050451,
+    "pass_L1_L2": [
+     20,
+     20
+    ],
+    "cost_kind": "measured",
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 5,
+     "p04_taller_within": 5,
+     "p05_pass_route": 2,
+     "p06_calc": 1
+    },
+    "misses": 1,
+    "ci95_plot": [
+     0.8095,
+     1.0
+    ],
+    "usd_text": "$0.054",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.0,
+    "usd_per_1k_tokens": 0.002198435972629521
+   }
+  },
+  {
+   "id": "main/grok47-medium",
+   "source": "main",
+   "config": "grok47-medium",
+   "display": "grok47-medium",
+   "family": "Grok",
+   "category": "exploratory",
+   "what": "Grok grok-4.7, medium effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "set": "partial ladder",
+   "derived": false,
+   "files": [
+    "results/2026-10-26-grok-function.jsonl"
+   ],
+   "passes": 20,
+   "n": 21,
+   "pass_rate": 0.9524,
+   "ci95": [
+    0.7857,
+    1.0
+   ],
+   "groups": 6,
+   "usd_per_pass": 0.066498,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.0,
+   "usd_per_call": 0.063332,
+   "spend": 1.329964,
+   "spend_claude": 0.0,
+   "spend_codex": 0.0,
+   "unknown_usd": 0,
+   "spend_grok": 1.329964,
+   "median_s": 32.56,
+   "p25_s": 27.32,
+   "p75_s": 65.42,
+   "tokens_in_mean": 21578,
+   "tokens_out_mean": 3855,
+   "tokens_cached_mean": 1969,
+   "tokens_reasoning_mean": 3475,
+   "input_floor": [
+    21195,
+    2048
+   ],
+   "p90_s": 92.05,
+   "max_s": 182.82,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 4,
+     "n": 4
+    },
+    "p04_taller_within": {
+     "passes": 3,
+     "n": 3
+    },
+    "p05_pass_route": {
+     "passes": 2,
+     "n": 2
+    },
+    "p06_calc": {
+     "passes": 1,
+     "n": 2
+    }
+   },
+   "misses": 1,
+   "ci95_plot": [
+    0.7857,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.0,
+   "usd_per_1k_tokens": 0.002490150591750875,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     7,
+     7
+    ],
+    "L3": [
+     3,
+     4
+    ]
+   },
+   "cost_kind": "measured",
+   "cli": "grok",
+   "model": "grok-4.7",
+   "effort": "medium",
+   "outcomes": {
+    "pass": 20,
+    "crash": 1
+   },
+   "breaking_point": null,
+   "details": {
+    "cli": "grok",
+    "model": "grok-4.7",
+    "effort": "medium",
+    "n": 21,
+    "passes": 20,
+    "pass_at_1": 0.9524,
+    "ci95": [
+     0.7857,
+     1.0
+    ],
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 20,
+     "crash": 1
+    },
+    "input_floor": [
+     21195,
+     2048
+    ],
+    "usd_per_call": 0.063332,
+    "usd_total": 1.329964,
+    "usd_per_pass": 0.066498,
+    "usd_per_pass_L1_L2": 0.055716,
+    "pass_L1_L2": [
+     17,
+     17
+    ],
+    "cost_kind": "measured",
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 4,
+     "p04_taller_within": 3,
+     "p05_pass_route": 2,
+     "p06_calc": 1
+    },
+    "misses": 1,
+    "ci95_plot": [
+     0.7857,
+     1.0
+    ],
+    "usd_text": "$0.066",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.0,
+    "usd_per_1k_tokens": 0.002490150591750875
+   }
+  },
+  {
+   "id": "main/grok47-high",
+   "source": "main",
+   "config": "grok47-high",
+   "display": "grok47-high",
+   "family": "Grok",
+   "category": "exploratory",
+   "what": "Grok grok-4.7, high effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "set": "partial ladder",
+   "derived": false,
+   "files": [
+    "results/2026-10-26-grok-function.jsonl"
+   ],
+   "passes": 18,
+   "n": 18,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 6,
+   "usd_per_pass": 0.07185,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.0,
+   "usd_per_call": 0.07185,
+   "spend": 1.2933,
+   "spend_claude": 0.0,
+   "spend_codex": 0.0,
+   "unknown_usd": 0,
+   "spend_grok": 1.2933,
+   "median_s": 40.97,
+   "p25_s": 30.46,
+   "p75_s": 93.97,
+   "tokens_in_mean": 21557,
+   "tokens_out_mean": 5301,
+   "tokens_cached_mean": 2048,
+   "tokens_reasoning_mean": 4960,
+   "input_floor": [
+    21196,
+    2048
+   ],
+   "p90_s": 147.03,
+   "max_s": 280.77,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 2,
+     "n": 2
+    },
+    "p04_taller_within": {
+     "passes": 2,
+     "n": 2
+    },
+    "p05_pass_route": {
+     "passes": 2,
+     "n": 2
+    },
+    "p06_calc": {
+     "passes": 2,
+     "n": 2
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.6069622310029172,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.0,
+   "usd_per_1k_tokens": 0.0026751805793432124,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     4,
+     4
+    ],
+    "L3": [
+     4,
+     4
+    ]
+   },
+   "cost_kind": "measured",
+   "cli": "grok",
+   "model": "grok-4.7",
+   "effort": "high",
+   "outcomes": {
+    "pass": 18
+   },
+   "breaking_point": null,
+   "details": {
+    "cli": "grok",
+    "model": "grok-4.7",
+    "effort": "high",
+    "n": 18,
+    "passes": 18,
+    "pass_at_1": 1.0,
+    "ci95": [
+     1.0,
+     1.0
+    ],
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 18
+    },
+    "input_floor": [
+     21196,
+     2048
+    ],
+    "usd_per_call": 0.07185,
+    "usd_total": 1.2933,
+    "usd_per_pass": 0.07185,
+    "usd_per_pass_L1_L2": 0.058843,
+    "pass_L1_L2": [
+     14,
+     14
+    ],
+    "cost_kind": "measured",
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 2,
+     "p04_taller_within": 2,
+     "p05_pass_route": 2,
+     "p06_calc": 2
+    },
+    "misses": 0,
+    "ci95_plot": [
+     0.6069622310029172,
+     1.0
+    ],
+    "usd_text": "$0.072",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.0,
+    "usd_per_1k_tokens": 0.0026751805793432124
+   }
+  },
+  {
+   "id": "main/grok47fast-low",
+   "source": "main",
+   "config": "grok47fast-low",
+   "display": "grok47fast-low",
+   "family": "Grok",
+   "category": "exploratory",
+   "what": "Grok grok-4.7-build-fast, low effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "set": "partial ladder",
+   "derived": false,
+   "files": [
+    "results/2026-10-26-grok-function.jsonl"
+   ],
+   "passes": 23,
+   "n": 24,
+   "pass_rate": 0.9583,
+   "ci95": [
+    0.8095,
+    1.0
+   ],
+   "groups": 6,
+   "usd_per_pass": 0.111333,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.0,
+   "usd_per_call": 0.106694,
+   "spend": 2.560652,
+   "spend_claude": 0.0,
+   "spend_codex": 0.0,
+   "unknown_usd": 0,
+   "spend_grok": 2.560652,
+   "median_s": 19.38,
+   "p25_s": 15.01,
+   "p75_s": 25.7,
+   "tokens_in_mean": 21643,
+   "tokens_out_mean": 2178,
+   "tokens_cached_mean": 2005,
+   "tokens_reasoning_mean": 1796,
+   "input_floor": [
+    21198,
+    2048
+   ],
+   "p90_s": 34.5,
+   "max_s": 41.19,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 5,
+     "n": 5
+    },
+    "p05_pass_route": {
+     "passes": 2,
+     "n": 2
+    },
+    "p06_calc": {
+     "passes": 1,
+     "n": 2
+    }
+   },
+   "misses": 1,
+   "ci95_plot": [
+    0.8095,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.0,
+   "usd_per_1k_tokens": 0.00447898912724067,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     3,
+     4
+    ]
+   },
+   "cost_kind": "measured",
+   "cli": "grok",
+   "model": "grok-4.7-build-fast",
+   "effort": "low",
+   "outcomes": {
+    "pass": 23,
+    "crash": 1
+   },
+   "breaking_point": null,
+   "details": {
+    "cli": "grok",
+    "model": "grok-4.7-build-fast",
+    "effort": "low",
+    "n": 24,
+    "passes": 23,
+    "pass_at_1": 0.9583,
+    "ci95": [
+     0.8095,
+     1.0
+    ],
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 23,
+     "crash": 1
+    },
+    "input_floor": [
+     21198,
+     2048
+    ],
+    "usd_per_call": 0.106694,
+    "usd_total": 2.560652,
+    "usd_per_pass": 0.111333,
+    "usd_per_pass_L1_L2": 0.102876,
+    "pass_L1_L2": [
+     20,
+     20
+    ],
+    "cost_kind": "measured",
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 5,
+     "p04_taller_within": 5,
+     "p05_pass_route": 2,
+     "p06_calc": 1
+    },
+    "misses": 1,
+    "ci95_plot": [
+     0.8095,
+     1.0
+    ],
+    "usd_text": "$0.11",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.0,
+    "usd_per_1k_tokens": 0.00447898912724067
    }
   },
   {
@@ -13573,6 +14157,371 @@
    "cost_kind": "proxy"
   },
   {
+   "id": "main/grok47-low",
+   "source": "main",
+   "config": "grok47-low",
+   "display": "grok47-low",
+   "family": "Grok",
+   "category": "exploratory",
+   "what": "Grok grok-4.7, low effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "set": "all runs",
+   "derived": false,
+   "files": [
+    "results/2026-10-26-grok-function.jsonl"
+   ],
+   "passes": 23,
+   "n": 24,
+   "pass_rate": 0.9583,
+   "ci95": [
+    0.8095,
+    1.0
+   ],
+   "groups": 6,
+   "usd_per_pass": 0.053975,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.0,
+   "usd_per_call": 0.051727,
+   "spend": 1.241436,
+   "spend_claude": 0.0,
+   "spend_codex": 0.0,
+   "unknown_usd": 0,
+   "spend_grok": 1.241436,
+   "median_s": 26.46,
+   "p25_s": 19.82,
+   "p75_s": 36.42,
+   "tokens_in_mean": 21594,
+   "tokens_out_mean": 1935,
+   "tokens_cached_mean": 2048,
+   "tokens_reasoning_mean": 1555,
+   "input_floor": [
+    21195,
+    2048
+   ],
+   "p90_s": 39.19,
+   "max_s": 55.96,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 5,
+     "n": 5
+    },
+    "p05_pass_route": {
+     "passes": 2,
+     "n": 2
+    },
+    "p06_calc": {
+     "passes": 1,
+     "n": 2
+    }
+   },
+   "misses": 1,
+   "ci95_plot": [
+    0.8095,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.0,
+   "usd_per_1k_tokens": 0.002198435972629521,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     3,
+     4
+    ]
+   },
+   "cost_kind": "measured"
+  },
+  {
+   "id": "main/grok47-medium",
+   "source": "main",
+   "config": "grok47-medium",
+   "display": "grok47-medium",
+   "family": "Grok",
+   "category": "exploratory",
+   "what": "Grok grok-4.7, medium effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "set": "all runs",
+   "derived": false,
+   "files": [
+    "results/2026-10-26-grok-function.jsonl"
+   ],
+   "passes": 20,
+   "n": 21,
+   "pass_rate": 0.9524,
+   "ci95": [
+    0.7857,
+    1.0
+   ],
+   "groups": 6,
+   "usd_per_pass": 0.066498,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.0,
+   "usd_per_call": 0.063332,
+   "spend": 1.329964,
+   "spend_claude": 0.0,
+   "spend_codex": 0.0,
+   "unknown_usd": 0,
+   "spend_grok": 1.329964,
+   "median_s": 32.56,
+   "p25_s": 27.32,
+   "p75_s": 65.42,
+   "tokens_in_mean": 21578,
+   "tokens_out_mean": 3855,
+   "tokens_cached_mean": 1969,
+   "tokens_reasoning_mean": 3475,
+   "input_floor": [
+    21195,
+    2048
+   ],
+   "p90_s": 92.05,
+   "max_s": 182.82,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 4,
+     "n": 4
+    },
+    "p04_taller_within": {
+     "passes": 3,
+     "n": 3
+    },
+    "p05_pass_route": {
+     "passes": 2,
+     "n": 2
+    },
+    "p06_calc": {
+     "passes": 1,
+     "n": 2
+    }
+   },
+   "misses": 1,
+   "ci95_plot": [
+    0.7857,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.0,
+   "usd_per_1k_tokens": 0.002490150591750875,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     7,
+     7
+    ],
+    "L3": [
+     3,
+     4
+    ]
+   },
+   "cost_kind": "measured"
+  },
+  {
+   "id": "main/grok47-high",
+   "source": "main",
+   "config": "grok47-high",
+   "display": "grok47-high",
+   "family": "Grok",
+   "category": "exploratory",
+   "what": "Grok grok-4.7, high effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "set": "all runs",
+   "derived": false,
+   "files": [
+    "results/2026-10-26-grok-function.jsonl"
+   ],
+   "passes": 18,
+   "n": 18,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 6,
+   "usd_per_pass": 0.07185,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.0,
+   "usd_per_call": 0.07185,
+   "spend": 1.2933,
+   "spend_claude": 0.0,
+   "spend_codex": 0.0,
+   "unknown_usd": 0,
+   "spend_grok": 1.2933,
+   "median_s": 40.97,
+   "p25_s": 30.46,
+   "p75_s": 93.97,
+   "tokens_in_mean": 21557,
+   "tokens_out_mean": 5301,
+   "tokens_cached_mean": 2048,
+   "tokens_reasoning_mean": 4960,
+   "input_floor": [
+    21196,
+    2048
+   ],
+   "p90_s": 147.03,
+   "max_s": 280.77,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 2,
+     "n": 2
+    },
+    "p04_taller_within": {
+     "passes": 2,
+     "n": 2
+    },
+    "p05_pass_route": {
+     "passes": 2,
+     "n": 2
+    },
+    "p06_calc": {
+     "passes": 2,
+     "n": 2
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.6069622310029172,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.0,
+   "usd_per_1k_tokens": 0.0026751805793432124,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     4,
+     4
+    ],
+    "L3": [
+     4,
+     4
+    ]
+   },
+   "cost_kind": "measured"
+  },
+  {
+   "id": "main/grok47fast-low",
+   "source": "main",
+   "config": "grok47fast-low",
+   "display": "grok47fast-low",
+   "family": "Grok",
+   "category": "exploratory",
+   "what": "Grok grok-4.7-build-fast, low effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "set": "all runs",
+   "derived": false,
+   "files": [
+    "results/2026-10-26-grok-function.jsonl"
+   ],
+   "passes": 23,
+   "n": 24,
+   "pass_rate": 0.9583,
+   "ci95": [
+    0.8095,
+    1.0
+   ],
+   "groups": 6,
+   "usd_per_pass": 0.111333,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.0,
+   "usd_per_call": 0.106694,
+   "spend": 2.560652,
+   "spend_claude": 0.0,
+   "spend_codex": 0.0,
+   "unknown_usd": 0,
+   "spend_grok": 2.560652,
+   "median_s": 19.38,
+   "p25_s": 15.01,
+   "p75_s": 25.7,
+   "tokens_in_mean": 21643,
+   "tokens_out_mean": 2178,
+   "tokens_cached_mean": 2005,
+   "tokens_reasoning_mean": 1796,
+   "input_floor": [
+    21198,
+    2048
+   ],
+   "p90_s": 34.5,
+   "max_s": 41.19,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 5,
+     "n": 5
+    },
+    "p05_pass_route": {
+     "passes": 2,
+     "n": 2
+    },
+    "p06_calc": {
+     "passes": 1,
+     "n": 2
+    }
+   },
+   "misses": 1,
+   "ci95_plot": [
+    0.8095,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.0,
+   "usd_per_1k_tokens": 0.00447898912724067,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     3,
+     4
+    ]
+   },
+   "cost_kind": "measured"
+  },
+  {
    "id": "main/sol61-high-fast",
    "source": "main",
    "config": "sol61-high-fast",
@@ -15272,8 +16221,8 @@
    "spend": 2.718465
   },
   "exploratory": {
-   "n_configs": 7,
-   "spend": 12.052173
+   "n_configs": 11,
+   "spend": 18.477525
   },
   "fast mode and xhigh": {
    "n_configs": 3,
@@ -15308,7 +16257,8 @@
   "generated_from": [
    "results/2026-10-22b-agentic.jsonl",
    "results/2026-10-22b-function.jsonl",
-   "results/2026-10-25-isolated-agentic.jsonl"
+   "results/2026-10-25-isolated-agentic.jsonl",
+   "results/2026-10-26-grok-function.jsonl"
   ],
   "configs": {
    "haiku-low": {
@@ -16090,7 +17040,7 @@
    "exploratory": 550,
    "fastmode": 105,
    "hard": 195,
-   "main": 360,
+   "main": 447,
    "warmup": 6
   },
   "problems": {
@@ -16288,6 +17238,407 @@
     "cost_kind": "proxy"
    }
   ],
+  "grok": {
+   "grok47-low": {
+    "cli": "grok",
+    "model": "grok-4.7",
+    "effort": "low",
+    "n": 24,
+    "passes": 23,
+    "pass_at_1": 0.9583,
+    "ci95": [
+     0.8095,
+     1.0
+    ],
+    "by_rung": {
+     "L1": {
+      "passed": 10,
+      "n": 10
+     },
+     "L2": {
+      "passed": 10,
+      "n": 10
+     },
+     "L3": {
+      "passed": 3,
+      "n": 4
+     }
+    },
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 23,
+     "crash": 1
+    },
+    "latency_s": {
+     "median": 26.46,
+     "p25": 19.82,
+     "p75": 36.42,
+     "p90": 39.19,
+     "max": 55.96
+    },
+    "tokens_mean": {
+     "in_tok": 21594,
+     "cached_tok": 2048,
+     "out_tok": 1935,
+     "reasoning_tok": 1555
+    },
+    "input_floor": [
+     21195,
+     2048
+    ],
+    "usd_per_call": 0.051727,
+    "usd_total": 1.241436,
+    "usd_per_pass": 0.053975,
+    "usd_per_pass_L1_L2": 0.050451,
+    "pass_L1_L2": [
+     20,
+     20
+    ],
+    "cost_kind": "measured",
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 5,
+     "p04_taller_within": 5,
+     "p05_pass_route": 2,
+     "p06_calc": 1
+    },
+    "misses": 1,
+    "ci95_plot": [
+     0.8095,
+     1.0
+    ],
+    "usd_text": "$0.054",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.0,
+    "usd_per_1k_tokens": 0.002198435972629521,
+    "by_group": {
+     "p01_overlap_minutes": {
+      "passes": 5,
+      "n": 5
+     },
+     "p02_squash": {
+      "passes": 5,
+      "n": 5
+     },
+     "p03_ledger": {
+      "passes": 5,
+      "n": 5
+     },
+     "p04_taller_within": {
+      "passes": 5,
+      "n": 5
+     },
+     "p05_pass_route": {
+      "passes": 2,
+      "n": 2
+     },
+     "p06_calc": {
+      "passes": 1,
+      "n": 2
+     }
+    }
+   },
+   "grok47-medium": {
+    "cli": "grok",
+    "model": "grok-4.7",
+    "effort": "medium",
+    "n": 21,
+    "passes": 20,
+    "pass_at_1": 0.9524,
+    "ci95": [
+     0.7857,
+     1.0
+    ],
+    "by_rung": {
+     "L1": {
+      "passed": 10,
+      "n": 10
+     },
+     "L2": {
+      "passed": 7,
+      "n": 7
+     },
+     "L3": {
+      "passed": 3,
+      "n": 4
+     }
+    },
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 20,
+     "crash": 1
+    },
+    "latency_s": {
+     "median": 32.56,
+     "p25": 27.32,
+     "p75": 65.42,
+     "p90": 92.05,
+     "max": 182.82
+    },
+    "tokens_mean": {
+     "in_tok": 21578,
+     "cached_tok": 1969,
+     "out_tok": 3855,
+     "reasoning_tok": 3475
+    },
+    "input_floor": [
+     21195,
+     2048
+    ],
+    "usd_per_call": 0.063332,
+    "usd_total": 1.329964,
+    "usd_per_pass": 0.066498,
+    "usd_per_pass_L1_L2": 0.055716,
+    "pass_L1_L2": [
+     17,
+     17
+    ],
+    "cost_kind": "measured",
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 4,
+     "p04_taller_within": 3,
+     "p05_pass_route": 2,
+     "p06_calc": 1
+    },
+    "misses": 1,
+    "ci95_plot": [
+     0.7857,
+     1.0
+    ],
+    "usd_text": "$0.066",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.0,
+    "usd_per_1k_tokens": 0.002490150591750875,
+    "by_group": {
+     "p01_overlap_minutes": {
+      "passes": 5,
+      "n": 5
+     },
+     "p02_squash": {
+      "passes": 5,
+      "n": 5
+     },
+     "p03_ledger": {
+      "passes": 4,
+      "n": 4
+     },
+     "p04_taller_within": {
+      "passes": 3,
+      "n": 3
+     },
+     "p05_pass_route": {
+      "passes": 2,
+      "n": 2
+     },
+     "p06_calc": {
+      "passes": 1,
+      "n": 2
+     }
+    }
+   },
+   "grok47-high": {
+    "cli": "grok",
+    "model": "grok-4.7",
+    "effort": "high",
+    "n": 18,
+    "passes": 18,
+    "pass_at_1": 1.0,
+    "ci95": [
+     1.0,
+     1.0
+    ],
+    "by_rung": {
+     "L1": {
+      "passed": 10,
+      "n": 10
+     },
+     "L2": {
+      "passed": 4,
+      "n": 4
+     },
+     "L3": {
+      "passed": 4,
+      "n": 4
+     }
+    },
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 18
+    },
+    "latency_s": {
+     "median": 40.97,
+     "p25": 30.46,
+     "p75": 93.97,
+     "p90": 147.03,
+     "max": 280.77
+    },
+    "tokens_mean": {
+     "in_tok": 21557,
+     "cached_tok": 2048,
+     "out_tok": 5301,
+     "reasoning_tok": 4960
+    },
+    "input_floor": [
+     21196,
+     2048
+    ],
+    "usd_per_call": 0.07185,
+    "usd_total": 1.2933,
+    "usd_per_pass": 0.07185,
+    "usd_per_pass_L1_L2": 0.058843,
+    "pass_L1_L2": [
+     14,
+     14
+    ],
+    "cost_kind": "measured",
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 2,
+     "p04_taller_within": 2,
+     "p05_pass_route": 2,
+     "p06_calc": 2
+    },
+    "misses": 0,
+    "ci95_plot": [
+     0.6069622310029172,
+     1.0
+    ],
+    "usd_text": "$0.072",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.0,
+    "usd_per_1k_tokens": 0.0026751805793432124,
+    "by_group": {
+     "p01_overlap_minutes": {
+      "passes": 5,
+      "n": 5
+     },
+     "p02_squash": {
+      "passes": 5,
+      "n": 5
+     },
+     "p03_ledger": {
+      "passes": 2,
+      "n": 2
+     },
+     "p04_taller_within": {
+      "passes": 2,
+      "n": 2
+     },
+     "p05_pass_route": {
+      "passes": 2,
+      "n": 2
+     },
+     "p06_calc": {
+      "passes": 2,
+      "n": 2
+     }
+    }
+   },
+   "grok47fast-low": {
+    "cli": "grok",
+    "model": "grok-4.7-build-fast",
+    "effort": "low",
+    "n": 24,
+    "passes": 23,
+    "pass_at_1": 0.9583,
+    "ci95": [
+     0.8095,
+     1.0
+    ],
+    "by_rung": {
+     "L1": {
+      "passed": 10,
+      "n": 10
+     },
+     "L2": {
+      "passed": 10,
+      "n": 10
+     },
+     "L3": {
+      "passed": 3,
+      "n": 4
+     }
+    },
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 23,
+     "crash": 1
+    },
+    "latency_s": {
+     "median": 19.38,
+     "p25": 15.01,
+     "p75": 25.7,
+     "p90": 34.5,
+     "max": 41.19
+    },
+    "tokens_mean": {
+     "in_tok": 21643,
+     "cached_tok": 2005,
+     "out_tok": 2178,
+     "reasoning_tok": 1796
+    },
+    "input_floor": [
+     21198,
+     2048
+    ],
+    "usd_per_call": 0.106694,
+    "usd_total": 2.560652,
+    "usd_per_pass": 0.111333,
+    "usd_per_pass_L1_L2": 0.102876,
+    "pass_L1_L2": [
+     20,
+     20
+    ],
+    "cost_kind": "measured",
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 5,
+     "p04_taller_within": 5,
+     "p05_pass_route": 2,
+     "p06_calc": 1
+    },
+    "misses": 1,
+    "ci95_plot": [
+     0.8095,
+     1.0
+    ],
+    "usd_text": "$0.11",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.0,
+    "usd_per_1k_tokens": 0.00447898912724067,
+    "by_group": {
+     "p01_overlap_minutes": {
+      "passes": 5,
+      "n": 5
+     },
+     "p02_squash": {
+      "passes": 5,
+      "n": 5
+     },
+     "p03_ledger": {
+      "passes": 5,
+      "n": 5
+     },
+     "p04_taller_within": {
+      "passes": 5,
+      "n": 5
+     },
+     "p05_pass_route": {
+      "passes": 2,
+      "n": 2
+     },
+     "p06_calc": {
+      "passes": 1,
+      "n": 2
+     }
+    }
+   }
+  },
   "exploratory": {
    "astra-medium": {
     "cli": "codex",
@@ -21433,9 +22784,10 @@
    "codex_proxy_usd": 36.2653,
    "codex_fastmode_usd": 3.4069,
    "calls": {
-    "function": 1261,
+    "function": 1348,
     "agentic": 84
-   }
+   },
+   "grok_measured_usd": 6.4254
   },
   "hypotheses": {
    "H1": {
@@ -21922,7 +23274,7 @@
   "versions_claude": "Main bench, Claude Code 2.1.308: claude-haiku-5-5, claude-sonnet-5-5.",
   "versions_codex": "Main bench, Codex CLI 0.163.0: gpt-5.6-luna, gpt-5.6-sol, gpt-6-astra, gpt-6-luna, gpt-6.1-sol.",
   "versions_extra": "Whose bench? also used Codex CLI 0.164.0 and Claude Code 2.1.293.",
-  "run_dates": "All calls ran 2026-10-22 to 2026-10-25.",
+  "run_dates": "All calls ran 2026-10-22 to 2026-10-26.",
   "cite": "Cite as: DispatchBench (2026), github.com/chimera-defi/dispatchbench.",
   "codex_tool_free": "938 of 938",
   "router_fit": "1–3",
@@ -22456,6 +23808,50 @@
   "hb_luna_cost": "luna-low cost 3.1× as much per pass. Time per pass was 2.7× as long."
  },
  "tables": {
+  "grok": {
+   "head": [
+    "config",
+    "coverage",
+    "passed",
+    "$ per pass",
+    "total $ (CLI-measured)",
+    "median s"
+   ],
+   "rows": [
+    [
+     "grok47-low",
+     "6 of 12 problems",
+     "96% (23/24)",
+     "$0.054",
+     "$1.24",
+     "26.5"
+    ],
+    [
+     "grok47-medium",
+     "6 of 12 problems",
+     "95% (20/21)",
+     "$0.066",
+     "$1.33",
+     "32.6"
+    ],
+    [
+     "grok47-high",
+     "6 of 12 problems",
+     "100% (18/18)",
+     "$0.072",
+     "$1.29",
+     "41.0"
+    ],
+    [
+     "grok47fast-low",
+     "6 of 12 problems",
+     "96% (23/24)",
+     "$0.11",
+     "$2.56",
+     "19.4"
+    ]
+   ]
+  },
   "result": {
    "head": [
     "config",

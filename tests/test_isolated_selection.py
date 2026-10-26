@@ -1,4 +1,4 @@
-from analysis import dataset, summarize
+from analysis import configs, dataset, summarize
 
 
 def test_only_agentic_uses_isolated_rows(monkeypatch):
@@ -8,7 +8,10 @@ def test_only_agentic_uses_isolated_rows(monkeypatch):
             assert str(path).endswith("isolated-agentic.jsonl")
         return original(path)
     monkeypatch.setattr(summarize, "load", load)
-    assert summarize.function_rows() == summarize._sourced(summarize.FUNC)
+    function_rows = summarize.function_rows()
+    assert [r for r in function_rows if r["config"] not in configs.GROK_CONFIGS] == summarize._sourced(summarize.FUNC)
+    assert [r for r in function_rows if r["config"] in configs.GROK_CONFIGS] == summarize._sourced(
+        f"{summarize.RES}/2026-10-26-grok-function.jsonl")
     assert summarize.rescue_rows() == original("results/appendix/luna_rescue.jsonl")
     assert summarize.harness_rows() == original("results/appendix/harness_bias.jsonl")
     raw = original("results/2026-10-25-isolated-agentic.jsonl")

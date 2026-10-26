@@ -56,6 +56,17 @@ Fast-mode $ use the published multiplier (results/prices.json). Main ladder = p0
 | p11 best_average (L6) | 5 | 5 | 5 | 4 | 2 | 5 | 5 | 5 | 5 | 5 |
 | p12 sheet (L6) | 4 | 5 | 5 | 0 | 0 | 3 | 5 | 5 | 5 | 5 |
 
+## Grok (first half)
+
+Exploratory function lane, added 2026-10-26 at operator request: p01–p06 (L1–L3). L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained. CLI-reported cost; list price not used. L4–L6 were not run; excluded from full-ladder comparisons.
+
+| config | coverage | passed | $ per pass | total $ | median s |
+|---|---|---|---|---|---|
+| grok47-low | 6 of 12 problems | 96% (23/24) | $0.054 | $1.24 | 26.46 |
+| grok47-medium | 6 of 12 problems | 95% (20/21) | $0.066 | $1.33 | 32.56 |
+| grok47-high | 6 of 12 problems | 100% (18/18) | $0.072 | $1.29 | 40.97 |
+| grok47fast-low | 6 of 12 problems | 96% (23/24) | $0.11 | $2.56 | 19.38 |
+
 ## Paired differences in pass@1 (a − b, same problems)
 
 | a | b | diff | 95% CI |
