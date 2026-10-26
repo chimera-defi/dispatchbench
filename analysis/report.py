@@ -41,7 +41,12 @@ def md_table(head, rows):
     return "\n".join(["| " + " | ".join(head) + " |", "|" + "---|" * len(head)] + ["| " + " | ".join(map(str, r)) + " |" for r in rows])
 
 def tables_md(ds):
-    return {name: md_table(**spec) if isinstance(spec, dict) else spec for name, spec in ds["tables"].items()}
+    tables = {name: md_table(**spec) if isinstance(spec, dict) else spec for name, spec in ds["tables"].items()}
+    if "grok" in tables:
+        tables["result"] += ("\n\n### Grok (first half)\n\nExploratory function lane added 2026-10-26 at operator request: "
+                             "p01–p06, L1–L3, 5 repeats. CLI-reported cost; list price not used. "
+                             "L4–L6 were not run; excluded from full-ladder comparisons.\n\n" + tables["grok"])
+    return tables
 
 # ---------- rendering ----------
 

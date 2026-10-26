@@ -10,7 +10,7 @@ FONT = "font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, 
 INK, MUTED, GRID, PLATE = "var(--fg,#1d2321)", "var(--muted,#5d6763)", "var(--line,#dde2de)", "var(--panel,#ffffff)"
 HOST_AGENTS_MD = dataset.HOST_AGENTS_MD
 BADC, WARNC = "var(--bad,#b3261e)", "var(--warn,#a86b00)"
-FAMILY = lambda c: "var(--claude,#b4572e)" if c.startswith("haiku") else "var(--sonnet,#2f8f7d)" if c.startswith("sonnet") else "var(--codex,#3a5bb8)"
+FAMILY = lambda c: "var(--grok,#b34f91)" if c.startswith("grok") else "var(--claude,#b4572e)" if c.startswith("haiku") else "var(--sonnet,#2f8f7d)" if c.startswith("sonnet") else "var(--codex,#3a5bb8)"
 
 
 # Per-label vertical offsets so neighbouring points' labels do not collide.

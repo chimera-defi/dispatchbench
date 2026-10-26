@@ -91,9 +91,9 @@ def _rows():
         if r["phase"] == "hard": st = "L7 set"
         elif r["phase"] == "calibration": st = "calibration"
         elif r["repeat"] > REPEATS: st = "extra repeats"
-        else: st = "main ladder" if len(cover[c]) == REPORT_PROBLEMS * REPEATS else "partial ladder"
+        else: st = "main ladder" if c not in configs.GROK_CONFIGS and len(cover[c]) == REPORT_PROBLEMS * REPEATS else "partial ladder"
         add("main", c, st, r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
-        if r["problem"] in PIDS and r["phase"] in ("main", "exploratory", "fastmode") and r["repeat"] <= REPEATS:  # the same rows again, as the rescue-set baseline
+        if c not in configs.GROK_CONFIGS and r["problem"] in PIDS and r["phase"] in ("main", "exploratory", "fastmode") and r["repeat"] <= REPEATS:  # the same rows again, as the rescue-set baseline
             add("main", c, "rescue set", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
     for r in summarize.agentic_rows():
         add("agentic", r["config"], "repo tasks", r, r["hidden_pass"], r["wall_s"], r["task"], _usd(r, "agentic"), r["in_tok"], r["out_tok"])
@@ -129,11 +129,13 @@ def _row(src, name, st, rr):
         if x["rung"] is not None: g = by_rung.setdefault(f"L{x['rung']}", [0, 0]); g[0] += x["ok"]; g[1] += 1
     p25, p75 = _quart(secs)
     spend = sum(known); sc = sum(cl)
+    sg = sum(x["usd"] for x in rr if x["cli"] == "grok" and x["usd"] is not None)
     return {"id": e["id"], "source": src, "config": name, "display": e["display"], "family": e["family"], "category": e["category"], "what": e["what"], "set": st, "derived": st in DERIVED, "files": sorted({x["file"] for x in rr if x["file"]}) or e["files"],
             "passes": k, "n": n, "pass_rate": round(k / n, 4), "ci95": ci, "groups": len(cells),
             "usd_per_pass": round(spend / k, 6) if k and complete else None, "claude_usd_per_pass": round(sc / k, 6) if k and complete else None,
-            "codex_usd_per_pass": round((spend - sc) / k, 6) if k and complete else None, "usd_per_call": round(spend / n, 6) if complete else None,
-            "spend": round(spend, 6), "spend_claude": round(sc, 6), "spend_codex": round(spend - sc, 6), "unknown_usd": n - len(known),
+            "codex_usd_per_pass": round((spend - sc - sg) / k, 6) if k and complete else None, "usd_per_call": round(spend / n, 6) if complete else None,
+            "spend": round(spend, 6), "spend_claude": round(sc, 6), "spend_codex": round(spend - sc - sg, 6), "unknown_usd": n - len(known),
+            **({"spend_grok": round(sg, 6)} if rr[0]["cli"] == "grok" else {}),
             "median_s": round(statistics.median(secs), 2), "p25_s": round(p25, 2), "p75_s": round(p75, 2),
             "tokens_in_mean": round(statistics.mean(x["in"] or 0 for x in rr)), "tokens_out_mean": round(statistics.mean(x["out"] or 0 for x in rr)),
             "tokens_cached_mean": round(statistics.mean(x["cached"] for x in rr)),
@@ -142,9 +144,9 @@ def _row(src, name, st, rr):
             "p90_s": round(stats.p90(secs), 2), "max_s": round(max(secs), 2),
             "by_group": {g: {"passes": sum(v), "n": len(v)} for g, v in cells.items()},
             "misses": n - k, "ci95_plot": ci or ([0.05 ** (1 / len(cells)), 1.0] if k == n else [0.0, 0.0]),
-            "usd_saved_per_pass": round((spend - sc) / k, 6) if k and complete else None,
+            "usd_saved_per_pass": round((spend - sc - sg) / k, 6) if k and complete else None,
             "usd_per_1k_tokens": (1000 * round(spend / n, 6) / (round(statistics.mean(x["in"] or 0 for x in rr)) + round(statistics.mean(x["out"] or 0 for x in rr)))) if complete and any((x["in"] or 0) + (x["out"] or 0) for x in rr) else None,
-            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "measured" if rr[0]["cli"].startswith("claude") else "proxy"}
+            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "measured" if summarize.measured(rr[0]) else "proxy"}
 
 
 def _base():
@@ -340,7 +342,8 @@ def _facts(s, arms):
     F.update(fairness_facts())
     # Models and versions: one CLI version per vendor across the function track.
     by_cli = defaultdict(set)
-    for r in rows: by_cli[r["cli"], r["cli_version"]].add(r["model"])
+    for r in rows:
+        if r["config"] not in configs.GROK_CONFIGS: by_cli[r["cli"], r["cli_version"]].add(r["model"])
     need(len({cli for cli, _ in by_cli}) == len(by_cli) == 2, "one CLI version per vendor")
     vers = dict(by_cli)
     F["versions_claude"] = next(f"Main bench, Claude Code {v}: {', '.join(sorted(m))}." for (c, v), m in vers.items() if c == "claude")
@@ -366,7 +369,7 @@ def _facts(s, arms):
     need(not any(r["tool_items"] for r in func), "no function-track Codex call used a tool")
     F["codex_tool_free"] = f"{n(len(func))} of {n(len(func))}"
     # Held-out router: per problem, the cheapest config that passed tries 1-3; scored on tries 4-5.
-    ladder = [r for r in rows if r["phase"] in ("main", "exploratory", "fastmode") and r["repeat"] <= REPEATS and r["rung"] <= 6]
+    ladder = [r for r in rows if r["config"] in every and r["phase"] in ("main", "exploratory", "fastmode") and r["repeat"] <= REPEATS and r["rung"] <= 6]
     cell = defaultdict(list)
     for r in ladder: cell[(r["config"], r["problem"])].append(r)
     full = {c for c in {c for c, _ in cell} if sum(len(v) for (cc, _), v in cell.items() if cc == c) == REPORT_PROBLEMS * REPEATS}
@@ -780,6 +783,10 @@ def md_table(head, rows, bold=None):
 
 def _tables(s, arms):
     T = {}; cfg, ex = s["configs"], s["exploratory"]; nprob = len(s["problems"])
+    if s.get("grok"):
+        T["grok"] = md_table(["config", "coverage", "passed", "$ per pass", "total $ (CLI-measured)", "median s"],
+            [[DISP(c), f'{len(v["by_problem"])} of {nprob} problems', f'{pct(v["pass_at_1"])} ({v["passes"]}/{v["n"]})',
+              usd(v["usd_per_pass"]), usd(v["usd_total"]), f'{v["latency_s"]["median"]:.1f}'] for c, v in s["grok"].items()])
     T["result"] = md_table(["config", "pass rate", "95% CI", "median s", "slow-call time s", "$ per pass", f"total $ ({cfg['haiku-low']['n']} calls)", "$ kind"],
                            [[DISP(c) + (" †" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], nprob),
                              f"{v['latency_s']['median']:.1f}", f"{v['latency_s']['p90']:.1f}", f"{usd(v['usd_per_pass'])}", f"{usd(v['usd_total'])}", v["cost_kind"]]
@@ -961,8 +968,8 @@ def _project(ds, summary):
     """
     summary = copy.deepcopy(summary)
     for block, source, set_ in (("configs", "main", "main ladder"), ("exploratory", "main", "main ladder"),
-                                ("hard", "main", "L7 set"), ("agentic", "agentic", "repo tasks")):
-        for c, v in summary[block].items():
+                                ("hard", "main", "L7 set"), ("agentic", "agentic", "repo tasks"), ("grok", "main", "partial ladder")):
+        for c, v in summary.get(block, {}).items():
             r = get(ds, c, set_, source)
             r.update({k: v[k] for k in ("cli", "model", "effort", "outcomes", "breaking_point") if k in v})
             v.update({"n": r["n"], "passes": r["passes"], "pass_at_1": r["pass_rate"], "misses": r["misses"],
