@@ -60,7 +60,7 @@ def test_grok_budget_counts_retries_and_excludes_claude(tmp_path):
     (tmp_path / "claude.json").write_text(json.dumps(dict(cli="claude", cost_usd=0.5)))
     assert R.grok_spend(tmp_path) == 25.0
     assert R.claude_spend(tmp_path) == 0.5
-    with patch.object(R, "grok_spend", return_value=25.0), patch.object(R.subprocess, "run") as call:
+    with patch.object(R, "grok_spend", return_value=60.0), patch.object(R.subprocess, "run") as call:
         with pytest.raises(R.SpendLimit, match="Grok spend"):
             R.call_grok("grok-4.7", "low", "problem", "/empty")
         call.assert_not_called()

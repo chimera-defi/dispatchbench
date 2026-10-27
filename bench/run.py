@@ -19,7 +19,7 @@ CLAUDE = os.environ.get("CLAUDE_BIN", "claude")
 CODEX = os.environ.get("CODEX_BIN", "codex")
 GROK = os.environ.get("GROK_BIN", "grok")
 CLAUDE_BUDGET_USD = 8.00
-GROK_BUDGET_USD = 25.00
+GROK_BUDGET_USD = 60.00  # raised 2026-10-28 for the full-spectrum Grok run.
 
 CONFIGS = {}
 for fam, mid in [("haiku", "claude-haiku-5-5"), ("sonnet", "claude-sonnet-5-5")]:
@@ -41,7 +41,11 @@ CONFIGS.update({"sol56-high": ("codex", "gpt-5.6-sol", "high"), "luna56-low": ("
 CONFIGS.update({"sol61-high-fast": ("codex", "gpt-6.1-sol", "high"), "sol61-xhigh": ("codex", "gpt-6.1-sol", "xhigh")})
 # Exploratory, 2026-10-24, at the operator's request: both trusted Codex builders in fast mode on the main ladder and L7.
 CONFIGS["astra-medium-fast"] = ("codex", "gpt-6-astra", "medium")
-TIER = {"sol61-high-fast": "priority", "astra-medium-fast": "priority"}
+TIER = {"sol61-high-fast": "priority", "astra-medium-fast": "priority", "terra56-high-fast": "priority"}
+# Exploratory, 2026-10-28, at the operator's request: Codex Terra (gpt-5.6-terra) on the main ladder, plus high in
+# fast mode (priority tier, same model and effort). See PLAN.md.
+CONFIGS.update({"terra56-low": ("codex", "gpt-5.6-terra", "low"), "terra56-high": ("codex", "gpt-5.6-terra", "high"),
+                "terra56-high-fast": ("codex", "gpt-5.6-terra", "high")})
 # Exploratory, 2026-10-26, operator request (hackathon): staged L1-L3 Grok lane; see PLAN.md.
 CONFIGS.update({f"grok47-{e}": ("grok", "grok-4.7", e) for e in ("low", "medium", "high")})
 CONFIGS["grok47fast-low"] = ("grok", "grok-4.7-build-fast", "low")
