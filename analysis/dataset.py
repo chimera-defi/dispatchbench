@@ -1236,7 +1236,8 @@ def build(summary=None):
     if comparison:
         ds["grok_comparison"] = comparison
         paragraphs, verdict = grok.prose(comparison, s["grok"])
-        ds["facts"].update(grok_summary="\n\n".join(paragraphs), grok_verdict=verdict)
+        ds["facts"].update(grok_summary="\n\n".join(paragraphs), grok_verdict=verdict,
+                           grok_reach_note=grok.reach_note(comparison, s["grok"]))
         ds["tables"].update(grok.tables(comparison, s["grok"], usd))
         probs = comparison["problems"]
         last = max(int(g[1:]) for v in s["grok"].values() for g in v["by_rung"])

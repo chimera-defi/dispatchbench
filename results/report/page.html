@@ -450,10 +450,11 @@ svg .rk-n{font:700 13px var(--body);fill:var(--panel)}
 <section id="grok">
 <h2><span class="num"></span>Grok</h2>
 <p>Grok is accurate but slow and mid-priced. grok47-high passed 18 of 18 but took 41 s per call at the median. Every existing lane at 100% finished in 6.9 to 16.9 s.</p>
-<p>grok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4), so the pre-registered stop rule fired for all three.</p>
+<p>grok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4) on p06_calc, so the pre-registered stop rule fired for all three.</p>
 <p>Cost per pass is $0.054 to $0.111. Claude haiku and the Codex luna lanes are under $0.003. Only the Codex astra lanes cost as much.</p>
 <h3>Where does Grok get to?</h3>
-<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>cleared through</th><th>passes</th><th>median s</th><th>$ per pass</th><th>coverage</th><th>total $</th></tr></thead><tbody><tr><td>grok47-low</td><td>L2</td><td>23/24</td><td>26.5</td><td>$0.054</td><td>6 problems</td><td>$1.24</td></tr><tr><td>grok47-medium</td><td>L2</td><td>20/21</td><td>32.6</td><td>$0.066</td><td>6 problems</td><td>$1.33</td></tr><tr><td>grok47-high</td><td>L3 (not run further)</td><td>18/18</td><td>41.0</td><td>$0.072</td><td>6 problems</td><td>$1.29</td></tr><tr><td>grok47fast-low</td><td>L2</td><td>23/24</td><td>19.4</td><td>$0.11</td><td>6 problems</td><td>$2.56</td></tr></tbody></table></div>
+<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>cleared through</th><th>L1</th><th>L2</th><th>L3</th><th>passes</th><th>median s</th><th>$ per pass</th><th>coverage</th><th>total $</th></tr></thead><tbody><tr><td>grok47-low</td><td>L2</td><td>10/10</td><td>10/10</td><td>3/4</td><td>23/24</td><td>26.5</td><td>$0.054</td><td>6 problems</td><td>$1.24</td></tr><tr><td>grok47-medium</td><td>L2</td><td>10/10</td><td>7/7</td><td>3/4</td><td>20/21</td><td>32.6</td><td>$0.066</td><td>6 problems</td><td>$1.33</td></tr><tr><td>grok47-high</td><td>L3 (not run further)</td><td>10/10</td><td>4/4</td><td>4/4</td><td>18/18</td><td>41.0</td><td>$0.072</td><td>6 problems</td><td>$1.29</td></tr><tr><td>grok47fast-low</td><td>L2</td><td>10/10</td><td>10/10</td><td>3/4</td><td>23/24</td><td>19.4</td><td>$0.11</td><td>6 problems</td><td>$2.56</td></tr></tbody></table></div>
+<p>Totals differ (18, 21, 24) because the run was shortened from 5 to 2 repeats partway through L2 and extra repeats already run were kept; the earlier full-coverage lanes have 30 = 6 problems × 5 repeats; read the rung reached, not the total.</p>
 <h3>Closest equivalent</h3>
 <p>Match the highest rung cleared without an earlier miss and the first rung with a miss on the 12-problem main ladder; with no Grok miss through L3, include every lane that clears through L3 and show its later profile.</p>
 <p class="small">Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory phases only. Warmup, calibration, fastmode, escalation and hard phases are excluded. Grok has small n and was not run past L3, so cleared L3 is a floor. CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier.</p>
@@ -862,7 +863,8 @@ var rt,lw=0,bx=document.getElementById("xplot");function re(){var w=bx.clientWid
 <tr><td title="results/2026-10-22b-function.jsonl">luna-medium</td><td>Codex gpt-6-luna, medium effort</td><td>47/60</td><td><span style="white-space:nowrap">~$0.00089</span></td><td>8.2</td><td><span style="white-space:nowrap">~$0.042</span></td><td>charts and tables</td></tr>
 <tr><td title="results/2026-10-22b-function.jsonl">sol61-medium</td><td>Codex gpt-6.1-sol, medium effort</td><td>83/85</td><td><span style="white-space:nowrap">~$0.015</span></td><td>22.6</td><td><span style="white-space:nowrap">~$1.26</span></td><td>charts and tables</td></tr>
 </tbody></table></div></details>
-<details><summary>exploratory: 11 configs, ~$18.48 spent</summary><div class="tablewrap"><table class="sortable"><thead><tr><th>name</th><th>what it was</th><th>pass</th><th>$ per pass</th><th>median s</th><th>spend</th><th>where it appears</th></tr></thead><tbody>
+<p>Grok: <a href="#grok">see the Grok section</a></p>
+<details><summary>exploratory: 7 configs, ~$12.05 spent</summary><div class="tablewrap"><table class="sortable"><thead><tr><th>name</th><th>what it was</th><th>pass</th><th>$ per pass</th><th>median s</th><th>spend</th><th>where it appears</th></tr></thead><tbody>
 <tr><td title="results/2026-10-22b-function.jsonl">haiku-high</td><td>Claude Haiku, high effort (added after the main run)</td><td>75/75</td><td>$0.0029</td><td>17.1</td><td>$0.22</td><td>charts and tables</td></tr>
 <tr><td title="results/2026-10-22b-function.jsonl">luna-high</td><td>gpt-6-luna, high effort (added after the main run)</td><td>70/75</td><td><span style="white-space:nowrap">~$0.0012</span></td><td>13.3</td><td><span style="white-space:nowrap">~$0.081</span></td><td>charts and tables</td></tr>
 <tr><td title="results/2026-10-22b-function.jsonl">luna56-low</td><td>gpt-5.6-luna, low effort</td><td>56/75</td><td><span style="white-space:nowrap">~$0.0025</span></td><td>10.1</td><td><span style="white-space:nowrap">~$0.14</span></td><td>charts and tables</td></tr>
@@ -950,7 +952,7 @@ var rt,lw=0,bx=document.getElementById("xplot");function re(){var w=bx.clientWid
 <tr><td title="results/2026-10-22b-trim.jsonl">terra/nodoc</td><td>terra, no docs (one call)</td><td>1/1</td><td><span style="white-space:nowrap">~$0.0096</span></td><td>4.9</td><td><span style="white-space:nowrap">~$0.0096</span></td><td>only here</td></tr>
 <tr><td title="results/2026-10-22b-function.jsonl">luna-low-bare</td><td>luna-low with the Codex system prompt and tool features stripped (trim level noshell)</td><td>44/60</td><td><span style="white-space:nowrap">~$0.00080</span></td><td>6.8</td><td><span style="white-space:nowrap">~$0.035</span></td><td>charts and tables</td></tr>
 </tbody></table></div></details>
-<p class="small">Category totals include rows shown in dedicated sections.</p>
+<p class="small">Category totals cover the rows listed here.</p>
 </details>
 </section>
 <section id="interesting">

@@ -216,7 +216,9 @@ def section(rest, ds, root, chart_bodies=None, grok_only=False):
     from analysis.dataset import catalog_rows, usd as money
     chart_bodies = chart_bodies or {}
     by = {}
+    grok_categories = set()
     for r in catalog_rows(ds):
+        if r["config"] in GROK_CONFIGS: grok_categories.add(r["category"])
         if (r["config"] in GROK_CONFIGS) != grok_only: continue
         by.setdefault(r["category"], []).append(r)
     head = "".join(f"<th>{h}</th>" for h in ("name", "what it was", "pass", "$ per pass", "median s", "spend", "where it appears"))
@@ -225,10 +227,12 @@ def section(rest, ds, root, chart_bodies=None, grok_only=False):
            "<li>Codex dollars are list-price estimates. Dash means the full cost is unavailable.</li>"
            "<li>Hover over a name for its source file.</li><li>Pilot repo pipelines include builder and review time and cost.</li></ul>"]
     for cat in CATEGORIES:
+        if not grok_only and cat in grok_categories:
+            out.append('<p>Grok: <a href="#grok">see the Grok section</a></p>')
         es = by.pop(cat, [])
         if not es: continue
         label = "Low context (prompt or tool text trimmed)" if cat == "low context" else set_label(cat)
-        totals = {"n_configs": len(es), "spend": sum(e["spend"] for e in es)} if grok_only else ds["categories"][cat]
+        totals = {"n_configs": len(es), "spend": sum(e["spend"] for e in es)}
         out.append(f"<details><summary>{html.escape(label)}: {totals['n_configs']} configs, {'~' if any(e['cost_kind'] == 'proxy' for e in es) else ''}{money(totals['spend'])} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
         for e in es:
             spend = None if e["unknown_usd"] else e["spend"]
@@ -238,7 +242,7 @@ def section(rest, ds, root, chart_bodies=None, grok_only=False):
         out.append("</tbody></table></div></details>")
     out += [f"<details><summary>unregistered</summary><p>{html.escape(r['display'])} ({r['source']})</p></details>" for es in by.values() for r in es]
     if not grok_only:
-        out.append('<p class="small">Category totals include rows shown in dedicated sections.</p>')
+        out.append('<p class="small">Category totals cover the rows listed here.</p>')
     return "\n".join(out + ["</details>"])
 
 

@@ -4,6 +4,7 @@ import json
 import re
 from collections import Counter, defaultdict
 from html.parser import HTMLParser
+from pathlib import Path
 
 import pytest
 
@@ -12,26 +13,96 @@ from analysis import charts, configs, dataset, grok, page, report, summarize
 
 class GrokScope(HTMLParser):
     """Count every config occurrence, including attributes and embedded chart/script data."""
+    VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
+
     def __init__(self):
         super().__init__()
-        self.sections = []
+        self.elements = []
         self.counts = defaultdict(Counter)
 
     def check(self, text):
         for config in re.findall(r"grok47[a-z-]*", text):
-            section = self.sections[-1] if self.sections else None
+            section = next((attrs.get("id") for tag, attrs in reversed(self.elements) if tag == "section"), None)
             assert section in {"grok", "fail"}, (config, section)
             self.counts[config][section] += 1
 
     def handle_starttag(self, tag, attrs):
-        if tag == "section": self.sections.append(dict(attrs).get("id"))
+        if tag not in self.VOID: self.elements.append((tag, dict(attrs)))
         self.check(self.get_starttag_text())
 
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+        self.handle_endtag(tag)
+
     def handle_endtag(self, tag):
-        if tag == "section": self.sections.pop()
+        for i in range(len(self.elements) - 1, -1, -1):
+            if self.elements[i][0] == tag:
+                del self.elements[i:]
+                break
 
     def handle_data(self, text):
         self.check(text)
+
+    def handle_comment(self, text):
+        self.check(text)
+
+
+@pytest.mark.parametrize("section", ["grok", "fail"])
+@pytest.mark.parametrize("row", [
+    '<tr><td>grok47-low</td></tr>',
+    '<tr data-config="grok47-high"><td>Grok</td></tr>',
+])
+def test_grok_scope_rejects_rows_after_allowed_section(section, row):
+    allowed = f'<section id="{section}"><div><table>{row}</table></div></section>'
+    GrokScope().feed(allowed)
+    for outside in (f'<table>{row}</table>', f'<section id="notes"><table>{row}</table></section>'):
+        with pytest.raises(AssertionError):
+            GrokScope().feed(allowed + outside)
+
+
+def test_grok_scope_generated_page():
+    html = Path(report.PAGE).read_text()
+    scope = GrokScope()
+    scope.feed(html)
+    scope.close()
+    assert not scope.elements
+    assert set(scope.counts) == set(configs.GROK_CONFIGS)
+    assert all(set(counts) == {"grok", "fail"} for counts in scope.counts.values())
+    inventory = html.split('<summary>Everything we tried</summary>')[-1]
+    assert 'Grok: <a href="#grok">see the Grok section</a>' in inventory
+    assert not any(c in inventory for c in configs.GROK_CONFIGS)
+    # Recreate the leaked inventory group on the actual page, after #grok and #fail.
+    leaked = ('<details><summary>exploratory: 4 configs</summary><table>'
+              '<tr><td>grok47-low</td></tr></table></details>')
+    with pytest.raises(AssertionError, match="grok47-low"):
+        GrokScope().feed(html.replace('<section class="notes" id="notes">',
+                                      '<section class="notes" id="notes">' + leaked))
+
+
+def test_grok_reach_counts_and_note_follow_source_rows():
+    ds = dataset.read()
+    source = [json.loads(line) for line in (Path(summarize.RES) / "2026-10-26-grok-function.jsonl").read_text().splitlines()]
+    table = ds["tables"]["grok_reach"]
+    for cells in table["rows"]:
+        rendered = dict(zip(table["head"], cells))
+        rows = [r for r in source if r["config"] == rendered["config"]]
+        for rung in (1, 2, 3):
+            rr = [r for r in rows if r["rung"] == rung]
+            assert rendered[f"L{rung}"] == f'{sum(r["passed"] for r in rr)}/{len(rr)}'
+    misses = [r for r in source if not r["passed"]]
+    assert len(misses) == 3
+    assert {(r["problem"], r["rung"]) for r in misses} == {("p06_calc", 3)}
+    assert "on p06_calc" in ds["facts"]["grok_summary"]
+    note = ds["facts"]["grok_reach_note"]
+    assert "(18, 21, 24)" in note and "from 5 to 2 repeats partway through L2" in note
+    assert "30 = 6 problems × 5 repeats" in note and "read the rung reached, not the total" in note
+    changed = copy.deepcopy(ds["grok_comparison"])
+    for c in configs.GROK_CONFIGS:
+        changed["metrics"][c]["n"] = 36
+        for rung in changed["repeat_counts"][c].values():
+            for p in rung: rung[p] *= 2
+    note = grok.reach_note(changed, ds["report"]["grok"])
+    assert "(36)" in note and "from 10 to 4 repeats" in note
 
 
 def test_function_rows_loads_separate_grok_file(tmp_path, monkeypatch):

@@ -35,18 +35,20 @@ Function track: 12 problems × 5 attempts per config. Click a column header on t
 
 Grok is accurate but slow and mid-priced. grok47-high passed 18 of 18 but took 41 s per call at the median. Every existing lane at 100% finished in 6.9 to 16.9 s.
 
-grok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4), so the pre-registered stop rule fired for all three.
+grok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4) on p06_calc, so the pre-registered stop rule fired for all three.
 
 Cost per pass is $0.054 to $0.111. Claude haiku and the Codex luna lanes are under $0.003. Only the Codex astra lanes cost as much.
 
 ### Where does Grok get to?
 
-| config | cleared through | passes | median s | $ per pass | coverage | total $ |
-|---|---|---|---|---|---|---|
-| grok47-low | L2 | 23/24 | 26.5 | $0.054 | 6 problems | $1.24 |
-| grok47-medium | L2 | 20/21 | 32.6 | $0.066 | 6 problems | $1.33 |
-| grok47-high | L3 (not run further) | 18/18 | 41.0 | $0.072 | 6 problems | $1.29 |
-| grok47fast-low | L2 | 23/24 | 19.4 | $0.11 | 6 problems | $2.56 |
+| config | cleared through | L1 | L2 | L3 | passes | median s | $ per pass | coverage | total $ |
+|---|---|---|---|---|---|---|---|---|---|
+| grok47-low | L2 | 10/10 | 10/10 | 3/4 | 23/24 | 26.5 | $0.054 | 6 problems | $1.24 |
+| grok47-medium | L2 | 10/10 | 7/7 | 3/4 | 20/21 | 32.6 | $0.066 | 6 problems | $1.33 |
+| grok47-high | L3 (not run further) | 10/10 | 4/4 | 4/4 | 18/18 | 41.0 | $0.072 | 6 problems | $1.29 |
+| grok47fast-low | L2 | 10/10 | 10/10 | 3/4 | 23/24 | 19.4 | $0.11 | 6 problems | $2.56 |
+
+Totals differ (18, 21, 24) because the run was shortened from 5 to 2 repeats partway through L2 and extra repeats already run were kept; the earlier full-coverage lanes have 30 = 6 problems × 5 repeats; read the rung reached, not the total.
 
 ### Closest equivalent
 

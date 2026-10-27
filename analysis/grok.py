@@ -52,6 +52,10 @@ def build(ds, summary):
                       (profiles[other] == p if p[1] is not None else profiles[other][0] >= p[0])]
     return {"problems": problems, "phases": ["main", "exploratory"], "metrics": metrics,
             "profiles": profiles, "matches": matches,
+            "repeat_counts": {c: {g: {p: len({r["repeat"] for r in rr if r["problem"] == p})
+                                      for p in sorted({r["problem"] for r in rr if r["rung"] == g})}
+                                  for g in sorted({r["rung"] for r in rr})}
+                              for c, rr in grouped.items() if c in lane or c == "haiku-low"},
             "by_problem": {c: {p: [sum(r["passed"] for r in rr if r["problem"] == p),
                                     sum(r["problem"] == p for r in rr)] for p in problems}
                            for c, rr in grouped.items() if c in lane}}
@@ -81,7 +85,10 @@ def prose(comparison, lane):
             names = ", ".join(stopped[:-1]) + " and " + stopped[-1] if len(stopped) > 1 else stopped[0]
             count = words.get(len(stopped), str(len(stopped)))
             missed = next(iter(misses))
-            summary.append(f"{names} each missed {words.get(missed, str(missed))} call at L{rung} ({k}/{n}), "
+            problems = sorted({p for c in stopped for p, (passed, attempts) in comparison["by_problem"][c].items()
+                               if passed < attempts})
+            summary.append(f"{names} each missed {words.get(missed, str(missed))} call at L{rung} ({k}/{n}) "
+                           f"on {', '.join(problems)}, "
                            f"so the pre-registered stop rule fired for all {count}.")
     dear = {configs.family(c) for c, v in existing.items() if v["usd_per_pass"] >= min(prices)} if prices else set()
     summary.append(f"Cost per pass is ${min(prices):.3f} to ${max(prices):.3f}. "
@@ -106,14 +113,32 @@ def prose(comparison, lane):
     return summary, verdict
 
 
+def reach_note(comparison, lane):
+    """Describe the documented repeat reduction with counts from the retained rows."""
+    repeats = comparison["repeat_counts"]
+    counts = [n for c in lane for rung in repeats[c].values() for n in rung.values()]
+    original, shortened = max(counts), min(counts)
+    totals = ", ".join(map(str, sorted({comparison["metrics"][c]["n"] for c in lane})))
+    baseline = [n for rung in repeats["haiku-low"].values() for n in rung.values()]
+    earlier = f"the earlier full-coverage lanes have {sum(baseline)} = {len(baseline)} problems × {baseline[0]} repeats"
+    if original == shortened:
+        return f"Totals ({totals}) use {original} repeats per problem; {earlier}; read the rung reached, not the total."
+    changed = min(int(g) for c in lane for g, rung in repeats[c].items() if min(rung.values()) < original)
+    return (f"Totals differ ({totals}) because the run was shortened from {original} to {shortened} repeats "
+            f"partway through L{changed} and extra repeats already run were kept; {earlier}; "
+            "read the rung reached, not the total.")
+
+
 def tables(comparison, lane, money):
     m, profiles = comparison["metrics"], comparison["profiles"]
     spec = lambda head, rows: {"head": head, "rows": rows}
     reach = []
     equivalent = []
+    rungs = sorted({g for v in lane.values() for g in v["by_rung"]}, key=lambda g: int(g[1:]))
     for c, v in lane.items():
         cleared, miss = profiles[c]
         reach.append([c, f"L{cleared}" + (" (not run further)" if miss is None else ""),
+                      *[f'{v["by_rung"][g]["passed"]}/{v["by_rung"][g]["n"]}' if g in v["by_rung"] else "–" for g in rungs],
                       f'{m[c]["passes"]}/{m[c]["n"]}', f'{m[c]["median_s"]:.1f}', money(m[c]["usd_per_pass"]),
                       f'{len(v["by_problem"])} problems', money(v["usd_total"])])
         for e in comparison["matches"][c]:
@@ -125,6 +150,6 @@ def tables(comparison, lane, money):
                                ratio("median_s"), ratio("usd_per_pass")])
         if not comparison["matches"][c]:
             equivalent.append([c, "–", "no matching profile"] + ["–"] * 7)
-    return {"grok_reach": spec(["config", "cleared through", "passes", "median s", "$ per pass", "coverage", "total $"], reach),
+    return {"grok_reach": spec(["config", "cleared through", *rungs, "passes", "median s", "$ per pass", "coverage", "total $"], reach),
             "grok_equivalent": spec(["Grok config", "family", "closest equivalent", "cleared through", "first miss",
                                      "same-problem passes", "median s", "$ per pass", "Grok time / equivalent", "Grok cost / equivalent"], equivalent)}
