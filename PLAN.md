@@ -137,3 +137,5 @@ Each entry gives the change, when it happened, and why.
 21. Grok lane, 2026-10-26, operator request (hackathon). Exploratory configs: `grok47-low`, `grok47-medium`, `grok47-high` (grok-4.7), and `grok47fast-low` (grok-4.7-build-fast). Problems p01-p06 (L1-L3, first half of the main ladder), repeats 1-5, run rung by rung. Stop rule: a config that passes <100% on a rung does not climb to the next rung; the run stops when every config has stopped or L3 is done, or at the $25 grok budget. Grok cost = CLI-reported total_cost_usd. A separate tool-disable verification call precedes generation and counts toward the Grok budget.
 
     Amended 2026-10-27 00:00, operator: shortened to 2 repeats from L2 on; L1 has 5 repeats; stop rule unchanged.
+
+22. Grok agentic, 2026-10-27, operator request. Configs grok47-low and grok47-high on all 4 agentic tasks, repeats 1-2 for both (equal n, no partial top-ups), same harness rules as the existing agent lanes (tools on, no web, no subagents). Budget $15 grok. No stop rule: all 16 runs are reported.
