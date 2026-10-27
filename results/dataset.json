@@ -23783,8 +23783,9 @@
   "default_route_scope": "Tested with plain sol61-high: 35/35 on the retest set. Haiku never ran.",
   "hb_conclusion_copy": "Codex CLI lifted luna-low by 11 passes. haiku-low gained 3, near its ceiling. No pick changes.",
   "l7_set_description": "L7 set: p13 xor_ring (L7), p14 bounce_board (L7), p15 paint_erase (L7); scored separately. Added after every strong config passed L6.",
-  "grok_summary": "Grok is accurate but slow and mid-priced. grok47-high passed 18 of 18 but took 41 s per call at the median. Every existing lane at 100% finished in 6.9 to 16.9 s.\n\ngrok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4), so the pre-registered stop rule fired for all three.\n\nCost per pass is $0.054 to $0.111. Claude haiku and the Codex luna lanes are under $0.003. Only the Codex astra lanes cost as much.",
+  "grok_summary": "Grok is accurate but slow and mid-priced. grok47-high passed 18 of 18 but took 41 s per call at the median. Every existing lane at 100% finished in 6.9 to 16.9 s.\n\ngrok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4) on p06_calc, so the pre-registered stop rule fired for all three.\n\nCost per pass is $0.054 to $0.111. Claude haiku and the Codex luna lanes are under $0.003. Only the Codex astra lanes cost as much.",
   "grok_verdict": "grok47-high costs less per pass than astra-medium-fast. No Grok config beats a listed equivalent on time or pass rate.",
+  "grok_reach_note": "Totals differ (18, 21, 24) because the run was shortened from 5 to 2 repeats partway through L2 and extra repeats already run were kept; the earlier full-coverage lanes have 30 = 6 problems × 5 repeats; read the rung reached, not the total.",
   "grok_scope": "Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory phases only. Warmup, calibration, fastmode, escalation and hard phases are excluded. Grok has small n and was not run past L3, so cleared L3 is a floor. CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier.",
   "grok_match_rule": "Match the highest rung cleared without an earlier miss and the first rung with a miss on the 12-problem main ladder; with no Grok miss through L3, include every lane that clears through L3 and show its later profile.",
   "grok_not_run": "Grok rows summarize each rung; L4–L6 were not run. Not run means no attempt, not a failure.",
@@ -25348,6 +25349,9 @@
    "head": [
     "config",
     "cleared through",
+    "L1",
+    "L2",
+    "L3",
     "passes",
     "median s",
     "$ per pass",
@@ -25358,6 +25362,9 @@
     [
      "grok47-low",
      "L2",
+     "10/10",
+     "10/10",
+     "3/4",
      "23/24",
      "26.5",
      "$0.054",
@@ -25367,6 +25374,9 @@
     [
      "grok47-medium",
      "L2",
+     "10/10",
+     "7/7",
+     "3/4",
      "20/21",
      "32.6",
      "$0.066",
@@ -25376,6 +25386,9 @@
     [
      "grok47-high",
      "L3 (not run further)",
+     "10/10",
+     "4/4",
+     "4/4",
      "18/18",
      "41.0",
      "$0.072",
@@ -25385,6 +25398,9 @@
     [
      "grok47fast-low",
      "L2",
+     "10/10",
+     "10/10",
+     "3/4",
      "23/24",
      "19.4",
      "$0.11",
@@ -26137,6 +26153,78 @@
     "haiku-medium",
     "luna-high"
    ]
+  },
+  "repeat_counts": {
+   "haiku-low": {
+    "1": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5
+    },
+    "2": {
+     "p03_ledger": 5,
+     "p04_taller_within": 5
+    },
+    "3": {
+     "p05_pass_route": 5,
+     "p06_calc": 5
+    }
+   },
+   "grok47fast-low": {
+    "1": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5
+    },
+    "2": {
+     "p03_ledger": 5,
+     "p04_taller_within": 5
+    },
+    "3": {
+     "p05_pass_route": 2,
+     "p06_calc": 2
+    }
+   },
+   "grok47-low": {
+    "1": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5
+    },
+    "2": {
+     "p03_ledger": 5,
+     "p04_taller_within": 5
+    },
+    "3": {
+     "p05_pass_route": 2,
+     "p06_calc": 2
+    }
+   },
+   "grok47-high": {
+    "1": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5
+    },
+    "2": {
+     "p03_ledger": 2,
+     "p04_taller_within": 2
+    },
+    "3": {
+     "p05_pass_route": 2,
+     "p06_calc": 2
+    }
+   },
+   "grok47-medium": {
+    "1": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5
+    },
+    "2": {
+     "p03_ledger": 4,
+     "p04_taller_within": 3
+    },
+    "3": {
+     "p05_pass_route": 2,
+     "p06_calc": 2
+    }
+   }
   },
   "by_problem": {
    "grok47fast-low": {

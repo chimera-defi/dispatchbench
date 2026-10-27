@@ -22,6 +22,8 @@ Function track: {{n_problems}} problems × {{repeats}} attempts per config. Clic
 
 {{table:grok_reach}}
 
+{{grok_reach_note}}
+
 ### Closest equivalent
 
 {{grok_match_rule}}

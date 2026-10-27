@@ -110,6 +110,7 @@
 {{table:grok_summary}}
 <h3>Where does Grok get to?</h3>
 {{table:grok_reach}}
+<p>{{grok_reach_note}}</p>
 <h3>Closest equivalent</h3>
 <p>{{grok_match_rule}}</p>
 <p class="small">{{grok_scope}}</p>

@@ -53,6 +53,7 @@
 "g_lo_fixed",
 "grok_match_rule",
 "grok_not_run",
+"grok_reach_note",
 "grok_scope",
 "grok_verdict",
 "growth_margin",
