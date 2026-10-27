@@ -36,6 +36,8 @@ Function track: {{n_problems}} problems × {{repeats}} attempts per config. Clic
 
 {{grok_verdict}}
 
+{{table:grok_repository}}
+
 @page <div class="callout">
 @page 
 ## Can luna run on fewer tokens?
