@@ -4,6 +4,7 @@ Comparison measurements use main + exploratory rows only. Ladder profiles use
 the canonical main-ladder rows, including reused calls, and stop at the first miss.
 """
 import math
+import os
 import statistics
 from collections import defaultdict
 
@@ -150,6 +151,81 @@ def tables(comparison, lane, money):
                                ratio("median_s"), ratio("usd_per_pass")])
         if not comparison["matches"][c]:
             equivalent.append([c, "–", "no matching profile"] + ["–"] * 7)
-    return {"grok_reach": spec(["config", "cleared through", *rungs, "passes", "median s", "$ per pass", "coverage", "total $"], reach),
+    return {"grok_repository": repository_section(money),
+            "grok_reach": spec(["config", "cleared through", *rungs, "passes", "median s", "$ per pass", "coverage", "total $"], reach),
             "grok_equivalent": spec(["Grok config", "family", "closest equivalent", "cleared through", "first miss",
                                      "same-problem passes", "median s", "$ per pass", "Grok time / equivalent", "Grok cost / equivalent"], equivalent)}
+
+
+def repository_comparison():
+    """Keep the new repo experiment local to Grok; historical report totals stay fixed."""
+    source = "2026-10-27-grok-agentic.jsonl"
+    grok_rows = summarize.load(os.path.join(summarize.RES, source))
+    if not grok_rows:
+        return {}
+    tasks = sorted({r["task"] for r in grok_rows})
+    expected = {(c, task, rep) for c in ("grok47-low", "grok47-high") for task in tasks for rep in (1, 2)}
+    assert len(tasks) == 4 and len(grok_rows) == 16 and {
+        (r["config"], r["task"], r["repeat"]) for r in grok_rows
+    } == expected, "Grok repo experiment must contain all 16 preregistered runs"
+    grouped = defaultdict(list)
+    # agentic_rows selects complete isolated Codex replacements, retaining Claude.
+    for r in grok_rows + [r for r in summarize.agentic_rows() if r["task"] in tasks]:
+        grouped[r["config"]].append(r)
+    metrics = {}
+    for c, rr in grouped.items():
+        passed = sum(bool(r.get("task_complete", r["hidden_pass"] and r["visible_pass"])) for r in rr)
+        turns = [r["turns"] for r in rr if r.get("turns") is not None]
+        metrics[c] = dict(passes=passed, n=len(rr), median_s=statistics.median(r["wall_s"] for r in rr),
+                          usd_per_pass=summarize.usd(map(summarize.cost, rr), passed, digits=None),
+                          median_turns=statistics.median(turns) if len(turns) == len(rr) else None)
+    return dict(source=source, tasks=tasks, metrics=metrics,
+                grok=sorted({r["config"] for r in grok_rows}),
+                sources=sorted({r.get("_file", "results/" + source) for rr in grouped.values() for r in rr}),
+                total_usd=summarize.usd(map(summarize.cost, grok_rows), digits=None))
+
+
+def repository_section(money):
+    data = repository_comparison()
+    if not data:
+        return ""
+    m, grok = data["metrics"], data["grok"]
+    others = sorted(set(m) - set(grok))
+    def table(head, rows):
+        return "\n".join(["| " + " | ".join(head) + " |", "|" + "---|" * len(head)] +
+                         ["| " + " | ".join(map(str, row)) + " |" for row in rows])
+    metrics = table(["config", "pass k/n", "median wall s", "$ per pass", "median turns"],
+                    [[c, f'{m[c]["passes"]}/{m[c]["n"]}', f'{m[c]["median_s"]:.1f}',
+                      money(m[c]["usd_per_pass"]), f'{m[c]["median_turns"]:g}' if m[c]["median_turns"] is not None else "–"]
+                     for c in grok + others])
+    def ratio(c, other, key):
+        a, b = m[c][key], m[other][key]
+        return f"{a / b:.2f}×" if a is not None and b else "–"
+    multiples = table(["Grok config", "existing lane", "Grok time / lane", "Grok $ per pass / lane"],
+                      [[c, other, ratio(c, other, "median_s"), ratio(c, other, "usd_per_pass")]
+                       for c in grok for other in others])
+    best = max(grok, key=lambda c: (m[c]["passes"] / m[c]["n"], -m[c]["median_s"]))
+    claude = [c for c in others if configs.family(c) == "Claude"]
+    claude_counts = ", ".join(f'{c} {m[c]["passes"]}/{m[c]["n"]}' for c in claude)
+    claude_time = "–" if not claude else f'{min(m[c]["median_s"] for c in claude):.1f}–{max(m[c]["median_s"] for c in claude):.1f}'
+    usable = m[best]["passes"] == m[best]["n"]
+    tradeoff = ", though Claude is faster and cheaper" if claude and all(
+        m[c]["median_s"] < m[best]["median_s"] and m[c]["usd_per_pass"] is not None
+        and m[best]["usd_per_pass"] is not None and m[c]["usd_per_pass"] < m[best]["usd_per_pass"]
+        for c in claude) else ""
+    verdict = (f'Grok is {"a usable fallback" if usable else "a less reliable fallback"} for these small repo tasks when Codex is out{tradeoff}: '
+               f'{best} passed {m[best]["passes"]}/{m[best]["n"]} at {m[best]["median_s"]:.1f} s median, '
+               f'compared with today’s Claude fallback lanes ({claude_counts}) at {claude_time} s median.')
+    sources = ", ".join(f"`{s}`" for s in data["sources"])
+    return ("### Repository tasks\n\n"
+            f'{len(data["tasks"])} tasks ({", ".join(data["tasks"])}); Grok: 2 repeats per task and config, '
+            "4 parallel lanes, tools on, no web or subagents, 1,500 s timeout; all 16 runs retained with no performance stop rule. "
+            "Existing lanes: 3 repeats per task; clean-home Codex replacements are used where available. "
+            "A pass requires both visible and hidden tests; hidden tests run after the agent exits.\n\n"
+            + metrics + "\n\n" + multiples + "\n\n" + verdict + "\n\n"
+            f'Grok total measured spend: {money(data["total_usd"])} of the $15 budget. '
+            "Grok and Claude costs are CLI-reported; Codex costs are token-price proxies. "
+            "Multiples use median wall time and total cost per passing attempt, respectively. "
+            "Turns use each CLI’s convention and are not directly comparable across CLIs. "
+            "This is a small exploratory sample on a shared host, not a general repo-work guarantee. "
+            f"Sources: {sources}.")

@@ -117,6 +117,7 @@
 {{table:grok_equivalent}}
 <h3>Is Grok better at anything?</h3>
 <p>{{grok_verdict}}</p>
+{{table:grok_repository}}
 {{w_grok_catalog}}
 </section>
 <section class="method" id="method">

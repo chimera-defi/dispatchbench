@@ -199,6 +199,38 @@ def test_ladder_profile_stops_at_first_miss_even_if_later_rungs_pass():
     assert grok.profile({"L1": [10, 10], "L2": [4, 4], "L3": [4, 4]}) == (3, None)
 
 
+def test_repository_metrics_keep_failures_costs_and_same_task_scope(tmp_path, monkeypatch):
+    def row(c, task, rep, wall, price, passed=True):
+        return dict(config=c, cli="grok" if c.startswith("grok") else "claude", task=task,
+                    repeat=rep, wall_s=wall, cost_usd=price, turns=rep * 2,
+                    hidden_pass=passed, visible_pass=True)
+    rows = [row(c, f"t{task}", rep, rep * 100, 0.2,
+                not (c == "grok47-low" and task == 4 and rep == 2))
+            for c in ("grok47-low", "grok47-high") for task in range(1, 5) for rep in (1, 2)]
+    (tmp_path / "2026-10-27-grok-agentic.jsonl").write_text("\n".join(map(json.dumps, rows)))
+    baseline = [row("haiku-low", f"t{task}", rep, 25, 0.05) for task in range(1, 5) for rep in (1, 2, 3)]
+    baseline.append(row("haiku-low", "outside", 1, 99999, 99999))
+    monkeypatch.setattr(summarize, "RES", str(tmp_path))
+    monkeypatch.setattr(summarize, "agentic_rows", lambda: baseline)
+    comparison = grok.repository_comparison()
+    low, high, claude = (comparison["metrics"][c] for c in ("grok47-low", "grok47-high", "haiku-low"))
+    assert (low["passes"], low["n"], low["median_s"], low["median_turns"]) == (7, 8, 150, 3)
+    assert low["usd_per_pass"] == pytest.approx(1.6 / 7)
+    assert high["passes"] == high["n"] == 8
+    assert claude["passes"] == claude["n"] == 12 and claude["median_s"] == 25
+    assert comparison["total_usd"] == pytest.approx(3.2)
+    rendered = grok.repository_section(lambda v: f"${v:.3f}" if v is not None else "–")
+    assert "### Repository tasks" in rendered
+    assert "7/8" in rendered and "6.00×" in rendered
+    assert "a usable fallback" in rendered and "grok47-high passed 8/8" in rendered
+    assert "though Claude is faster and cheaper" in rendered
+    assert "haiku-low 12/12" in rendered
+    assert "not directly comparable" in rendered
+    (tmp_path / "2026-10-27-grok-agentic.jsonl").write_text("\n".join(map(json.dumps, rows[:-1])))
+    with pytest.raises(AssertionError, match="all 16 preregistered runs"):
+        grok.repository_comparison()
+
+
 def test_comparison_filters_phases_and_prices_codex_fast_tokens(monkeypatch):
     def row(config, phase, rung=1, passed=True, sec=10, cli="codex", measured=None):
         return dict(config=config, phase=phase, problem=f"p0{rung}", rung=rung, repeat=1, passed=passed,

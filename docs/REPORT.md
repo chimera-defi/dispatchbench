@@ -78,6 +78,43 @@ Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory ph
 
 grok47-high costs less per pass than astra-medium-fast. No Grok config beats a listed equivalent on time or pass rate.
 
+### Repository tasks
+
+4 tasks (t1_discount, t2_cache_bugs, t3_config_refs, t4_retry_queue); Grok: 2 repeats per task and config, 4 parallel lanes, tools on, no web or subagents, 1,500 s timeout; all 16 runs retained with no performance stop rule. Existing lanes: 3 repeats per task; clean-home Codex replacements are used where available. A pass requires both visible and hidden tests; hidden tests run after the agent exits.
+
+| config | pass k/n | median wall s | $ per pass | median turns |
+|---|---|---|---|---|
+| grok47-high | 8/8 | 442.1 | $0.54 | 9 |
+| grok47-low | 8/8 | 98.9 | $0.19 | 5 |
+| astra-medium | 12/12 | 65.6 | $0.45 | 1 |
+| haiku-high | 12/12 | 58.4 | $0.012 | 10 |
+| haiku-low | 12/12 | 28.3 | $0.0051 | 5 |
+| luna-low | 7/12 | 24.1 | $0.0056 | 1 |
+| sol61-high | 12/12 | 117.9 | $0.097 | 1 |
+| sol61-medium | 12/12 | 84.5 | $0.079 | 1 |
+| sonnet-medium | 12/12 | 27.7 | $0.054 | 3 |
+
+| Grok config | existing lane | Grok time / lane | Grok $ per pass / lane |
+|---|---|---|---|
+| grok47-high | astra-medium | 6.74× | 1.20× |
+| grok47-high | haiku-high | 7.57× | 44.34× |
+| grok47-high | haiku-low | 15.63× | 105.53× |
+| grok47-high | luna-low | 18.33× | 95.85× |
+| grok47-high | sol61-high | 3.75× | 5.50× |
+| grok47-high | sol61-medium | 5.23× | 6.74× |
+| grok47-high | sonnet-medium | 15.94× | 9.97× |
+| grok47-low | astra-medium | 1.51× | 0.42× |
+| grok47-low | haiku-high | 1.69× | 15.55× |
+| grok47-low | haiku-low | 3.50× | 37.01× |
+| grok47-low | luna-low | 4.10× | 33.62× |
+| grok47-low | sol61-high | 0.84× | 1.93× |
+| grok47-low | sol61-medium | 1.17× | 2.36× |
+| grok47-low | sonnet-medium | 3.57× | 3.50× |
+
+Grok is a usable fallback for these small repo tasks when Codex is out, though Claude is faster and cheaper: grok47-low passed 8/8 at 98.9 s median, compared with today’s Claude fallback lanes (haiku-high 12/12, haiku-low 12/12, sonnet-medium 12/12) at 27.7–58.4 s median.
+
+Grok total measured spend: $5.78 of the $15 budget. Grok and Claude costs are CLI-reported; Codex costs are token-price proxies. Multiples use median wall time and total cost per passing attempt, respectively. Turns use each CLI’s convention and are not directly comparable across CLIs. This is a small exploratory sample on a shared host, not a general repo-work guarantee. Sources: `results/2026-10-22b-agentic.jsonl`, `results/2026-10-25-isolated-agentic.jsonl`, `results/2026-10-27-grok-agentic.jsonl`.
+
 ## Can luna run on fewer tokens?
 
 Codex has no single switch like Claude's `--tools ""`. Turning off its tool features, shell tools, environment context and stock system prompt, six config knobs in all, cuts luna-low's mean input from 14,688 to 6,144 tokens per call, 58% less. No measurable change in accuracy: the stripped config passes 73% against stock luna-low's 77% (−3.3 pts, CI −20.0 to +13.3, which rules out neither a gain nor a loss). Its proxy cost per pass falls from $0.00090 to $0.00080.

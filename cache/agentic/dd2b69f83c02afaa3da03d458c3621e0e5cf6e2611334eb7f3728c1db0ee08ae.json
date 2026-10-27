@@ -1,0 +1,549 @@
+{
+ "key": "dd2b69f83c02afaa3da03d458c3621e0e5cf6e2611334eb7f3728c1db0ee08ae",
+ "ts": "2026-10-27T05:14:17+00:00",
+ "track": "agentic",
+ "grader_version": 2,
+ "config": "grok47-low",
+ "cli": "grok",
+ "cli_version": "1.0.70",
+ "model": "grok-4.7",
+ "effort": "low",
+ "task": "t4_retry_queue",
+ "repeat": 2,
+ "lanes": 4,
+ "wall_s": 104.6644274170394,
+ "in_tok": 178804,
+ "cached_tok": 146688,
+ "cache_write_tok": 0,
+ "out_tok": 8069,
+ "reasoning_tok": 4434,
+ "cost_usd": 0.18599,
+ "cost_kind": "measured (CLI total_cost_usd)",
+ "turns": 5,
+ "tool_calls": null,
+ "delegate_calls": null,
+ "is_error": false,
+ "error": null,
+ "error_type": null,
+ "visible_pass": true,
+ "visible": {
+  "ok": true,
+  "passed": 15,
+  "failed": 0,
+  "tail": "15 passed in 0.46s",
+  "collected_ids": [
+   "tests/test_retry.py::test_defaults_match_previous_constructor",
+   "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs0]",
+   "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs1]",
+   "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs2]",
+   "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs3]",
+   "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs4]",
+   "tests/test_retry.py::test_equal_max_delay_is_allowed",
+   "tests/test_retry.py::test_exponential_backoff_from_attempt_clock_and_dead_letter",
+   "tests/test_retry.py::test_delay_is_capped_and_uses_clock_at_attempt",
+   "tests/test_retry.py::test_success_after_failures_records_attempts",
+   "tests/test_retry.py::test_keyboard_interrupt_propagates_without_requeue",
+   "tests/test_retry.py::test_retry_keeps_seq_ahead_of_later_submissions",
+   "tests/test_retry.py::test_run_due_does_not_rerun_a_job_requeued_in_the_same_call",
+   "tests/test_retry.py::test_dead_order_and_attempt_count_across_jobs",
+   "tests/test_worker.py::test_runs_in_time_order"
+  ],
+  "reports": [
+   {
+    "id": "tests/test_retry.py::test_defaults_match_previous_constructor",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_defaults_match_previous_constructor",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_defaults_match_previous_constructor",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs0]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs0]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs0]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs1]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs1]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs1]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs2]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs2]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs2]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs3]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs3]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs3]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs4]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs4]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_rejects_bad_retry_settings[kwargs4]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_equal_max_delay_is_allowed",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_equal_max_delay_is_allowed",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_equal_max_delay_is_allowed",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_exponential_backoff_from_attempt_clock_and_dead_letter",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_exponential_backoff_from_attempt_clock_and_dead_letter",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_exponential_backoff_from_attempt_clock_and_dead_letter",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_delay_is_capped_and_uses_clock_at_attempt",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_delay_is_capped_and_uses_clock_at_attempt",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_delay_is_capped_and_uses_clock_at_attempt",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_success_after_failures_records_attempts",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_success_after_failures_records_attempts",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_success_after_failures_records_attempts",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_keyboard_interrupt_propagates_without_requeue",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_keyboard_interrupt_propagates_without_requeue",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_keyboard_interrupt_propagates_without_requeue",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_retry_keeps_seq_ahead_of_later_submissions",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_retry_keeps_seq_ahead_of_later_submissions",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_retry_keeps_seq_ahead_of_later_submissions",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_run_due_does_not_rerun_a_job_requeued_in_the_same_call",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_run_due_does_not_rerun_a_job_requeued_in_the_same_call",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_run_due_does_not_rerun_a_job_requeued_in_the_same_call",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_dead_order_and_attempt_count_across_jobs",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_dead_order_and_attempt_count_across_jobs",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_retry.py::test_dead_order_and_attempt_count_across_jobs",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_worker.py::test_runs_in_time_order",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_worker.py::test_runs_in_time_order",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_worker.py::test_runs_in_time_order",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   }
+  ],
+  "deselected": []
+ },
+ "hidden_pass": true,
+ "hidden": {
+  "ok": true,
+  "passed": 10,
+  "failed": 0,
+  "tail": "10 passed in 0.64s",
+  "collected_ids": [
+   "test_hidden.py::test_backoff_schedule_and_cap",
+   "test_hidden.py::test_recovers_before_limit",
+   "test_hidden.py::test_requeued_job_not_rerun_in_same_call",
+   "test_hidden.py::test_delay_counts_from_attempt_time_not_run_at",
+   "test_hidden.py::test_seq_preserved_for_ties",
+   "test_hidden.py::test_base_exception_propagates_without_requeue",
+   "test_hidden.py::test_bad_settings[kw0]",
+   "test_hidden.py::test_bad_settings[kw1]",
+   "test_hidden.py::test_bad_settings[kw2]",
+   "test_hidden.py::test_attempts_counted"
+  ],
+  "reports": [
+   {
+    "id": "test_hidden.py::test_backoff_schedule_and_cap",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_backoff_schedule_and_cap",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_backoff_schedule_and_cap",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_recovers_before_limit",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_recovers_before_limit",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_recovers_before_limit",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_requeued_job_not_rerun_in_same_call",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_requeued_job_not_rerun_in_same_call",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_requeued_job_not_rerun_in_same_call",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_delay_counts_from_attempt_time_not_run_at",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_delay_counts_from_attempt_time_not_run_at",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_delay_counts_from_attempt_time_not_run_at",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_seq_preserved_for_ties",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_seq_preserved_for_ties",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_seq_preserved_for_ties",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_base_exception_propagates_without_requeue",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_base_exception_propagates_without_requeue",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_base_exception_propagates_without_requeue",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_settings[kw0]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_settings[kw0]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_settings[kw0]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_settings[kw1]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_settings[kw1]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_settings[kw1]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_settings[kw2]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_settings[kw2]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_settings[kw2]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_attempts_counted",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_attempts_counted",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_attempts_counted",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   }
+  ],
+  "deselected": [],
+  "expected_ids": [
+   "test_hidden.py::test_backoff_schedule_and_cap",
+   "test_hidden.py::test_recovers_before_limit",
+   "test_hidden.py::test_requeued_job_not_rerun_in_same_call",
+   "test_hidden.py::test_delay_counts_from_attempt_time_not_run_at",
+   "test_hidden.py::test_seq_preserved_for_ties",
+   "test_hidden.py::test_base_exception_propagates_without_requeue",
+   "test_hidden.py::test_bad_settings[kw0]",
+   "test_hidden.py::test_bad_settings[kw1]",
+   "test_hidden.py::test_bad_settings[kw2]",
+   "test_hidden.py::test_attempts_counted"
+  ],
+  "expected_collection": {
+   "ok": true,
+   "tail": "10 tests collected in 0.45s"
+  }
+ },
+ "task_complete": true,
+ "own_tests": true,
+ "tests_tampered": [],
+ "diff_stat": " 13 files changed, 280 insertions(+), 7 deletions(-)",
+ "patch": "cache/agentic_patches/dd2b69f83c02afaa3da03d458c3621e0e5cf6e2611334eb7f3728c1db0ee08ae.patch",
+ "retry_count": 0
+}
