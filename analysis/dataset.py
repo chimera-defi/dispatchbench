@@ -17,7 +17,7 @@ cost_kind, by_rung ({L1: [passed, n]}), groups (problems or tasks). No model cal
 import json, os, statistics
 from collections import defaultdict
 
-from analysis import configs, stats
+from analysis import configs, grok, stats
 from analysis.luna_rescue import PIDS, claude_usd
 from analysis.summarize import RES, ROOT, cost, load, scale
 
@@ -1232,6 +1232,25 @@ def build(summary=None):
     ds["report"] = s
     ds["facts"] = _facts(s, arms)
     ds["tables"] = _tables(s, arms)
+    comparison = grok.build(ds, s)
+    if comparison:
+        ds["grok_comparison"] = comparison
+        paragraphs, verdict = grok.prose(comparison, s["grok"])
+        ds["facts"].update(grok_summary="\n\n".join(paragraphs), grok_verdict=verdict)
+        ds["tables"].update(grok.tables(comparison, s["grok"], usd))
+        probs = comparison["problems"]
+        last = max(int(g[1:]) for v in s["grok"].values() for g in v["by_rung"])
+        ds["facts"]["grok_scope"] = (
+            f"Same-problem comparisons use {probs[0][:3]}–{probs[-1][:3]} ({len(probs)} of {len(s['problems'])} problems), "
+            "main + exploratory phases only. Warmup, calibration, fastmode, escalation and hard phases are excluded. "
+            "Grok has small n and was not run past " + f"L{last}, so cleared L{last} is a floor. "
+            "CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier.")
+        ds["facts"]["grok_match_rule"] = (
+            f"Match the highest rung cleared without an earlier miss and the first rung with a miss on the {len(s['problems'])}-problem "
+            f"main ladder; with no Grok miss through L{last}, include every lane that clears through L{last} and show its later profile.")
+        rungs = sorted({v["rung"] for v in s["problems"].values()})
+        ds["facts"]["grok_not_run"] = (f"Grok rows summarize each rung; L{last + 1}–L{max(rungs)} were not run. "
+                                             "Not run means no attempt, not a failure.")
     _equivalents(ds)
     _interesting(ds)
     method_appendix(ds)

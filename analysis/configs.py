@@ -210,13 +210,14 @@ def where(e, rest, chart_bodies):
     return "only here"
 
 
-def section(rest, ds, root, chart_bodies=None):
+def section(rest, ds, root, chart_bodies=None, grok_only=False):
     """The collapsible "Everything we tried" block, one row per registry entry from the dataset catalog. rest = the page HTML without
     this block, used for the 'where it appears' column."""
     from analysis.dataset import catalog_rows, usd as money
     chart_bodies = chart_bodies or {}
     by = {}
     for r in catalog_rows(ds):
+        if (r["config"] in GROK_CONFIGS) != grok_only: continue
         by.setdefault(r["category"], []).append(r)
     head = "".join(f"<th>{h}</th>" for h in ("name", "what it was", "pass", "$ per pass", "median s", "spend", "where it appears"))
     out = ["<details><summary>Everything we tried</summary>", "<ul class=\"tight small\"><li>Every config with rows in results/, grouped by kind.</li>"
@@ -227,7 +228,8 @@ def section(rest, ds, root, chart_bodies=None):
         es = by.pop(cat, [])
         if not es: continue
         label = "Low context (prompt or tool text trimmed)" if cat == "low context" else set_label(cat)
-        out.append(f"<details><summary>{html.escape(label)}: {ds['categories'][cat]['n_configs']} configs, {'~' if any(e['cost_kind'] == 'proxy' for e in es) else ''}{money(ds['categories'][cat]['spend'])} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
+        totals = {"n_configs": len(es), "spend": sum(e["spend"] for e in es)} if grok_only else ds["categories"][cat]
+        out.append(f"<details><summary>{html.escape(label)}: {totals['n_configs']} configs, {'~' if any(e['cost_kind'] == 'proxy' for e in es) else ''}{money(totals['spend'])} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
         for e in es:
             spend = None if e["unknown_usd"] else e["spend"]
             proxy = "~" if e["cost_kind"] == "proxy" else ""
@@ -235,6 +237,8 @@ def section(rest, ds, root, chart_bodies=None):
                        f"<td>{cell_markup((proxy if e['usd_per_pass'] is not None else '') + money(e['usd_per_pass']))}</td><td>{e['median_s']:.1f}</td><td>{cell_markup((proxy if spend is not None else '') + money(spend))}</td><td>{where(e, rest, chart_bodies)}</td></tr>")
         out.append("</tbody></table></div></details>")
     out += [f"<details><summary>unregistered</summary><p>{html.escape(r['display'])} ({r['source']})</p></details>" for es in by.values() for r in es]
+    if not grok_only:
+        out.append('<p class="small">Category totals include rows shown in dedicated sections.</p>')
     return "\n".join(out + ["</details>"])
 
 

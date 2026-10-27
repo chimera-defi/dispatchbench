@@ -42,11 +42,8 @@ def md_table(head, rows):
 
 def tables_md(ds):
     tables = {name: md_table(**spec) if isinstance(spec, dict) else spec for name, spec in ds["tables"].items()}
-    if "grok" in tables:
-        tables["result"] += ("\n\n### Grok (first half)\n\nExploratory function lane added 2026-10-26 at operator request: "
-                             "p01–p06, L1–L3. L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained. "
-                             "CLI-reported cost; list price not used. "
-                             "L4–L6 were not run; excluded from full-ladder comparisons.\n\n" + tables["grok"])
+    if "grok_summary" in ds["facts"]:
+        tables["grok_summary"] = ds["facts"]["grok_summary"]
     return tables
 
 # ---------- rendering ----------
@@ -155,6 +152,7 @@ def render(used_facts=None):
     W = pagew.widgets(s, need, ds, names=widget_names)
     body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}, "w_everything": ""}, used=used_facts), T, "page", chart_bodies)  # first pass: the page without the section
     W["everything"] = configs.section(body, ds, ROOT, chart_bodies)  # every registered config, with 'where it appears' read from that first pass
+    W["grok_catalog"] = configs.section(body, ds, ROOT, chart_bodies, grok_only=True)
     body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}}, used=used_facts), T, "page", chart_bodies)
     body = pagew.notation_tooltips(body, ds)
     shell = open(os.path.join(PAGE_DIR, "shell.html")).read()

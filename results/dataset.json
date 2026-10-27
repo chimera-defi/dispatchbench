@@ -23783,6 +23783,11 @@
   "default_route_scope": "Tested with plain sol61-high: 35/35 on the retest set. Haiku never ran.",
   "hb_conclusion_copy": "Codex CLI lifted luna-low by 11 passes. haiku-low gained 3, near its ceiling. No pick changes.",
   "l7_set_description": "L7 set: p13 xor_ring (L7), p14 bounce_board (L7), p15 paint_erase (L7); scored separately. Added after every strong config passed L6.",
+  "grok_summary": "Grok is accurate but slow and mid-priced. grok47-high passed 18 of 18 but took 41 s per call at the median. Every existing lane at 100% finished in 6.9 to 16.9 s.\n\ngrok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4), so the pre-registered stop rule fired for all three.\n\nCost per pass is $0.054 to $0.111. Claude haiku and the Codex luna lanes are under $0.003. Only the Codex astra lanes cost as much.",
+  "grok_verdict": "grok47-high costs less per pass than astra-medium-fast. No Grok config beats a listed equivalent on time or pass rate.",
+  "grok_scope": "Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory phases only. Warmup, calibration, fastmode, escalation and hard phases are excluded. Grok has small n and was not run past L3, so cleared L3 is a floor. CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier.",
+  "grok_match_rule": "Match the highest rung cleared without an earlier miss and the first rung with a miss on the 12-problem main ladder; with no Grok miss through L3, include every lane that clears through L3 and show its later profile.",
+  "grok_not_run": "Grok rows summarize each rung; L4–L6 were not run. Not run means no attempt, not a failure.",
   "equiv_fastest": "Fastest Codex at 100%: astra-medium ⚡, 10 s. It costs $0.15 per pass.",
   "equiv_near": "At haiku-low's price, the best Codex is luna-high: 92% to 95%.",
   "winner_claude_to_codex": "Cheapest main-ladder pass-rate matches, Claude → Codex: haiku-low → sol61-medium. haiku-medium, haiku-high and sonnet-medium → sol61-high.",
@@ -25339,6 +25344,251 @@
     ]
    ]
   },
+  "grok_reach": {
+   "head": [
+    "config",
+    "cleared through",
+    "passes",
+    "median s",
+    "$ per pass",
+    "coverage",
+    "total $"
+   ],
+   "rows": [
+    [
+     "grok47-low",
+     "L2",
+     "23/24",
+     "26.5",
+     "$0.054",
+     "6 problems",
+     "$1.24"
+    ],
+    [
+     "grok47-medium",
+     "L2",
+     "20/21",
+     "32.6",
+     "$0.066",
+     "6 problems",
+     "$1.33"
+    ],
+    [
+     "grok47-high",
+     "L3 (not run further)",
+     "18/18",
+     "41.0",
+     "$0.072",
+     "6 problems",
+     "$1.29"
+    ],
+    [
+     "grok47fast-low",
+     "L2",
+     "23/24",
+     "19.4",
+     "$0.11",
+     "6 problems",
+     "$2.56"
+    ]
+   ]
+  },
+  "grok_equivalent": {
+   "head": [
+    "Grok config",
+    "family",
+    "closest equivalent",
+    "cleared through",
+    "first miss",
+    "same-problem passes",
+    "median s",
+    "$ per pass",
+    "Grok time / equivalent",
+    "Grok cost / equivalent"
+   ],
+   "rows": [
+    [
+     "grok47-low",
+     "Claude",
+     "haiku-medium",
+     "L2",
+     "L3",
+     "29/30",
+     "10.6",
+     "$0.0011",
+     "2.5×",
+     "50.1×"
+    ],
+    [
+     "grok47-low",
+     "Codex",
+     "luna-high",
+     "L2",
+     "L3",
+     "24/25",
+     "9.0",
+     "$0.00092",
+     "2.9×",
+     "58.7×"
+    ],
+    [
+     "grok47-medium",
+     "Claude",
+     "haiku-medium",
+     "L2",
+     "L3",
+     "29/30",
+     "10.6",
+     "$0.0011",
+     "3.1×",
+     "61.8×"
+    ],
+    [
+     "grok47-medium",
+     "Codex",
+     "luna-high",
+     "L2",
+     "L3",
+     "24/25",
+     "9.0",
+     "$0.00092",
+     "3.6×",
+     "72.3×"
+    ],
+    [
+     "grok47-high",
+     "Codex",
+     "astra-medium",
+     "L6",
+     "none",
+     "30/30",
+     "12.7",
+     "$0.064",
+     "3.2×",
+     "1.1×"
+    ],
+    [
+     "grok47-high",
+     "Codex",
+     "astra-medium ⚡",
+     "L6",
+     "none",
+     "30/30",
+     "6.9",
+     "$0.13",
+     "6.0×",
+     "0.6×"
+    ],
+    [
+     "grok47-high",
+     "Claude",
+     "haiku-high",
+     "L6",
+     "none",
+     "30/30",
+     "11.8",
+     "$0.0022",
+     "3.5×",
+     "33.1×"
+    ],
+    [
+     "grok47-high",
+     "Claude",
+     "haiku-low",
+     "L4",
+     "L5",
+     "30/30",
+     "8.2",
+     "$0.00066",
+     "5.0×",
+     "109.3×"
+    ],
+    [
+     "grok47-high",
+     "Codex",
+     "sol56-high",
+     "L6",
+     "none",
+     "30/30",
+     "10.0",
+     "$0.032",
+     "4.1×",
+     "2.3×"
+    ],
+    [
+     "grok47-high",
+     "Codex",
+     "sol61-high",
+     "L6",
+     "none",
+     "30/30",
+     "16.9",
+     "$0.015",
+     "2.4×",
+     "4.7×"
+    ],
+    [
+     "grok47-high",
+     "Codex",
+     "sol61-high ⚡",
+     "L6",
+     "none",
+     "20/20",
+     "9.8",
+     "$0.026",
+     "4.2×",
+     "2.8×"
+    ],
+    [
+     "grok47-high",
+     "Codex",
+     "sol61-medium",
+     "L5",
+     "L6",
+     "30/30",
+     "15.4",
+     "$0.012",
+     "2.7×",
+     "5.9×"
+    ],
+    [
+     "grok47-high",
+     "Claude",
+     "sonnet-medium",
+     "L6",
+     "none",
+     "30/30",
+     "9.5",
+     "$0.010",
+     "4.3×",
+     "7.2×"
+    ],
+    [
+     "grok47fast-low",
+     "Claude",
+     "haiku-medium",
+     "L2",
+     "L3",
+     "29/30",
+     "10.6",
+     "$0.0011",
+     "1.8×",
+     "103.4×"
+    ],
+    [
+     "grok47fast-low",
+     "Codex",
+     "luna-high",
+     "L2",
+     "L3",
+     "24/25",
+     "9.0",
+     "$0.00092",
+     "2.2×",
+     "121.1×"
+    ]
+   ]
+  },
   "equiv": {
    "head": [
     "Claude → Codex match",
@@ -25624,6 +25874,375 @@
      0
     ]
    ]
+  }
+ },
+ "grok_comparison": {
+  "problems": [
+   "p01_overlap_minutes",
+   "p02_squash",
+   "p03_ledger",
+   "p04_taller_within",
+   "p05_pass_route",
+   "p06_calc"
+  ],
+  "phases": [
+   "main",
+   "exploratory"
+  ],
+  "metrics": {
+   "haiku-medium": {
+    "passes": 29,
+    "n": 30,
+    "pass_rate": 0.9666666666666667,
+    "median_s": 10.632268562912941,
+    "usd_per_pass": 0.0010768637931034483
+   },
+   "luna-low": {
+    "passes": 26,
+    "n": 30,
+    "pass_rate": 0.8666666666666667,
+    "median_s": 6.873265047557652,
+    "usd_per_pass": 0.0007078076923076923
+   },
+   "sonnet-medium": {
+    "passes": 30,
+    "n": 30,
+    "pass_rate": 1.0,
+    "median_s": 9.532759371562861,
+    "usd_per_pass": 0.009971816666666666
+   },
+   "haiku-low": {
+    "passes": 30,
+    "n": 30,
+    "pass_rate": 1.0,
+    "median_s": 8.201476785470732,
+    "usd_per_pass": 0.000657545
+   },
+   "luna-medium": {
+    "passes": 25,
+    "n": 30,
+    "pass_rate": 0.8333333333333334,
+    "median_s": 7.147650011465885,
+    "usd_per_pass": 0.0007441840000000001
+   },
+   "sol61-medium": {
+    "passes": 30,
+    "n": 30,
+    "pass_rate": 1.0,
+    "median_s": 15.350654201116413,
+    "usd_per_pass": 0.012077399999999999
+   },
+   "luna-low-bare": {
+    "passes": 24,
+    "n": 30,
+    "pass_rate": 0.8,
+    "median_s": 5.791233349475078,
+    "usd_per_pass": 0.0006267958333333333
+   },
+   "luna-high": {
+    "passes": 24,
+    "n": 25,
+    "pass_rate": 0.96,
+    "median_s": 8.996696481015533,
+    "usd_per_pass": 0.0009194916666666666
+   },
+   "luna56-low": {
+    "passes": 25,
+    "n": 30,
+    "pass_rate": 0.8333333333333334,
+    "median_s": 7.057671311500599,
+    "usd_per_pass": 0.0017764656
+   },
+   "luna56-high": {
+    "passes": 28,
+    "n": 30,
+    "pass_rate": 0.9333333333333333,
+    "median_s": 8.710636934498325,
+    "usd_per_pass": 0.0024025357142857143
+   },
+   "sol56-high": {
+    "passes": 30,
+    "n": 30,
+    "pass_rate": 1.0,
+    "median_s": 9.999067893000756,
+    "usd_per_pass": 0.03186576
+   },
+   "astra-medium": {
+    "passes": 30,
+    "n": 30,
+    "pass_rate": 1.0,
+    "median_s": 12.70585584500077,
+    "usd_per_pass": 0.06448133333333333
+   },
+   "sol61-high": {
+    "passes": 30,
+    "n": 30,
+    "pass_rate": 1.0,
+    "median_s": 16.881482051496278,
+    "usd_per_pass": 0.015247573333333332
+   },
+   "haiku-high": {
+    "passes": 30,
+    "n": 30,
+    "pass_rate": 1.0,
+    "median_s": 11.772152927005664,
+    "usd_per_pass": 0.00217376
+   },
+   "astra-medium-fast": {
+    "passes": 30,
+    "n": 30,
+    "pass_rate": 1.0,
+    "median_s": 6.868033188497066,
+    "usd_per_pass": 0.12967266666666666
+   },
+   "sol61-high-fast": {
+    "passes": 20,
+    "n": 20,
+    "pass_rate": 1.0,
+    "median_s": 9.817252363507578,
+    "usd_per_pass": 0.0257382
+   },
+   "grok47fast-low": {
+    "passes": 23,
+    "n": 24,
+    "pass_rate": 0.9583333333333334,
+    "median_s": 19.38396023050882,
+    "usd_per_pass": 0.11133269565217392
+   },
+   "grok47-low": {
+    "passes": 23,
+    "n": 24,
+    "pass_rate": 0.9583333333333334,
+    "median_s": 26.45930604901514,
+    "usd_per_pass": 0.05397547826086956
+   },
+   "grok47-high": {
+    "passes": 18,
+    "n": 18,
+    "pass_rate": 1.0,
+    "median_s": 40.966258431988535,
+    "usd_per_pass": 0.07185
+   },
+   "grok47-medium": {
+    "passes": 20,
+    "n": 21,
+    "pass_rate": 0.9523809523809523,
+    "median_s": 32.56193216604879,
+    "usd_per_pass": 0.0664982
+   }
+  },
+  "profiles": {
+   "haiku-low": [
+    4,
+    5
+   ],
+   "haiku-medium": [
+    2,
+    3
+   ],
+   "sonnet-medium": [
+    6,
+    null
+   ],
+   "luna-low": [
+    1,
+    2
+   ],
+   "luna-medium": [
+    1,
+    2
+   ],
+   "sol61-medium": [
+    5,
+    6
+   ],
+   "haiku-high": [
+    6,
+    null
+   ],
+   "luna-high": [
+    2,
+    3
+   ],
+   "luna56-low": [
+    1,
+    2
+   ],
+   "luna56-high": [
+    1,
+    2
+   ],
+   "sol56-high": [
+    6,
+    null
+   ],
+   "sol61-high": [
+    6,
+    null
+   ],
+   "astra-medium": [
+    6,
+    null
+   ],
+   "sol61-high-fast": [
+    6,
+    null
+   ],
+   "astra-medium-fast": [
+    6,
+    null
+   ],
+   "luna-low-bare": [
+    1,
+    2
+   ],
+   "grok47-low": [
+    2,
+    3
+   ],
+   "grok47-medium": [
+    2,
+    3
+   ],
+   "grok47-high": [
+    3,
+    null
+   ],
+   "grok47fast-low": [
+    2,
+    3
+   ]
+  },
+  "matches": {
+   "grok47-low": [
+    "haiku-medium",
+    "luna-high"
+   ],
+   "grok47-medium": [
+    "haiku-medium",
+    "luna-high"
+   ],
+   "grok47-high": [
+    "astra-medium",
+    "astra-medium-fast",
+    "haiku-high",
+    "haiku-low",
+    "sol56-high",
+    "sol61-high",
+    "sol61-high-fast",
+    "sol61-medium",
+    "sonnet-medium"
+   ],
+   "grok47fast-low": [
+    "haiku-medium",
+    "luna-high"
+   ]
+  },
+  "by_problem": {
+   "grok47fast-low": {
+    "p01_overlap_minutes": [
+     5,
+     5
+    ],
+    "p02_squash": [
+     5,
+     5
+    ],
+    "p03_ledger": [
+     5,
+     5
+    ],
+    "p04_taller_within": [
+     5,
+     5
+    ],
+    "p05_pass_route": [
+     2,
+     2
+    ],
+    "p06_calc": [
+     1,
+     2
+    ]
+   },
+   "grok47-low": {
+    "p01_overlap_minutes": [
+     5,
+     5
+    ],
+    "p02_squash": [
+     5,
+     5
+    ],
+    "p03_ledger": [
+     5,
+     5
+    ],
+    "p04_taller_within": [
+     5,
+     5
+    ],
+    "p05_pass_route": [
+     2,
+     2
+    ],
+    "p06_calc": [
+     1,
+     2
+    ]
+   },
+   "grok47-high": {
+    "p01_overlap_minutes": [
+     5,
+     5
+    ],
+    "p02_squash": [
+     5,
+     5
+    ],
+    "p03_ledger": [
+     2,
+     2
+    ],
+    "p04_taller_within": [
+     2,
+     2
+    ],
+    "p05_pass_route": [
+     2,
+     2
+    ],
+    "p06_calc": [
+     2,
+     2
+    ]
+   },
+   "grok47-medium": {
+    "p01_overlap_minutes": [
+     5,
+     5
+    ],
+    "p02_squash": [
+     5,
+     5
+    ],
+    "p03_ledger": [
+     4,
+     4
+    ],
+    "p04_taller_within": [
+     3,
+     3
+    ],
+    "p05_pass_route": [
+     2,
+     2
+    ],
+    "p06_calc": [
+     1,
+     2
+    ]
+   }
   }
  }
 }
