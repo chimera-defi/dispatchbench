@@ -130,13 +130,87 @@ def reach_note(comparison, lane):
             "read the rung reached, not the total.")
 
 
+def closest_lanes(metrics, config, candidates):
+    """Choose one lane per family by pass-rate distance, then time, then price."""
+    current = metrics[config]
+    def distance(other):
+        value = metrics[other]
+        price = (abs(current["usd_per_pass"] - value["usd_per_pass"])
+                 if current["usd_per_pass"] is not None and value["usd_per_pass"] is not None else math.inf)
+        return (abs(current["passes"] / current["n"] - value["passes"] / value["n"]),
+                abs(current["median_s"] - value["median_s"]), price, other)
+    return [min(lanes, key=distance) for family in ("Claude", "Codex")
+            if (lanes := [c for c in candidates if configs.family(c) == family])]
+
+
+SELECTION_NOTE = ("Each family shows the lane with the closest pass rate. "
+                  "Ties use the closest median time, then cost per pass.")
+
+
+def at_a_glance(comparison, lane, repository):
+    """Skim answers derived from the same measurements as the detailed tables."""
+    m, profiles = comparison["metrics"], comparison["profiles"]
+    reach = []
+    groups = defaultdict(list)
+    for c in lane:
+        cleared, miss = profiles[c]
+        reach.append(f"{c}: rung L{cleared}" + ("; later rungs untested" if miss is None else f"; first miss L{miss}"))
+        choices = tuple(closest_lanes(m, c, comparison["matches"][c]))
+        groups[choices].append(c)
+    bullets = ["**Function track.** " + ". ".join(reach) + "."]
+    def multiple(values):
+        low, high = min(values), max(values)
+        return f"{low:.1f}×" if round(low, 1) == round(high, 1) else f"{low:.1f}–{high:.1f}×"
+    for choices, configs_in_group in groups.items():
+        if not choices:
+            continue
+        levels = {profiles[c][0] for c in configs_in_group}
+        label = (configs_in_group[0] if len(configs_in_group) == 1 else
+                 f"rung L{next(iter(levels))} configs" if len(levels) == 1 else ", ".join(configs_in_group))
+        matches = []
+        for other in choices:
+            time = multiple([m[c]["median_s"] / m[other]["median_s"] for c in configs_in_group])
+            prices = [m[c]["usd_per_pass"] / m[other]["usd_per_pass"] for c in configs_in_group
+                      if m[c]["usd_per_pass"] is not None and m[other]["usd_per_pass"]]
+            cost = multiple(prices) if prices else "unavailable"
+            matches.append(f"Against {configs.family(other)} {configs.display(other)}, Grok takes {time} as long and costs {cost} as much per pass")
+        bullets.append("**Closest lanes for " + label + ".** " + ". ".join(matches) + ".")
+    wins = []
+    high, fast = m.get("grok47-high"), m.get("astra-medium-fast")
+    if (high and fast and "astra-medium-fast" in comparison["matches"].get("grok47-high", [])
+            and high["usd_per_pass"] is not None and fast["usd_per_pass"]):
+        ratio = high["usd_per_pass"] / fast["usd_per_pass"]
+        if ratio < 1:
+            wins.append(f"grok47-high costs {ratio:.2f}× as much per function pass as astra-medium fast")
+    if repository:
+        rm = repository["metrics"]
+        low, astra = rm.get("grok47-low"), rm.get("astra-medium")
+        if low and astra and low["usd_per_pass"] is not None and astra["usd_per_pass"]:
+            ratio = low["usd_per_pass"] / astra["usd_per_pass"]
+            if ratio < 1:
+                wins.append(f"grok47-low costs {ratio:.2f}× as much per repo-task pass as astra-medium")
+    bullets.append("**Cost wins.** " + (". ".join(wins) + "." if wins else "No cost win in the highlighted comparisons."))
+    if repository:
+        bullets.append("**Repo tasks.** " + ". ".join(
+            f"{c}: {repository['metrics'][c]['passes']}/{repository['metrics'][c]['n']} passes, "
+            f"{repository['metrics'][c]['median_s']:.1f} s median" for c in repository["grok"]) +
+            ". Small exploratory sample on a shared host.")
+        perfect = [c for c in repository["grok"] if repository["metrics"][c]["passes"] == repository["metrics"][c]["n"]]
+        recommendation = ("Grok is usable after that on these small repo tasks." if perfect else
+                          "Grok was less reliable on these small repo tasks.")
+        bullets.append("**Codex out:** Claude Haiku stays the first fallback. " + recommendation)
+    return "### At a glance\n\n" + "\n".join("- " + bullet for bullet in bullets)
+
+
 def tables(comparison, lane, money):
     m, profiles = comparison["metrics"], comparison["profiles"]
     spec = lambda head, rows: {"head": head, "rows": rows}
     reach = []
     equivalent = []
+    closest = []
     rungs = sorted({g for v in lane.values() for g in v["by_rung"]}, key=lambda g: int(g[1:]))
     for c, v in lane.items():
+        selected = closest_lanes(m, c, comparison["matches"][c])
         cleared, miss = profiles[c]
         reach.append([c, f"L{cleared}" + (" (not run further)" if miss is None else ""),
                       *[f'{v["by_rung"][g]["passed"]}/{v["by_rung"][g]["n"]}' if g in v["by_rung"] else "–" for g in rungs],
@@ -149,11 +223,16 @@ def tables(comparison, lane, money):
             equivalent.append([c, configs.family(e), configs.display(e), f"L{ec}", f"L{em}" if em else "none",
                                f'{other["passes"]}/{other["n"]}', f'{other["median_s"]:.1f}', money(other["usd_per_pass"]),
                                ratio("median_s"), ratio("usd_per_pass")])
+            if e in selected:
+                closest.append([c, configs.family(e), configs.display(e), ratio("median_s"), ratio("usd_per_pass")])
         if not comparison["matches"][c]:
             equivalent.append([c, "–", "no matching profile"] + ["–"] * 7)
-    return {"grok_repository": repository_section(money),
+    return {"grok_at_glance": at_a_glance(comparison, lane, repository_comparison()),
+            "grok_repository": repository_section(money),
+            "grok_selection_note": SELECTION_NOTE,
             "grok_reach": spec(["config", "cleared through", *rungs, "passes", "median s", "$ per pass", "coverage", "total $"], reach),
-            "grok_equivalent": spec(["Grok config", "family", "closest equivalent", "cleared through", "first miss",
+            "grok_equivalent": spec(["Grok config", "family", "closest lane", "Grok time / lane", "Grok cost / lane"], closest),
+            "grok_equivalent_all": spec(["Grok config", "family", "matching lane", "cleared through", "first miss",
                                      "same-problem passes", "median s", "$ per pass", "Grok time / equivalent", "Grok cost / equivalent"], equivalent)}
 
 
@@ -204,28 +283,34 @@ def repository_section(money):
     multiples = table(["Grok config", "existing lane", "Grok time / lane", "Grok $ per pass / lane"],
                       [[c, other, ratio(c, other, "median_s"), ratio(c, other, "usd_per_pass")]
                        for c in grok for other in others])
+    closest = table(["Grok config", "family", "closest lane", "Grok time / lane", "Grok $ per pass / lane"],
+                    [[c, configs.family(other), other, ratio(c, other, "median_s"), ratio(c, other, "usd_per_pass")]
+                     for c in grok for other in closest_lanes(m, c, others)])
     best = max(grok, key=lambda c: (m[c]["passes"] / m[c]["n"], -m[c]["median_s"]))
     claude = [c for c in others if configs.family(c) == "Claude"]
     claude_counts = ", ".join(f'{c} {m[c]["passes"]}/{m[c]["n"]}' for c in claude)
     claude_time = "–" if not claude else f'{min(m[c]["median_s"] for c in claude):.1f}–{max(m[c]["median_s"] for c in claude):.1f}'
     usable = m[best]["passes"] == m[best]["n"]
-    tradeoff = ", though Claude is faster and cheaper" if claude and all(
+    tradeoff = " Claude is faster and cheaper." if claude and all(
         m[c]["median_s"] < m[best]["median_s"] and m[c]["usd_per_pass"] is not None
         and m[best]["usd_per_pass"] is not None and m[c]["usd_per_pass"] < m[best]["usd_per_pass"]
         for c in claude) else ""
-    verdict = (f'Grok is {"a usable fallback" if usable else "a less reliable fallback"} for these small repo tasks when Codex is out{tradeoff}: '
-               f'{best} passed {m[best]["passes"]}/{m[best]["n"]} at {m[best]["median_s"]:.1f} s median, '
-               f'compared with today’s Claude fallback lanes ({claude_counts}) at {claude_time} s median.')
+    verdict = (f'Grok is {"a usable fallback" if usable else "a less reliable fallback"} for these small repo tasks when Codex is out.'
+               f'{tradeoff} '
+               f'{best} passed {m[best]["passes"]}/{m[best]["n"]} at {m[best]["median_s"]:.1f} s median. '
+               f'Today’s Claude fallback lanes ({claude_counts}) took {claude_time} s median.')
     sources = ", ".join(f"`{s}`" for s in data["sources"])
-    return ("### Repository tasks\n\n"
+    return ("### Repository tasks\n\n" + verdict + "\n\n" + closest +
+            "\n\n<details><summary>All matching lanes</summary>\n\n" + multiples +
+            "\n\n</details>\n\n<details><summary>Run conditions and measurements</summary>\n\n"
             f'{len(data["tasks"])} tasks ({", ".join(data["tasks"])}); Grok: 2 repeats per task and config, '
             "4 parallel lanes, tools on, no web or subagents, 1,500 s timeout; all 16 runs retained with no performance stop rule. "
             "Existing lanes: 3 repeats per task; clean-home Codex replacements are used where available. "
             "A pass requires both visible and hidden tests; hidden tests run after the agent exits.\n\n"
-            + metrics + "\n\n" + multiples + "\n\n" + verdict + "\n\n"
+            + metrics + "\n\n"
             f'Grok total measured spend: {money(data["total_usd"])} of the $15 budget. '
             "Grok and Claude costs are CLI-reported; Codex costs are token-price proxies. "
             "Multiples use median wall time and total cost per passing attempt, respectively. "
             "Turns use each CLI’s convention and are not directly comparable across CLIs. "
             "This is a small exploratory sample on a shared host, not a general repo-work guarantee. "
-            f"Sources: {sources}.")
+            f"Sources: {sources}.\n\n</details>")

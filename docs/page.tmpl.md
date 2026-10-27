@@ -107,14 +107,19 @@
 </section>
 <section id="grok">
 <h2><span class="num"></span>Grok</h2>
+{{table:grok_at_glance}}
 {{table:grok_summary}}
 <h3>Where does Grok get to?</h3>
 {{table:grok_reach}}
 <p>{{grok_reach_note}}</p>
 <h3>Closest equivalent</h3>
+{{table:grok_equivalent}}
+{{table:grok_selection_note}}
+<details><summary>All matching lanes</summary>
 <p>{{grok_match_rule}}</p>
 <p class="small">{{grok_scope}}</p>
-{{table:grok_equivalent}}
+{{table:grok_equivalent_all}}
+</details>
 <h3>Is Grok better at anything?</h3>
 <p>{{grok_verdict}}</p>
 {{table:grok_repository}}
