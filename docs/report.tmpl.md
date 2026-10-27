@@ -14,6 +14,26 @@ The main run was on 2026-10-22: {{claude_usd}} of Claude CLI-reported spend (fun
 
 Function track: {{n_problems}} problems × {{repeats}} attempts per config. Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all {{n_problems}} problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
 
+## Grok
+
+{{grok_summary}}
+
+### Where does Grok get to?
+
+{{table:grok_reach}}
+
+### Closest equivalent
+
+{{grok_match_rule}}
+
+{{grok_scope}}
+
+{{table:grok_equivalent}}
+
+### Is Grok better at anything?
+
+{{grok_verdict}}
+
 @page <div class="callout">
 @page 
 ## Can luna run on fewer tokens?

@@ -654,29 +654,30 @@ def short_table(s, need):
     subset_label = f'{configs.set_label("rescue set", capital=True)}: {len(s["design"]["rescue_problems"])} problems × {repeats} tries = {a[HARD[0][0]]["n"]} attempts'
     return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>$ per pass</th>'
             '<th>Claude $</th><th>median s</th><th>verdict</th></tr></thead>'
-            + group(ladder_label, top, "main") + group(subset_label, hard, "rescue") + low_group + '</table></div>' + grok_table(s))
+            + group(ladder_label, top, "main") + group(subset_label, hard, "rescue") + low_group + '</table></div>')
 
 
-def grok_table(s):
-    """First-half results stand apart from every full-ladder comparison."""
+def grok_fail(s):
+    """Append partial-ladder config rows to the failure widget in its existing colours."""
     lane = s.get("grok", {})
     if not lane: return ""
-    rows = []
-    for c in GROK_ORDER:
-        if c not in lane: continue
-        v = lane[c]
-        rows.append(f'<tr><td><svg width="20" height="20" viewBox="0 0 20 20" {NS} aria-hidden="true">{config_marker(c, 10, 10)}</svg> {esc(DISP(c))}</td>'
-                    f'<td>{len(v["by_problem"])} of {len(s["problems"])} problems</td>'
-                    f'<td>{dataset.pct(v["pass_at_1"])} ({v["passes"]}/{v["n"]})</td>'
-                    f'<td>{dataset.usd(v["usd_per_pass"])}</td><td>{dataset.usd(v["usd_total"])}</td>'
-                    f'<td>{v["latency_s"]["median"]:.1f}</td></tr>')
-    return ('<h3>Grok (first half)</h3><p class="small">Exploratory function lane added 2026-10-26 at operator request: '
-            'p01–p06, L1–L3. L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained. '
-            'CLI-reported cost; list price not used. '
-            'L4–L6 were not run; excluded from full-ladder comparisons.</p>'
-            '<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>coverage</th>'
-            '<th>passed</th><th>$ per pass</th><th>total $</th><th>median s</th></tr></thead><tbody>'
-            + ''.join(rows) + '</tbody></table></div>')
+    rungs = sorted({v["rung"] for v in s["problems"].values()})
+    out = ['<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th>']
+    out += [f'<th>L{g}</th>' for g in rungs]
+    out.append('</tr></thead><tbody>')
+    for c, v in lane.items():
+        out.append(f'<tr><td>{esc(c)}</td>')
+        for g in rungs:
+            cell = v["by_rung"].get(f"L{g}")
+            if not cell:
+                out.append('<td class="muted">not run</td>')
+                continue
+            k, n = cell["passed"], cell["n"]
+            colour = "good" if k == n else "warn" if k * 2 > n else "bad"
+            out.append(f'<td style="background:var(--{colour});color:var(--panel);font-weight:600">{k}/{n}</td>')
+        out.append('</tr>')
+    return "".join(out + ["</tbody></table></div>"])
+
 
 
 def result_notes(s):
@@ -974,6 +975,7 @@ def widgets(s, need, ds=None, names=None):
             "sets": lambda: sets_box(s), "grid": lambda: grid(s), "floor": lambda: floor(s), "pipes": lambda: pipes(arms),
             "fast": lambda: fast(s), "explorer": lambda: explorer(s), "short_table": lambda: short_table(s, need),
             "full_table": lambda: full_table(ds or dataset.read()), "result_notes": lambda: result_notes(s),
+            "grok_catalog": lambda: "", "grok_fail": lambda: grok_fail(s),
             "front_pass": lambda: ", ".join(map(DISP, fa)),
             "front_speed": lambda: speed_frontier_text(s, fb), "winner": lambda: winner_table(ds or dataset.read(), need),
             "hb_qa": lambda: "".join(f'<li>{esc(line)}</li>' for line in s["facts"]["hb_qa"]),

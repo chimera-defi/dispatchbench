@@ -1,7 +1,7 @@
 <header class="head">
 <p class="headlinks"><a href="https://chimericlabs.xyz/">← Chimeric Labs</a><a href="https://github.com/chimera-defi/dispatchbench">Source on GitHub</a></p>
 <h1>DispatchBench: which model should a coding task go to?</h1>
-<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#pareto">Cost vs accuracy</a><a href="#results">Results</a><a href="#method">How it was run</a><a href="#fail">Where they fail</a><a href="#tokens">Baseline input tokens</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#limits">Limitations</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#interesting">Interesting</a><a href="#equiv">Codex vs Claude</a></nav>
+<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#pareto">Cost vs accuracy</a><a href="#results">Results</a><a href="#grok">Grok</a><a href="#method">How it was run</a><a href="#fail">Where they fail</a><a href="#tokens">Baseline input tokens</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#limits">Limitations</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#interesting">Interesting</a><a href="#equiv">Codex vs Claude</a></nav>
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
@@ -105,6 +105,19 @@
 </ul>
 </details>
 </section>
+<section id="grok">
+<h2><span class="num"></span>Grok</h2>
+{{table:grok_summary}}
+<h3>Where does Grok get to?</h3>
+{{table:grok_reach}}
+<h3>Closest equivalent</h3>
+<p>{{grok_match_rule}}</p>
+<p class="small">{{grok_scope}}</p>
+{{table:grok_equivalent}}
+<h3>Is Grok better at anything?</h3>
+<p>{{grok_verdict}}</p>
+{{w_grok_catalog}}
+</section>
 <section class="method" id="method">
 <h2><span class="num"></span>❓ How it was run</h2>
 <p class="small">Every config (model + effort) got the same new problems and hidden tests. Tools were off: no code runs, file reads or search. Logs confirm it for {{codex_tool_free}} Codex calls.</p>
@@ -160,6 +173,8 @@
 <li>E/M/H = my LeetCode difficulty guess: Easy, Medium, Hard.</li>
 </ul>
 {{w_grid}}
+<p class="small">{{grok_not_run}}</p>
+{{w_grok_fail}}
 <ul class="tight small">
 <li>p04 taller_within (L2): luna-low, luna-medium and luna-low-bare each passed only {{p04_passes}} of {{repeats}} tries.</li>
 <li>haiku-low never gave a wrong answer.</li>

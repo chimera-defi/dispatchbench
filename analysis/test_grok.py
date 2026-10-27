@@ -1,10 +1,37 @@
 """Exercise the pending Grok lane without changing any graded results files."""
 import copy
 import json
+import re
+from collections import Counter, defaultdict
+from html.parser import HTMLParser
 
 import pytest
 
-from analysis import charts, configs, dataset, page, report, summarize
+from analysis import charts, configs, dataset, grok, page, report, summarize
+
+
+class GrokScope(HTMLParser):
+    """Count every config occurrence, including attributes and embedded chart/script data."""
+    def __init__(self):
+        super().__init__()
+        self.sections = []
+        self.counts = defaultdict(Counter)
+
+    def check(self, text):
+        for config in re.findall(r"grok47[a-z-]*", text):
+            section = self.sections[-1] if self.sections else None
+            assert section in {"grok", "fail"}, (config, section)
+            self.counts[config][section] += 1
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "section": self.sections.append(dict(attrs).get("id"))
+        self.check(self.get_starttag_text())
+
+    def handle_endtag(self, tag):
+        if tag == "section": self.sections.pop()
+
+    def handle_data(self, text):
+        self.check(text)
 
 
 def test_function_rows_loads_separate_grok_file(tmp_path, monkeypatch):
@@ -83,8 +110,48 @@ def test_first_half_rows_render_without_changing_full_ladder(monkeypatch):
     assert dataset.get(ds, "grok47-high", "partial ladder")["usd_per_pass"] is None
     monkeypatch.setattr(dataset, "read", lambda: ds)
     readme, full, html = report.render()
-    assert "Grok (first half)" in full and "6 of 12 problems" in full
-    assert "Grok (first half)" in html and "6 of 12 problems" in html
+    assert "## Grok\n" in full and "6 of 12 problems" in full
+    assert '<section id="grok">' in html and "6 of 12 problems" in html
     assert "L4–L6 were not run" in html and "CLI-reported cost; list price not used" in html
     assert all(c in html for c in configs.GROK_CONFIGS)
-    assert "Grok (first half)" not in readme  # README currently shows only the Winner table.
+    scope = GrokScope()
+    scope.feed(html)
+    assert set(scope.counts) == set(configs.GROK_CONFIGS)
+    assert all(set(counts) == {"grok", "fail"} for counts in scope.counts.values())
+    assert "Grok" not in readme  # README currently shows only the Winner table.
+    assert "Grok" not in full.split("## Grok\n")[0]
+    assert "Grok" not in full.split("## Can luna")[1]
+
+
+def test_ladder_profile_stops_at_first_miss_even_if_later_rungs_pass():
+    assert grok.profile({"L1": [10, 10], "L2": [10, 10], "L3": [9, 10], "L4": [10, 10]}) == (2, 3)
+    assert grok.profile({"L1": [10, 10], "L2": [4, 4], "L3": [4, 4]}) == (3, None)
+
+
+def test_comparison_filters_phases_and_prices_codex_fast_tokens(monkeypatch):
+    def row(config, phase, rung=1, passed=True, sec=10, cli="codex", measured=None):
+        return dict(config=config, phase=phase, problem=f"p0{rung}", rung=rung, repeat=1, passed=passed,
+                    wall_s=sec, cli=cli, model="gpt-6-astra", cost_usd=measured,
+                    in_tok=1000, cached_tok=500, out_tok=100)
+    rows = [row("grok47-high", "main", g, cli="grok", measured=0.1) for g in (1, 2, 3)]
+    rows += [row(c, "exploratory", g) for c in ("astra-medium", "astra-medium-fast") for g in (1, 2, 3)]
+    rows += [row("astra-medium", phase, sec=999, passed=False) for phase in
+             ("warmup", "calibration", "fastmode", "escalation", "hard")]
+    rows += [dict(row("astra-medium", "main"), problem="outside-window", wall_s=999)]
+    monkeypatch.setattr(summarize, "function_rows", lambda: rows)
+    ladder = {f"L{g}": [10, 10] for g in range(1, 7)}
+    ds = {"rows": [dict(source="main", set="main ladder", config=c, by_rung=ladder)
+                   for c in ("astra-medium", "astra-medium-fast")]}
+    lane = {"grok47-high": dict(by_problem={f"p0{g}": 1 for g in (1, 2, 3)},
+                              by_rung={f"L{g}": dict(passed=1, n=1) for g in (1, 2, 3)})}
+    comparison = grok.build(ds, {"grok": lane})
+    normal = comparison["metrics"]["astra-medium"]
+    fast = comparison["metrics"]["astra-medium-fast"]
+    expected = (500 * summarize.PRICES["gpt-6-astra"]["input"] +
+                500 * summarize.PRICES["gpt-6-astra"]["cached_input"] +
+                100 * summarize.PRICES["gpt-6-astra"]["output"]) / 1e6
+    assert normal["passes"] == normal["n"] == 3 and normal["median_s"] == 10
+    assert normal["usd_per_pass"] == pytest.approx(expected)
+    assert fast["usd_per_pass"] == pytest.approx(2 * expected)
+    assert comparison["metrics"]["grok47-high"]["usd_per_pass"] == pytest.approx(0.1)
+    assert comparison["matches"]["grok47-high"] == ["astra-medium", "astra-medium-fast"]

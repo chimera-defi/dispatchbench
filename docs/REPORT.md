@@ -29,18 +29,52 @@ The main run was on 2026-10-22: $2.46 of Claude CLI-reported spend (function + a
 | sol61-high † | 100% (60/60) | ≥78% (all passed) | 27.4 | 50.2 | $0.019 | $1.12 | proxy |
 | sol61-high ⚡ † | 100% (60/60) | ≥78% (all passed) | 17.4 | 27.9 | $0.036 | $2.15 | proxy |
 
-### Grok (first half)
-
-Exploratory function lane added 2026-10-26 at operator request: p01–p06, L1–L3. L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained. CLI-reported cost; list price not used. L4–L6 were not run; excluded from full-ladder comparisons.
-
-| config | coverage | passed | $ per pass | total $ (CLI-measured) | median s |
-|---|---|---|---|---|---|
-| grok47-low | 6 of 12 problems | 96% (23/24) | $0.054 | $1.24 | 26.5 |
-| grok47-medium | 6 of 12 problems | 95% (20/21) | $0.066 | $1.33 | 32.6 |
-| grok47-high | 6 of 12 problems | 100% (18/18) | $0.072 | $1.29 | 41.0 |
-| grok47fast-low | 6 of 12 problems | 96% (23/24) | $0.11 | $2.56 | 19.4 |
-
 Function track: 12 problems × 5 attempts per config. Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
+
+## Grok
+
+Grok is accurate but slow and mid-priced. grok47-high passed 18 of 18 but took 41 s per call at the median. Every existing lane at 100% finished in 6.9 to 16.9 s.
+
+grok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4), so the pre-registered stop rule fired for all three.
+
+Cost per pass is $0.054 to $0.111. Claude haiku and the Codex luna lanes are under $0.003. Only the Codex astra lanes cost as much.
+
+### Where does Grok get to?
+
+| config | cleared through | passes | median s | $ per pass | coverage | total $ |
+|---|---|---|---|---|---|---|
+| grok47-low | L2 | 23/24 | 26.5 | $0.054 | 6 problems | $1.24 |
+| grok47-medium | L2 | 20/21 | 32.6 | $0.066 | 6 problems | $1.33 |
+| grok47-high | L3 (not run further) | 18/18 | 41.0 | $0.072 | 6 problems | $1.29 |
+| grok47fast-low | L2 | 23/24 | 19.4 | $0.11 | 6 problems | $2.56 |
+
+### Closest equivalent
+
+Match the highest rung cleared without an earlier miss and the first rung with a miss on the 12-problem main ladder; with no Grok miss through L3, include every lane that clears through L3 and show its later profile.
+
+Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory phases only. Warmup, calibration, fastmode, escalation and hard phases are excluded. Grok has small n and was not run past L3, so cleared L3 is a floor. CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier.
+
+| Grok config | family | closest equivalent | cleared through | first miss | same-problem passes | median s | $ per pass | Grok time / equivalent | Grok cost / equivalent |
+|---|---|---|---|---|---|---|---|---|---|
+| grok47-low | Claude | haiku-medium | L2 | L3 | 29/30 | 10.6 | $0.0011 | 2.5× | 50.1× |
+| grok47-low | Codex | luna-high | L2 | L3 | 24/25 | 9.0 | $0.00092 | 2.9× | 58.7× |
+| grok47-medium | Claude | haiku-medium | L2 | L3 | 29/30 | 10.6 | $0.0011 | 3.1× | 61.8× |
+| grok47-medium | Codex | luna-high | L2 | L3 | 24/25 | 9.0 | $0.00092 | 3.6× | 72.3× |
+| grok47-high | Codex | astra-medium | L6 | none | 30/30 | 12.7 | $0.064 | 3.2× | 1.1× |
+| grok47-high | Codex | astra-medium ⚡ | L6 | none | 30/30 | 6.9 | $0.13 | 6.0× | 0.6× |
+| grok47-high | Claude | haiku-high | L6 | none | 30/30 | 11.8 | $0.0022 | 3.5× | 33.1× |
+| grok47-high | Claude | haiku-low | L4 | L5 | 30/30 | 8.2 | $0.00066 | 5.0× | 109.3× |
+| grok47-high | Codex | sol56-high | L6 | none | 30/30 | 10.0 | $0.032 | 4.1× | 2.3× |
+| grok47-high | Codex | sol61-high | L6 | none | 30/30 | 16.9 | $0.015 | 2.4× | 4.7× |
+| grok47-high | Codex | sol61-high ⚡ | L6 | none | 20/20 | 9.8 | $0.026 | 4.2× | 2.8× |
+| grok47-high | Codex | sol61-medium | L5 | L6 | 30/30 | 15.4 | $0.012 | 2.7× | 5.9× |
+| grok47-high | Claude | sonnet-medium | L6 | none | 30/30 | 9.5 | $0.010 | 4.3× | 7.2× |
+| grok47fast-low | Claude | haiku-medium | L2 | L3 | 29/30 | 10.6 | $0.0011 | 1.8× | 103.4× |
+| grok47fast-low | Codex | luna-high | L2 | L3 | 24/25 | 9.0 | $0.00092 | 2.2× | 121.1× |
+
+### Is Grok better at anything?
+
+grok47-high costs less per pass than astra-medium-fast. No Grok config beats a listed equivalent on time or pass rate.
 
 ## Can luna run on fewer tokens?
 
