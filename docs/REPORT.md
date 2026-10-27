@@ -35,16 +35,16 @@ Function track: 12 problems × 5 attempts per config. Click a column header on t
 
 ### At a glance
 
-- **Function track.** grok47-low: rung L2; first miss L3. grok47-medium: rung L2; first miss L3. grok47-high: rung L3; later rungs untested. grok47fast-low: rung L2; first miss L3.
-- **Closest lanes for rung L2 configs.** Against Claude haiku-medium, Grok takes 1.8–3.1× as long and costs 50.1–103.4× as much per pass. Against Codex luna-high, Grok takes 2.2–3.6× as long and costs 58.7–121.1× as much per pass.
-- **Closest lanes for grok47-high.** Against Claude haiku-high, Grok takes 3.5× as long and costs 33.1× as much per pass. Against Codex sol61-high, Grok takes 2.4× as long and costs 4.7× as much per pass.
-- **Cost wins.** grok47-high costs 0.55× as much per function pass as astra-medium fast. grok47-low costs 0.42× as much per repo-task pass as astra-medium.
-- **Repo tasks.** grok47-high: 8/8 passes, 442.1 s median. grok47-low: 8/8 passes, 98.9 s median. Small exploratory sample on a shared host.
-- **Codex out:** Claude Haiku stays the first fallback. Grok is usable after that on these small repo tasks.
+- **Function track.** grok47-low: cleared L1-L2; first miss L3. grok47-medium: cleared L1-L2; first miss L3. grok47-high: cleared L1-L3; not run further. grok47fast-low: cleared L1-L2; first miss L3.
+- **Closest lanes for configs that cleared through L2.** Against Claude haiku-medium, Grok takes 1.8–3.1× as long and costs 50.1–103.4× as much per pass. Against Codex luna-high, Grok takes 2.2–3.6× as long and costs 58.7–121.1× as much per pass. Across all Claude 100% lanes, Grok takes 1.6–4.0× as long and costs 5.4–169.3× as much per pass. Across all Codex 100% lanes, Grok takes 1.1–4.7× as long and costs 0.4–9.2× as much per pass.
+- **Closest lanes for grok47-high.** Against Claude haiku-high, Grok takes 3.5× as long and costs 33.1× as much per pass. Against Codex sol61-high, Grok takes 2.4× as long and costs 4.7× as much per pass. Across all Claude 100% lanes, Grok takes 3.5–5.0× as long and costs 7.2–109.3× as much per pass. Across all Codex 100% lanes, Grok takes 2.4–6.0× as long and costs 0.6–5.9× as much per pass.
+- **Only cost edge.** grok47-high is cheaper per pass than astra-medium ⚡ (fast mode, 2× list price) on functions (0.55×). grok47-low is cheaper per pass than plain astra-medium on repo tasks (0.42×) while 1.5× slower. Codex dollars are list-price proxies. grok47-low takes 0.84× as long as sol61-high on repo tasks.
+- **Repo tasks.** grok47-high: 8/8 passes, 442.1 s median. Across all Claude 100% lanes, Grok takes 7.6–15.9× as long and costs 10.0–105.5× as much per pass. Across all Codex 100% lanes, Grok takes 3.7–6.7× as long and costs 1.2–6.7× as much per pass. grok47-low: 8/8 passes, 98.9 s median. Across all Claude 100% lanes, Grok takes 1.7–3.6× as long and costs 3.5–37.0× as much per pass. Across all Codex 100% lanes, Grok takes 0.8–1.5× as long and costs 0.4–2.4× as much per pass. Small exploratory sample on a shared host.
+- **Codex out:** Per the routing rule, Claude Haiku stays the first fallback when Codex is out; these runs show Grok is usable after that on small repo tasks.
 
 Grok is accurate but slow and mid-priced. grok47-high passed 18 of 18 but took 41 s per call at the median. Every existing lane at 100% finished in 6.9 to 16.9 s.
 
-grok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4) on p06_calc, so the pre-registered stop rule fired for all three.
+grok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4), so the pre-registered stop rule fired for all three.
 
 Cost per pass is $0.054 to $0.111. Claude haiku and the Codex luna lanes are under $0.003. Only the Codex astra lanes cost as much.
 
@@ -57,7 +57,7 @@ Cost per pass is $0.054 to $0.111. Claude haiku and the Codex luna lanes are und
 | grok47-high | L3 (not run further) | 10/10 | 4/4 | 4/4 | 18/18 | 41.0 | $0.072 | 6 problems | $1.29 |
 | grok47fast-low | L2 | 10/10 | 10/10 | 3/4 | 23/24 | 19.4 | $0.11 | 6 problems | $2.56 |
 
-Totals differ (18, 21, 24) because the run was shortened from 5 to 2 repeats partway through L2 and extra repeats already run were kept; the earlier full-coverage lanes have 30 = 6 problems × 5 repeats; read the rung reached, not the total.
+Totals differ (18, 21, 24) because the run was shortened from 5 to 2 repeats partway through L2 and extra repeats already run were kept; the earlier full-coverage lanes have 30 = 6 problems × 5 repeats; read the rung reached, not the total. The function misses were on p06_calc.
 
 ### Closest equivalent
 
@@ -80,7 +80,7 @@ Match the highest rung cleared without an earlier miss and the first rung with a
 
 Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory phases only. Warmup, calibration, fastmode, escalation and hard phases are excluded. Grok has small n and was not run past L3, so cleared L3 is a floor. CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier.
 
-| Grok config | family | matching lane | cleared through | first miss | same-problem passes | median s | $ per pass | Grok time / equivalent | Grok cost / equivalent |
+| Grok config | family | matching lane | cleared through | first miss | same-problem passes | median s | $ per pass | Grok time / lane | Grok cost / lane |
 |---|---|---|---|---|---|---|---|---|---|
 | grok47-low | Claude | haiku-medium | L2 | L3 | 29/30 | 10.6 | $0.0011 | 2.5× | 50.1× |
 | grok47-low | Codex | luna-high | L2 | L3 | 24/25 | 9.0 | $0.00092 | 2.9× | 58.7× |
@@ -102,7 +102,7 @@ Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory ph
 
 ### Is Grok better at anything?
 
-grok47-high costs less per pass than astra-medium-fast. No Grok config beats a listed equivalent on time or pass rate.
+grok47-high is cheaper per pass than astra-medium ⚡ (fast mode, 2× list price) on functions (0.55×). grok47-low is cheaper per pass than plain astra-medium on repo tasks (0.42×) while 1.5× slower. grok47-low takes 0.84× as long as sol61-high on repo tasks. No Grok config beats a matching function lane on pass rate. No Grok config beats a matching function lane on time.
 
 ### Repository tasks
 
@@ -114,6 +114,8 @@ Grok is a usable fallback for these small repo tasks when Codex is out. Claude i
 | grok47-high | Codex | sol61-high | 3.75× | 5.50× |
 | grok47-low | Claude | haiku-high | 1.69× | 15.55× |
 | grok47-low | Codex | sol61-medium | 1.17× | 2.36× |
+
+Each family shows the lane with the closest pass rate. Ties use the closest median time, then cost per pass.
 
 <details><summary>All matching lanes</summary>
 
