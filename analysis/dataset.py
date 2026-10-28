@@ -866,11 +866,13 @@ def _facts(s, arms):
     need(every['haiku-high']['usd_per_pass'] < min(every[c]['usd_per_pass'] for c in tied + ('sol61-high-fast', 'astra-medium-fast') if c != 'haiku-high'),
          "haiku-high is the cheapest of these")
     word = {3: "Three", 4: "Four", 5: "Five"}[len(tied)]
-    F['winner_line'] = (f"{word} configs passed every try in every set (repo tasks counted as task complete, hidden and visible tests both pass): haiku-high, sonnet-medium, sol61-high and astra-medium. "
-                        f"haiku-high is the cheapest, at {F['hh_upp']} per pass.")
-    F['winner_intro'], F['winner_price'] = F['winner_line'].split('. ', 1)
-    F['winner_intro'] += '.'
-    F['winner_default'] = f"Default delegate on Codex quota: {DISP('sol61-high-fast')}."
+    F['winner_intro'] = (f"{word} configs passed every try in every set. "
+                         "They were haiku-high, sonnet-medium, sol61-high and astra-medium. "
+                         "Repo tasks counted as task complete: hidden and visible tests both pass.")
+    F['winner_price'] = f"haiku-high is the cheapest, at {F['hh_upp']} per pass."
+    F['winner_line'] = F['winner_intro'] + ' ' + F['winner_price']
+    F['winner_default'] = f"With Codex quota, use {DISP('sol61-high-fast')}."
+    F['winner_checks'] = "Run sample tests; send a failed check to haiku-low."
     F['winner_budget'] = f"Cheapest without misses: {DISP('haiku-high')}."
     F['winner_speed'] = f"For speed, pick {DISP('sonnet-medium')}."
     nl7 = hard['sonnet-medium']['n']
