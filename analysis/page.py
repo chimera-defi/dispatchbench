@@ -10,8 +10,8 @@ from analysis.labels import TESTS, DISP, pshort, plabel, plabel_html
 
 # Plot order and family colour (a CSS variable of the page). luna-high is the exploratory full-ladder run.
 ORDER = ["haiku-low", "haiku-medium", "haiku-high", "sonnet-medium", "sol61-medium", "luna-high", "luna-medium", "luna-low", "luna-low-bare",
-         "astra-medium", "astra-medium-fast", "sol61-high", "sol61-high-fast", "sol56-high", "luna56-high", "luna56-low"]
-# ORDER compares all 12 problems; Grok's first-half lane has its own table order.
+         "astra-medium", "astra-medium-fast", "sol61-high", "sol61-high-fast", "sol56-high", "luna56-high", "luna56-low", "terra61-high", "terra61-low"]
+# ORDER compares all 12 problems; Grok has its own table order and series.
 GROK_ORDER = configs.GROK_CONFIGS
 WINNER_PICKS = {"sol61-high-fast": "default", "haiku-high": "budget", "sonnet-medium": "speed"}
 FAM = lambda c: "var(--grok,#000)" if c.startswith("grok") else "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex56)" if c.startswith(("sol56", "luna56")) else "var(--codex)"
@@ -41,6 +41,7 @@ def esc(t):
 # Marker shape by model (colour stays the vendor): read the chart without a label on every point.
 def SHAPE(c):
     if c.startswith("grok"): return "hexagon"
+    if c.startswith("terra"): return "pentagon"
     if "luna" in c:
         return "triangle-down" if "high" in c else "triangle-right" if "medium" in c else "triangle"
     return "circle" if c.startswith("haiku") else "square" if c.startswith("sonnet") else "star" if c.startswith("astra") else "diamond"
@@ -61,7 +62,7 @@ def config_marker(c, x, y, col=None, k=1.0):
 
 
 def point_category(c):
-    if c.startswith("grok"): return "grok"  # registered as exploratory, but it is its own first-half series
+    if c.startswith("grok"): return "grok"  # registered as exploratory, but it is its own series
     if "+" in c: return "pipelines"
     if c.endswith("-fast"): return "fast"
     # Winner picks sit with the main ladder in chart filters, even ones added after the main run (haiku-high).
@@ -78,6 +79,7 @@ def marker(kind, x, y, fill, stroke, dash=False, k=1.0, width=2.5):
     elif kind == "triangle-down": v = [(0, 8.5), (7.5, -5.5), (-7.5, -5.5)]
     elif kind == "triangle-right": v = [(8.5, 0), (-5.5, 7.5), (-5.5, -7.5)]
     elif kind == "diamond": v = [(0, -8.5), (8.5, 0), (0, 8.5), (-8.5, 0)]
+    elif kind == "pentagon": v = [(8 * math.sin(math.radians(72 * i)), -8 * math.cos(math.radians(72 * i))) for i in range(5)]
     else: v = [(r * math.sin(math.radians(36 * i)), -r * math.cos(math.radians(36 * i))) for i, r in enumerate([9.5, 4] * 5)]
     return f'<polygon points="{" ".join(f"{x + dx * k:.1f},{y + dy * k:.1f}" for dx, dy in v)}"{a}/>'
 
@@ -316,13 +318,13 @@ def frontier_caption(s):
 
 
 def grok_group_label(s):
-    """Legend name for the first-half series. The counts come from the problems Grok actually ran."""
+    """Legend name for the Grok series. The counts come from the problems the plotted configs actually ran."""
     lane = s.get("grok") or {}
-    covered = sorted({p for v in lane.values() for p in v.get("by_problem") or {}})
+    covered = sorted({p for c, v in lane.items() if c not in configs.CHART_HIDDEN for p in v.get("by_problem") or {}})
     nprob = len(s.get("problems") or [])
     if not covered or not nprob:
         return None
-    return f"Grok (first half, {len(covered)} of {nprob} problems)"
+    return f"Grok (all {nprob} problems)" if len(covered) == nprob else f"Grok ({len(covered)} of {nprob} problems)"
 
 
 def ladder_toggle(render, s):
@@ -377,13 +379,13 @@ def ladder_repairs(free, stat, arms=None):
 
 
 def grok_chart_points(s, stat):
-    """Each Grok config on its own p01-p06 rows. Cost stays the measured bill in both quota modes."""
+    """Each plotted Grok config on its own rows. Cost stays the measured bill in both quota modes."""
     note = (s.get("facts") or {}).get("grok_chart_note", "")
     pts = []
     lane = s.get("grok") or {}
     for c in GROK_ORDER:
         v = lane.get(c)
-        if not v or not v.get("usd_per_pass"):
+        if not v or not v.get("usd_per_pass") or c in configs.CHART_HIDDEN:
             continue
         usd = v["usd_per_pass"]
         if stat == "speed":
@@ -540,7 +542,7 @@ def hard_speed_cost(arms=None):
 
 def grid(s, grok=None):
     """Problems (rows, by rung) × configs (columns); each cell is passes out of the attempts at that problem.
-    grok maps each Grok config to {problem: [passes, attempts]}; it covers the first half only, so other cells show a dash."""
+    grok maps each Grok config to {problem: [passes, attempts]}; a config that skipped a problem shows a dash there."""
     grok = grok or {}; cols = ORDER + [c for c in GROK_ORDER if c in grok]
     E = every(s); probs = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
     main = set(probs)

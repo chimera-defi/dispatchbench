@@ -31,15 +31,23 @@ def measurements(rows):
             "usd_per_pass": summarize.usd(map(summarize.cost, rows), passed, digits=None)}
 
 
-def build(ds, summary):
-    """Persist source scope, measurements, profiles and every compatible equivalent."""
-    lane = summary.get("grok", {})
+def build(ds, summary, key="grok", first=False):
+    """Persist source scope, measurements, profiles and every compatible equivalent.
+
+    key picks the lane block of the summary. first=True rebuilds the 2026-10-26 run as it was: only its own Grok rows, and only the
+    lanes that existed then (Terra came later)."""
+    lane = summary.get(key, {})
     if not lane:
         return {}
     problems = sorted({p for v in lane.values() for p in v["by_problem"]})
     grouped = defaultdict(list)
     for r in summarize.function_rows():
         if r["phase"] in ("main", "exploratory") and r["problem"] in problems:
+            grok_row = r["config"] in configs.GROK_CONFIGS
+            if first and (r["config"].startswith("terra") or (grok_row and r.get("_file", configs.FIRST_GROK_FILE) != configs.FIRST_GROK_FILE)):
+                continue
+            if grok_row and r["repeat"] > 5:
+                continue
             grouped[r["config"]].append(r)
     metrics = {c: measurements(rr) for c, rr in grouped.items()}
     ladder = {r["config"]: r for r in ds["rows"] if r["source"] == "main" and r["set"] == "main ladder"}
@@ -51,7 +59,16 @@ def build(ds, summary):
         # An unmissed partial ladder is censored: later success or failure is unknown.
         matches[c] = [other for other in sorted(ladder) if other in metrics and
                       (profiles[other] == p if p[1] is not None else profiles[other][0] >= p[0])]
-    return {"problems": problems, "phases": ["main", "exploratory"], "metrics": metrics,
+    scoped = {}
+    for c in lane:  # a Grok config that covers fewer problems is compared with the others on its own problems
+        own = sorted(lane[c]["by_problem"])
+        if own != problems:
+            scoped[c] = {k: measurements(sub) for k, rr in grouped.items() if (sub := [r for r in rr if r["problem"] in own])}
+    return {"problems": problems, "phases": ["main", "exploratory"], "metrics": metrics, "scoped": scoped,
+            "lanes": sorted(o for o in ladder if o in metrics and o not in lane
+                            and {r["problem"] for r in grouped[o]} == set(problems)),
+            "partial_lanes": sorted(o for o in ladder if o in metrics and o not in lane
+                                    and {r["problem"] for r in grouped[o]} != set(problems)),
             "profiles": profiles, "matches": matches,
             "repeat_counts": {c: {g: {p: len({r["repeat"] for r in rr if r["problem"] == p})
                                       for p in sorted({r["problem"] for r in rr if r["rung"] == g})}
@@ -282,6 +299,129 @@ def tables(comparison, lane, money):
             "grok_equivalent": spec(["Grok config", "family", "closest lane", "Grok time / lane", "Grok cost / lane"], closest),
             "grok_equivalent_all": spec(["Grok config", "family", "comparable lane", "cleared through", "first miss",
                                      "same-problem passes", "median s", "$ per pass", "Grok time / lane", "Grok cost / lane"], equivalent)}
+
+
+def joined(items):
+    items = list(items)
+    if not items:
+        return "no rung"
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
+
+
+def full_run(comparison, lane):
+    """Grok configs that ran every problem of the comparison, best pass rate first."""
+    m = comparison["metrics"]
+    return sorted((c for c in lane if sorted(lane[c]["by_problem"]) == comparison["problems"]), key=lambda c: (-m[c]["pass_rate"], c))
+
+
+def stats_text(entry, money):
+    return f'{entry["passes"]}/{entry["n"]}, {entry["median_s"]:.1f} s, {money(entry["usd_per_pass"])} per pass'
+
+
+def full_lead(comparison, lane, money):
+    """The latest Grok result in short sentences: where it got to, its closest lanes, and whether it is better at anything.
+    Every number is read from the measurements."""
+    m, cands = comparison["metrics"], comparison["lanes"]
+    full = full_run(comparison, lane)
+    if not full:
+        return "", ""
+    rungs = sorted({g for c in full for g in lane[c]["by_rung"]}, key=lambda g: int(g[1:]))
+    if not rungs:
+        return "", ""
+    missed = {c: [g for g in rungs if lane[c]["by_rung"][g]["passed"] < lane[c]["by_rung"][g]["n"]] for c in full}
+    clean = [g for g in rungs if all(g not in missed[c] for c in full)]
+    count = {6: "six"}.get(len(rungs), str(len(rungs)))
+    first = [f"Grok got through all {count} rungs, {rungs[0]}–{rungs[-1]}. Every config missed somewhere."]
+    first += [f"{c} passed {m[c]['passes']}/{m[c]['n']} and missed at {joined(missed[c])}." if missed[c] else f"{c} passed {m[c]['passes']}/{m[c]['n']} with no miss." for c in full]
+    if clean:
+        first.append(f"{joined(clean)} {'was' if len(clean) == 1 else 'were'} clean for all {count_word(len(full))}.")
+    best = full[0]
+    near = closest_lanes(m, best, cands)
+    second = [f"For {best}, the closest lane by pass rate in each family is "
+              + joined([f"{configs.family(o)} {configs.display(o)} ({stats_text(m[o], money)})" for o in near]) + ".",
+              f"{best} itself: {stats_text(m[best], money)}."]
+    rows = [(c, o) for c in full for o in closest_lanes(m, c, cands)]
+    times = [m[c]["median_s"] / m[o]["median_s"] for c, o in rows]
+    prices = [m[c]["usd_per_pass"] / m[o]["usd_per_pass"] for c, o in rows if m[c]["usd_per_pass"] is not None and m[o]["usd_per_pass"]]
+    second.append(f"Against the closest lanes of every config, Grok takes {multiple(times)} as long and costs {multiple(prices) if prices else 'unavailable'} as much per pass.")
+    cost = lambda e: m[e]["usd_per_pass"]
+    rate = lambda e: m[e]["pass_rate"]
+    beaten = {c: [o for o in cands if rate(o) >= rate(c) and m[o]["median_s"] < m[c]["median_s"]
+                  and cost(o) is not None and cost(c) is not None and cost(o) < cost(c)] for c in full}
+    third = []
+    if all(beaten.values()):
+        third.append("Not on these problems. Every Grok config is beaten on pass rate, speed and cost at once: "
+                     + " ".join(f"{c} by {len(beaten[c])} lanes (for example {configs.display(min(beaten[c], key=lambda o: (-rate(o), cost(o))))}, "
+                                f"{stats_text(m[min(beaten[c], key=lambda o: (-rate(o), cost(o)))], money)})." for c in full))
+    else:
+        edge = sorted({(c, o) for c in full for o in cands if rate(c) >= rate(o) and cost(c) is not None and cost(o) is not None and cost(c) < cost(o)})
+        third.append("Only in narrow cases: " + "; ".join(f"{c} passes at least as much as {configs.display(o)} and costs less per pass" for c, o in edge) + "." if edge
+                     else "Not on these problems. Some lanes beat a Grok config on only some of pass rate, speed and cost.")
+    more = sorted({o for c in full for o in cands if rate(c) > rate(o)})
+    if more:
+        dearer = all(m[o]["median_s"] < m[c]["median_s"] and cost(o) < cost(c) for c in full for o in cands if rate(c) > rate(o)
+                     and cost(o) is not None and cost(c) is not None)
+        third.append(f"Grok passes more than {joined(map(configs.display, more))}." +
+                     (" Every one of those lanes is faster and cheaper per pass." if dearer else ""))
+    cheaper = sorted({o for c in full for o in cands if cost(c) is not None and cost(o) is not None and cost(c) < cost(o)})
+    if cheaper:
+        pricey = all(rate(o) > rate(c) for c in full for o in cands if cost(c) is not None and cost(o) is not None and cost(c) < cost(o))
+        third.append(f"Grok costs less per pass than only {joined(map(configs.display, cheaper))}." +
+                     (" Each of those passes more than the Grok config that undercuts it." if pricey else ""))
+    faster = sorted({o for c in full for o in cands if m[c]["median_s"] < m[o]["median_s"]})
+    third.append(f"Grok is faster than {joined(map(configs.display, faster))}." if faster else "Grok is faster than no lane.")
+    return "\n\n".join(" ".join(p) for p in (first, second)), " ".join(third)
+
+
+def count_word(n):
+    return {2: "two", 3: "three", 4: "four"}.get(n, str(n))
+
+
+def full_tables(comparison, lane, money):
+    m, cands = comparison["metrics"], comparison["lanes"]
+    full = full_run(comparison, lane)
+    rungs = sorted({g for v in lane.values() for g in v["by_rung"]}, key=lambda g: int(g[1:]))
+    spec = lambda head, rows: {"head": head, "rows": rows}
+    reach = [[c, *[f'{v["by_rung"][g]["passed"]}/{v["by_rung"][g]["n"]}' if g in v["by_rung"] else "–" for g in rungs],
+              f'{m[c]["passes"]}/{m[c]["n"]}', f'{m[c]["median_s"]:.1f}', money(m[c]["usd_per_pass"]), f'{len(v["by_problem"])} problems', money(v["usd_total"])]
+             for c, v in sorted(lane.items(), key=lambda item: (item[0] not in full, full.index(item[0]) if item[0] in full else 0))]
+    closest, every = [], []
+    for c in full:
+        for o in closest_lanes(m, c, cands):
+            ratio = lambda key: "–" if m[c][key] is None or not m[o][key] else f'{m[c][key] / m[o][key]:.1f}×'
+            closest.append([c, configs.family(o), configs.display(o), f'{m[o]["passes"]}/{m[o]["n"]}', f'{m[o]["median_s"]:.1f}',
+                            money(m[o]["usd_per_pass"]), ratio("median_s"), ratio("usd_per_pass")])
+    for c in sorted(full + cands, key=lambda c: (-m[c]["pass_rate"], m[c]["median_s"], c)):
+        every.append([configs.display(c), "Grok" if c in lane else configs.family(c), f'{m[c]["passes"]}/{m[c]["n"]}',
+                      f'{m[c]["median_s"]:.1f}', money(m[c]["usd_per_pass"])])
+    return {"grok_full_reach": spec(["config", *rungs, "passes", "median s", "$ per pass", "coverage", "total $"], reach),
+            "grok_full_closest": spec(["Grok config", "family", "closest lane", "its passes", "its median s", "its $ per pass", "Grok time / lane", "Grok cost / lane"], closest),
+            "grok_full_lanes": spec(["config", "family", "passes", "median s", "$ per pass"], every)}
+
+
+def full_note(comparison, lane, rows):
+    """Scope of the full-spectrum run: repeats, what grok47-medium did, calls killed at the time limit, and where the first run sits."""
+    full = full_run(comparison, lane)
+    problems = comparison["problems"]
+    repeats = sorted({n for c in full for rung in comparison["repeat_counts"][c].values() for n in rung.values()})
+    grok = [r for r in rows if r["config"] in lane and r["repeat"] <= 5]
+    carried = sum(r.get("_file") == configs.FIRST_GROK_FILE for r in grok)
+    partial = [c for c in lane if c not in full]
+    killed = sorted((r["config"], r["problem"], r["repeat"]) for r in grok if r.get("is_error") and r.get("outcome") == "timeout")
+    parts = [f"Each full-run config ran {len(problems)} problems × {joined(map(str, repeats))} repeats "
+             f"(main + exploratory phases, repeats 1–5). {carried} of the {len(grok)} Grok calls come from the first run."]
+    if partial:
+        sub = sorted(lane[partial[0]]["by_problem"])
+        parts.append(f"{joined(partial)} ran {sub[0][:3]}–{sub[-1][:3]} only, as before; it was not extended, so it is not in the closest-lane comparison.")
+    if killed:
+        parts.append(f"{len(killed)} call{'s' if len(killed) > 1 else ''} hit the time limit and {'count' if len(killed) > 1 else 'counts'} as a miss: "
+                     + joined([f"{c} on {p[:3]} repeat {r}" for c, p, r in killed])
+                     + ". A killed call has no bill, so that config's $ per pass is a floor.")
+    if comparison.get("partial_lanes"):
+        parts.append(f"{joined(comparison['partial_lanes'])} did not run every problem in the main and exploratory phases, so they are left out of the comparison.")
+    parts.append("CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier. "
+                 "Closest lane = nearest pass rate among the full-ladder lanes, then nearest median time, then cost per pass.")
+    return " ".join(parts)
 
 
 def repository_comparison():

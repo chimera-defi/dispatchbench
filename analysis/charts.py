@@ -54,10 +54,11 @@ def pareto_chart(s, hero=False):
     """hero: README version, no intervals, labels only on the frontier and the Winner picks."""
     from analysis.page import WINNER_PICKS  # late import: page imports this module
     cfg = {c: v for c, v in s["configs"].items() if v["usd_per_pass"]}
-    extra = {c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"]}  # exploratory, not on the pre-registered frontier
+    extra = {c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"] and c not in configs.CHART_HIDDEN}  # exploratory, not on the pre-registered frontier
     allc = {**cfg, **extra}
-    # Grok ran p01-p06 only. It is drawn on the same scale, never used to set it, and never joins the frontier. The README hero stays the full ladder.
-    grok = {} if hero else {c: v for c, v in (s.get("grok") or {}).items() if v.get("usd_per_pass")}
+    # Grok is drawn on the same scale, never used to set it, and never joins the frontier. The README hero stays the full ladder.
+    # grok47-medium ran p01-p06 only, so it stays off the plot.
+    grok = {} if hero else {c: v for c, v in (s.get("grok") or {}).items() if v.get("usd_per_pass") and c not in configs.CHART_HIDDEN}
     W, H, L, R, T, B = 760, 480, 96, 30, 50, 80
     xs = [v["usd_per_pass"] for v in allc.values()]
     x0, x1 = min(xs) / 1.6, max(xs) * 1.6; y0 = 0.6
@@ -155,7 +156,7 @@ def cost_time_chart(s):
     """$ per pass against median latency, function track L1-L6. The frontier is drawn over configs at or above MIN_PASS
     pass@1: among those, the ones no other config beats on both cost and time."""
     from analysis.page import speed_dominates
-    allc = {**{c: v for c, v in s["configs"].items() if v["usd_per_pass"]}, **{c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"]}}
+    allc = {**{c: v for c, v in s["configs"].items() if v["usd_per_pass"]}, **{c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"] and c not in configs.CHART_HIDDEN}}
     pts = {c: (v["usd_per_pass"], v["latency_s"]["median"]) for c, v in allc.items()}
     ok = {c: p for c, p in pts.items() if allc[c]["pass_at_1"] >= MIN_PASS}
     front = [a for a, (x, y) in ok.items() if not any(speed_dominates({"x": y2, "y": x2}, {"x": y, "y": x}) for b, (x2, y2) in ok.items() if b != a)]
@@ -170,7 +171,7 @@ def cost_time_chart(s):
     for t in range(0, int(y1) + 1, 5):
         b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(t):.1f}' y2='{Y(t):.1f}' stroke='{GRID}'/>", text(L - 8, Y(t) + 4, f"{t} s", 11, "end", MUTED)]
     # Grok is slower than this axis. Extra gridlines sit above it; the scale and the existing lines stay.
-    grok = {c: v for c, v in (s.get("grok") or {}).items() if v.get("usd_per_pass")}
+    grok = {c: v for c, v in (s.get("grok") or {}).items() if v.get("usd_per_pass") and c not in configs.CHART_HIDDEN}
     tops = []
     gmax = max((v["latency_s"]["median"] for v in grok.values()), default=0)
     if gmax > y1:
@@ -281,7 +282,7 @@ def rung_chart(s, ds=None):
 
 def heatmap(s):
     """Main-run configs first, then exploratory ones (muted headers, after a gap); a dash where a config did not run a problem."""
-    ex = s.get("exploratory") or {}
+    ex = {c: v for c, v in (s.get("exploratory") or {}).items() if c not in configs.CHART_HIDDEN}
     cols = [(c, {p: v[c] for p, v in s["problems"].items()}, False) for c in s["configs"]] + [(c, v["by_problem"], True) for c, v in ex.items()]
     probs = sorted(s["problems"], key=lambda q: (s["problems"][q]["rung"], q)); cw, ch, L, T, gap = 50, 24, 250, 130, 14
     X = lambda j: L + j * cw + (gap if cols[j][2] else 0)
@@ -402,7 +403,7 @@ def bars(title, rows, fmt, note, W=360, L=None, R=8, low_start=None, values=None
 
 
 def all_configs(s):
-    return [(c, v, "-fast" in c) for c, v in {**s["configs"], **(s.get("exploratory") or {})}.items()]
+    return [(c, v, "-fast" in c) for c, v in {**s["configs"], **{c: v for c, v in (s.get("exploratory") or {}).items() if c not in configs.CHART_HIDDEN}}.items()]
 
 
 def ladder(ds, s, set_="main ladder"):

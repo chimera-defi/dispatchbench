@@ -7,6 +7,8 @@
   "results/2026-10-22b-trim.jsonl",
   "results/2026-10-25-isolated-agentic.jsonl",
   "results/2026-10-26-grok-function.jsonl",
+  "results/2026-10-28-grok-spectrum-function.jsonl",
+  "results/2026-10-28-terra-function.jsonl",
   "results/appendix/codex_harness.jsonl",
   "results/appendix/harness_bias.jsonl",
   "results/appendix/luna_rescue.jsonl"
@@ -4940,48 +4942,913 @@
    }
   },
   {
+   "id": "main/terra61-low",
+   "source": "main",
+   "config": "terra61-low",
+   "display": "terra61-low",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-6.1-terra, low effort (added 2026-10-28, operator request; main ladder p01–p12, 5 repeats)",
+   "set": "main ladder",
+   "derived": false,
+   "files": [
+    "results/2026-10-28-terra-function.jsonl"
+   ],
+   "passes": 60,
+   "n": 60,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 12,
+   "usd_per_pass": 0.010405,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.010405,
+   "usd_per_call": 0.010405,
+   "spend": 0.624282,
+   "spend_claude": 0.0,
+   "spend_codex": 0.624282,
+   "unknown_usd": 0,
+   "median_s": 10.34,
+   "p25_s": 7.98,
+   "p75_s": 14.78,
+   "tokens_in_mean": 18871,
+   "tokens_out_mean": 537,
+   "tokens_cached_mean": 11738,
+   "tokens_reasoning_mean": 21,
+   "input_floor": [
+    13864,
+    12160
+   ],
+   "p90_s": 20.92,
+   "max_s": 39.15,
+   "by_group": {
+    "p07_weighted_distance_sums": {
+     "passes": 5,
+     "n": 5
+    },
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 5,
+     "n": 5
+    },
+    "p05_pass_route": {
+     "passes": 5,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 5,
+     "n": 5
+    },
+    "p06_calc": {
+     "passes": 5,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 5,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 5,
+     "n": 5
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.7790778080544442,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.010405,
+   "usd_per_1k_tokens": 0.0005361191261335532,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
+   "cost_kind": "proxy",
+   "cli": "codex",
+   "model": "gpt-6.1-terra",
+   "effort": "low",
+   "outcomes": {
+    "pass": 60
+   },
+   "breaking_point": null,
+   "details": {
+    "cli": "codex",
+    "model": "gpt-6.1-terra",
+    "effort": "low",
+    "n": 60,
+    "passes": 60,
+    "pass_at_1": 1.0,
+    "ci95": [
+     1.0,
+     1.0
+    ],
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 60
+    },
+    "input_floor": [
+     13864,
+     12160
+    ],
+    "usd_per_call": 0.010405,
+    "usd_total": 0.624282,
+    "usd_per_pass": 0.010405,
+    "usd_per_pass_L1_L2": 0.009187,
+    "pass_L1_L2": [
+     20,
+     20
+    ],
+    "cost_kind": "proxy",
+    "vs": [
+     {
+      "b": "luna-low",
+      "diff": 0.2333,
+      "ci95": [
+       0.05,
+       0.45
+      ],
+      "problems": 12
+     },
+     {
+      "b": "haiku-low",
+      "diff": 0.05,
+      "ci95": [
+       0.0,
+       0.15
+      ],
+      "problems": 12
+     },
+     {
+      "b": "luna-medium",
+      "diff": 0.2167,
+      "ci95": [
+       0.0333,
+       0.45
+      ],
+      "problems": 12
+     }
+    ],
+    "usd_per_pass_uncached": 0.021555,
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 5,
+     "p04_taller_within": 5,
+     "p05_pass_route": 5,
+     "p06_calc": 5,
+     "p07_weighted_distance_sums": 5,
+     "p08_recur": 5,
+     "p09_k_machine_schedule": 5,
+     "p10_avoid_count": 5,
+     "p11_best_average": 5,
+     "p12_sheet": 5
+    },
+    "misses": 0,
+    "ci95_plot": [
+     0.7790778080544442,
+     1.0
+    ],
+    "usd_text": "$0.010",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.010405,
+    "usd_per_1k_tokens": 0.0005361191261335532
+   }
+  },
+  {
+   "id": "main/terra61-high",
+   "source": "main",
+   "config": "terra61-high",
+   "display": "terra61-high",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-6.1-terra, high effort (added 2026-10-28, operator request; main ladder p01–p12, 5 repeats)",
+   "set": "main ladder",
+   "derived": false,
+   "files": [
+    "results/2026-10-28-terra-function.jsonl"
+   ],
+   "passes": 58,
+   "n": 60,
+   "pass_rate": 0.9667,
+   "ci95": [
+    0.8833,
+    1.0
+   ],
+   "groups": 12,
+   "usd_per_pass": 0.007918,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.007918,
+   "usd_per_call": 0.007654,
+   "spend": 0.459224,
+   "spend_claude": 0.0,
+   "spend_codex": 0.459224,
+   "unknown_usd": 0,
+   "median_s": 11.93,
+   "p25_s": 8.45,
+   "p75_s": 15.42,
+   "tokens_in_mean": 15668,
+   "tokens_out_mean": 643,
+   "tokens_cached_mean": 11821,
+   "tokens_reasoning_mean": 135,
+   "input_floor": [
+    13871,
+    12160
+   ],
+   "p90_s": 19.51,
+   "max_s": 38.62,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p05_pass_route": {
+     "passes": 5,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 5,
+     "n": 5
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 3,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p06_calc": {
+     "passes": 5,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 5,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 5,
+     "n": 5
+    }
+   },
+   "misses": 2,
+   "ci95_plot": [
+    0.8833,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.007918,
+   "usd_per_1k_tokens": 0.00046925387775121084,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     8,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
+   "cost_kind": "proxy",
+   "cli": "codex",
+   "model": "gpt-6.1-terra",
+   "effort": "high",
+   "outcomes": {
+    "pass": 58,
+    "wrong": 2
+   },
+   "breaking_point": null,
+   "details": {
+    "cli": "codex",
+    "model": "gpt-6.1-terra",
+    "effort": "high",
+    "n": 60,
+    "passes": 58,
+    "pass_at_1": 0.9667,
+    "ci95": [
+     0.8833,
+     1.0
+    ],
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 58,
+     "wrong": 2
+    },
+    "input_floor": [
+     13871,
+     12160
+    ],
+    "usd_per_call": 0.007654,
+    "usd_total": 0.459224,
+    "usd_per_pass": 0.007918,
+    "usd_per_pass_L1_L2": 0.011076,
+    "pass_L1_L2": [
+     18,
+     20
+    ],
+    "cost_kind": "proxy",
+    "vs": [
+     {
+      "b": "luna-low",
+      "diff": 0.2,
+      "ci95": [
+       0.0333,
+       0.4
+      ],
+      "problems": 12
+     },
+     {
+      "b": "haiku-low",
+      "diff": 0.0167,
+      "ci95": [
+       -0.1,
+       0.1333
+      ],
+      "problems": 12
+     },
+     {
+      "b": "luna-medium",
+      "diff": 0.1833,
+      "ci95": [
+       0.0167,
+       0.4
+      ],
+      "problems": 12
+     }
+    ],
+    "usd_per_pass_uncached": 0.019535,
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 5,
+     "p04_taller_within": 3,
+     "p05_pass_route": 5,
+     "p06_calc": 5,
+     "p07_weighted_distance_sums": 5,
+     "p08_recur": 5,
+     "p09_k_machine_schedule": 5,
+     "p10_avoid_count": 5,
+     "p11_best_average": 5,
+     "p12_sheet": 5
+    },
+    "misses": 2,
+    "ci95_plot": [
+     0.8833,
+     1.0
+    ],
+    "usd_text": "$0.0079",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.007918,
+    "usd_per_1k_tokens": 0.00046925387775121084
+   }
+  },
+  {
+   "id": "main/terra56-low",
+   "source": "main",
+   "config": "terra56-low",
+   "display": "terra56-low",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-5.6-terra, low effort. Extra data: one repeat on p01–p12 (the operator meant gpt-6.1-terra)",
+   "set": "partial ladder",
+   "derived": false,
+   "files": [
+    "results/2026-10-28-terra-function.jsonl"
+   ],
+   "passes": 9,
+   "n": 12,
+   "pass_rate": 0.75,
+   "ci95": [
+    0.5,
+    1.0
+   ],
+   "groups": 12,
+   "usd_per_pass": 0.017506,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.017506,
+   "usd_per_call": 0.01313,
+   "spend": 0.157554,
+   "spend_claude": 0.0,
+   "spend_codex": 0.157554,
+   "unknown_usd": 0,
+   "median_s": 14.05,
+   "p25_s": 10.94,
+   "p75_s": 18.36,
+   "tokens_in_mean": 13041,
+   "tokens_out_mean": 585,
+   "tokens_cached_mean": 11093,
+   "tokens_reasoning_mean": 86,
+   "input_floor": [
+    12849,
+    11008
+   ],
+   "p90_s": 22.3,
+   "max_s": 34.3,
+   "by_group": {
+    "p07_weighted_distance_sums": {
+     "passes": 1,
+     "n": 1
+    },
+    "p01_overlap_minutes": {
+     "passes": 1,
+     "n": 1
+    },
+    "p09_k_machine_schedule": {
+     "passes": 0,
+     "n": 1
+    },
+    "p03_ledger": {
+     "passes": 1,
+     "n": 1
+    },
+    "p05_pass_route": {
+     "passes": 1,
+     "n": 1
+    },
+    "p02_squash": {
+     "passes": 1,
+     "n": 1
+    },
+    "p04_taller_within": {
+     "passes": 1,
+     "n": 1
+    },
+    "p08_recur": {
+     "passes": 1,
+     "n": 1
+    },
+    "p10_avoid_count": {
+     "passes": 1,
+     "n": 1
+    },
+    "p06_calc": {
+     "passes": 1,
+     "n": 1
+    },
+    "p11_best_average": {
+     "passes": 0,
+     "n": 1
+    },
+    "p12_sheet": {
+     "passes": 0,
+     "n": 1
+    }
+   },
+   "misses": 3,
+   "ci95_plot": [
+    0.5,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.017506,
+   "usd_per_1k_tokens": 0.0009635990019081168,
+   "by_rung": {
+    "L1": [
+     2,
+     2
+    ],
+    "L2": [
+     2,
+     2
+    ],
+    "L3": [
+     2,
+     2
+    ],
+    "L4": [
+     2,
+     2
+    ],
+    "L5": [
+     1,
+     2
+    ],
+    "L6": [
+     0,
+     2
+    ]
+   },
+   "cost_kind": "proxy",
+   "cli": "codex",
+   "model": "gpt-5.6-terra",
+   "effort": "low",
+   "outcomes": {
+    "pass": 9,
+    "wrong": 2,
+    "timeout": 1
+   },
+   "breaking_point": "L6",
+   "details": {
+    "cli": "codex",
+    "model": "gpt-5.6-terra",
+    "effort": "low",
+    "n": 12,
+    "passes": 9,
+    "pass_at_1": 0.75,
+    "ci95": [
+     0.5,
+     1.0
+    ],
+    "breaking_point": "L6",
+    "outcomes": {
+     "pass": 9,
+     "wrong": 2,
+     "timeout": 1
+    },
+    "input_floor": [
+     12849,
+     11008
+    ],
+    "usd_per_call": 0.01313,
+    "usd_total": 0.157554,
+    "usd_per_pass": 0.017506,
+    "usd_per_pass_L1_L2": 0.009404,
+    "pass_L1_L2": [
+     4,
+     4
+    ],
+    "cost_kind": "proxy",
+    "vs": [
+     {
+      "b": "luna-low",
+      "diff": -0.0167,
+      "ci95": [
+       -0.2167,
+       0.2
+      ],
+      "problems": 12
+     },
+     {
+      "b": "haiku-low",
+      "diff": -0.2,
+      "ci95": [
+       -0.4167,
+       0.0
+      ],
+      "problems": 12
+     },
+     {
+      "b": "luna-medium",
+      "diff": -0.0333,
+      "ci95": [
+       -0.2667,
+       0.1833
+      ],
+      "problems": 12
+     }
+    ],
+    "usd_per_pass_uncached": 0.04413,
+    "by_problem": {
+     "p01_overlap_minutes": 1,
+     "p02_squash": 1,
+     "p03_ledger": 1,
+     "p04_taller_within": 1,
+     "p05_pass_route": 1,
+     "p06_calc": 1,
+     "p07_weighted_distance_sums": 1,
+     "p08_recur": 1,
+     "p09_k_machine_schedule": 0,
+     "p10_avoid_count": 1,
+     "p11_best_average": 0,
+     "p12_sheet": 0
+    },
+    "misses": 3,
+    "ci95_plot": [
+     0.5,
+     1.0
+    ],
+    "usd_text": "$0.018",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.017506,
+    "usd_per_1k_tokens": 0.0009635990019081168
+   }
+  },
+  {
+   "id": "main/terra56-high",
+   "source": "main",
+   "config": "terra56-high",
+   "display": "terra56-high",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-5.6-terra, high effort. Extra data: one repeat on p01–p12 (the operator meant gpt-6.1-terra)",
+   "set": "partial ladder",
+   "derived": false,
+   "files": [
+    "results/2026-10-28-terra-function.jsonl"
+   ],
+   "passes": 12,
+   "n": 12,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 12,
+   "usd_per_pass": 0.018247,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.018247,
+   "usd_per_call": 0.018247,
+   "spend": 0.218959,
+   "spend_claude": 0.0,
+   "spend_codex": 0.218959,
+   "unknown_usd": 0,
+   "median_s": 17.52,
+   "p25_s": 8.64,
+   "p75_s": 32.33,
+   "tokens_in_mean": 13040,
+   "tokens_out_mean": 1024,
+   "tokens_cached_mean": 11179,
+   "tokens_reasoning_mean": 502,
+   "input_floor": [
+    12847,
+    11008
+   ],
+   "p90_s": 34.12,
+   "max_s": 35.96,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 1,
+     "n": 1
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 1,
+     "n": 1
+    },
+    "p05_pass_route": {
+     "passes": 1,
+     "n": 1
+    },
+    "p02_squash": {
+     "passes": 1,
+     "n": 1
+    },
+    "p03_ledger": {
+     "passes": 1,
+     "n": 1
+    },
+    "p08_recur": {
+     "passes": 1,
+     "n": 1
+    },
+    "p04_taller_within": {
+     "passes": 1,
+     "n": 1
+    },
+    "p09_k_machine_schedule": {
+     "passes": 1,
+     "n": 1
+    },
+    "p11_best_average": {
+     "passes": 1,
+     "n": 1
+    },
+    "p06_calc": {
+     "passes": 1,
+     "n": 1
+    },
+    "p10_avoid_count": {
+     "passes": 1,
+     "n": 1
+    },
+    "p12_sheet": {
+     "passes": 1,
+     "n": 1
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.7790778080544442,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.018247,
+   "usd_per_1k_tokens": 0.0012974260523321956,
+   "by_rung": {
+    "L1": [
+     2,
+     2
+    ],
+    "L2": [
+     2,
+     2
+    ],
+    "L3": [
+     2,
+     2
+    ],
+    "L4": [
+     2,
+     2
+    ],
+    "L5": [
+     2,
+     2
+    ],
+    "L6": [
+     2,
+     2
+    ]
+   },
+   "cost_kind": "proxy",
+   "cli": "codex",
+   "model": "gpt-5.6-terra",
+   "effort": "high",
+   "outcomes": {
+    "pass": 12
+   },
+   "breaking_point": null,
+   "details": {
+    "cli": "codex",
+    "model": "gpt-5.6-terra",
+    "effort": "high",
+    "n": 12,
+    "passes": 12,
+    "pass_at_1": 1.0,
+    "ci95": [
+     1.0,
+     1.0
+    ],
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 12
+    },
+    "input_floor": [
+     12847,
+     11008
+    ],
+    "usd_per_call": 0.018247,
+    "usd_total": 0.218959,
+    "usd_per_pass": 0.018247,
+    "usd_per_pass_L1_L2": 0.010806,
+    "pass_L1_L2": [
+     4,
+     4
+    ],
+    "cost_kind": "proxy",
+    "vs": [
+     {
+      "b": "luna-low",
+      "diff": 0.2333,
+      "ci95": [
+       0.05,
+       0.45
+      ],
+      "problems": 12
+     },
+     {
+      "b": "haiku-low",
+      "diff": 0.05,
+      "ci95": [
+       0.0,
+       0.15
+      ],
+      "problems": 12
+     },
+     {
+      "b": "luna-medium",
+      "diff": 0.2167,
+      "ci95": [
+       0.0333,
+       0.4333
+      ],
+      "problems": 12
+     }
+    ],
+    "usd_per_pass_uncached": 0.038368,
+    "by_problem": {
+     "p01_overlap_minutes": 1,
+     "p02_squash": 1,
+     "p03_ledger": 1,
+     "p04_taller_within": 1,
+     "p05_pass_route": 1,
+     "p06_calc": 1,
+     "p07_weighted_distance_sums": 1,
+     "p08_recur": 1,
+     "p09_k_machine_schedule": 1,
+     "p10_avoid_count": 1,
+     "p11_best_average": 1,
+     "p12_sheet": 1
+    },
+    "misses": 0,
+    "ci95_plot": [
+     0.7790778080544442,
+     1.0
+    ],
+    "usd_text": "$0.018",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.018247,
+    "usd_per_1k_tokens": 0.0012974260523321956
+   }
+  },
+  {
    "id": "main/grok47-low",
    "source": "main",
    "config": "grok47-low",
    "display": "grok47-low",
    "family": "Grok",
    "category": "exploratory",
-   "what": "Grok grok-4.7, low effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "what": "Grok grok-4.7, low effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p12 (L1–L6), 2026-10-28 full spectrum: 5 repeats per problem (L2–L3 had been shortened to 2 repeats on 2026-10-26)",
    "set": "partial ladder",
    "derived": false,
    "files": [
-    "results/2026-10-26-grok-function.jsonl"
+    "results/2026-10-26-grok-function.jsonl",
+    "results/2026-10-28-grok-spectrum-function.jsonl"
    ],
-   "passes": 23,
-   "n": 24,
-   "pass_rate": 0.9583,
+   "passes": 53,
+   "n": 60,
+   "pass_rate": 0.8833,
    "ci95": [
-    0.8095,
+    0.7,
     1.0
    ],
-   "groups": 6,
-   "usd_per_pass": 0.053975,
+   "groups": 12,
+   "usd_per_pass": 0.081753,
    "claude_usd_per_pass": 0.0,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.051727,
-   "spend": 1.241436,
+   "usd_per_call": 0.072215,
+   "spend": 4.332924,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
-   "spend_grok": 1.241436,
-   "median_s": 26.46,
-   "p25_s": 19.82,
-   "p75_s": 36.42,
-   "tokens_in_mean": 21594,
-   "tokens_out_mean": 1935,
-   "tokens_cached_mean": 2048,
-   "tokens_reasoning_mean": 1555,
+   "spend_grok": 4.332924,
+   "median_s": 39.45,
+   "p25_s": 26.56,
+   "p75_s": 130.99,
+   "tokens_in_mean": 21682,
+   "tokens_out_mean": 5313,
+   "tokens_cached_mean": 2016,
+   "tokens_reasoning_mean": 4697,
    "input_floor": [
     21195,
     2048
    ],
-   "p90_s": 39.19,
-   "max_s": 55.96,
+   "p90_s": 178.53,
+   "max_s": 313.46,
    "by_group": {
     "p01_overlap_minutes": {
      "passes": 5,
@@ -5000,21 +5867,45 @@
      "n": 5
     },
     "p05_pass_route": {
-     "passes": 2,
-     "n": 2
+     "passes": 5,
+     "n": 5
     },
     "p06_calc": {
+     "passes": 2,
+     "n": 5
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 5,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 5,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 5,
+     "n": 5
+    },
+    "p12_sheet": {
      "passes": 1,
-     "n": 2
+     "n": 5
     }
    },
-   "misses": 1,
+   "misses": 7,
    "ci95_plot": [
-    0.8095,
+    0.7,
     1.0
    ],
    "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.002198435972629521,
+   "usd_per_1k_tokens": 0.0026751250231524357,
    "by_rung": {
     "L1": [
      10,
@@ -5025,8 +5916,20 @@
      10
     ],
     "L3": [
-     3,
-     4
+     7,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     6,
+     10
     ]
    },
    "cost_kind": "measured",
@@ -5034,33 +5937,33 @@
    "model": "grok-4.7",
    "effort": "low",
    "outcomes": {
-    "pass": 23,
-    "crash": 1
+    "pass": 53,
+    "crash": 7
    },
    "breaking_point": null,
    "details": {
     "cli": "grok",
     "model": "grok-4.7",
     "effort": "low",
-    "n": 24,
-    "passes": 23,
-    "pass_at_1": 0.9583,
+    "n": 60,
+    "passes": 53,
+    "pass_at_1": 0.8833,
     "ci95": [
-     0.8095,
+     0.7,
      1.0
     ],
     "breaking_point": null,
     "outcomes": {
-     "pass": 23,
-     "crash": 1
+     "pass": 53,
+     "crash": 7
     },
     "input_floor": [
      21195,
      2048
     ],
-    "usd_per_call": 0.051727,
-    "usd_total": 1.241436,
-    "usd_per_pass": 0.053975,
+    "usd_per_call": 0.072215,
+    "usd_total": 4.332924,
+    "usd_per_pass": 0.081753,
     "usd_per_pass_L1_L2": 0.050451,
     "pass_L1_L2": [
      20,
@@ -5072,18 +5975,24 @@
      "p02_squash": 5,
      "p03_ledger": 5,
      "p04_taller_within": 5,
-     "p05_pass_route": 2,
-     "p06_calc": 1
+     "p05_pass_route": 5,
+     "p06_calc": 2,
+     "p07_weighted_distance_sums": 5,
+     "p08_recur": 5,
+     "p09_k_machine_schedule": 5,
+     "p10_avoid_count": 5,
+     "p11_best_average": 5,
+     "p12_sheet": 1
     },
-    "misses": 1,
+    "misses": 7,
     "ci95_plot": [
-     0.8095,
+     0.7,
      1.0
     ],
-    "usd_text": "$0.054",
+    "usd_text": "$0.082",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.0,
-    "usd_per_1k_tokens": 0.002198435972629521
+    "usd_per_1k_tokens": 0.0026751250231524357
    }
   },
   {
@@ -5093,7 +6002,7 @@
    "display": "grok47-medium",
    "family": "Grok",
    "category": "exploratory",
-   "what": "Grok grok-4.7, medium effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "what": "Grok grok-4.7, medium effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3) only, not extended (PLAN.md deviation 23); 6 of 12 problems",
    "set": "partial ladder",
    "derived": false,
    "files": [
@@ -5240,39 +6149,43 @@
    "display": "grok47-high",
    "family": "Grok",
    "category": "exploratory",
-   "what": "Grok grok-4.7, high effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "what": "Grok grok-4.7, high effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p12 (L1–L6), 2026-10-28 full spectrum: 5 repeats per problem (L2–L3 had been shortened to 2 repeats on 2026-10-26)",
    "set": "partial ladder",
    "derived": false,
    "files": [
-    "results/2026-10-26-grok-function.jsonl"
+    "results/2026-10-26-grok-function.jsonl",
+    "results/2026-10-28-grok-spectrum-function.jsonl"
    ],
-   "passes": 18,
-   "n": 18,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 6,
-   "usd_per_pass": 0.07185,
+   "passes": 57,
+   "n": 60,
+   "pass_rate": 0.95,
+   "ci95": [
+    0.85,
+    1.0
+   ],
+   "groups": 12,
+   "usd_per_pass": 0.131994,
    "claude_usd_per_pass": 0.0,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.07185,
-   "spend": 1.2933,
+   "usd_per_call": 0.125395,
+   "spend": 7.523676,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
-   "spend_grok": 1.2933,
-   "median_s": 40.97,
-   "p25_s": 30.46,
-   "p75_s": 93.97,
-   "tokens_in_mean": 21557,
-   "tokens_out_mean": 5301,
-   "tokens_cached_mean": 2048,
-   "tokens_reasoning_mean": 4960,
+   "spend_grok": 7.523676,
+   "median_s": 105.72,
+   "p25_s": 46.13,
+   "p75_s": 318.58,
+   "tokens_in_mean": 21296,
+   "tokens_out_mean": 14304,
+   "tokens_cached_mean": 2014,
+   "tokens_reasoning_mean": 13655,
    "input_floor": [
-    21196,
-    2048
+    0,
+    0
    ],
-   "p90_s": 147.03,
-   "max_s": 280.77,
+   "p90_s": 493.08,
+   "max_s": 1200.46,
    "by_group": {
     "p01_overlap_minutes": {
      "passes": 5,
@@ -5283,41 +6196,77 @@
      "n": 5
     },
     "p03_ledger": {
-     "passes": 2,
-     "n": 2
+     "passes": 5,
+     "n": 5
     },
     "p04_taller_within": {
-     "passes": 2,
-     "n": 2
+     "passes": 5,
+     "n": 5
     },
     "p05_pass_route": {
-     "passes": 2,
-     "n": 2
+     "passes": 5,
+     "n": 5
     },
     "p06_calc": {
-     "passes": 2,
-     "n": 2
+     "passes": 5,
+     "n": 5
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 4,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 5,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 3,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 5,
+     "n": 5
     }
    },
-   "misses": 0,
+   "misses": 3,
    "ci95_plot": [
-    0.6069622310029172,
+    0.85,
     1.0
    ],
    "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.0026751805793432124,
+   "usd_per_1k_tokens": 0.0035223314606741577,
    "by_rung": {
     "L1": [
      10,
      10
     ],
     "L2": [
-     4,
-     4
+     10,
+     10
     ],
     "L3": [
-     4,
-     4
+     10,
+     10
+    ],
+    "L4": [
+     9,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     8,
+     10
     ]
    },
    "cost_kind": "measured",
@@ -5325,54 +6274,64 @@
    "model": "grok-4.7",
    "effort": "high",
    "outcomes": {
-    "pass": 18
+    "pass": 57,
+    "crash": 2,
+    "timeout": 1
    },
    "breaking_point": null,
    "details": {
     "cli": "grok",
     "model": "grok-4.7",
     "effort": "high",
-    "n": 18,
-    "passes": 18,
-    "pass_at_1": 1.0,
+    "n": 60,
+    "passes": 57,
+    "pass_at_1": 0.95,
     "ci95": [
-     1.0,
+     0.85,
      1.0
     ],
     "breaking_point": null,
     "outcomes": {
-     "pass": 18
+     "pass": 57,
+     "crash": 2,
+     "timeout": 1
     },
     "input_floor": [
-     21196,
-     2048
+     0,
+     0
     ],
-    "usd_per_call": 0.07185,
-    "usd_total": 1.2933,
-    "usd_per_pass": 0.07185,
-    "usd_per_pass_L1_L2": 0.058843,
+    "usd_per_call": 0.125395,
+    "usd_total": 7.523676,
+    "usd_per_pass": 0.131994,
+    "usd_per_pass_L1_L2": 0.061577,
     "pass_L1_L2": [
-     14,
-     14
+     20,
+     20
     ],
     "cost_kind": "measured",
     "by_problem": {
      "p01_overlap_minutes": 5,
      "p02_squash": 5,
-     "p03_ledger": 2,
-     "p04_taller_within": 2,
-     "p05_pass_route": 2,
-     "p06_calc": 2
+     "p03_ledger": 5,
+     "p04_taller_within": 5,
+     "p05_pass_route": 5,
+     "p06_calc": 5,
+     "p07_weighted_distance_sums": 4,
+     "p08_recur": 5,
+     "p09_k_machine_schedule": 5,
+     "p10_avoid_count": 5,
+     "p11_best_average": 5,
+     "p12_sheet": 3
     },
-    "misses": 0,
+    "misses": 3,
     "ci95_plot": [
-     0.6069622310029172,
+     0.85,
      1.0
     ],
-    "usd_text": "$0.072",
+    "usd_text": "$0.13",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.0,
-    "usd_per_1k_tokens": 0.0026751805793432124
+    "usd_per_1k_tokens": 0.0035223314606741577
    }
   },
   {
@@ -5382,42 +6341,43 @@
    "display": "grok47fast-low",
    "family": "Grok",
    "category": "exploratory",
-   "what": "Grok grok-4.7-build-fast, low effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "what": "Grok grok-4.7-build-fast, low effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p12 (L1–L6), 2026-10-28 full spectrum: 5 repeats per problem (L2–L3 had been shortened to 2 repeats on 2026-10-26)",
    "set": "partial ladder",
    "derived": false,
    "files": [
-    "results/2026-10-26-grok-function.jsonl"
+    "results/2026-10-26-grok-function.jsonl",
+    "results/2026-10-28-grok-spectrum-function.jsonl"
    ],
-   "passes": 23,
-   "n": 24,
-   "pass_rate": 0.9583,
+   "passes": 51,
+   "n": 60,
+   "pass_rate": 0.85,
    "ci95": [
-    0.8095,
+    0.65,
     1.0
    ],
-   "groups": 6,
-   "usd_per_pass": 0.111333,
+   "groups": 12,
+   "usd_per_pass": 0.180148,
    "claude_usd_per_pass": 0.0,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.106694,
-   "spend": 2.560652,
+   "usd_per_call": 0.153126,
+   "spend": 9.187544,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
-   "spend_grok": 2.560652,
-   "median_s": 19.38,
-   "p25_s": 15.01,
-   "p75_s": 25.7,
-   "tokens_in_mean": 21643,
-   "tokens_out_mean": 2178,
-   "tokens_cached_mean": 2005,
-   "tokens_reasoning_mean": 1796,
+   "spend_grok": 9.187544,
+   "median_s": 34.0,
+   "p25_s": 18.42,
+   "p75_s": 82.83,
+   "tokens_in_mean": 21662,
+   "tokens_out_mean": 6022,
+   "tokens_cached_mean": 1931,
+   "tokens_reasoning_mean": 5400,
    "input_floor": [
     21198,
     2048
    ],
-   "p90_s": 34.5,
-   "max_s": 41.19,
+   "p90_s": 133.72,
+   "max_s": 255.16,
    "by_group": {
     "p01_overlap_minutes": {
      "passes": 5,
@@ -5436,21 +6396,45 @@
      "n": 5
     },
     "p05_pass_route": {
-     "passes": 2,
-     "n": 2
+     "passes": 5,
+     "n": 5
     },
     "p06_calc": {
      "passes": 1,
-     "n": 2
+     "n": 5
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 4,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 5,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 1,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 5,
+     "n": 5
     }
    },
-   "misses": 1,
+   "misses": 9,
    "ci95_plot": [
-    0.8095,
+    0.65,
     1.0
    ],
    "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.00447898912724067,
+   "usd_per_1k_tokens": 0.0055312093628088425,
    "by_rung": {
     "L1": [
      10,
@@ -5461,8 +6445,20 @@
      10
     ],
     "L3": [
-     3,
-     4
+     6,
+     10
+    ],
+    "L4": [
+     9,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     6,
+     10
     ]
    },
    "cost_kind": "measured",
@@ -5470,33 +6466,33 @@
    "model": "grok-4.7-build-fast",
    "effort": "low",
    "outcomes": {
-    "pass": 23,
-    "crash": 1
+    "pass": 51,
+    "crash": 9
    },
    "breaking_point": null,
    "details": {
     "cli": "grok",
     "model": "grok-4.7-build-fast",
     "effort": "low",
-    "n": 24,
-    "passes": 23,
-    "pass_at_1": 0.9583,
+    "n": 60,
+    "passes": 51,
+    "pass_at_1": 0.85,
     "ci95": [
-     0.8095,
+     0.65,
      1.0
     ],
     "breaking_point": null,
     "outcomes": {
-     "pass": 23,
-     "crash": 1
+     "pass": 51,
+     "crash": 9
     },
     "input_floor": [
      21198,
      2048
     ],
-    "usd_per_call": 0.106694,
-    "usd_total": 2.560652,
-    "usd_per_pass": 0.111333,
+    "usd_per_call": 0.153126,
+    "usd_total": 9.187544,
+    "usd_per_pass": 0.180148,
     "usd_per_pass_L1_L2": 0.102876,
     "pass_L1_L2": [
      20,
@@ -5508,18 +6504,24 @@
      "p02_squash": 5,
      "p03_ledger": 5,
      "p04_taller_within": 5,
-     "p05_pass_route": 2,
-     "p06_calc": 1
+     "p05_pass_route": 5,
+     "p06_calc": 1,
+     "p07_weighted_distance_sums": 4,
+     "p08_recur": 5,
+     "p09_k_machine_schedule": 5,
+     "p10_avoid_count": 5,
+     "p11_best_average": 5,
+     "p12_sheet": 1
     },
-    "misses": 1,
+    "misses": 9,
     "ci95_plot": [
-     0.8095,
+     0.65,
      1.0
     ],
-    "usd_text": "$0.11",
+    "usd_text": "$0.18",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.0,
-    "usd_per_1k_tokens": 0.00447898912724067
+    "usd_per_1k_tokens": 0.0055312093628088425
    }
   },
   {
@@ -6183,6 +7185,396 @@
     "L6": [
      10,
      10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/terra61-low",
+   "source": "main",
+   "config": "terra61-low",
+   "display": "terra61-low",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-6.1-terra, low effort (added 2026-10-28, operator request; main ladder p01–p12, 5 repeats)",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-28-terra-function.jsonl"
+   ],
+   "passes": 35,
+   "n": 35,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 7,
+   "usd_per_pass": 0.00615,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.00615,
+   "usd_per_call": 0.00615,
+   "spend": 0.215249,
+   "spend_claude": 0.0,
+   "spend_codex": 0.215249,
+   "unknown_usd": 0,
+   "median_s": 10.8,
+   "p25_s": 8.99,
+   "p75_s": 14.85,
+   "tokens_in_mean": 14119,
+   "tokens_out_mean": 717,
+   "tokens_cached_mean": 12160,
+   "tokens_reasoning_mean": 35,
+   "input_floor": [
+    13876,
+    12160
+   ],
+   "p90_s": 20.47,
+   "max_s": 30.12,
+   "by_group": {
+    "p11_best_average": {
+     "passes": 5,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 5,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 5,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 5,
+     "n": 5
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.6518363448688391,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.00615,
+   "usd_per_1k_tokens": 0.00041453221892693453,
+   "by_rung": {
+    "L2": [
+     10,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/terra61-high",
+   "source": "main",
+   "config": "terra61-high",
+   "display": "terra61-high",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-6.1-terra, high effort (added 2026-10-28, operator request; main ladder p01–p12, 5 repeats)",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-28-terra-function.jsonl"
+   ],
+   "passes": 33,
+   "n": 35,
+   "pass_rate": 0.9429,
+   "ci95": [
+    0.8,
+    1.0
+   ],
+   "groups": 7,
+   "usd_per_pass": 0.007324,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.007324,
+   "usd_per_call": 0.006906,
+   "spend": 0.241706,
+   "spend_claude": 0.0,
+   "spend_codex": 0.241706,
+   "unknown_usd": 0,
+   "median_s": 13.18,
+   "p25_s": 9.34,
+   "p75_s": 17.35,
+   "tokens_in_mean": 14119,
+   "tokens_out_mean": 868,
+   "tokens_cached_mean": 12160,
+   "tokens_reasoning_mean": 199,
+   "input_floor": [
+    13874,
+    12160
+   ],
+   "p90_s": 23.58,
+   "max_s": 38.62,
+   "by_group": {
+    "p11_best_average": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 3,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 5,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 5,
+     "n": 5
+    }
+   },
+   "misses": 2,
+   "ci95_plot": [
+    0.8,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.007324,
+   "usd_per_1k_tokens": 0.0004607993594448522,
+   "by_rung": {
+    "L2": [
+     8,
+     10
+    ],
+    "L4": [
+     5,
+     5
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/terra56-low",
+   "source": "main",
+   "config": "terra56-low",
+   "display": "terra56-low",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-5.6-terra, low effort. Extra data: one repeat on p01–p12 (the operator meant gpt-6.1-terra)",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-28-terra-function.jsonl"
+   ],
+   "passes": 4,
+   "n": 7,
+   "pass_rate": 0.5714,
+   "ci95": [
+    0.1429,
+    0.8571
+   ],
+   "groups": 7,
+   "usd_per_pass": 0.026949,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.026949,
+   "usd_per_call": 0.015399,
+   "spend": 0.107796,
+   "spend_claude": 0.0,
+   "spend_codex": 0.107796,
+   "unknown_usd": 0,
+   "median_s": 16.02,
+   "p25_s": 13.1,
+   "p75_s": 22.73,
+   "tokens_in_mean": 13093,
+   "tokens_out_mean": 774,
+   "tokens_cached_mean": 11154,
+   "tokens_reasoning_mean": 147,
+   "input_floor": [
+    12852,
+    11008
+   ],
+   "p90_s": 27.36,
+   "max_s": 34.3,
+   "by_group": {
+    "p09_k_machine_schedule": {
+     "passes": 0,
+     "n": 1
+    },
+    "p03_ledger": {
+     "passes": 1,
+     "n": 1
+    },
+    "p04_taller_within": {
+     "passes": 1,
+     "n": 1
+    },
+    "p08_recur": {
+     "passes": 1,
+     "n": 1
+    },
+    "p10_avoid_count": {
+     "passes": 1,
+     "n": 1
+    },
+    "p11_best_average": {
+     "passes": 0,
+     "n": 1
+    },
+    "p12_sheet": {
+     "passes": 0,
+     "n": 1
+    }
+   },
+   "misses": 3,
+   "ci95_plot": [
+    0.1429,
+    0.8571
+   ],
+   "usd_saved_per_pass": 0.026949,
+   "usd_per_1k_tokens": 0.0011104781135068869,
+   "by_rung": {
+    "L2": [
+     2,
+     2
+    ],
+    "L4": [
+     1,
+     1
+    ],
+    "L5": [
+     1,
+     2
+    ],
+    "L6": [
+     0,
+     2
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/terra56-high",
+   "source": "main",
+   "config": "terra56-high",
+   "display": "terra56-high",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-5.6-terra, high effort. Extra data: one repeat on p01–p12 (the operator meant gpt-6.1-terra)",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-28-terra-function.jsonl"
+   ],
+   "passes": 7,
+   "n": 7,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 7,
+   "usd_per_pass": 0.023321,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.023321,
+   "usd_per_call": 0.023321,
+   "spend": 0.163248,
+   "spend_claude": 0.0,
+   "spend_codex": 0.163248,
+   "unknown_usd": 0,
+   "median_s": 26.04,
+   "p25_s": 7.52,
+   "p75_s": 34.14,
+   "tokens_in_mean": 13092,
+   "tokens_out_mean": 1435,
+   "tokens_cached_mean": 11154,
+   "tokens_reasoning_mean": 758,
+   "input_floor": [
+    12848,
+    11008
+   ],
+   "p90_s": 34.87,
+   "max_s": 35.96,
+   "by_group": {
+    "p03_ledger": {
+     "passes": 1,
+     "n": 1
+    },
+    "p08_recur": {
+     "passes": 1,
+     "n": 1
+    },
+    "p04_taller_within": {
+     "passes": 1,
+     "n": 1
+    },
+    "p09_k_machine_schedule": {
+     "passes": 1,
+     "n": 1
+    },
+    "p11_best_average": {
+     "passes": 1,
+     "n": 1
+    },
+    "p10_avoid_count": {
+     "passes": 1,
+     "n": 1
+    },
+    "p12_sheet": {
+     "passes": 1,
+     "n": 1
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.6518363448688391,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.023321,
+   "usd_per_1k_tokens": 0.0016053555448475253,
+   "by_rung": {
+    "L2": [
+     2,
+     2
+    ],
+    "L4": [
+     1,
+     1
+    ],
+    "L5": [
+     2,
+     2
+    ],
+    "L6": [
+     2,
+     2
     ]
    },
    "cost_kind": "proxy"
@@ -14157,48 +15549,551 @@
    "cost_kind": "proxy"
   },
   {
+   "id": "main/terra61-low",
+   "source": "main",
+   "config": "terra61-low",
+   "display": "terra61-low",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-6.1-terra, low effort (added 2026-10-28, operator request; main ladder p01–p12, 5 repeats)",
+   "set": "all runs",
+   "derived": false,
+   "files": [
+    "results/2026-10-28-terra-function.jsonl"
+   ],
+   "passes": 60,
+   "n": 60,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 12,
+   "usd_per_pass": 0.010405,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.010405,
+   "usd_per_call": 0.010405,
+   "spend": 0.624282,
+   "spend_claude": 0.0,
+   "spend_codex": 0.624282,
+   "unknown_usd": 0,
+   "median_s": 10.34,
+   "p25_s": 7.98,
+   "p75_s": 14.78,
+   "tokens_in_mean": 18871,
+   "tokens_out_mean": 537,
+   "tokens_cached_mean": 11738,
+   "tokens_reasoning_mean": 21,
+   "input_floor": [
+    13864,
+    12160
+   ],
+   "p90_s": 20.92,
+   "max_s": 39.15,
+   "by_group": {
+    "p07_weighted_distance_sums": {
+     "passes": 5,
+     "n": 5
+    },
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 5,
+     "n": 5
+    },
+    "p05_pass_route": {
+     "passes": 5,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 5,
+     "n": 5
+    },
+    "p06_calc": {
+     "passes": 5,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 5,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 5,
+     "n": 5
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.7790778080544442,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.010405,
+   "usd_per_1k_tokens": 0.0005361191261335532,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     10,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/terra61-high",
+   "source": "main",
+   "config": "terra61-high",
+   "display": "terra61-high",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-6.1-terra, high effort (added 2026-10-28, operator request; main ladder p01–p12, 5 repeats)",
+   "set": "all runs",
+   "derived": false,
+   "files": [
+    "results/2026-10-28-terra-function.jsonl"
+   ],
+   "passes": 58,
+   "n": 60,
+   "pass_rate": 0.9667,
+   "ci95": [
+    0.8833,
+    1.0
+   ],
+   "groups": 12,
+   "usd_per_pass": 0.007918,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.007918,
+   "usd_per_call": 0.007654,
+   "spend": 0.459224,
+   "spend_claude": 0.0,
+   "spend_codex": 0.459224,
+   "unknown_usd": 0,
+   "median_s": 11.93,
+   "p25_s": 8.45,
+   "p75_s": 15.42,
+   "tokens_in_mean": 15668,
+   "tokens_out_mean": 643,
+   "tokens_cached_mean": 11821,
+   "tokens_reasoning_mean": 135,
+   "input_floor": [
+    13871,
+    12160
+   ],
+   "p90_s": 19.51,
+   "max_s": 38.62,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p05_pass_route": {
+     "passes": 5,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 5,
+     "n": 5
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 3,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p06_calc": {
+     "passes": 5,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 5,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 5,
+     "n": 5
+    }
+   },
+   "misses": 2,
+   "ci95_plot": [
+    0.8833,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.007918,
+   "usd_per_1k_tokens": 0.00046925387775121084,
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     8,
+     10
+    ],
+    "L3": [
+     10,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     10,
+     10
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/terra56-low",
+   "source": "main",
+   "config": "terra56-low",
+   "display": "terra56-low",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-5.6-terra, low effort. Extra data: one repeat on p01–p12 (the operator meant gpt-6.1-terra)",
+   "set": "all runs",
+   "derived": false,
+   "files": [
+    "results/2026-10-28-terra-function.jsonl"
+   ],
+   "passes": 9,
+   "n": 12,
+   "pass_rate": 0.75,
+   "ci95": [
+    0.5,
+    1.0
+   ],
+   "groups": 12,
+   "usd_per_pass": 0.017506,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.017506,
+   "usd_per_call": 0.01313,
+   "spend": 0.157554,
+   "spend_claude": 0.0,
+   "spend_codex": 0.157554,
+   "unknown_usd": 0,
+   "median_s": 14.05,
+   "p25_s": 10.94,
+   "p75_s": 18.36,
+   "tokens_in_mean": 13041,
+   "tokens_out_mean": 585,
+   "tokens_cached_mean": 11093,
+   "tokens_reasoning_mean": 86,
+   "input_floor": [
+    12849,
+    11008
+   ],
+   "p90_s": 22.3,
+   "max_s": 34.3,
+   "by_group": {
+    "p07_weighted_distance_sums": {
+     "passes": 1,
+     "n": 1
+    },
+    "p01_overlap_minutes": {
+     "passes": 1,
+     "n": 1
+    },
+    "p09_k_machine_schedule": {
+     "passes": 0,
+     "n": 1
+    },
+    "p03_ledger": {
+     "passes": 1,
+     "n": 1
+    },
+    "p05_pass_route": {
+     "passes": 1,
+     "n": 1
+    },
+    "p02_squash": {
+     "passes": 1,
+     "n": 1
+    },
+    "p04_taller_within": {
+     "passes": 1,
+     "n": 1
+    },
+    "p08_recur": {
+     "passes": 1,
+     "n": 1
+    },
+    "p10_avoid_count": {
+     "passes": 1,
+     "n": 1
+    },
+    "p06_calc": {
+     "passes": 1,
+     "n": 1
+    },
+    "p11_best_average": {
+     "passes": 0,
+     "n": 1
+    },
+    "p12_sheet": {
+     "passes": 0,
+     "n": 1
+    }
+   },
+   "misses": 3,
+   "ci95_plot": [
+    0.5,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.017506,
+   "usd_per_1k_tokens": 0.0009635990019081168,
+   "by_rung": {
+    "L1": [
+     2,
+     2
+    ],
+    "L2": [
+     2,
+     2
+    ],
+    "L3": [
+     2,
+     2
+    ],
+    "L4": [
+     2,
+     2
+    ],
+    "L5": [
+     1,
+     2
+    ],
+    "L6": [
+     0,
+     2
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
+   "id": "main/terra56-high",
+   "source": "main",
+   "config": "terra56-high",
+   "display": "terra56-high",
+   "family": "Codex",
+   "category": "exploratory",
+   "what": "gpt-5.6-terra, high effort. Extra data: one repeat on p01–p12 (the operator meant gpt-6.1-terra)",
+   "set": "all runs",
+   "derived": false,
+   "files": [
+    "results/2026-10-28-terra-function.jsonl"
+   ],
+   "passes": 12,
+   "n": 12,
+   "pass_rate": 1.0,
+   "ci95": null,
+   "groups": 12,
+   "usd_per_pass": 0.018247,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.018247,
+   "usd_per_call": 0.018247,
+   "spend": 0.218959,
+   "spend_claude": 0.0,
+   "spend_codex": 0.218959,
+   "unknown_usd": 0,
+   "median_s": 17.52,
+   "p25_s": 8.64,
+   "p75_s": 32.33,
+   "tokens_in_mean": 13040,
+   "tokens_out_mean": 1024,
+   "tokens_cached_mean": 11179,
+   "tokens_reasoning_mean": 502,
+   "input_floor": [
+    12847,
+    11008
+   ],
+   "p90_s": 34.12,
+   "max_s": 35.96,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 1,
+     "n": 1
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 1,
+     "n": 1
+    },
+    "p05_pass_route": {
+     "passes": 1,
+     "n": 1
+    },
+    "p02_squash": {
+     "passes": 1,
+     "n": 1
+    },
+    "p03_ledger": {
+     "passes": 1,
+     "n": 1
+    },
+    "p08_recur": {
+     "passes": 1,
+     "n": 1
+    },
+    "p04_taller_within": {
+     "passes": 1,
+     "n": 1
+    },
+    "p09_k_machine_schedule": {
+     "passes": 1,
+     "n": 1
+    },
+    "p11_best_average": {
+     "passes": 1,
+     "n": 1
+    },
+    "p06_calc": {
+     "passes": 1,
+     "n": 1
+    },
+    "p10_avoid_count": {
+     "passes": 1,
+     "n": 1
+    },
+    "p12_sheet": {
+     "passes": 1,
+     "n": 1
+    }
+   },
+   "misses": 0,
+   "ci95_plot": [
+    0.7790778080544442,
+    1.0
+   ],
+   "usd_saved_per_pass": 0.018247,
+   "usd_per_1k_tokens": 0.0012974260523321956,
+   "by_rung": {
+    "L1": [
+     2,
+     2
+    ],
+    "L2": [
+     2,
+     2
+    ],
+    "L3": [
+     2,
+     2
+    ],
+    "L4": [
+     2,
+     2
+    ],
+    "L5": [
+     2,
+     2
+    ],
+    "L6": [
+     2,
+     2
+    ]
+   },
+   "cost_kind": "proxy"
+  },
+  {
    "id": "main/grok47-low",
    "source": "main",
    "config": "grok47-low",
    "display": "grok47-low",
    "family": "Grok",
    "category": "exploratory",
-   "what": "Grok grok-4.7, low effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "what": "Grok grok-4.7, low effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p12 (L1–L6), 2026-10-28 full spectrum: 5 repeats per problem (L2–L3 had been shortened to 2 repeats on 2026-10-26)",
    "set": "all runs",
    "derived": false,
    "files": [
-    "results/2026-10-26-grok-function.jsonl"
+    "results/2026-10-26-grok-function.jsonl",
+    "results/2026-10-28-grok-spectrum-function.jsonl"
    ],
-   "passes": 23,
-   "n": 24,
-   "pass_rate": 0.9583,
+   "passes": 53,
+   "n": 60,
+   "pass_rate": 0.8833,
    "ci95": [
-    0.8095,
+    0.7,
     1.0
    ],
-   "groups": 6,
-   "usd_per_pass": 0.053975,
+   "groups": 12,
+   "usd_per_pass": 0.081753,
    "claude_usd_per_pass": 0.0,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.051727,
-   "spend": 1.241436,
+   "usd_per_call": 0.072215,
+   "spend": 4.332924,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
-   "spend_grok": 1.241436,
-   "median_s": 26.46,
-   "p25_s": 19.82,
-   "p75_s": 36.42,
-   "tokens_in_mean": 21594,
-   "tokens_out_mean": 1935,
-   "tokens_cached_mean": 2048,
-   "tokens_reasoning_mean": 1555,
+   "spend_grok": 4.332924,
+   "median_s": 39.45,
+   "p25_s": 26.56,
+   "p75_s": 130.99,
+   "tokens_in_mean": 21682,
+   "tokens_out_mean": 5313,
+   "tokens_cached_mean": 2016,
+   "tokens_reasoning_mean": 4697,
    "input_floor": [
     21195,
     2048
    ],
-   "p90_s": 39.19,
-   "max_s": 55.96,
+   "p90_s": 178.53,
+   "max_s": 313.46,
    "by_group": {
     "p01_overlap_minutes": {
      "passes": 5,
@@ -14217,21 +16112,45 @@
      "n": 5
     },
     "p05_pass_route": {
-     "passes": 2,
-     "n": 2
+     "passes": 5,
+     "n": 5
     },
     "p06_calc": {
+     "passes": 2,
+     "n": 5
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 5,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 5,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 5,
+     "n": 5
+    },
+    "p12_sheet": {
      "passes": 1,
-     "n": 2
+     "n": 5
     }
    },
-   "misses": 1,
+   "misses": 7,
    "ci95_plot": [
-    0.8095,
+    0.7,
     1.0
    ],
    "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.002198435972629521,
+   "usd_per_1k_tokens": 0.0026751250231524357,
    "by_rung": {
     "L1": [
      10,
@@ -14242,8 +16161,20 @@
      10
     ],
     "L3": [
-     3,
-     4
+     7,
+     10
+    ],
+    "L4": [
+     10,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     6,
+     10
     ]
    },
    "cost_kind": "measured"
@@ -14255,7 +16186,7 @@
    "display": "grok47-medium",
    "family": "Grok",
    "category": "exploratory",
-   "what": "Grok grok-4.7, medium effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "what": "Grok grok-4.7, medium effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3) only, not extended (PLAN.md deviation 23); 6 of 12 problems",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -14347,39 +16278,43 @@
    "display": "grok47-high",
    "family": "Grok",
    "category": "exploratory",
-   "what": "Grok grok-4.7, high effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "what": "Grok grok-4.7, high effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p12 (L1–L6), 2026-10-28 full spectrum: 5 repeats per problem (L2–L3 had been shortened to 2 repeats on 2026-10-26)",
    "set": "all runs",
    "derived": false,
    "files": [
-    "results/2026-10-26-grok-function.jsonl"
+    "results/2026-10-26-grok-function.jsonl",
+    "results/2026-10-28-grok-spectrum-function.jsonl"
    ],
-   "passes": 18,
-   "n": 18,
-   "pass_rate": 1.0,
-   "ci95": null,
-   "groups": 6,
-   "usd_per_pass": 0.07185,
+   "passes": 57,
+   "n": 60,
+   "pass_rate": 0.95,
+   "ci95": [
+    0.85,
+    1.0
+   ],
+   "groups": 12,
+   "usd_per_pass": 0.131994,
    "claude_usd_per_pass": 0.0,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.07185,
-   "spend": 1.2933,
+   "usd_per_call": 0.125395,
+   "spend": 7.523676,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
-   "spend_grok": 1.2933,
-   "median_s": 40.97,
-   "p25_s": 30.46,
-   "p75_s": 93.97,
-   "tokens_in_mean": 21557,
-   "tokens_out_mean": 5301,
-   "tokens_cached_mean": 2048,
-   "tokens_reasoning_mean": 4960,
+   "spend_grok": 7.523676,
+   "median_s": 105.72,
+   "p25_s": 46.13,
+   "p75_s": 318.58,
+   "tokens_in_mean": 21296,
+   "tokens_out_mean": 14304,
+   "tokens_cached_mean": 2014,
+   "tokens_reasoning_mean": 13655,
    "input_floor": [
-    21196,
-    2048
+    0,
+    0
    ],
-   "p90_s": 147.03,
-   "max_s": 280.77,
+   "p90_s": 493.08,
+   "max_s": 1200.46,
    "by_group": {
     "p01_overlap_minutes": {
      "passes": 5,
@@ -14390,41 +16325,77 @@
      "n": 5
     },
     "p03_ledger": {
-     "passes": 2,
-     "n": 2
+     "passes": 5,
+     "n": 5
     },
     "p04_taller_within": {
-     "passes": 2,
-     "n": 2
+     "passes": 5,
+     "n": 5
     },
     "p05_pass_route": {
-     "passes": 2,
-     "n": 2
+     "passes": 5,
+     "n": 5
     },
     "p06_calc": {
-     "passes": 2,
-     "n": 2
+     "passes": 5,
+     "n": 5
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 4,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 5,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 3,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 5,
+     "n": 5
     }
    },
-   "misses": 0,
+   "misses": 3,
    "ci95_plot": [
-    0.6069622310029172,
+    0.85,
     1.0
    ],
    "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.0026751805793432124,
+   "usd_per_1k_tokens": 0.0035223314606741577,
    "by_rung": {
     "L1": [
      10,
      10
     ],
     "L2": [
-     4,
-     4
+     10,
+     10
     ],
     "L3": [
-     4,
-     4
+     10,
+     10
+    ],
+    "L4": [
+     9,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     8,
+     10
     ]
    },
    "cost_kind": "measured"
@@ -14436,42 +16407,43 @@
    "display": "grok47fast-low",
    "family": "Grok",
    "category": "exploratory",
-   "what": "Grok grok-4.7-build-fast, low effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems",
+   "what": "Grok grok-4.7-build-fast, low effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p12 (L1–L6), 2026-10-28 full spectrum: 5 repeats per problem (L2–L3 had been shortened to 2 repeats on 2026-10-26)",
    "set": "all runs",
    "derived": false,
    "files": [
-    "results/2026-10-26-grok-function.jsonl"
+    "results/2026-10-26-grok-function.jsonl",
+    "results/2026-10-28-grok-spectrum-function.jsonl"
    ],
-   "passes": 23,
-   "n": 24,
-   "pass_rate": 0.9583,
+   "passes": 51,
+   "n": 60,
+   "pass_rate": 0.85,
    "ci95": [
-    0.8095,
+    0.65,
     1.0
    ],
-   "groups": 6,
-   "usd_per_pass": 0.111333,
+   "groups": 12,
+   "usd_per_pass": 0.180148,
    "claude_usd_per_pass": 0.0,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.106694,
-   "spend": 2.560652,
+   "usd_per_call": 0.153126,
+   "spend": 9.187544,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
-   "spend_grok": 2.560652,
-   "median_s": 19.38,
-   "p25_s": 15.01,
-   "p75_s": 25.7,
-   "tokens_in_mean": 21643,
-   "tokens_out_mean": 2178,
-   "tokens_cached_mean": 2005,
-   "tokens_reasoning_mean": 1796,
+   "spend_grok": 9.187544,
+   "median_s": 34.0,
+   "p25_s": 18.42,
+   "p75_s": 82.83,
+   "tokens_in_mean": 21662,
+   "tokens_out_mean": 6022,
+   "tokens_cached_mean": 1931,
+   "tokens_reasoning_mean": 5400,
    "input_floor": [
     21198,
     2048
    ],
-   "p90_s": 34.5,
-   "max_s": 41.19,
+   "p90_s": 133.72,
+   "max_s": 255.16,
    "by_group": {
     "p01_overlap_minutes": {
      "passes": 5,
@@ -14490,21 +16462,45 @@
      "n": 5
     },
     "p05_pass_route": {
-     "passes": 2,
-     "n": 2
+     "passes": 5,
+     "n": 5
     },
     "p06_calc": {
      "passes": 1,
-     "n": 2
+     "n": 5
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 4,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 5,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 5,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 1,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 5,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 5,
+     "n": 5
     }
    },
-   "misses": 1,
+   "misses": 9,
    "ci95_plot": [
-    0.8095,
+    0.65,
     1.0
    ],
    "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.00447898912724067,
+   "usd_per_1k_tokens": 0.0055312093628088425,
    "by_rung": {
     "L1": [
      10,
@@ -14515,8 +16511,20 @@
      10
     ],
     "L3": [
-     3,
-     4
+     6,
+     10
+    ],
+    "L4": [
+     9,
+     10
+    ],
+    "L5": [
+     10,
+     10
+    ],
+    "L6": [
+     6,
+     10
     ]
    },
    "cost_kind": "measured"
@@ -16054,6 +18062,10 @@
     "$0.0060"
    ],
    [
+    0.007,
+    "$0.0070"
+   ],
+   [
     0.0075,
     "$0.0075"
    ],
@@ -16062,8 +18074,24 @@
     "$0.0080"
    ],
    [
+    0.0085,
+    "$0.0085"
+   ],
+   [
+    0.009,
+    "$0.0090"
+   ],
+   [
+    0.0095,
+    "$0.0095"
+   ],
+   [
     0.01,
     "$0.010"
+   ],
+   [
+    0.0105,
+    "$0.011"
    ],
    [
     0.011,
@@ -16106,8 +18134,48 @@
     "$0.017"
    ],
    [
+    0.0175,
+    "$0.018"
+   ],
+   [
+    0.0176,
+    "$0.018"
+   ],
+   [
+    0.01775,
+    "$0.018"
+   ],
+   [
+    0.0178,
+    "$0.018"
+   ],
+   [
     0.018,
     "$0.018"
+   ],
+   [
+    0.0182,
+    "$0.018"
+   ],
+   [
+    0.01825,
+    "$0.018"
+   ],
+   [
+    0.0183,
+    "$0.018"
+   ],
+   [
+    0.0184,
+    "$0.018"
+   ],
+   [
+    0.0185,
+    "$0.018"
+   ],
+   [
+    0.0186,
+    "$0.019"
    ],
    [
     0.019,
@@ -16221,8 +18289,8 @@
    "spend": 2.718465
   },
   "exploratory": {
-   "n_configs": 11,
-   "spend": 18.477525
+   "n_configs": 15,
+   "spend": 35.8863
   },
   "fast mode and xhigh": {
    "n_configs": 3,
@@ -16258,7 +18326,9 @@
    "results/2026-10-22b-agentic.jsonl",
    "results/2026-10-22b-function.jsonl",
    "results/2026-10-25-isolated-agentic.jsonl",
-   "results/2026-10-26-grok-function.jsonl"
+   "results/2026-10-26-grok-function.jsonl",
+   "results/2026-10-28-grok-spectrum-function.jsonl",
+   "results/2026-10-28-terra-function.jsonl"
   ],
   "configs": {
    "haiku-low": {
@@ -17037,10 +19107,10 @@
   "phases": {
    "calibration": 30,
    "escalation": 15,
-   "exploratory": 550,
+   "exploratory": 694,
    "fastmode": 105,
    "hard": 195,
-   "main": 447,
+   "main": 561,
    "warmup": 6
   },
   "problems": {
@@ -17243,11 +19313,11 @@
     "cli": "grok",
     "model": "grok-4.7",
     "effort": "low",
-    "n": 24,
-    "passes": 23,
-    "pass_at_1": 0.9583,
+    "n": 60,
+    "passes": 53,
+    "pass_at_1": 0.8833,
     "ci95": [
-     0.8095,
+     0.7,
      1.0
     ],
     "by_rung": {
@@ -17260,35 +19330,47 @@
       "n": 10
      },
      "L3": {
-      "passed": 3,
-      "n": 4
+      "passed": 7,
+      "n": 10
+     },
+     "L4": {
+      "passed": 10,
+      "n": 10
+     },
+     "L5": {
+      "passed": 10,
+      "n": 10
+     },
+     "L6": {
+      "passed": 6,
+      "n": 10
      }
     },
     "breaking_point": null,
     "outcomes": {
-     "pass": 23,
-     "crash": 1
+     "pass": 53,
+     "crash": 7
     },
     "latency_s": {
-     "median": 26.46,
-     "p25": 19.82,
-     "p75": 36.42,
-     "p90": 39.19,
-     "max": 55.96
+     "median": 39.45,
+     "p25": 26.56,
+     "p75": 130.99,
+     "p90": 178.53,
+     "max": 313.46
     },
     "tokens_mean": {
-     "in_tok": 21594,
-     "cached_tok": 2048,
-     "out_tok": 1935,
-     "reasoning_tok": 1555
+     "in_tok": 21682,
+     "cached_tok": 2016,
+     "out_tok": 5313,
+     "reasoning_tok": 4697
     },
     "input_floor": [
      21195,
      2048
     ],
-    "usd_per_call": 0.051727,
-    "usd_total": 1.241436,
-    "usd_per_pass": 0.053975,
+    "usd_per_call": 0.072215,
+    "usd_total": 4.332924,
+    "usd_per_pass": 0.081753,
     "usd_per_pass_L1_L2": 0.050451,
     "pass_L1_L2": [
      20,
@@ -17300,18 +19382,24 @@
      "p02_squash": 5,
      "p03_ledger": 5,
      "p04_taller_within": 5,
-     "p05_pass_route": 2,
-     "p06_calc": 1
+     "p05_pass_route": 5,
+     "p06_calc": 2,
+     "p07_weighted_distance_sums": 5,
+     "p08_recur": 5,
+     "p09_k_machine_schedule": 5,
+     "p10_avoid_count": 5,
+     "p11_best_average": 5,
+     "p12_sheet": 1
     },
-    "misses": 1,
+    "misses": 7,
     "ci95_plot": [
-     0.8095,
+     0.7,
      1.0
     ],
-    "usd_text": "$0.054",
+    "usd_text": "$0.082",
     "claude_usd_per_pass": 0.0,
     "usd_saved_per_pass": 0.0,
-    "usd_per_1k_tokens": 0.002198435972629521,
+    "usd_per_1k_tokens": 0.0026751250231524357,
     "by_group": {
      "p01_overlap_minutes": {
       "passes": 5,
@@ -17330,12 +19418,36 @@
       "n": 5
      },
      "p05_pass_route": {
-      "passes": 2,
-      "n": 2
+      "passes": 5,
+      "n": 5
      },
      "p06_calc": {
+      "passes": 2,
+      "n": 5
+     },
+     "p07_weighted_distance_sums": {
+      "passes": 5,
+      "n": 5
+     },
+     "p08_recur": {
+      "passes": 5,
+      "n": 5
+     },
+     "p11_best_average": {
+      "passes": 5,
+      "n": 5
+     },
+     "p09_k_machine_schedule": {
+      "passes": 5,
+      "n": 5
+     },
+     "p10_avoid_count": {
+      "passes": 5,
+      "n": 5
+     },
+     "p12_sheet": {
       "passes": 1,
-      "n": 2
+      "n": 5
      }
     }
    },
@@ -17443,6 +19555,423 @@
     "cli": "grok",
     "model": "grok-4.7",
     "effort": "high",
+    "n": 60,
+    "passes": 57,
+    "pass_at_1": 0.95,
+    "ci95": [
+     0.85,
+     1.0
+    ],
+    "by_rung": {
+     "L1": {
+      "passed": 10,
+      "n": 10
+     },
+     "L2": {
+      "passed": 10,
+      "n": 10
+     },
+     "L3": {
+      "passed": 10,
+      "n": 10
+     },
+     "L4": {
+      "passed": 9,
+      "n": 10
+     },
+     "L5": {
+      "passed": 10,
+      "n": 10
+     },
+     "L6": {
+      "passed": 8,
+      "n": 10
+     }
+    },
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 57,
+     "crash": 2,
+     "timeout": 1
+    },
+    "latency_s": {
+     "median": 105.72,
+     "p25": 46.13,
+     "p75": 318.58,
+     "p90": 493.08,
+     "max": 1200.46
+    },
+    "tokens_mean": {
+     "in_tok": 21296,
+     "cached_tok": 2014,
+     "out_tok": 14304,
+     "reasoning_tok": 13655
+    },
+    "input_floor": [
+     0,
+     0
+    ],
+    "usd_per_call": 0.125395,
+    "usd_total": 7.523676,
+    "usd_per_pass": 0.131994,
+    "usd_per_pass_L1_L2": 0.061577,
+    "pass_L1_L2": [
+     20,
+     20
+    ],
+    "cost_kind": "measured",
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 5,
+     "p04_taller_within": 5,
+     "p05_pass_route": 5,
+     "p06_calc": 5,
+     "p07_weighted_distance_sums": 4,
+     "p08_recur": 5,
+     "p09_k_machine_schedule": 5,
+     "p10_avoid_count": 5,
+     "p11_best_average": 5,
+     "p12_sheet": 3
+    },
+    "misses": 3,
+    "ci95_plot": [
+     0.85,
+     1.0
+    ],
+    "usd_text": "$0.13",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.0,
+    "usd_per_1k_tokens": 0.0035223314606741577,
+    "by_group": {
+     "p01_overlap_minutes": {
+      "passes": 5,
+      "n": 5
+     },
+     "p02_squash": {
+      "passes": 5,
+      "n": 5
+     },
+     "p03_ledger": {
+      "passes": 5,
+      "n": 5
+     },
+     "p04_taller_within": {
+      "passes": 5,
+      "n": 5
+     },
+     "p05_pass_route": {
+      "passes": 5,
+      "n": 5
+     },
+     "p06_calc": {
+      "passes": 5,
+      "n": 5
+     },
+     "p07_weighted_distance_sums": {
+      "passes": 4,
+      "n": 5
+     },
+     "p08_recur": {
+      "passes": 5,
+      "n": 5
+     },
+     "p11_best_average": {
+      "passes": 5,
+      "n": 5
+     },
+     "p09_k_machine_schedule": {
+      "passes": 5,
+      "n": 5
+     },
+     "p12_sheet": {
+      "passes": 3,
+      "n": 5
+     },
+     "p10_avoid_count": {
+      "passes": 5,
+      "n": 5
+     }
+    }
+   },
+   "grok47fast-low": {
+    "cli": "grok",
+    "model": "grok-4.7-build-fast",
+    "effort": "low",
+    "n": 60,
+    "passes": 51,
+    "pass_at_1": 0.85,
+    "ci95": [
+     0.65,
+     1.0
+    ],
+    "by_rung": {
+     "L1": {
+      "passed": 10,
+      "n": 10
+     },
+     "L2": {
+      "passed": 10,
+      "n": 10
+     },
+     "L3": {
+      "passed": 6,
+      "n": 10
+     },
+     "L4": {
+      "passed": 9,
+      "n": 10
+     },
+     "L5": {
+      "passed": 10,
+      "n": 10
+     },
+     "L6": {
+      "passed": 6,
+      "n": 10
+     }
+    },
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 51,
+     "crash": 9
+    },
+    "latency_s": {
+     "median": 34.0,
+     "p25": 18.42,
+     "p75": 82.83,
+     "p90": 133.72,
+     "max": 255.16
+    },
+    "tokens_mean": {
+     "in_tok": 21662,
+     "cached_tok": 1931,
+     "out_tok": 6022,
+     "reasoning_tok": 5400
+    },
+    "input_floor": [
+     21198,
+     2048
+    ],
+    "usd_per_call": 0.153126,
+    "usd_total": 9.187544,
+    "usd_per_pass": 0.180148,
+    "usd_per_pass_L1_L2": 0.102876,
+    "pass_L1_L2": [
+     20,
+     20
+    ],
+    "cost_kind": "measured",
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 5,
+     "p04_taller_within": 5,
+     "p05_pass_route": 5,
+     "p06_calc": 1,
+     "p07_weighted_distance_sums": 4,
+     "p08_recur": 5,
+     "p09_k_machine_schedule": 5,
+     "p10_avoid_count": 5,
+     "p11_best_average": 5,
+     "p12_sheet": 1
+    },
+    "misses": 9,
+    "ci95_plot": [
+     0.65,
+     1.0
+    ],
+    "usd_text": "$0.18",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.0,
+    "usd_per_1k_tokens": 0.0055312093628088425,
+    "by_group": {
+     "p01_overlap_minutes": {
+      "passes": 5,
+      "n": 5
+     },
+     "p02_squash": {
+      "passes": 5,
+      "n": 5
+     },
+     "p03_ledger": {
+      "passes": 5,
+      "n": 5
+     },
+     "p04_taller_within": {
+      "passes": 5,
+      "n": 5
+     },
+     "p05_pass_route": {
+      "passes": 5,
+      "n": 5
+     },
+     "p06_calc": {
+      "passes": 1,
+      "n": 5
+     },
+     "p07_weighted_distance_sums": {
+      "passes": 4,
+      "n": 5
+     },
+     "p08_recur": {
+      "passes": 5,
+      "n": 5
+     },
+     "p11_best_average": {
+      "passes": 5,
+      "n": 5
+     },
+     "p12_sheet": {
+      "passes": 1,
+      "n": 5
+     },
+     "p09_k_machine_schedule": {
+      "passes": 5,
+      "n": 5
+     },
+     "p10_avoid_count": {
+      "passes": 5,
+      "n": 5
+     }
+    }
+   }
+  },
+  "grok_first": {
+   "grok47-low": {
+    "cli": "grok",
+    "model": "grok-4.7",
+    "effort": "low",
+    "n": 24,
+    "passes": 23,
+    "pass_at_1": 0.9583,
+    "ci95": [
+     0.8095,
+     1.0
+    ],
+    "by_rung": {
+     "L1": {
+      "passed": 10,
+      "n": 10
+     },
+     "L2": {
+      "passed": 10,
+      "n": 10
+     },
+     "L3": {
+      "passed": 3,
+      "n": 4
+     }
+    },
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 23,
+     "crash": 1
+    },
+    "latency_s": {
+     "median": 26.46,
+     "p25": 19.82,
+     "p75": 36.42,
+     "p90": 39.19,
+     "max": 55.96
+    },
+    "tokens_mean": {
+     "in_tok": 21594,
+     "cached_tok": 2048,
+     "out_tok": 1935,
+     "reasoning_tok": 1555
+    },
+    "input_floor": [
+     21195,
+     2048
+    ],
+    "usd_per_call": 0.051727,
+    "usd_total": 1.2414,
+    "usd_per_pass": 0.053975,
+    "usd_per_pass_L1_L2": 0.050451,
+    "pass_L1_L2": [
+     20,
+     20
+    ],
+    "cost_kind": "measured",
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 5,
+     "p04_taller_within": 5,
+     "p05_pass_route": 2,
+     "p06_calc": 1
+    }
+   },
+   "grok47-medium": {
+    "cli": "grok",
+    "model": "grok-4.7",
+    "effort": "medium",
+    "n": 21,
+    "passes": 20,
+    "pass_at_1": 0.9524,
+    "ci95": [
+     0.7857,
+     1.0
+    ],
+    "by_rung": {
+     "L1": {
+      "passed": 10,
+      "n": 10
+     },
+     "L2": {
+      "passed": 7,
+      "n": 7
+     },
+     "L3": {
+      "passed": 3,
+      "n": 4
+     }
+    },
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 20,
+     "crash": 1
+    },
+    "latency_s": {
+     "median": 32.56,
+     "p25": 27.32,
+     "p75": 65.42,
+     "p90": 92.05,
+     "max": 182.82
+    },
+    "tokens_mean": {
+     "in_tok": 21578,
+     "cached_tok": 1969,
+     "out_tok": 3855,
+     "reasoning_tok": 3475
+    },
+    "input_floor": [
+     21195,
+     2048
+    ],
+    "usd_per_call": 0.063332,
+    "usd_total": 1.33,
+    "usd_per_pass": 0.066498,
+    "usd_per_pass_L1_L2": 0.055716,
+    "pass_L1_L2": [
+     17,
+     17
+    ],
+    "cost_kind": "measured",
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 4,
+     "p04_taller_within": 3,
+     "p05_pass_route": 2,
+     "p06_calc": 1
+    }
+   },
+   "grok47-high": {
+    "cli": "grok",
+    "model": "grok-4.7",
+    "effort": "high",
     "n": 18,
     "passes": 18,
     "pass_at_1": 1.0,
@@ -17501,41 +20030,6 @@
      "p04_taller_within": 2,
      "p05_pass_route": 2,
      "p06_calc": 2
-    },
-    "misses": 0,
-    "ci95_plot": [
-     0.6069622310029172,
-     1.0
-    ],
-    "usd_text": "$0.072",
-    "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.0,
-    "usd_per_1k_tokens": 0.0026751805793432124,
-    "by_group": {
-     "p01_overlap_minutes": {
-      "passes": 5,
-      "n": 5
-     },
-     "p02_squash": {
-      "passes": 5,
-      "n": 5
-     },
-     "p03_ledger": {
-      "passes": 2,
-      "n": 2
-     },
-     "p04_taller_within": {
-      "passes": 2,
-      "n": 2
-     },
-     "p05_pass_route": {
-      "passes": 2,
-      "n": 2
-     },
-     "p06_calc": {
-      "passes": 2,
-      "n": 2
-     }
     }
    },
    "grok47fast-low": {
@@ -17586,7 +20080,7 @@
      2048
     ],
     "usd_per_call": 0.106694,
-    "usd_total": 2.560652,
+    "usd_total": 2.5607,
     "usd_per_pass": 0.111333,
     "usd_per_pass_L1_L2": 0.102876,
     "pass_L1_L2": [
@@ -17601,41 +20095,6 @@
      "p04_taller_within": 5,
      "p05_pass_route": 2,
      "p06_calc": 1
-    },
-    "misses": 1,
-    "ci95_plot": [
-     0.8095,
-     1.0
-    ],
-    "usd_text": "$0.11",
-    "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.0,
-    "usd_per_1k_tokens": 0.00447898912724067,
-    "by_group": {
-     "p01_overlap_minutes": {
-      "passes": 5,
-      "n": 5
-     },
-     "p02_squash": {
-      "passes": 5,
-      "n": 5
-     },
-     "p03_ledger": {
-      "passes": 5,
-      "n": 5
-     },
-     "p04_taller_within": {
-      "passes": 5,
-      "n": 5
-     },
-     "p05_pass_route": {
-      "passes": 2,
-      "n": 2
-     },
-     "p06_calc": {
-      "passes": 1,
-      "n": 2
-     }
     }
    }
   },
@@ -19359,6 +21818,693 @@
       "n": 5
      }
     }
+   },
+   "terra56-high": {
+    "cli": "codex",
+    "model": "gpt-5.6-terra",
+    "effort": "high",
+    "n": 12,
+    "passes": 12,
+    "pass_at_1": 1.0,
+    "ci95": [
+     1.0,
+     1.0
+    ],
+    "by_rung": {
+     "L1": {
+      "passed": 2,
+      "n": 2
+     },
+     "L2": {
+      "passed": 2,
+      "n": 2
+     },
+     "L3": {
+      "passed": 2,
+      "n": 2
+     },
+     "L4": {
+      "passed": 2,
+      "n": 2
+     },
+     "L5": {
+      "passed": 2,
+      "n": 2
+     },
+     "L6": {
+      "passed": 2,
+      "n": 2
+     }
+    },
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 12
+    },
+    "latency_s": {
+     "median": 17.52,
+     "p25": 8.64,
+     "p75": 32.33,
+     "p90": 34.12,
+     "max": 35.96
+    },
+    "tokens_mean": {
+     "in_tok": 13040,
+     "cached_tok": 11179,
+     "out_tok": 1024,
+     "reasoning_tok": 502
+    },
+    "input_floor": [
+     12847,
+     11008
+    ],
+    "usd_per_call": 0.018247,
+    "usd_total": 0.218959,
+    "usd_per_pass": 0.018247,
+    "usd_per_pass_L1_L2": 0.010806,
+    "pass_L1_L2": [
+     4,
+     4
+    ],
+    "cost_kind": "proxy",
+    "vs": [
+     {
+      "b": "luna-low",
+      "diff": 0.2333,
+      "ci95": [
+       0.05,
+       0.45
+      ],
+      "problems": 12
+     },
+     {
+      "b": "haiku-low",
+      "diff": 0.05,
+      "ci95": [
+       0.0,
+       0.15
+      ],
+      "problems": 12
+     },
+     {
+      "b": "luna-medium",
+      "diff": 0.2167,
+      "ci95": [
+       0.0333,
+       0.4333
+      ],
+      "problems": 12
+     }
+    ],
+    "usd_per_pass_uncached": 0.038368,
+    "by_problem": {
+     "p01_overlap_minutes": 1,
+     "p02_squash": 1,
+     "p03_ledger": 1,
+     "p04_taller_within": 1,
+     "p05_pass_route": 1,
+     "p06_calc": 1,
+     "p07_weighted_distance_sums": 1,
+     "p08_recur": 1,
+     "p09_k_machine_schedule": 1,
+     "p10_avoid_count": 1,
+     "p11_best_average": 1,
+     "p12_sheet": 1
+    },
+    "misses": 0,
+    "ci95_plot": [
+     0.7790778080544442,
+     1.0
+    ],
+    "usd_text": "$0.018",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.018247,
+    "usd_per_1k_tokens": 0.0012974260523321956,
+    "by_group": {
+     "p01_overlap_minutes": {
+      "passes": 1,
+      "n": 1
+     },
+     "p07_weighted_distance_sums": {
+      "passes": 1,
+      "n": 1
+     },
+     "p05_pass_route": {
+      "passes": 1,
+      "n": 1
+     },
+     "p02_squash": {
+      "passes": 1,
+      "n": 1
+     },
+     "p03_ledger": {
+      "passes": 1,
+      "n": 1
+     },
+     "p08_recur": {
+      "passes": 1,
+      "n": 1
+     },
+     "p04_taller_within": {
+      "passes": 1,
+      "n": 1
+     },
+     "p09_k_machine_schedule": {
+      "passes": 1,
+      "n": 1
+     },
+     "p11_best_average": {
+      "passes": 1,
+      "n": 1
+     },
+     "p06_calc": {
+      "passes": 1,
+      "n": 1
+     },
+     "p10_avoid_count": {
+      "passes": 1,
+      "n": 1
+     },
+     "p12_sheet": {
+      "passes": 1,
+      "n": 1
+     }
+    }
+   },
+   "terra56-low": {
+    "cli": "codex",
+    "model": "gpt-5.6-terra",
+    "effort": "low",
+    "n": 12,
+    "passes": 9,
+    "pass_at_1": 0.75,
+    "ci95": [
+     0.5,
+     1.0
+    ],
+    "by_rung": {
+     "L1": {
+      "passed": 2,
+      "n": 2
+     },
+     "L2": {
+      "passed": 2,
+      "n": 2
+     },
+     "L3": {
+      "passed": 2,
+      "n": 2
+     },
+     "L4": {
+      "passed": 2,
+      "n": 2
+     },
+     "L5": {
+      "passed": 1,
+      "n": 2
+     },
+     "L6": {
+      "passed": 0,
+      "n": 2
+     }
+    },
+    "breaking_point": "L6",
+    "outcomes": {
+     "pass": 9,
+     "wrong": 2,
+     "timeout": 1
+    },
+    "latency_s": {
+     "median": 14.05,
+     "p25": 10.94,
+     "p75": 18.36,
+     "p90": 22.3,
+     "max": 34.3
+    },
+    "tokens_mean": {
+     "in_tok": 13041,
+     "cached_tok": 11093,
+     "out_tok": 585,
+     "reasoning_tok": 86
+    },
+    "input_floor": [
+     12849,
+     11008
+    ],
+    "usd_per_call": 0.01313,
+    "usd_total": 0.157554,
+    "usd_per_pass": 0.017506,
+    "usd_per_pass_L1_L2": 0.009404,
+    "pass_L1_L2": [
+     4,
+     4
+    ],
+    "cost_kind": "proxy",
+    "vs": [
+     {
+      "b": "luna-low",
+      "diff": -0.0167,
+      "ci95": [
+       -0.2167,
+       0.2
+      ],
+      "problems": 12
+     },
+     {
+      "b": "haiku-low",
+      "diff": -0.2,
+      "ci95": [
+       -0.4167,
+       0.0
+      ],
+      "problems": 12
+     },
+     {
+      "b": "luna-medium",
+      "diff": -0.0333,
+      "ci95": [
+       -0.2667,
+       0.1833
+      ],
+      "problems": 12
+     }
+    ],
+    "usd_per_pass_uncached": 0.04413,
+    "by_problem": {
+     "p01_overlap_minutes": 1,
+     "p02_squash": 1,
+     "p03_ledger": 1,
+     "p04_taller_within": 1,
+     "p05_pass_route": 1,
+     "p06_calc": 1,
+     "p07_weighted_distance_sums": 1,
+     "p08_recur": 1,
+     "p09_k_machine_schedule": 0,
+     "p10_avoid_count": 1,
+     "p11_best_average": 0,
+     "p12_sheet": 0
+    },
+    "misses": 3,
+    "ci95_plot": [
+     0.5,
+     1.0
+    ],
+    "usd_text": "$0.018",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.017506,
+    "usd_per_1k_tokens": 0.0009635990019081168,
+    "by_group": {
+     "p07_weighted_distance_sums": {
+      "passes": 1,
+      "n": 1
+     },
+     "p01_overlap_minutes": {
+      "passes": 1,
+      "n": 1
+     },
+     "p09_k_machine_schedule": {
+      "passes": 0,
+      "n": 1
+     },
+     "p03_ledger": {
+      "passes": 1,
+      "n": 1
+     },
+     "p05_pass_route": {
+      "passes": 1,
+      "n": 1
+     },
+     "p02_squash": {
+      "passes": 1,
+      "n": 1
+     },
+     "p04_taller_within": {
+      "passes": 1,
+      "n": 1
+     },
+     "p08_recur": {
+      "passes": 1,
+      "n": 1
+     },
+     "p10_avoid_count": {
+      "passes": 1,
+      "n": 1
+     },
+     "p06_calc": {
+      "passes": 1,
+      "n": 1
+     },
+     "p11_best_average": {
+      "passes": 0,
+      "n": 1
+     },
+     "p12_sheet": {
+      "passes": 0,
+      "n": 1
+     }
+    }
+   },
+   "terra61-high": {
+    "cli": "codex",
+    "model": "gpt-6.1-terra",
+    "effort": "high",
+    "n": 60,
+    "passes": 58,
+    "pass_at_1": 0.9667,
+    "ci95": [
+     0.8833,
+     1.0
+    ],
+    "by_rung": {
+     "L1": {
+      "passed": 10,
+      "n": 10
+     },
+     "L2": {
+      "passed": 8,
+      "n": 10
+     },
+     "L3": {
+      "passed": 10,
+      "n": 10
+     },
+     "L4": {
+      "passed": 10,
+      "n": 10
+     },
+     "L5": {
+      "passed": 10,
+      "n": 10
+     },
+     "L6": {
+      "passed": 10,
+      "n": 10
+     }
+    },
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 58,
+     "wrong": 2
+    },
+    "latency_s": {
+     "median": 11.93,
+     "p25": 8.45,
+     "p75": 15.42,
+     "p90": 19.51,
+     "max": 38.62
+    },
+    "tokens_mean": {
+     "in_tok": 15668,
+     "cached_tok": 11821,
+     "out_tok": 643,
+     "reasoning_tok": 135
+    },
+    "input_floor": [
+     13871,
+     12160
+    ],
+    "usd_per_call": 0.007654,
+    "usd_total": 0.459224,
+    "usd_per_pass": 0.007918,
+    "usd_per_pass_L1_L2": 0.011076,
+    "pass_L1_L2": [
+     18,
+     20
+    ],
+    "cost_kind": "proxy",
+    "vs": [
+     {
+      "b": "luna-low",
+      "diff": 0.2,
+      "ci95": [
+       0.0333,
+       0.4
+      ],
+      "problems": 12
+     },
+     {
+      "b": "haiku-low",
+      "diff": 0.0167,
+      "ci95": [
+       -0.1,
+       0.1333
+      ],
+      "problems": 12
+     },
+     {
+      "b": "luna-medium",
+      "diff": 0.1833,
+      "ci95": [
+       0.0167,
+       0.4
+      ],
+      "problems": 12
+     }
+    ],
+    "usd_per_pass_uncached": 0.019535,
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 5,
+     "p04_taller_within": 3,
+     "p05_pass_route": 5,
+     "p06_calc": 5,
+     "p07_weighted_distance_sums": 5,
+     "p08_recur": 5,
+     "p09_k_machine_schedule": 5,
+     "p10_avoid_count": 5,
+     "p11_best_average": 5,
+     "p12_sheet": 5
+    },
+    "misses": 2,
+    "ci95_plot": [
+     0.8833,
+     1.0
+    ],
+    "usd_text": "$0.0079",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.007918,
+    "usd_per_1k_tokens": 0.00046925387775121084,
+    "by_group": {
+     "p01_overlap_minutes": {
+      "passes": 5,
+      "n": 5
+     },
+     "p05_pass_route": {
+      "passes": 5,
+      "n": 5
+     },
+     "p11_best_average": {
+      "passes": 5,
+      "n": 5
+     },
+     "p07_weighted_distance_sums": {
+      "passes": 5,
+      "n": 5
+     },
+     "p03_ledger": {
+      "passes": 5,
+      "n": 5
+     },
+     "p09_k_machine_schedule": {
+      "passes": 5,
+      "n": 5
+     },
+     "p02_squash": {
+      "passes": 5,
+      "n": 5
+     },
+     "p04_taller_within": {
+      "passes": 3,
+      "n": 5
+     },
+     "p08_recur": {
+      "passes": 5,
+      "n": 5
+     },
+     "p06_calc": {
+      "passes": 5,
+      "n": 5
+     },
+     "p10_avoid_count": {
+      "passes": 5,
+      "n": 5
+     },
+     "p12_sheet": {
+      "passes": 5,
+      "n": 5
+     }
+    }
+   },
+   "terra61-low": {
+    "cli": "codex",
+    "model": "gpt-6.1-terra",
+    "effort": "low",
+    "n": 60,
+    "passes": 60,
+    "pass_at_1": 1.0,
+    "ci95": [
+     1.0,
+     1.0
+    ],
+    "by_rung": {
+     "L1": {
+      "passed": 10,
+      "n": 10
+     },
+     "L2": {
+      "passed": 10,
+      "n": 10
+     },
+     "L3": {
+      "passed": 10,
+      "n": 10
+     },
+     "L4": {
+      "passed": 10,
+      "n": 10
+     },
+     "L5": {
+      "passed": 10,
+      "n": 10
+     },
+     "L6": {
+      "passed": 10,
+      "n": 10
+     }
+    },
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 60
+    },
+    "latency_s": {
+     "median": 10.34,
+     "p25": 7.98,
+     "p75": 14.78,
+     "p90": 20.92,
+     "max": 39.15
+    },
+    "tokens_mean": {
+     "in_tok": 18871,
+     "cached_tok": 11738,
+     "out_tok": 537,
+     "reasoning_tok": 21
+    },
+    "input_floor": [
+     13864,
+     12160
+    ],
+    "usd_per_call": 0.010405,
+    "usd_total": 0.624282,
+    "usd_per_pass": 0.010405,
+    "usd_per_pass_L1_L2": 0.009187,
+    "pass_L1_L2": [
+     20,
+     20
+    ],
+    "cost_kind": "proxy",
+    "vs": [
+     {
+      "b": "luna-low",
+      "diff": 0.2333,
+      "ci95": [
+       0.05,
+       0.45
+      ],
+      "problems": 12
+     },
+     {
+      "b": "haiku-low",
+      "diff": 0.05,
+      "ci95": [
+       0.0,
+       0.15
+      ],
+      "problems": 12
+     },
+     {
+      "b": "luna-medium",
+      "diff": 0.2167,
+      "ci95": [
+       0.0333,
+       0.45
+      ],
+      "problems": 12
+     }
+    ],
+    "usd_per_pass_uncached": 0.021555,
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 5,
+     "p04_taller_within": 5,
+     "p05_pass_route": 5,
+     "p06_calc": 5,
+     "p07_weighted_distance_sums": 5,
+     "p08_recur": 5,
+     "p09_k_machine_schedule": 5,
+     "p10_avoid_count": 5,
+     "p11_best_average": 5,
+     "p12_sheet": 5
+    },
+    "misses": 0,
+    "ci95_plot": [
+     0.7790778080544442,
+     1.0
+    ],
+    "usd_text": "$0.010",
+    "claude_usd_per_pass": 0.0,
+    "usd_saved_per_pass": 0.010405,
+    "usd_per_1k_tokens": 0.0005361191261335532,
+    "by_group": {
+     "p07_weighted_distance_sums": {
+      "passes": 5,
+      "n": 5
+     },
+     "p01_overlap_minutes": {
+      "passes": 5,
+      "n": 5
+     },
+     "p11_best_average": {
+      "passes": 5,
+      "n": 5
+     },
+     "p05_pass_route": {
+      "passes": 5,
+      "n": 5
+     },
+     "p09_k_machine_schedule": {
+      "passes": 5,
+      "n": 5
+     },
+     "p03_ledger": {
+      "passes": 5,
+      "n": 5
+     },
+     "p02_squash": {
+      "passes": 5,
+      "n": 5
+     },
+     "p08_recur": {
+      "passes": 5,
+      "n": 5
+     },
+     "p04_taller_within": {
+      "passes": 5,
+      "n": 5
+     },
+     "p06_calc": {
+      "passes": 5,
+      "n": 5
+     },
+     "p10_avoid_count": {
+      "passes": 5,
+      "n": 5
+     },
+     "p12_sheet": {
+      "passes": 5,
+      "n": 5
+     }
+    }
    }
   },
   "hard": {
@@ -20447,6 +23593,26 @@
       "passed": 5,
       "n": 5,
       "fails": {}
+     },
+     "terra56-high": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra56-low": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra61-high": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "terra61-low": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
      }
     }
    },
@@ -20544,6 +23710,28 @@
       "passed": 5,
       "n": 5,
       "fails": {}
+     },
+     "terra56-high": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra56-low": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra61-high": {
+      "passed": 3,
+      "n": 5,
+      "fails": {
+       "wrong": 2
+      }
+     },
+     "terra61-low": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
      }
     }
    },
@@ -20630,6 +23818,26 @@
       "fails": {}
      },
      "sol61-high-fast": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "terra56-high": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra56-low": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra61-high": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "terra61-low": {
       "passed": 5,
       "n": 5,
       "fails": {}
@@ -20722,6 +23930,26 @@
       "passed": 5,
       "n": 5,
       "fails": {}
+     },
+     "terra56-high": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra56-low": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra61-high": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "terra61-low": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
      }
     }
    },
@@ -20807,6 +24035,26 @@
       "fails": {}
      },
      "sol61-high-fast": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "terra56-high": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra56-low": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra61-high": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "terra61-low": {
       "passed": 5,
       "n": 5,
       "fails": {}
@@ -20896,6 +24144,26 @@
       "fails": {}
      },
      "sol61-high-fast": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "terra56-high": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra56-low": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra61-high": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "terra61-low": {
       "passed": 5,
       "n": 5,
       "fails": {}
@@ -20991,6 +24259,28 @@
       "passed": 5,
       "n": 5,
       "fails": {}
+     },
+     "terra56-high": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra56-low": {
+      "passed": 0,
+      "n": 1,
+      "fails": {
+       "wrong": 1
+      }
+     },
+     "terra61-high": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "terra61-low": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
      }
     }
    },
@@ -21079,6 +24369,26 @@
       "fails": {}
      },
      "sol61-high-fast": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "terra56-high": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra56-low": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra61-high": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "terra61-low": {
       "passed": 5,
       "n": 5,
       "fails": {}
@@ -21171,6 +24481,28 @@
       "fails": {}
      },
      "sol61-high-fast": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "terra56-high": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra56-low": {
+      "passed": 0,
+      "n": 1,
+      "fails": {
+       "wrong": 1
+      }
+     },
+     "terra61-high": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "terra61-low": {
       "passed": 5,
       "n": 5,
       "fails": {}
@@ -21276,6 +24608,28 @@
       "fails": {}
      },
      "sol61-high-fast": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "terra56-high": {
+      "passed": 1,
+      "n": 1,
+      "fails": {}
+     },
+     "terra56-low": {
+      "passed": 0,
+      "n": 1,
+      "fails": {
+       "timeout": 1
+      }
+     },
+     "terra61-high": {
+      "passed": 5,
+      "n": 5,
+      "fails": {}
+     },
+     "terra61-low": {
       "passed": 5,
       "n": 5,
       "fails": {}
@@ -22781,13 +26135,13 @@
    "claude_measured_usd": 2.4624,
    "claude_function_usd": 1.6128,
    "claude_agentic_usd": 0.8496,
-   "codex_proxy_usd": 36.2653,
+   "codex_proxy_usd": 37.7254,
    "codex_fastmode_usd": 3.4069,
    "calls": {
-    "function": 1348,
+    "function": 1606,
     "agentic": 84
    },
-   "grok_measured_usd": 6.4254
+   "grok_measured_usd": 22.3741
   },
   "hypotheses": {
    "H1": {
@@ -23059,6 +26413,10 @@
      "$0.0060"
     ],
     [
+     0.007,
+     "$0.0070"
+    ],
+    [
      0.0075,
      "$0.0075"
     ],
@@ -23067,8 +26425,24 @@
      "$0.0080"
     ],
     [
+     0.0085,
+     "$0.0085"
+    ],
+    [
+     0.009,
+     "$0.0090"
+    ],
+    [
+     0.0095,
+     "$0.0095"
+    ],
+    [
      0.01,
      "$0.010"
+    ],
+    [
+     0.0105,
+     "$0.011"
     ],
     [
      0.011,
@@ -23111,8 +26485,48 @@
      "$0.017"
     ],
     [
+     0.0175,
+     "$0.018"
+    ],
+    [
+     0.0176,
+     "$0.018"
+    ],
+    [
+     0.01775,
+     "$0.018"
+    ],
+    [
+     0.0178,
+     "$0.018"
+    ],
+    [
      0.018,
      "$0.018"
+    ],
+    [
+     0.0182,
+     "$0.018"
+    ],
+    [
+     0.01825,
+     "$0.018"
+    ],
+    [
+     0.0183,
+     "$0.018"
+    ],
+    [
+     0.0184,
+     "$0.018"
+    ],
+    [
+     0.0185,
+     "$0.018"
+    ],
+    [
+     0.0186,
+     "$0.019"
     ],
     [
      0.019,
@@ -23222,7 +26636,7 @@
   }
  },
  "facts": {
-  "n_ladder_configs": "16",
+  "n_ladder_configs": "18",
   "n_problems": "12",
   "n_tasks": "4",
   "n_configs": "6",
@@ -23272,11 +26686,12 @@
   "hb_full_calls": "240",
   "hb_minutes": "74",
   "versions_claude": "Main bench, Claude Code 2.1.308: claude-haiku-5-5, claude-sonnet-5-5.",
-  "versions_codex": "Main bench, Codex CLI 0.163.0: gpt-5.6-luna, gpt-5.6-sol, gpt-6-astra, gpt-6-luna, gpt-6.1-sol.",
+  "versions_codex": "Main bench, Codex CLI 0.163.0: gpt-5.6-luna, gpt-5.6-sol, gpt-6-astra, gpt-6-luna, gpt-6.1-sol. Terra rows, Codex CLI 0.164.0: gpt-5.6-terra, gpt-6.1-terra.",
   "versions_extra": "Whose bench? also used Codex CLI 0.164.0 and Claude Code 2.1.293.",
-  "run_dates": "All calls ran 2026-10-22 to 2026-10-26.",
+  "run_dates": "All calls ran 2026-10-22 to 2026-10-28.",
   "cite": "Cite as: DispatchBench (2026), github.com/chimera-defi/dispatchbench.",
   "codex_tool_free": "938 of 938",
+  "terra_tool_note": "Terra (added later) is the exception: 4 of 144 calls logged one item that was not a message or reasoning, so a tool may have run. 4 of those 4 passed. The raw item type was not kept.",
   "router_fit": "1–3",
   "router_held": "4–5",
   "router_k": "22/24",
@@ -23291,15 +26706,15 @@
   "older_generation": "5.6",
   "quality_fast_note": "sol61-high ⚡ and astra-medium ⚡: main-ladder solutions not scored. sol61-high ⚡'s 35-attempt retest run is scored below; astra-medium ⚡ has no retest scores.",
   "quality_fast_items": "<li>sol61-high ⚡ and astra-medium ⚡: main-ladder solutions not scored.</li><li>sol61-high ⚡'s 35-attempt retest run is scored below; astra-medium ⚡ has no retest scores.</li>",
-  "exploratory_items": "<li>astra-medium</li><li>astra-medium ⚡</li><li>haiku-high</li><li>luna-high</li><li>luna-low-bare</li><li>luna56-high</li><li>luna56-low</li><li>sol56-high</li><li>sol61-high</li><li>sol61-high ⚡</li>",
+  "exploratory_items": "<li>astra-medium</li><li>astra-medium ⚡</li><li>haiku-high</li><li>luna-high</li><li>luna-low-bare</li><li>luna56-high</li><li>luna56-low</li><li>sol56-high</li><li>sol61-high</li><li>sol61-high ⚡</li><li>terra56-high</li><li>terra56-low</li><li>terra61-high</li><li>terra61-low</li>",
   "l7_problem_items": "<li>p13 xor_ring (L7)</li><li>p14 bounce_board (L7)</li><li>p15 paint_erase (L7)</li>",
   "p90_percent": "90%",
   "host_agents_md": "1.3k",
   "min_pass": "90%",
   "rung_attempts": "10",
   "claude_usd": "$2.46",
-  "codex_usd": "$36.27",
-  "codex_usd_rounded": "$36",
+  "codex_usd": "$37.73",
+  "codex_usd_rounded": "$38",
   "agentic_fast_caption": "No ⚡ repo-task data",
   "haiku_low_pass": "95%",
   "haiku_low_k": "57/60",
@@ -23413,6 +26828,20 @@
   "sol61_high_fast_rsn": "541",
   "sol61_high_fast_rsn10": "540",
   "sol61_high_fast_in": "15,380",
+  "terra61_high_pass": "97%",
+  "terra61_high_k": "58/60",
+  "terra61_high_upp": "$0.0079",
+  "terra61_high_med": "11.9",
+  "terra61_high_rsn": "135",
+  "terra61_high_rsn10": "140",
+  "terra61_high_in": "15,668",
+  "terra61_low_pass": "100%",
+  "terra61_low_k": "60/60",
+  "terra61_low_upp": "$0.010",
+  "terra61_low_med": "10.3",
+  "terra61_low_rsn": "21",
+  "terra61_low_rsn10": "20",
+  "terra61_low_in": "18,871",
   "model_names": "luna = gpt-6-luna, sol61 = gpt-6.1-sol, astra = gpt-6-astra. luna56 = gpt-5.6-luna, sol56 = gpt-5.6-sol (older generation)",
   "ref_unit": "1.00",
   "cheap_miss_words": "1 answer in 4",
@@ -23483,7 +26912,7 @@
   "p04_wrong_ex1": "8",
   "hl_main_failures": "2 too slow, 1 crash in 60 tries",
   "hl_l7_failures": "3 too slow, 0 crash in 15 tries",
-  "worst_failure": "p12 sheet (L6) has misses in 8 of 16 configs",
+  "worst_failure": "p12 sheet (L6) has misses in 9 of 18 configs",
   "hl_main_timeouts": "2",
   "hl_main_misses": "3",
   "hl_main_crashes": "1",
@@ -23685,7 +27114,7 @@
   "new_date": "2026-10-23",
   "n_new_codex": "5",
   "codex_new_usd": "$17.52",
-  "codex_old_usd": "$2.46",
+  "codex_old_usd": "$3.92",
   "ff_usd": "$12.88",
   "fx_usd": "$16.28",
   "x_sol61_high_k": "60/60",
@@ -23754,10 +27183,10 @@
   "l7_sm_k": "15/15",
   "ci_level": "95%",
   "r_luna_high_bare_miss": "4",
-  "n_exploratory": "10",
+  "n_exploratory": "14",
   "badge_disagreement_items": "<li>p01 overlap_minutes (L1) is Medium.</li><li>p06 calc (L3) is Hard.</li><li>p08 recur (L4) is Medium.</li>",
-  "frontier_caption": "luna-low is not a best trade-off: luna-medium costs the same, $0.0009 per pass. It passes 47/60 to luna-low's 46/60. Main ladder only; every point counts. Grok points use p01-p06 only (6 of 12 problems), so they are not a like-for-like main-ladder comparison.",
-  "grok_chart_note": "Grok points use p01-p06 only (6 of 12 problems), so they are not a like-for-like main-ladder comparison.",
+  "frontier_caption": "luna-low is not a best trade-off: luna-medium costs the same, $0.0009 per pass. It passes 47/60 to luna-low's 46/60. Main ladder only; every point counts. Grok: black hexagons, all 12 problems, outside the best-trade-off line. grok47-medium (p01–p06 only) is not plotted.",
+  "grok_chart_note": "Grok: black hexagons, all 12 problems, outside the best-trade-off line. grok47-medium (p01–p06 only) is not plotted.",
   "winner_caption": "Numbers: the 12-problem main ladder, 60 tries per config. Time = median seconds. ~ = estimated from tokens; Claude costs are measured.",
   "winner_other_routes": [
    "⚡ = fast mode: same answers, about 2× list price, faster."
@@ -23776,7 +27205,7 @@
   "verdict_key": "✓ pick = a Winner pick. 0 misses / missed N = raw miss count, no ranking. beaten = another row is as cheap and passes as often. trade-off = pricier but passes more. avoid = below 90%.",
   "dropped_pipeline_models": "sol61-high and astra-medium (normal and ⚡)",
   "l7_config_count": "13",
-  "l7_absent": "luna-low, luna-medium and luna-low-bare",
+  "l7_absent": "luna-low, luna-medium, luna-low-bare, terra61-high and terra61-low",
   "rung_breaks": "luna-low and luna-medium break at L6",
   "bare_rung_break": "L2",
   "rung_caption": "Passes per rung. Tint = a miss; red = 40% or less, the breaking point. L7 excluded.",
@@ -23789,17 +27218,20 @@
   "grok_reach_note": "Totals differ (18, 21, 24) because the run was shortened from 5 to 2 repeats partway through L2 and extra repeats already run were kept; the earlier full-coverage lanes have 30 = 6 problems × 5 repeats; read the rung reached, not the total. The function misses were on p06_calc.",
   "grok_scope": "Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory phases only. Warmup, calibration, fastmode, escalation and hard phases are excluded. Grok has small n and was not run past L3, so cleared L3 is a floor. CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier.",
   "grok_match_rule": "A lane is comparable when it clears the same rungs and first misses at the same rung on the 12-problem main ladder. If a Grok config never missed through L3, every lane that clears through L3 counts, with its later results shown.",
+  "grok_first_title": "First run (2 repeats, p01–p06)",
   "grok_key": "A lane is an existing config: one model at one effort. Rungs L1–L6 get harder step by step. Cleared through L2 means every call passed on L1 and L2.",
-  "grok_not_run": "Grok columns cover the first half only. L4–L6 were not run. A dash means no attempt, not a failure.",
+  "grok_full_note": "Each full-run config ran 12 problems × 5 repeats (main + exploratory phases, repeats 1–5). 87 of the 201 Grok calls come from the first run. grok47-medium ran p01–p06 only, as before; it was not extended, so it is not in the closest-lane comparison. 1 call hit the time limit and counts as a miss: grok47-high on p12 repeat 5. A killed call has no bill, so that config's $ per pass is a floor. luna-high and sol61-high-fast did not run every problem in the main and exploratory phases, so they are left out of the comparison. CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier. Closest lane = nearest pass rate among the full-ladder lanes, then nearest median time, then cost per pass.",
+  "grok_not_run": "grok47-medium covers p01–p06 only, so its cells for the other problems are dashes. A dash means no attempt, not a failure.",
   "equiv_fastest": "Fastest Codex at 100%: astra-medium ⚡, 10 s. It costs $0.15 per pass.",
   "equiv_near": "At haiku-low's price, the best Codex is luna-high: 92% to 95%.",
-  "winner_claude_to_codex": "Cheapest main-ladder pass-rate matches, Claude → Codex: haiku-low → sol61-medium. haiku-medium, haiku-high and sonnet-medium → sol61-high.",
-  "winner_codex_to_claude": "Cheapest main-ladder pass-rate matches, Codex → Claude: sol61-medium → haiku-medium; sol61-high → haiku-high.",
-  "equiv_takeaway": "All 4 Claude configs have Codex matches. Each match costs more at list price and runs slower. All 12 Codex configs have Claude matches. Claude is cheaper for 8. Only luna undercuts its Claude match, with more misses.",
-  "equiv_back_takeaway": "Every Codex config has a Claude match. It is cheaper for 8 of 12. Only luna (not luna56) costs less, and it misses more.",
+  "winner_claude_to_codex": "Cheapest main-ladder pass-rate matches, Claude → Codex: haiku-low → terra61-high. haiku-medium, haiku-high and sonnet-medium → terra61-low.",
+  "winner_codex_to_claude": "Cheapest main-ladder pass-rate matches, Codex → Claude: terra61-low → haiku-high; terra61-high → haiku-medium; sol61-medium → haiku-medium; sol61-high → haiku-high.",
+  "equiv_takeaway": "All 4 Claude configs have Codex matches. 3 of 4 cost more at list price; terra61-low costs less than sonnet-medium. 2 of 4 also run slower. terra61-low runs faster than haiku-medium and haiku-high. All 14 Codex configs have Claude matches. Claude is cheaper for 10. Only luna undercuts its Claude match, with more misses.",
+  "equiv_back_takeaway": "Every Codex config has a Claude match. It is cheaper for 10 of 14. Only luna (not luna56) costs less, and it misses more.",
   "winner_fallback": "Codex out? Use haiku-high: 60/60 passed on the main ladder. It costs $0.0028 per pass, cheapest among configs with no misses.",
   "fast_pipeline_note": "Fast-mode pipelines equal their builders because every example check passed. Haiku made 0 repairs.",
   "int_sol": "sol56-high is a generation older than sol61-high. Both pass every main-ladder try. sol56-high takes 14.5 s at ~$0.042 per pass. sol61-high takes 27.4 s at ~$0.019. ⚡ cuts that to 17.4 s, at ~$0.036. So the newer model is cheaper but slower. ⚡ does not close the gap.",
+  "int_terra": "Sol 6.1 high on fast was slower than Sol 5.6 high — does Terra high match or beat Sol 5.6 high on speed and pass rate? It is faster but misses. terra61-high takes 11.9 s to sol56-high's 14.5 s, and passes 58/60 to 60/60. The 2 misses are on p04 taller_within (repeats 1, 3). terra61-low matches sol56-high at 60/60 and is faster, 10.3 s. Cost per pass, list-price estimates: terra61-low ~$0.010, terra61-high ~$0.0079, sol56-high ~$0.042. Fast mode was not tried. The trigger was a low/high gap of 10 points or more, or terra high outside 0.5–2× of sol56-high's median. The gap is 3.3 points and the ratio is 0.82×, so it did not fire. Extra data, one repeat each: gpt-5.6-terra passed 12/12 at high and 9/12 at low.",
   "int_luna": "luna-low is cheaper per pass than haiku-low: ~$0.00090 to $0.0011. But it passes 77% to 95%.",
   "int_semi": "<a href=\"https://newsletter.semianalysis.com/p/anthropic-subscriptions-offer-5x\">SemiAnalysis</a>: Anthropic plans give ~5× OpenAI's API-priced value at the Opus/Sol tier. We price list-rate calls, not plan quotas, so we can’t test that. At list price, haiku-high beats sol61-high ~7× per pass; tiers differ. On repo tasks the gap is ~8×. But luna-low was cheapest there and passed every repo task.",
   "int_repo": "On repo edits, sol61-high took 118 s; astra-medium took 66 s. sonnet-medium and haiku-low took about 28 s. Both Codex picks took over twice as long. All passed every hidden test.",
@@ -23828,11 +27260,11 @@
    "rows": [
     [
      "grok47-low",
-     "6 of 12 problems",
-     "96% (23/24)",
-     "$0.054",
-     "$1.24",
-     "26.5"
+     "12 of 12 problems",
+     "88% (53/60)",
+     "$0.082",
+     "$4.33",
+     "39.5"
     ],
     [
      "grok47-medium",
@@ -23844,19 +27276,19 @@
     ],
     [
      "grok47-high",
-     "6 of 12 problems",
-     "100% (18/18)",
-     "$0.072",
-     "$1.29",
-     "41.0"
+     "12 of 12 problems",
+     "95% (57/60)",
+     "$0.13",
+     "$7.52",
+     "105.7"
     ],
     [
      "grok47fast-low",
-     "6 of 12 problems",
-     "96% (23/24)",
-     "$0.11",
-     "$2.56",
-     "19.4"
+     "12 of 12 problems",
+     "85% (51/60)",
+     "$0.18",
+     "$9.19",
+     "34.0"
     ]
    ]
   },
@@ -24031,6 +27463,46 @@
      "$0.036",
      "$2.15",
      "proxy"
+    ],
+    [
+     "terra56-high †",
+     "100% (12/12)",
+     "≥78% (all passed)",
+     "17.5",
+     "34.1",
+     "$0.018",
+     "$0.22",
+     "proxy"
+    ],
+    [
+     "terra56-low †",
+     "75% (9/12)",
+     "50%–100%",
+     "14.1",
+     "22.3",
+     "$0.018",
+     "$0.16",
+     "proxy"
+    ],
+    [
+     "terra61-high †",
+     "97% (58/60)",
+     "88%–100%",
+     "11.9",
+     "19.5",
+     "$0.0079",
+     "$0.46",
+     "proxy"
+    ],
+    [
+     "terra61-low †",
+     "100% (60/60)",
+     "≥78% (all passed)",
+     "10.3",
+     "20.9",
+     "$0.010",
+     "$0.62",
+     "proxy"
     ]
    ]
   },
@@ -24131,6 +27603,30 @@
      "≥78% (all passed)",
      "27.9",
      "~$2.15"
+    ],
+    [
+     "terra56-high †",
+     "≥78% (all passed)",
+     "34.1",
+     "~$0.22"
+    ],
+    [
+     "terra56-low †",
+     "50%–100%",
+     "22.3",
+     "~$0.16"
+    ],
+    [
+     "terra61-high †",
+     "88%–100%",
+     "19.5",
+     "~$0.46"
+    ],
+    [
+     "terra61-low †",
+     "≥78% (all passed)",
+     "20.9",
+     "~$0.62"
     ],
     [
      "luna-low-bare †",
@@ -24277,6 +27773,38 @@
      "1,052",
      "541",
      "$0.0022"
+    ],
+    [
+     "terra56-high †",
+     "13,040",
+     "11,179",
+     "1,024",
+     "502",
+     "$0.0013"
+    ],
+    [
+     "terra56-low †",
+     "13,041",
+     "11,093",
+     "585",
+     "86",
+     "$0.00096"
+    ],
+    [
+     "terra61-high †",
+     "15,668",
+     "11,821",
+     "643",
+     "135",
+     "$0.00047"
+    ],
+    [
+     "terra61-low †",
+     "18,871",
+     "11,738",
+     "537",
+     "21",
+     "$0.00054"
     ]
    ]
   },
@@ -24501,7 +28029,11 @@
     "luna56-low",
     "sol56-high",
     "sol61-high",
-    "sol61-high-fast"
+    "sol61-high-fast",
+    "terra56-high",
+    "terra56-low",
+    "terra61-high",
+    "terra61-low"
    ],
    "rows": [
     [
@@ -24520,6 +28052,10 @@
      "5",
      "5",
      "5",
+     "5",
+     "5",
+     "1",
+     "1",
      "5",
      "5"
     ],
@@ -24540,6 +28076,10 @@
      "4 (1w)",
      "5",
      "5",
+     "5",
+     "1",
+     "1",
+     "3 (2w)",
      "5"
     ],
     [
@@ -24558,6 +28098,10 @@
      "5",
      "5",
      "5",
+     "5",
+     "5",
+     "1",
+     "1",
      "5",
      "5"
     ],
@@ -24578,6 +28122,10 @@
      "**1** (4w)",
      "5",
      "5",
+     "5",
+     "1",
+     "1",
+     "5",
      "5"
     ],
     [
@@ -24596,6 +28144,10 @@
      "5",
      "3 (1t 1w)",
      "5",
+     "5",
+     "5",
+     "1",
+     "1",
      "5",
      "5"
     ],
@@ -24616,6 +28168,10 @@
      "5",
      "5",
      "5",
+     "5",
+     "1",
+     "1",
+     "5",
      "5"
     ],
     [
@@ -24634,6 +28190,10 @@
      "5",
      "5",
      "5",
+     "5",
+     "5",
+     "1",
+     "**0** (1w)",
      "5",
      "5"
     ],
@@ -24654,6 +28214,10 @@
      "4 (1w)",
      "5",
      "5",
+     "5",
+     "1",
+     "1",
+     "5",
      "5"
     ],
     [
@@ -24672,6 +28236,10 @@
      "5",
      "5",
      "5",
+     "5",
+     "5",
+     "1",
+     "**0** (1w)",
      "5",
      "5"
     ],
@@ -24692,6 +28260,10 @@
      "**1** (3c 1w)",
      "5",
      "5",
+     "5",
+     "1",
+     "**0** (1t)",
+     "5",
      "5"
     ],
     [
@@ -24711,7 +28283,11 @@
      "3 (2w)",
      "5",
      "5",
-     "5"
+     "5",
+     "–",
+     "–",
+     "–",
+     "–"
     ],
     [
      "p14 bounce_board (L7)",
@@ -24730,7 +28306,11 @@
      "**2** (3c)",
      "3 (2c)",
      "5",
-     "5"
+     "5",
+     "–",
+     "–",
+     "–",
+     "–"
     ],
     [
      "p15 paint_erase (L7)",
@@ -24749,7 +28329,11 @@
      "3 (2w)",
      "5",
      "5",
-     "5"
+     "5",
+     "–",
+     "–",
+     "–",
+     "–"
     ]
    ]
   },
@@ -25677,6 +29261,300 @@
     ]
    ]
   },
+  "grok_full_reach": {
+   "head": [
+    "config",
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6",
+    "passes",
+    "median s",
+    "$ per pass",
+    "coverage",
+    "total $"
+   ],
+   "rows": [
+    [
+     "grok47-high",
+     "10/10",
+     "10/10",
+     "10/10",
+     "9/10",
+     "10/10",
+     "8/10",
+     "57/60",
+     "105.7",
+     "$0.13",
+     "12 problems",
+     "$7.52"
+    ],
+    [
+     "grok47-low",
+     "10/10",
+     "10/10",
+     "7/10",
+     "10/10",
+     "10/10",
+     "6/10",
+     "53/60",
+     "39.4",
+     "$0.082",
+     "12 problems",
+     "$4.33"
+    ],
+    [
+     "grok47fast-low",
+     "10/10",
+     "10/10",
+     "6/10",
+     "9/10",
+     "10/10",
+     "6/10",
+     "51/60",
+     "34.0",
+     "$0.18",
+     "12 problems",
+     "$9.19"
+    ],
+    [
+     "grok47-medium",
+     "10/10",
+     "7/7",
+     "3/4",
+     "–",
+     "–",
+     "–",
+     "20/21",
+     "32.6",
+     "$0.066",
+     "6 problems",
+     "$1.33"
+    ]
+   ]
+  },
+  "grok_full_closest": {
+   "head": [
+    "Grok config",
+    "family",
+    "closest lane",
+    "its passes",
+    "its median s",
+    "its $ per pass",
+    "Grok time / lane",
+    "Grok cost / lane"
+   ],
+   "rows": [
+    [
+     "grok47-high",
+     "Claude",
+     "haiku-low",
+     "57/60",
+     "10.0",
+     "$0.0011",
+     "10.6×",
+     "117.7×"
+    ],
+    [
+     "grok47-high",
+     "Codex",
+     "luna56-high",
+     "56/60",
+     "11.4",
+     "$0.0030",
+     "9.3×",
+     "44.3×"
+    ],
+    [
+     "grok47-low",
+     "Claude",
+     "haiku-low",
+     "57/60",
+     "10.0",
+     "$0.0011",
+     "4.0×",
+     "72.9×"
+    ],
+    [
+     "grok47-low",
+     "Codex",
+     "luna56-high",
+     "56/60",
+     "11.4",
+     "$0.0030",
+     "3.5×",
+     "27.4×"
+    ],
+    [
+     "grok47fast-low",
+     "Claude",
+     "haiku-low",
+     "57/60",
+     "10.0",
+     "$0.0011",
+     "3.4×",
+     "160.6×"
+    ],
+    [
+     "grok47fast-low",
+     "Codex",
+     "luna56-low",
+     "48/60",
+     "9.2",
+     "$0.0022",
+     "3.7×",
+     "82.6×"
+    ]
+   ]
+  },
+  "grok_full_lanes": {
+   "head": [
+    "config",
+    "family",
+    "passes",
+    "median s",
+    "$ per pass"
+   ],
+   "rows": [
+    [
+     "astra-medium ⚡",
+     "Codex",
+     "60/60",
+     "9.9",
+     "$0.15"
+    ],
+    [
+     "sonnet-medium",
+     "Claude",
+     "60/60",
+     "10.1",
+     "$0.012"
+    ],
+    [
+     "terra61-low",
+     "Codex",
+     "60/60",
+     "10.3",
+     "$0.010"
+    ],
+    [
+     "sol56-high",
+     "Codex",
+     "60/60",
+     "14.5",
+     "$0.042"
+    ],
+    [
+     "haiku-high",
+     "Claude",
+     "60/60",
+     "14.7",
+     "$0.0028"
+    ],
+    [
+     "astra-medium",
+     "Codex",
+     "60/60",
+     "20.9",
+     "$0.075"
+    ],
+    [
+     "sol61-high",
+     "Codex",
+     "60/60",
+     "27.4",
+     "$0.019"
+    ],
+    [
+     "haiku-medium",
+     "Claude",
+     "59/60",
+     "13.0",
+     "$0.0015"
+    ],
+    [
+     "terra61-high",
+     "Codex",
+     "58/60",
+     "11.9",
+     "$0.0079"
+    ],
+    [
+     "sol61-medium",
+     "Codex",
+     "58/60",
+     "22.6",
+     "$0.015"
+    ],
+    [
+     "haiku-low",
+     "Claude",
+     "57/60",
+     "10.0",
+     "$0.0011"
+    ],
+    [
+     "grok47-high",
+     "Grok",
+     "57/60",
+     "105.7",
+     "$0.13"
+    ],
+    [
+     "luna56-high",
+     "Codex",
+     "56/60",
+     "11.4",
+     "$0.0030"
+    ],
+    [
+     "grok47-low",
+     "Grok",
+     "53/60",
+     "39.4",
+     "$0.082"
+    ],
+    [
+     "grok47fast-low",
+     "Grok",
+     "51/60",
+     "34.0",
+     "$0.18"
+    ],
+    [
+     "luna56-low",
+     "Codex",
+     "48/60",
+     "9.2",
+     "$0.0022"
+    ],
+    [
+     "luna-medium",
+     "Codex",
+     "47/60",
+     "8.2",
+     "$0.00089"
+    ],
+    [
+     "luna-low",
+     "Codex",
+     "46/60",
+     "7.2",
+     "$0.00090"
+    ],
+    [
+     "luna-low-bare",
+     "Codex",
+     "44/60",
+     "6.8",
+     "$0.00080"
+    ]
+   ]
+  },
+  "grok_lead": "Grok got through all six rungs, L1–L6. Every config missed somewhere. grok47-high passed 57/60 and missed at L4 and L6. grok47-low passed 53/60 and missed at L3 and L6. grok47fast-low passed 51/60 and missed at L3, L4 and L6. L1, L2 and L5 were clean for all three.\n\nFor grok47-high, the closest lane by pass rate in each family is Claude haiku-low (57/60, 10.0 s, $0.0011 per pass) and Codex luna56-high (56/60, 11.4 s, $0.0030 per pass). grok47-high itself: 57/60, 105.7 s, $0.13 per pass. Against the closest lanes of every config, Grok takes 3.4–10.6× as long and costs 27.4–160.6× as much per pass.",
+  "grok_better": "Not on these problems. Every Grok config is beaten on pass rate, speed and cost at once: grok47-high by 10 lanes (for example haiku-high, 60/60, 14.7 s, $0.0028 per pass). grok47-low by 11 lanes (for example haiku-high, 60/60, 14.7 s, $0.0028 per pass). grok47fast-low by 12 lanes (for example haiku-high, 60/60, 14.7 s, $0.0028 per pass). Grok passes more than luna-low, luna-low-bare, luna-medium, luna56-high and luna56-low. Every one of those lanes is faster and cheaper per pass. Grok costs less per pass than only astra-medium ⚡. Each of those passes more than the Grok config that undercuts it. Grok is faster than no lane.",
   "equiv": {
    "head": [
     "Claude → Codex match",
@@ -25686,28 +29564,28 @@
    ],
    "rows": [
     [
-     "haiku-low → sol61-medium",
+     "haiku-low → terra61-high",
      "95% → 97%",
-     "$0.0011 → ~$0.015",
-     "10 → 23"
+     "$0.0011 → ~$0.0079",
+     "10 → 12"
     ],
     [
-     "haiku-medium → sol61-high",
+     "haiku-medium → terra61-low",
      "98% → 100%",
-     "$0.0015 → ~$0.019",
-     "13 → 27"
+     "$0.0015 → ~$0.010",
+     "13 → 10"
     ],
     [
-     "haiku-high → sol61-high",
+     "haiku-high → terra61-low",
      "100% → 100%",
-     "$0.0028 → ~$0.019",
-     "15 → 27"
+     "$0.0028 → ~$0.010",
+     "15 → 10"
     ],
     [
-     "sonnet-medium → sol61-high",
+     "sonnet-medium → terra61-low",
      "100% → 100%",
-     "$0.012 → ~$0.019",
-     "10 → 27"
+     "$0.012 → ~$0.010",
+     "10 → 10"
     ]
    ]
   },
@@ -25756,10 +29634,22 @@
      "11 → 10"
     ],
     [
+     "terra61-high → haiku-medium",
+     "97% → 98%",
+     "~$0.0079 → $0.0015",
+     "12 → 13"
+    ],
+    [
      "sol61-medium → haiku-medium",
      "97% → 98%",
      "~$0.015 → $0.0015",
      "23 → 13"
+    ],
+    [
+     "terra61-low → haiku-high",
+     "100% → 100%",
+     "~$0.010 → $0.0028",
+     "10 → 15"
     ],
     [
      "sol61-high → haiku-high",
@@ -25838,10 +29728,22 @@
      "11 → 10"
     ],
     [
+     "terra61-high → haiku-medium",
+     "97% → 98%",
+     "~$0.0079 → $0.0015",
+     "12 → 13"
+    ],
+    [
      "sol61-medium → haiku-medium",
      "97% → 98%",
      "~$0.015 → $0.0015",
      "23 → 13"
+    ],
+    [
+     "terra61-low → haiku-high",
+     "100% → 100%",
+     "~$0.010 → $0.0028",
+     "10 → 15"
     ],
     [
      "sol61-high → haiku-high",
@@ -25874,28 +29776,28 @@
      "10 → 15"
     ],
     [
-     "haiku-low → sol61-medium",
+     "haiku-low → terra61-high",
      "95% → 97%",
-     "$0.0011 → ~$0.015",
-     "10 → 23"
+     "$0.0011 → ~$0.0079",
+     "10 → 12"
     ],
     [
-     "haiku-medium → sol61-high",
+     "haiku-medium → terra61-low",
      "98% → 100%",
-     "$0.0015 → ~$0.019",
-     "13 → 27"
+     "$0.0015 → ~$0.010",
+     "13 → 10"
     ],
     [
-     "haiku-high → sol61-high",
+     "haiku-high → terra61-low",
      "100% → 100%",
-     "$0.0028 → ~$0.019",
-     "15 → 27"
+     "$0.0028 → ~$0.010",
+     "15 → 10"
     ],
     [
-     "sonnet-medium → sol61-high",
+     "sonnet-medium → terra61-low",
      "100% → 100%",
-     "$0.012 → ~$0.019",
-     "10 → 27"
+     "$0.012 → ~$0.010",
+     "10 → 10"
     ]
    ]
   },
@@ -25964,7 +29866,7 @@
    ]
   }
  },
- "grok_comparison": {
+ "grok_first": {
   "problems": [
    "p01_overlap_minutes",
    "p02_squash",
@@ -26119,6 +30021,27 @@
     "usd_per_pass": 0.0664982
    }
   },
+  "scoped": {},
+  "lanes": [
+   "astra-medium",
+   "astra-medium-fast",
+   "haiku-high",
+   "haiku-low",
+   "haiku-medium",
+   "luna-low",
+   "luna-low-bare",
+   "luna-medium",
+   "luna56-high",
+   "luna56-low",
+   "sol56-high",
+   "sol61-high",
+   "sol61-medium",
+   "sonnet-medium"
+  ],
+  "partial_lanes": [
+   "luna-high",
+   "sol61-high-fast"
+  ],
   "profiles": {
    "haiku-low": [
     4,
@@ -26171,6 +30094,14 @@
    "astra-medium": [
     6,
     null
+   ],
+   "terra61-low": [
+    6,
+    null
+   ],
+   "terra61-high": [
+    1,
+    2
    ],
    "sol61-high-fast": [
     6,
@@ -26401,6 +30332,817 @@
     "p06_calc": [
      1,
      2
+    ]
+   }
+  }
+ },
+ "grok_comparison": {
+  "problems": [
+   "p01_overlap_minutes",
+   "p02_squash",
+   "p03_ledger",
+   "p04_taller_within",
+   "p05_pass_route",
+   "p06_calc",
+   "p07_weighted_distance_sums",
+   "p08_recur",
+   "p09_k_machine_schedule",
+   "p10_avoid_count",
+   "p11_best_average",
+   "p12_sheet"
+  ],
+  "phases": [
+   "main",
+   "exploratory"
+  ],
+  "metrics": {
+   "haiku-medium": {
+    "passes": 59,
+    "n": 60,
+    "pass_rate": 0.9833333333333333,
+    "median_s": 13.038720940006897,
+    "usd_per_pass": 0.0014900855932203389
+   },
+   "luna-low": {
+    "passes": 46,
+    "n": 60,
+    "pass_rate": 0.7666666666666667,
+    "median_s": 7.224836755543947,
+    "usd_per_pass": 0.0008989847826086958
+   },
+   "sonnet-medium": {
+    "passes": 60,
+    "n": 60,
+    "pass_rate": 1.0,
+    "median_s": 10.13702149654273,
+    "usd_per_pass": 0.012437721666666669
+   },
+   "haiku-low": {
+    "passes": 57,
+    "n": 60,
+    "pass_rate": 0.95,
+    "median_s": 9.957955510937609,
+    "usd_per_pass": 0.0011218601754385965
+   },
+   "luna-medium": {
+    "passes": 47,
+    "n": 60,
+    "pass_rate": 0.7833333333333333,
+    "median_s": 8.237410919973627,
+    "usd_per_pass": 0.0008899744680851063
+   },
+   "sol61-medium": {
+    "passes": 58,
+    "n": 60,
+    "pass_rate": 0.9666666666666667,
+    "median_s": 22.586478474084288,
+    "usd_per_pass": 0.014986475862068966
+   },
+   "luna-low-bare": {
+    "passes": 44,
+    "n": 60,
+    "pass_rate": 0.7333333333333333,
+    "median_s": 6.813760205521248,
+    "usd_per_pass": 0.0007981131818181817
+   },
+   "luna-high": {
+    "passes": 42,
+    "n": 45,
+    "pass_rate": 0.9333333333333333,
+    "median_s": 11.601554242894053,
+    "usd_per_pass": 0.0009600690476190476
+   },
+   "luna56-low": {
+    "passes": 48,
+    "n": 60,
+    "pass_rate": 0.8,
+    "median_s": 9.162986172999808,
+    "usd_per_pass": 0.0021800466666666665
+   },
+   "luna56-high": {
+    "passes": 56,
+    "n": 60,
+    "pass_rate": 0.9333333333333333,
+    "median_s": 11.409272472996236,
+    "usd_per_pass": 0.002979832142857143
+   },
+   "sol56-high": {
+    "passes": 60,
+    "n": 60,
+    "pass_rate": 1.0,
+    "median_s": 14.471359408002172,
+    "usd_per_pass": 0.041800946666666665
+   },
+   "astra-medium": {
+    "passes": 60,
+    "n": 60,
+    "pass_rate": 1.0,
+    "median_s": 20.920237477002956,
+    "usd_per_pass": 0.0752641
+   },
+   "sol61-high": {
+    "passes": 60,
+    "n": 60,
+    "pass_rate": 1.0,
+    "median_s": 27.43373827549658,
+    "usd_per_pass": 0.018614953333333333
+   },
+   "haiku-high": {
+    "passes": 60,
+    "n": 60,
+    "pass_rate": 1.0,
+    "median_s": 14.738858695498493,
+    "usd_per_pass": 0.002821673333333333
+   },
+   "astra-medium-fast": {
+    "passes": 60,
+    "n": 60,
+    "pass_rate": 1.0,
+    "median_s": 9.89861390049191,
+    "usd_per_pass": 0.15202366666666667
+   },
+   "sol61-high-fast": {
+    "passes": 25,
+    "n": 25,
+    "pass_rate": 1.0,
+    "median_s": 9.55212183301046,
+    "usd_per_pass": 0.025194079999999997
+   },
+   "grok47fast-low": {
+    "passes": 51,
+    "n": 60,
+    "pass_rate": 0.85,
+    "median_s": 34.000441099487944,
+    "usd_per_pass": 0.18014792156862747
+   },
+   "grok47-low": {
+    "passes": 53,
+    "n": 60,
+    "pass_rate": 0.8833333333333333,
+    "median_s": 39.44546416198136,
+    "usd_per_pass": 0.08175328301886793
+   },
+   "grok47-high": {
+    "passes": 57,
+    "n": 60,
+    "pass_rate": 0.95,
+    "median_s": 105.72490143802133,
+    "usd_per_pass": 0.13199431578947368
+   },
+   "grok47-medium": {
+    "passes": 20,
+    "n": 21,
+    "pass_rate": 0.9523809523809523,
+    "median_s": 32.56193216604879,
+    "usd_per_pass": 0.0664982
+   },
+   "terra56-high": {
+    "passes": 12,
+    "n": 12,
+    "pass_rate": 1.0,
+    "median_s": 17.51849848550046,
+    "usd_per_pass": 0.01824656666666667
+   },
+   "terra56-low": {
+    "passes": 9,
+    "n": 12,
+    "pass_rate": 0.75,
+    "median_s": 14.050955404498382,
+    "usd_per_pass": 0.017506
+   },
+   "terra61-high": {
+    "passes": 58,
+    "n": 60,
+    "pass_rate": 0.9666666666666667,
+    "median_s": 11.932413847534917,
+    "usd_per_pass": 0.007917662068965516
+   },
+   "terra61-low": {
+    "passes": 60,
+    "n": 60,
+    "pass_rate": 1.0,
+    "median_s": 10.337324118008837,
+    "usd_per_pass": 0.010404696666666666
+   }
+  },
+  "scoped": {
+   "grok47-medium": {
+    "haiku-medium": {
+     "passes": 29,
+     "n": 30,
+     "pass_rate": 0.9666666666666667,
+     "median_s": 10.632268562912941,
+     "usd_per_pass": 0.0010768637931034483
+    },
+    "luna-low": {
+     "passes": 26,
+     "n": 30,
+     "pass_rate": 0.8666666666666667,
+     "median_s": 6.873265047557652,
+     "usd_per_pass": 0.0007078076923076923
+    },
+    "sonnet-medium": {
+     "passes": 30,
+     "n": 30,
+     "pass_rate": 1.0,
+     "median_s": 9.532759371562861,
+     "usd_per_pass": 0.009971816666666666
+    },
+    "haiku-low": {
+     "passes": 30,
+     "n": 30,
+     "pass_rate": 1.0,
+     "median_s": 8.201476785470732,
+     "usd_per_pass": 0.000657545
+    },
+    "luna-medium": {
+     "passes": 25,
+     "n": 30,
+     "pass_rate": 0.8333333333333334,
+     "median_s": 7.147650011465885,
+     "usd_per_pass": 0.0007441840000000001
+    },
+    "sol61-medium": {
+     "passes": 30,
+     "n": 30,
+     "pass_rate": 1.0,
+     "median_s": 15.350654201116413,
+     "usd_per_pass": 0.012077399999999999
+    },
+    "luna-low-bare": {
+     "passes": 24,
+     "n": 30,
+     "pass_rate": 0.8,
+     "median_s": 5.791233349475078,
+     "usd_per_pass": 0.0006267958333333333
+    },
+    "luna-high": {
+     "passes": 24,
+     "n": 25,
+     "pass_rate": 0.96,
+     "median_s": 8.996696481015533,
+     "usd_per_pass": 0.0009194916666666666
+    },
+    "luna56-low": {
+     "passes": 25,
+     "n": 30,
+     "pass_rate": 0.8333333333333334,
+     "median_s": 7.057671311500599,
+     "usd_per_pass": 0.0017764656
+    },
+    "luna56-high": {
+     "passes": 28,
+     "n": 30,
+     "pass_rate": 0.9333333333333333,
+     "median_s": 8.710636934498325,
+     "usd_per_pass": 0.0024025357142857143
+    },
+    "sol56-high": {
+     "passes": 30,
+     "n": 30,
+     "pass_rate": 1.0,
+     "median_s": 9.999067893000756,
+     "usd_per_pass": 0.03186576
+    },
+    "astra-medium": {
+     "passes": 30,
+     "n": 30,
+     "pass_rate": 1.0,
+     "median_s": 12.70585584500077,
+     "usd_per_pass": 0.06448133333333333
+    },
+    "sol61-high": {
+     "passes": 30,
+     "n": 30,
+     "pass_rate": 1.0,
+     "median_s": 16.881482051496278,
+     "usd_per_pass": 0.015247573333333332
+    },
+    "haiku-high": {
+     "passes": 30,
+     "n": 30,
+     "pass_rate": 1.0,
+     "median_s": 11.772152927005664,
+     "usd_per_pass": 0.00217376
+    },
+    "astra-medium-fast": {
+     "passes": 30,
+     "n": 30,
+     "pass_rate": 1.0,
+     "median_s": 6.868033188497066,
+     "usd_per_pass": 0.12967266666666666
+    },
+    "sol61-high-fast": {
+     "passes": 20,
+     "n": 20,
+     "pass_rate": 1.0,
+     "median_s": 9.817252363507578,
+     "usd_per_pass": 0.0257382
+    },
+    "grok47fast-low": {
+     "passes": 26,
+     "n": 30,
+     "pass_rate": 0.8666666666666667,
+     "median_s": 22.486041053489316,
+     "usd_per_pass": 0.1274683076923077
+    },
+    "grok47-low": {
+     "passes": 27,
+     "n": 30,
+     "pass_rate": 0.9,
+     "median_s": 27.88703527598409,
+     "usd_per_pass": 0.06012044444444444
+    },
+    "grok47-high": {
+     "passes": 30,
+     "n": 30,
+     "pass_rate": 1.0,
+     "median_s": 64.89997942751506,
+     "usd_per_pass": 0.08007233333333333
+    },
+    "grok47-medium": {
+     "passes": 20,
+     "n": 21,
+     "pass_rate": 0.9523809523809523,
+     "median_s": 32.56193216604879,
+     "usd_per_pass": 0.0664982
+    },
+    "terra56-high": {
+     "passes": 6,
+     "n": 6,
+     "pass_rate": 1.0,
+     "median_s": 12.780850696988637,
+     "usd_per_pass": 0.012280733333333335
+    },
+    "terra56-low": {
+     "passes": 6,
+     "n": 6,
+     "pass_rate": 1.0,
+     "median_s": 12.398950654489454,
+     "usd_per_pass": 0.010390066666666668
+    },
+    "terra61-high": {
+     "passes": 28,
+     "n": 30,
+     "pass_rate": 0.9333333333333333,
+     "median_s": 9.742550908995327,
+     "usd_per_pass": 0.009038871428571429
+    },
+    "terra61-low": {
+     "passes": 30,
+     "n": 30,
+     "pass_rate": 1.0,
+     "median_s": 10.23433450650191,
+     "usd_per_pass": 0.011236406666666667
+    }
+   }
+  },
+  "lanes": [
+   "astra-medium",
+   "astra-medium-fast",
+   "haiku-high",
+   "haiku-low",
+   "haiku-medium",
+   "luna-low",
+   "luna-low-bare",
+   "luna-medium",
+   "luna56-high",
+   "luna56-low",
+   "sol56-high",
+   "sol61-high",
+   "sol61-medium",
+   "sonnet-medium",
+   "terra61-high",
+   "terra61-low"
+  ],
+  "partial_lanes": [
+   "luna-high",
+   "sol61-high-fast"
+  ],
+  "profiles": {
+   "haiku-low": [
+    4,
+    5
+   ],
+   "haiku-medium": [
+    2,
+    3
+   ],
+   "sonnet-medium": [
+    6,
+    null
+   ],
+   "luna-low": [
+    1,
+    2
+   ],
+   "luna-medium": [
+    1,
+    2
+   ],
+   "sol61-medium": [
+    5,
+    6
+   ],
+   "haiku-high": [
+    6,
+    null
+   ],
+   "luna-high": [
+    2,
+    3
+   ],
+   "luna56-low": [
+    1,
+    2
+   ],
+   "luna56-high": [
+    1,
+    2
+   ],
+   "sol56-high": [
+    6,
+    null
+   ],
+   "sol61-high": [
+    6,
+    null
+   ],
+   "astra-medium": [
+    6,
+    null
+   ],
+   "terra61-low": [
+    6,
+    null
+   ],
+   "terra61-high": [
+    1,
+    2
+   ],
+   "sol61-high-fast": [
+    6,
+    null
+   ],
+   "astra-medium-fast": [
+    6,
+    null
+   ],
+   "luna-low-bare": [
+    1,
+    2
+   ],
+   "grok47-low": [
+    2,
+    3
+   ],
+   "grok47-medium": [
+    2,
+    3
+   ],
+   "grok47-high": [
+    3,
+    4
+   ],
+   "grok47fast-low": [
+    2,
+    3
+   ]
+  },
+  "matches": {
+   "grok47-low": [
+    "haiku-medium",
+    "luna-high"
+   ],
+   "grok47-medium": [
+    "haiku-medium",
+    "luna-high"
+   ],
+   "grok47-high": [],
+   "grok47fast-low": [
+    "haiku-medium",
+    "luna-high"
+   ]
+  },
+  "repeat_counts": {
+   "haiku-low": {
+    "1": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5
+    },
+    "2": {
+     "p03_ledger": 5,
+     "p04_taller_within": 5
+    },
+    "3": {
+     "p05_pass_route": 5,
+     "p06_calc": 5
+    },
+    "4": {
+     "p07_weighted_distance_sums": 5,
+     "p08_recur": 5
+    },
+    "5": {
+     "p09_k_machine_schedule": 5,
+     "p10_avoid_count": 5
+    },
+    "6": {
+     "p11_best_average": 5,
+     "p12_sheet": 5
+    }
+   },
+   "grok47fast-low": {
+    "1": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5
+    },
+    "2": {
+     "p03_ledger": 5,
+     "p04_taller_within": 5
+    },
+    "3": {
+     "p05_pass_route": 5,
+     "p06_calc": 5
+    },
+    "4": {
+     "p07_weighted_distance_sums": 5,
+     "p08_recur": 5
+    },
+    "5": {
+     "p09_k_machine_schedule": 5,
+     "p10_avoid_count": 5
+    },
+    "6": {
+     "p11_best_average": 5,
+     "p12_sheet": 5
+    }
+   },
+   "grok47-low": {
+    "1": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5
+    },
+    "2": {
+     "p03_ledger": 5,
+     "p04_taller_within": 5
+    },
+    "3": {
+     "p05_pass_route": 5,
+     "p06_calc": 5
+    },
+    "4": {
+     "p07_weighted_distance_sums": 5,
+     "p08_recur": 5
+    },
+    "5": {
+     "p09_k_machine_schedule": 5,
+     "p10_avoid_count": 5
+    },
+    "6": {
+     "p11_best_average": 5,
+     "p12_sheet": 5
+    }
+   },
+   "grok47-high": {
+    "1": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5
+    },
+    "2": {
+     "p03_ledger": 5,
+     "p04_taller_within": 5
+    },
+    "3": {
+     "p05_pass_route": 5,
+     "p06_calc": 5
+    },
+    "4": {
+     "p07_weighted_distance_sums": 5,
+     "p08_recur": 5
+    },
+    "5": {
+     "p09_k_machine_schedule": 5,
+     "p10_avoid_count": 5
+    },
+    "6": {
+     "p11_best_average": 5,
+     "p12_sheet": 5
+    }
+   },
+   "grok47-medium": {
+    "1": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5
+    },
+    "2": {
+     "p03_ledger": 4,
+     "p04_taller_within": 3
+    },
+    "3": {
+     "p05_pass_route": 2,
+     "p06_calc": 2
+    }
+   }
+  },
+  "by_problem": {
+   "grok47fast-low": {
+    "p01_overlap_minutes": [
+     5,
+     5
+    ],
+    "p02_squash": [
+     5,
+     5
+    ],
+    "p03_ledger": [
+     5,
+     5
+    ],
+    "p04_taller_within": [
+     5,
+     5
+    ],
+    "p05_pass_route": [
+     5,
+     5
+    ],
+    "p06_calc": [
+     1,
+     5
+    ],
+    "p07_weighted_distance_sums": [
+     4,
+     5
+    ],
+    "p08_recur": [
+     5,
+     5
+    ],
+    "p09_k_machine_schedule": [
+     5,
+     5
+    ],
+    "p10_avoid_count": [
+     5,
+     5
+    ],
+    "p11_best_average": [
+     5,
+     5
+    ],
+    "p12_sheet": [
+     1,
+     5
+    ]
+   },
+   "grok47-low": {
+    "p01_overlap_minutes": [
+     5,
+     5
+    ],
+    "p02_squash": [
+     5,
+     5
+    ],
+    "p03_ledger": [
+     5,
+     5
+    ],
+    "p04_taller_within": [
+     5,
+     5
+    ],
+    "p05_pass_route": [
+     5,
+     5
+    ],
+    "p06_calc": [
+     2,
+     5
+    ],
+    "p07_weighted_distance_sums": [
+     5,
+     5
+    ],
+    "p08_recur": [
+     5,
+     5
+    ],
+    "p09_k_machine_schedule": [
+     5,
+     5
+    ],
+    "p10_avoid_count": [
+     5,
+     5
+    ],
+    "p11_best_average": [
+     5,
+     5
+    ],
+    "p12_sheet": [
+     1,
+     5
+    ]
+   },
+   "grok47-high": {
+    "p01_overlap_minutes": [
+     5,
+     5
+    ],
+    "p02_squash": [
+     5,
+     5
+    ],
+    "p03_ledger": [
+     5,
+     5
+    ],
+    "p04_taller_within": [
+     5,
+     5
+    ],
+    "p05_pass_route": [
+     5,
+     5
+    ],
+    "p06_calc": [
+     5,
+     5
+    ],
+    "p07_weighted_distance_sums": [
+     4,
+     5
+    ],
+    "p08_recur": [
+     5,
+     5
+    ],
+    "p09_k_machine_schedule": [
+     5,
+     5
+    ],
+    "p10_avoid_count": [
+     5,
+     5
+    ],
+    "p11_best_average": [
+     5,
+     5
+    ],
+    "p12_sheet": [
+     3,
+     5
+    ]
+   },
+   "grok47-medium": {
+    "p01_overlap_minutes": [
+     5,
+     5
+    ],
+    "p02_squash": [
+     5,
+     5
+    ],
+    "p03_ledger": [
+     4,
+     4
+    ],
+    "p04_taller_within": [
+     3,
+     3
+    ],
+    "p05_pass_route": [
+     2,
+     2
+    ],
+    "p06_calc": [
+     1,
+     2
+    ],
+    "p07_weighted_distance_sums": [
+     0,
+     0
+    ],
+    "p08_recur": [
+     0,
+     0
+    ],
+    "p09_k_machine_schedule": [
+     0,
+     0
+    ],
+    "p10_avoid_count": [
+     0,
+     0
+    ],
+    "p11_best_average": [
+     0,
+     0
+    ],
+    "p12_sheet": [
+     0,
+     0
     ]
    }
   }
