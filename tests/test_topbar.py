@@ -36,10 +36,13 @@ def test_topbar_is_first_and_uses_the_exact_site_markup(rendered):
         ("a", {"href": "https://chimericlabs.xyz/"}),
     ]
     assert html.count(MARKUP) == 1
-    assert '<link rel="stylesheet" href="../../docs/page/topbar.css">' in html
-    assert (ROOT / "results/report/../../docs/page/topbar.css").resolve().is_file()
+    assert '<link rel="stylesheet" href="../../docs/page/topbar.css">' not in html
     if rendered:
+        css = re.search(r"<style>(.*?)</style>", html, re.S)[1]
+        assert (ROOT / "docs/page/topbar.css").read_text().strip() in css
         assert 'href="https://github.com/chimera-defi/dispatchbench"' in html
+    else:
+        assert "<style>\n__CSS__\n</style>" in html
 
 
 def test_topbar_css_uses_variables_for_every_colour():
