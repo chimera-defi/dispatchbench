@@ -1,0 +1,133 @@
+diff --git a/inv/cli.py b/inv/cli.py
+index bb91b18..972918a 100644
+--- a/inv/cli.py
++++ b/inv/cli.py
+@@ -8,7 +8,15 @@ def main(argv: list[str], store: Store) -> str:
+         return "usage: total | list"
+     cmd = argv[0]
+     if cmd == "total":
+-        return format_cents(store.total_cents())
++        if len(argv) == 1:
++            return format_cents(store.total_cents())
++        if len(argv) == 3 and argv[1] == "--code":
++            code = argv[2]
++            try:
++                return format_cents(store.total_cents(code))
++            except KeyError:
++                return f"unknown code: {code}"
++        return "usage: total [--code CODE]"
+     if cmd == "list":
+         return "\n".join(f"{i.name} x{i.qty} {format_cents(i.line_total())}" for i in store.items.values())
+     return f"unknown command: {cmd}"
+diff --git a/inv/money.py b/inv/money.py
+index caa7f2f..0ed9277 100644
+--- a/inv/money.py
++++ b/inv/money.py
+@@ -3,3 +3,14 @@ def format_cents(cents: int) -> str:
+     sign = "-" if cents < 0 else ""
+     cents = abs(cents)
+     return f"{sign}${cents // 100}.{cents % 100:02d}"
++
++
++def apply_percent(cents: int, pct: int) -> int:
++    """Reduce a cent amount by a percentage, rounding half up to cents."""
++    if not isinstance(pct, int) or isinstance(pct, bool) or not 0 <= pct <= 100:
++        raise ValueError("pct must be an integer from 0 to 100")
++    # Round cents * (100 - pct) / 100 to nearest integer, with ties upward.
++    discounted = cents * (100 - pct)
++    if discounted >= 0:
++        return (discounted + 50) // 100
++    return -((-discounted + 50) // 100)
+diff --git a/inv/store.py b/inv/store.py
+index c8a5bb8..82cb6d2 100644
+--- a/inv/store.py
++++ b/inv/store.py
+@@ -1,9 +1,19 @@
+ from .models import Item
++from .money import apply_percent
+ 
+ 
+ class Store:
+     def __init__(self):
+         self.items: dict[str, Item] = {}
++        self.codes: dict[str, int] = {}
++
++    def add_code(self, code: str, pct: int) -> None:
++        # Validate through the same rules used by the money helper.
++        apply_percent(0, pct)
++        key = code.casefold()
++        if key in self.codes:
++            raise ValueError(f"code already exists: {code}")
++        self.codes[key] = pct
+ 
+     def add_item(self, name: str, price_cents: int, qty: int = 1) -> None:
+         if name in self.items:
+@@ -14,5 +24,12 @@ class Store:
+     def remove_item(self, name: str) -> None:
+         del self.items[name]
+ 
+-    def total_cents(self) -> int:
+-        return sum(i.line_total() for i in self.items.values())
++    def total_cents(self, code: str | None = None) -> int:
++        total = sum(i.line_total() for i in self.items.values())
++        if code is None:
++            return total
++        try:
++            pct = self.codes[code.casefold()]
++        except KeyError:
++            raise KeyError(code) from None
++        return apply_percent(total, pct)
+diff --git a/tests/test_discount.py b/tests/test_discount.py
+new file mode 100644
+index 0000000..7eacd93
+--- /dev/null
++++ b/tests/test_discount.py
+@@ -0,0 +1,48 @@
++import pytest
++
++from inv.cli import main
++from inv.money import apply_percent
++from inv.store import Store
++
++
++@pytest.mark.parametrize("cents,pct,expected", [
++    (1005, 10, 905),
++    (1, 50, 1),
++    (99, 50, 50),
++    (100, 0, 100),
++    (100, 100, 0),
++])
++def test_apply_percent(cents, pct, expected):
++    assert apply_percent(cents, pct) == expected
++
++
++@pytest.mark.parametrize("pct", [-1, 101, 1.5, "10", True])
++def test_apply_percent_rejects_invalid_percentage(pct):
++    with pytest.raises(ValueError):
++        apply_percent(100, pct)
++
++
++def test_add_code_validates_and_looks_up_case_insensitively():
++    store = Store()
++    store.add_item("item", 1005)
++    store.add_code("SAVE", 10)
++    assert store.total_cents("save") == 905
++    assert store.total_cents("SaVe") == 905
++    with pytest.raises(ValueError):
++        store.add_code("save", 5)
++    with pytest.raises(ValueError):
++        store.add_code("BAD", 101)
++
++
++def test_unknown_code_raises_key_error():
++    with pytest.raises(KeyError):
++        Store().total_cents("missing")
++
++
++def test_cli_code_discount_and_unknown_code():
++    store = Store()
++    store.add_item("item", 1005)
++    store.add_code("SAVE", 10)
++    assert main(["total", "--code", "save"], store) == "$9.05"
++    assert main(["total", "--code", "Nope"], store) == "unknown code: Nope"
++    assert main(["total"], store) == "$10.05"

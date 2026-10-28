@@ -1,0 +1,142 @@
+diff --git a/cfg/loader.py b/cfg/loader.py
+index acd880f..2a847a9 100644
+--- a/cfg/loader.py
++++ b/cfg/loader.py
+@@ -1,9 +1,83 @@
+ from .parser import parse
++from .errors import ConfigError
+ 
+ 
+ def load(text: str) -> dict[str, dict[str, str]]:
+-    """Parse config text and return the resolved values."""
+-    return parse(text)
++    """Parse config text and return the values with references resolved."""
++    config = parse(text)
++
++    # Keep source locations alongside the parsed values without changing the
++    # public shape or behavior of parse().
++    lines: dict[tuple[str, str], int] = {}
++    section = ""
++    for n, raw in enumerate(text.splitlines(), 1):
++        line = raw.strip()
++        if not line or line.startswith("#"):
++            continue
++        if line.startswith("[") and line.endswith("]"):
++            section = line[1:-1].strip()
++            continue
++        if "=" in line:
++            key = line.split("=", 1)[0].strip()
++            lines[(section, key)] = n
++
++    state: dict[tuple[str, str], int] = {}
++    resolved: dict[tuple[str, str], str] = {}
++    stack: list[tuple[str, str]] = []
++
++    def qualified(item: tuple[str, str]) -> str:
++        section_name, key_name = item
++        return f"{section_name}.{key_name}" if section_name else f".{key_name}"
++
++    def resolve(item: tuple[str, str], outer_line: int | None = None) -> str:
++        if outer_line is None:
++            outer_line = lines.get(item)
++        if state.get(item) == 2:
++            return resolved[item]
++        if state.get(item) == 1:
++            start = stack.index(item)
++            cycle = stack[start:] + [item]
++            raise ConfigError("reference cycle: " + " -> ".join(map(qualified, cycle)), outer_line)
++
++        state[item] = 1
++        stack.append(item)
++        raw = config[item[0]][item[1]]
++        pieces: list[str] = []
++        i = 0
++        while i < len(raw):
++            if raw[i] != "$":
++                pieces.append(raw[i])
++                i += 1
++            elif raw.startswith("$$", i):
++                pieces.append("$")
++                i += 2
++            elif raw.startswith("${", i):
++                end = raw.find("}", i + 2)
++                if end < 0:
++                    raise ConfigError("unterminated reference", outer_line)
++                name = raw[i + 2:end]
++                if "." in name:
++                    target_section, target_key = name.rsplit(".", 1)
++                else:
++                    target_section, target_key = item[0], name
++                target = (target_section, target_key)
++                if target_section not in config or target_key not in config[target_section]:
++                    raise ConfigError(f"unknown reference: {name}", outer_line)
++                pieces.append(resolve(target, outer_line))
++                i = end + 1
++            else:
++                raise ConfigError("invalid '$' in value", outer_line)
++        stack.pop()
++        state[item] = 2
++        resolved[item] = "".join(pieces)
++        return resolved[item]
++
++    # Dict insertion order preserves section and key definition order.
++    for section_name, values in config.items():
++        for key_name in values:
++            resolve((section_name, key_name))
++    return {section_name: {key: resolved[(section_name, key)] for key in values}
++            for section_name, values in config.items()}
+ 
+ 
+ def get(config: dict[str, dict[str, str]], dotted: str) -> str:
+diff --git a/tests/test_refs.py b/tests/test_refs.py
+new file mode 100644
+index 0000000..c85f21c
+--- /dev/null
++++ b/tests/test_refs.py
+@@ -0,0 +1,46 @@
++import pytest
++
++from cfg.errors import ConfigError
++from cfg.loader import load
++
++
++def test_same_section_and_chained_references():
++    config = load("[app]\na = hello ${b}!\nb = ${c}\nc = world\n")
++    assert config["app"] == {"a": "hello world!", "b": "world", "c": "world"}
++
++
++def test_cross_section_last_dot_and_unnamed_section():
++    config = load("[a.b]\nc = nested\n[use]\nvalue = ${a.b.c}\n")
++    assert config["use"]["value"] == "nested"
++
++
++def test_dollar_escape_and_invalid_dollar():
++    assert load("x = cost $$5")[""]["x"] == "cost $5"
++    with pytest.raises(ConfigError, match="invalid '\\$'"):
++        load("x = cost $5")
++
++
++def test_missing_reference_mentions_exact_name_and_outer_line():
++    with pytest.raises(ConfigError) as err:
++        load("[db]\nhost = ${db.hostt}\n")
++    assert "unknown reference: db.hostt" in str(err.value)
++    assert err.value.line == 2
++
++
++def test_cycle_chain_and_outer_line():
++    with pytest.raises(ConfigError) as err:
++        load("[a]\nx = ${y}\ny = ${x}\n")
++    assert str(err.value) == "line 2: reference cycle: a.x -> a.y -> a.x"
++    assert err.value.line == 2
++
++
++def test_unterminated_reference():
++    with pytest.raises(ConfigError) as err:
++        load("x = ${other\n")
++    assert "unterminated" in str(err.value)
++    assert err.value.line == 1
++
++
++def test_reference_to_unnamed_section():
++    config = load("name = Ada\n[app]\nmessage = Hello ${.name}\n")
++    assert config["app"]["message"] == "Hello Ada"
