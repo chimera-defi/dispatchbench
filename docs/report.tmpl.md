@@ -16,23 +16,25 @@ Function track: {{n_problems}} problems × {{repeats}} attempts per config. Clic
 
 ## Grok
 
-{{table:grok_at_glance}}
-
 {{grok_summary}}
 
+{{table:grok_at_glance}}
+
 ### Where does Grok get to?
+
+{{grok_key}}
 
 {{table:grok_reach}}
 
 {{grok_reach_note}}
 
-### Closest equivalent
+### Closest lanes
 
 {{table:grok_equivalent}}
 
 {{table:grok_selection_note}}
 
-<details><summary>All matching lanes</summary>
+<details><summary>All comparable lanes</summary>
 
 {{grok_match_rule}}
 
@@ -44,7 +46,7 @@ Function track: {{n_problems}} problems × {{repeats}} attempts per config. Clic
 
 ### Is Grok better at anything?
 
-{{grok_verdict}}
+{{table:grok_verdict}}
 
 {{table:grok_repository}}
 

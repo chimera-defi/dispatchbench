@@ -284,7 +284,7 @@ def test_every_toc_target_has_a_direct_toggle_heading():
     template = (ROOT / "docs/page.tmpl.md").read_text()
     toc = re.search(r'<nav class="toc"[^>]*>(.*?)</nav>', template, re.S)[1]
     targets = re.findall(r'<a href="#([^\"]+)">', toc)
-    assert len(targets) == 14
+    assert len(targets) == 15  # includes the Grok section
     for target in targets:
         assert re.search(r'<section\b[^>]*\bid="' + target + r'"[^>]*>\s*<h2\b', template)
 
