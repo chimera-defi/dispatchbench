@@ -5481,6 +5481,133 @@
    "cost_kind": "measured"
   }
  },
+ "agentic_counts": {
+  "original run": {
+   "file": "results/2026-10-22b-agentic.jsonl",
+   "configs": {
+    "astra-medium": {
+     "n": 12,
+     "hidden_pass": 12,
+     "task_complete": 12,
+     "red_visible": []
+    },
+    "haiku-high": {
+     "n": 12,
+     "hidden_pass": 12,
+     "task_complete": 12,
+     "red_visible": []
+    },
+    "haiku-low": {
+     "n": 12,
+     "hidden_pass": 12,
+     "task_complete": 12,
+     "red_visible": []
+    },
+    "luna-low": {
+     "n": 12,
+     "hidden_pass": 12,
+     "task_complete": 11,
+     "red_visible": [
+      [
+       "t2_cache_bugs",
+       2,
+       1
+      ]
+     ]
+    },
+    "sol61-high": {
+     "n": 12,
+     "hidden_pass": 12,
+     "task_complete": 12,
+     "red_visible": []
+    },
+    "sol61-medium": {
+     "n": 12,
+     "hidden_pass": 12,
+     "task_complete": 12,
+     "red_visible": []
+    },
+    "sonnet-medium": {
+     "n": 12,
+     "hidden_pass": 12,
+     "task_complete": 12,
+     "red_visible": []
+    }
+   }
+  },
+  "isolated rerun": {
+   "file": "results/2026-10-25-isolated-agentic.jsonl",
+   "configs": {
+    "astra-medium": {
+     "n": 12,
+     "hidden_pass": 12,
+     "task_complete": 12,
+     "red_visible": []
+    },
+    "luna-low": {
+     "n": 12,
+     "hidden_pass": 12,
+     "task_complete": 7,
+     "red_visible": [
+      [
+       "t1_discount",
+       2,
+       1
+      ],
+      [
+       "t2_cache_bugs",
+       1,
+       1
+      ],
+      [
+       "t2_cache_bugs",
+       3,
+       1
+      ],
+      [
+       "t3_config_refs",
+       1,
+       1
+      ],
+      [
+       "t3_config_refs",
+       2,
+       2
+      ]
+     ]
+    },
+    "sol61-high": {
+     "n": 12,
+     "hidden_pass": 12,
+     "task_complete": 12,
+     "red_visible": []
+    },
+    "sol61-medium": {
+     "n": 12,
+     "hidden_pass": 12,
+     "task_complete": 12,
+     "red_visible": []
+    }
+   }
+  },
+  "Grok repo tasks": {
+   "file": "results/2026-10-27-grok-agentic.jsonl",
+   "configs": {
+    "grok47-high": {
+     "n": 8,
+     "hidden_pass": 8,
+     "task_complete": 8,
+     "red_visible": []
+    },
+    "grok47-low": {
+     "n": 8,
+     "hidden_pass": 8,
+     "task_complete": 8,
+     "red_visible": []
+    }
+   }
+  }
+ },
  "pilot_reprice": {
   "rows": 83,
   "usd_at_1_5x": 3.519,

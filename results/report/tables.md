@@ -347,9 +347,11 @@ Every problem on which at least one config failed at least once, over all phases
 | p14 bounce_board (L7) | 5/5 | 4/5 (1c) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 2/5 (3c) | 2/5 (3c) | 3/5 (2c) | 5/5 | 5/5 | – | – | – | – |
 | p15 paint_erase (L7) | 2/5 (3t) | 4/5 (1t) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 3/5 (2w) | 3/5 (2w) | 5/5 | 5/5 | 5/5 | – | – | – | – |
 
-## Agentic track (hidden tests)
+## Agentic track (two pass rules)
 
-| config | hidden pass | 95% CI | visible suite, incl. agent's own tests | complete task | median s | input floor | $/run | $ kind |
+Passed our hidden tests = our hidden suite passes against the delivered code. Task complete = hidden and visible tests both pass (the delivered `tests/` directory, including tests the agent added). Both counts are shown.
+
+| config | passed our hidden tests | 95% CI | visible suite, incl. agent's own tests | task complete (hidden and visible pass) | median s | input floor | $/run | $ kind |
 |---|---|---|---|---|---|---|---|---|
 | astra-medium | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 65.6 | 130168 | $0.45 | proxy |
 | haiku-high | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 58.4 | 61331 | $0.012 | measured |
@@ -358,6 +360,34 @@ Every problem on which at least one config failed at least once, over all phases
 | sol61-high | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 117.9 | 137915 | $0.097 | proxy |
 | sol61-medium | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 84.5 | 149886 | $0.079 | proxy |
 | sonnet-medium | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 27.7 | 27425 | $0.054 | measured |
+
+original run (`results/2026-10-22b-agentic.jsonl`):
+
+| config | passed our hidden tests | task complete (hidden and visible pass) |
+|---|---|---|
+| astra-medium | 12/12 | 12/12 |
+| haiku-high | 12/12 | 12/12 |
+| haiku-low | 12/12 | 12/12 |
+| luna-low | 12/12 | 11/12 |
+| sol61-high | 12/12 | 12/12 |
+| sol61-medium | 12/12 | 12/12 |
+| sonnet-medium | 12/12 | 12/12 |
+
+isolated rerun (`results/2026-10-25-isolated-agentic.jsonl`):
+
+| config | passed our hidden tests | task complete (hidden and visible pass) |
+|---|---|---|
+| astra-medium | 12/12 | 12/12 |
+| luna-low | 12/12 | 7/12 |
+| sol61-high | 12/12 | 12/12 |
+| sol61-medium | 12/12 | 12/12 |
+
+Grok repo tasks (`results/2026-10-27-grok-agentic.jsonl`):
+
+| config | passed our hidden tests | task complete (hidden and visible pass) |
+|---|---|---|
+| grok47-high | 8/8 | 8/8 |
+| grok47-low | 8/8 | 8/8 |
 
 | config | t1_discount | t2_cache_bugs | t3_config_refs | t4_retry_queue |
 |---|---|---|---|---|

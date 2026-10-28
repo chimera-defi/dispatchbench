@@ -256,6 +256,8 @@ def at_a_glance(comparison, lane, repository):
         rm = repository["metrics"]
         bullets.append("Repo tasks: " + " ".join(
             f"{configs.display(c)} passed {rm[c]['passes']}/{rm[c]['n']} at {rm[c]['median_s']:.1f} s median." for c in repository["grok"]))
+        bullets.append("Repo-task pass rule: task complete (hidden and visible tests both pass); hidden tests alone: " + ", ".join(
+            f"{configs.display(c)} {rm[c]['hidden']}/{rm[c]['n']}" for c in repository["grok"]) + ".")
         bullets.append("The repo sample is small and ran on a shared host.")
         for c in repository["grok"]:
             ranges += [f"**{configs.display(c)} on repo tasks**"] + ["- " + sentence for sentence in
@@ -445,7 +447,7 @@ def repository_comparison():
     for c, rr in grouped.items():
         passed = sum(bool(r.get("task_complete", r["hidden_pass"] and r["visible_pass"])) for r in rr)
         turns = [r["turns"] for r in rr if r.get("turns") is not None]
-        metrics[c] = dict(passes=passed, n=len(rr), median_s=statistics.median(r["wall_s"] for r in rr),
+        metrics[c] = dict(passes=passed, hidden=sum(bool(r["hidden_pass"]) for r in rr), n=len(rr), median_s=statistics.median(r["wall_s"] for r in rr),
                           usd_per_pass=summarize.usd(map(summarize.cost, rr), passed, digits=None),
                           median_turns=statistics.median(turns) if len(turns) == len(rr) else None)
     return dict(source=source, tasks=tasks, metrics=metrics,
@@ -463,10 +465,12 @@ def repository_section(money):
     def table(head, rows):
         return "\n".join(["| " + " | ".join(head) + " |", "|" + "---|" * len(head)] +
                          ["| " + " | ".join(map(str, row)) + " |" for row in rows])
-    metrics = table(["config", "pass k/n", "median wall s", "$ per pass", "median turns"],
+    metrics = table(["config", "task complete k/n", "median wall s", "$ per pass", "median turns"],
                     [[configs.display(c), f'{m[c]["passes"]}/{m[c]["n"]}', f'{m[c]["median_s"]:.1f}',
                       money(m[c]["usd_per_pass"]), f'{m[c]["median_turns"]:g}' if m[c]["median_turns"] is not None else "–"]
                      for c in grok + others])
+    rules = ("Pass rules. `task complete k/n` counts runs where the hidden tests and the delivered visible tests both pass. "
+             "Passed our hidden tests alone: " + ", ".join(f'{configs.display(c)} {m[c]["hidden"]}/{m[c]["n"]}' for c in grok + others) + ".")
     def ratio(c, other, key):
         a, b = m[c][key], m[other][key]
         return f"{a / b:.2f}×" if a is not None and b else "–"
@@ -478,7 +482,7 @@ def repository_section(money):
                      for c in grok for other in closest_lanes(m, c, others)])
     best = max(grok, key=lambda c: (m[c]["passes"] / m[c]["n"], -m[c]["median_s"]))
     claude = [c for c in others if configs.family(c) == "Claude"]
-    claude_counts = ", ".join(f'{configs.display(c)} {m[c]["passes"]}/{m[c]["n"]}' for c in claude)
+    claude_counts = ", ".join(f'{configs.display(c)} {m[c]["passes"]}/{m[c]["n"]}' for c in claude)  # task complete
     claude_time = "–" if not claude else f'{min(m[c]["median_s"] for c in claude):.1f}–{max(m[c]["median_s"] for c in claude):.1f}'
     usable = m[best]["passes"] == m[best]["n"]
     tradeoff = " Claude is faster and cheaper." if claude and all(
@@ -490,7 +494,7 @@ def repository_section(money):
                f'{configs.display(best)} passed {m[best]["passes"]}/{m[best]["n"]} at {m[best]["median_s"]:.1f} s median. '
                f'Today’s Claude fallback lanes ({claude_counts}) took {claude_time} s median.')
     sources = ", ".join(f"`{s}`" for s in data["sources"])
-    return ("### Repository tasks\n\n" + verdict + "\n\n" + closest + "\n\n" + SELECTION_NOTE +
+    return ("### Repository tasks\n\n" + verdict + "\n\n" + rules + "\n\n" + closest + "\n\n" + SELECTION_NOTE +
             "\n\n<details><summary>All comparable lanes</summary>\n\n" + multiples +
             "\n\n</details>\n\n<details><summary>Run conditions and measurements</summary>\n\n"
             f'{len(data["tasks"])} tasks ({", ".join(data["tasks"])}); Grok: 2 repeats per task and config, '

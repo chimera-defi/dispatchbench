@@ -457,8 +457,26 @@ def _facts(s, arms):
     F["lb_upp_nocache"] = usd(lb["usd_per_pass_uncached"]); F["lb_nocache_above"] = pct(lb["usd_per_pass_uncached"] / hl["usd_per_pass"] - 1)
     tr = s["trim"]["floor"]
     # finding 4: agentic
-    need(all(v["hidden_pass"] == v["n"] for v in ag.values()), "every agentic run passed")
+    need(all(v["hidden_pass"] == v["n"] for v in ag.values()), "every agentic run passed our hidden tests")
     F["ag_k"] = f"{ag['luna-low']['hidden_pass']}/{ag['luna-low']['n']}"; F["ag_runs"] = str(sum(v["n"] for v in ag.values()))
+    # Two pass rules: "passed our hidden tests" and "task complete" (hidden and visible tests both pass). Per file, from the raw rows.
+    ac = s["agentic_counts"]; orig, iso, grk = (ac[k]["configs"] for k in ("original run", "isolated rerun", "Grok repo tasks"))
+    kk = lambda v, f: f"{v[f]}/{v['n']}"
+    short = lambda blk: sorted(c for c, v in blk.items() if v["task_complete"] < v["n"])
+    need(short(orig) == ["luna-low"] and short(iso) == ["luna-low"] and short(grk) == [], "luna-low is the only repo-task config short of task complete")
+    need(all(v["hidden_pass"] == v["n"] for blk in (orig, iso, grk) for v in blk.values()), "every repo-task run in every file passed our hidden tests")
+    need(all(v["task_complete"] == v["n"] for c, v in ag.items() if c != "luna-low") and ag["luna-low"]["task_complete"] < ag["luna-low"]["n"],
+         "every selected repo-task config except luna-low is task complete on every run")
+    need(not ag["luna-low"]["tests_tampered_runs"] and not ag["luna-low"]["errors"] and all(f for _, _, f in iso["luna-low"]["red_visible"]),
+         "luna-low's red-suite runs are untampered, error-free, with failed visible tests")
+    F["ag_hidden_rule"] = "passed our hidden tests"; F["ag_complete_rule"] = "task complete: hidden and visible tests both pass"
+    F["ag_tc_luna_orig_k"] = kk(orig["luna-low"], "task_complete"); F["ag_tc_luna_iso_k"] = kk(iso["luna-low"], "task_complete")
+    F["ag_tc_luna_miss_orig"] = str(orig["luna-low"]["n"] - orig["luna-low"]["task_complete"]); F["ag_tc_luna_miss_iso"] = str(iso["luna-low"]["n"] - iso["luna-low"]["task_complete"])
+    fails = [f for _, _, f in iso["luna-low"]["red_visible"]]; F["ag_red_lo"], F["ag_red_hi"] = str(min(fails)), str(max(fails))
+    F["ag_red_runs"] = str(len(fails))
+    F["ag_tc_all_k"] = f"{ag['sol61-high']['task_complete']}/{ag['sol61-high']['n']}"
+    F["ag_tc_line"] = (f"{F['ag_complete_rule']}: luna-low {F['ag_tc_luna_orig_k']} in the original run and {F['ag_tc_luna_iso_k']} in the clean-home rerun the page uses; "
+                       f"every other config completes every run")
     for c, v in ag.items():
         k = c.replace("-", "_"); F[f"ag_{k}_usd"] = usd(v['usd_per_run']) if v["usd_per_run"] is not None and v["usd_per_run"] < 0.01 else usd(v['usd_per_run'])
         F[f"ag_{k}_med"] = f"{v['latency_s']['median']:.0f}"
@@ -682,7 +700,7 @@ def _facts(s, arms):
     need(hxh["latency_s"]["median"] < min(hard[c]["latency_s"]["median"] for c in ("astra-medium", "sol61-high")) and hxh["latency_s"]["median"] > smh7["latency_s"]["median"],
          "haiku-high is faster than both Codex flagships on L7, slower than sonnet-medium")
     hmx = cfg["haiku-medium"]; need(hmx["passes"] < hmx["n"] and hm7["passes"] < hm7["n"], "haiku-medium misses on L1-L6 and L7; haiku-high is where parity starts")
-    need(all(ag[c]["hidden_pass"] == ag[c]["n"] for c in ("astra-medium", "sol61-high")), "both trusted Codex configs passed every repo task")
+    need(all(ag[c]["hidden_pass"] == ag[c]["n"] == ag[c]["task_complete"] for c in ("astra-medium", "sol61-high")), "both trusted Codex configs passed every repo task on both rules (hidden tests, and task complete)")
     F["x_s61h_vs_sm"] = x(ex["sol61-high"]["usd_per_pass"], sm_all)
     # Winner: the Codex pick against the Claude config that matches it (both perfect on L1-L6 and L7)
     for k, c in (("s61h", "sol61-high"), ("s61f", "sol61-high-fast")):
@@ -693,7 +711,7 @@ def _facts(s, arms):
     F["x_astra_vs_s61h"] = x(ah["usd_per_pass"], sh["usd_per_pass"])
     need(ah["latency_s"]["median"] < sh["latency_s"]["median"] and ag["astra-medium"]["latency_s"]["median"] < ag["sol61-high"]["latency_s"]["median"], "astra faster than sol61-high")
     F["ag_n"] = str(ag["sol61-high"]["n"]); F["claude_zero"] = usd(0)
-    F["ag_hh_k"] = f"{ag['haiku-high']['hidden_pass']}/{ag['haiku-high']['n']}"
+    F["ag_hh_k"] = f"{ag['haiku-high']['hidden_pass']}/{ag['haiku-high']['n']}"; need(ag['haiku-high']['hidden_pass'] == ag['haiku-high']['n'] == ag['haiku-high']['task_complete'], "haiku-high passed every repo task on both rules")
     F["ag_claude_med"] = f"{statistics.mean(ag[c]['latency_s']['median'] for c in ('haiku-low', 'sonnet-medium')):.0f}"
     ga = arms
     for c in ("sol61-high+haiku-on-fail", "astra-medium+haiku-on-fail"):
@@ -741,14 +759,14 @@ def _facts(s, arms):
     F['speed_why'] = f"No misses. {gap:.1f} s faster than haiku-high."
     tied = ('sol61-high', 'astra-medium', 'haiku-high', 'sonnet-medium')
     perfect = {c for c in every if every[c]['passes'] == every[c]['n'] and c in hard and hard[c]['passes'] == hard[c]['n']
-               and c in ag and ag[c]['hidden_pass'] == ag[c]['n']}
+               and c in ag and ag[c]['hidden_pass'] == ag[c]['n'] == ag[c]['task_complete']}
     need(perfect == set(tied), "exactly these configs pass every main, L7 and repo try")
     need(all(every[c]['passes'] == every[c]['n'] and hard[c]['passes'] == hard[c]['n'] for c in ('sol61-high-fast', 'astra-medium-fast')),
          "both ⚡ variants pass every main and L7 try")
     need(every['haiku-high']['usd_per_pass'] < min(every[c]['usd_per_pass'] for c in tied + ('sol61-high-fast', 'astra-medium-fast') if c != 'haiku-high'),
          "haiku-high is the cheapest of these")
     word = {3: "Three", 4: "Four", 5: "Five"}[len(tied)]
-    F['winner_line'] = (f"{word} configs passed every try in every set: haiku-high, sonnet-medium, sol61-high and astra-medium. "
+    F['winner_line'] = (f"{word} configs passed every try in every set (repo tasks counted as task complete, hidden and visible tests both pass): haiku-high, sonnet-medium, sol61-high and astra-medium. "
                         f"haiku-high is the cheapest, at {F['hh_upp']} per pass.")
     F['winner_intro'], F['winner_price'] = F['winner_line'].split('. ', 1)
     F['winner_intro'] += '.'
@@ -758,7 +776,8 @@ def _facts(s, arms):
     nl7 = hard['sonnet-medium']['n']
     need(all(v['passes'] == v['n'] == nl7 for c, v in hard.items() if c in tied), "every tied config is perfect on the same number of L7 tries")
     F['l7_bound'] = f"{nl7}/{nl7}"; F['l7_lo'] = ci_text(nl7, nl7, None, len(probs)).split()[0].lstrip("≥")  # same bound as the tables: over problems, not tries
-    need(all(v['hidden_pass'] == v['n'] for v in ag.values()), "every repo-task run passed, so repo tasks only rank cost and speed")
+    need(all(v['hidden_pass'] == v['n'] for v in ag.values()) and [c for c, v in ag.items() if v['task_complete'] < v['n']] == ['luna-low'],
+         "every repo-task run passed our hidden tests; under task complete only luna-low falls short, so repo tasks mostly rank cost and speed")
     F['budget_why'] = f"Cheapest with no misses. haiku-low costs less but misses {hl['n'] - hl['passes']} of {hl['n']}"
     F['model_names'] += (f". luna56 = {ex['luna56-high']['model']}, "
                          f"sol56 = {ex['sol56-high']['model']} (older generation)")
@@ -841,7 +860,7 @@ def _tables(s, arms):
     T["fail"] = md_table(["problem"] + cols, [[plabel(p, f["rung"])] + [cell(f["cells"].get(c)) for c in cols] for p, f in fail.items()])
     ag = s["agentic"]; selected_keys = {r["key"] for r in summarize.agentic_rows()}
     at = [r for r in json.load(open(os.path.join(RES, "agentic_tests.json"))) if r["key"] in selected_keys]
-    T["agentic"] = md_table(["config", "hidden tests passed", "complete task", "runs that wrote the requested test file", "test functions added", "median s", "$ per run", "$ kind"],
+    T["agentic"] = md_table(["config", "passed our hidden tests", "task complete (hidden and visible pass)", "runs that wrote the requested test file", "test functions added", "median s", "$ per run", "$ kind"],
                             [[c, f"{v['hidden_pass']}/{v['n']}", f"{v['task_complete']}/{v['n']}", f"{v['own_tests_written']}/{v['n']}",
                               (lambda rr: "no transcripts" if not rr else str(sum(r["test_functions_added"] for r in rr)) if all(r["test_functions_added"] is not None for r in rr)
                                else f"≥{sum(r['test_functions_lower_bound'] for r in rr)}")([r for r in at if r["config"] == c]),
