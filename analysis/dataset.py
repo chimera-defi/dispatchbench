@@ -1660,6 +1660,24 @@ def explorer_data(ds):
             "winner_picks": WINNER_PICKS, "winner_pricing": "Winner picks assume list price. On quota, Claude picks apply when Codex is out."}
 
 
+def explorer_finding(exp):
+    """Default chart takeaway, derived from the same eligible points and costs."""
+    st = next(s for s in exp["sets"] if s["id"] == exp["default_set"])
+    membership = st["views"]["list"]["front"]["membership"]
+    rows = [r for r in exp["rows"] if r["key"] in st["rows"] and membership[r["key"]]["eligible"]]
+    frontier = sorted((r for r in rows if membership[r["key"]]["on_frontier"]),
+                      key=lambda r: (r["usd_per_pass"], r["key"]))
+    if not frontier:
+        return "Default view: no eligible cost and pass-rate trade-offs."
+    top = max(r["pass_rate"] for r in rows)
+    cheapest = min(r["usd_per_pass"] for r in rows if r["pass_rate"] == top)
+    picks = sorted(r["display"] for r in rows if r["pass_rate"] == top and r["usd_per_pass"] == cheapest)
+    return ("Default " + st["label"] + " at list price: the frontier is "
+            + ", ".join(r["display"] for r in frontier) + ". " + ", ".join(picks)
+            + f" is cheapest at the top observed pass rate ({top:.0%}), at {usd(cheapest)} per pass. "
+            + st["note"])
+
+
 def build(summary=None):
     from bench.problems.p13_xor_ring import STATEMENT as xor_statement
     ds = _base()
@@ -1747,6 +1765,7 @@ def build(summary=None):
     read = {os.path.relpath(p, ROOT) for p in summarize.LOADED} | {f for r in ds["rows"] for f in r["files"]}
     for g in ds["generated_from"]: g["used"] = g["path"] in read  # a jsonl no loader opened is listed but unused
     ds["explorer"] = explorer_data(ds)
+    ds["facts"]["explorer_finding"] = explorer_finding(ds["explorer"])
     return ds
 
 

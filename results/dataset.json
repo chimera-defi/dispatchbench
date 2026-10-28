@@ -34821,6 +34821,12 @@
    "unit": "text",
    "display": "luna-low cost 3.1× as much per pass. Time per pass was 2.7× as long.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "explorer_finding": {
+   "value": "Default Main ladder + partial runs at list price: the frontier is luna-low-bare, luna-medium, luna-high, haiku-low, haiku-medium, haiku-high. haiku-high is cheapest at the top observed pass rate (100%), at $0.0028 per pass. Partial runs are labelled per config; their rates are not like-for-like with the full ladder.",
+   "unit": "text",
+   "display": "Default Main ladder + partial runs at list price: the frontier is luna-low-bare, luna-medium, luna-high, haiku-low, haiku-medium, haiku-high. haiku-high is cheapest at the top observed pass rate (100%), at $0.0028 per pass. Partial runs are labelled per config; their rates are not like-for-like with the full ladder.",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   }
  },
  "annotations": {},
