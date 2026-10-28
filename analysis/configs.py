@@ -245,7 +245,7 @@ def section(rest, ds, root, chart_bodies=None, grok_only=False):
     out = ["<details><summary>Everything we tried</summary>", "<ul class=\"tight small\"><li>Every config with rows in results/, grouped by kind.</li>"
            "<li>Each row pools all of a config's runs. Pass, $ and seconds can differ from Results.</li>"
            "<li>Codex dollars are list-price estimates. Dash means the full cost is unavailable.</li>"
-           "<li>Hover over a name for its source file.</li><li>Pilot repo pipelines include builder and review time and cost.</li></ul>"]
+           "<li>Hover over a name for its source file.</li><li>Pilot repo pipelines: dollars include builder and review; time is builder-only.</li></ul>"]
     for cat in CATEGORIES:
         if not grok_only and cat in grok_categories:
             out.append('<p>Grok: <a href="#grok">see the Grok section</a></p>')

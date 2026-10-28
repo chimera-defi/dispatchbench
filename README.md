@@ -6,7 +6,7 @@ Which model should a coding task go to?
 
 ## What it measures
 
-We compare 18 model-and-effort configs on fresh Python problems.
+We compare 25 model-and-effort configs on fresh Python problems.
 The main run used 6 of them on 12 problems.
 The set contains 15 problems and 4 small repository tasks.
 Function tasks ask for one answer, with no tool use allowed.
@@ -22,11 +22,11 @@ Repository tasks use agent CLIs, with code execution and retries.
 
 Main ladder: 12 problems, each attempted 5 times per config.
 
-Total spend: $2.46 Claude, about $38 Codex (estimated).
+Total spend, by kind: Claude $2.46 (CLI-reported), Codex $37.73 (list-price proxy), Grok $28.16 (CLI-reported), plus Claude pilot and appendix arms $1.72.
 
 ## How to read it
 
-Pass rate measures answers passing every hidden test.
+Function pass rate measures answers passing every hidden test. Repo-task counts use one rule, task complete: complete = hidden and the run's own visible suite both green; hidden = our hidden suite only.
 Read each problem set separately.
 Claude dollars use CLI-reported costs.
 Codex dollars estimate tokens at list prices; subscriptions use quota.

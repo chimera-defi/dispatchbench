@@ -53,7 +53,7 @@ REPO_TASK_FILES = ("2026-10-22b-agentic", "2026-10-25-isolated-agentic", "2026-1
 
 
 def repo_task_counts(root):
-    """Per config and file: runs that passed our hidden tests, and runs that are task complete (hidden and visible tests pass)."""
+    """Per config and file: runs that are task complete (the headline: hidden and visible tests pass), and runs that passed our hidden suite alone."""
     out = []
     for name in REPO_TASK_FILES:
         path = root / "results" / f"{name}.jsonl"
@@ -64,7 +64,7 @@ def repo_task_counts(root):
             rr = [r for r in rows if r["config"] == config]
             hidden = sum(bool(r["hidden_pass"]) for r in rr)
             done = sum(bool(r.get("task_complete", r["visible_pass"] and r["hidden_pass"])) for r in rr)
-            out.append(f"| {name} | {config} | {hidden}/{len(rr)} | {done}/{len(rr)} |")
+            out.append(f"| {name} | {config} | {done}/{len(rr)} | {hidden}/{len(rr)} |")
     return out
 
 

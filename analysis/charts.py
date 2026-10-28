@@ -79,7 +79,7 @@ def pareto_chart(s, hero=False):
     for c, v in allc.items():
         x, y = X(v["usd_per_pass"]), Y(v["pass_at_1"]); on = c in front; hollow = "-fast" in c
         taken.append((x, y))
-        lo, hi = v["ci95"]
+        lo, hi = v["ci95_plot"]
         col = FAMILY(c)
         if not hero:
             b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(max(lo, y0)):.1f}' y2='{Y(hi):.1f}' stroke='{col}' stroke-width='2' opacity='0.35'/>")
@@ -128,7 +128,7 @@ def pareto_chart(s, hero=False):
             step += 18  # only this mark moves; the series it collided with stays put
         x += step
         taken.append((x, y))
-        lo, hi = v["ci95"]
+        lo, hi = v["ci95_plot"]
         col = FAMILY(c)
         b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(max(lo, y0)):.1f}' y2='{Y(hi):.1f}' stroke='{col}' stroke-width='2' opacity='0.35'/>")
         b.append(grok_mark(x, y))
@@ -356,7 +356,7 @@ def agentic_chart(s):
     xs = [v["usd_per_run"] for v in ag.values()]
     x0, x1 = min(xs) / 1.5, max(xs) * 1.5
     X = lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R); Y = lambda p: H - B - p * (H - T - B)
-    b = [text(L, 24, "Repo tasks (4 tasks x 3 runs, with tools): both pass rules vs $ per run", 14, weight="600")]
+    b = [text(L, 24, "Repo tasks (4 tasks x 3 runs, with tools): task complete vs $ per run", 14, weight="600")]
     for p in (0, 0.25, 0.5, 0.75, 1.0):
         b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
     for v in log_ticks(x0, x1):
@@ -364,22 +364,19 @@ def agentic_chart(s):
     b += [text((L + W - R) / 2, H - B + 38, "$ per run", 12, "middle", MUTED), text(20, (T + H - B) / 2, "share of runs passing", 12, "middle", MUTED, rotate=-90)]
     # Direct labels above the dots, with vertical stubs clear of the shared 100% line.
     for i, (c, v) in enumerate(sorted(ag.items(), key=lambda kv: kv[1]["usd_per_run"])):
-        x, y = X(v["usd_per_run"]), Y(v["hidden_pass_rate"]); lo, hi = v["ci95_plot"]
+        x, y = X(v["usd_per_run"]), Y(v["task_complete"] / v["n"]); lo, hi = v["ci95_plot"]  # headline rule: task complete
         b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(lo):.1f}' y2='{Y(hi):.1f}' stroke='{FAMILY(c)}' stroke-width='2' opacity='0.5'/>")
-        yc = Y(v["task_complete"] / v["n"])  # second mark: task complete (hidden and visible tests pass); a ring, so it reads as a different rule
-        if yc != y: b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{y:.1f}' y2='{yc:.1f}' stroke='{FAMILY(c)}' stroke-width='1' stroke-dasharray='3 3'/>")
-        b.append(f"<circle class='complete-mark' cx='{x:.1f}' cy='{yc:.1f}' r='9' fill='none' stroke='{FAMILY(c)}' stroke-width='1.5'/>")
+        yh = Y(v["hidden_pass_rate"])  # second mark: the hidden suite alone; a ring, so it reads as a different rule
+        if yh != y: b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{y:.1f}' y2='{yh:.1f}' stroke='{FAMILY(c)}' stroke-width='1' stroke-dasharray='3 3'/>")
+        b.append(f"<circle class='complete-mark' cx='{x:.1f}' cy='{yh:.1f}' r='9' fill='none' stroke='{FAMILY(c)}' stroke-width='1.5'/>")
         b.append(config_marker(c, x, y, FAMILY(c)))
-        lab = f"{DISP(c)} {v['hidden_pass']}/{v['n']} hidden, {v['task_complete']}/{v['n']} complete{' *' if v['cost_kind'] == 'proxy' else ''}"
+        lab = f"{DISP(c)} {v['task_complete']}/{v['n']} complete ({v['hidden_pass']}/{v['n']} hidden){' *' if v['cost_kind'] == 'proxy' else ''}"
         ly = T - 24 - i * 22
         anchor = "end" if x + len(lab) * 6.6 > W - 10 else "start"
         b.append(f"<line class='leader' x1='{x:.1f}' x2='{x:.1f}' y1='{y - 8:.1f}' y2='{ly + 5:.1f}' stroke='{FAMILY(c)}' stroke-width='1' opacity='0.6'/>")
         b.append(text(x, ly, s=lab, size=11, anchor=anchor))
-    short = [f"{DISP(c)} {v['task_complete']}/{v['n']}" for c, v in ag.items() if v["task_complete"] < v["n"]]
-    allh = all(v["hidden_pass"] == v["n"] for v in ag.values())
-    b.append(text(L, H - 26, "Filled mark: passed our hidden tests. Ring: task complete (hidden and visible tests both pass).", 11, fill=MUTED))
-    b.append(text(L, H - 10, ("All configs " + f"{max(v['hidden_pass'] for v in ag.values())}/{max(v['n'] for v in ag.values())} on hidden tests" if allh else "See labels for hidden tests")
-                  + (f"; task complete short: {', '.join(short)}" if short else "") + ". Bars: lower 95% bound (hidden). * Estimated from tokens.", 11, fill=MUTED))
+    b.append(text(L, H - 26, "Filled mark: task complete (hidden and the run's own visible suite both green). Ring: hidden suite only.", 11, fill=MUTED))
+    b.append(text(L, H - 10, "Bars: 95% interval for task complete; a perfect score shows its lower bound. * Estimated from tokens.", 11, fill=MUTED))
     return svg(W, H, b)
 
 

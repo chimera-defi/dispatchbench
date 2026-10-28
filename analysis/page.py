@@ -342,7 +342,7 @@ def ladder_toggle(render, s):
     free, _ = render(s, free=True)
     rescue_normal, _ = render(s, free=False, problem_set="rescue")
     rescue_free, _ = render(s, free=True, problem_set="rescue")
-    note = ('<p class="repair-note">Codex counted as free: its points move to the $0 lane. '
+    note = ('<p class="repair-note">Codex counted at $0 on the Claude bill (it still spends Codex quota): its points move to the $0 lane. '
             'Each saving per pass is in the key and tooltip.</p>')
     main_categories = {point_category(c) for c in ORDER}
     chips = []
@@ -359,13 +359,13 @@ def ladder_toggle(render, s):
     sets = (f'<div class="set-filter" role="group" aria-label="Problem set">'
             f'<label><input type="radio" name="{set_name}" value="main" checked> {configs.set_label("main ladder", capital=True)}</label>'
             f'<label><input type="radio" name="{set_name}" value="rescue"> {configs.set_label("rescue set", capital=True)} + pipelines</label></div>')
-    return ('<div class="cwrap"><label class="cost-toggle"><input type="checkbox"> Codex is free (subscription quota)</label>'
+    return ('<div class="cwrap"><label class="cost-toggle"><input type="checkbox"> Codex at $0 on the Claude bill (spends Codex quota)</label>'
             + sets + filters + note + '<div class="cset s-main">' + normal + free + frontier_caption(s) + '</div>'
             + '<div class="cset s-rescue">' + rescue_normal + rescue_free + '</div><div class="ctip" hidden></div></div>'), fr
 
 
 def quota_tip(normal, free, saving):
-    return (f'Normal: {dataset.usd(normal)} per pass; Codex free: {dataset.usd(free)} per pass '
+    return (f'Normal: {dataset.usd(normal)} per pass; Codex $0 on the Claude bill: {dataset.usd(free)} per pass '
             f'(saving {dataset.usd(saving)} per pass).')
 
 
@@ -402,7 +402,7 @@ def grok_chart_points(s, stat):
             w = ("x", v["latency_s"]["p25"], v["latency_s"]["p75"]) if "p25" in v.get("latency_s", {}) else None
             x, y = v["latency_s"]["median"], usd
         else:
-            w = ("y", v["ci95"][0], v["ci95"][1])
+            w = ("y", v["ci95_plot"][0], v["ci95_plot"][1])
             x, y = usd, v["pass_at_1"]
         pts.append({"c": c, "name": DISP(c), "set": "main", "partial": True,
                     "x": x, "y": y, "rate": v["pass_at_1"], "hollow": "-fast" in c, "dash": "bare" in c, "w": w,
@@ -419,7 +419,7 @@ def ladder_points(s, free, stat, problem_set):
         v = every(s)[c]; normal = v["usd_per_pass"]
         quota = v["claude_usd_per_pass"]
         usd = quota if free else normal
-        w = (("x", v["latency_s"]["p25"], v["latency_s"]["p75"]) if "p25" in v["latency_s"] else None) if stat == "speed" else ("y", v["ci95"][0], v["ci95"][1])
+        w = (("x", v["latency_s"]["p25"], v["latency_s"]["p75"]) if "p25" in v["latency_s"] else None) if stat == "speed" else ("y", v["ci95_plot"][0], v["ci95_plot"][1])
         pts.append({"c": c, "name": DISP(c), "set": "main", "x": v["latency_s"]["median"] if stat == "speed" else usd,
                     "y": usd if stat == "speed" else v["pass_at_1"], "rate": v["pass_at_1"], "hollow": "-fast" in c, "dash": "bare" in c, "w": w,
                     "saved_usd": v["usd_saved_per_pass"], "normal_usd": normal, "free_usd": quota, "free_mode": free,
@@ -861,7 +861,7 @@ def method(s):
           f'<li class="round"><b>{configs.set_label("main ladder", capital=True)}</b>: {len(main)} new problems.'
           f'<ul><li>Problem numbers: {main[0].split("_")[0]}–{main[-1].split("_")[0]}.</li>'
           f'<li>Rungs: L{rungs[0]}–L{rungs[-1]}, easiest first.</li><li>Each rung has {per} problems.</li>'
-          '<li>Every config ran it.</li></ul><ul>'
+          f'<li>Most configs ran it; the exceptions: {esc(s["facts"]["calls_exceptions_page"])}.</li></ul><ul>'
           + "".join(item(p, s["problems"][p]["rung"]) for p in main) + "</ul></li>",
           f'<li class="round"><b>{configs.set_label("L7 set")}</b>: extra-hard problems.'
           f'<ul><li>Problem numbers: {hard[0].split("_")[0]}–{hard[-1].split("_")[0]}.</li>'
@@ -902,7 +902,7 @@ def sets_box(s):
     return ('<details class="sets"><summary>How to read the problems, rungs and sets</summary><ul class="tight small">'
             '<li>Compare each set separately.</li>'
             f'<li>Problem labels show number, short name and rung: {lab([main[-1]])}. Hover for a one-line description.</li>'
-            f'<li><b>{configs.set_label("main ladder", capital=True)}</b>: {len(main)} problems. Rungs: L{rungs[0]}–L{rungs[-1]}. Each has {per} problems, easiest first. Every config ran it.</li>'
+            f'<li><b>{configs.set_label("main ladder", capital=True)}</b>: {len(main)} problems. Rungs: L{rungs[0]}–L{rungs[-1]}. Each has {per} problems, easiest first. Most configs ran it; the exceptions: {esc(s["facts"]["calls_exceptions_page"])}.</li>'
             f'<li>{esc(s["facts"]["l7_set_description"])}</li>'
             f'<li>{l7_lines}</li>'
             f'<li><b>{configs.set_label("rescue set", capital=True)}</b>:<ul>'
@@ -1043,7 +1043,7 @@ def winner_table(ds, need):
     quota = astra["usd_per_pass"] / default["usd_per_pass"]
     need(astra["passes"] == astra["n"] and astra["median_s"] < default["median_s"] and quota > 2,
          "astra-medium ⚡ is faster but burns much more Codex quota")
-    why = {"default": (f"No misses. Free on Codex quota. ⚡ saves {plain['median_s'] - default['median_s']:.0f} s. "
+    why = {"default": (f"No misses. $0 on the Claude bill (spends Codex quota). ⚡ saves {plain['median_s'] - default['median_s']:.0f} s. "
                        f"astra ⚡ is faster but uses {quota:.0f}× the quota"), "budget": ds["facts"]["budget_why"], "speed": ds["facts"]["speed_why"]}
     choices = [(use.title(), ladder(c), why[use]) for c, use in WINNER_PICKS.items()]
     head = ("Use case", "Pick", "Pass", "$ per pass", "Time", "Why")
