@@ -203,7 +203,7 @@ Budget and quota stop behavior is documented in the plan and runner.
 ## Known limits
 
 - Small samples give wide intervals. Rung order is a prior, and the breaking point is unstable.
-- The original 84 repo runs all passed. They separate cost and latency, not capability.
+- All 84 original repo runs passed hidden tests; 83 passed visible tests. In [the results](../results/2026-10-22b-agentic.jsonl), `luna-low` on `t2_cache_bugs`, repeat 2, has `visible_pass: false`. They separate cost and latency, not capability.
 - Timings come from one shared host and include CLI/network overhead. They are not API time-to-first-token.
 - The original function track asks for one answer without tools. Codex cannot disable its tools fully; read-only mode and the prompt constrain it.
 - Sandbox policies differ between CLIs. The separate Codex-designed appendix allows checks and revisions.

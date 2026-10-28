@@ -1,6 +1,6 @@
 # Raw run index
 
-Each Run rows entry is one JSONL file. Each JSONL line is one recorded attempt or measurement.
+Each Run rows entry is one JSONL file. `Rows` = non-empty lines, including malformed JSON and non-object values.
 Files stay at their committed paths. Verify a file from the repo root with `sha256sum <path>`.
 For a folder, hash each included file. Use paths relative to that folder, without a leading `./`.
 The aggregate is SHA-256 over lexically sorted lines of `<sha256>  <relpath>\n`, encoded as UTF-8.
@@ -13,7 +13,8 @@ d=cache/calls; python3 -c 'from analysis.raw_runs import published_files, ROOT; 
 
 ## Run rows
 
-Date uses the filename first, then the earliest recorded timestamp or date. Lanes name CLI families.
+Run is the path relative to `results/`, without `.jsonl`. Date uses the filename first, then the earliest recorded timestamp or date; `-` means no timestamp recorded. Lanes name CLI families.
+Blank lines, malformed JSON and non-object values are skipped when deriving dates and lanes.
 
 | Run | Date | Lane(s) | Rows | SHA-256 | Link |
 |---|---|---|---:|---|---|
@@ -25,14 +26,14 @@ Date uses the filename first, then the earliest recorded timestamp or date. Lane
 | 2026-10-25-isolated-agentic | 2026-10-25 | codex | 48 | `fef78227c24bfb1b15b0ebda7b00d8337927ac2f77ff017dbba98f3f58fd3b5b` | [results/2026-10-25-isolated-agentic.jsonl](../results/2026-10-25-isolated-agentic.jsonl) |
 | 2026-10-26-grok-function | 2026-10-26 | grok | 87 | `d8dffdbdc71eed6ee79592ef158a59eb67c73f877e289901aa513601b47783b9` | [results/2026-10-26-grok-function.jsonl](../results/2026-10-26-grok-function.jsonl) |
 | 2026-10-27-grok-agentic | 2026-10-27 | grok | 16 | `7aae8f0d5064925573e70b76e0794c91fbffbd56b138006ebb23cc09a7456ed8` | [results/2026-10-27-grok-agentic.jsonl](../results/2026-10-27-grok-agentic.jsonl) |
-| codex_harness | 2026-10-24 | claude, codex | 138 | `5bf8288a66bf2efa931316c1834e82ec5fb0ffa8019cf49f816bdf75d9b1752e` | [results/appendix/codex_harness.jsonl](../results/appendix/codex_harness.jsonl) |
-| harness_bias | 2026-10-24 | claude, codex | 240 | `a61ae36c295a5eb28358163f0f6936591345969aceac52afd3d34bbb6651fcf3` | [results/appendix/harness_bias.jsonl](../results/appendix/harness_bias.jsonl) |
-| function | 2026-10-25 | codex | 935 | `57b6721db0d5ef952e314a80f140ae94643e3e7b7dac3371d6603c3f7c134213` | [results/appendix/isolation/function.jsonl](../results/appendix/isolation/function.jsonl) |
-| hard | 2026-10-25 | codex | 15 | `b0943d64023be6e4f0c6cd62560d416a37655a8cb915e752e13bf27034814b82` | [results/appendix/isolation/hard.jsonl](../results/appendix/isolation/hard.jsonl) |
-| harness_bias | 2026-10-25 | codex | 60 | `9c24bfd9515243565134726d4026e459f2d2983f462eb568cbe2c8b6942dd536` | [results/appendix/isolation/harness_bias.jsonl](../results/appendix/isolation/harness_bias.jsonl) |
-| main | 2026-10-25 | codex | 60 | `fc280388ea314fa8569eaf84c3c0555ab6e4dcb60019de7ab18a7bed941ff34a` | [results/appendix/isolation/main.jsonl](../results/appendix/isolation/main.jsonl) |
-| rescue | - | claude, codex | 258 | `59879f5adedd7a46b9304956a744b9f1fd78e39e4cfa227312eb88adc3d8dad9` | [results/appendix/isolation/rescue.jsonl](../results/appendix/isolation/rescue.jsonl) |
-| luna_rescue | - | claude, codex | 525 | `474d863c880d840fc99acb5446b5219268fcddd884de20ec08f02cb6b217c2e5` | [results/appendix/luna_rescue.jsonl](../results/appendix/luna_rescue.jsonl) |
+| appendix/codex_harness | 2026-10-24 | claude, codex | 138 | `5bf8288a66bf2efa931316c1834e82ec5fb0ffa8019cf49f816bdf75d9b1752e` | [results/appendix/codex_harness.jsonl](../results/appendix/codex_harness.jsonl) |
+| appendix/harness_bias | 2026-10-24 | claude, codex | 240 | `a61ae36c295a5eb28358163f0f6936591345969aceac52afd3d34bbb6651fcf3` | [results/appendix/harness_bias.jsonl](../results/appendix/harness_bias.jsonl) |
+| appendix/isolation/function | 2026-10-25 | codex | 935 | `57b6721db0d5ef952e314a80f140ae94643e3e7b7dac3371d6603c3f7c134213` | [results/appendix/isolation/function.jsonl](../results/appendix/isolation/function.jsonl) |
+| appendix/isolation/hard | 2026-10-25 | codex | 15 | `b0943d64023be6e4f0c6cd62560d416a37655a8cb915e752e13bf27034814b82` | [results/appendix/isolation/hard.jsonl](../results/appendix/isolation/hard.jsonl) |
+| appendix/isolation/harness_bias | 2026-10-25 | codex | 60 | `9c24bfd9515243565134726d4026e459f2d2983f462eb568cbe2c8b6942dd536` | [results/appendix/isolation/harness_bias.jsonl](../results/appendix/isolation/harness_bias.jsonl) |
+| appendix/isolation/main | 2026-10-25 | codex | 60 | `fc280388ea314fa8569eaf84c3c0555ab6e4dcb60019de7ab18a7bed941ff34a` | [results/appendix/isolation/main.jsonl](../results/appendix/isolation/main.jsonl) |
+| appendix/isolation/rescue | - | claude, codex | 258 | `59879f5adedd7a46b9304956a744b9f1fd78e39e4cfa227312eb88adc3d8dad9` | [results/appendix/isolation/rescue.jsonl](../results/appendix/isolation/rescue.jsonl) |
+| appendix/luna_rescue | - | claude, codex | 525 | `474d863c880d840fc99acb5446b5219268fcddd884de20ec08f02cb6b217c2e5` | [results/appendix/luna_rescue.jsonl](../results/appendix/luna_rescue.jsonl) |
 | quality | - | claude, codex | 1140 | `67a5f24651a2366f5f37ead0250d9eb59131ab37c76c85e533b5e76eec8ea747` | [results/quality.jsonl](../results/quality.jsonl) |
 
 ## Supporting files
@@ -66,7 +67,7 @@ Their hashes hold only for the commit you read. Regenerate this index after rebu
 - `cache/raw/` and `cache/codex_harness/raw/`: full CLI transcripts carry host context, instruction files and local paths. Never committed.
 - `cache/agentic_raw/`: dropped from history on 2026-10-26 for the same reason. Do not restore.
 - `cache/quality/`, `cache/expected/`, `cache/tmp/`, `cache/*.log` and `artifacts/`: scratch and logs, rebuilt by the runners.
-- `results/review-sol61/review.bundle`: a git bundle of two review commits. Its `REVIEW.md` copy names a local home path. It also needs a parent commit outside public history, so it cannot be imported. Flagged for removal. Read [the published review](../results/research/review-sol61/REVIEW.md) instead.
+- `results/review-sol61/review.bundle`: removed from the tree on 2026-10-28 because it contains a local home path and needs a parent commit outside public history, so it cannot be imported. Older commits still hold it. Read [the published review](../results/research/review-sol61/REVIEW.md) instead.
 
 ## Pending
 
