@@ -64,6 +64,53 @@ def test_generated_from_lists_every_jsonl_with_its_hash_and_row_count(ds):
     assert any(g["used"] for g in ds["generated_from"])
 
 
+def test_regrade_is_read_through_the_tracked_loader(monkeypatch, ds):
+    from analysis import summarize
+    monkeypatch.setattr(summarize, "LOADED", set())
+    assert dataset.t1_regrade()
+    assert os.path.abspath(dataset.REGRADE) in summarize.LOADED
+    entry = next(g for g in ds["generated_from"] if g["path"] == os.path.relpath(dataset.REGRADE, ROOT))
+    assert entry["used"] is True
+
+
+def test_pilot_repricing_includes_bare_codex_and_matches_token_prices():
+    from analysis import summarize
+    rows = summarize.load(summarize.PILOT)
+    priority = [r for r in rows if r["cli"] in ("codex", "codex-bare") and (r.get("service_tier") or "").startswith("priority")]
+    prices = json.loads((ROOT / "results/prices.json").read_text())
+    base = 0
+    for r in priority:
+        p = prices["models"][r["model"]]
+        base += ((r["in_tok"] - r["cached_tok"]) * p["input"] + r["cached_tok"] * p["cached_input"] + r["out_tok"] * p["output"]) / 1e6
+    result = summarize.pilot_reprice()
+    assert len(priority) == result["rows"] == 92
+    assert result["newly_multiplied_rows"] == 90 and result["previously_multiplied_rows"] == 2
+    assert result["usd_at_1_5x"] == round(base * 1.5, 4)
+    assert result["usd_at_2x"] == round(base * prices["fast_mode_multiplier"], 4)
+    assert sum(dataset._usd(r, "pilot") for r in priority) == pytest.approx(base * prices["fast_mode_multiplier"])
+
+
+def test_spend_by_kind_includes_all_auxiliary_sets():
+    data = dataset.read()
+    aux = [r for r in dataset.catalog_rows(data) if r["source"] in ("pilot", "pilot-agentic", "rescue", "harness-bias", "trim")]
+    facts, main = data["facts"], data["report"]["spend"]
+    claude = sum(r["spend_claude"] for r in aux)
+    codex = sum(r["spend_codex"] for r in aux)
+    assert facts["claude_aux_usd"] == dataset.usd(claude)
+    assert facts["codex_aux_usd"] == dataset.usd(codex)
+    assert facts["claude_total_usd"] == dataset.usd(main["claude_measured_usd"] + claude)
+    assert facts["codex_total_usd"] == dataset.usd(main["codex_proxy_usd"] + codex)
+    pilot = sum(r["spend_codex"] for r in aux if r["source"] in ("pilot", "pilot-agentic"))
+    assert pilot > 5 and codex > pilot
+    assert facts["codex_pilot_usd"] == dataset.usd(pilot)
+    assert facts["codex_appendix_usd"] == dataset.usd(codex - pilot)
+    for text in (Path(report.README).read_text(), Path(report.PAGE).read_text()):
+        line = next(l for l in text.splitlines() if "Total spend, by kind:" in l)
+        assert f'Claude {facts["claude_total_usd"]}' in line
+        assert f'Codex {facts["codex_total_usd"]}' in line
+        assert f'({facts["codex_pilot_usd"]} pilot, {facts["codex_appendix_usd"]} appendix and trim)' in line
+
+
 def test_every_fact_is_value_unit_display_source(ds):
     assert ds["facts"]
     for k, f in ds["facts"].items():

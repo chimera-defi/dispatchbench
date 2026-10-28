@@ -86,7 +86,7 @@
    "rows": 37,
    "date": "2026-10-28",
    "lanes": "claude, codex, grok",
-   "used": false
+   "used": true
   },
   {
    "path": "results/2026-10-28-terra-function.jsonl",
@@ -10073,7 +10073,7 @@
    "display": "haiku-low",
    "family": "Claude",
    "category": "repo tasks",
-   "what": "Repo tasks with tools, passed our hidden tests: Claude Haiku, low",
+   "what": "Repo tasks with tools: Claude Haiku, low",
    "set": "repo tasks",
    "derived": false,
    "files": [
@@ -10223,7 +10223,7 @@
    "display": "haiku-high",
    "family": "Claude",
    "category": "repo tasks",
-   "what": "Repo tasks, passed our hidden tests: Claude Haiku, high",
+   "what": "Repo tasks: Claude Haiku, high",
    "set": "repo tasks",
    "derived": false,
    "files": [
@@ -10373,7 +10373,7 @@
    "display": "sonnet-medium",
    "family": "Claude",
    "category": "repo tasks",
-   "what": "Repo tasks, passed our hidden tests: Claude Sonnet, medium",
+   "what": "Repo tasks: Claude Sonnet, medium",
    "set": "repo tasks",
    "derived": false,
    "files": [
@@ -10523,7 +10523,7 @@
    "display": "luna-low",
    "family": "Codex",
    "category": "repo tasks",
-   "what": "Repo tasks, passed our hidden tests: gpt-6-luna, low",
+   "what": "Repo tasks: gpt-6-luna, low",
    "set": "repo tasks",
    "derived": false,
    "files": [
@@ -10682,7 +10682,7 @@
    "display": "sol61-medium",
    "family": "Codex",
    "category": "repo tasks",
-   "what": "Repo tasks, passed our hidden tests: gpt-6.1-sol, medium",
+   "what": "Repo tasks: gpt-6.1-sol, medium",
    "set": "repo tasks",
    "derived": false,
    "files": [
@@ -10832,7 +10832,7 @@
    "display": "sol61-high",
    "family": "Codex",
    "category": "repo tasks",
-   "what": "Repo tasks, passed our hidden tests: gpt-6.1-sol, high",
+   "what": "Repo tasks: gpt-6.1-sol, high",
    "set": "repo tasks",
    "derived": false,
    "files": [
@@ -10982,7 +10982,7 @@
    "display": "astra-medium",
    "family": "Codex",
    "category": "repo tasks",
-   "what": "Repo tasks, passed our hidden tests: gpt-6-astra, medium",
+   "what": "Repo tasks: gpt-6-astra, medium",
    "set": "repo tasks",
    "derived": false,
    "files": [
@@ -26890,9 +26890,11 @@
    }
   },
   "pilot_reprice": {
-   "rows": 83,
-   "usd_at_1_5x": 3.519,
-   "usd_at_2x": 4.692,
+   "rows": 92,
+   "newly_multiplied_rows": 90,
+   "previously_multiplied_rows": 2,
+   "usd_at_1_5x": 3.7264,
+   "usd_at_2x": 4.9685,
    "multiplier_source": "results/prices.json"
   },
   "pilot": {
@@ -31235,6 +31237,36 @@
    "display": "$1.72",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
+  "codex_pilot_usd": {
+   "value": 5.64,
+   "unit": "usd",
+   "display": "$5.64",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "codex_appendix_usd": {
+   "value": 5.48,
+   "unit": "usd",
+   "display": "$5.48",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "codex_aux_usd": {
+   "value": 11.12,
+   "unit": "usd",
+   "display": "$11.12",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "claude_total_usd": {
+   "value": 4.18,
+   "unit": "usd",
+   "display": "$4.18",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "codex_total_usd": {
+   "value": 48.84,
+   "unit": "usd",
+   "display": "$48.84",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
   "pilot_mult_used": {
    "value": 1.5,
    "unit": "ratio",
@@ -31242,21 +31274,33 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "pilot_usd_15x": {
-   "value": 3.52,
+   "value": 3.73,
    "unit": "usd",
-   "display": "$3.52",
+   "display": "$3.73",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "pilot_usd_2x": {
-   "value": 4.69,
+   "value": 4.97,
    "unit": "usd",
-   "display": "$4.69",
+   "display": "$4.97",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "pilot_reprice_rows": {
-   "value": 83,
+   "value": 92,
    "unit": "count",
-   "display": "83",
+   "display": "92",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "pilot_reprice_new_rows": {
+   "value": 90,
+   "unit": "count",
+   "display": "90",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "pilot_reprice_already_rows": {
+   "value": 2,
+   "unit": "count",
+   "display": "2",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "pilot_total_usd": {

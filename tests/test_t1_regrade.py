@@ -33,4 +33,4 @@ def test_reference_passes_v2_and_bool_is_rejected():
     t = os.path.join(A.TASKS, "t1_discount")
     hid = A.hidden_pytest(os.path.join(t, "solution"), os.path.join(t, "solution"), os.path.join(t, "hidden", "test_hidden.py"))
     assert hid["ok"] and "test_hidden.py::test_bool_pct_rejected" in hid["collected_ids"]
-    assert A.GRADER_VERSION == 3
+    assert A.grader_version("t1_discount") == 3

@@ -103,9 +103,9 @@ add("rescue", "rescue pipeline",
     ("luna-high-bare+haiku-review-all", "Arm G: luna-high builds; haiku-low reviews every answer"),
     ("luna-low+haiku-review-all", "Arm G: luna-low builds; haiku-low reviews every answer (arm E rerun from committed code)"))
 add("agentic", "repo tasks",
-    ("haiku-low", "Repo tasks with tools, passed our hidden tests: Claude Haiku, low"), ("haiku-high", "Repo tasks, passed our hidden tests: Claude Haiku, high"), ("sonnet-medium", "Repo tasks, passed our hidden tests: Claude Sonnet, medium"),
-    ("luna-low", "Repo tasks, passed our hidden tests: gpt-6-luna, low"), ("sol61-medium", "Repo tasks, passed our hidden tests: gpt-6.1-sol, medium"), ("sol61-high", "Repo tasks, passed our hidden tests: gpt-6.1-sol, high"),
-    ("astra-medium", "Repo tasks, passed our hidden tests: gpt-6-astra, medium"))
+    ("haiku-low", "Repo tasks with tools: Claude Haiku, low"), ("haiku-high", "Repo tasks: Claude Haiku, high"), ("sonnet-medium", "Repo tasks: Claude Sonnet, medium"),
+    ("luna-low", "Repo tasks: gpt-6-luna, low"), ("sol61-medium", "Repo tasks: gpt-6.1-sol, medium"), ("sol61-high", "Repo tasks: gpt-6.1-sol, high"),
+    ("astra-medium", "Repo tasks: gpt-6-astra, medium"))
 add("trim", "trim",
     ("luna/base", "Codex harness floor probe: luna, stock harness"), ("luna/nofeat", "luna, tool features stripped"), ("luna/noshell", "luna, features, shell and base instructions stripped"),
     ("luna/mininst", "luna, minimal instructions (one call)"), ("luna/noctx", "luna, no project context (one call)"), ("luna/nodoc", "luna, no docs (one call)"),
@@ -241,7 +241,6 @@ def section(rest, ds, root, chart_bodies=None, grok_only=False):
         if r["config"] in GROK_CONFIGS: grok_categories.add(r["category"])
         if (r["config"] in GROK_CONFIGS) != grok_only: continue
         by.setdefault(r["category"], []).append(r)
-    head = "".join(f"<th>{h}</th>" for h in ("name", "what it was", "pass", "$ per pass", "median s", "spend", "where it appears"))
     out = ["<details><summary>Everything we tried</summary>", "<ul class=\"tight small\"><li>Every config with rows in results/, grouped by kind.</li>"
            "<li>Each row pools all of a config's runs. Pass, $ and seconds can differ from Results.</li>"
            "<li>Codex dollars are list-price estimates. Dash means the full cost is unavailable.</li>"
@@ -251,13 +250,18 @@ def section(rest, ds, root, chart_bodies=None, grok_only=False):
             out.append('<p>Grok: <a href="#grok">see the Grok section</a></p>')
         es = by.pop(cat, [])
         if not es: continue
+        complete = all(e["rule"] == "task_complete" for e in es)
+        head = "".join(f"<th>{h}</th>" for h in ("name", "what it was", "task complete (hidden in brackets)" if complete else "pass",
+                                               "$ per complete task" if complete else "$ per pass", "median s", "spend", "where it appears"))
         label = "Low context (prompt or tool text trimmed)" if cat == "low context" else set_label(cat)
         totals = {"n_configs": len(es), "spend": sum(e["spend"] for e in es)}
         out.append(f"<details><summary>{html.escape(label)}: {totals['n_configs']} configs, {'~' if any(e['cost_kind'] == 'proxy' for e in es) else ''}{money(totals['spend'])} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
         for e in es:
             spend = None if e["unknown_usd"] else e["spend"]
             proxy = "~" if e["cost_kind"] == "proxy" else ""
-            out.append(f"<tr><td title=\"{html.escape(', '.join(e['files']))}\">{html.escape(e['display'])}</td><td>{html.escape(e['what'])}</td><td>{e['passes']}/{e['n']}</td>"
+            mark = (f"{e['task_complete']}/{e['n']} complete ({e['hidden_pass']}/{e['n']} hidden)"
+                    if e["rule"] == "task_complete" else f"{e['passes']}/{e['n']}")
+            out.append(f"<tr><td title=\"{html.escape(', '.join(e['files']))}\">{html.escape(e['display'])}</td><td>{html.escape(e['what'])}</td><td>{mark}</td>"
                        f"<td>{cell_markup((proxy if e['usd_per_pass'] is not None else '') + money(e['usd_per_pass']))}</td><td>{e['median_s']:.1f}</td><td>{cell_markup((proxy if spend is not None else '') + money(spend))}</td><td>{where(e, rest, chart_bodies)}</td></tr>")
         out.append("</tbody></table></div></details>")
     out += [f"<details><summary>unregistered</summary><p>{html.escape(r['display'])} ({r['source']})</p></details>" for es in by.values() for r in es]

@@ -385,9 +385,10 @@ OLD_GROK_CLAIMS = (
 # E: the page digest also covers the embedded data block, the rule labels and the rule note; REPORT.md carries the rule labels, the rule note, the audit footnote and tokenised figures.
 # F: re-pinned for the claims fixes (one repo-task rule, spend by kind, pilot repricing, bucket labels, CI bars, wording rows).
 # G: re-pinned for the t1 regrade line and table (repo-task section, outside the Grok section).
+# F2: re-pinned after reviewing auxiliary spend, task/run wording, catalog pass rules and the repricing counts; Grok bytes unchanged.
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': 'de0914a6e59621c077e7728c6eec5d852b1e9c92bb106f9153502bb8844f5c1d',
-    'docs/REPORT.md': '7973c2dba1306d827cf7a6f0f6018313a052288b218efd63bf39a62ff8cc7f6e',
+    'results/report/page.html': '1bec5f162bf7775c0ffac310579acca89cb2607eb5adaf0b7cc0058032ffaa7f',
+    'docs/REPORT.md': '457337527a2d69f19ba73020592eb6bd84090c54d43a6fa9ced497442fbbd016',
 }
 
 

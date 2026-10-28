@@ -22,7 +22,7 @@ Repository tasks use agent CLIs, with code execution and retries.
 
 Main ladder: 12 problems, each attempted 5 times per config.
 
-Total spend, by kind: Claude $2.46 (CLI-reported), Codex $37.73 (list-price proxy), Grok $28.16 (CLI-reported), plus Claude pilot and appendix arms $1.72.
+Total spend, by kind: Claude $4.18 (CLI-reported), Codex $48.84 (list-price proxy), Grok $28.16 (CLI-reported). Includes pilot and appendix arms: Claude $1.72, Codex $11.12 ($5.64 pilot, $5.48 appendix and trim).
 
 ## How to read it
 
