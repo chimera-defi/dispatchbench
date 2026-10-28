@@ -1,1 +1,160 @@
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 1228' width='360' height='1228' font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, sans-serif' font-size='12'><rect width='360' height='1228' fill='var(--panel)'/><text x='8.0' y='20.0' font-size='13' text-anchor='start' style='fill:var(--fg);' font-weight='600'>Total $: main ladder</text><text x='8.0' y='55.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>haiku-low</text><rect x='111.2' y='40' width='1.7' height='22' fill='var(--claude)' stroke='var(--claude)' stroke-width='0'/><text x='111.2' y='82.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.064</text><text x='8.0' y='117.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>haiku-medium</text><rect x='111.2' y='102' width='2.3' height='22' fill='var(--claude)' stroke='var(--claude)' stroke-width='0'/><text x='111.2' y='144.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.088</text><text x='8.0' y='179.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>sonnet-medium</text><rect x='111.2' y='164' width='19.7' height='22' fill='var(--sonnet)' stroke='var(--sonnet)' stroke-width='0'/><text x='111.2' y='206.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.75</text><text x='8.0' y='241.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>luna-low *</text><rect x='111.2' y='226' width='1.1' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='268.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.041</text><text x='8.0' y='303.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>luna-medium *</text><rect x='111.2' y='288' width='1.1' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='330.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.042</text><text x='8.0' y='365.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>sol61-medium *</text><rect x='111.2' y='350' width='22.9' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='392.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.87</text><text x='8.0' y='427.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>astra-medium *</text><rect x='111.2' y='412' width='119.2' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='454.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$4.52</text><text x='8.0' y='489.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>astra-medium ⚡ *</text><rect x='111.2' y='474' width='240.8' height='22' fill='var(--panel)' stroke='var(--codex)' stroke-width='2'/><text x='111.2' y='516.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$9.12</text><text x='8.0' y='551.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>haiku-high</text><rect x='111.2' y='536' width='4.5' height='22' fill='var(--claude)' stroke='var(--claude)' stroke-width='0'/><text x='111.2' y='578.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.17</text><text x='8.0' y='613.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>luna-high *</text><rect x='111.2' y='598' width='1.5' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='640.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.058</text><text x='8.0' y='675.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>luna56-high *</text><rect x='111.2' y='660' width='4.4' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='702.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.17</text><text x='8.0' y='737.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>luna56-low *</text><rect x='111.2' y='722' width='2.8' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='764.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.10</text><text x='8.0' y='799.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>sol56-high *</text><rect x='111.2' y='784' width='66.2' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='826.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$2.51</text><text x='8.0' y='861.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>sol61-high *</text><rect x='111.2' y='846' width='29.5' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='888.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$1.12</text><text x='8.0' y='923.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>sol61-high ⚡ *</text><rect x='111.2' y='908' width='56.8' height='22' fill='var(--panel)' stroke='var(--codex)' stroke-width='2'/><text x='111.2' y='950.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$2.15</text><text x='8.0' y='985.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>terra61-high *</text><rect x='111.2' y='970' width='12.1' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='1012.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.46</text><text x='8.0' y='1047.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>terra61-low *</text><rect x='111.2' y='1032' width='16.5' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='1074.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.62</text><text x='8.0' y='1106.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='600'>Low context</text><text x='8.0' y='1133.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>luna-low-bare *</text><rect x='111.2' y='1118' width='1.0' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='1160.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.035</text><text x='8.0' y='1200.0' font-size='10' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>Solid: normal speed. Hollow: fast mode. * Codex cost is</text><text x='8.0' y='1216.0' font-size='10' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>estimated. Claude cost is measured.</text></svg>
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 1228' width='360' height='1228' font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, sans-serif' font-size='12'><style>/* FABLE TOKENS BEGIN — generated from the pinned site sources. */
+/* Source: chimera-defi/chimericlabs-llc design-system/tokens/nocturne-base.css
+   Pinned SHA: c56032fca7ccb5a9661c247f0d6160a576c4b637 */
+
+:root{
+  --color-bg: #161826;
+  --color-surface: #232532;
+  --color-text: #e9e9ed;
+  --color-accent: #9184d9;
+  --color-accent-2: #a7a1db;
+  --color-divider: color-mix(in srgb, #e9e9ed 16%, transparent);
+
+
+  --color-neutral-100: #f3f5fe;
+  --color-neutral-200: #e4e7f5;
+  --color-neutral-300: #cfd3e5;
+  --color-neutral-400: #b2b6ca;
+  --color-neutral-500: #9397ab;
+  --color-neutral-600: #75798c;
+  --color-neutral-700: #595d6c;
+  --color-neutral-800: #3f424d;
+  --color-neutral-900: #292b31;
+
+  --color-accent-100: #f5f4ff;
+  --color-accent-200: #e7e5fe;
+  --color-accent-300: #d2cefd;
+  --color-accent-400: #b5abfc;
+  --color-accent-500: #968ae0;
+  --color-accent-600: #796cbf;
+  --color-accent-700: #5d5294;
+  --color-accent-800: #423a6a;
+  --color-accent-900: #2b2741;
+
+  --color-accent-2-100: #f5f4ff;
+  --color-accent-2-200: #e7e5fe;
+  --color-accent-2-300: #d2cefd;
+  --color-accent-2-400: #b5afe8;
+  --color-accent-2-500: #9690c9;
+  --color-accent-2-600: #7972a9;
+  --color-accent-2-700: #5c5783;
+  --color-accent-2-800: #423e5d;
+  --color-accent-2-900: #2b293a;
+
+
+  --color-section: #262a60;
+  --color-section-glow: #353b80;
+  --color-section-ghost: #4c5397;
+
+  --font-heading: "Inter", system-ui, sans-serif;
+  --font-heading-weight: 500;
+  --font-body: "Inter", system-ui, sans-serif;
+
+  --space-1: 2.8px;
+  --space-2: 5.6px;
+  --space-3: 8.4px;
+  --space-4: 11.2px;
+  --space-6: 16.8px;
+  --space-8: 22.4px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+
+
+  --shadow-sm: 0 0 0 1px #3f424d;
+  --shadow-md: 0 0 0 1px #595d6c, 0 6px 18px rgba(0,0,0,0.55);
+  --shadow-lg: 0 0 0 1px #9397ab, 0 16px 40px rgba(0,0,0,0.65);
+}
+/* Source: chimera-defi/chimericlabs-llc design-system/tokens/fable-maroon.css
+   Pinned SHA: c56032fca7ccb5a9661c247f0d6160a576c4b637 */
+
+:root{
+  --color-bg:#1d1f27;
+  --color-surface:#2b2d37;
+
+  --color-accent:#f65b6f;
+  --color-accent-100:#fff2f2;
+  --color-accent-200:#ffdfe0;
+  --color-accent-300:#fec2c5;
+  --color-accent-400:#fe949b;
+  --color-accent-500:#f65b6f;
+  --color-accent-600:#cb4457;
+  --color-accent-700:#a02e40;
+  --color-accent-800:#78182a;
+  --color-accent-900:#4f121b;
+
+
+  --color-accent-2:var(--color-accent);
+  --color-accent-2-100:#fff2f2;--color-accent-2-200:#ffdfe0;--color-accent-2-300:#fec2c5;--color-accent-2-400:#fe949b;--color-accent-2-500:#f65b6f;--color-accent-2-600:#cb4457;--color-accent-2-700:#a02e40;--color-accent-2-800:#78182a;--color-accent-2-900:#4f121b;
+
+
+  --color-section:#650c1f;
+  --color-section-glow:#822a36;
+  --color-section-ghost:#9e4b53;
+}
+/* Source: chimera-defi/chimericlabs-llc design-system/tokens/fable-data.css
+   Pinned SHA: c56032fca7ccb5a9661c247f0d6160a576c4b637 */
+
+:root{
+  --data-claude:#e0a872;
+  --data-codex:#7fb0e6;
+  --data-codex-old:#b9d3f0;
+  --data-grok:#8fc7c0;
+  --data-pipeline:#c7a2ea;
+  --data-haiku:#e0a872; --data-sonnet:#e58a7c; --data-luna:#a9c8ee; --data-sol:#7f9fe8; --data-astra:#c7a2ea;
+  --data-effort-low:#75798c; --data-effort-medium:#b2b6ca; --data-effort-high:#f3f5fe;
+  --data-frontier:var(--color-accent-400);
+  --data-focus:var(--color-text);
+  --data-grid:color-mix(in srgb,var(--color-text) 8%,transparent);
+  --data-beaten:color-mix(in srgb,var(--color-text) 7%,transparent);
+}
+/* DispatchBench compatibility aliases and light mode. Site dark values are vendored unchanged. */
+:root{
+ --font-mono:ui-monospace,monospace;--body:var(--font-body);--display:var(--font-heading);--mono:var(--font-mono);
+ --bg:var(--color-bg);--panel:var(--color-surface);--fg:var(--color-text);--line:var(--color-divider);
+ --muted:var(--color-neutral-300);--accent:var(--color-accent);--accent-text:var(--color-accent-300);--frontier:var(--data-frontier);
+ --color-kicker:var(--color-accent-400);--color-link:var(--color-accent-300);--color-link-hover:var(--color-accent-200);--color-muted:var(--color-neutral-300);--color-subtle:var(--color-neutral-400);
+ --data-terra:var(--data-codex-old);--data-other:var(--muted);--data-effort-xhigh:var(--color-neutral-200);--data-effort-default:var(--muted);
+ --data-normal:var(--muted);--data-fast:var(--data-claude);--data-bare:var(--data-grok);--devin:#8d3c95;--data-devin:var(--devin);
+ --claude:var(--data-claude);--sonnet:var(--data-sonnet);--codex:var(--data-codex);--codex56:var(--data-codex-old);--grok:var(--data-grok);
+ --good:var(--data-grok);--warn:var(--data-claude);--bad:var(--color-accent-400);--mask-opaque:#000;
+ --cell-all:var(--color-neutral-800);--cell-all-text:var(--color-text);--cell-most:var(--color-accent-900);--cell-most-text:var(--color-accent-200);--cell-half:var(--color-accent-700);--cell-half-text:var(--color-accent-100);
+ color-scheme:light dark;
+}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){
+ --bg:var(--color-neutral-100);--panel:#fff2f2;--fg:#292b31;--muted:#595d6c;--line:#cfd3e5;
+ --accent:#a02e40;--accent-text:var(--color-accent-700);--frontier:var(--accent);
+ --data-claude:#865025;--data-codex:#365f91;--data-codex-old:#486d98;--data-grok:#286b65;--data-pipeline:#714496;
+ --data-haiku:var(--data-claude);--data-sonnet:#9a4e43;--data-luna:#526694;--data-sol:#3f5c9b;--data-astra:var(--data-pipeline);--data-terra:#536e94;--data-other:var(--muted);
+ --data-effort-low:#75798c;--data-effort-medium:#595d6c;--data-effort-high:#3f424d;--data-effort-xhigh:#292b31;--data-effort-default:var(--muted);
+ --data-normal:var(--muted);--data-fast:var(--data-claude);--data-bare:var(--data-grok);--data-devin:var(--devin);
+ --good:var(--data-grok);--warn:var(--data-claude);--bad:var(--color-accent-700);
+ --data-grid:color-mix(in srgb,var(--fg) 14%,transparent);--data-beaten:color-mix(in srgb,var(--fg) 7%,transparent);--data-frontier:var(--frontier);--data-focus:var(--fg);
+ --shadow-sm:0 0 0 1px var(--line);--shadow-md:0 0 0 1px var(--line),0 6px 18px rgba(0,0,0,.18);--mask-opaque:#000;
+ --color-bg:var(--color-neutral-100);--color-surface:var(--color-accent-100);--color-text:var(--color-neutral-900);--color-divider:var(--color-neutral-300);--color-accent:var(--color-accent-700);
+ --color-kicker:var(--color-accent-700);--color-link:var(--color-accent-700);--color-link-hover:var(--color-accent-800);
+ --color-muted:var(--color-neutral-700);--color-subtle:var(--color-neutral-700);
+ --cell-all:var(--color-neutral-200);--cell-all-text:var(--color-neutral-900);--cell-most:var(--color-accent-200);--cell-most-text:var(--color-accent-900);--cell-half:var(--color-accent-700);--cell-half-text:var(--color-accent-100);
+ color-scheme:light;
+}}
+:root[data-theme="light"]{
+ --bg:var(--color-neutral-100);--panel:#fff2f2;--fg:#292b31;--muted:#595d6c;--line:#cfd3e5;
+ --accent:#a02e40;--accent-text:var(--color-accent-700);--frontier:var(--accent);
+ --data-claude:#865025;--data-codex:#365f91;--data-codex-old:#486d98;--data-grok:#286b65;--data-pipeline:#714496;
+ --data-haiku:var(--data-claude);--data-sonnet:#9a4e43;--data-luna:#526694;--data-sol:#3f5c9b;--data-astra:var(--data-pipeline);--data-terra:#536e94;--data-other:var(--muted);
+ --data-effort-low:#75798c;--data-effort-medium:#595d6c;--data-effort-high:#3f424d;--data-effort-xhigh:#292b31;--data-effort-default:var(--muted);
+ --data-normal:var(--muted);--data-fast:var(--data-claude);--data-bare:var(--data-grok);--data-devin:var(--devin);
+ --good:var(--data-grok);--warn:var(--data-claude);--bad:var(--color-accent-700);
+ --data-grid:color-mix(in srgb,var(--fg) 14%,transparent);--data-beaten:color-mix(in srgb,var(--fg) 7%,transparent);--data-frontier:var(--frontier);--data-focus:var(--fg);
+ --shadow-sm:0 0 0 1px var(--line);--shadow-md:0 0 0 1px var(--line),0 6px 18px rgba(0,0,0,.18);--mask-opaque:#000;
+ --color-bg:var(--color-neutral-100);--color-surface:var(--color-accent-100);--color-text:var(--color-neutral-900);--color-divider:var(--color-neutral-300);--color-accent:var(--color-accent-700);
+ --color-kicker:var(--color-accent-700);--color-link:var(--color-accent-700);--color-link-hover:var(--color-accent-800);
+ --color-muted:var(--color-neutral-700);--color-subtle:var(--color-neutral-700);
+ --cell-all:var(--color-neutral-200);--cell-all-text:var(--color-neutral-900);--cell-most:var(--color-accent-200);--cell-most-text:var(--color-accent-900);--cell-half:var(--color-accent-700);--cell-half-text:var(--color-accent-100);
+ color-scheme:light;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--devin:#d79be8;}}
+:root[data-theme="dark"]{--devin:#d79be8;color-scheme:dark}
+
+/* FABLE TOKENS END */</style><rect width='360' height='1228' fill='var(--panel)'/><text x='8.0' y='20.0' font-size='13' text-anchor='start' style='fill:var(--fg);' font-weight='600'>Total $: main ladder</text><text x='8.0' y='55.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>haiku-low</text><rect x='111.2' y='40' width='1.7' height='22' fill='var(--claude)' stroke='var(--claude)' stroke-width='0'/><text x='111.2' y='82.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.064</text><text x='8.0' y='117.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>haiku-medium</text><rect x='111.2' y='102' width='2.3' height='22' fill='var(--claude)' stroke='var(--claude)' stroke-width='0'/><text x='111.2' y='144.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.088</text><text x='8.0' y='179.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>sonnet-medium</text><rect x='111.2' y='164' width='19.7' height='22' fill='var(--sonnet)' stroke='var(--sonnet)' stroke-width='0'/><text x='111.2' y='206.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.75</text><text x='8.0' y='241.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>luna-low *</text><rect x='111.2' y='226' width='1.1' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='268.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.041</text><text x='8.0' y='303.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>luna-medium *</text><rect x='111.2' y='288' width='1.1' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='330.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.042</text><text x='8.0' y='365.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>sol61-medium *</text><rect x='111.2' y='350' width='22.9' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='392.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.87</text><text x='8.0' y='427.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>astra-medium *</text><rect x='111.2' y='412' width='119.2' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='454.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$4.52</text><text x='8.0' y='489.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>astra-medium ⚡ *</text><rect x='111.2' y='474' width='240.8' height='22' fill='var(--panel)' stroke='var(--codex)' stroke-width='2'/><text x='111.2' y='516.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$9.12</text><text x='8.0' y='551.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>haiku-high</text><rect x='111.2' y='536' width='4.5' height='22' fill='var(--claude)' stroke='var(--claude)' stroke-width='0'/><text x='111.2' y='578.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.17</text><text x='8.0' y='613.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>luna-high *</text><rect x='111.2' y='598' width='1.5' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='640.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.058</text><text x='8.0' y='675.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>luna56-high *</text><rect x='111.2' y='660' width='4.4' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='702.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.17</text><text x='8.0' y='737.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>luna56-low *</text><rect x='111.2' y='722' width='2.8' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='764.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.10</text><text x='8.0' y='799.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>sol56-high *</text><rect x='111.2' y='784' width='66.2' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='826.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$2.51</text><text x='8.0' y='861.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>sol61-high *</text><rect x='111.2' y='846' width='29.5' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='888.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$1.12</text><text x='8.0' y='923.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>sol61-high ⚡ *</text><rect x='111.2' y='908' width='56.8' height='22' fill='var(--panel)' stroke='var(--codex)' stroke-width='2'/><text x='111.2' y='950.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$2.15</text><text x='8.0' y='985.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>terra61-high *</text><rect x='111.2' y='970' width='12.1' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='1012.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.46</text><text x='8.0' y='1047.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>terra61-low *</text><rect x='111.2' y='1032' width='16.5' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='1074.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.62</text><text x='8.0' y='1106.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='600'>Low context</text><text x='8.0' y='1133.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>luna-low-bare *</text><rect x='111.2' y='1118' width='1.0' height='22' fill='var(--codex)' stroke='var(--codex)' stroke-width='0'/><text x='111.2' y='1160.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>$0.035</text><text x='8.0' y='1200.0' font-size='10' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>Solid: normal speed. Hollow: fast mode. * Codex cost is</text><text x='8.0' y='1216.0' font-size='10' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>estimated. Claude cost is measured.</text></svg>

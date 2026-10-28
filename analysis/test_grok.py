@@ -401,9 +401,10 @@ OLD_GROK_CLAIMS = (
 # F2: re-pinned after reviewing auxiliary spend, task/run wording, catalog pass rules and the repricing counts; Grok bytes unchanged.
 # I: re-pinned for the v6 explorer and Fable theme; old plot data and visible
 # facts are separately compared with main 3561692 in test_pareto_explorer.py.
+# S1-S4: theme, topbar, explorer fixes
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': '5f974a9499f0d934ee8d4c5ec13f4e804f1f28b16cc88738d7e6a35f1ad3e502',
-    'docs/REPORT.md': '457337527a2d69f19ba73020592eb6bd84090c54d43a6fa9ced497442fbbd016',
+    'results/report/page.html': 'c89c90bab33ac348ff51aa1f9527f317d25b6fa4e34e66a71b591651453ce2db',
+    'docs/REPORT.md': 'd3e3893c66e2f4ec06f26e2adcfbf82a9bac634293b2e555f252666000a1142e',
 }
 
 

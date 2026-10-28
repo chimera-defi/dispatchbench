@@ -1,1 +1,160 @@
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 760 500' width='760' height='500' font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, sans-serif' font-size='12'><rect width='760' height='500' fill='var(--panel)'/><text x='80.0' y='24.0' font-size='14' text-anchor='start' style='fill:var(--fg);' font-weight='600'>Repo tasks (4 tasks x 3 runs, with tools): task complete vs $ per run</text><line x1='80' x2='720' y1='420.0' y2='420.0' stroke='var(--line)'/><text x='72.0' y='424.0' font-size='11' text-anchor='end' style='fill:var(--muted);' font-weight='normal'>0%</text><line x1='80' x2='720' y1='365.0' y2='365.0' stroke='var(--line)'/><text x='72.0' y='369.0' font-size='11' text-anchor='end' style='fill:var(--muted);' font-weight='normal'>25%</text><line x1='80' x2='720' y1='310.0' y2='310.0' stroke='var(--line)'/><text x='72.0' y='314.0' font-size='11' text-anchor='end' style='fill:var(--muted);' font-weight='normal'>50%</text><line x1='80' x2='720' y1='255.0' y2='255.0' stroke='var(--line)'/><text x='72.0' y='259.0' font-size='11' text-anchor='end' style='fill:var(--muted);' font-weight='normal'>75%</text><line x1='80' x2='720' y1='200.0' y2='200.0' stroke='var(--line)'/><text x='72.0' y='204.0' font-size='11' text-anchor='end' style='fill:var(--muted);' font-weight='normal'>100%</text><line x1='173.2' x2='173.2' y1='200' y2='420' stroke='var(--line)'/><text x='173.2' y='438.0' font-size='11' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$0.005</text><line x1='250.6' x2='250.6' y1='200' y2='420' stroke='var(--line)'/><text x='250.6' y='438.0' font-size='11' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$0.01</text><line x1='328.0' x2='328.0' y1='200' y2='420' stroke='var(--line)'/><text x='328.0' y='438.0' font-size='11' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$0.02</text><line x1='430.4' x2='430.4' y1='200' y2='420' stroke='var(--line)'/><text x='430.4' y='438.0' font-size='11' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$0.05</text><line x1='507.8' x2='507.8' y1='200' y2='420' stroke='var(--line)'/><text x='507.8' y='438.0' font-size='11' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$0.1</text><line x1='585.2' x2='585.2' y1='200' y2='420' stroke='var(--line)'/><text x='585.2' y='438.0' font-size='11' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$0.2</text><line x1='687.5' x2='687.5' y1='200' y2='420' stroke='var(--line)'/><text x='687.5' y='438.0' font-size='11' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$0.5</text><text x='400.0' y='458.0' font-size='12' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$ per run</text><text x='20.0' y='310.0' font-size='12' text-anchor='middle' style='fill:var(--muted);' font-weight='normal' transform='rotate(-90 20 310.0)'>share of runs passing</text><line x1='125.3' x2='125.3' y1='365.0' y2='218.3' stroke='var(--codex)' stroke-width='2' opacity='0.5'/><line x1='125.3' x2='125.3' y1='291.7' y2='200.0' stroke='var(--codex)' stroke-width='1' stroke-dasharray='3 3'/><circle class='complete-mark' cx='125.3' cy='200.0' r='9' fill='none' stroke='var(--codex)' stroke-width='1.5'/><polygon points="125.3,283.2 132.8,297.2 117.8,297.2" fill="var(--codex)" stroke="var(--codex)" stroke-width="2.5"/><line class='leader' x1='125.3' x2='125.3' y1='283.7' y2='181.0' stroke='var(--codex)' stroke-width='1' opacity='0.6'/><text x='125.3' y='176.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>luna-low 7/12 complete (12/12 hidden) *</text><line x1='174.7' x2='174.7' y1='316.0' y2='200.0' stroke='var(--claude)' stroke-width='2' opacity='0.5'/><circle class='complete-mark' cx='174.7' cy='200.0' r='9' fill='none' stroke='var(--claude)' stroke-width='1.5'/><circle cx="174.7" cy="200.0" r="6.5" fill="var(--claude)" stroke="var(--claude)" stroke-width="2.5"/><line class='leader' x1='174.7' x2='174.7' y1='192.0' y2='159.0' stroke='var(--claude)' stroke-width='1' opacity='0.6'/><text x='174.7' y='154.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>haiku-low 12/12 complete (12/12 hidden)</text><line x1='271.6' x2='271.6' y1='316.0' y2='200.0' stroke='var(--claude)' stroke-width='2' opacity='0.5'/><circle class='complete-mark' cx='271.6' cy='200.0' r='9' fill='none' stroke='var(--claude)' stroke-width='1.5'/><circle cx="271.6" cy="200.0" r="6.5" fill="var(--claude)" stroke="var(--claude)" stroke-width="2.5"/><line class='leader' x1='271.6' x2='271.6' y1='192.0' y2='137.0' stroke='var(--claude)' stroke-width='1' opacity='0.6'/><text x='271.6' y='132.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>haiku-high 12/12 complete (12/12 hidden)</text><line x1='438.2' x2='438.2' y1='316.0' y2='200.0' stroke='var(--sonnet)' stroke-width='2' opacity='0.5'/><circle class='complete-mark' cx='438.2' cy='200.0' r='9' fill='none' stroke='var(--sonnet)' stroke-width='1.5'/><rect x="432.2" y="194.0" width="12.0" height="12.0" fill="var(--sonnet)" stroke="var(--sonnet)" stroke-width="2.5"/><line class='leader' x1='438.2' x2='438.2' y1='192.0' y2='115.0' stroke='var(--sonnet)' stroke-width='1' opacity='0.6'/><text x='438.2' y='110.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>sonnet-medium 12/12 complete (12/12 hidden)</text><line x1='482.0' x2='482.0' y1='316.0' y2='200.0' stroke='var(--codex)' stroke-width='2' opacity='0.5'/><circle class='complete-mark' cx='482.0' cy='200.0' r='9' fill='none' stroke='var(--codex)' stroke-width='1.5'/><polygon points="482.0,191.5 490.5,200.0 482.0,208.5 473.5,200.0" fill="var(--codex)" stroke="var(--codex)" stroke-width="2.5"/><line class='leader' x1='482.0' x2='482.0' y1='192.0' y2='93.0' stroke='var(--codex)' stroke-width='1' opacity='0.6'/><text x='482.0' y='88.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>sol61-medium 12/12 complete (12/12 hidden) *</text><line x1='504.7' x2='504.7' y1='316.0' y2='200.0' stroke='var(--codex)' stroke-width='2' opacity='0.5'/><circle class='complete-mark' cx='504.7' cy='200.0' r='9' fill='none' stroke='var(--codex)' stroke-width='1.5'/><polygon points="504.7,191.5 513.2,200.0 504.7,208.5 496.2,200.0" fill="var(--codex)" stroke="var(--codex)" stroke-width="2.5"/><line class='leader' x1='504.7' x2='504.7' y1='192.0' y2='71.0' stroke='var(--codex)' stroke-width='1' opacity='0.6'/><text x='504.7' y='66.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>sol61-high 12/12 complete (12/12 hidden) *</text><line x1='674.7' x2='674.7' y1='316.0' y2='200.0' stroke='var(--codex)' stroke-width='2' opacity='0.5'/><circle class='complete-mark' cx='674.7' cy='200.0' r='9' fill='none' stroke='var(--codex)' stroke-width='1.5'/><polygon points="674.7,190.5 677.1,196.8 683.7,197.1 678.5,201.2 680.3,207.7 674.7,204.0 669.1,207.7 670.9,201.2 665.7,197.1 672.4,196.8" fill="var(--codex)" stroke="var(--codex)" stroke-width="2.5"/><line class='leader' x1='674.7' x2='674.7' y1='192.0' y2='49.0' stroke='var(--codex)' stroke-width='1' opacity='0.6'/><text x='674.7' y='44.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>astra-medium 12/12 complete (12/12 hidden) *</text><text x='80.0' y='474.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>Filled mark: task complete (hidden and the run's own visible suite both green). Ring: hidden suite only.</text><text x='80.0' y='490.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>Bars: 95% interval for task complete; a perfect score shows its lower bound. * Estimated from tokens.</text></svg>
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 760 500' width='760' height='500' font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, sans-serif' font-size='12'><style>/* FABLE TOKENS BEGIN — generated from the pinned site sources. */
+/* Source: chimera-defi/chimericlabs-llc design-system/tokens/nocturne-base.css
+   Pinned SHA: c56032fca7ccb5a9661c247f0d6160a576c4b637 */
+
+:root{
+  --color-bg: #161826;
+  --color-surface: #232532;
+  --color-text: #e9e9ed;
+  --color-accent: #9184d9;
+  --color-accent-2: #a7a1db;
+  --color-divider: color-mix(in srgb, #e9e9ed 16%, transparent);
+
+
+  --color-neutral-100: #f3f5fe;
+  --color-neutral-200: #e4e7f5;
+  --color-neutral-300: #cfd3e5;
+  --color-neutral-400: #b2b6ca;
+  --color-neutral-500: #9397ab;
+  --color-neutral-600: #75798c;
+  --color-neutral-700: #595d6c;
+  --color-neutral-800: #3f424d;
+  --color-neutral-900: #292b31;
+
+  --color-accent-100: #f5f4ff;
+  --color-accent-200: #e7e5fe;
+  --color-accent-300: #d2cefd;
+  --color-accent-400: #b5abfc;
+  --color-accent-500: #968ae0;
+  --color-accent-600: #796cbf;
+  --color-accent-700: #5d5294;
+  --color-accent-800: #423a6a;
+  --color-accent-900: #2b2741;
+
+  --color-accent-2-100: #f5f4ff;
+  --color-accent-2-200: #e7e5fe;
+  --color-accent-2-300: #d2cefd;
+  --color-accent-2-400: #b5afe8;
+  --color-accent-2-500: #9690c9;
+  --color-accent-2-600: #7972a9;
+  --color-accent-2-700: #5c5783;
+  --color-accent-2-800: #423e5d;
+  --color-accent-2-900: #2b293a;
+
+
+  --color-section: #262a60;
+  --color-section-glow: #353b80;
+  --color-section-ghost: #4c5397;
+
+  --font-heading: "Inter", system-ui, sans-serif;
+  --font-heading-weight: 500;
+  --font-body: "Inter", system-ui, sans-serif;
+
+  --space-1: 2.8px;
+  --space-2: 5.6px;
+  --space-3: 8.4px;
+  --space-4: 11.2px;
+  --space-6: 16.8px;
+  --space-8: 22.4px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+
+
+  --shadow-sm: 0 0 0 1px #3f424d;
+  --shadow-md: 0 0 0 1px #595d6c, 0 6px 18px rgba(0,0,0,0.55);
+  --shadow-lg: 0 0 0 1px #9397ab, 0 16px 40px rgba(0,0,0,0.65);
+}
+/* Source: chimera-defi/chimericlabs-llc design-system/tokens/fable-maroon.css
+   Pinned SHA: c56032fca7ccb5a9661c247f0d6160a576c4b637 */
+
+:root{
+  --color-bg:#1d1f27;
+  --color-surface:#2b2d37;
+
+  --color-accent:#f65b6f;
+  --color-accent-100:#fff2f2;
+  --color-accent-200:#ffdfe0;
+  --color-accent-300:#fec2c5;
+  --color-accent-400:#fe949b;
+  --color-accent-500:#f65b6f;
+  --color-accent-600:#cb4457;
+  --color-accent-700:#a02e40;
+  --color-accent-800:#78182a;
+  --color-accent-900:#4f121b;
+
+
+  --color-accent-2:var(--color-accent);
+  --color-accent-2-100:#fff2f2;--color-accent-2-200:#ffdfe0;--color-accent-2-300:#fec2c5;--color-accent-2-400:#fe949b;--color-accent-2-500:#f65b6f;--color-accent-2-600:#cb4457;--color-accent-2-700:#a02e40;--color-accent-2-800:#78182a;--color-accent-2-900:#4f121b;
+
+
+  --color-section:#650c1f;
+  --color-section-glow:#822a36;
+  --color-section-ghost:#9e4b53;
+}
+/* Source: chimera-defi/chimericlabs-llc design-system/tokens/fable-data.css
+   Pinned SHA: c56032fca7ccb5a9661c247f0d6160a576c4b637 */
+
+:root{
+  --data-claude:#e0a872;
+  --data-codex:#7fb0e6;
+  --data-codex-old:#b9d3f0;
+  --data-grok:#8fc7c0;
+  --data-pipeline:#c7a2ea;
+  --data-haiku:#e0a872; --data-sonnet:#e58a7c; --data-luna:#a9c8ee; --data-sol:#7f9fe8; --data-astra:#c7a2ea;
+  --data-effort-low:#75798c; --data-effort-medium:#b2b6ca; --data-effort-high:#f3f5fe;
+  --data-frontier:var(--color-accent-400);
+  --data-focus:var(--color-text);
+  --data-grid:color-mix(in srgb,var(--color-text) 8%,transparent);
+  --data-beaten:color-mix(in srgb,var(--color-text) 7%,transparent);
+}
+/* DispatchBench compatibility aliases and light mode. Site dark values are vendored unchanged. */
+:root{
+ --font-mono:ui-monospace,monospace;--body:var(--font-body);--display:var(--font-heading);--mono:var(--font-mono);
+ --bg:var(--color-bg);--panel:var(--color-surface);--fg:var(--color-text);--line:var(--color-divider);
+ --muted:var(--color-neutral-300);--accent:var(--color-accent);--accent-text:var(--color-accent-300);--frontier:var(--data-frontier);
+ --color-kicker:var(--color-accent-400);--color-link:var(--color-accent-300);--color-link-hover:var(--color-accent-200);--color-muted:var(--color-neutral-300);--color-subtle:var(--color-neutral-400);
+ --data-terra:var(--data-codex-old);--data-other:var(--muted);--data-effort-xhigh:var(--color-neutral-200);--data-effort-default:var(--muted);
+ --data-normal:var(--muted);--data-fast:var(--data-claude);--data-bare:var(--data-grok);--devin:#8d3c95;--data-devin:var(--devin);
+ --claude:var(--data-claude);--sonnet:var(--data-sonnet);--codex:var(--data-codex);--codex56:var(--data-codex-old);--grok:var(--data-grok);
+ --good:var(--data-grok);--warn:var(--data-claude);--bad:var(--color-accent-400);--mask-opaque:#000;
+ --cell-all:var(--color-neutral-800);--cell-all-text:var(--color-text);--cell-most:var(--color-accent-900);--cell-most-text:var(--color-accent-200);--cell-half:var(--color-accent-700);--cell-half-text:var(--color-accent-100);
+ color-scheme:light dark;
+}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){
+ --bg:var(--color-neutral-100);--panel:#fff2f2;--fg:#292b31;--muted:#595d6c;--line:#cfd3e5;
+ --accent:#a02e40;--accent-text:var(--color-accent-700);--frontier:var(--accent);
+ --data-claude:#865025;--data-codex:#365f91;--data-codex-old:#486d98;--data-grok:#286b65;--data-pipeline:#714496;
+ --data-haiku:var(--data-claude);--data-sonnet:#9a4e43;--data-luna:#526694;--data-sol:#3f5c9b;--data-astra:var(--data-pipeline);--data-terra:#536e94;--data-other:var(--muted);
+ --data-effort-low:#75798c;--data-effort-medium:#595d6c;--data-effort-high:#3f424d;--data-effort-xhigh:#292b31;--data-effort-default:var(--muted);
+ --data-normal:var(--muted);--data-fast:var(--data-claude);--data-bare:var(--data-grok);--data-devin:var(--devin);
+ --good:var(--data-grok);--warn:var(--data-claude);--bad:var(--color-accent-700);
+ --data-grid:color-mix(in srgb,var(--fg) 14%,transparent);--data-beaten:color-mix(in srgb,var(--fg) 7%,transparent);--data-frontier:var(--frontier);--data-focus:var(--fg);
+ --shadow-sm:0 0 0 1px var(--line);--shadow-md:0 0 0 1px var(--line),0 6px 18px rgba(0,0,0,.18);--mask-opaque:#000;
+ --color-bg:var(--color-neutral-100);--color-surface:var(--color-accent-100);--color-text:var(--color-neutral-900);--color-divider:var(--color-neutral-300);--color-accent:var(--color-accent-700);
+ --color-kicker:var(--color-accent-700);--color-link:var(--color-accent-700);--color-link-hover:var(--color-accent-800);
+ --color-muted:var(--color-neutral-700);--color-subtle:var(--color-neutral-700);
+ --cell-all:var(--color-neutral-200);--cell-all-text:var(--color-neutral-900);--cell-most:var(--color-accent-200);--cell-most-text:var(--color-accent-900);--cell-half:var(--color-accent-700);--cell-half-text:var(--color-accent-100);
+ color-scheme:light;
+}}
+:root[data-theme="light"]{
+ --bg:var(--color-neutral-100);--panel:#fff2f2;--fg:#292b31;--muted:#595d6c;--line:#cfd3e5;
+ --accent:#a02e40;--accent-text:var(--color-accent-700);--frontier:var(--accent);
+ --data-claude:#865025;--data-codex:#365f91;--data-codex-old:#486d98;--data-grok:#286b65;--data-pipeline:#714496;
+ --data-haiku:var(--data-claude);--data-sonnet:#9a4e43;--data-luna:#526694;--data-sol:#3f5c9b;--data-astra:var(--data-pipeline);--data-terra:#536e94;--data-other:var(--muted);
+ --data-effort-low:#75798c;--data-effort-medium:#595d6c;--data-effort-high:#3f424d;--data-effort-xhigh:#292b31;--data-effort-default:var(--muted);
+ --data-normal:var(--muted);--data-fast:var(--data-claude);--data-bare:var(--data-grok);--data-devin:var(--devin);
+ --good:var(--data-grok);--warn:var(--data-claude);--bad:var(--color-accent-700);
+ --data-grid:color-mix(in srgb,var(--fg) 14%,transparent);--data-beaten:color-mix(in srgb,var(--fg) 7%,transparent);--data-frontier:var(--frontier);--data-focus:var(--fg);
+ --shadow-sm:0 0 0 1px var(--line);--shadow-md:0 0 0 1px var(--line),0 6px 18px rgba(0,0,0,.18);--mask-opaque:#000;
+ --color-bg:var(--color-neutral-100);--color-surface:var(--color-accent-100);--color-text:var(--color-neutral-900);--color-divider:var(--color-neutral-300);--color-accent:var(--color-accent-700);
+ --color-kicker:var(--color-accent-700);--color-link:var(--color-accent-700);--color-link-hover:var(--color-accent-800);
+ --color-muted:var(--color-neutral-700);--color-subtle:var(--color-neutral-700);
+ --cell-all:var(--color-neutral-200);--cell-all-text:var(--color-neutral-900);--cell-most:var(--color-accent-200);--cell-most-text:var(--color-accent-900);--cell-half:var(--color-accent-700);--cell-half-text:var(--color-accent-100);
+ color-scheme:light;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--devin:#d79be8;}}
+:root[data-theme="dark"]{--devin:#d79be8;color-scheme:dark}
+
+/* FABLE TOKENS END */</style><rect width='760' height='500' fill='var(--panel)'/><text x='80.0' y='24.0' font-size='14' text-anchor='start' style='fill:var(--fg);' font-weight='600'>Repo tasks (4 tasks x 3 runs, with tools): task complete vs $ per run</text><line x1='80' x2='720' y1='420.0' y2='420.0' stroke='var(--line)'/><text x='72.0' y='424.0' font-size='11' text-anchor='end' style='fill:var(--muted);' font-weight='normal'>0%</text><line x1='80' x2='720' y1='365.0' y2='365.0' stroke='var(--line)'/><text x='72.0' y='369.0' font-size='11' text-anchor='end' style='fill:var(--muted);' font-weight='normal'>25%</text><line x1='80' x2='720' y1='310.0' y2='310.0' stroke='var(--line)'/><text x='72.0' y='314.0' font-size='11' text-anchor='end' style='fill:var(--muted);' font-weight='normal'>50%</text><line x1='80' x2='720' y1='255.0' y2='255.0' stroke='var(--line)'/><text x='72.0' y='259.0' font-size='11' text-anchor='end' style='fill:var(--muted);' font-weight='normal'>75%</text><line x1='80' x2='720' y1='200.0' y2='200.0' stroke='var(--line)'/><text x='72.0' y='204.0' font-size='11' text-anchor='end' style='fill:var(--muted);' font-weight='normal'>100%</text><line x1='173.2' x2='173.2' y1='200' y2='420' stroke='var(--line)'/><text x='173.2' y='438.0' font-size='11' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$0.005</text><line x1='250.6' x2='250.6' y1='200' y2='420' stroke='var(--line)'/><text x='250.6' y='438.0' font-size='11' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$0.01</text><line x1='328.0' x2='328.0' y1='200' y2='420' stroke='var(--line)'/><text x='328.0' y='438.0' font-size='11' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$0.02</text><line x1='430.4' x2='430.4' y1='200' y2='420' stroke='var(--line)'/><text x='430.4' y='438.0' font-size='11' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$0.05</text><line x1='507.8' x2='507.8' y1='200' y2='420' stroke='var(--line)'/><text x='507.8' y='438.0' font-size='11' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$0.1</text><line x1='585.2' x2='585.2' y1='200' y2='420' stroke='var(--line)'/><text x='585.2' y='438.0' font-size='11' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$0.2</text><line x1='687.5' x2='687.5' y1='200' y2='420' stroke='var(--line)'/><text x='687.5' y='438.0' font-size='11' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$0.5</text><text x='400.0' y='458.0' font-size='12' text-anchor='middle' style='fill:var(--muted);' font-weight='normal'>$ per run</text><text x='20.0' y='310.0' font-size='12' text-anchor='middle' style='fill:var(--muted);' font-weight='normal' transform='rotate(-90 20 310.0)'>share of runs passing</text><line x1='125.3' x2='125.3' y1='365.0' y2='218.3' stroke='var(--codex)' stroke-width='2' opacity='0.5'/><line x1='125.3' x2='125.3' y1='291.7' y2='200.0' stroke='var(--codex)' stroke-width='1' stroke-dasharray='3 3'/><circle class='complete-mark' cx='125.3' cy='200.0' r='9' fill='none' stroke='var(--codex)' stroke-width='1.5'/><polygon points="125.3,283.2 132.8,297.2 117.8,297.2" fill="var(--codex)" stroke="var(--codex)" stroke-width="2.5"/><line class='leader' x1='125.3' x2='125.3' y1='283.7' y2='181.0' stroke='var(--codex)' stroke-width='1' opacity='0.6'/><text x='125.3' y='176.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>luna-low 7/12 complete (12/12 hidden) *</text><line x1='174.7' x2='174.7' y1='316.0' y2='200.0' stroke='var(--claude)' stroke-width='2' opacity='0.5'/><circle class='complete-mark' cx='174.7' cy='200.0' r='9' fill='none' stroke='var(--claude)' stroke-width='1.5'/><circle cx="174.7" cy="200.0" r="6.5" fill="var(--claude)" stroke="var(--claude)" stroke-width="2.5"/><line class='leader' x1='174.7' x2='174.7' y1='192.0' y2='159.0' stroke='var(--claude)' stroke-width='1' opacity='0.6'/><text x='174.7' y='154.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>haiku-low 12/12 complete (12/12 hidden)</text><line x1='271.6' x2='271.6' y1='316.0' y2='200.0' stroke='var(--claude)' stroke-width='2' opacity='0.5'/><circle class='complete-mark' cx='271.6' cy='200.0' r='9' fill='none' stroke='var(--claude)' stroke-width='1.5'/><circle cx="271.6" cy="200.0" r="6.5" fill="var(--claude)" stroke="var(--claude)" stroke-width="2.5"/><line class='leader' x1='271.6' x2='271.6' y1='192.0' y2='137.0' stroke='var(--claude)' stroke-width='1' opacity='0.6'/><text x='271.6' y='132.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>haiku-high 12/12 complete (12/12 hidden)</text><line x1='438.2' x2='438.2' y1='316.0' y2='200.0' stroke='var(--sonnet)' stroke-width='2' opacity='0.5'/><circle class='complete-mark' cx='438.2' cy='200.0' r='9' fill='none' stroke='var(--sonnet)' stroke-width='1.5'/><rect x="432.2" y="194.0" width="12.0" height="12.0" fill="var(--sonnet)" stroke="var(--sonnet)" stroke-width="2.5"/><line class='leader' x1='438.2' x2='438.2' y1='192.0' y2='115.0' stroke='var(--sonnet)' stroke-width='1' opacity='0.6'/><text x='438.2' y='110.0' font-size='11' text-anchor='start' style='fill:var(--fg);' font-weight='normal'>sonnet-medium 12/12 complete (12/12 hidden)</text><line x1='482.0' x2='482.0' y1='316.0' y2='200.0' stroke='var(--codex)' stroke-width='2' opacity='0.5'/><circle class='complete-mark' cx='482.0' cy='200.0' r='9' fill='none' stroke='var(--codex)' stroke-width='1.5'/><polygon points="482.0,191.5 490.5,200.0 482.0,208.5 473.5,200.0" fill="var(--codex)" stroke="var(--codex)" stroke-width="2.5"/><line class='leader' x1='482.0' x2='482.0' y1='192.0' y2='93.0' stroke='var(--codex)' stroke-width='1' opacity='0.6'/><text x='482.0' y='88.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>sol61-medium 12/12 complete (12/12 hidden) *</text><line x1='504.7' x2='504.7' y1='316.0' y2='200.0' stroke='var(--codex)' stroke-width='2' opacity='0.5'/><circle class='complete-mark' cx='504.7' cy='200.0' r='9' fill='none' stroke='var(--codex)' stroke-width='1.5'/><polygon points="504.7,191.5 513.2,200.0 504.7,208.5 496.2,200.0" fill="var(--codex)" stroke="var(--codex)" stroke-width="2.5"/><line class='leader' x1='504.7' x2='504.7' y1='192.0' y2='71.0' stroke='var(--codex)' stroke-width='1' opacity='0.6'/><text x='504.7' y='66.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>sol61-high 12/12 complete (12/12 hidden) *</text><line x1='674.7' x2='674.7' y1='316.0' y2='200.0' stroke='var(--codex)' stroke-width='2' opacity='0.5'/><circle class='complete-mark' cx='674.7' cy='200.0' r='9' fill='none' stroke='var(--codex)' stroke-width='1.5'/><polygon points="674.7,190.5 677.1,196.8 683.7,197.1 678.5,201.2 680.3,207.7 674.7,204.0 669.1,207.7 670.9,201.2 665.7,197.1 672.4,196.8" fill="var(--codex)" stroke="var(--codex)" stroke-width="2.5"/><line class='leader' x1='674.7' x2='674.7' y1='192.0' y2='49.0' stroke='var(--codex)' stroke-width='1' opacity='0.6'/><text x='674.7' y='44.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>astra-medium 12/12 complete (12/12 hidden) *</text><text x='80.0' y='474.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>Filled mark: task complete (hidden and the run's own visible suite both green). Ring: hidden suite only.</text><text x='80.0' y='490.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>Bars: 95% interval for task complete; a perfect score shows its lower bound. * Estimated from tokens.</text></svg>

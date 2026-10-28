@@ -6,7 +6,18 @@ from analysis import configs, dataset, page
 
 ROOT = Path(__file__).resolve().parents[1]
 CSS = (ROOT / "docs/page/tokens.css").read_text()
-BACKGROUNDS = {"light": ("#ffffff", "#f6f7f4"), "dark": ("#1b2220", "#141917")}
+def backgrounds(theme):
+    dark, light = CSS.split('@media(prefers-color-scheme:light)', 1)
+    declarations = dark if theme == "dark" else dark + light.split('@media(prefers-color-scheme:dark)', 1)[0]
+    values = dict(re.findall(r"--([\w-]+)\s*:\s*([^;{}]+)", declarations))
+    def resolve(key):
+        value = values[key].strip()
+        alias = re.fullmatch(r"var\(--([\w-]+)\)", value)
+        return resolve(alias[1]) if alias else value
+    return tuple(resolve(k) for k in ("bg", "panel"))
+
+
+BACKGROUNDS = {theme: backgrounds(theme) for theme in ("light", "dark")}
 
 
 def luminance(hex_):

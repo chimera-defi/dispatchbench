@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 @pytest.fixture(scope="module")
 def cost_surfaces():
     # Use the existing minimal DOM to execute the shipped script. Keep setup
-    # outside xfail tests so a broken harness is an ordinary test failure.
+    # separate from assertions so a broken harness is an ordinary test failure.
     harness = (ROOT / "tests/pareto_runtime.cjs").read_text()
     marker = "const h=context.harness,exp=payload.explorer"
     if marker not in harness:
@@ -62,10 +62,6 @@ console.log(JSON.stringify(samples));
     return samples
 
 
-@pytest.mark.xfail(
-    strict=True, raises=AssertionError,
-    reason="G2: explorer cost labels need analysis/page.py and docs/page/explorer.html fixes; both are outside S3 scope",
-)
 @pytest.mark.parametrize("surface", ["tooltip", "detail", "chips", "radar"])
 def test_every_explorer_cost_surface_labels_cost_kind(cost_surfaces, surface):
     labels = {

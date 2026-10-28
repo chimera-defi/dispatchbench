@@ -642,10 +642,15 @@ def explorer_data(s):
             views[pricing] = {"extents": group["extents"]}
             for name in exp["views"]:
                 v = group[name]
-                views[pricing][name] = {"panels": v["panels"],
-                    "frontier": [key for key, m in v["membership"].items() if m["on_frontier"]]}
+                views[pricing][name] = {"panels": {panel: {"extents": stat["extents"]}
+                    for panel, stat in v["panels"].items()}}
         sets.append(dict(st, views=views))
-    return dict(exp, sets=sets)
+    keep = {"key", "config", "display", "family", "generation", "model_short",
+            "effort", "mode", "prereg", "provenance", "fast_twin", "passes", "n",
+            "pass_rate", "ci95_plot", "usd_per_pass", "quota_usd_per_pass",
+            "cost_kind", "median_s", "winner_pick", "panel", "complete_marker",
+            "coverage_note", "rule", "derived", "derived_note"}
+    return dict(exp, sets=sets, rows=[{k: v for k, v in r.items() if k in keep} for r in exp["rows"]])
 
 
 def explorer(s):
@@ -655,12 +660,12 @@ def explorer(s):
     membership = st["views"]["list"]["front"]["membership"]
     plotted = [r for r in rows if r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None]
     fr = [r for r in plotted if membership[r["key"]]["on_frontier"]]
-    button = lambda r: f'<button class="btn" data-key="{esc(r["key"])}">{esc(r["display"])}</button>'
+    button = lambda r: f'<button class="btn" data-key="{esc(r["key"])}">{esc(r["display"])} · {charts.explorer_cost_label(r)}</button>'
     detail = ""
     if plotted:
         r = plotted[0]
         detail = (f'<h3>{esc(r["display"])}</h3><p>{r["passes"]}/{r["n"]} passed · {dataset.usd(r["usd_per_pass"])} per pass · {r["median_s"]:g} s median</p>'
-                  f'<p class="ex-meta">CI {100*r["ci95_plot"][0]:.1f}%–{100*r["ci95_plot"][1]:.1f}% · {esc(r["cost_kind"])} · {esc(r["rule"])}</p>')
+                  f'<p class="ex-meta">CI {100*r["ci95_plot"][0]:.1f}%–{100*r["ci95_plot"][1]:.1f}% · {esc(charts.explorer_cost_label(r))} · {esc(r["provenance"])} · {esc(r["rule"])}</p>')
     tokens = {
         "__VIEW_BUTTONS__": "".join(f'<button class="btn" data-view="{v}" aria-pressed="{str(v == exp["default_view"]).lower()}">{esc(spec["label"])}</button>' for v, spec in exp["views"].items()),
         "__SET_OPTIONS__": "".join(f'<option value="{esc(t["id"])}">{esc(t["label"])}</option>' for t in exp["sets"]),
@@ -671,7 +676,7 @@ def explorer(s):
         "__DETAIL__": detail, "__BEST__": "".join("<li>"+button(r)+"</li>" for r in fr),
         "__PICKS__": "".join(f'<p>{esc(pick)}: '+button(r)+"</p>" for c,pick in exp["winner_picks"].items() for r in rows if r["config"] == c),
         "__PANELS__": charts.explorer_panels(exp), "__RADARS__": charts.explorer_radars(exp),
-        "__CONFIG_BUTTONS__": "".join(f'<button class="btn" data-config="{esc(r["key"])}" aria-pressed="true">{esc(r["display"])}</button>' for r in rows),
+        "__CONFIG_BUTTONS__": "".join(f'<button class="btn" data-config="{esc(r["key"])}" aria-pressed="true">{esc(r["display"])} · {charts.explorer_cost_label(r)}</button>' for r in rows),
         "__FACET_BUTTONS__": "".join(f'<button class="btn" data-facet="{esc(k)}" aria-pressed="true">{esc(label)}</button>'
                                    for k,label in [("family:"+f,f) for f in sorted({r["family"] for r in exp["rows"]})]
                                    + [("mode:"+m,m) for m in ("normal","fast","bare","pipeline")]
