@@ -4,7 +4,11 @@
   "winner_fallback": "Removed the duplicate Winner fallback paragraph; winner_price and the budget-pick row retain the recommendation, perfect score and price.",
   "equiv_back_takeaway": "The section lead now states both directions (all 12 Codex configs matched, Claude cheaper for 8, only luna undercuts); this note repeated it."
  },
- "placeholder_cells": {},
+ "placeholder_cells": {
+  "grok | config / L1 / L2 / L3 / L4 / L5 / L6 / passes / median s / $ per pass / coverage / total $ | grok47-medium | L4: '–'": "grok47-medium ran p01–p06 only (PLAN.md deviation 23), so a dash means no attempt on L4–L6, not a failure; the page says so under the table.",
+  "grok | config / L1 / L2 / L3 / L4 / L5 / L6 / passes / median s / $ per pass / coverage / total $ | grok47-medium | L5: '–'": "grok47-medium ran p01–p06 only (PLAN.md deviation 23), so a dash means no attempt on L4–L6, not a failure; the page says so under the table.",
+  "grok | config / L1 / L2 / L3 / L4 / L5 / L6 / passes / median s / $ per pass / coverage / total $ | grok47-medium | L6: '–'": "grok47-medium ran p01–p06 only (PLAN.md deviation 23), so a dash means no attempt on L4–L6, not a failure; the page says so under the table."
+ },
  "removals": {
   "page text: 10 configs were added after seeing the main-run results (†), including the haiku-high and sol61-high picks:": "Split the exploratory-count statement from the named picks; the count and every config remain.",
   "page text: Claude's bench: a single answer per try, tools off.": "Moved this definition to first use and named our one-shot runner; its tools-off behavior remains.",

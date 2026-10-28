@@ -36,7 +36,7 @@
 <div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="dot" style="background:var(--grok);box-shadow:0 0 0 1.5px #fff"></span>Grok</span><span><span class="ring"></span>Best trade-off (ringed, numbered)</span></div>
 <details class="small"><summary>How to read this data</summary>
 <ul class="tight small">
-<li>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet. Triangles = luna · ◆ sol · ★ astra. Luna triangle direction = effort: up low, right medium, down high. Alternate Codex colour = the older gpt-{{older_generation}} models (luna56, sol56).</li>
+<li>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet. Triangles = luna · ◆ sol · ★ astra · ⬟ terra. Luna triangle direction = effort: up low, right medium, down high. Alternate Codex colour = the older gpt-{{older_generation}} models (luna56, sol56).</li>
 </ul>
 <h4>Speed and bare prompts</h4>
 <ul class="tight small">
@@ -107,13 +107,25 @@
 </section>
 <section id="grok">
 <h2><span class="num"></span>Grok</h2>
+{{table:grok_lead}}
+<h3>Where does Grok get to?</h3>
+{{table:grok_full_reach}}
+<p class="small">{{grok_full_note}}</p>
+<h3>Closest lanes by pass rate</h3>
+{{table:grok_full_closest}}
+<details><summary>Every lane on the same problems</summary>
+{{table:grok_full_lanes}}
+</details>
+<h3>Is Grok better at anything?</h3>
+{{table:grok_better}}
+<h3>{{grok_first_title}}</h3>
 {{table:grok_summary}}
 {{table:grok_at_glance}}
-<h3>Where does Grok get to?</h3>
+<h3>First run: where it got to</h3>
 <p class="small">{{grok_key}}</p>
 {{table:grok_reach}}
 <p class="small">{{grok_reach_note}}</p>
-<h3>Closest lanes</h3>
+<h3>First run: closest lanes</h3>
 {{table:grok_equivalent}}
 {{table:grok_selection_note}}
 <details><summary>All comparable lanes</summary>
@@ -121,14 +133,14 @@
 <p class="small">{{grok_scope}}</p>
 {{table:grok_equivalent_all}}
 </details>
-<h3>Is Grok better at anything?</h3>
+<h3>First run: was Grok better at anything?</h3>
 {{table:grok_verdict}}
 {{table:grok_repository}}
 {{w_grok_catalog}}
 </section>
 <section class="method" id="method">
 <h2><span class="num"></span>❓ How it was run</h2>
-<p class="small">Every config (model + effort) got the same new problems and hidden tests. Tools were off: no code runs, file reads or search. Logs confirm it for {{codex_tool_free}} Codex calls.</p>
+<p class="small">Every config (model + effort) got the same new problems and hidden tests. Tools were off: no code runs, file reads or search. Logs confirm it for {{codex_tool_free}} Codex calls. {{terra_tool_note}}</p>
 <details><summary>📚 Problems by rung (Easy/Medium/Hard)</summary>
 <ul class="tight small">
 <li>We wrote these problems for this bench.</li>
@@ -427,6 +439,7 @@
 <h2><span class="num"></span>💡 Interesting findings</h2>
 <ul class="tight">
 <li>{{int_sol}}</li>
+<li>{{int_terra}}</li>
 <li>{{int_luna}}</li>
 <li>{{int_semi}}</li>
 <li>{{int_harness}}</li>
