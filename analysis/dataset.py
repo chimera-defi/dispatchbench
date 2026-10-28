@@ -1527,6 +1527,18 @@ def strict_dominates(a, b, objectives):
             and any(a[k] * d > b[k] * d for k, d in objectives))
 
 
+def explorer_provenance(r):
+    """Describe declared provenance, without inferring chronology from a name."""
+    if r["source"] in ("pilot", "pilot-agentic"):
+        return "pilot (preceded the main run)"
+    if r["source"] == "main" and r["category"] == "main ladder":
+        return "pre-registered"
+    # The registry notation defines exploratory entries as added after the main run.
+    if r["category"] == "exploratory":
+        return "later exploration"
+    return "unknown"
+
+
 def explorer_facets(r):
     c = r["config"]; base = c.split(" / ")[0]
     if "-plan+" in base: base = base.split("+", 1)[1]
@@ -1554,7 +1566,7 @@ def explorer_facets(r):
             else "on fail" if "on-fail" in c else "pilot") if pipeline else None
     return {"mode": mode, "generation": generation, "model_short": model, "effort": effort,
             "fast_twin": twin, "bare_of": bare_of,
-            "prereg": r["source"] == "main" and r["category"] == "main ladder",
+            "prereg": explorer_provenance(r) == "pre-registered", "provenance": explorer_provenance(r),
             "quota_usd_per_pass": quota, "winner_pick": WINNER_PICKS.get(c), "winner_pricing": "list price" if c in WINNER_PICKS else None,
             "panel": "pipeline: " + gate if pipeline else model + (" · " + generation if r["family"] == "Codex" else ""),
             "gate": gate, "coverage_note": ("Devin probe: " + configs.DEVIN_NOTE if r["cost_kind"] == "unmetered" else

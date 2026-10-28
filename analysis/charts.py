@@ -28,6 +28,12 @@ def grok_mark(x, y, r=10):
     return f"<polygon points='{hexagon(x, y, r)}' fill='var(--grok)' stroke='var(--panel)' stroke-width='1.5'/>"
 
 
+def token_style():
+    """Exact canonical bundle for standalone charts and the share-card source."""
+    with open(os.path.join(ROOT, "docs", "page", "tokens.css")) as src:
+        return "<style>" + src.read().strip() + "</style>"
+
+
 def svg(w, h, body, x=0, y=0):
     if not x and not y:
         return (f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {w} {h}' width='{w}' height='{h}' {FONT} font-size='12'>"
@@ -511,7 +517,9 @@ def build(ds=None, names=None):
         total, per = cost_tokens_chart(s, ds)
         charts.update({k: v for k, v in (("cost_total.svg", total), ("cost_per_1k.svg", per))
                        if names is None or k in names})
-    return charts
+    # Inline report charts inherit the page bundle; standalone files carry it.
+    return {name: body.replace(">", ">" + token_style(), 1)
+            if body and name != "hero.svg" else body for name, body in charts.items()}
 
 
 def main():
@@ -522,6 +530,10 @@ def main():
     print("charts ->", os.path.relpath(OUT, ROOT), ", ".join(n for n, b in charts.items() if b))
 
 
+
+
+def explorer_cost_label(r):
+    return {"measured": "measured", "proxy": "token-estimate", "unmetered": "unmetered"}[r["cost_kind"]]
 
 
 def explorer_colour(r, facet="vendor"):
@@ -540,6 +552,26 @@ def explorer_marker(r, x, y, radius=6):
     if r["family"] == "Codex": return f'<path d="M{x:.2f} {y-radius:.2f}l{radius} {radius}l{-radius} {radius}l{-radius} {-radius}Z" {attrs}/>'
     if r["family"] == "Grok": return f'<path d="M{x:.2f} {y-radius:.2f}l{radius} {2*radius}h{-2*radius}Z" {attrs}/>'
     return f'<circle cx="{x:.2f}" cy="{y:.2f}" r="{radius}" {attrs}/>'
+
+
+def explorer_label_position(q, label, placed, points, left, right, top, bottom):
+    """Nudge vertically in a stable order; avoid labels and every point."""
+    width = len(label) * 7
+    x = max(left, min(right-width, q[0]+14))
+    base = max(top+14, min(bottom-4, q[1]-14))
+    candidates = [base]
+    for n in range(1, math.ceil((bottom-top)/18)+1):
+        candidates.extend((base+n*18, base-n*18))
+    best, best_score = (x, base, width), math.inf
+    for y in candidates:
+        if not top+14 <= y <= bottom-4: continue
+        overlaps = sum(x < px+pw+6 and px < x+width+6 and abs(py-y) < 18 for px,py,pw in placed)
+        hits = sum(x-9 <= px <= x+width+9 and y-22 <= py <= y+10 for px,py in points)
+        score = overlaps + hits
+        if score < best_score:
+            best, best_score = (x,y,width), score
+            if not score: break
+    return best
 
 
 def explorer_svg(exp, standalone=False):
@@ -572,18 +604,29 @@ def explorer_svg(exp, standalone=False):
             b.append(f'<path class="ex-trail" stroke="{col}" stroke-dasharray="3 3" d="M{tx:.2f} {ty:.2f}L{x:.2f} {y:.2f}"/>')
         ci=r['ci95_plot']
         b.append(f'<path class="ex-ci" stroke="{col}" d="M{x:.2f} {Y(ci[0]):.2f}V{Y(ci[1]):.2f}"/>')
-        title=f'{r["display"]}: {r["passes"]}/{r["n"]}, {dataset.usd(r["usd_per_pass"])} per pass, {r["median_s"]:g} s; {r["coverage_note"]}'
+        title=f'{r["display"]}: {r["passes"]}/{r["n"]}, {dataset.usd(r["usd_per_pass"])} per pass ({explorer_cost_label(r)}), {r["median_s"]:g} s; {r["coverage_note"]}'
         b.append(f'<g class="ex-point" data-key="{escape(r["key"])}" tabindex="0" role="button" aria-label="{escape(title)}"><title>{escape(title)}</title>')
         if membership[r['key']]['on_frontier']: b.append(f'<circle class="ex-ring" cx="{x:.2f}" cy="{y:.2f}" r="11"/>')
         b += [explorer_marker(r,x,y),'</g>']
-    # A compact, collision-free label rail keeps the default SVG legible without JS.
-    for i,r in enumerate(frontier):
-        b.append(text(L+(i%3)*210,20+(i//3)*16,r['display'],12,fill=INK))
+    # Match the interactive label pass, including winner picks and point clearance.
+    labels, placed = [], []
+    for r in rows:
+        if not (membership[r['key']]['on_frontier'] or r['winner_pick']): continue
+        q = positions[r['config']]
+        same = next((l for l in labels if math.hypot(l[0][0]-q[0], l[0][1]-q[1]) < 1), None)
+        if same: same[1].append(r['display'])
+        else: labels.append((q, [r['display']]))
+    for q,names in labels:
+        label = f'{len(names)} tied at this point' if len(names)>1 else names[0]
+        x,y,w = explorer_label_position(q,label,placed,positions.values(),L,W-R,T,B)
+        placed.append((x,y,w))
+        b += [f'<path class="ex-leader" d="M{q[0]:.2f} {q[1]:.2f}L{x:.2f} {y-4:.2f}"/>',
+              text(x,y,label,12).replace('<text ', '<text class="ex-label" ', 1)]
     b += [text((L+W-R)/2,H-18,'$ per pass (log) · left is cheaper',12,'middle',MUTED),text(22,(T+B)/2,'Pass rate · up is better',12,'middle',MUTED,rotate=-90)]
     if standalone:
-        tokens = '@import url("../../../docs/page/tokens.css");'
-        paint = ".ex-grid{fill:none;stroke:var(--data-grid)}.ex-front{fill:none;stroke:var(--frontier);stroke-dasharray:5 4}.ex-shade{fill:var(--data-beaten)}.ex-ci{fill:none;stroke-width:1.5;opacity:.35}.ex-ring{fill:none;stroke:var(--frontier);stroke-width:2}.ex-trail{fill:none;opacity:.5}.ex-svg{background:var(--panel)}"
-        b.insert(0,"<style>"+tokens+paint+"</style>")
+        tokens = token_style()
+        paint = ".ex-grid{fill:none;stroke:var(--data-grid)}.ex-front{fill:none;stroke:var(--frontier);stroke-dasharray:5 4}.ex-shade{fill:var(--data-beaten)}.ex-ci{fill:none;stroke-width:1.5;opacity:.35}.ex-ring{fill:none;stroke:var(--frontier);stroke-width:2}.ex-trail{fill:none;opacity:.5}.ex-leader{fill:none;stroke:var(--muted);stroke-width:1}.ex-svg{background:var(--panel)}"
+        b.insert(0,tokens+"<style>"+paint+"</style>")
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" class="ex-svg">'+''.join(b)+'</svg>')
 
 
@@ -609,7 +652,7 @@ def explorer_panels(exp):
         if len(normal)>1: b.append('<polyline class="ex-trail" fill="none" stroke="'+explorer_colour(normal[0])+'" points="'+' '.join(f'{X(r["usd_per_pass"]):.2f},{Y(r["pass_rate"]):.2f}' for r in normal)+'"/>')
         for r in group:
             x,y=X(r['usd_per_pass']),Y(r['pass_rate'])
-            b += [f'<g data-key="{escape(r["key"])}"><title>{escape(r["display"])}</title>',explorer_marker(r,x,y),text(min(220,x+10),max(14,y-10),{'low':'L','medium':'M','high':'H','xhigh':'XH'}.get(r['effort'],'D'),12),'</g>']
+            b += [f'<g data-key="{escape(r["key"])}"><title>{escape(r["display"])} · {explorer_cost_label(r)}</title>',explorer_marker(r,x,y),text(min(220,x+10),max(14,y-10),{'low':'L','medium':'M','high':'H','xhigh':'XH'}.get(r['effort'],'D'),12),'</g>']
         out.append(f'<div class="card"><h4>{escape(panel)}</h4><p class="ex-meta">{stat["on_frontier"]} of {stat["total"]} on frontier · {stat["beaten"]} beaten</p><svg viewBox="0 0 240 160" role="img"><title>{escape(panel)} detail</title>{"".join(b)}</svg></div>')
     return ''.join(out)
 
@@ -629,7 +672,7 @@ def explorer_radars(exp):
             values=[(r['pass_rate']-p0)/(p1-p0),1-math.log(r['usd_per_pass']/lo)/math.log(hi/lo),1-r['median_s']/tmax]
             b.append(f'<polygon fill="{explorer_colour(r)}" fill-opacity=".16" stroke="{explorer_colour(r)}" points="{" ".join(point(i,max(.02,min(1,v))) for i,v in enumerate(values))}"/>')
         else: b.append(text(100,88,'cost unavailable',12,'middle'))
-        out.append(f'<div class="card ex-radar" data-key="{escape(r["key"])}"><h4>{escape(r["display"])}</h4><svg viewBox="0 0 200 180" role="img"><title>{escape(r["display"])} normalised radar</title>{"".join(b)}</svg><p class="ex-meta">{r["passes"]}/{r["n"]} · {dataset.usd(r["usd_per_pass"])} · {r["median_s"]:g} s</p></div>')
+        out.append(f'<div class="card ex-radar" data-key="{escape(r["key"])}"><h4>{escape(r["display"])}</h4><svg viewBox="0 0 200 180" role="img"><title>{escape(r["display"])} normalised radar</title>{"".join(b)}</svg><p class="ex-meta">{r["passes"]}/{r["n"]} · {dataset.usd(r["usd_per_pass"])} ({explorer_cost_label(r)}) · {r["median_s"]:g} s</p></div>')
     return ''.join(out)
 
 
