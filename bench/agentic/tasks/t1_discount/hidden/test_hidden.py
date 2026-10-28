@@ -11,6 +11,10 @@ def test_round_half_up():
 @pytest.mark.parametrize("bad", [-1, 101, 10.5, "10"])
 def test_pct_bounds(bad):
     with pytest.raises(ValueError): apply_percent(100, bad)
+def test_bool_pct_rejected():
+    # v2 (grader_version 3): a bool is not a percentage. The task text says "pct: int", which is ambiguous about bool
+    # (a subclass of int); the reference rejects it, and luna-low isolated t1 r2 accepted it (apply_percent(100, True) == 99).
+    with pytest.raises(ValueError): apply_percent(100, True)
 def test_codes():
     s = Store(); s.add_item("a", 1005); s.add_code("Save10", 10)
     assert s.total_cents() == 1005 and s.total_cents("SAVE10") == 905 and s.total_cents("save10") == 905

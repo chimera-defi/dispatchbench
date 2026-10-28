@@ -28,6 +28,7 @@ Blank lines, malformed JSON and non-object values are skipped when deriving date
 | 2026-10-27-grok-agentic | 2026-10-27 | grok | 16 | `7aae8f0d5064925573e70b76e0794c91fbffbd56b138006ebb23cc09a7456ed8` | [results/2026-10-27-grok-agentic.jsonl](../results/2026-10-27-grok-agentic.jsonl) |
 | 2026-10-28-devin-function | 2026-10-28 | devin | 12 | `86470b9ea1726bf7b0c750172a4688536b99d67ba9367a392be8efa489fc90ca` | [results/2026-10-28-devin-function.jsonl](../results/2026-10-28-devin-function.jsonl) |
 | 2026-10-28-grok-spectrum-function | 2026-10-28 | grok | 114 | `57aa2c9f2db6f95d280ea6930182ee87bae1f5bfb519c7d1d259b0b2dde9e965` | [results/2026-10-28-grok-spectrum-function.jsonl](../results/2026-10-28-grok-spectrum-function.jsonl) |
+| 2026-10-28-t1-hidden-v2-regrade | 2026-10-28 | claude, codex, grok | 37 | `4b07e11bddb5972ff2ec89f0d27cd777c7032ac238640553c99e0e17ec208631` | [results/2026-10-28-t1-hidden-v2-regrade.jsonl](../results/2026-10-28-t1-hidden-v2-regrade.jsonl) |
 | 2026-10-28-terra-function | 2026-10-28 | codex | 144 | `99900e6c2ee5f7aceced99fa18e052c23a86f280c9116528ba78d947a52f010a` | [results/2026-10-28-terra-function.jsonl](../results/2026-10-28-terra-function.jsonl) |
 | appendix/codex_harness | 2026-10-24 | claude, codex | 138 | `5bf8288a66bf2efa931316c1834e82ec5fb0ffa8019cf49f816bdf75d9b1752e` | [results/appendix/codex_harness.jsonl](../results/appendix/codex_harness.jsonl) |
 | appendix/harness_bias | 2026-10-24 | claude, codex | 240 | `a61ae36c295a5eb28358163f0f6936591345969aceac52afd3d34bbb6651fcf3` | [results/appendix/harness_bias.jsonl](../results/appendix/harness_bias.jsonl) |
@@ -68,7 +69,7 @@ Their hashes hold only for the commit you read. Regenerate this index after rebu
 
 | File | SHA-256 |
 |---|---|
-| [results/manifest.json](../results/manifest.json) | `583791fa3f56243040137d911adb6881c3dbdd680c714ed1ae3e49eec69c6c6f` |
+| [results/manifest.json](../results/manifest.json) | `39069a2fc17e2aea7475df59a44ce9d708762455bf0b030e9d6770ea1ee62024` |
 | [results/prices.json](../results/prices.json) | `f215215ae059ffe9eaaa7d907fe844246d72fa2af96ee242793f290d0514992c` |
 | [results/agentic_tests.json](../results/agentic_tests.json) | `bbf0dda405ca67a8da3139325b59fdd780073888359b54382adb739bddada3b5` |
 | [results/quality.jsonl](../results/quality.jsonl) | `67a5f24651a2366f5f37ead0250d9eb59131ab37c76c85e533b5e76eec8ea747` |
