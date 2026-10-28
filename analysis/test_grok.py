@@ -406,8 +406,9 @@ OLD_GROK_CLAIMS = (
 # P4: P4a_prose - Winner copy and section chrome only; Grok section bytes unchanged.
 # P4: P4b_chart — chart-first explorer, phone frontier labels and dataset finding; Grok bytes unchanged.
 # P4: P4c_ds + P4d integration
+# P4: P4e zoom fix
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': '38e3ea2024581ba877b7e5c61168b991bab2d82de581c11348ef69592a1ef444',
+    'results/report/page.html': '2607c555a4d50065c74b6856f20b270c6e42971650e0f86c0721e64d152b33cf',
     'docs/REPORT.md': 'd3e3893c66e2f4ec06f26e2adcfbf82a9bac634293b2e555f252666000a1142e',
 }
 
