@@ -220,13 +220,13 @@ section.collapsible > h2 > .sec-toggle:focus-visible,.sec-toggle-all:focus-visib
 
 /* Verdict text wraps independently of numeric cells at desktop widths too. */
 .sortable .verdict-cell{white-space:normal;min-width:9ch;overflow-wrap:anywhere}
-#results .sortable th:first-child,#results .sortable td:first-child{width:1%;min-width:0;white-space:nowrap}
-#results .sortable th:nth-child(2),#results .sortable td:nth-child(2){text-align:left}
+:is(#results,#grok) .sortable th:first-child,:is(#results,#grok) .sortable td:first-child{width:1%;min-width:0;white-space:nowrap}
+:is(#results,#grok) .sortable th:nth-child(2),:is(#results,#grok) .sortable td:nth-child(2){text-align:left}
 
 .chart.floor .scroll-hint{font-size:12px;color:var(--muted);margin:6px 4px}
 @media (min-width:641px){.chart.floor .scroll-hint{display:none}}
-#results .sortable th,#results .sortable td{padding-left:5px;padding-right:5px}
-#results .sortable td:first-child{color:var(--muted);font-size:.9em}
+:is(#results,#grok) .sortable th,:is(#results,#grok) .sortable td{padding-left:5px;padding-right:5px}
+:is(#results,#grok) .sortable td:first-child{color:var(--muted);font-size:.9em}
 
 /* Section starts: a hairline above each plain section so the page reads as separate blocks. */
 main>section.collapsible:not(.verdict){border-top:1px solid var(--line);padding-top:14px}
@@ -288,14 +288,14 @@ section.collapsible>.sec-body:not([hidden]){animation:sec-in var(--sec-dur,0s) e
  .compact-bars .bar-phone{display:block}
  .compact-bars .bar-wide{display:none}
 }
-#results .sortable td:first-child .muted{font-size:11px}
+:is(#results,#grok) .sortable td:first-child .muted{font-size:11px}
 /* The fairness slope chart is small: scale it to fit instead of scrolling. */
 #fair figure{margin:0 0 12px}
 #fair figure .svgscroll svg{width:100%;min-width:0;max-width:var(--natural-width);height:auto}
 #fair figure .scroll-hint{display:none}
 #fair figcaption{font-size:13px;color:var(--muted)}
 
-#results .sortable th[colspan]{white-space:normal}
+:is(#results,#grok) .sortable th[colspan]{white-space:normal}
 
 /* Best trade-offs: ringed points, numbered chips, a shaded corner for what they beat; whiskers show on picks and hover. */
 svg .zone{pointer-events:none}

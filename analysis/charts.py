@@ -19,6 +19,15 @@ LABEL_LEFT = {"haiku-low", "sonnet-medium"}  # left of the point, clear of luna-
 HERO_LEFT = {"sonnet-medium": 18, "haiku-medium": 4}  # README hero: left of the point, label dy; clear of the 100% row picks
 
 
+def hexagon(x, y, r):
+    """Flat-top hexagon points: Grok's own mark, distinct from every other series' shape."""
+    return " ".join(f"{x + r * math.cos(math.radians(a)):.1f},{y + r * math.sin(math.radians(a)):.1f}" for a in range(0, 360, 60))
+
+
+def grok_mark(x, y, r=10):
+    return f"<polygon points='{hexagon(x, y, r)}' fill='var(--grok,#000)' stroke='#fff' stroke-width='1.5'/>"
+
+
 def svg(w, h, body, x=0, y=0):
     if not x and not y:
         return (f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {w} {h}' width='{w}' height='{h}' {FONT} font-size='12'>"
@@ -103,7 +112,7 @@ def pareto_chart(s, hero=False):
         lo, hi = v["ci95"]
         col = FAMILY(c)
         b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(max(lo, y0)):.1f}' y2='{Y(hi):.1f}' stroke='{col}' stroke-width='2' opacity='0.35'/>")
-        b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='5.5' fill='{col}' stroke='#fff' stroke-width='1.5'/>")
+        b.append(grok_mark(x, y))
         label = f"{DISP(c)} ({100 * v['pass_at_1']:.0f}%)"
         tw = 6.4 * len(label)
         spot = None
@@ -196,8 +205,8 @@ def cost_time_chart(s):
         px += step
         taken.append((px, py))
         col = FAMILY(c)
-        b.append(f"<circle cx='{px:.1f}' cy='{py:.1f}' r='6' fill='{col}' stroke='#fff' stroke-width='1.5'/>")
-        tops.append(py - 6)
+        b.append(grok_mark(px, py))
+        tops.append(py - 10)
         lab = f"{DISP(c)} ({100 * v['pass_at_1']:.0f}%)"; w = 6.3 * len(lab)
         xl = px - 10 - w if px + 10 + w > W - R else px + 10
         lane = next(k for k in range(30) if all(abs(ly - (py - 12 - 16 * k)) >= 15 or e < xl - 6 or s0 > xl + w + 6 for s0, e, ly in lanes.setdefault(0, [])))

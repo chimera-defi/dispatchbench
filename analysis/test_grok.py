@@ -343,9 +343,10 @@ OLD_GROK_CLAIMS = (
     ('Totals differ (18, 21, 24) because the run was shortened from 5 to 2 repeats partway through L2 and '
      'extra repeats already run were kept; the earlier full-coverage lanes have 30 = 6 problems × 5 '
      'repeats; read the rung reached, not the total.'),
-    ('Match the highest rung cleared without an earlier miss and the first rung with a miss on the '
-     '12-problem main ladder; with no Grok miss through L3, include every lane that clears through L3 and '
-     'show its later profile.'),
+    # Reworded in plain language; same rule: match on rungs cleared and the first rung with a miss.
+    ('A lane is comparable when it clears the same rungs and first misses at the same rung on the '
+     '12-problem main ladder. If a Grok config never missed through L3, every lane that clears through L3 '
+     'counts, with its later results shown.'),
     ('Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory phases only. Warmup, '
      'calibration, fastmode, escalation and hard phases are excluded. Grok has small n and was not run '
      'past L3, so cleared L3 is a floor. CLI-reported cost; list price not used for Grok. Codex dollars '
@@ -353,8 +354,8 @@ OLD_GROK_CLAIMS = (
     ('grok47-high is cheaper per pass than astra-medium ⚡ (fast mode, 2× list price) on functions (0.55×). '
      'grok47-low is cheaper per pass than plain astra-medium on repo tasks (0.42×) while 1.5× slower. '
      'grok47-low takes 0.84× as long as sol61-high on repo tasks. '
-     'No Grok config beats a matching function lane on pass rate. '
-     'No Grok config beats a matching function lane on time.'),
+     'No Grok config beats a comparable function lane on pass rate. '
+     'No Grok config beats a comparable function lane on time.'),
     ('4 tasks (t1_discount, t2_cache_bugs, t3_config_refs, t4_retry_queue); Grok: 2 repeats per task and '
      'config, 4 parallel lanes, tools on, no web or subagents, 1,500 s timeout; all 16 runs retained with '
      'no performance stop rule. Existing lanes: 3 repeats per task; clean-home Codex replacements are used '
@@ -372,9 +373,10 @@ OLD_GROK_CLAIMS = (
 )
 
 
-# Digests include every byte outside Grok, including the fail table.
+# Digests include every byte outside Grok. Re-pinned 2026-10-28 after Grok-only changes outside the section: the shared
+# #results/#grok table CSS, the Grok marker shape, the speed chart axis and Grok columns in the fail grid.
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': '1902f1b5fc0bf3c8a3b8efeb27f5a6a2f635b71017cd7d70d03a7847c99451f3',
+    'results/report/page.html': 'b80d03944bfb9de071b32b17784faa525d256a52cfc8ef0ad1d0ce903c192c5f',
     'docs/REPORT.md': '27f19515b597ba56a08c231b206d4f6f51b5b38ed48ed8f572395167b84f987a',
 }
 
@@ -426,7 +428,7 @@ def test_grok_fact_retention():
         assert cells in parsed.rows, f"Missing original HTML fact row: {old_row}"
 
     # Punctuation may split a sentence. Each underlying claim must still occur.
-    normalize = lambda text: re.sub(r"[^\w$%×/–.-]+", " ", text.lower()).strip(' .')
+    normalize = lambda text: re.sub(r"[^\w$%×/–.-]+", " ", re.sub(r"(?m)^- ", "", text).lower()).strip(' .')
     texts = [normalize(md_section.replace('`', '')), normalize(''.join(parsed.text))]
     claims = list(OLD_GROK_CLAIMS)
     claims.append('The function misses were on p06_calc.')
@@ -442,10 +444,9 @@ def test_grok_fact_retention():
     # The three operator paragraphs stay verbatim, immediately after the bullets.
     operator_words = '\n\n'.join(OLD_GROK_CLAIMS[:3])
     assert dataset.read()['facts']['grok_summary'].split('\n\n') == list(OLD_GROK_CLAIMS[:3])
-    assert md_section.split(operator_words, 1)[0].count('\n- ') == 6
-    assert operator_words in md_section
+    assert md_section.index(operator_words) < md_section.index('\n- ')  # the summary comes before the bullets
     assert report.to_html(operator_words) in html_section
-    assert html_section.index('<ul>') < html_section.index(report.to_html(operator_words))
+    assert html_section.index(report.to_html(operator_words)) < html_section.index('<ul>')
 
 
 def test_grok_readability_scope_is_local():
@@ -465,7 +466,7 @@ def test_grok_closest_tables_keep_one_lane_per_family_and_expand_all():
     assert len(rows) == len({(row[0], row[1]) for row in rows}) == 8
     assert len(ds['tables']['grok_equivalent_all']['rows']) == 15
     repo = grok.repository_section(dataset.usd)
-    compact, expanded = repo.split('<details><summary>All matching lanes</summary>', 1)
+    compact, expanded = repo.split('<details><summary>All comparable lanes</summary>', 1)
     compact_rows = [line for line in compact.splitlines() if line.startswith('| grok')]
     assert compact.rstrip().endswith(grok.SELECTION_NOTE)
     assert len(compact_rows) == 4
@@ -477,7 +478,7 @@ def test_grok_closest_tables_keep_one_lane_per_family_and_expand_all():
     assert len([line for line in expanded.split('</details>', 1)[0].splitlines()
                 if line.startswith('| grok')]) == 14
     page_section, _ = grok_section(Path(report.PAGE).read_text(), html=True)
-    assert page_section.count('<summary>All matching lanes</summary>') == 2
+    assert page_section.count('<summary>All comparable lanes</summary>') == 2
     parsed = GrokText()
     parsed.feed(page_section)
     assert ''.join(parsed.text).count(grok.SELECTION_NOTE) == 2
@@ -490,17 +491,17 @@ def test_grok_summary_cost_wins_follow_measurements(monkeypatch):
     comparison = copy.deepcopy(ds['grok_comparison'])
     repository = grok.repository_comparison()
     lane = ds['report']['grok']
+    monkeypatch.setattr(grok, 'repository_comparison', lambda: repository)
+    _, verdict = grok.prose(comparison, lane)
     summary = grok.at_a_glance(comparison, lane, repository)
-    assert '**Only cost edge.**' in summary
-    assert 'grok47-high is cheaper per pass than astra-medium ⚡ (fast mode, 2× list price) on functions (0.55×).' in summary
-    assert 'grok47-low is cheaper per pass than plain astra-medium on repo tasks (0.42×) while 1.5× slower.' in summary
-    assert 'Codex dollars are list-price proxies.' in summary
-    assert 'grok47-low takes 0.84× as long as sol61-high on repo tasks.' in summary
-    assert 'Claude Haiku stays the first fallback' in summary
-    assert 'Per the routing rule, Claude Haiku stays the first fallback when Codex is out; these runs show Grok is usable after that on small repo tasks.' in summary
+    assert 'grok47-high is cheaper per pass than astra-medium ⚡ (fast mode, 2× list price) on functions (0.55×).' in verdict
+    assert 'grok47-low is cheaper per pass than plain astra-medium on repo tasks (0.42×) while 1.5× slower.' in verdict
+    assert 'Codex dollars are list-price proxies.' in verdict
+    assert 'grok47-low takes 0.84× as long as sol61-high on repo tasks.' in verdict
+    assert 'Per the routing rule, Claude Haiku stays the first fallback when Codex is out. These runs show Grok is usable after that on small repo tasks.' in summary
     comparison['metrics']['grok47-high']['usd_per_pass'] *= 100
     repository['metrics']['grok47-low']['usd_per_pass'] *= 100
-    changed = grok.at_a_glance(comparison, lane, repository)
+    _, changed = grok.prose(comparison, lane)
     assert '(0.55×)' not in changed and '(0.42×)' not in changed
     assert 'No cost edge in these comparisons.' in changed
 
@@ -509,16 +510,14 @@ def test_grok_summary_cost_wins_follow_measurements(monkeypatch):
     comparison['metrics']['haiku-medium']['median_s'] = 1000
     repository['metrics']['sonnet-medium']['usd_per_pass'] = 100
     repository['metrics']['sonnet-medium']['median_s'] = 1000
-    changed = grok.at_a_glance(comparison, lane, repository)
+    _, changed = grok.prose(comparison, lane)
     assert 'grok47-medium is cheaper per pass than haiku-medium on functions' in changed
     assert 'grok47-medium takes 0.03× as long as haiku-medium on functions' in changed
     assert 'grok47-high is cheaper per pass than sonnet-medium on repo tasks' in changed
     assert 'grok47-high takes 0.44× as long as sonnet-medium on repo tasks' in changed
-    monkeypatch.setattr(grok, 'repository_comparison', lambda: repository)
-    _, verdict = grok.prose(comparison, lane)
     costs, times = grok.edge_prose(comparison, repository)
     assert costs and times
-    assert all(edge in changed and edge in verdict for edge in costs + times)
+    assert all(edge in changed for edge in costs + times)
 
 
 def test_grok_ranges_cover_all_perfect_lanes_and_follow_measurements():
@@ -527,9 +526,9 @@ def test_grok_ranges_cover_all_perfect_lanes_and_follow_measurements():
     repository = grok.repository_comparison()
     lane = ds['report']['grok']
     summary = grok.at_a_glance(comparison, lane, repository)
-    assert 'configs that cleared through L2' in summary
-    assert 'grok47-low: cleared L1-L2; first miss L3' in summary
-    assert 'grok47-high: cleared L1-L3; not run further' in summary
+    assert 'grok47-low, grok47-medium and grok47fast-low (cleared through L2)' in summary
+    assert 'grok47-low, grok47-medium and grok47fast-low cleared L1–L2. Each first missed at L3.' in summary
+    assert 'grok47-high cleared L1–L3. It was not run further.' in summary
     assert 'Across all Codex 100% lanes, Grok takes 2.4–6.0× as long and costs 0.6–5.9× as much per pass' in summary
     assert 'Across all Claude 100% lanes, Grok takes 3.5–5.0× as long and costs 7.2–109.3× as much per pass' in summary
     assert 'Across all Codex 100% lanes, Grok takes 0.8–1.5× as long and costs 0.4–2.4× as much per pass' in summary

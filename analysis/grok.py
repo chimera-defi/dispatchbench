@@ -101,15 +101,15 @@ def prose(comparison, lane):
     # Keep the function pass-rate conclusion, but include every measured cost/time
     # edge on both tracks, rather than implying the repo speed edge does not exist.
     cost_edges, time_edges = edge_prose(comparison, repository_comparison())
-    verdict = " ".join(cost_edges + time_edges)
+    verdict = (cost_edges or ["No cost edge in these comparisons."]) + time_edges
     if rate:
-        verdict += " " + "; ".join(f"{configs.display(c)} has a higher function pass rate than {configs.display(e)}"
-                                    for c, e in rate) + "."
+        verdict += [f"{configs.display(c)} has a higher function pass rate than {configs.display(e)}." for c, e in rate]
     else:
-        verdict += " No Grok config beats a matching function lane on pass rate."
+        verdict.append("No Grok config beats a comparable function lane on pass rate.")
     if not time:
-        verdict += " No Grok config beats a matching function lane on time."
-    return summary, verdict.strip()
+        verdict.append("No Grok config beats a comparable function lane on time.")
+    verdict.append("Codex dollars are list-price proxies.")
+    return summary, "\n".join("- " + v for v in verdict)
 
 
 def reach_note(comparison, lane):
@@ -154,7 +154,7 @@ def multiple(values):
 
 
 def perfect_ranges(metrics, current, candidates):
-    """Show the spread over every 100% lane in each comparison family."""
+    """The spread over every 100% lane in each comparison family, one sentence per family."""
     ranges = []
     for family in ("Claude", "Codex"):
         perfect = [c for c in candidates if configs.family(c) == family
@@ -165,8 +165,8 @@ def perfect_ranges(metrics, current, candidates):
         prices = [metrics[c]["usd_per_pass"] / metrics[e]["usd_per_pass"] for c in current for e in perfect
                   if metrics[c]["usd_per_pass"] is not None and metrics[e]["usd_per_pass"]]
         cost = multiple(prices) if prices else "unavailable"
-        ranges.append(f"Across all {family} 100% lanes, Grok takes {time} as long and costs {cost} as much per pass")
-    return ". ".join(ranges)
+        ranges.append(f"Across all {family} 100% lanes, Grok takes {time} as long and costs {cost} as much per pass.")
+    return ranges
 
 
 def edge_prose(comparison, repository):
@@ -196,49 +196,58 @@ def edge_prose(comparison, repository):
     return costs, times
 
 
+def grouped(lines):
+    """Split a flat list into [label, bullet, bullet...] runs, one per bold label."""
+    runs = []
+    for line in lines:
+        if line.startswith("**"): runs.append([line])
+        else: runs[-1].append(line)
+    return runs
+
+
+def names(items):
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
+
+
 def at_a_glance(comparison, lane, repository):
-    """Skim answers derived from the same measurements as the detailed tables."""
+    """Short visible bullets, then every range in a collapsed list. All numbers come from the same measurements as the tables."""
     m, profiles = comparison["metrics"], comparison["profiles"]
-    reach = []
-    groups = defaultdict(list)
+    bullets, ranges = [], []  # ranges: a bold label paragraph, then its bullets
+    by_reach = defaultdict(list)
     for c in lane:
-        cleared, miss = profiles[c]
-        reach.append(f"{configs.display(c)}: cleared L1-L{cleared}" + ("; not run further" if miss is None else f"; first miss L{miss}"))
-        choices = tuple(closest_lanes(m, c, comparison["matches"][c]))
-        groups[choices].append(c)
-    bullets = ["**Function track.** " + ". ".join(reach) + "."]
-    for choices, configs_in_group in groups.items():
-        if not choices:
-            continue
-        levels = {profiles[c][0] for c in configs_in_group}
-        label = (configs_in_group[0] if len(configs_in_group) == 1 else
-                 f"configs that cleared through L{next(iter(levels))}" if len(levels) == 1 else ", ".join(configs_in_group))
-        matches = []
+        by_reach[tuple(profiles[c])].append(c)
+    slower = True
+    for (cleared, miss), group in by_reach.items():
+        shown = [configs.display(c) for c in group]
+        bullets.append(f"{names(shown)} cleared L1–L{cleared}. " +
+                       ("It was not run further." if miss is None else f"{'Each' if len(group) > 1 else 'It'} first missed at L{miss}."))
+        choices = tuple(closest_lanes(m, group[0], comparison["matches"][group[0]]))
+        ranges.append(f"**{names(shown)} (cleared through L{cleared})**")
         for other in choices:
-            time = multiple([m[c]["median_s"] / m[other]["median_s"] for c in configs_in_group])
-            prices = [m[c]["usd_per_pass"] / m[other]["usd_per_pass"] for c in configs_in_group
+            times = [m[c]["median_s"] / m[other]["median_s"] for c in group]
+            prices = [m[c]["usd_per_pass"] / m[other]["usd_per_pass"] for c in group
                       if m[c]["usd_per_pass"] is not None and m[other]["usd_per_pass"]]
-            cost = multiple(prices) if prices else "unavailable"
-            matches.append(f"Against {configs.family(other)} {configs.display(other)}, Grok takes {time} as long and costs {cost} as much per pass")
-        ranges = perfect_ranges(m, configs_in_group, [c for c in m if c not in lane])
-        if ranges:
-            matches.append(ranges)
-        bullets.append("**Closest lanes for " + label + ".** " + ". ".join(matches) + ".")
-    costs, times = edge_prose(comparison, repository)
-    bullets.append("**Only cost edge.** " + (" ".join(costs) if costs else "No cost edge in these comparisons.") +
-                   " Codex dollars are list-price proxies. " + " ".join(times))
+            slower &= min(times) > 1 and (not prices or min(prices) > 1)
+            ranges.append(f"- Against {configs.family(other)} {configs.display(other)}, Grok takes {multiple(times)} as long "
+                          f"and costs {multiple(prices) if prices else 'unavailable'} as much per pass.")
+        ranges += ["- " + sentence for sentence in perfect_ranges(m, group, [c for c in m if c not in lane])]
+    if slower:
+        bullets.append("Against the closest lanes, Grok is slower and costs more per pass. The tables below give the multiples.")
     if repository:
-        bullets.append("**Repo tasks.** " + ". ".join(
-            f"{configs.display(c)}: {repository['metrics'][c]['passes']}/{repository['metrics'][c]['n']} passes, "
-            f"{repository['metrics'][c]['median_s']:.1f} s median. " +
-            perfect_ranges(repository['metrics'], [c], sorted(set(repository['metrics']) - set(repository['grok'])))
-            for c in repository["grok"]) +
-            ". Small exploratory sample on a shared host.")
-        perfect = [c for c in repository["grok"] if repository["metrics"][c]["passes"] == repository["metrics"][c]["n"]]
-        recommendation = ("these runs show Grok is usable after that on small repo tasks." if perfect else
-                          "these runs show Grok was less reliable on small repo tasks.")
-        bullets.append("**Codex out:** Per the routing rule, Claude Haiku stays the first fallback when Codex is out; " + recommendation)
-    return "### At a glance\n\n" + "\n".join("- " + bullet for bullet in bullets)
+        rm = repository["metrics"]
+        bullets.append("Repo tasks: " + " ".join(
+            f"{configs.display(c)} passed {rm[c]['passes']}/{rm[c]['n']} at {rm[c]['median_s']:.1f} s median." for c in repository["grok"]))
+        bullets.append("The repo sample is small and ran on a shared host.")
+        for c in repository["grok"]:
+            ranges += [f"**{configs.display(c)} on repo tasks**"] + ["- " + sentence for sentence in
+                       perfect_ranges(rm, [c], sorted(set(rm) - set(repository["grok"])))]
+        perfect = [c for c in repository["grok"] if rm[c]["passes"] == rm[c]["n"]]
+        bullets.append("Per the routing rule, Claude Haiku stays the first fallback when Codex is out. " +
+                       ("These runs show Grok is usable after that on small repo tasks." if perfect else
+                        "These runs show Grok was less reliable on small repo tasks."))
+    return ("### Key numbers\n\n" + "\n".join("- " + b for b in bullets) +
+            "\n\n<details><summary>Ranges across every lane</summary>\n\n" + "\n\n".join(
+                "\n".join(g) for g in grouped(ranges)) + "\n\n</details>")
 
 
 def tables(comparison, lane, money):
@@ -271,7 +280,7 @@ def tables(comparison, lane, money):
             "grok_selection_note": SELECTION_NOTE,
             "grok_reach": spec(["config", "cleared through", *rungs, "passes", "median s", "$ per pass", "coverage", "total $"], reach),
             "grok_equivalent": spec(["Grok config", "family", "closest lane", "Grok time / lane", "Grok cost / lane"], closest),
-            "grok_equivalent_all": spec(["Grok config", "family", "matching lane", "cleared through", "first miss",
+            "grok_equivalent_all": spec(["Grok config", "family", "comparable lane", "cleared through", "first miss",
                                      "same-problem passes", "median s", "$ per pass", "Grok time / lane", "Grok cost / lane"], equivalent)}
 
 
@@ -340,7 +349,7 @@ def repository_section(money):
                f'Today’s Claude fallback lanes ({claude_counts}) took {claude_time} s median.')
     sources = ", ".join(f"`{s}`" for s in data["sources"])
     return ("### Repository tasks\n\n" + verdict + "\n\n" + closest + "\n\n" + SELECTION_NOTE +
-            "\n\n<details><summary>All matching lanes</summary>\n\n" + multiples +
+            "\n\n<details><summary>All comparable lanes</summary>\n\n" + multiples +
             "\n\n</details>\n\n<details><summary>Run conditions and measurements</summary>\n\n"
             f'{len(data["tasks"])} tasks ({", ".join(data["tasks"])}); Grok: 2 repeats per task and config, '
             "4 parallel lanes, tools on, no web or subagents, 1,500 s timeout; all 16 runs retained with no performance stop rule. "

@@ -1254,11 +1254,13 @@ def build(summary=None):
             "Grok has small n and was not run past " + f"L{last}, so cleared L{last} is a floor. "
             "CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier.")
         ds["facts"]["grok_match_rule"] = (
-            f"Match the highest rung cleared without an earlier miss and the first rung with a miss on the {len(s['problems'])}-problem "
-            f"main ladder; with no Grok miss through L{last}, include every lane that clears through L{last} and show its later profile.")
+            f"A lane is comparable when it clears the same rungs and first misses at the same rung on the {len(s['problems'])}-problem "
+            f"main ladder. If a Grok config never missed through L{last}, every lane that clears through L{last} counts, with its later results shown.")
         rungs = sorted({v["rung"] for v in s["problems"].values()})
-        ds["facts"]["grok_not_run"] = (f"Grok rows summarize each rung; L{last + 1}–L{max(rungs)} were not run. "
-                                             "Not run means no attempt, not a failure.")
+        ds["facts"]["grok_key"] = (f"A lane is an existing config: one model at one effort. Rungs L{min(rungs)}–L{max(rungs)} get harder step by step. "
+                                   "Cleared through L2 means every call passed on L1 and L2.")
+        ds["facts"]["grok_not_run"] = (f"Grok columns cover the first half only. L{last + 1}–L{max(rungs)} were not run. "
+                                             "A dash means no attempt, not a failure.")
     _equivalents(ds)
     _interesting(ds)
     method_appendix(ds)
