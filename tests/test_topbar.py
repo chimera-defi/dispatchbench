@@ -12,6 +12,13 @@ ROOT = Path(__file__).resolve().parents[1]
 MARKUP = '<div class="ds-topbar"><div><a href="https://chimericlabs.xyz/">← Chimeric Labs</a></div></div>'
 
 
+def test_topbar_has_the_pinned_site_touch_target():
+    css = (ROOT / 'docs/page/topbar.css').read_text()
+    assert '2109b3b149e92ca388c4392f57d9b48aa040b4fb' in css
+    body = re.search(r'\.ds-topbar a\s*\{([^}]+)\}', css)[1]
+    assert re.search(r'min-height:\s*44px\s*;', body)
+
+
 class BodyElements(HTMLParser):
     def __init__(self):
         super().__init__()
