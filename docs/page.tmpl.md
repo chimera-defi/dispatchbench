@@ -85,6 +85,7 @@
 <h4>Pass rate and time</h4>
 <ul class="tight small">
 <li>Pass rate is pass@1: the share of single attempts that pass every hidden test.</li>
+<li>Every pass rate names its rule. Function track: {{rule_function}}. Repo tasks: {{rule_hidden}} (our hidden suite passes) or {{rule_complete}} (hidden and visible tests both pass).</li>
 <li>The {{ci_level}} range is the pass-rate uncertainty shown in the table.</li>
 <li>Slow-call time: the time within which {{p90_percent}} of calls finished.</li>
 <li>The lower end of the {{ci_level}} range is shown as ≥N% when all passed.</li>
@@ -191,6 +192,7 @@
 </section>
 <section id="fail">
 <h2><span class="num"></span>🟥 Where they fail</h2>
+<script type="application/json" id="data">__DATA__</script>
 <p class="small">{{worst_failure}}.</p>
 <details class="small"><summary>How to read this data</summary>
 <ul class="tight small">

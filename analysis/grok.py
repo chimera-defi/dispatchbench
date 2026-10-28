@@ -429,34 +429,13 @@ def full_note(comparison, lane, rows):
 
 
 def repository_comparison():
-    """Keep the new repo experiment local to Grok; historical report totals stay fixed."""
-    source = "2026-10-27-grok-agentic.jsonl"
-    grok_rows = summarize.load(os.path.join(summarize.RES, source))
-    if not grok_rows:
-        return {}
-    tasks = sorted({r["task"] for r in grok_rows})
-    expected = {(c, task, rep) for c in ("grok47-low", "grok47-high") for task in tasks for rep in (1, 2)}
-    assert len(tasks) == 4 and len(grok_rows) == 16 and {
-        (r["config"], r["task"], r["repeat"]) for r in grok_rows
-    } == expected, "Grok repo experiment must contain all 16 preregistered runs"
-    grouped = defaultdict(list)
-    # agentic_rows selects complete isolated Codex replacements, retaining Claude.
-    for r in grok_rows + [r for r in summarize.agentic_rows() if r["task"] in tasks]:
-        grouped[r["config"]].append(r)
-    metrics = {}
-    for c, rr in grouped.items():
-        passed = sum(bool(r.get("task_complete", r["hidden_pass"] and r["visible_pass"])) for r in rr)
-        turns = [r["turns"] for r in rr if r.get("turns") is not None]
-        metrics[c] = dict(passes=passed, hidden=sum(bool(r["hidden_pass"]) for r in rr), n=len(rr), median_s=statistics.median(r["wall_s"] for r in rr),
-                          usd_per_pass=summarize.usd(map(summarize.cost, rr), passed, digits=None),
-                          median_turns=statistics.median(turns) if len(turns) == len(rr) else None)
-    return dict(source=source, tasks=tasks, metrics=metrics,
-                grok=sorted({r["config"] for r in grok_rows}),
-                sources=sorted({r.get("_file", "results/" + source) for rr in grouped.values() for r in rr}),
-                total_usd=summarize.usd(map(summarize.cost, grok_rows), digits=None))
+    """The Grok repo-task block lives in the dataset (the loader reads the rows); this is the same dict."""
+    from analysis import dataset
+    return dataset.repository_comparison()
 
 
 def repository_section(money):
+    from analysis import dataset
     data = repository_comparison()
     if not data:
         return ""
@@ -466,11 +445,12 @@ def repository_section(money):
         return "\n".join(["| " + " | ".join(head) + " |", "|" + "---|" * len(head)] +
                          ["| " + " | ".join(map(str, row)) + " |" for row in rows])
     metrics = table(["config", "task complete k/n", "median wall s", "$ per pass", "median turns"],
-                    [[configs.display(c), f'{m[c]["passes"]}/{m[c]["n"]}', f'{m[c]["median_s"]:.1f}',
+                    [[configs.display(c), f'{m[c]["passes"]}/{m[c]["n"]} {m[c]["rule"]}{dataset.audit_mark(m[c]["red_runs"])}', f'{m[c]["median_s"]:.1f}',
                       money(m[c]["usd_per_pass"]), f'{m[c]["median_turns"]:g}' if m[c]["median_turns"] is not None else "–"]
                      for c in grok + others])
     rules = ("Pass rules. `task complete k/n` counts runs where the hidden tests and the delivered visible tests both pass. "
-             "Passed our hidden tests alone: " + ", ".join(f'{configs.display(c)} {m[c]["hidden"]}/{m[c]["n"]}' for c in grok + others) + ".")
+             "Passed our hidden tests alone: " + ", ".join(f'{configs.display(c)} {m[c]["hidden"]}/{m[c]["n"]} {m[c]["hidden_rule"]}' for c in grok + others) + ". "
+             + dataset.audit_footnote([x for c in grok + others for x in m[c]["red_runs"]]))
     def ratio(c, other, key):
         a, b = m[c][key], m[other][key]
         return f"{a / b:.2f}×" if a is not None and b else "–"

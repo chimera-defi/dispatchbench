@@ -56,7 +56,7 @@ solutions:           ## export every graded completion to results/solutions/ (no
 	$(PY) -m analysis.export_solutions
 
 clean-report:
-	rm -rf results/report results/summary.json results/manifest.json
+	rm -rf results/report results/manifest.json
 
 # Programmatic quality metrics (LOC, complexity, lint, time growth, memory) -> results/quality.jsonl. Needs uvx (radon, ruff)
 # and takes about 15-30 min; timing is noisy, so jobs stays at 4. Not part of `make report`; makes no model calls.

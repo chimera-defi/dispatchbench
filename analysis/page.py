@@ -37,7 +37,7 @@ def front(pts, better):
 
 def speed_dominates(a, b):
     """Cost must not rise; speed changes below both 0.5 s and 5% count as ties."""
-    tolerance = min(0.5, b["x"] * 0.05)
+    tolerance = min(configs.TIE_ABS_S, b["x"] * configs.TIE_REL)
     return (a["y"] < b["y"] and a["x"] <= b["x"] + tolerance or
             a["y"] == b["y"] and a["x"] <= b["x"] - tolerance)
 
@@ -641,22 +641,29 @@ def fast(s):
     return '<div class="compact-bars">' + hatch_phone(charts.bars("Normal and fast mode", rows, str, "", values=values, responsive=True)) + '</div>'
 
 
+def explorer_data(s):
+    """The explorer's numbers: a projection of the dataset, embedded in the page's data block. The script reads them from there."""
+    points = [{"c": c, "d": DISP(c), "exp": e, "col": FAM(c), "fast": "-fast" in c,
+               "mark": config_marker(c, 0, 0), "kind": v["cost_kind"], "pass": v["pass_at_1"], "usd": v["usd_per_pass"], "usd_text": v["usd_text"],
+               "med": v["latency_s"]["median"], "inp": v["tokens_mean"]["in_tok"], "rsn": v["tokens_mean"]["reasoning_tok"]}
+              for e, group in ((False, s["configs"]), (True, every(s))) for c, v in group.items()
+              if e == (c not in s["configs"])]  # Devin has no $, so it stays out of the any-two-measures plot
+    d = s["design"]["explorer"]
+    return {"points": points, "usd_ticks": s["design"]["usd_ticks"], "floors": d["floors"], "default_floor": d["default_floor"], "tie": d["tie"]}
+
+
 def explorer(s):
-    """Render interactive geometry around cached measurements and dollar labels."""
-    data = [{"c": c, "d": DISP(c), "exp": e, "col": FAM(c), "fast": "-fast" in c,
-             "mark": config_marker(c, 0, 0), "kind": v["cost_kind"], "pass": v["pass_at_1"], "usd": v["usd_per_pass"], "usd_text": v["usd_text"],
-             "med": v["latency_s"]["median"], "inp": v["tokens_mean"]["in_tok"], "rsn": v["tokens_mean"]["reasoning_tok"]}
-            for e, group in ((False, s["configs"]), (True, every(s))) for c, v in group.items()
-            if e == (c not in s["configs"])]  # Devin has no $, so it stays out of the any-two-measures plot
+    """Render interactive geometry around the embedded measurements and dollar labels."""
     src = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "page", "explorer.html")
-    body = open(src).read().replace("__DATA__", json.dumps(data, separators=(",", ":"))).replace("__USD_TICKS__", json.dumps(s["design"]["usd_ticks"], separators=(",", ":")))
+    options = '<option value="0">all shown</option>' + "".join(f'<option value="{f}">pass rate ≥ {round(100 * f)}%</option>' for f in s["design"]["explorer"]["floors"])
+    body = open(src).read().replace("__FLOOR_OPTIONS__", options)
     body = body.replace("frontier over", "best trade-offs over")
     older = s["exploratory"]["sol56-high"]["model"].split("-")[1]
     body = body.replace("Hollow = exploratory config. Codex $ is a proxy.",
                         f"Solid = normal speed. Hollow = fast mode. Dashed edge = bare prompt. Alternate Codex colour = {older} generation. Shapes match the charts above. Labels connect to their own points. Codex $ is a list-price estimate.")
-    # Match the static speed chart: differences below both 0.5 s and 5% are ties.
-    body = body.replace('return M[k].up?a>=b:a<=b', 'return k=="med"?a<=b+Math.min(.5,.05*b):M[k].up?a>=b:a<=b')
-    body = body.replace('return M[k].up?a>b:a<b', 'return k=="med"?a<=b-Math.min(.5,.05*b):M[k].up?a>b:a<b')
+    # Match the static speed chart: differences below both the absolute and the relative tolerance (design.explorer.tie) are ties.
+    body = body.replace('return M[k].up?a>=b:a<=b', 'return k=="med"?a<=b+Math.min(X.tie.abs_s,X.tie.rel*b):M[k].up?a>=b:a<=b')
+    body = body.replace('return M[k].up?a>b:a<b', 'return k=="med"?a<=b-Math.min(X.tie.abs_s,X.tie.rel*b):M[k].up?a>b:a<b')
     body = body.replace('sx.t.forEach(function(v){', 'var tickEnd=-Infinity; sx.t.forEach(function(v){')
     body = body.replace('if(x<L-1||x>W-R+1)return;',
                         'if(x<L-1||x>W-R+1)return;var tw=tf(st.x,v).length*(small?6:7);if(x-tw/2<tickEnd+10)return;tickEnd=x+tw/2;')

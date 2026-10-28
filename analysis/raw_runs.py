@@ -8,12 +8,11 @@ import os
 from pathlib import Path
 import re
 
+from analysis import rawindex
+from analysis.rawindex import SUPPORTING, lanes, run_date, sha256  # re-exported: the index code lives with the loaders
+
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "docs/RAW_RUNS.md"
-SUPPORTING = (
-    "results/manifest.json", "results/prices.json", "results/agentic_tests.json",
-    "results/quality.jsonl", "results/quality_meta.json",
-)
 CACHES = {
     "cache/calls": "Function completions, usage and call metadata",
     "cache/agentic": "Repo-task verdicts, usage and test summaries",
@@ -23,11 +22,6 @@ CACHES = {
     "cache/trim": "Harness-trim probe completions and usage",
     "results/solutions": "Graded Python answers and per-problem indexes",
 }
-
-
-def sha256(path):
-    with path.open("rb") as source:
-        return hashlib.file_digest(source, "sha256").hexdigest()
 
 
 def ignored(path, is_dir, patterns):
@@ -77,60 +71,8 @@ def directory_hash(directory, root=ROOT):
     return len(files), hashlib.sha256("".join(lines).encode("utf-8")).hexdigest()
 
 
-def run_date(path, rows):
-    match = re.search(r"\d{4}-\d{2}-\d{2}", path.name)
-    if match:
-        return match[0]
-    dates = []
-    for row in rows:
-        for key, value in row.items():
-            if key == "ts" or "date" in key.lower():
-                match = re.match(r"\d{4}-\d{2}-\d{2}", str(value))
-                if match:
-                    try:
-                        dates.append(date.fromisoformat(match[0]).isoformat())
-                    except ValueError:
-                        pass
-    return min(dates, default="-")
-
-
-def lanes(rows):
-    families = set()
-    for row in rows:
-        if row.get("cli"):
-            families.add(row["cli"].split("-")[0])
-            continue
-        # Pipelines and older appendix rows have no cli field.
-        text = " ".join(str(row.get(key, "")) for key in ("config", "builder", "builder_kind"))
-        for pattern, family in ((r"haiku|sonnet|claude", "claude"),
-                                (r"luna|sol|astra|terra|codex|gpt-", "codex"),
-                                (r"grok", "grok"), (r"devin|swe-", "devin")):
-            if re.search(pattern, text):
-                families.add(family)
-    return ", ".join(sorted(families)) or "-"
-
-
 def link(path):
     return f"[{path}](../{path})"
-
-
-REPO_TASK_FILES = ("2026-10-22b-agentic", "2026-10-25-isolated-agentic", "2026-10-27-grok-agentic")
-
-
-def repo_task_counts(root):
-    """Per config and file: runs that passed our hidden tests, and runs that are task complete (hidden and visible tests pass)."""
-    out = []
-    for name in REPO_TASK_FILES:
-        path = root / "results" / f"{name}.jsonl"
-        if not path.exists():
-            continue
-        rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
-        for config in sorted({r["config"] for r in rows}):
-            rr = [r for r in rows if r["config"] == config]
-            hidden = sum(bool(r["hidden_pass"]) for r in rr)
-            done = sum(bool(r.get("task_complete", r["visible_pass"] and r["hidden_pass"])) for r in rr)
-            out.append(f"| {name} | {config} | {hidden}/{len(rr)} | {done}/{len(rr)} |")
-    return out
 
 
 def render(root=ROOT):
@@ -148,27 +90,16 @@ def render(root=ROOT):
            "Blank lines, malformed JSON and non-object values are skipped when deriving dates and lanes.", "",
            "| Run | Date | Lane(s) | Rows | SHA-256 | Link |",
            "|---|---|---|---:|---|---|"]
-    paths = sorted((root / "results").rglob("*.jsonl"))
-    for path in paths:
-        lines = [line for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
-        rows = []
-        for line in lines:
-            try:
-                row = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            if isinstance(row, dict):
-                rows.append(row)
-        run = path.relative_to(root / "results").with_suffix("").as_posix()
-        out.append(f"| {run} | {run_date(path, rows)} | {lanes(rows)} | {len(lines)} | `{sha256(path)}` | {link(path.relative_to(root).as_posix())} |")
-    counts = repo_task_counts(root)
+    for e in rawindex.file_index(root):
+        out.append(f"| {e['run']} | {e['date']} | {e['lanes']} | {e['rows']} | `{e['sha256']}` | {link(e['path'])} |")
+    counts = rawindex.repo_task_counts(root)
     if counts:
         out += ["", "## Repo-task pass counts", "",
                 "Two pass rules. Passed our hidden tests: our hidden suite passes against the delivered code. Task complete: hidden and visible tests (the delivered `tests/` directory) both pass.",
                 "Older rows lack `task_complete`; it is derived as `visible_pass and hidden_pass`.", "",
                 "| Run | Config | Passed our hidden tests | Task complete |", "|---|---|---:|---:|"] + counts
     out += ["", "## Supporting files", "",
-            "`manifest.json`, `summary.json` and `dataset.json` are regenerated by",
+            "`manifest.json` and `dataset.json` are regenerated by",
             "[analysis.summarize](../analysis/summarize.py) and [analysis.dataset](../analysis/dataset.py).",
             "Their hashes hold only for the commit you read. Regenerate this index after rebuilding them.", "",
             "| File | SHA-256 |", "|---|---|"]
