@@ -45,17 +45,31 @@ def test_prerendered_chart_precedes_every_control(ds):
         assert '<noscript>' in html
 
 
+def test_colour_key_immediately_follows_chart_before_controls(ds):
+    for html in (page.explorer(dataset.view(ds)), (ROOT / 'results/report/page.html').read_text()):
+        parser = Elements()
+        parser.feed(html)
+        ids = [a.get('id') for tag, a in parser.elements if tag == 'div' and a.get('id', '').startswith('ex-')]
+        assert ids.count('ex-legend') == 1
+        assert ids[ids.index('ex-chart') + 1] == 'ex-legend'
+        assert re.search(r'</svg></div>\s*<div id="ex-legend"', html)
+        legend = next(i for i, (_, a) in enumerate(parser.elements) if a.get('id') == 'ex-legend')
+        for i, (_, attrs) in enumerate(parser.elements):
+            if set(attrs.get('class', '').split()) & {'ex-controls', 'ex-filters', 'ex-configs'}:
+                assert legend < i
+
+
 @pytest.fixture(scope='module')
 def phone(ds):
     setup = (ROOT / 'tests/pareto_runtime.cjs').read_text().split('const h=context.harness,exp=payload.explorer', 1)[0]
     script = setup + '''
 const h=context.harness,samples=[];
-for(const width of [320,390,480,481]){
+for(const width of [320,390,480,481,1280]){
  element('ex-chart').clientWidth=width;
  for(const focused of [false,true]){
   h.st.sel=focused?payload.explorer.rows.find(r=>r.config==='sonnet-medium'&&r.key.endsWith('@main ladder')).key:null;
   h.st.zk=focused?3:1;h.render();
-  samples.push({width,focused,chart:element('ex-chart').innerHTML,inspect:element('ex-inspect').textContent});
+  samples.push({width,focused,chart:element('ex-chart').innerHTML,legend:element('ex-legend').innerHTML,inspect:element('ex-inspect').textContent});
  }
 }
 console.log(JSON.stringify(samples));
@@ -64,6 +78,21 @@ console.log(JSON.stringify(samples));
                             capture_output=True, text=True, cwd=ROOT)
     assert result.returncode == 0, result.stderr
     return json.loads(result.stdout)
+
+
+def test_prerendered_colour_key_matches_js_rebuilds_at_phone_and_desktop_widths(ds, phone):
+    html = page.explorer(dataset.view(ds))
+    legend = re.search(r'<div id="ex-legend" class="ex-meta">(.*?)</div>', html).group(1)
+    exp = ds['explorer']
+    st = next(s for s in exp['sets'] if s['id'] == exp['default_set'])
+    rows = [r for r in exp['rows'] if r['key'] in st['rows'] and r['cost_kind'] != 'unmetered'
+            and r['usd_per_pass'] is not None]
+    for row in rows:
+        label = row['family'] + ' ' + row['generation'] if charts.explorer_colour(row) == 'var(--data-codex-old)' else row['family']
+        assert f'solid {charts.explorer_colour(row)};padding-left:6px;">{label}</span>' in legend
+    assert {390, 1280} <= {sample['width'] for sample in phone}
+    for sample in phone:
+        assert sample['legend'] == legend
 
 
 def test_phone_labels_are_frontier_only_even_after_selection_or_zoom(ds, phone):
@@ -151,8 +180,10 @@ def test_caption_uses_dataset_fact_and_changes_with_measurements(ds):
     finding = ds['facts']['explorer_finding']
     assert finding == dataset.explorer_finding(ds['explorer'])
     assert finding in page.explorer(dataset.view(ds))
-    assert finding.startswith('On the main ladder plus partial runs, at list price, the frontier is ')
-    assert 'haiku-high is cheapest at the top observed pass rate (100%), at $0.0028 per pass' in finding
+    assert finding.startswith('haiku-high is cheapest at 100%, at $0.0028 per pass. ')
+    assert 'On the main ladder plus partial runs, at list price, that is the top observed pass rate; the frontier is ' in finding
+    st = next(s for s in ds['explorer']['sets'] if s['id'] == ds['explorer']['default_set'])
+    assert finding.endswith(st['note'])
     exp = copy.deepcopy(ds['explorer'])
     row = next(r for r in exp['rows'] if r['config'] == 'haiku-high' and r['set'] == 'main ladder')
     row['usd_per_pass'] = 1
@@ -163,4 +194,19 @@ def test_caption_uses_dataset_fact_and_changes_with_measurements(ds):
     changed = dataset.explorer_finding(exp)
     assert changed != finding
     assert 'haiku-high' not in changed
-    assert 'terra61-low is cheapest at the top observed pass rate' in changed
+    assert changed.startswith('terra61-low is cheapest at 100%, at ')
+
+    # A changed best rate, price, name and scope must all reach the caption.
+    for row in exp['rows']:
+        if row['key'] in st['rows']:
+            row['pass_rate'] = .5
+    winner = next(r for r in rows if st['views']['list']['front']['membership'][r['key']]['eligible'])
+    winner.update(pass_rate=.75, usd_per_pass=.25, display='fixture winner')
+    st['label'] = 'Fixture scope'
+    st['note'] = 'Fixture coverage caveat.'
+    rows = [r for r in exp['rows'] if r['key'] in st['rows']]
+    st['views']['list']['front']['membership'] = dataset.explorer_frontier(rows, 'front')
+    changed = dataset.explorer_finding(exp)
+    assert changed.startswith('fixture winner is cheapest at 75%, at $0.25 per pass. ')
+    assert 'On the fixture scope, at list price, that is the top observed pass rate; the frontier is ' in changed
+    assert changed.endswith(st['note'])
