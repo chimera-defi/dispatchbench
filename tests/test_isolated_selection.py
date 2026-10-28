@@ -9,9 +9,12 @@ def test_only_agentic_uses_isolated_rows(monkeypatch):
         return original(path)
     monkeypatch.setattr(summarize, "load", load)
     function_rows = summarize.function_rows()
-    assert [r for r in function_rows if r["config"] not in configs.GROK_CONFIGS] == summarize._sourced(summarize.FUNC)
-    assert [r for r in function_rows if r["config"] in configs.GROK_CONFIGS] == summarize._sourced(
-        f"{summarize.RES}/2026-10-26-grok-function.jsonl")
+    assert [r for r in function_rows if r["config"] not in configs.GROK_CONFIGS and r["_file"] == "results/2026-10-22b-function.jsonl"] == summarize._sourced(summarize.FUNC)
+    assert [r for r in function_rows if r["config"] in configs.GROK_CONFIGS] == (
+        summarize._sourced(f"{summarize.RES}/2026-10-26-grok-function.jsonl")
+        + summarize._sourced(f"{summarize.RES}/2026-10-28-grok-spectrum-function.jsonl"))
+    assert [r for r in function_rows if r["_file"] == "results/2026-10-28-terra-function.jsonl"] == summarize._sourced(
+        f"{summarize.RES}/2026-10-28-terra-function.jsonl")
     assert summarize.rescue_rows() == original("results/appendix/luna_rescue.jsonl")
     assert summarize.harness_rows() == original("results/appendix/harness_bias.jsonl")
     raw = original("results/2026-10-25-isolated-agentic.jsonl")

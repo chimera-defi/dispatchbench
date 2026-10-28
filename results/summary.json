@@ -3,7 +3,9 @@
   "results/2026-10-22b-agentic.jsonl",
   "results/2026-10-22b-function.jsonl",
   "results/2026-10-25-isolated-agentic.jsonl",
-  "results/2026-10-26-grok-function.jsonl"
+  "results/2026-10-26-grok-function.jsonl",
+  "results/2026-10-28-grok-spectrum-function.jsonl",
+  "results/2026-10-28-terra-function.jsonl"
  ],
  "configs": {
   "haiku-low": {
@@ -428,10 +430,10 @@
  "phases": {
   "calibration": 30,
   "escalation": 15,
-  "exploratory": 550,
+  "exploratory": 694,
   "fastmode": 105,
   "hard": 195,
-  "main": 447,
+  "main": 561,
   "warmup": 6
  },
  "problems": {
@@ -630,6 +632,323 @@
   }
  ],
  "grok": {
+  "grok47-low": {
+   "cli": "grok",
+   "model": "grok-4.7",
+   "effort": "low",
+   "n": 60,
+   "passes": 53,
+   "pass_at_1": 0.8833,
+   "ci95": [
+    0.7,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 10,
+     "n": 10
+    },
+    "L3": {
+     "passed": 7,
+     "n": 10
+    },
+    "L4": {
+     "passed": 10,
+     "n": 10
+    },
+    "L5": {
+     "passed": 10,
+     "n": 10
+    },
+    "L6": {
+     "passed": 6,
+     "n": 10
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 53,
+    "crash": 7
+   },
+   "latency_s": {
+    "median": 39.45,
+    "p25": 26.56,
+    "p75": 130.99,
+    "p90": 178.53,
+    "max": 313.46
+   },
+   "tokens_mean": {
+    "in_tok": 21682,
+    "cached_tok": 2016,
+    "out_tok": 5313,
+    "reasoning_tok": 4697
+   },
+   "input_floor": [
+    21195,
+    2048
+   ],
+   "usd_per_call": 0.072215,
+   "usd_total": 4.3329,
+   "usd_per_pass": 0.081753,
+   "usd_per_pass_L1_L2": 0.050451,
+   "pass_L1_L2": [
+    20,
+    20
+   ],
+   "cost_kind": "measured",
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 5,
+    "p05_pass_route": 5,
+    "p06_calc": 2,
+    "p07_weighted_distance_sums": 5,
+    "p08_recur": 5,
+    "p09_k_machine_schedule": 5,
+    "p10_avoid_count": 5,
+    "p11_best_average": 5,
+    "p12_sheet": 1
+   }
+  },
+  "grok47-medium": {
+   "cli": "grok",
+   "model": "grok-4.7",
+   "effort": "medium",
+   "n": 21,
+   "passes": 20,
+   "pass_at_1": 0.9524,
+   "ci95": [
+    0.7857,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 7,
+     "n": 7
+    },
+    "L3": {
+     "passed": 3,
+     "n": 4
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 20,
+    "crash": 1
+   },
+   "latency_s": {
+    "median": 32.56,
+    "p25": 27.32,
+    "p75": 65.42,
+    "p90": 92.05,
+    "max": 182.82
+   },
+   "tokens_mean": {
+    "in_tok": 21578,
+    "cached_tok": 1969,
+    "out_tok": 3855,
+    "reasoning_tok": 3475
+   },
+   "input_floor": [
+    21195,
+    2048
+   ],
+   "usd_per_call": 0.063332,
+   "usd_total": 1.33,
+   "usd_per_pass": 0.066498,
+   "usd_per_pass_L1_L2": 0.055716,
+   "pass_L1_L2": [
+    17,
+    17
+   ],
+   "cost_kind": "measured",
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 4,
+    "p04_taller_within": 3,
+    "p05_pass_route": 2,
+    "p06_calc": 1
+   }
+  },
+  "grok47-high": {
+   "cli": "grok",
+   "model": "grok-4.7",
+   "effort": "high",
+   "n": 60,
+   "passes": 57,
+   "pass_at_1": 0.95,
+   "ci95": [
+    0.85,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 10,
+     "n": 10
+    },
+    "L3": {
+     "passed": 10,
+     "n": 10
+    },
+    "L4": {
+     "passed": 9,
+     "n": 10
+    },
+    "L5": {
+     "passed": 10,
+     "n": 10
+    },
+    "L6": {
+     "passed": 8,
+     "n": 10
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 57,
+    "crash": 2,
+    "timeout": 1
+   },
+   "latency_s": {
+    "median": 105.72,
+    "p25": 46.13,
+    "p75": 318.58,
+    "p90": 493.08,
+    "max": 1200.46
+   },
+   "tokens_mean": {
+    "in_tok": 21296,
+    "cached_tok": 2014,
+    "out_tok": 14304,
+    "reasoning_tok": 13655
+   },
+   "input_floor": [
+    0,
+    0
+   ],
+   "usd_per_call": 0.125395,
+   "usd_total": 7.5237,
+   "usd_per_pass": 0.131994,
+   "usd_per_pass_L1_L2": 0.061577,
+   "pass_L1_L2": [
+    20,
+    20
+   ],
+   "cost_kind": "measured",
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 5,
+    "p05_pass_route": 5,
+    "p06_calc": 5,
+    "p07_weighted_distance_sums": 4,
+    "p08_recur": 5,
+    "p09_k_machine_schedule": 5,
+    "p10_avoid_count": 5,
+    "p11_best_average": 5,
+    "p12_sheet": 3
+   }
+  },
+  "grok47fast-low": {
+   "cli": "grok",
+   "model": "grok-4.7-build-fast",
+   "effort": "low",
+   "n": 60,
+   "passes": 51,
+   "pass_at_1": 0.85,
+   "ci95": [
+    0.65,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 10,
+     "n": 10
+    },
+    "L3": {
+     "passed": 6,
+     "n": 10
+    },
+    "L4": {
+     "passed": 9,
+     "n": 10
+    },
+    "L5": {
+     "passed": 10,
+     "n": 10
+    },
+    "L6": {
+     "passed": 6,
+     "n": 10
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 51,
+    "crash": 9
+   },
+   "latency_s": {
+    "median": 34.0,
+    "p25": 18.42,
+    "p75": 82.83,
+    "p90": 133.72,
+    "max": 255.16
+   },
+   "tokens_mean": {
+    "in_tok": 21662,
+    "cached_tok": 1931,
+    "out_tok": 6022,
+    "reasoning_tok": 5400
+   },
+   "input_floor": [
+    21198,
+    2048
+   ],
+   "usd_per_call": 0.153126,
+   "usd_total": 9.1875,
+   "usd_per_pass": 0.180148,
+   "usd_per_pass_L1_L2": 0.102876,
+   "pass_L1_L2": [
+    20,
+    20
+   ],
+   "cost_kind": "measured",
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 5,
+    "p05_pass_route": 5,
+    "p06_calc": 1,
+    "p07_weighted_distance_sums": 4,
+    "p08_recur": 5,
+    "p09_k_machine_schedule": 5,
+    "p10_avoid_count": 5,
+    "p11_best_average": 5,
+    "p12_sheet": 1
+   }
+  }
+ },
+ "grok_first": {
   "grok47-low": {
    "cli": "grok",
    "model": "grok-4.7",
@@ -2020,6 +2339,457 @@
     "p11_best_average": 5,
     "p12_sheet": 5
    }
+  },
+  "terra56-high": {
+   "cli": "codex",
+   "model": "gpt-5.6-terra",
+   "effort": "high",
+   "n": 12,
+   "passes": 12,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 2,
+     "n": 2
+    },
+    "L2": {
+     "passed": 2,
+     "n": 2
+    },
+    "L3": {
+     "passed": 2,
+     "n": 2
+    },
+    "L4": {
+     "passed": 2,
+     "n": 2
+    },
+    "L5": {
+     "passed": 2,
+     "n": 2
+    },
+    "L6": {
+     "passed": 2,
+     "n": 2
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 12
+   },
+   "latency_s": {
+    "median": 17.52,
+    "p25": 8.64,
+    "p75": 32.33,
+    "p90": 34.12,
+    "max": 35.96
+   },
+   "tokens_mean": {
+    "in_tok": 13040,
+    "cached_tok": 11179,
+    "out_tok": 1024,
+    "reasoning_tok": 502
+   },
+   "input_floor": [
+    12847,
+    11008
+   ],
+   "usd_per_call": 0.018247,
+   "usd_total": 0.219,
+   "usd_per_pass": 0.018247,
+   "usd_per_pass_L1_L2": 0.010806,
+   "pass_L1_L2": [
+    4,
+    4
+   ],
+   "cost_kind": "proxy",
+   "vs": [
+    {
+     "b": "luna-low",
+     "diff": 0.2333,
+     "ci95": [
+      0.05,
+      0.45
+     ],
+     "problems": 12
+    },
+    {
+     "b": "haiku-low",
+     "diff": 0.05,
+     "ci95": [
+      0.0,
+      0.15
+     ],
+     "problems": 12
+    },
+    {
+     "b": "luna-medium",
+     "diff": 0.2167,
+     "ci95": [
+      0.0333,
+      0.4333
+     ],
+     "problems": 12
+    }
+   ],
+   "usd_per_pass_uncached": 0.038368,
+   "by_problem": {
+    "p01_overlap_minutes": 1,
+    "p02_squash": 1,
+    "p03_ledger": 1,
+    "p04_taller_within": 1,
+    "p05_pass_route": 1,
+    "p06_calc": 1,
+    "p07_weighted_distance_sums": 1,
+    "p08_recur": 1,
+    "p09_k_machine_schedule": 1,
+    "p10_avoid_count": 1,
+    "p11_best_average": 1,
+    "p12_sheet": 1
+   }
+  },
+  "terra56-low": {
+   "cli": "codex",
+   "model": "gpt-5.6-terra",
+   "effort": "low",
+   "n": 12,
+   "passes": 9,
+   "pass_at_1": 0.75,
+   "ci95": [
+    0.5,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 2,
+     "n": 2
+    },
+    "L2": {
+     "passed": 2,
+     "n": 2
+    },
+    "L3": {
+     "passed": 2,
+     "n": 2
+    },
+    "L4": {
+     "passed": 2,
+     "n": 2
+    },
+    "L5": {
+     "passed": 1,
+     "n": 2
+    },
+    "L6": {
+     "passed": 0,
+     "n": 2
+    }
+   },
+   "breaking_point": "L6",
+   "outcomes": {
+    "pass": 9,
+    "wrong": 2,
+    "timeout": 1
+   },
+   "latency_s": {
+    "median": 14.05,
+    "p25": 10.94,
+    "p75": 18.36,
+    "p90": 22.3,
+    "max": 34.3
+   },
+   "tokens_mean": {
+    "in_tok": 13041,
+    "cached_tok": 11093,
+    "out_tok": 585,
+    "reasoning_tok": 86
+   },
+   "input_floor": [
+    12849,
+    11008
+   ],
+   "usd_per_call": 0.01313,
+   "usd_total": 0.1576,
+   "usd_per_pass": 0.017506,
+   "usd_per_pass_L1_L2": 0.009404,
+   "pass_L1_L2": [
+    4,
+    4
+   ],
+   "cost_kind": "proxy",
+   "vs": [
+    {
+     "b": "luna-low",
+     "diff": -0.0167,
+     "ci95": [
+      -0.2167,
+      0.2
+     ],
+     "problems": 12
+    },
+    {
+     "b": "haiku-low",
+     "diff": -0.2,
+     "ci95": [
+      -0.4167,
+      0.0
+     ],
+     "problems": 12
+    },
+    {
+     "b": "luna-medium",
+     "diff": -0.0333,
+     "ci95": [
+      -0.2667,
+      0.1833
+     ],
+     "problems": 12
+    }
+   ],
+   "usd_per_pass_uncached": 0.04413,
+   "by_problem": {
+    "p01_overlap_minutes": 1,
+    "p02_squash": 1,
+    "p03_ledger": 1,
+    "p04_taller_within": 1,
+    "p05_pass_route": 1,
+    "p06_calc": 1,
+    "p07_weighted_distance_sums": 1,
+    "p08_recur": 1,
+    "p09_k_machine_schedule": 0,
+    "p10_avoid_count": 1,
+    "p11_best_average": 0,
+    "p12_sheet": 0
+   }
+  },
+  "terra61-high": {
+   "cli": "codex",
+   "model": "gpt-6.1-terra",
+   "effort": "high",
+   "n": 60,
+   "passes": 58,
+   "pass_at_1": 0.9667,
+   "ci95": [
+    0.8833,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 8,
+     "n": 10
+    },
+    "L3": {
+     "passed": 10,
+     "n": 10
+    },
+    "L4": {
+     "passed": 10,
+     "n": 10
+    },
+    "L5": {
+     "passed": 10,
+     "n": 10
+    },
+    "L6": {
+     "passed": 10,
+     "n": 10
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 58,
+    "wrong": 2
+   },
+   "latency_s": {
+    "median": 11.93,
+    "p25": 8.45,
+    "p75": 15.42,
+    "p90": 19.51,
+    "max": 38.62
+   },
+   "tokens_mean": {
+    "in_tok": 15668,
+    "cached_tok": 11821,
+    "out_tok": 643,
+    "reasoning_tok": 135
+   },
+   "input_floor": [
+    13871,
+    12160
+   ],
+   "usd_per_call": 0.007654,
+   "usd_total": 0.4592,
+   "usd_per_pass": 0.007918,
+   "usd_per_pass_L1_L2": 0.011076,
+   "pass_L1_L2": [
+    18,
+    20
+   ],
+   "cost_kind": "proxy",
+   "vs": [
+    {
+     "b": "luna-low",
+     "diff": 0.2,
+     "ci95": [
+      0.0333,
+      0.4
+     ],
+     "problems": 12
+    },
+    {
+     "b": "haiku-low",
+     "diff": 0.0167,
+     "ci95": [
+      -0.1,
+      0.1333
+     ],
+     "problems": 12
+    },
+    {
+     "b": "luna-medium",
+     "diff": 0.1833,
+     "ci95": [
+      0.0167,
+      0.4
+     ],
+     "problems": 12
+    }
+   ],
+   "usd_per_pass_uncached": 0.019535,
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 3,
+    "p05_pass_route": 5,
+    "p06_calc": 5,
+    "p07_weighted_distance_sums": 5,
+    "p08_recur": 5,
+    "p09_k_machine_schedule": 5,
+    "p10_avoid_count": 5,
+    "p11_best_average": 5,
+    "p12_sheet": 5
+   }
+  },
+  "terra61-low": {
+   "cli": "codex",
+   "model": "gpt-6.1-terra",
+   "effort": "low",
+   "n": 60,
+   "passes": 60,
+   "pass_at_1": 1.0,
+   "ci95": [
+    1.0,
+    1.0
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 10,
+     "n": 10
+    },
+    "L2": {
+     "passed": 10,
+     "n": 10
+    },
+    "L3": {
+     "passed": 10,
+     "n": 10
+    },
+    "L4": {
+     "passed": 10,
+     "n": 10
+    },
+    "L5": {
+     "passed": 10,
+     "n": 10
+    },
+    "L6": {
+     "passed": 10,
+     "n": 10
+    }
+   },
+   "breaking_point": null,
+   "outcomes": {
+    "pass": 60
+   },
+   "latency_s": {
+    "median": 10.34,
+    "p25": 7.98,
+    "p75": 14.78,
+    "p90": 20.92,
+    "max": 39.15
+   },
+   "tokens_mean": {
+    "in_tok": 18871,
+    "cached_tok": 11738,
+    "out_tok": 537,
+    "reasoning_tok": 21
+   },
+   "input_floor": [
+    13864,
+    12160
+   ],
+   "usd_per_call": 0.010405,
+   "usd_total": 0.6243,
+   "usd_per_pass": 0.010405,
+   "usd_per_pass_L1_L2": 0.009187,
+   "pass_L1_L2": [
+    20,
+    20
+   ],
+   "cost_kind": "proxy",
+   "vs": [
+    {
+     "b": "luna-low",
+     "diff": 0.2333,
+     "ci95": [
+      0.05,
+      0.45
+     ],
+     "problems": 12
+    },
+    {
+     "b": "haiku-low",
+     "diff": 0.05,
+     "ci95": [
+      0.0,
+      0.15
+     ],
+     "problems": 12
+    },
+    {
+     "b": "luna-medium",
+     "diff": 0.2167,
+     "ci95": [
+      0.0333,
+      0.45
+     ],
+     "problems": 12
+    }
+   ],
+   "usd_per_pass_uncached": 0.021555,
+   "by_problem": {
+    "p01_overlap_minutes": 5,
+    "p02_squash": 5,
+    "p03_ledger": 5,
+    "p04_taller_within": 5,
+    "p05_pass_route": 5,
+    "p06_calc": 5,
+    "p07_weighted_distance_sums": 5,
+    "p08_recur": 5,
+    "p09_k_machine_schedule": 5,
+    "p10_avoid_count": 5,
+    "p11_best_average": 5,
+    "p12_sheet": 5
+   }
   }
  },
  "hard": {
@@ -2809,6 +3579,26 @@
      "passed": 5,
      "n": 5,
      "fails": {}
+    },
+    "terra56-high": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra56-low": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "terra61-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
     }
    }
   },
@@ -2906,6 +3696,28 @@
      "passed": 5,
      "n": 5,
      "fails": {}
+    },
+    "terra56-high": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra56-low": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra61-high": {
+     "passed": 3,
+     "n": 5,
+     "fails": {
+      "wrong": 2
+     }
+    },
+    "terra61-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
     }
    }
   },
@@ -2992,6 +3804,26 @@
      "fails": {}
     },
     "sol61-high-fast": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "terra56-high": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra56-low": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "terra61-low": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -3084,6 +3916,26 @@
      "passed": 5,
      "n": 5,
      "fails": {}
+    },
+    "terra56-high": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra56-low": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "terra61-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
     }
    }
   },
@@ -3169,6 +4021,26 @@
      "fails": {}
     },
     "sol61-high-fast": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "terra56-high": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra56-low": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "terra61-low": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -3258,6 +4130,26 @@
      "fails": {}
     },
     "sol61-high-fast": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "terra56-high": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra56-low": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "terra61-low": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -3353,6 +4245,28 @@
      "passed": 5,
      "n": 5,
      "fails": {}
+    },
+    "terra56-high": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra56-low": {
+     "passed": 0,
+     "n": 1,
+     "fails": {
+      "wrong": 1
+     }
+    },
+    "terra61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "terra61-low": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
     }
    }
   },
@@ -3441,6 +4355,26 @@
      "fails": {}
     },
     "sol61-high-fast": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "terra56-high": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra56-low": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "terra61-low": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -3533,6 +4467,28 @@
      "fails": {}
     },
     "sol61-high-fast": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "terra56-high": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra56-low": {
+     "passed": 0,
+     "n": 1,
+     "fails": {
+      "wrong": 1
+     }
+    },
+    "terra61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "terra61-low": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -3638,6 +4594,28 @@
      "fails": {}
     },
     "sol61-high-fast": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "terra56-high": {
+     "passed": 1,
+     "n": 1,
+     "fails": {}
+    },
+    "terra56-low": {
+     "passed": 0,
+     "n": 1,
+     "fails": {
+      "timeout": 1
+     }
+    },
+    "terra61-high": {
+     "passed": 5,
+     "n": 5,
+     "fails": {}
+    },
+    "terra61-low": {
      "passed": 5,
      "n": 5,
      "fails": {}
@@ -4891,13 +5869,13 @@
   "claude_measured_usd": 2.4624,
   "claude_function_usd": 1.6128,
   "claude_agentic_usd": 0.8496,
-  "codex_proxy_usd": 36.2653,
+  "codex_proxy_usd": 37.7254,
   "codex_fastmode_usd": 3.4069,
   "calls": {
-   "function": 1348,
+   "function": 1606,
    "agentic": 84
   },
-  "grok_measured_usd": 6.4254
+  "grok_measured_usd": 22.3741
  },
  "hypotheses": {
   "H1": {

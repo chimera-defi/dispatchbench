@@ -8,7 +8,7 @@ from collections import defaultdict
 
 from analysis.stats import hier_boot, paired_boot, p90
 from analysis.labels import DISP, plabel, pshort
-from analysis.configs import GROK_CONFIGS, SOURCES
+from analysis.configs import GROK_CONFIGS, GROK_PARTIAL, ONE_REPEAT, FIRST_GROK_FILE, SOURCES
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RES = os.path.join(ROOT, "results")
@@ -85,7 +85,9 @@ def cost(r):
 def list_cost(r):
     """CLI-measured for Claude and Grok; token-price proxy for Codex."""
     if measured(r):
-        return r.get("cost_usd") if r.get("cost_usd") is not None else r.get("total_cost_usd")
+        got = r.get("cost_usd") if r.get("cost_usd") is not None else r.get("total_cost_usd")
+        # A Grok call killed at the 20-minute limit returns no bill. It counts as a failed attempt at $0, so Grok $ per pass is a floor by those calls.
+        return 0.0 if got is None and r["cli"] == "grok" and r.get("is_error") else got
     if r.get("is_error"): return None
     p = PRICES[r["model"]]
     return ((r["in_tok"] - r["cached_tok"]) * p["input"] + r["cached_tok"] * p["cached_input"] + r["out_tok"] * p["output"]) / 1e6
@@ -335,6 +337,15 @@ def build():
                 blk = config_block(rr)
                 blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}
                 s["grok"][c] = blk
+        # The earlier 2-repeat run on p01-p06 (2026-10-26), kept as its own labelled block.
+        first = [r for r in gr if r.get("_file", FIRST_GROK_FILE) == FIRST_GROK_FILE]
+        s["grok_first"] = {}
+        for c in GROK_CONFIGS:
+            rr = [r for r in first if r["config"] == c]
+            if rr:
+                blk = config_block(rr)
+                blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}
+                s["grok_first"][c] = blk
     xr = [r for r in rows if r["phase"] == "exploratory" and r["config"] not in GROK_CONFIGS]
     s["exploratory"] = {}
     for c in sorted({r["config"] for r in xr}):
@@ -401,6 +412,7 @@ def manifest(rows, agent, s):
             "first_call_utc": min(r["ts"] for r in allr) if allr else None, "last_call_utc": max(r["ts"] for r in allr) if allr else None,
             "rows_by_phase": s["phases"], "agentic_runs": len(agent), "claude_budget_cap_usd": R.CLAUDE_BUDGET_USD, "spend": s["spend"],
             "errors": errs, "prices": "results/prices.json", "generated_from": s["generated_from"], "exploratory": exploratory_manifest()}
+    out["models_ran"] = sorted({r["model"] for r in allr if r.get("model")})
     sha = git_sha()
     for c, v in s.get("grok", {}).items():
         out["configs"][c] = {k: v[k] for k in ("cli", "model", "effort")}
@@ -524,10 +536,14 @@ def tables(s):
     for p, v in s["problems"].items():
         L.append(f"| {plabel(p, v['rung'])} | " + " | ".join(str(v[c]) if c in v else str(fast_cols[c]["by_problem"][p]) for c in byrung) + " |")
     if s.get("grok"):
-        L += ["", "## Grok (first half)", "",
-              "Exploratory function lane, added 2026-10-26 at operator request: p01–p06 (L1–L3). "
-              "L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained. "
-              "CLI-reported cost; list price not used. L4–L6 were not run; excluded from full-ladder comparisons.", "",
+        cover = {c: len(v["by_problem"]) for c, v in s["grok"].items()}
+        wide = max(cover.values())
+        part = [c for c in cover if cover[c] < wide]
+        L += ["", f"## Grok (all {wide} problems" + (f"; {', '.join(part)} p01–p06 only)" if part else ")") if wide == len(s["problems"])
+              else f"## Grok (first half, {wide} of {len(s['problems'])} problems)", "",
+              "Exploratory function lane, added 2026-10-26 at operator request and completed 2026-10-28 (PLAN.md deviation 23): "
+              "p01–p12 (L1–L6), 5 repeats per problem for every config except grok47-medium, which stayed on p01–p06 and was not extended. "
+              "CLI-reported cost; list price not used. A call killed at the time limit has no bill and counts as a miss at $0.", "",
               "| config | coverage | passed | $ per pass | total $ | median s |", "|---|---|---|---|---|---|"]
         for c, v in s["grok"].items():
             L.append(f"| {DISP(c)} | {len(v['by_problem'])} of {len(s['problems'])} problems | {pct(v['pass_at_1'])} ({v['passes']}/{v['n']}) | "
@@ -550,7 +566,7 @@ def tables(s):
     for c, v in s.get("exploratory", {}).items():
         from bench.run import TRIM_LEVEL
         what = f"Codex trim level {TRIM_LEVEL[c]}" if c in TRIM_LEVEL else "stock harness"
-        L += ["", f"## Exploratory, not pre-registered: {DISP(c)} ({what}, full ladder)", "",
+        L += ["", f"## Exploratory, not pre-registered: {DISP(c)} ({what}, {'one repeat on the full ladder' if c in ONE_REPEAT else 'full ladder'})", "",
               "By rung: " + ", ".join(f"{g} {b['passed']}/{b['n']}" for g, b in v["by_rung"].items()), "",
               "| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |", "|---|---|---|---|---|---|---|---|---|---|---|",
               f"| {DISP(c)} | {pct(v['pass_at_1'])} ({v['passes']}/{v['n']}) | {ci_text(v['passes'], v['n'], v['ci95'], len(s['problems']))} | {v['breaking_point'] or 'none ≤ L6'} | "
