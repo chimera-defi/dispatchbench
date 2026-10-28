@@ -554,32 +554,52 @@ def explorer_marker(r, x, y, radius=6):
     return f'<circle cx="{x:.2f}" cy="{y:.2f}" r="{radius}" {attrs}/>'
 
 
-def explorer_label_position(q, label, placed, points, left, right, top, bottom):
-    """Nudge vertically in a stable order; avoid labels and every point."""
-    width = len(label) * 7
-    x = max(left, min(right-width, q[0]+14))
-    base = max(top+14, min(bottom-4, q[1]-14))
-    candidates = [base]
-    for n in range(1, math.ceil((bottom-top)/18)+1):
-        candidates.extend((base+n*18, base-n*18))
-    best, best_score = (x, base, width), math.inf
-    for y in candidates:
-        if not top+14 <= y <= bottom-4: continue
-        overlaps = sum(x < px+pw+6 and px < x+width+6 and abs(py-y) < 18 for px,py,pw in placed)
-        hits = sum(x-9 <= px <= x+width+9 and y-22 <= py <= y+10 for px,py in points)
-        score = overlaps + hits
-        if score < best_score:
-            best, best_score = (x,y,width), score
-            if not score: break
-    return best
+def explorer_leader(q, target, obstacles, width, height):
+    """Stable orthogonal routing through free cells, ending outside the point ring.
+
+    Points, confidence intervals and label text reserve padded boxes. No segment
+    enters those boxes; an inaccessible point keeps its label without a leader.
+    """
+    from collections import deque
+    step = 4
+    cols, rows = math.floor(width/step), math.floor(height/step)
+    blocked = set()
+    for left, top, right, bottom in obstacles:
+        for y in range(max(1, math.ceil(top/step)), min(rows-1, math.floor(bottom/step))+1):
+            for x in range(max(1, math.ceil(left/step)), min(cols-1, math.floor(right/step))+1):
+                blocked.add((x, y))
+    origin = (min(cols-1, max(1, round(target[0]/step))), min(rows-1, max(1, round(target[1]/step))))
+    if origin in blocked: return ""
+    queue, parent = deque([origin]), {origin: None}
+    found = None
+    while queue:
+        node = queue.popleft(); x, y = node
+        if 14 <= math.hypot(x*step-q[0], y*step-q[1]) <= 20:
+            found = node; break
+        for nxt in ((x,y+1), (x-1,y), (x+1,y), (x,y-1)):
+            nx, ny = nxt
+            if not (1 <= nx < cols and 1 <= ny < rows) or nxt in parent or nxt in blocked: continue
+            # Padding by a cell prevents a segment jumping a thin whisker.
+            parent[nxt] = node; queue.append(nxt)
+    if found is None: return ""
+    points = []
+    while found is not None:
+        points.append((found[0]*step, found[1]*step)); found = parent[found]
+    compact = points[:1]
+    for i in range(1, len(points)-1):
+        a,b,c = points[i-1:i+2]
+        if (b[0]-a[0])*(c[1]-b[1]) != (b[1]-a[1])*(c[0]-b[0]): compact.append(b)
+    compact += points[-1:]
+    return "M" + "L".join(f"{x} {y}" for x,y in compact)
 
 
-def explorer_svg(exp, standalone=False):
+def explorer_svg(exp, standalone=False, width=760):
     """The default view, pre-rendered for no-JS readers and the OG source."""
     st = next(s for s in exp["sets"] if s["id"] == exp["default_set"])
     rows = [r for r in exp["rows"] if r["key"] in st["rows"] and r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None]
     ext = st["views"]["list"]["extents"]; membership = st["views"]["list"]["front"]["membership"]
-    W,H,L,R,T,B = 760,480,90,30,36,410
+    label_rows = [r for r in rows if membership[r['key']]['on_frontier'] or width > 480 and r['winner_pick']]
+    W,H,L,R,T,B = width,480,90,30,len(label_rows)*18+46,410
     lo,hi = ext["cost"]; p0,p1 = ext["pass_rate"]
     X = lambda v: L + math.log(v/lo)/math.log(hi/lo)*(W-L-R)
     Y = lambda v: B - (v-p0)/(p1-p0)*(B-T)
@@ -608,26 +628,28 @@ def explorer_svg(exp, standalone=False):
         b.append(f'<g class="ex-point" data-key="{escape(r["key"])}" tabindex="0" role="button" aria-label="{escape(title)}"><title>{escape(title)}</title>')
         if membership[r['key']]['on_frontier']: b.append(f'<circle class="ex-ring" cx="{x:.2f}" cy="{y:.2f}" r="11"/>')
         b += [explorer_marker(r,x,y),'</g>']
-    # Match the interactive label pass, including winner picks and point clearance.
-    labels, placed = [], []
+    # Labels live above the cloud, with routes that clear every mark and whisker.
+    obstacles = []
     for r in rows:
-        if not (membership[r['key']]['on_frontier'] or r['winner_pick']): continue
-        q = positions[r['config']]
-        same = next((l for l in labels if math.hypot(l[0][0]-q[0], l[0][1]-q[1]) < 1), None)
-        if same: same[1].append(r['display'])
-        else: labels.append((q, [r['display']]))
-    for q,names in labels:
-        label = f'{len(names)} tied at this point' if len(names)>1 else names[0]
-        x,y,w = explorer_label_position(q,label,placed,positions.values(),L,W-R,T,B)
-        placed.append((x,y,w))
-        b += [f'<path class="ex-leader" d="M{q[0]:.2f} {q[1]:.2f}L{x:.2f} {y-4:.2f}"/>',
-              text(x,y,label,12).replace('<text ', '<text class="ex-label" ', 1)]
+        x,y = positions[r['config']]
+        obstacles.extend(((x-12,y-12,x+12,y+12),
+                          (x-5,Y(r['ci95_plot'][1])-4,x+5,Y(r['ci95_plot'][0])+4)))
+    labels = []
+    for i,r in enumerate(label_rows):
+        q = positions[r['config']]; label = r['display']
+        x,y,w = 12,18+i*18,min(len(label)*7,W-36)
+        labels.append((r,q,label,x,y,w))
+        obstacles.append((x-4,y-15,x+w+4,y+4))
+    for r,q,label,x,y,w in labels:
+        route = explorer_leader(q,(x+w+12,y-4),obstacles,W,H)
+        b += [f'<path class="ex-leader" data-key="{escape(r["key"])}" d="{route}"/>',
+              text(x,y,label,12).replace('<text ', f'<text class="ex-label" data-key="{escape(r["key"])}" ', 1)]
     b += [text((L+W-R)/2,H-18,'$ per pass (log) · left is cheaper',12,'middle',MUTED),text(22,(T+B)/2,'Pass rate · up is better',12,'middle',MUTED,rotate=-90)]
     if standalone:
         tokens = token_style()
         paint = ".ex-grid{fill:none;stroke:var(--data-grid)}.ex-front{fill:none;stroke:var(--frontier);stroke-dasharray:5 4}.ex-shade{fill:var(--data-beaten)}.ex-ci{fill:none;stroke-width:1.5;opacity:.35}.ex-ring{fill:none;stroke:var(--frontier);stroke-width:2}.ex-trail{fill:none;opacity:.5}.ex-leader{fill:none;stroke:var(--muted);stroke-width:1}.ex-svg{background:var(--panel)}"
         b.insert(0,tokens+"<style>"+paint+"</style>")
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" class="ex-svg">'+''.join(b)+'</svg>')
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" class="ex-svg" style="min-width:0">'+''.join(b)+'</svg>')
 
 
 def explorer_panels(exp):
