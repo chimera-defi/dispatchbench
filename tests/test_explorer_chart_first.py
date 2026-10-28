@@ -132,10 +132,26 @@ def test_default_leaders_clear_points_and_confidence_intervals(ds, phone):
             assert_clear(ET.fromstring(sample['chart']))
 
 
+def test_phone_leaders_do_not_overlap_each_other(ds, phone):
+    trees = [ET.fromstring(charts.explorer_svg(ds['explorer'], width=390))]
+    trees.extend(ET.fromstring(sample['chart']) for sample in phone
+                 if sample['width'] == 390 and not sample['focused'])
+    for tree in trees:
+        routes = [segments(e.get('d')) for e in tree.findall('.//s:path[@class="ex-leader"]', NS)]
+        for i, route in enumerate(routes):
+            assert route
+            for (x,y),(xx,yy) in route:
+                for other in routes[:i]:
+                    for (ox,oy),(oxx,oyy) in other:
+                        assert not (max(min(x,xx),min(ox,oxx)) <= min(max(x,xx),max(ox,oxx))
+                                    and max(min(y,yy),min(oy,oyy)) <= min(max(y,yy),max(oy,oyy)))
+
+
 def test_caption_uses_dataset_fact_and_changes_with_measurements(ds):
     finding = ds['facts']['explorer_finding']
     assert finding == dataset.explorer_finding(ds['explorer'])
     assert finding in page.explorer(dataset.view(ds))
+    assert finding.startswith('On the main ladder plus partial runs, at list price, the frontier is ')
     assert 'haiku-high is cheapest at the top observed pass rate (100%), at $0.0028 per pass' in finding
     exp = copy.deepcopy(ds['explorer'])
     row = next(r for r in exp['rows'] if r['config'] == 'haiku-high' and r['set'] == 'main ladder')
