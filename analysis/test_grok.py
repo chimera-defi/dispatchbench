@@ -403,8 +403,9 @@ OLD_GROK_CLAIMS = (
 # facts are separately compared with main 3561692 in test_pareto_explorer.py.
 # S1-S4: theme, topbar, explorer fixes
 # S5: inline tokens/topbar CSS
+# P4: P4b_chart — chart-first explorer, phone frontier labels and dataset finding; Grok bytes unchanged.
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': '98a50c33d91a148387ac6d572f86e8442ccaa03709d01b76288aae99b8c8172b',
+    'results/report/page.html': 'cecd1a897924d81ddd244347d7cf30d2bd9582ca386fbcc0c62df8d6bbb5b631',
     'docs/REPORT.md': 'd3e3893c66e2f4ec06f26e2adcfbf82a9bac634293b2e555f252666000a1142e',
 }
 
