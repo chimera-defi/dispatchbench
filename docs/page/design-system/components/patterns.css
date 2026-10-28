@@ -1,0 +1,9 @@
+/* Source: chimera-defi/chimericlabs-llc design-system/components/patterns.css
+   Pinned SHA: c56032fca7ccb5a9661c247f0d6160a576c4b637 */
+.ex-kicker{display: block; margin-bottom: 14px; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--color-kicker);}
+.btn[aria-pressed="true"]{color: var(--color-accent); border-color: var(--color-accent);}
+.btn:focus-visible{outline: 2px solid var(--color-accent); outline-offset: 2px;}
+select.input{appearance: auto;}
+.ex-values{display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; margin: 0; font-size: 14px; font-feature-settings: 'tnum' 1;}
+.ex-values dt{color: var(--color-muted);}
+.ex-values dd{margin: 0; text-align: right;}
