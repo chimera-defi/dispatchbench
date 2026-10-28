@@ -49,7 +49,7 @@ report:              ## render existing results; grading/export is explicit to p
 	$(PY) -m analysis.raw_runs
 	$(PY) -m analysis.og
 
-audit:               ## fail if any committed number, table, chart, README or page differs from what the data give
+audit: contrast      ## fail if any committed number, table, chart, README or page differs from what the data give
 	$(PY) -m analysis.audit
 
 solutions:           ## export every graded completion to results/solutions/ (no model calls)
@@ -68,3 +68,8 @@ quality:
 .PHONY: sync-design-system
 sync-design-system:
 	$(PY) docs/page/design-system/scripts/sync.py "$(SHA)" $(if $(SOURCE_REPO),--source-repo "$(SOURCE_REPO)")
+
+.PHONY: contrast
+contrast:            ## pinned site dark pairs and DispatchBench theme equivalents
+	node docs/page/design-system/scripts/check-contrast.mjs
+	$(PY) tools/check_contrast.py
