@@ -383,7 +383,7 @@ Three more problems, written and checked before any model saw them (PLAN.md, dev
 |---|---|---|---|---|---|---|---|---|---|
 | astra-medium | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 30.6 | 315 | $0.083 | proxy |
 | astra-medium-fast | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 15.4 | 327 | $0.16 | proxy |
-| haiku-high | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 27.4 | 4,483 | $0.0034 | measured |
+| haiku-high | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 27.5 | 4,483 | $0.0034 | measured |
 | luna-high | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 24.0 | 1,569 | $0.0015 | proxy |
 | sol61-high | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 52.7 | 1,151 | $0.024 | proxy |
 | sol61-high-fast | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 29.4 | 1,015 | $0.044 | proxy |

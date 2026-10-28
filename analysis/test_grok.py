@@ -407,9 +407,11 @@ OLD_GROK_CLAIMS = (
 # P4: P4b_chart — chart-first explorer, phone frontier labels and dataset finding; Grok bytes unchanged.
 # P4: P4c_ds + P4d integration
 # P4: P4e zoom fix
+# P4: P4f spot-check - raw-median presentation and harness-build provenance.
+# Grok HTML changes only one catalog cell: <td>39.5</td> -> <td>39.4</td>.
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': '2607c555a4d50065c74b6856f20b270c6e42971650e0f86c0721e64d152b33cf',
-    'docs/REPORT.md': 'd3e3893c66e2f4ec06f26e2adcfbf82a9bac634293b2e555f252666000a1142e',
+    'results/report/page.html': 'd674652c18859510be9863b322944c1c79fadb4183c576ac5ef492145747cc05',
+    'docs/REPORT.md': 'de2e362eb61a9240b1cd23e4bc03a83f38001ff5d54353e941315f4effd97507',
 }
 
 

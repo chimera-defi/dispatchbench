@@ -233,7 +233,7 @@ def where(e, rest, chart_bodies):
 def section(rest, ds, root, chart_bodies=None, grok_only=False):
     """The collapsible "Everything we tried" block, one row per registry entry from the dataset catalog. rest = the page HTML without
     this block, used for the 'where it appears' column."""
-    from analysis.dataset import catalog_rows, usd as money
+    from analysis.dataset import catalog_rows, median_seconds, usd as money
     chart_bodies = chart_bodies or {}
     by = {}
     grok_categories = set()
@@ -262,7 +262,7 @@ def section(rest, ds, root, chart_bodies=None, grok_only=False):
             mark = (f"{e['task_complete']}/{e['n']} complete ({e['hidden_pass']}/{e['n']} hidden)"
                     if e["rule"] == "task_complete" else f"{e['passes']}/{e['n']}")
             out.append(f"<tr><td title=\"{html.escape(', '.join(e['files']))}\">{html.escape(e['display'])}</td><td>{html.escape(e['what'])}</td><td>{mark}</td>"
-                       f"<td>{cell_markup((proxy if e['usd_per_pass'] is not None else '') + money(e['usd_per_pass']))}</td><td>{e['median_s']:.1f}</td><td>{cell_markup((proxy if spend is not None else '') + money(spend))}</td><td>{where(e, rest, chart_bodies)}</td></tr>")
+                       f"<td>{cell_markup((proxy if e['usd_per_pass'] is not None else '') + money(e['usd_per_pass']))}</td><td>{median_seconds(e):.1f}</td><td>{cell_markup((proxy if spend is not None else '') + money(spend))}</td><td>{where(e, rest, chart_bodies)}</td></tr>")
         out.append("</tbody></table></div></details>")
     out += [f"<details><summary>unregistered</summary><p>{html.escape(r['display'])} ({r['source']})</p></details>" for es in by.values() for r in es]
     if not grok_only:

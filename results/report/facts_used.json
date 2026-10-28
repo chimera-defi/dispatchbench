@@ -102,6 +102,8 @@
 "hb_minutes",
 "hb_n_problems",
 "hb_range_points",
+"hb_repeat_cap_lines",
+"hb_repeat_cap_source",
 "hb_repeats",
 "hb_subset",
 "hb_total_x",
