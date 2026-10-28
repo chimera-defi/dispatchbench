@@ -1,0 +1,148 @@
+diff --git a/cfg/loader.py b/cfg/loader.py
+index acd880f..8430fff 100644
+--- a/cfg/loader.py
++++ b/cfg/loader.py
+@@ -1,9 +1,77 @@
++from .errors import ConfigError
+ from .parser import parse
+ 
+ 
+ def load(text: str) -> dict[str, dict[str, str]]:
+     """Parse config text and return the resolved values."""
+-    return parse(text)
++    config = parse(text)
++    lines: dict[tuple[str, str], int] = {}
++    section = ""
++    for n, raw in enumerate(text.splitlines(), 1):
++        line = raw.strip()
++        if not line or line.startswith("#"):
++            continue
++        if line.startswith("[") and line.endswith("]"):
++            section = line[1:-1].strip()
++            continue
++        key = line.split("=", 1)[0].strip()
++        lines[(section, key)] = n
++
++    resolved: dict[tuple[str, str], str] = {}
++    active: list[tuple[str, str]] = []
++
++    def qualified(name: tuple[str, str]) -> str:
++        section, key = name
++        return f"{section}.{key}" if section else f".{key}"
++
++    def resolve(name: tuple[str, str], outer_line: int | None = None) -> str:
++        if name in resolved:
++            return resolved[name]
++        if name in active:
++            start = active.index(name)
++            chain = active[start:] + [name]
++            raise ConfigError("reference cycle: " + " -> ".join(map(qualified, chain)), outer_line)
++
++        line_number = lines.get(name)
++        if outer_line is None:
++            outer_line = line_number
++        active.append(name)
++        value = config[name[0]][name[1]]
++        result: list[str] = []
++        i = 0
++        try:
++            while i < len(value):
++                if value[i] != "$":
++                    result.append(value[i])
++                    i += 1
++                elif value.startswith("$$", i):
++                    result.append("$")
++                    i += 2
++                elif value.startswith("${", i):
++                    end = value.find("}", i + 2)
++                    if end < 0:
++                        raise ConfigError("unterminated ${", outer_line)
++                    ref = value[i + 2:end]
++                    if "." in ref:
++                        ref_section, _, ref_key = ref.rpartition(".")
++                    else:
++                        ref_section, ref_key = name[0], ref
++                    if ref_section not in config or ref_key not in config[ref_section]:
++                        raise ConfigError(f"unknown reference: {ref}", outer_line)
++                    result.append(resolve((ref_section, ref_key), outer_line))
++                    i = end + 1
++                else:
++                    raise ConfigError("unexpected $", outer_line)
++            resolved[name] = "".join(result)
++            return resolved[name]
++        finally:
++            active.pop()
++
++    for sec, entries in config.items():
++        for key in entries:
++            resolve((sec, key))
++
++    return {sec: {key: resolved[(sec, key)] for key in entries} for sec, entries in config.items()}
+ 
+ 
+ def get(config: dict[str, dict[str, str]], dotted: str) -> str:
+diff --git a/tests/test_refs.py b/tests/test_refs.py
+new file mode 100644
+index 0000000..d1300e3
+--- /dev/null
++++ b/tests/test_refs.py
+@@ -0,0 +1,59 @@
++import pytest
++
++from cfg.errors import ConfigError
++from cfg.loader import load
++
++
++def test_same_section_and_nested_references():
++    config = load("""[db]
++host = localhost
++address = ${host}:5432
++url = postgres://${address}
++""")
++    assert config["db"]["url"] == "postgres://localhost:5432"
++
++
++def test_dotted_and_unnamed_section_references():
++    config = load("""root = base
++[a.b]
++c = ${.root}-${root}
++[a]
++root = nested
++""")
++    assert config["a.b"]["c"] == "base-nested"
++
++
++def test_escape_and_multiple_references():
++    config = load("""[s]
++x = ok
++y = $$ ${x} $$
++""")
++    assert config["s"]["y"] == "$ ok $"
++
++
++@pytest.mark.parametrize("value", ["$x", "${x"])
++def test_malformed_reference(value):
++    with pytest.raises(ConfigError) as error:
++        load(f"[s]\nx = {value}\n")
++    assert error.value.line == 2
++
++
++def test_missing_reference_name_and_outer_line():
++    with pytest.raises(ConfigError) as error:
++        load("[s]\na = fine\nb = ${db.hostt}\n")
++    assert "unknown reference: db.hostt" in str(error.value)
++    assert error.value.line == 3
++
++
++def test_cycle_reports_chain_and_outer_line():
++    with pytest.raises(ConfigError) as error:
++        load("[a]\nx = ${y}\ny = ${x}\n")
++    assert str(error.value) == "line 2: reference cycle: a.x -> a.y -> a.x"
++    assert error.value.line == 2
++
++
++def test_references_are_resolved_in_file_order():
++    with pytest.raises(ConfigError) as error:
++        load("[a]\nx = ${y}\ny = ${missing}\n")
++    assert "unknown reference: missing" in str(error.value)
++    assert error.value.line == 2

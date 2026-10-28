@@ -1,0 +1,340 @@
+diff --git a/.pytest_cache/.gitignore b/.pytest_cache/.gitignore
+new file mode 100644
+index 0000000..bc1a1f6
+--- /dev/null
++++ b/.pytest_cache/.gitignore
+@@ -0,0 +1,2 @@
++# Created by pytest automatically.
++*
+diff --git a/.pytest_cache/CACHEDIR.TAG b/.pytest_cache/CACHEDIR.TAG
+new file mode 100644
+index 0000000..fce15ad
+--- /dev/null
++++ b/.pytest_cache/CACHEDIR.TAG
+@@ -0,0 +1,4 @@
++Signature: 8a477f597d28d172789f06886806bc55
++# This file is a cache directory tag created by pytest.
++# For information about cache directory tags, see:
++#	https://bford.info/cachedir/spec.html
+diff --git a/.pytest_cache/README.md b/.pytest_cache/README.md
+new file mode 100644
+index 0000000..b89018c
+--- /dev/null
++++ b/.pytest_cache/README.md
+@@ -0,0 +1,8 @@
++# pytest cache directory #
++
++This directory contains data from the pytest's cache plugin,
++which provides the `--lf` and `--ff` options, as well as the `cache` fixture.
++
++**Do not** commit this to version control.
++
++See [the docs](https://docs.pytest.org/en/stable/how-to/cache.html) for more information.
+diff --git a/.pytest_cache/v/cache/nodeids b/.pytest_cache/v/cache/nodeids
+new file mode 100644
+index 0000000..af902a7
+--- /dev/null
++++ b/.pytest_cache/v/cache/nodeids
+@@ -0,0 +1,41 @@
++[
++  "tests/test_parser.py::test_duplicate_key_reports_line",
++  "tests/test_parser.py::test_sections_and_keys",
++  "tests/test_refs.py::test_cycle_chain_starts_at_repeated_key[[a]\\nouter = ${x}\\nx = ${b.y}\\n[b]\\ny = ${a.x}\\n-a.x -> b.y -> a.x-2]",
++  "tests/test_refs.py::test_cycle_chain_starts_at_repeated_key[[a]\\nx = ${x}\\n-a.x -> a.x-2]",
++  "tests/test_refs.py::test_cycle_chain_starts_at_repeated_key[[a]\\nx = ${y}\\ny = ${x}\\n-a.x -> a.y -> a.x-2]",
++  "tests/test_refs.py::test_cycle_chain_starts_at_repeated_key[x = ${a.y}\\n[a]\\ny = ${.x}\\n-.x -> a.y -> .x-1]",
++  "tests/test_refs.py::test_invalid_dollar[$$$]",
++  "tests/test_refs.py::test_invalid_dollar[$]",
++  "tests/test_refs.py::test_invalid_dollar[$x]",
++  "tests/test_refs.py::test_invalid_dollar[${key}$]",
++  "tests/test_refs.py::test_invalid_dollar[prefix $ suffix]",
++  "tests/test_refs.py::test_literal_dollars_and_empty_values[$$$$-$$]",
++  "tests/test_refs.py::test_literal_dollars_and_empty_values[$$${key}$$-$value$]",
++  "tests/test_refs.py::test_literal_dollars_and_empty_values[$$-$]",
++  "tests/test_refs.py::test_literal_dollars_and_empty_values[$${missing}-${missing}]",
++  "tests/test_refs.py::test_literal_dollars_and_empty_values[${empty}text${empty}-text]",
++  "tests/test_refs.py::test_literal_dollars_and_empty_values[-]",
++  "tests/test_refs.py::test_literal_dollars_and_empty_values[price: $$5-price: $5]",
++  "tests/test_refs.py::test_local_references_and_forward_chains",
++  "tests/test_refs.py::test_local_references_do_not_fall_back_to_unnamed_section",
++  "tests/test_refs.py::test_nested_local_references_use_the_target_section",
++  "tests/test_refs.py::test_nested_resolution_errors_use_outermost_definition_line[$bad]",
++  "tests/test_refs.py::test_nested_resolution_errors_use_outermost_definition_line[${missing}]",
++  "tests/test_refs.py::test_nested_resolution_errors_use_outermost_definition_line[${unfinished]",
++  "tests/test_refs.py::test_parse_keeps_raw_values_and_existing_behavior",
++  "tests/test_refs.py::test_parsing_finishes_before_resolution",
++  "tests/test_refs.py::test_qualified_dotted_and_unnamed_sections",
++  "tests/test_refs.py::test_references_are_resolved_left_to_right",
++  "tests/test_refs.py::test_resolution_follows_file_order_across_reopened_sections",
++  "tests/test_refs.py::test_substituted_values_are_not_scanned_again",
++  "tests/test_refs.py::test_unknown_reference_preserves_written_name[.missing]",
++  "tests/test_refs.py::test_unknown_reference_preserves_written_name[]",
++  "tests/test_refs.py::test_unknown_reference_preserves_written_name[a.b.c]",
++  "tests/test_refs.py::test_unknown_reference_preserves_written_name[db.hostt]",
++  "tests/test_refs.py::test_unknown_reference_preserves_written_name[hostt]",
++  "tests/test_refs.py::test_unknown_reference_preserves_written_name[missing.host]",
++  "tests/test_refs.py::test_unterminated_reference[${]",
++  "tests/test_refs.py::test_unterminated_reference[${key}${unfinished]",
++  "tests/test_refs.py::test_unterminated_reference[text ${key]"
++]
+\ No newline at end of file
+diff --git a/cfg/loader.py b/cfg/loader.py
+index acd880f..3bd4fe8 100644
+--- a/cfg/loader.py
++++ b/cfg/loader.py
+@@ -1,9 +1,73 @@
+-from .parser import parse
++from .errors import ConfigError
++from .parser import _parse
+ 
+ 
+ def load(text: str) -> dict[str, dict[str, str]]:
+     """Parse config text and return the resolved values."""
+-    return parse(text)
++    values, lines = _parse(text)
++    resolved: dict[tuple[str, str], str] = {}
++    stack: list[tuple[str, str]] = []
++    active: set[tuple[str, str]] = set()
++
++    def resolve(section: str, key: str) -> str:
++        name = (section, key)
++        if name in resolved:
++            return resolved[name]
++        if name in active:
++            cycle = stack[stack.index(name):] + [name]
++            chain = " -> ".join(f"{s}.{k}" for s, k in cycle)
++            raise ConfigError(f"reference cycle: {chain}")
++
++        stack.append(name)
++        active.add(name)
++        try:
++            raw = values[section][key]
++            parts = []
++            pos = 0
++            while pos < len(raw):
++                dollar = raw.find("$", pos)
++                if dollar == -1:
++                    parts.append(raw[pos:])
++                    break
++                parts.append(raw[pos:dollar])
++                if raw.startswith("$$", dollar):
++                    parts.append("$")
++                    pos = dollar + 2
++                elif raw.startswith("${", dollar):
++                    end = raw.find("}", dollar + 2)
++                    if end == -1:
++                        raise ConfigError("unterminated reference")
++                    reference = raw[dollar + 2:end]
++                    if "." in reference:
++                        target_section, _, target_key = reference.rpartition(".")
++                    else:
++                        target_section, target_key = section, reference
++                    if (
++                        target_section not in values
++                        or target_key not in values[target_section]
++                    ):
++                        raise ConfigError(f"unknown reference: {reference}")
++                    parts.append(resolve(target_section, target_key))
++                    pos = end + 1
++                else:
++                    raise ConfigError("invalid dollar escape")
++            resolved[name] = "".join(parts)
++            return resolved[name]
++        finally:
++            stack.pop()
++            active.remove(name)
++
++    for (section, key), line in lines.items():
++        try:
++            resolve(section, key)
++        except ConfigError as error:
++            # Preserve the resolution message and attribute it to the outermost key.
++            error.line = line
++            raise
++    return {
++        section: {key: resolved[section, key] for key in entries}
++        for section, entries in values.items()
++    }
+ 
+ 
+ def get(config: dict[str, dict[str, str]], dotted: str) -> str:
+diff --git a/cfg/parser.py b/cfg/parser.py
+index d024ec6..5d0251b 100644
+--- a/cfg/parser.py
++++ b/cfg/parser.py
+@@ -8,7 +8,15 @@ def parse(text: str) -> dict[str, dict[str, str]]:
+     Blank lines and lines starting with `#` are ignored. Entries before the first section go into "".
+     A repeated key in the same section is an error.
+     """
++    return _parse(text)[0]
++
++
++def _parse(
++    text: str,
++) -> tuple[dict[str, dict[str, str]], dict[tuple[str, str], int]]:
++    """Return raw values and definition lines, with keys in file order."""
+     out: dict[str, dict[str, str]] = {"": {}}
++    lines: dict[tuple[str, str], int] = {}
+     section = ""
+     for n, raw in enumerate(text.splitlines(), 1):
+         line = raw.strip()
+@@ -28,4 +36,5 @@ def parse(text: str) -> dict[str, dict[str, str]]:
+         if key in out[section]:
+             raise ConfigError(f"duplicate key {key!r}", n)
+         out[section][key] = value
+-    return out
++        lines[section, key] = n
++    return out, lines
+diff --git a/tests/test_refs.py b/tests/test_refs.py
+new file mode 100644
+index 0000000..1742691
+--- /dev/null
++++ b/tests/test_refs.py
+@@ -0,0 +1,147 @@
++import pytest
++
++from cfg.errors import ConfigError
++from cfg.loader import load
++from cfg.parser import parse
++
++
++def test_local_references_and_forward_chains():
++    config = load(
++        "[app]\n"
++        "url = https://${host}:${port}/${path}?host=${host}\n"
++        "host = ${hostname}\n"
++        "hostname = localhost\n"
++        "port = 8080\n"
++        "path = api\n"
++    )
++    assert config["app"]["url"] == "https://localhost:8080/api?host=localhost"
++    assert config["app"]["host"] == "localhost"
++
++
++def test_qualified_dotted_and_unnamed_sections():
++    config = load(
++        "root = base\n"
++        "alias = ${root}\n"
++        "[app]\n"
++        "value = ${a.b.c}/${.alias}/${db.host}\n"
++        "[a.b]\n"
++        "c = ${.root}\n"
++        "[db]\n"
++        "host = localhost\n"
++    )
++    assert config["app"]["value"] == "base/base/localhost"
++
++
++def test_nested_local_references_use_the_target_section():
++    config = load(
++        "host = global\n"
++        "[app]\n"
++        "host = app-host\n"
++        "url = ${db.url}/${host}\n"
++        "[db]\n"
++        "url = ${host}\n"
++        "host = db-host\n"
++    )
++    assert config["app"]["url"] == "db-host/app-host"
++
++
++def test_local_references_do_not_fall_back_to_unnamed_section():
++    with pytest.raises(ConfigError, match="unknown reference: host") as caught:
++        load("host = global\n[app]\nurl = ${host}\n")
++    assert caught.value.line == 3
++
++
++@pytest.mark.parametrize(
++    ("raw", "expected"),
++    [
++        ("", ""),
++        ("$$", "$"),
++        ("$$$$", "$$"),
++        ("price: $$5", "price: $5"),
++        ("$${missing}", "${missing}"),
++        ("$$${key}$$", "$value$"),
++        ("${empty}text${empty}", "text"),
++    ],
++)
++def test_literal_dollars_and_empty_values(raw, expected):
++    config = load(f"result = {raw}\nkey = value\nempty =\n")
++    assert config[""]["result"] == expected
++
++
++def test_substituted_values_are_not_scanned_again():
++    config = load("result = ${literal}${dollar}\nliteral = $${missing}\ndollar = $$\n")
++    assert config[""]["result"] == "${missing}$"
++
++
++@pytest.mark.parametrize("reference", ["hostt", "db.hostt", "missing.host", "a.b.c", ".missing", ""])
++def test_unknown_reference_preserves_written_name(reference):
++    with pytest.raises(ConfigError) as caught:
++        load(f"[app]\nvalue = ${{{reference}}}\n[db]\nhost = localhost\n")
++    assert str(caught.value) == f"unknown reference: {reference}"
++    assert caught.value.line == 2
++
++
++@pytest.mark.parametrize("raw", ["$", "$x", "prefix $ suffix", "$$$", "${key}$"])
++def test_invalid_dollar(raw):
++    with pytest.raises(ConfigError) as caught:
++        load(f"[app]\nvalue = {raw}\nkey = ok\n")
++    assert caught.value.line == 2
++
++
++@pytest.mark.parametrize("raw", ["${", "text ${key", "${key}${unfinished"])
++def test_unterminated_reference(raw):
++    with pytest.raises(ConfigError, match="unterminated") as caught:
++        load(f"[app]\nvalue = {raw}\nkey = ok\n")
++    assert caught.value.line == 2
++
++
++@pytest.mark.parametrize(
++    ("text", "chain", "line"),
++    [
++        ("[a]\nx = ${x}\n", "a.x -> a.x", 2),
++        ("[a]\nx = ${y}\ny = ${x}\n", "a.x -> a.y -> a.x", 2),
++        ("x = ${a.y}\n[a]\ny = ${.x}\n", ".x -> a.y -> .x", 1),
++        (
++            "[a]\nouter = ${x}\nx = ${b.y}\n[b]\ny = ${a.x}\n",
++            "a.x -> b.y -> a.x",
++            2,
++        ),
++    ],
++)
++def test_cycle_chain_starts_at_repeated_key(text, chain, line):
++    with pytest.raises(ConfigError) as caught:
++        load(text)
++    assert str(caught.value) == f"reference cycle: {chain}"
++    assert caught.value.line == line
++
++
++def test_resolution_follows_file_order_across_reopened_sections():
++    with pytest.raises(ConfigError) as caught:
++        load("[a]\nvalid = ok\n[b]\ny = ${y}\n[a]\nx = ${x}\n")
++    assert str(caught.value) == "reference cycle: b.y -> b.y"
++    assert caught.value.line == 4
++
++
++def test_references_are_resolved_left_to_right():
++    with pytest.raises(ConfigError) as caught:
++        load("[a]\nouter = ${right}${left}\nleft = ${left}\nright = ${right}\n")
++    assert str(caught.value) == "reference cycle: a.right -> a.right"
++    assert caught.value.line == 2
++
++
++@pytest.mark.parametrize("invalid", ["${missing}", "$bad", "${unfinished"])
++def test_nested_resolution_errors_use_outermost_definition_line(invalid):
++    with pytest.raises(ConfigError) as caught:
++        load(f"# comment\n[a]\nouter = ${{b.middle}}\n[b]\nmiddle = ${{inner}}\ninner = {invalid}\n")
++    assert caught.value.line == 3
++
++
++def test_parse_keeps_raw_values_and_existing_behavior():
++    text = " # comment\n initial = $bad \n[a]\nx = ${missing}\n[a]\ny = $$\n"
++    assert parse(text) == {"": {"initial": "$bad"}, "a": {"x": "${missing}", "y": "$$"}}
++
++
++def test_parsing_finishes_before_resolution():
++    with pytest.raises(ConfigError, match="duplicate key") as caught:
++        load("x = ${missing}\nx = duplicate\n")
++    assert caught.value.line == 2
