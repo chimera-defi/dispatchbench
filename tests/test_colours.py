@@ -1,6 +1,7 @@
 """Check the actual report and reject literal colours in all authoring forms."""
 import importlib.util
 import re
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -99,7 +100,7 @@ def test_single_bundle_has_pinned_tokens_and_theme_modes():
     assert '@import' not in css
     for path in sync.FILES[:3]:
         assert 'design-system/' + path in css
-    assert 'c56032fca7ccb5a9661c247f0d6160a576c4b637' in css
+    assert '2109b3b149e92ca388c4392f57d9b48aa040b4fb' in css
     assert ':root[data-theme="light"]' in css and ':root[data-theme="dark"]' in css
     assert 'prefers-color-scheme:light' in css
 
@@ -157,3 +158,48 @@ def test_theme_text_roles_have_normal_text_contrast():
             for ground in ('--bg', '--panel'):
                 low, high = sorted((resolve(role), resolve(ground)))
                 assert (high + .05) / (low + .05) >= 4.5, (mode, role, ground)
+
+
+def test_accessibility_pairs_in_both_explicit_and_system_themes():
+    spec = importlib.util.spec_from_file_location('check_contrast', ROOT / 'tools/check_contrast.py')
+    checker = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(checker)
+    css = (ROOT / 'docs/page/tokens.css').read_text()
+    results = list(checker.check(css))
+    assert len(results) == 24
+    for name, ratio, minimum in results:
+        assert ratio >= minimum, (name, ratio, minimum)
+    # The light role must really replace the failing site text/border mixes.
+    broken = css.replace('--color-input-ink:#000000', '--color-input-ink:var(--color-text)')
+    assert any(ratio < minimum for _, ratio, minimum in checker.check(broken))
+    for mode in ('light', 'dark'):
+        values = checker.theme_values(css, mode)
+        for role in ('--color-kicker', '--color-tag', '--color-pressed-text'):
+            assert checker.rgb(role, values, None) == checker.rgb('--accent-text', values, None)
+
+
+@pytest.mark.skipif(shutil.which('node') is None, reason='node is unavailable')
+def test_vendored_site_contrast_script_and_failure_exit(tmp_path):
+    script = sync.DS / 'scripts/check-contrast.mjs'
+    run = subprocess.run(['node', str(script)], capture_output=True, text=True)
+    assert run.returncode == 0, run.stdout + run.stderr
+    assert len(run.stdout.splitlines()) == 6
+    # Preserve import.meta.url relative paths, then break the actual input pair.
+    (tmp_path / 'scripts').mkdir()
+    (tmp_path / 'tokens').mkdir()
+    shutil.copy(script, tmp_path / 'scripts/check-contrast.mjs')
+    for name in ('fable-maroon.css', 'nocturne-base.css'):
+        shutil.copy(sync.DS / 'tokens' / name, tmp_path / 'tokens' / name)
+    maroon = tmp_path / 'tokens/fable-maroon.css'
+    maroon.write_text(maroon.read_text().replace('--color-accent-300:#fec2c5', '--color-accent-300:#2b2d37'))
+    run = subprocess.run(['node', str(tmp_path / 'scripts/check-contrast.mjs')], capture_output=True, text=True)
+    assert run.returncode == 1 and 'FAIL' in run.stdout
+
+
+def test_sync_keeps_page_slice_files_untouched():
+    sources = {path: (sync.DS / path).read_text() for path in sync.FILES}
+    # Use the verbatim topbar copy as the upstream source for this scoped build.
+    sources['components/patterns.css'] = (ROOT / 'docs/page/topbar.css').read_text()
+    outputs = sync.build(sources, '2109b3b149e92ca388c4392f57d9b48aa040b4fb')
+    for name in ('style.css', 'explorer.html'):
+        assert ROOT / 'docs/page' / name not in outputs
