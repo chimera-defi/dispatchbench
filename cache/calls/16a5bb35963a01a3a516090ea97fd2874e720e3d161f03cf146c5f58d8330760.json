@@ -1,0 +1,23 @@
+{
+ "key": "16a5bb35963a01a3a516090ea97fd2874e720e3d161f03cf146c5f58d8330760",
+ "ts": "2026-10-28T01:27:45+00:00",
+ "phase": "exploratory",
+ "config": "devin16slow-default",
+ "cli": "devin",
+ "cli_version": "3000.11.228",
+ "model": "swe-1-6-slow",
+ "effort": "default",
+ "problem": "p09_k_machine_schedule",
+ "repeat": 1,
+ "lanes": 2,
+ "prompt_sha": "cfc0b4d177d5",
+ "wall_s": 10.637618097011,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "Looking at this problem, I need to solve weighted interval scheduling with k machines.\n\nThe approach:\n1. Sort jobs by end time\n2. Use a min-heap to track when each machine becomes available\n3. For each job, if machines are available at its start time, schedule it\n4. If more jobs are available than machines, greedily replace the lowest-paying job if the current job pays more\n\n```python\nimport heapq\n\ndef k_machine_schedule(jobs: list[list[int]], k: int) -> int:\n    if not jobs:\n        return 0\n    \n    # Sort jobs by end time\n    jobs.sort(key=lambda x: x[1])\n    \n    # Min-heap of (pay, end_time) for scheduled jobs\n    # Also a separate heap for end times only\n    machine_ends = []  # min-heap of end times\n    scheduled = []     # min-heap of (pay, end_time)\n    \n    for start, end, pay in jobs:\n        # Free up machines that are done by start time\n        while machine_ends and machine_ends[0] <= start:\n            heapq.heappop(machine_ends)\n            if scheduled:\n                heapq.heappop(scheduled)\n        \n        if len(machine_ends) < k:\n            # Machine available, schedule this job\n            heapq.heappush(machine_ends, end)\n            heapq.heappush(scheduled, (pay, end))\n        else:\n            # All machines busy, check if we should replace lowest-pay job\n            if scheduled and pay > scheduled[0][0]:\n                heapq.heappop(machine_ends)\n                heapq.heappop(scheduled)\n                heapq.heappush(machine_ends, end)\n                heapq.heappush(scheduled, (pay, end))\n    \n    return sum(pay for pay, _ in scheduled)\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}
