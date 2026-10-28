@@ -72,6 +72,11 @@ def test_grok_scope_report_svgs():
             # grok47-medium is named only in the note saying it is not plotted.
             assert text.count("grok47-medium") == 1 and "grok47-medium (p01–p06 only) is not plotted" in text
             assert note in text
+        elif path.name == "hero.svg":
+            # I: the OG source now shares the explorer's default view, including
+            # measured partial runs. Every Grok config is labelled in its title.
+            assert found == set(configs.GROK_CONFIGS)
+            assert 'class="ex-point"' in text and 'default cost versus pass view' in text
         else:
             assert not found, path.name
 
@@ -189,6 +194,10 @@ def test_first_half_rows_render_without_changing_full_ladder(monkeypatch):
             assert body != base_charts[name]
             assert "grok47-low" in body and "grok47-high" not in body
             assert "Grok: black hexagons, 6 of 12 problems" in body and "not a like-for-like" not in body
+        elif name == "hero.svg":
+            assert body != base_charts[name]
+            assert "grok47-low" in body and "grok47-high" not in body
+            assert 'class="ex-point"' in body
         else:
             assert body == base_charts[name], name
     assert "## Grok (first half, 6 of 12 problems)" in tables
@@ -215,7 +224,11 @@ def test_first_half_rows_render_without_changing_full_ladder(monkeypatch):
     assert set(scope.counts) == set(configs.GROK_CONFIGS)
     assert all({"grok", "fail"} <= set(counts) <= {"grok", "fail", "pareto"} for counts in scope.counts.values())
     assert "pareto" in scope.counts["grok47-low"]
-    assert "pareto" not in scope.counts["grok47-high"]
+    # I: even a config with no passing call appears in the set toggles and
+    # unavailable-cost explanation; it must still stay off the dollar plot.
+    assert "pareto" in scope.counts["grok47-high"]
+    explorer_plot = html.split('id="ex-chart"', 1)[1].split('</div>', 1)[0]
+    assert "grok47-high" not in explorer_plot
     assert "Grok" not in "\n".join(l for l in readme.splitlines() if not l.startswith("Total spend, by kind"))  # README shows only the Winner table and the by-kind spend line
     spend = lambda s: "\n".join(l for l in s.splitlines() if "Grok $" not in l)  # the by-kind spend line names Grok's CLI-reported spend
     assert "Grok" not in spend(full.split("## Grok\n")[0])
@@ -386,8 +399,10 @@ OLD_GROK_CLAIMS = (
 # F: re-pinned for the claims fixes (one repo-task rule, spend by kind, pilot repricing, bucket labels, CI bars, wording rows).
 # G: re-pinned for the t1 regrade line and table (repo-task section, outside the Grok section).
 # F2: re-pinned after reviewing auxiliary spend, task/run wording, catalog pass rules and the repricing counts; Grok bytes unchanged.
+# I: re-pinned for the v6 explorer and Fable theme; old plot data and visible
+# facts are separately compared with main 3561692 in test_pareto_explorer.py.
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': '1bec5f162bf7775c0ffac310579acca89cb2607eb5adaf0b7cc0058032ffaa7f',
+    'results/report/page.html': '5f974a9499f0d934ee8d4c5ec13f4e804f1f28b16cc88738d7e6a35f1ad3e502',
     'docs/REPORT.md': '457337527a2d69f19ba73020592eb6bd84090c54d43a6fa9ced497442fbbd016',
 }
 
