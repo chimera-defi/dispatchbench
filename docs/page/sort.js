@@ -2,6 +2,7 @@
 // "$0.00112" by 0.00112, "1,569" by 1569); a column whose cells are not numbers sorts as text; "–" goes last either way.
 // Each tbody sorts on its own, under its "grp" heading row, so the all-problems and hard-set groups never mix.
 (function(){
+var TIE=JSON.parse(document.getElementById("data").textContent).explorer.tie;
 // A cell is numeric only when it starts with a number (after ≥, ~, $ or a sign), so "sol61-medium" sorts as text.
 function key(td){var t=td.textContent.replace(/,/g,"").replace(/−/g,"-").trim();var m=t.match(/^[≥≤~]?\$?([+-]?\d+(\.\d+)?)/);return m?parseFloat(m[1]):null}
 document.querySelectorAll("table.sortable").forEach(function(tb){
@@ -46,7 +47,7 @@ document.querySelectorAll(".cwrap").forEach(function(w){
   var speed=path.getAttribute("data-front")==="speed",hidden=function(c){return w.classList.contains("hide-"+c)};
   var pts=[].map.call(svg.querySelectorAll(".pt"),function(g){var v=g.getAttribute("data-v").split(" ").map(Number),f=g.getAttribute("data-f").split(" ").map(Number);
    return {g:g,x:v[0],y:v[1],fx:f[0],fy:f[1]}}).filter(function(p){return !hidden(p.g.getAttribute("data-cat"))&&!p.g.hasAttribute("data-out")});
-  function better(a,b){if(!speed)return a.x<=b.x&&a.y>=b.y;var t=Math.min(.5,b.x*.05);return a.y<b.y&&a.x<=b.x+t||a.y===b.y&&a.x<=b.x-t}
+  function better(a,b){if(!speed)return a.x<=b.x&&a.y>=b.y;var t=Math.min(TIE.abs_s,TIE.rel*b.x);return a.y<b.y&&a.x<=b.x+t||a.y===b.y&&a.x<=b.x-t}
   var fr=pts.filter(function(p){return !pts.some(function(q){return q!==p&&better(q,p)&&(q.x!==p.x||q.y!==p.y)})}).sort(function(a,b){return a.x-b.x});
   var end=" H"+path.getAttribute("data-end"),d="";
   if(fr.length&&!speed)d="M"+fr[0].fx+" "+path.getAttribute("data-b")+" V"+fr[0].fy;

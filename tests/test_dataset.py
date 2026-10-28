@@ -1,7 +1,7 @@
 """The dataset must agree with summary.json and the rescue table, cover every row once, and have unique (config, set) keys."""
 import json, os
 import pytest
-from analysis import configs, dataset, luna_rescue
+from analysis import configs, dataset, luna_rescue, summarize
 from analysis.summarize import RES
 
 
@@ -17,7 +17,7 @@ def test_keys_unique_and_registered(ds):
 
 
 def test_matches_summary(ds):
-    s = json.load(open(os.path.join(RES, "summary.json")))
+    s = summarize.build()[0]
     for c, v in {**s["configs"], **(s.get("exploratory") or {})}.items():
         r = dataset.get(ds, c, "partial ladder" if c in configs.ONE_REPEAT + configs.DEVIN_CONFIGS else "main ladder")
         # An unmetered config (Devin free tier) has no bill: the summary says None and the dataset books $0, never a guess.

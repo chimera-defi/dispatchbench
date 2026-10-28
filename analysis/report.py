@@ -139,22 +139,36 @@ def to_html(md, dots=False):
     return "\n".join(out)
 
 
+def data_block(ds, s, used, T, page_tmpl, chart_bodies, W):
+    """The page's embedded data: a projection of dataset.json holding every fact, row, table cell and chart label the page shows,
+    plus the explorer's points. The script reads numbers from here; the page's visible numbers must all be found in it (audit)."""
+    tables = sorted(set(re.findall(r"\{\{table:([^}]+)\}\}", page_tmpl)))
+    keep = ("id", "config", "set", "rule", "passes", "n", "pass_rate", "ci95", "usd_per_pass", "median_s", "task_complete")
+    block = {"facts": {k: ds["facts"].get(k) if hasattr(ds["facts"], "get") else ds["facts"][k] for k in sorted(used) if k in ds["facts"]},
+             "rows": [{k: r[k] for k in keep if k in r} for r in ds["rows"]],
+             "tables": {k: T[k] for k in tables if k in T},
+             "charts": {name: [html.unescape(x) for x in re.findall(r"<text[^>]*>([^<]*)</text>", body)] for name, body in sorted(chart_bodies.items()) if name in re.findall(r"\{\{chart:([^|]+)\|", page_tmpl)},
+             "widgets": {k: nodes for k, v in sorted(W.items()) if (nodes := [html.unescape(x).strip() for x in re.findall(r">([^<>]+)<", v) if re.search(r"\d", x)])},
+             "explorer": pagew.explorer_data(s)}
+    return json.dumps(block, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+
+
 def render(used_facts=None):
     """(README text, full report text, page HTML), all rendered from the dataset and the templates."""
     ds = dataset.read(); s = dataset.view(ds)
+    if used_facts is None: used_facts = set()  # the page always tracks the facts it shows: they go into its data block
     F = facts(ds); T = tables_md(ds); chart_bodies = charts.build(ds)
     F.update(set_label=configs.set_label("rescue set"), set_label_title=configs.set_label("rescue set", capital=True))
     readme = fill(open(README_TEMPLATE).read(), F, T, "readme", chart_bodies).strip() + "\n"
     up = lambda m: m.group(0) if re.match(r"https?:|#|mailto:", m.group(2)) else f"{m.group(1)}(../{m.group(2)})"
     report = re.sub(r"(\]|!\[[^\]]*\])\(([^)\s]+)\)", up, fill(open(TEMPLATE).read(), F, T, "readme", chart_bodies).strip() + "\n")  # it lives in docs/
     page_tmpl = open(PAGE_TEMPLATE).read()
-    if used_facts is not None:
-        # Track page dependencies only: README/report facts and unused widgets do not count.
-        ds["facts"] = Facts(ds["facts"], used=used_facts)
-        s["facts"] = ds["facts"]
-        F = Facts(F, used=used_facts)
-        chart_names = set(re.findall(r"\{\{chart:([^|]+)\|", page_tmpl))
-        chart_bodies = charts.build(ds, names=chart_names)
+    # Track page dependencies only: README/report facts and unused widgets do not count.
+    ds["facts"] = Facts(ds["facts"], used=used_facts)
+    s["facts"] = ds["facts"]
+    F = Facts(F, used=used_facts)
+    chart_names = set(re.findall(r"\{\{chart:([^|]+)\|", page_tmpl))
+    chart_bodies = charts.build(ds, names=chart_names)
     widget_names = {k[2:] for k in PLACE.findall(page_tmpl) if k.startswith("w_")}
     W = pagew.widgets(s, need, ds, names=widget_names)
     body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}, "w_everything": ""}, used=used_facts), T, "page", chart_bodies)  # first pass: the page without the section
@@ -164,7 +178,8 @@ def render(used_facts=None):
     body = pagew.notation_tooltips(body, ds)
     shell = open(os.path.join(PAGE_DIR, "shell.html")).read()
     script = open(os.path.join(PAGE_DIR, "sort.js")).read().strip().replace("__RESCUE_SET_LABEL__", json.dumps(configs.set_label("rescue set")))
-    page = shell.replace("__CSS__", open(os.path.join(PAGE_DIR, "style.css")).read().strip()).replace("__OG_DESC__", html.escape(og.takeaway(ds["facts"]))).replace("__BODY__", body).replace("__JS__", script)
+    block = data_block(ds, s, used_facts, T, page_tmpl, chart_bodies, W)
+    page = shell.replace("__CSS__", open(os.path.join(PAGE_DIR, "style.css")).read().strip()).replace("__OG_DESC__", html.escape(og.takeaway(ds["facts"]))).replace("__BODY__", body.replace("__DATA__", block)).replace("__JS__", script)
     return readme, report, page
 
 

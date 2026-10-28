@@ -7,7 +7,7 @@ from xml.etree import ElementTree as ET
 
 import pytest
 
-from analysis import charts, configs, dataset, harness_bias, page, report
+from analysis import charts, configs, dataset, harness_bias, page, report, summarize
 from html import unescape
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -672,7 +672,7 @@ def test_pilot_display_names_preserve_run_ids():
 
 def test_monetary_ratios_use_raw_prices(summary):
     facts = summary['facts']
-    raw = json.loads((Path(__file__).resolve().parents[1] / 'results' / 'summary.json').read_text())
+    raw = summarize.build()[0]
     sm, hh = raw['configs']['sonnet-medium']['usd_per_pass'], raw['exploratory']['haiku-high']['usd_per_pass']
     assert facts['sm_vs_hh_x'] == f"{sm / hh:.1f}×"  # from raw values, not the rounded prices
     table = dataset.read()['tables']['fastmode']['rows']

@@ -10,7 +10,7 @@ The main run was on 2026-10-22: $2.46 of Claude CLI-reported spend (function + a
 
 ## Result
 
-| config | pass rate | 95% CI | median s | slow-call time s | $ per pass | total $ (60 calls) | $ kind |
+| config | pass rate (function tests) | 95% CI | median s | slow-call time s | $ per pass | total $ (60 calls) | $ kind |
 |---|---|---|---|---|---|---|---|
 | haiku-low | 95% (57/60) | 85%–100% | 10.0 | 16.0 | $0.0011 | $0.064 | measured |
 | haiku-medium | 98% (59/60) | 93%–100% | 13.0 | 26.8 | $0.0015 | $0.088 | measured |
@@ -44,7 +44,7 @@ For grok47-high, the closest lane by pass rate in each family is Claude haiku-lo
 
 ### Where does Grok get to?
 
-| config | L1 | L2 | L3 | L4 | L5 | L6 | passes | median s | $ per pass | coverage | total $ |
+| config | L1 | L2 | L3 | L4 | L5 | L6 | passes (function tests) | median s | $ per pass | coverage | total $ |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | grok47-high | 10/10 | 10/10 | 10/10 | 9/10 | 10/10 | 8/10 | 57/60 | 105.7 | $0.13 | 12 problems | $7.52 |
 | grok47-low | 10/10 | 10/10 | 7/10 | 10/10 | 10/10 | 6/10 | 53/60 | 39.4 | $0.082 | 12 problems | $4.33 |
@@ -55,7 +55,7 @@ Each full-run config ran 12 problems × 5 repeats (main + exploratory phases, re
 
 ### Closest lanes by pass rate
 
-| Grok config | family | closest lane | its passes | its median s | its $ per pass | Grok time / lane | Grok cost / lane |
+| Grok config | family | closest lane | its passes (function tests) | its median s | its $ per pass | Grok time / lane | Grok cost / lane |
 |---|---|---|---|---|---|---|---|
 | grok47-high | Claude | haiku-low | 57/60 | 10.0 | $0.0011 | 10.6× | 117.7× |
 | grok47-high | Codex | luna56-high | 56/60 | 11.4 | $0.0030 | 9.3× | 44.3× |
@@ -66,7 +66,7 @@ Each full-run config ran 12 problems × 5 repeats (main + exploratory phases, re
 
 <details><summary>Every lane on the same problems</summary>
 
-| config | family | passes | median s | $ per pass |
+| config | family | passes (function tests) | median s | $ per pass |
 |---|---|---|---|---|
 | astra-medium ⚡ | Codex | 60/60 | 9.9 | $0.15 |
 | sonnet-medium | Claude | 60/60 | 10.1 | $0.012 |
@@ -140,7 +140,7 @@ Cost per pass is $0.054 to $0.111. Claude haiku and the Codex luna lanes are und
 
 A lane is an existing config: one model at one effort. Rungs L1–L6 get harder step by step. Cleared through L2 means every call passed on L1 and L2.
 
-| config | cleared through | L1 | L2 | L3 | passes | median s | $ per pass | coverage | total $ |
+| config | cleared through | L1 | L2 | L3 | passes (function tests) | median s | $ per pass | coverage | total $ |
 |---|---|---|---|---|---|---|---|---|---|
 | grok47-low | L2 | 10/10 | 10/10 | 3/4 | 23/24 | 26.5 | $0.054 | 6 problems | $1.24 |
 | grok47-medium | L2 | 10/10 | 7/7 | 3/4 | 20/21 | 32.6 | $0.066 | 6 problems | $1.33 |
@@ -170,7 +170,7 @@ A lane is comparable when it clears the same rungs and first misses at the same 
 
 Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory phases only. Warmup, calibration, fastmode, escalation and hard phases are excluded. Grok has small n and was not run past L3, so cleared L3 is a floor. CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier.
 
-| Grok config | family | comparable lane | cleared through | first miss | same-problem passes | median s | $ per pass | Grok time / lane | Grok cost / lane |
+| Grok config | family | comparable lane | cleared through | first miss | same-problem passes (function tests) | median s | $ per pass | Grok time / lane | Grok cost / lane |
 |---|---|---|---|---|---|---|---|---|---|
 | grok47-low | Claude | haiku-medium | L2 | L3 | 29/30 | 10.6 | $0.0011 | 2.5× | 50.1× |
 | grok47-low | Codex | luna-high | L2 | L3 | 24/25 | 9.0 | $0.00092 | 2.9× | 58.7× |
@@ -203,7 +203,7 @@ Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory ph
 
 Grok is a usable fallback for these small repo tasks when Codex is out. Claude is faster and cheaper. grok47-low passed 8/8 at 98.9 s median. Today’s Claude fallback lanes (haiku-high 12/12, haiku-low 12/12, sonnet-medium 12/12) took 27.7–58.4 s median.
 
-Pass rules. `task complete k/n` counts runs where the hidden tests and the delivered visible tests both pass. Passed our hidden tests alone: grok47-high 8/8, grok47-low 8/8, astra-medium 12/12, haiku-high 12/12, haiku-low 12/12, luna-low 12/12, sol61-high 12/12, sol61-medium 12/12, sonnet-medium 12/12.
+Pass rules. `task complete k/n` counts runs where the hidden tests and the delivered visible tests both pass. Passed our hidden tests alone: grok47-high 8/8 hidden tests, grok47-low 8/8 hidden tests, astra-medium 12/12 hidden tests, haiku-high 12/12 hidden tests, haiku-low 12/12 hidden tests, luna-low 12/12 hidden tests, sol61-high 12/12 hidden tests, sol61-medium 12/12 hidden tests, sonnet-medium 12/12 hidden tests. Red-suite runs (task_complete false) that the audit session has not labelled show 'under audit' beside their cells. Counts are raw: no run is dropped or reclassified until the audit labels it in results/annotations.json.
 
 | Grok config | family | closest lane | Grok time / lane | Grok $ per pass / lane |
 |---|---|---|---|---|
@@ -241,15 +241,15 @@ Each family shows the lane with the closest pass rate. Ties use the closest medi
 
 | config | task complete k/n | median wall s | $ per pass | median turns |
 |---|---|---|---|---|
-| grok47-high | 8/8 | 442.1 | $0.54 | 9 |
-| grok47-low | 8/8 | 98.9 | $0.19 | 5 |
-| astra-medium | 12/12 | 65.6 | $0.45 | 1 |
-| haiku-high | 12/12 | 58.4 | $0.012 | 10 |
-| haiku-low | 12/12 | 28.3 | $0.0051 | 5 |
-| luna-low | 7/12 | 24.1 | $0.0056 | 1 |
-| sol61-high | 12/12 | 117.9 | $0.097 | 1 |
-| sol61-medium | 12/12 | 84.5 | $0.079 | 1 |
-| sonnet-medium | 12/12 | 27.7 | $0.054 | 3 |
+| grok47-high | 8/8 task_complete | 442.1 | $0.54 | 9 |
+| grok47-low | 8/8 task_complete | 98.9 | $0.19 | 5 |
+| astra-medium | 12/12 task_complete | 65.6 | $0.45 | 1 |
+| haiku-high | 12/12 task_complete | 58.4 | $0.012 | 10 |
+| haiku-low | 12/12 task_complete | 28.3 | $0.0051 | 5 |
+| luna-low | 7/12 task_complete (under audit) | 24.1 | $0.0056 | 1 |
+| sol61-high | 12/12 task_complete | 117.9 | $0.097 | 1 |
+| sol61-medium | 12/12 task_complete | 84.5 | $0.079 | 1 |
+| sonnet-medium | 12/12 task_complete | 27.7 | $0.054 | 3 |
 
 Grok total measured spend: $5.78 of the $15 budget. Grok and Claude costs are CLI-reported; Codex costs are token-price proxies. Multiples use median wall time and total cost per passing attempt, respectively. Turns use each CLI’s convention and are not directly comparable across CLIs. This is a small exploratory sample on a shared host, not a general repo-work guarantee. Sources: `results/2026-10-22b-agentic.jsonl`, `results/2026-10-25-isolated-agentic.jsonl`, `results/2026-10-27-grok-agentic.jsonl`.
 
@@ -355,13 +355,15 @@ Medians are over each config's passing L1–L6 solutions, so a config that fails
 
 | config | passed our hidden tests | task complete (hidden and visible pass) | runs that wrote the requested test file | test functions added | median s | $ per run | $ kind |
 |---|---|---|---|---|---|---|---|
-| luna-low | 12/12 | 7/12 | 12/12 | no transcripts | 24.1 | $0.0033 | proxy |
-| haiku-low | 12/12 | 12/12 | 12/12 | 114 | 28.3 | $0.0051 | measured |
-| haiku-high | 12/12 | 12/12 | 12/12 | no transcripts | 58.4 | $0.012 | measured |
-| sonnet-medium | 12/12 | 12/12 | 12/12 | 77 | 27.7 | $0.054 | measured |
-| sol61-medium | 12/12 | 12/12 | 12/12 | no transcripts | 84.5 | $0.079 | proxy |
-| sol61-high | 12/12 | 12/12 | 12/12 | no transcripts | 117.9 | $0.097 | proxy |
-| astra-medium | 12/12 | 12/12 | 12/12 | no transcripts | 65.6 | $0.45 | proxy |
+| luna-low | 12/12 hidden tests | 7/12 task_complete (under audit) | 12/12 | no transcripts | 24.1 | $0.0033 | proxy |
+| haiku-low | 12/12 hidden tests | 12/12 task_complete | 12/12 | 114 | 28.3 | $0.0051 | measured |
+| haiku-high | 12/12 hidden tests | 12/12 task_complete | 12/12 | no transcripts | 58.4 | $0.012 | measured |
+| sonnet-medium | 12/12 hidden tests | 12/12 task_complete | 12/12 | 77 | 27.7 | $0.054 | measured |
+| sol61-medium | 12/12 hidden tests | 12/12 task_complete | 12/12 | no transcripts | 84.5 | $0.079 | proxy |
+| sol61-high | 12/12 hidden tests | 12/12 task_complete | 12/12 | no transcripts | 117.9 | $0.097 | proxy |
+| astra-medium | 12/12 hidden tests | 12/12 task_complete | 12/12 | no transcripts | 65.6 | $0.45 | proxy |
+
+Red-suite runs (task_complete false) that the audit session has not labelled show 'under audit' beside their cells. Counts are raw: no run is dropped or reclassified until the audit labels it in results/annotations.json.
 
 ![Repo tasks: both pass rules against dollars per run. Filled mark: passed our hidden tests; ring: task complete (hidden and visible tests both pass).](../results/report/charts/agentic.svg)
 
@@ -369,7 +371,7 @@ Medians are over each config's passing L1–L6 solutions, so a config that fails
 
 Three more problems, written and checked before any model saw them (PLAN.md, deviation 16), each harder than p12 sheet: a cellular automaton on a ring run for up to 10^18 steps (p13 xor_ring), exact expected turns on a board game with bounce-back and chained jumps (p14 bounce_board), and paint/erase operations on 10^9 cells (p15 paint_erase). 5 attempts per config: the four original configs first, then the five later Codex models. These rows are kept apart from L1–L6 and change no number above.
 
-| config | passed | 95% CI | p13 xor_ring (L7) | p14 bounce_board (L7) | p15 paint_erase (L7) | median s | mean reasoning tokens | $ per pass | $ kind |
+| config | passed (function tests) | 95% CI | p13 xor_ring (L7) | p14 bounce_board (L7) | p15 paint_erase (L7) | median s | mean reasoning tokens | $ per pass | $ kind |
 |---|---|---|---|---|---|---|---|---|---|
 | astra-medium | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 30.6 | 315 | $0.083 | proxy |
 | astra-medium-fast | 15/15 | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | 15.4 | 327 | $0.16 | proxy |
@@ -444,6 +446,7 @@ The design was pre-registered in [PLAN.md](../PLAN.md) and committed before the 
 **Statistics.**
 
 - pass@1 is the fraction of single attempts that pass, with no retries and no picking of the best answer.
+- Every pass rate names its rule. Function track: function tests (reference + brute force). Repo tasks: hidden tests (our hidden suite passes) or task_complete (hidden and visible tests both pass).
 - Intervals are 95% hierarchical bootstrap intervals, 10,000 resamples. Each resample draws problems, then attempts within each problem, so five attempts at one problem do not count as five independent data points ([Miller 2024](https://arxiv.org/abs/2411.00640)).
 - When every attempt passes, the bootstrap interval collapses to 100–100%. The table then shows the one-sided 95% lower bound 0.05^(1/m), with m the number of problems (12, giving ≥78%) or tasks (4, giving ≥47%), not attempts, so that repeats of one problem are not counted as independent.
 - Differences between configs are paired on the same problems.
@@ -457,7 +460,7 @@ The design was pre-registered in [PLAN.md](../PLAN.md) and committed before the 
 make report
 ```
 
-rebuilds every table, chart and number in this README and the page from the cache. It makes no model calls and needs neither CLI installed. `make audit` re-renders both and fails if the committed copies differ, if `results/summary.json` differs from what the rows give, or if the template holds a number that is not computed from data and not on its short reasoned list of constants. `make run`, `make hard` and `make agentic` call models only for keys that are not cached yet.
+rebuilds every table, chart and number in this README and the page from the cache. It makes no model calls and needs neither CLI installed. `make audit` re-renders both and fails if the committed copies differ, if `results/dataset.json` differs from what the rows give, or if the template holds a number that is not computed from data and not on its short reasoned list of constants. `make run`, `make hard` and `make agentic` call models only for keys that are not cached yet.
 
 ## Limitations
 
@@ -479,7 +482,7 @@ rebuilds every table, chart and number in this README and the page from the cach
 
 After the main run, several changes were tried on the 7 problems luna-low, luna-medium or luna-low-bare missed, the rescue set (p03 ledger, p04 taller_within, p08 recur, p09 k_machine_schedule, p10 avoid_count, p11 best_average, p12 sheet), with 5 attempts each, n = 35 per row. The problems were picked because luna failed them, so these rows overstate any gain and carry no confidence intervals. The baselines are the main run's attempts on the same problems. Rows are in [results/appendix/luna_rescue.jsonl](../results/appendix/luna_rescue.jsonl).
 
-| config | passed | $ per pass | median s |
+| config | passed (function tests) | $ per pass | median s |
 |---|---|---|---|
 | luna-low baseline | 21/35 | $0.0013 | 8.5 |
 | B1: no shell, plus a "list edge cases and trace the examples first" nudge | 25/35 | $0.00097 | 8.6 |
@@ -521,7 +524,7 @@ After the main run, several changes were tried on the 7 problems luna-low, luna-
 
 Asked after the main run: can fan-outs use sol61-high in fast mode (the priority service tier, same model and effort), and does sol61 at xhigh write better or worse code? Both ran on the rescue set, 35 attempts each, with a default-tier sol61-high control run at the same time (repeats 6 to 10, so the earlier sol61-high rows stay as they were). These rows are kept apart and change no number above. Fast-mode dollars use the published 2× multiplier.
 
-| config | passed | median s | median output tokens | $ per pass (proxy) | median LOC | median max complexity | lint per solution | time vs ref |
+| config | passed (function tests) | median s | median output tokens | $ per pass (proxy) | median LOC | median max complexity | lint per solution | time vs ref |
 |---|---|---|---|---|---|---|---|---|
 | sol61-high, default tier (separate control run, repeats 6-10) | 35/35 | 30.1 | 1,092 | $0.0212 | 63 | 22 | 0.00 | 0.73 |
 | sol61-high ⚡ | 35/35 | 18.9 | 1,063 | $0.0435 | 62 | 22 | 0.09 | 0.71 |
@@ -547,7 +550,7 @@ Before this experiment, a pilot ran 18 configs on 6 well-known LeetCode problems
 
 The one later step that reused pilot material is the Codex harness probe. It needed easy problems, so that accuracy would not move while the prompt was trimmed, and took the pilot's first 3:
 
-| config | passes | median input | median s | $ per call | $ kind |
+| config | passes (function tests) | median input | median s | $ per call | $ kind |
 |---|---|---|---|---|---|
 | haiku-low, tools off | 9/9 | 4,100 | 5.0 | $0.00028 | measured |
 | luna-low, stock harness | 9/9 | 14,400 | 4.2 | $0.00047 | proxy |

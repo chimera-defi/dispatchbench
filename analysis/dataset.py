@@ -29,7 +29,7 @@ import re, copy, math
 from datetime import datetime
 from fractions import Fraction
 from decimal import Decimal
-from analysis import fast_gate, harness_bias, luna_rescue, summarize
+from analysis import fast_gate, harness_bias, luna_rescue, rawindex, summarize
 from analysis.labels import pshort, plabel, DISP
 from analysis.summarize import FAST_CONFIGS, FUNC, AGENT, ci_text, cost_uncached, pct
 
@@ -81,8 +81,8 @@ def _harness_rows():
 def _rows():
     """[(source, name, set, row dict with _usd/_claude/_pass/_sec/_group)] from every results file."""
     out = []
-    def add(src, name, st, r, ok, sec, group, usd, tin, tout):
-        out.append((src, name, st, {"ok": bool(ok), "sec": sec, "group": group, "usd": usd, "claude": _claude(r, src, usd), "in": tin, "out": tout, "cached": r.get("cached_tok") or r.get("builder_cached") or 0, "reasoning": r.get("reasoning_tok") or 0, "cli": r.get("cli", r.get("builder_kind", "")), "rung": r.get("rung"), "file": r.get("_file")}))
+    def add(src, name, st, r, ok, sec, group, usd, tin, tout, tc=None):
+        out.append((src, name, st, {"ok": bool(ok), "sec": sec, "group": group, "usd": usd, "claude": _claude(r, src, usd), "in": tin, "out": tout, "cached": r.get("cached_tok") or r.get("builder_cached") or 0, "reasoning": r.get("reasoning_tok") or 0, "cli": r.get("cli", r.get("builder_kind", "")), "rung": r.get("rung"), "file": r.get("_file"), "tc": tc, "key": r.get("key"), "run_id": f"{r.get('_file', '')}#{r.get('key', '')[:12]}" if r.get("key") else None}))
     func = [r for r in summarize.function_rows() if r["phase"] != "warmup"]
     cover = defaultdict(set)
     for r in func:
@@ -97,7 +97,7 @@ def _rows():
         if c not in configs.GROK_CONFIGS and r["problem"] in PIDS and r["phase"] in ("main", "exploratory", "fastmode") and r["repeat"] <= REPEATS:  # the same rows again, as the rescue-set baseline
             add("main", c, "rescue set", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
     for r in summarize.agentic_rows():
-        add("agentic", r["config"], "repo tasks", r, r["hidden_pass"], r["wall_s"], r["task"], _usd(r, "agentic"), r["in_tok"], r["out_tok"])
+        add("agentic", r["config"], "repo tasks", r, r["hidden_pass"], r["wall_s"], r["task"], _usd(r, "agentic"), r["in_tok"], r["out_tok"], tc=bool(r.get("task_complete", r["visible_pass"] and r["hidden_pass"])))
     for r in load(os.path.join(RES, configs.SOURCES["trim"][0])):
         add("trim", r["config"], "trim probe", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "trim"), r["in_tok"], r["out_tok"])
     for r in load(os.path.join(RES, configs.SOURCES["pilot"][0])):
@@ -115,6 +115,19 @@ def _rows():
 def _quart(xs):
     q = statistics.quantiles(xs, n=4) if len(xs) > 1 else [xs[0]] * 3
     return q[0], q[2]
+
+
+RULE_FUNCTION, RULE_HIDDEN, RULE_COMPLETE = "function tests (reference + brute force)", "hidden tests", "task_complete"
+RULES = (RULE_FUNCTION, RULE_HIDDEN, RULE_COMPLETE)
+
+
+def _rule_fields(src, rr):
+    """Every pass count names the rule that decided it. Repo-task rows count hidden tests in passes/pass_rate and carry the
+    task_complete count (hidden and visible tests both pass) beside it; runs where it is false are listed so annotations can label them."""
+    if src == "pilot-agentic": return {"rule": RULE_HIDDEN}  # pilot pipelines: their hidden suite is the only repo-task check recorded
+    if rr[0]["tc"] is None: return {"rule": RULE_FUNCTION}
+    red = sorted(x["run_id"] for x in rr if not x["tc"] and x["run_id"])
+    return {"rule": RULE_HIDDEN, "task_complete": sum(x["tc"] for x in rr), "task_complete_rule": RULE_COMPLETE, "red_runs": red}
 
 
 def _row(src, name, st, rr):
@@ -147,6 +160,7 @@ def _row(src, name, st, rr):
             "misses": n - k, "ci95_plot": ci or ([0.05 ** (1 / len(cells)), 1.0] if k == n else [0.0, 0.0]),
             "usd_saved_per_pass": round((spend - sc - sg) / k, 6) if k and complete else None,
             "usd_per_1k_tokens": (1000 * round(spend / n, 6) / (round(statistics.mean(x["in"] or 0 for x in rr)) + round(statistics.mean(x["out"] or 0 for x in rr)))) if complete and any((x["in"] or 0) + (x["out"] or 0) for x in rr) else None,
+            **_rule_fields(src, rr),
             "by_rung": dict(sorted(by_rung.items())), "cost_kind": "unmetered" if rr[0]["cli"] == "devin" else "measured" if summarize.measured(rr[0]) else "proxy"}
 
 
@@ -163,7 +177,8 @@ def _base():
     assert len(row_keys) == len(set(row_keys)), "duplicate (config, set) keys"
     order = {c: i for i, c in enumerate(configs.CATEGORIES)}
     rows.sort(key=lambda r: (r["set"] == "all runs", order.get(r["category"], 99), r["source"], r["set"], list(configs.REGISTRY).index((r["source"], r["config"])) if (r["source"], r["config"]) in configs.REGISTRY else 999))
-    return {"generated_from": sorted({f for r in rows for f in r["files"]}), "sets": sorted({r["set"] for r in rows}), "rows": rows}
+    gen = [{"path": e["path"], "sha256": e["sha256"], "rows": e["rows"], "date": e["date"], "lanes": e["lanes"]} for e in rawindex.file_index()]
+    return {"generated_from": gen, "sets": sorted({r["set"] for r in rows}), "rows": rows}
 
 
 def keys(ds):
@@ -539,7 +554,7 @@ def _facts(s, arms):
     F["lb_l2"] = f"{lb['by_rung']['L2']['passed']}/{lb['by_rung']['L2']['n']}"; F["lb_l3"] = f"{lb['by_rung']['L3']['passed']}/{lb['by_rung']['L3']['n']}"
     need(lb["breaking_point"] == "L2" and ll["breaking_point"] == "L6", "breaking points as described")
     p06 = [r for r in rows if r["config"] == "luna-low-bare" and r["problem"] == "p06_calc"]
-    big = max(p06, key=lambda r: r["cached_tok"]); F["cache_max"] = f"{big['cached_tok'] / 1000:.1f}k"; need(min(r["cached_tok"] for r in p06) == 0, "some p06 call had no cache")
+    big = max(p06, key=lambda r: r["cached_tok"]); F["cache_max"] = f"{big['cached_tok'] / 1000:.1f}k"; need(min(r["cached_tok"] for r in p06) == 0, "some p06 call had no cache"); F["cache_min"] = str(min(r["cached_tok"] for r in p06))
     F["cache_swing"] = f"{max(cost_uncached(r) / cost(r) for r in rows if r['cli'] == 'codex' and cost(r)):.1f}×"  # largest over every Codex call
     F["lanes"] = str(max(r["lanes"] for r in rows if r.get("lanes")))
     # appendix: luna rescue
@@ -821,6 +836,28 @@ def md_table(head, rows, bold=None):
     return {"head": head, "rows": rows}
 
 
+ANNOTATIONS = os.path.join(RES, "annotations.json")
+
+
+def annotations():
+    """results/annotations.json, written only by the audit session: {run_id: {label, note, decided_by, date}}. Run ids are `<jsonl path>#<key[:12]>`."""
+    return json.load(open(ANNOTATIONS)) if os.path.exists(ANNOTATIONS) else {}
+
+
+def audit_mark(run_ids):
+    """' (under audit)' when any red-suite run in the cell has no label yet. Totals stay raw either way."""
+    ann = annotations()
+    return " (under audit)" if any(not ann.get(r, {}).get("label") for r in run_ids) else ""
+
+
+def audit_footnote(ds_rows_red):
+    ann = annotations(); unlabelled = [r for r in ds_rows_red if not ann.get(r, {}).get("label")]
+    text = ("Red-suite runs (task_complete false) that the audit session has not labelled show 'under audit' beside their cells. "
+            "Counts are raw: no run is dropped or reclassified until the audit labels it in results/annotations.json.")
+    if not unlabelled: text = "Every red-suite run (task_complete false) carries an audit label in results/annotations.json; counts are raw."
+    return text
+
+
 def _tables(s, arms):
     T = {}; cfg, ex = s["configs"], s["exploratory"]; nprob = len(s["problems"])
     if s.get("grok"):
@@ -855,13 +892,16 @@ def _tables(s, arms):
     def cell(d):
         if not d: return "–"
         f = " ".join(f"{k}{ab[o]}" for o, k in sorted(d["fails"].items()))
-        k = f"**{d['passed']}**" if d["passed"] * 5 <= 2 * d["n"] else str(d["passed"])
+        k = f"**{d['passed']}**" if d["passed"] * REPEATS <= ESC_MAX * d["n"] else str(d["passed"])
         return k + (f" ({f})" if f else "")
     T["fail"] = md_table(["problem"] + cols, [[plabel(p, f["rung"])] + [cell(f["cells"].get(c)) for c in cols] for p, f in fail.items()])
     ag = s["agentic"]; selected_keys = {r["key"] for r in summarize.agentic_rows()}
+    red = defaultdict(list)
+    for r in summarize.agentic_rows():
+        if not r.get("task_complete", r["visible_pass"] and r["hidden_pass"]): red[r["config"]].append(f"{r['_file']}#{r['key'][:12]}")
     at = [r for r in json.load(open(os.path.join(RES, "agentic_tests.json"))) if r["key"] in selected_keys]
     T["agentic"] = md_table(["config", "passed our hidden tests", "task complete (hidden and visible pass)", "runs that wrote the requested test file", "test functions added", "median s", "$ per run", "$ kind"],
-                            [[c, f"{v['hidden_pass']}/{v['n']}", f"{v['task_complete']}/{v['n']}", f"{v['own_tests_written']}/{v['n']}",
+                            [[c, f"{v['hidden_pass']}/{v['n']} {RULE_HIDDEN}", f"{v['task_complete']}/{v['n']} {RULE_COMPLETE}{audit_mark(red[c])}", f"{v['own_tests_written']}/{v['n']}",
                               (lambda rr: "no transcripts" if not rr else str(sum(r["test_functions_added"] for r in rr)) if all(r["test_functions_added"] is not None for r in rr)
                                else f"≥{sum(r['test_functions_lower_bound'] for r in rr)}")([r for r in at if r["config"] == c]),
                               f"{v['latency_s']['median']:.1f}", f"{usd(v['usd_per_run'])}", v["cost_kind"]] for c, v in sorted(ag.items(), key=lambda kv: (kv[1]["usd_per_run"] is None, kv[1]["usd_per_run"] or 0))])
@@ -936,7 +976,7 @@ def method_appendix(ds):
 
 def quality_rows():
     selected = {r["key"] for r in summarize.function_rows()}
-    return [r for l in open(QUALITY) if (r := json.loads(l))["key"] in selected] if os.path.exists(QUALITY) else []
+    return [r for r in load(QUALITY) if r["key"] in selected]
 
 
 def quality_fast_parts(s):
@@ -1288,6 +1328,78 @@ def _interesting(ds):
                      f'yet raised estimated cost {x(trim["usd_per_call"], stock["usd_per_call"])}.')
 
 
+def repository_comparison():
+    """The Grok repo-task block: the 16 preregistered Grok runs against the existing lanes on the same tasks. Historical report totals stay fixed."""
+    source = "2026-10-27-grok-agentic.jsonl"
+    grok_rows = summarize.load(os.path.join(summarize.RES, source))
+    if not grok_rows:
+        return {}
+    tasks = sorted({r["task"] for r in grok_rows})
+    expected = {(c, task, rep) for c in ("grok47-low", "grok47-high") for task in tasks for rep in (1, 2)}
+    assert len(tasks) == 4 and len(grok_rows) == 16 and {
+        (r["config"], r["task"], r["repeat"]) for r in grok_rows
+    } == expected, "Grok repo experiment must contain all 16 preregistered runs"
+    grouped = defaultdict(list)
+    # agentic_rows selects complete isolated Codex replacements, retaining Claude.
+    for r in grok_rows + [r for r in summarize.agentic_rows() if r["task"] in tasks]:
+        grouped[r["config"]].append(r)
+    metrics = {}
+    for c, rr in grouped.items():
+        passed = sum(bool(r.get("task_complete", r["hidden_pass"] and r["visible_pass"])) for r in rr)
+        turns = [r["turns"] for r in rr if r.get("turns") is not None]
+        red = sorted(f"{r.get('_file') or 'results/' + source}#{(r.get('key') or r['config'] + '/' + str(r['task']) + '/' + str(r['repeat']))[:12]}" for r in rr
+                     if not bool(r.get("task_complete", r["hidden_pass"] and r["visible_pass"])))
+        metrics[c] = dict(rule=RULE_COMPLETE, hidden_rule=RULE_HIDDEN, red_runs=red, passes=passed, hidden=sum(bool(r["hidden_pass"]) for r in rr), n=len(rr), median_s=statistics.median(r["wall_s"] for r in rr),
+                          usd_per_pass=summarize.usd(map(summarize.cost, rr), passed, digits=None),
+                          median_turns=statistics.median(turns) if len(turns) == len(rr) else None)
+    return dict(source=source, tasks=tasks, metrics=metrics,
+                grok=sorted({r["config"] for r in grok_rows}),
+                sources=sorted({r.get("_file", "results/" + source) for rr in grouped.values() for r in rr}),
+                total_usd=summarize.usd(map(summarize.cost, grok_rows), digits=None))
+
+
+ESC_MAX = 2  # pre-registered escalation rule and the bold threshold of the failure table: passes <= ESC_MAX of REPEATS
+
+
+def design_constants():
+    """The method constants the prose states, each from the code constant where one exists. Where the constant is a literal
+    inside bench code (pinned by grade_all's GRADER_SHA or a runner), `pin` names the file and a regex that must still match
+    it: tests/test_single_source.py fails when the code and this table drift apart."""
+    from bench import grade, run, selftest
+    from bench.problems.p15_paint_erase import STATEMENT as p15
+    from bench.problems.p13_xor_ring import STATEMENT as p13
+    ci = 95
+    c = lambda value, display, source, pin=None: {"value": value, "display": display, "source": source, **({"pin": pin} if pin else {})}
+    return {
+        "brute_inputs": c(selftest.N_AGREE, f"{selftest.N_AGREE:,}", "bench/selftest.py N_AGREE"),
+        "ci_level": c(ci, str(ci), "analysis/stats.py hier_boot percentiles 2.5 and 97.5", ["analysis/stats.py", r"stats\[int\(0\.025 \* n_boot\)\].*stats\[int\(0\.975 \* n_boot\) - 1\]"]),
+        "n_boot": c(stats.N_BOOT, n(stats.N_BOOT), "analysis/stats.py N_BOOT"),
+        "mem_gb": c(grade.MEM_BYTES // 1024 ** 3, str(grade.MEM_BYTES // 1024 ** 3), "bench/grade.py MEM_BYTES"),
+        "large_floor_s": c(2, "2", "bench/grade.py large-case limit max(2.0, 10 * rs)", ["bench/grade.py", r"max\(2\.0, 10 \* rs\)"]),
+        "large_mult": c(10, "10", "bench/grade.py large-case limit max(2.0, 10 * rs)", ["bench/grade.py", r"max\(2\.0, 10 \* rs\)"]),
+        "budget_usd": c(run.CLAUDE_BUDGET_USD, f"${run.CLAUDE_BUDGET_USD:g}", "bench/run.py CLAUDE_BUDGET_USD"),
+        "lanes": c(4, "4", "bench/run.py: assert a.lanes <= 4", ["bench/run.py", r"assert a\.lanes <= 4"]),
+        "esc_max": c(ESC_MAX, str(ESC_MAX), "bench/escalate.py: passes <= 2", ["bench/escalate.py", r"passes\[\(c, p\)\] <= 2"]),
+        "selftest_min": c(12, "12", "measured by hand: make selftest on this host (about 12 minutes)"),
+        "p15_comb": c(50_000, "50,000", "bench/problems/p15_paint_erase.py big(): m // 2 with m = 10**5", ["bench/problems/p15_paint_erase.py", r"m = 10\*\*5[\s\S]*range\(m // 2\)"]),
+        "p15_n": c(10 ** 9, "10^9" if re.search(r"1 <= n <= 10\*\*9", p15) else need(False, "p15 statement bounds n by 10**9"), "bench/problems/p15_paint_erase.py STATEMENT"),
+        "xor_bound": c(10, re.search(r"0 <= t <= ([^`]+)", p13).group(1).replace("**", "^"), "bench/problems/p13_xor_ring.py STATEMENT"),
+        "ktok": c(1000, "1,000", "unit of the cost-per-token chart"),
+        "ci_collapsed": c(100, "100–100%", "bootstrap interval when every attempt passes"),
+        "bound_formula": c(1 - ci / 100, f"{1 - ci / 100:.2f}^(1/m)", "one-sided lower bound at the CI level"),
+    }
+
+
+PASS_HEAD = re.compile(r"\bpass(ed|es| rate)\b")
+
+
+def name_rules(tables):
+    """Every function-track pass-rate column says which rule decided it; repo-track columns already carry theirs per cell."""
+    for spec in tables.values():
+        if not isinstance(spec, dict): continue
+        spec["head"] = [h if not PASS_HEAD.search(h) or any(r in h for r in ("hidden", "task complete")) else f"{h} (function tests)" for h in spec["head"]]
+
+
 def build(summary=None):
     from bench.problems.p13_xor_ring import STATEMENT as xor_statement
     ds = _base()
@@ -1295,7 +1407,10 @@ def build(summary=None):
     s = _project(ds, summary)
     arms = luna_rescue.arms(); checked = fast_gate.summary()
     ds["rescue"] = _rescue(ds, arms, checked)
+    for v in ds["rescue"].values(): v["rule"] = RULE_FUNCTION
     ds["derived_pipelines"] = checked
+    for cfg in checked.values():
+        for group in cfg.values(): group["rule"] = RULE_FUNCTION
     ds["design"] = {"rescue_problems": PIDS, "per_rung": len(s["problems"]) // len(s["configs"]["haiku-low"]["by_rung"]),
                     "fast_mode_multiplier": json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"],
                     "host_agents_md": HOST_AGENTS_MD, "min_pass": MIN_PASS,
@@ -1306,7 +1421,16 @@ def build(summary=None):
                         for cat in configs.CATEGORIES
                         if (rr := [r for r in catalog_rows(ds) if r["category"] == cat])}
     ds["report"] = s
+    ds["grok_repository"] = repository_comparison()
     ds["facts"] = _facts(s, arms)
+    ds["facts"].update(rule_function=RULE_FUNCTION, rule_hidden=RULE_HIDDEN, rule_complete=RULE_COMPLETE)
+    ds["annotations"] = annotations()
+    ds["facts"]["audit_footnote"] = audit_footnote([x for r in ds["rows"] for x in r.get("red_runs", [])] + [x for v in ds["grok_repository"].get("metrics", {}).values() for x in v["red_runs"]])
+    assert configs.PASS_FLOORS[-1] == MIN_PASS
+    ds["design"]["explorer"] = {"floors": list(configs.PASS_FLOORS), "default_floor": MIN_PASS, "tie": {"abs_s": configs.TIE_ABS_S, "rel": configs.TIE_REL}}
+    ds["design"]["constants"] = design_constants()
+    ds["facts"].update({"d_" + k: v["display"] for k, v in ds["design"]["constants"].items() if k != "n_boot"})
+    ds["facts"]["n_problems_all"] = str(int(ds["facts"]["n_problems"]) + int(ds["facts"]["n_l7"]))
     ds["tables"] = _tables(s, arms)
     # The earlier 2-repeat run on p01-p06, kept whole under its own label (its tests pin the original sentences and rows).
     comparison = grok.build(ds, s, "grok_first", first=True)
@@ -1347,6 +1471,9 @@ def build(summary=None):
     _equivalents(ds)
     _interesting(ds)
     method_appendix(ds)
+    name_rules(ds["tables"])
+    read = {os.path.relpath(p, ROOT) for p in summarize.LOADED} | {f for r in ds["rows"] for f in r["files"]}
+    for g in ds["generated_from"]: g["used"] = g["path"] in read  # a jsonl no loader opened is listed but unused
     return ds
 
 
@@ -1389,18 +1516,49 @@ def view(ds):
     return {**ds["report"], "rescue": ds["rescue"], "facts": ds["facts"]}
 
 
+# Where a fact comes from, by key prefix: the jsonl files (or the design table) its number is computed from. Coarse on purpose:
+# every fact is built by analysis.dataset from the rows below, and the prefix names the run files those rows come from.
+FACT_SOURCES = (
+    ("d_", None), ("ag_", "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"),
+    ("grok_", "results/2026-10-26-grok-function.jsonl + results/2026-10-28-grok-spectrum-function.jsonl + results/2026-10-27-grok-agentic.jsonl"),
+    ("devin_", "results/2026-10-28-devin-function.jsonl"), ("fm_", "rows main/*-fast and their default-tier twins (results/2026-10-22b-function.jsonl)"),
+    ("ff_", "rows main/*-fast and their default-tier twins (results/2026-10-22b-function.jsonl)"),
+    ("l7_", "rows set L7 set (results/2026-10-22b-function.jsonl, phase hard)"), ("x_", "rows main/* exploratory configs (results/2026-10-22b-function.jsonl)"),
+)
+FACT_DEFAULT_SOURCE = "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+FACT_UNITS = ((r"^\$[\d.,]+[kM]?$", "usd"), (r"^[\d.,]+%$", "percent"), (r"^\d+/\d+$", "k/n"), (r"^[\d.,]+×$", "ratio"),
+              (r"^[\d.,]+ ?s$", "seconds"), (r"^[\d.,]+k?$", "count"))
+
+
+def fact_object(key, display, constants):
+    unit = "list" if isinstance(display, list) else next((u for pat, u in FACT_UNITS if re.match(pat, display)), "text")
+    value = display
+    if unit in ("usd", "percent", "ratio", "seconds", "count"):
+        num = re.sub(r"[^\d.]", "", display.replace(",", ""))
+        mult = 1000 if display.endswith("k") else 1_000_000 if display.endswith("M") else 1
+        try: value = float(num) * mult if "." in num else int(num) * mult
+        except ValueError: pass
+    src = next((s for pre, s in FACT_SOURCES if key.startswith(pre)), FACT_DEFAULT_SOURCE)
+    if key.startswith("d_") and key[2:] in constants: src = constants[key[2:]]["source"]
+    return {"value": value, "unit": unit, "display": display, "source": src}
+
+
 def read():
-    return json.load(open(PATH))
+    """The dataset as the renderers use it: facts reduced to their display strings (the file keeps value, unit and source)."""
+    ds = json.load(open(PATH))
+    ds["facts"] = {k: v["display"] for k, v in ds["facts"].items()}
+    return ds
 
 
 def text(ds):
-    return json.dumps(ds, indent=1, ensure_ascii=False) + "\n"
+    """results/dataset.json: facts are written as {value, unit, display, source} objects."""
+    out = dict(ds, facts={k: fact_object(k, v, ds.get("design", {}).get("constants", {})) for k, v in ds["facts"].items()})
+    return json.dumps(out, indent=1, ensure_ascii=False) + "\n"
 
 
 def main():
     summary, tables, manifest = summarize.build()
     ds = build(summary); open(PATH, "w").write(text(ds))
-    json.dump(summary, open(os.path.join(RES, "summary.json"), "w"), indent=1)
     open(os.path.join(RES, "report", "tables.md"), "w").write(tables)
     json.dump(manifest, open(os.path.join(RES, "manifest.json"), "w"), indent=1)
     open(os.path.join(RES, "report", "luna_rescue.md"), "w").write(luna_rescue.table(luna_rescue.arms()) + "\n")

@@ -12,8 +12,7 @@ Path | what | produced by | read by. Cache (`cache/`, 15 MB) holds raw call tran
 
 ## Prices and summaries
 - `prices.json` list prices and fast-mode multiplier | hand-kept | summarize, dataset
-- `summary.json` metrics per config | analysis.summarize | charts, report, page, audit
-- `dataset.json` one row per config x set (and an all-runs roll-up) | analysis.dataset (`make report`) | charts (migrated ones), "Everything we tried", audit
+- `dataset.json` the one file every renderer reads: rows (config x set, with the pass rule), facts, tables, design, annotations, generated_from (jsonl + sha256) | analysis.dataset (`make report`) | charts, report, page, grok, raw_runs, audit
 - `manifest.json` run provenance | summarize | audit
 
 ## Appendix experiments
@@ -39,4 +38,4 @@ Path | what | produced by | read by. Cache (`cache/`, 15 MB) holds raw call tran
 - `appendix/*` stays; reviews already live in `results/research/<branch>/`.
 Each move needs its readers rewritten, then `make report`, `python3 -m analysis.audit`, `python3 -m pytest -q tests`.
 
-summary.json is unchanged in this pass. Add a config to `analysis/configs.py` when a new run lands; audit enforces it.
+summary.json is gone: the summary is computed in memory and folded into dataset.json. Add a config to `analysis/configs.py` when a new run lands; audit enforces it.
