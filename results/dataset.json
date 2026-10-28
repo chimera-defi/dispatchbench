@@ -34719,7 +34719,7 @@
     "median s",
     "slow-call time s",
     "$ per pass",
-    "total $ (60 calls)",
+    "total $ (all calls)",
     "$ kind"
    ],
    "rows": [
@@ -34940,7 +34940,7 @@
     "config",
     "pass rate 95% CI (function tests)",
     "slow-call time s",
-    "total $ (60 calls)"
+    "total $ (all calls)"
    ],
    "rows": [
     [
@@ -34995,7 +34995,7 @@
      "devin16slow-default †",
      "25%–75%",
      "15.8",
-     "–"
+     "unmetered"
     ],
     [
      "haiku-high †",
