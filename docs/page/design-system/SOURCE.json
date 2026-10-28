@@ -1,6 +1,6 @@
 {
   "repo": "chimera-defi/chimericlabs-llc",
-  "sha": "c56032fca7ccb5a9661c247f0d6160a576c4b637",
+  "sha": "2109b3b149e92ca388c4392f57d9b48aa040b4fb",
   "paths": [
     "design-system/tokens/nocturne-base.css",
     "design-system/tokens/fable-maroon.css",
@@ -9,6 +9,7 @@
     "design-system/components/patterns.css",
     "design-system/dispatchbench/dispatchbench-theme.css",
     "design-system/scripts/check-tokens.mjs",
+    "design-system/scripts/check-contrast.mjs",
     "design-system/readme.md",
     "design-system/SKILL.md",
     "design-system/guidelines/nocturne-guide.md",

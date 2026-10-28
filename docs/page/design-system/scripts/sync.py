@@ -10,7 +10,7 @@ REPO = 'chimera-defi/chimericlabs-llc'
 FILES = (
     'tokens/nocturne-base.css', 'tokens/fable-maroon.css', 'tokens/fable-data.css',
     'styles.css', 'components/patterns.css', 'dispatchbench/dispatchbench-theme.css',
-    'scripts/check-tokens.mjs', 'readme.md', 'SKILL.md',
+    'scripts/check-tokens.mjs', 'scripts/check-contrast.mjs', 'readme.md', 'SKILL.md',
     'guidelines/nocturne-guide.md', 'guidelines/site-guide.md', 'theme.json',
 )
 DS = Path(__file__).resolve().parents[1]
@@ -90,6 +90,8 @@ def build(sources, sha):
             css = adapt(css, THEME_SELECTORS)
         if path.endswith('.css'):
             css = header(path, sha) + css
+        elif path == 'scripts/check-contrast.mjs':
+            css = f'// Source: {REPO} design-system/{path}\n// Pinned SHA: {sha}\n' + css
         outputs[DS / path] = css
     # Only variable definitions enter the single swappable token block. The base
     # file also contains component CSS; unrelated components and its remote font
@@ -101,10 +103,14 @@ def build(sources, sha):
     tokens.append((DS / 'tokens/dispatchbench.css').read_text())
     tokens.append('/* FABLE TOKENS END */\n')
     outputs[PAGE / 'tokens.css'] = '\n'.join(line.rstrip() for line in '\n'.join(tokens).splitlines()) + '\n'
-    style = (PAGE / 'style.css').read_text().split(BEGIN, 1)[0].rstrip()
-    outputs[PAGE / 'style.css'] = (style + '\n\n' + BEGIN + '\n'
-        + outputs[DS / 'components/patterns.css']
-        + outputs[DS / 'dispatchbench/dispatchbench-theme.css'] + END + '\n')
+    # P4c_ds: page-rule integration belongs to the page slice. Keep this sync
+    # confined to vendored assets, tokens, and the shared topbar.
+    topbar = re.findall(r'(?m)^\.ds-topbar[^\n]*\{[^\n]*\}', sources['components/patterns.css'])
+    if not topbar:
+        raise ValueError('upstream patterns.css has no .ds-topbar rules')
+    integration = (PAGE / 'topbar.css').read_text().split('/* Scoped integration:', 1)[1]
+    outputs[PAGE / 'topbar.css'] = (header('components/patterns.css', sha)
+        + '\n'.join(topbar) + '\n\n/* Scoped integration:' + integration)
     outputs[DS / 'SOURCE.json'] = json.dumps({'repo': REPO, 'sha': sha, 'paths': ['design-system/' + p for p in FILES]}, indent=2) + '\n'
     return outputs
 
@@ -129,7 +135,7 @@ def main():
     for path, content in build(sources, sha).items():
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content)
-    print(f'synced {len(FILES)} site files from {REPO}@{sha}; rebuilt tokens.css and mapped page rules')
+    print(f'synced {len(FILES)} site files from {REPO}@{sha}; rebuilt tokens.css and topbar.css')
 
 
 if __name__ == '__main__':
