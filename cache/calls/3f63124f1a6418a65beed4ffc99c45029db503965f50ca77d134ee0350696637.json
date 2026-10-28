@@ -1,0 +1,23 @@
+{
+ "key": "3f63124f1a6418a65beed4ffc99c45029db503965f50ca77d134ee0350696637",
+ "ts": "2026-10-28T01:26:09+00:00",
+ "phase": "exploratory",
+ "config": "devin16slow-default",
+ "cli": "devin",
+ "cli_version": "3000.11.228",
+ "model": "swe-1-6-slow",
+ "effort": "default",
+ "problem": "p01_overlap_minutes",
+ "repeat": 1,
+ "lanes": 2,
+ "prompt_sha": "c95d1fe6b46f",
+ "wall_s": 9.08178156701615,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef overlap_minutes(meetings: list[list[int]], k: int) -> int:\n    events = []\n    for start, end in meetings:\n        if start < end:  # Skip empty meetings\n            events.append((start, 1))   # Meeting starts\n            events.append((end, -1))    # Meeting ends\n    \n    # Sort by time; at same time, process ends (-1) before starts (+1)\n    events.sort(key=lambda x: (x[0], x[1]))\n    \n    total = 0\n    count = 0\n    prev_time = None\n    \n    for time, delta in events:\n        if prev_time is not None and count >= k:\n            total += time - prev_time\n        count += delta\n        prev_time = time\n    \n    return total\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}
