@@ -18,6 +18,7 @@ RAW = os.path.join(ROOT, "cache", "raw")  # full CLI stdout, gitignored (may con
 CLAUDE = os.environ.get("CLAUDE_BIN", "claude")
 CODEX = os.environ.get("CODEX_BIN", "codex")
 GROK = os.environ.get("GROK_BIN", "grok")
+DEVIN = os.environ.get("DEVIN_BIN", "devin")
 CLAUDE_BUDGET_USD = 8.00
 GROK_BUDGET_USD = 60.00  # raised 2026-10-28 for the full-spectrum Grok run.
 
@@ -51,6 +52,7 @@ CONFIGS.update({"terra61-low": ("codex", "gpt-6.1-terra", "low"), "terra61-high"
 # Exploratory, 2026-10-26, operator request (hackathon): staged L1-L3 Grok lane; see PLAN.md.
 CONFIGS.update({f"grok47-{e}": ("grok", "grok-4.7", e) for e in ("low", "medium", "high")})
 CONFIGS["grok47fast-low"] = ("grok", "grok-4.7-build-fast", "low")
+CONFIGS["devin16slow-default"] = ("devin", "swe-1-6-slow", "default")  # free tier: the only accessible Devin-native model
 
 
 def codex_flags(config, portable=False):
@@ -90,13 +92,15 @@ _versions = {}
 
 def cli_version(cli):
     if cli not in _versions:
-        exe = {"claude": CLAUDE, "codex": CODEX, "grok": GROK}[cli]
+        exe = {"claude": CLAUDE, "codex": CODEX, "grok": GROK, "devin": DEVIN}[cli]
         if cli == "codex":
             with isolated_codex_env() as env:
                 version = subprocess.run([exe, "--version"], env=env, capture_output=True, text=True).stdout
+        elif cli == "devin":
+            version = subprocess.run([exe, "version"], capture_output=True, text=True).stdout
         else:
             version = subprocess.run([exe, "--version"], capture_output=True, text=True).stdout
-        _versions[cli] = version.strip().split()[1 if cli == "grok" else -1 if cli == "codex" else 0]
+        _versions[cli] = version.strip().split()[1 if cli in ("grok", "devin") else -1 if cli == "codex" else 0]
     return _versions[cli]
 
 
@@ -248,6 +252,34 @@ def call_grok(mid, eff, prompt, cwd):
                 turns=d.get("num_turns")), r.stdout
 
 
+class DevinStop(RuntimeError):
+    """Hard stop for the Devin lane: non-zero exit or an upgrade/limit message. Carries the stored row."""
+    def __init__(self, text, res, raw):
+        super().__init__(text); self.res, self.raw = res, raw
+
+
+DEVIN_STOP_RE = re.compile(r"upgrade to pro|usage limit|rate limit|quota|credits|exceeded", re.I)
+DEVIN_EMPTY = os.path.join(ROOT, "cache", "tmp", "devin_empty")
+
+
+def call_devin(mid, eff, prompt, cwd=None):
+    """Free-tier Devin CLI, auto permission mode, run in an empty directory (nothing to read, nothing to edit)."""
+    cwd = cwd or DEVIN_EMPTY
+    os.makedirs(cwd, exist_ok=True)
+    cmd = [DEVIN, "--model", mid, "--permission-mode", "auto", "-p", prompt]
+    t = time.monotonic()
+    r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, cwd=cwd, timeout=1200)
+    wall = time.monotonic() - t
+    base = dict(wall_s=wall, cost_usd=None, cost_kind="free-tier (tokens not reported)", in_tok=None, out_tok=None)
+    out = (r.stdout or "") + ("\n" + r.stderr if r.stderr else "")
+    if r.returncode != 0 or DEVIN_STOP_RE.search(out):
+        text = (r.stderr.strip() or r.stdout.strip() or f"exit {r.returncode}")
+        res = dict(base, text="", is_error=True, error=text[-1000:], error_type="infrastructure",
+                   outcome="harness_error", quota_error=True)
+        raise DevinStop(text, res, r.stdout)
+    return dict(base, text=r.stdout, is_error=False, error=None), r.stdout
+
+
 def call_codex(mid, eff, prompt, cwd, flags=CODEX_FLAGS):
     cmd = [CODEX, "exec", "-m", mid, "-c", f"model_reasoning_effort={eff}"] + flags + ["-C", cwd, prompt]
     t = time.monotonic()
@@ -271,9 +303,13 @@ def one(config, pid, rep, phase, lanes):
     try:
         if cli == "claude": res, raw = call_claude(mid, eff, prompt, cwd)
         elif cli == "grok": res, raw = call_grok(mid, eff, prompt, cwd)
+        elif cli == "devin": res, raw = call_devin(mid, eff, prompt)
         else: res, raw = call_codex(mid, eff, prompt, cwd, codex_flags(config))
     except SpendLimit as exc:
         return str(exc)
+    except DevinStop as exc:
+        res, raw = exc.res, exc.raw
+        print(f"DEVIN STOP: {exc}", flush=True)
     except (subprocess.TimeoutExpired, OSError) as exc:
         res, raw = failure(exc, time.monotonic() - t0)
     finally:

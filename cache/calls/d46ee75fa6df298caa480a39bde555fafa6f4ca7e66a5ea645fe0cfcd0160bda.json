@@ -1,0 +1,23 @@
+{
+ "key": "d46ee75fa6df298caa480a39bde555fafa6f4ca7e66a5ea645fe0cfcd0160bda",
+ "ts": "2026-10-28T01:26:46+00:00",
+ "phase": "exploratory",
+ "config": "devin16slow-default",
+ "cli": "devin",
+ "cli_version": "3000.11.228",
+ "model": "swe-1-6-slow",
+ "effort": "default",
+ "problem": "p05_pass_route",
+ "repeat": 1,
+ "lanes": 2,
+ "prompt_sha": "a9070ce4e2ec",
+ "wall_s": 7.711987450020388,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nimport heapq\nfrom collections import defaultdict\n\ndef pass_route(n: int, edges: list[list[int]], stations: list[list[int]], prices: list[int]) -> int:\n    # Build adjacency list\n    adj = defaultdict(list)\n    for u, v, cost, zone in edges:\n        adj[u].append((v, cost, zone))\n        adj[v].append((u, cost, zone))\n    \n    # Map stop -> set of zones where we can buy a pass\n    can_buy = defaultdict(set)\n    for stop, zone in stations:\n        can_buy[stop].add(zone)\n    \n    k = len(prices)\n    num_masks = 1 << k\n    \n    # Dijkstra: (total_cost, stop, bought_mask)\n    # dist[stop][mask] = min cost to reach stop with this mask\n    dist = [[float('inf')] * num_masks for _ in range(n)]\n    dist[0][0] = 0\n    pq = [(0, 0, 0)]  # (cost, stop, mask)\n    \n    while pq:\n        cost, u, mask = heapq.heappop(pq)\n        \n        if cost != dist[u][mask]:\n            continue\n        \n        if u == n - 1:\n            return cost\n        \n        # Option 1: Buy a pass at current stop (if available and not already bought)\n        for zone in can_buy[u]:\n            bit = 1 << zone\n            if not (mask & bit):\n                new_mask = mask | bit\n                new_cost = cost + prices[zone]\n                if new_cost < dist[u][new_mask]:\n                    dist[u][new_mask] = new_cost\n                    heapq.heappush(pq, (new_cost, u, new_mask))\n        \n        # Option 2: Take an edge\n        for v, edge_cost, zone in adj[u]:\n            # Determine actual cost of this edge\n            if zone == -1:\n                actual_cost = edge_cost\n            else:\n                bit = 1 << zone\n                if mask & bit:\n                    actual_cost = 0  # Have pass, ride is free\n                else:\n                    actual_cost = edge_cost\n            \n            new_cost = cost + actual_cost\n            if new_cost < dist[v][mask]:\n                dist[v][mask] = new_cost\n                heapq.heappush(pq, (new_cost, v, mask))\n    \n    # Check if we can reach n-1 with any mask\n    result = min(dist[n - 1])\n    return result if result != float('inf') else -1\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}
