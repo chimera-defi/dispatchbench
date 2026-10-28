@@ -422,3 +422,11 @@ details>summary{cursor:pointer;color:var(--color-muted)}
 .grid .part{background:var(--cell-most);color:var(--cell-most-text)}
 .grid .fail{background:var(--cell-half);color:var(--cell-half-text)}
 /* FABLE PAGE RULES END */
+
+/* Section chrome uses text labels consistently, with or without JavaScript. */
+.verdict>h2{margin-top:0}
+.winner-decision{margin:0 0 6px}
+@media(max-width:600px){
+ section.collapsible>h2>.sec-toggle{display:grid;grid-template-columns:auto minmax(0,1fr) auto}
+ section.collapsible>h2>.sec-toggle>.ex-kicker{grid-column:1/-1;margin-bottom:0}
+}

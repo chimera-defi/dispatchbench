@@ -228,6 +228,7 @@
 "w_winner",
 "winner_budget",
 "winner_caption",
+"winner_checks",
 "winner_claude_to_codex",
 "winner_codex_to_claude",
 "winner_default",
