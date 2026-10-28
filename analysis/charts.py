@@ -554,14 +554,14 @@ def explorer_marker(r, x, y, radius=6):
     return f'<circle cx="{x:.2f}" cy="{y:.2f}" r="{radius}" {attrs}/>'
 
 
-def explorer_leader(q, target, obstacles, width, height):
+def explorer_leader(q, target, obstacles, width, height, label_end=None):
     """Stable orthogonal routing through free cells, ending outside the point ring.
 
-    Points, confidence intervals and label text reserve padded boxes. No segment
-    enters those boxes; an inaccessible point keeps its label without a leader.
+    Points, confidence intervals, label text and prior routes reserve space.
+    An inaccessible point keeps its label without a leader.
     """
     from collections import deque
-    step = 4
+    step = 2
     cols, rows = math.floor(width/step), math.floor(height/step)
     blocked = set()
     for left, top, right, bottom in obstacles:
@@ -585,6 +585,10 @@ def explorer_leader(q, target, obstacles, width, height):
     points = []
     while found is not None:
         points.append((found[0]*step, found[1]*step)); found = parent[found]
+    if label_end is not None:
+        x,y = points[-1]
+        points.extend((xx,y) for xx in range(x-step, round(label_end[0]/step)*step-1, -step))
+    obstacles.extend((x,y,x,y) for x,y in points)
     compact = points[:1]
     for i in range(1, len(points)-1):
         a,b,c = points[i-1:i+2]
@@ -599,7 +603,7 @@ def explorer_svg(exp, standalone=False, width=760):
     rows = [r for r in exp["rows"] if r["key"] in st["rows"] and r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None]
     ext = st["views"]["list"]["extents"]; membership = st["views"]["list"]["front"]["membership"]
     label_rows = [r for r in rows if membership[r['key']]['on_frontier'] or width > 480 and r['winner_pick']]
-    W,H,L,R,T,B = width,480,90,30,len(label_rows)*18+46,410
+    W,H,L,R,T,B = width,480,90,30,190,410
     lo,hi = ext["cost"]; p0,p1 = ext["pass_rate"]
     X = lambda v: L + math.log(v/lo)/math.log(hi/lo)*(W-L-R)
     Y = lambda v: B - (v-p0)/(p1-p0)*(B-T)
@@ -635,15 +639,21 @@ def explorer_svg(exp, standalone=False, width=760):
         obstacles.extend(((x-12,y-12,x+12,y+12),
                           (x-5,Y(r['ci95_plot'][1])-4,x+5,Y(r['ci95_plot'][0])+4)))
     labels = []
+    label_rows.sort(key=lambda r: (positions[r['config']][1], positions[r['config']][0], r['key']))
     for i,r in enumerate(label_rows):
         q = positions[r['config']]; label = r['display']
         x,y,w = 12,18+i*18,min(len(label)*7,W-36)
         labels.append((r,q,label,x,y,w))
         obstacles.append((x-4,y-15,x+w+4,y+4))
+    lane = max((w for r,q,label,x,y,w in labels), default=0) + 24
+    for i in reversed(range(len(labels))):
+        r,q,label,x,y,w = labels[i]
+        route = explorer_leader(q,(lane+(len(labels)-1-i)*8,y-4),obstacles,W,H,(x+w+12,y-4))
+        b.append(f'<path class="ex-leader" data-key="{escape(r["key"])}" d="{route}"/>')
+    b.append(f'<defs><clipPath id="ex-static-label-clip"><rect x="8" y="0" width="{W-16}" height="{T-24}"/></clipPath></defs><g clip-path="url(#ex-static-label-clip)">')
     for r,q,label,x,y,w in labels:
-        route = explorer_leader(q,(x+w+12,y-4),obstacles,W,H)
-        b += [f'<path class="ex-leader" data-key="{escape(r["key"])}" d="{route}"/>',
-              text(x,y,label,12).replace('<text ', f'<text class="ex-label" data-key="{escape(r["key"])}" ', 1)]
+        b.append(text(x,y,label,12).replace('<text ', f'<text class="ex-label" data-key="{escape(r["key"])}" ', 1))
+    b.append('</g>')
     b += [text((L+W-R)/2,H-18,'$ per pass (log) · left is cheaper',12,'middle',MUTED),text(22,(T+B)/2,'Pass rate · up is better',12,'middle',MUTED,rotate=-90)]
     if standalone:
         tokens = token_style()

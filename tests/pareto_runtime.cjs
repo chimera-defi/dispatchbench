@@ -37,4 +37,42 @@ h.st.off.clear();h.st.quota=false;h.st.minPass=0;h.st.view='side';h.render();ass
 assert(element('ex-model-grid').innerHTML.includes('<h4>devin</h4>'));
 h.st.prereg=true;h.render();assert(!element('ex-chart').innerHTML.includes('devin16slow-default'));
 h.st.prereg=false;h.st.facets.add('family:Codex');h.render();assert(!element('ex-chart').innerHTML.includes('main/terra61-low@'));
-console.log(`${scenarios} set/view/pricing/width scenarios; frontier parity, ties, points, radars and filters pass`);
+// Drive the shipped wheel handler around haiku-high across the label threshold.
+// Predict the visible domain from pre-zoom coordinates, independently of geometry().
+h.st.facets.clear();h.st.sel=h.st.hover=null;
+const originalQuery=root.querySelector,svg=new Element();
+root.querySelector=s=>s==='#ex-chart svg'?svg:element(s.slice(1));
+const snapshot=()=>{
+ const html=element('ex-chart').innerHTML;
+ const rect=id=>html.match(new RegExp(`<clipPath id="${id}"><rect x="([^"]+)" y="([^"]+)" width="([^"]+)" height="([^"]+)"`)).slice(1).map(Number);
+ return {html,plot:rect('ex-clip'),gutter:rect('ex-label-clip'),points:new Map(Array.from(html.matchAll(/data-key="([^"]+)" data-x="([^"]+)" data-y="([^"]+)"/g),m=>[m[1],[+m[2],+m[3]]]))};
+};
+const inside=([x,y],[l,t,w,h])=>x>=l-1e-8&&x<=l+w+1e-8&&y>=t-1e-8&&y<=t+h+1e-8;
+let zoomScenarios=0;
+for(const width of [760,390]){
+ element('ex-chart').clientWidth=svg.clientWidth=svg.viewBox.baseVal.width=width;
+ for(const view of ['front','top','side']){
+  h.st.view=view;h.st.zk=1;h.st.zx=h.st.zy=0;h.render();
+  const base=snapshot(),[anchorKey,anchor]=Array.from(base.points).find(([k])=>rm.get(k).config==='haiku-high');
+  h.render();assert.equal(snapshot().html,base.html,'render must be deterministic');
+  assert(inside(anchor,base.plot));
+  for(const zoom of [2.1,2.2,3,2.1,1]){
+   svg.onwheel({clientX:anchor[0],clientY:anchor[1],deltaY:-Math.log(zoom/h.st.zk)/.0015,preventDefault(){}});
+   const after=snapshot();assert.deepEqual(after.plot,base.plot,`${width}/${view}/${zoom} plot moved`);
+   assert(after.gutter[1]+after.gutter[3]<after.plot[1],'labels must be clipped above the plot');
+   assert(after.html.includes('<g clip-path="url(#ex-label-clip)">'));
+   let visible=0;
+   for(const [key,[x,y]] of base.points){
+    const expected=[x*h.st.zk+h.st.zx,y*h.st.zk+h.st.zy],actual=after.points.get(key);
+    assert(actual,`${key} lost on zoom`);
+    assert(Math.hypot(actual[0]-expected[0],actual[1]-expected[1])<1e-7,`${width}/${view}/${zoom}/${key} domain changed`);
+    if(inside(expected,base.plot)){visible++;assert(inside(actual,after.plot),`${key} escaped plot`)}
+   }
+   assert(visible>0);
+   const [ax,ay]=after.points.get(anchorKey);assert(Math.hypot(ax-anchor[0],ay-anchor[1])<1e-7,'zoom anchor moved');
+   zoomScenarios++;
+  }
+ }
+}
+root.querySelector=originalQuery;
+console.log(`${scenarios} set/view/pricing/width scenarios; ${zoomScenarios} wheel zoom scenarios; frontier parity, ties, points, radars and filters pass`);
