@@ -1,5 +1,6 @@
 <div class="pareto-explorer" id="pareto-explorer">
 <div class="ex-layout"><div class="ex-main"><div id="ex-chart" class="ex-chart" aria-describedby="ex-caption">__EXPLORER_SVG__</div>
+<div id="ex-legend" class="ex-meta">__LEGEND__ · ring = best trade-off · solid = normal · hollow = fast · dashed edge = bare</div>
 <p id="ex-inspect" class="ex-meta" aria-live="polite" hidden></p>
 <p id="ex-caption">__EXPLORER_FINDING__</p>
 <p class="ex-lede">Cost, pass rate and speed in one space. Choose a view, scroll to zoom, drag to pan or rotate. Ringed points: nothing beats them.</p>
@@ -17,7 +18,7 @@
 <p class="ex-meta">Shape = vendor: circle Claude · diamond Codex · triangle Grok · square pipeline. Hollow = fast, dashed edge = bare. Size = effort. Whiskers = confidence interval.</p>
 </details>
 <details class="ex-configs" hidden><summary>Configs in this set</summary><div class="ex-controls"><button class="btn" id="ex-all">all</button><button class="btn" id="ex-none">none</button></div><div id="ex-config-list" class="ex-controls">__CONFIG_BUTTONS__</div></details>
-<div id="ex-legend" class="ex-meta">Ring = best trade-off · solid = normal · hollow = fast · dashed edge = bare</div><p id="ex-excluded" class="ex-meta">__EXCLUDED__</p></div>
+<p id="ex-excluded" class="ex-meta">__EXCLUDED__</p></div>
 <aside class="ex-aside"><div class="card" id="ex-detail" aria-live="polite">__DETAIL__</div>
 <div class="card"><h3>Best trade-offs</h3><p class="ex-meta">__STRICT_RULE__</p><ol id="ex-best">__BEST__</ol></div>
 <div class="card"><h3>The picks</h3><p class="ex-meta">__WINNER_PRICING__</p><div id="ex-picks">__PICKS__</div></div></aside></div>
@@ -138,7 +139,7 @@ function render(rebuild=true){const active=document.activeElement,focusAttr=acti
  const panels=[];new Set(rows.map(r=>r.panel)).forEach(panel=>{const group=rows.filter(r=>r.panel===panel),v=st.view==='3d'||st.view==='par'?'front':st.view,m=members(rows,v),e=set.views[price][v].panels[panel].extents,g=geometry(e,240,160,v,false);const mf=rows.filter(r=>m.get(r.key).on_frontier).sort((a,b)=>val(a,X.views[v].objectives[0][0])-val(b,X.views[v].objectives[0][0]));let d='';mf.forEach((r,i)=>{const q=g.coord(r);d+=(i?'H'+q[0]+'V':'M'+q[0]+' ')+q[1]});if(d)d+='H240';const shade=d?`<path class="ex-shade" d="${d}V160H${g.coord(mf[0])[0]}Z"/><path class="ex-front" d="${d}"/>`:'';let dots=[];rows.filter(r=>!group.includes(r)).forEach(r=>{const q=g.coord(r);dots.push(`<circle cx="${q[0]}" cy="${q[1]}" r="2" class="ex-ghost"/>`)});const order={low:0,medium:1,high:2,xhigh:3,default:4};group.filter(r=>r.mode==='normal').sort((a,b)=>order[a.effort]-order[b.effort]).forEach((r,i,a)=>{if(i)dots.push(line(g.coord(a[i-1]),g.coord(r),'ex-trail',`stroke="${colour(r)}"`))});group.forEach(r=>{const q=g.coord(r);dots.push(pointNode(r,q,m.get(r.key),true),txt(Math.min(220,q[0]+10),Math.max(14,q[1]-8),({low:'L',medium:'M',high:'H',xhigh:'XH',default:'D'})[r.effort]||r.effort,'start','ex-effort'))});panels.push('<div class="card"><h4>'+esc(panel)+'</h4><p class="ex-meta">'+group.filter(r=>m.get(r.key).on_frontier).length+' of '+group.length+' on frontier · '+group.filter(r=>m.get(r.key).beaten_by.length).length+' beaten</p><svg viewBox="0 0 240 160" role="img"><title>'+esc(panel)+' detail</title>'+shade+dots.join('')+'</svg></div>')});$('#ex-model-grid').innerHTML=panels.join('');
  if(rebuild||!$('#ex-radar-grid').childElementCount)$('#ex-radar-grid').innerHTML=rr.map(r=>radar(r,ext)).join('');
  const legend=new Map();rows.forEach(r=>{const label=st.colorBy==='vendor'?(r.family==='Codex'&&r.generation==='5.6'?'Codex 5.6':r.family):st.colorBy==='model'?r.model_short:r[st.colorBy];legend.set(label,colour(r))});
- $('#ex-legend').innerHTML=Array.from(legend,([label,c])=>'<span style="border-left:8px solid '+c+';padding-left:6px;">'+esc(label)+'</span>').join(' · ')+' · ring = best trade-off';
+ $('#ex-legend').innerHTML=Array.from(legend,([label,c])=>'<span style="border-left:8px solid '+c+';padding-left:6px;">'+esc(label)+'</span>').join(' · ')+' · ring = best trade-off · solid = normal · hollow = fast · dashed edge = bare';
  if(rebuild)$('#ex-config-list').innerHTML=all.map(r=>'<button class="btn" data-config="'+esc(r.key)+'" aria-pressed="'+!st.off.has(r.key)+'">'+esc(r.display)+' · '+costLabel(r)+'</button>').join('');
  $$('[data-config]').forEach(b=>b.onclick=()=>{st.off.has(b.dataset.config)?st.off.delete(b.dataset.config):st.off.add(b.dataset.config);render()});
  $$('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===st.view)));$$('[data-pricing]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.pricing==='quota')===st.quota)));
