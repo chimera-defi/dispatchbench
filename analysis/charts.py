@@ -7,10 +7,10 @@ from xml.sax.saxutils import escape
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "results", "report", "charts")
 FONT = "font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, sans-serif'"
-INK, MUTED, GRID, PLATE = "var(--fg,#1d2321)", "var(--muted,#5d6763)", "var(--line,#dde2de)", "var(--panel,#ffffff)"
+INK, MUTED, GRID, PLATE = "var(--fg)", "var(--muted)", "var(--line)", "var(--panel)"
 HOST_AGENTS_MD = dataset.HOST_AGENTS_MD
-BADC, WARNC = "var(--bad,#b3261e)", "var(--warn,#a86b00)"
-FAMILY = lambda c: "var(--grok,#000)" if c.startswith("grok") else "var(--devin,#c2257f)" if c.startswith("devin") else "var(--claude,#b4572e)" if c.startswith("haiku") else "var(--sonnet,#2f8f7d)" if c.startswith("sonnet") else "var(--codex,#3a5bb8)"
+BADC, WARNC = "var(--bad)", "var(--warn)"
+FAMILY = lambda c: "var(--grok)" if c.startswith("grok") else "var(--devin)" if c.startswith("devin") else "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex)"
 
 
 # Per-label vertical offsets so neighbouring points' labels do not collide.
@@ -25,7 +25,7 @@ def hexagon(x, y, r):
 
 
 def grok_mark(x, y, r=10):
-    return f"<polygon points='{hexagon(x, y, r)}' fill='var(--grok,#000)' stroke='#fff' stroke-width='1.5'/>"
+    return f"<polygon points='{hexagon(x, y, r)}' fill='var(--grok)' stroke='var(--panel)' stroke-width='1.5'/>"
 
 
 def svg(w, h, body, x=0, y=0):
@@ -38,7 +38,7 @@ def svg(w, h, body, x=0, y=0):
 
 def text(x, y, s, size=12, anchor="start", fill=INK, weight="normal", rotate=None):
     t = f" transform='rotate({rotate} {x} {y})'" if rotate else ""
-    return f"<text x='{x:.1f}' y='{y:.1f}' font-size='{size}' text-anchor='{anchor}' style='fill:{fill}' font-weight='{weight}'{t}>{escape(str(s))}</text>"
+    return f"<text x='{x:.1f}' y='{y:.1f}' font-size='{size}' text-anchor='{anchor}' style='fill:{fill};' font-weight='{weight}'{t}>{escape(str(s))}</text>"
 
 
 def log_ticks(lo, hi):
@@ -52,7 +52,7 @@ def log_ticks(lo, hi):
 
 def pareto_chart(s, hero=False):
     """hero: README version, no intervals, labels only on the frontier and the Winner picks."""
-    from analysis.page import WINNER_PICKS  # late import: page imports this module
+    from analysis.dataset import WINNER_PICKS
     cfg = {c: v for c, v in s["configs"].items() if v["usd_per_pass"]}
     extra = {c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"] and c not in configs.CHART_HIDDEN}  # exploratory, not on the pre-registered frontier
     allc = {**cfg, **extra}
@@ -167,13 +167,13 @@ def pareto_chart(s, hero=False):
 
 
 MIN_PASS = dataset.MIN_PASS
-PURPLE = "var(--frontier,#7b3fe4)"
+PURPLE = "var(--frontier)"
 
 
 def cost_time_chart(s):
     """$ per pass against median latency, function track L1-L6. The frontier is drawn over configs at or above MIN_PASS
     pass@1: among those, the ones no other config beats on both cost and time."""
-    from analysis.page import speed_dominates
+    from analysis.dataset import speed_dominates
     allc = {**{c: v for c, v in s["configs"].items() if v["usd_per_pass"]}, **{c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"] and c not in configs.CHART_HIDDEN}}
     pts = {c: (v["usd_per_pass"], v["latency_s"]["median"]) for c, v in allc.items()}
     ok = {c: p for c, p in pts.items() if allc[c]["pass_at_1"] >= MIN_PASS}
@@ -322,7 +322,7 @@ def heatmap(s):
             if k is None:
                 b.append(text(X(j) + cw / 2, y + ch / 2 + 4, "–", 11, "middle", MUTED)); continue
             top = 1 if c in dv else 5  # Devin's single try is a full-strength cell
-            fill, op = ("var(--bad,#b3261e)", 0.35) if k == 0 else ("var(--good,#1c7c3c)", 0.1 + 0.09 * k * 5 / top)
+            fill, op = ("var(--bad)", 0.35) if k == 0 else ("var(--good)", 0.1 + 0.09 * k * 5 / top)
             b.append(f"<rect x='{X(j) + 1}' y='{y + 1}' width='{cw - 2}' height='{ch - 2}' fill='{fill}' opacity='{op:.2f}'/>")
             b.append(text(X(j) + cw / 2, y + ch / 2 + 4, k, 11, "middle", INK))
     return svg(W, H, b)
@@ -501,7 +501,7 @@ def build(ds=None, names=None):
     """{file name: SVG text or None}, using only the dataset."""
     ds = ds or dataset.read(); s = dataset.view(ds)
     check_design(s)
-    renderers = {"pareto.svg": lambda: pareto_chart(s), "hero.svg": lambda: pareto_chart(s, hero=True),
+    renderers = {"pareto.svg": lambda: pareto_chart(s), "hero.svg": lambda: explorer_svg(ds["explorer"], standalone=True),
                  "cost_time.svg": lambda: cost_time_chart(s), "pass_by_rung.svg": lambda: rung_chart(s, ds),
                  "heatmap.svg": lambda: heatmap(s), "token_floor.svg": lambda: floor_chart(s),
                  "agentic.svg": lambda: agentic_chart(s), "token_in.svg": lambda: token_in_chart(s, ds),
@@ -520,6 +520,117 @@ def main():
     for name, body in charts.items():
         if body: open(os.path.join(OUT, name), "w").write(body)
     print("charts ->", os.path.relpath(OUT, ROOT), ", ".join(n for n, b in charts.items() if b))
+
+
+
+
+def explorer_colour(r, facet="vendor"):
+    key = (r["model_short"] if facet == "model" else r["effort"] if facet == "effort" else r["mode"] if facet == "mode" else
+           "codex-old" if r["family"] == "Codex" and r["generation"] == "5.6" else r["family"].lower())
+    if facet == "effort": key = "effort-" + key
+    return f"var(--data-{key})"
+
+
+def explorer_marker(r, x, y, radius=6):
+    """Vendor shape, effort size, mode fill. All paint comes from tokens."""
+    col = explorer_colour(r)
+    attrs = f'fill="{PLATE if r["mode"] in ("fast", "bare") else col}" stroke="{col}" stroke-width="2"'
+    if r["mode"] == "bare": attrs += ' stroke-dasharray="3 2"'
+    if r["mode"] == "pipeline": return f'<rect x="{x-radius:.2f}" y="{y-radius:.2f}" width="{2*radius}" height="{2*radius}" {attrs}/>'
+    if r["family"] == "Codex": return f'<path d="M{x:.2f} {y-radius:.2f}l{radius} {radius}l{-radius} {radius}l{-radius} {-radius}Z" {attrs}/>'
+    if r["family"] == "Grok": return f'<path d="M{x:.2f} {y-radius:.2f}l{radius} {2*radius}h{-2*radius}Z" {attrs}/>'
+    return f'<circle cx="{x:.2f}" cy="{y:.2f}" r="{radius}" {attrs}/>'
+
+
+def explorer_svg(exp, standalone=False):
+    """The default view, pre-rendered for no-JS readers and the OG source."""
+    st = next(s for s in exp["sets"] if s["id"] == exp["default_set"])
+    rows = [r for r in exp["rows"] if r["key"] in st["rows"] and r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None]
+    ext = st["views"]["list"]["extents"]; membership = st["views"]["list"]["front"]["membership"]
+    W,H,L,R,T,B = 760,480,90,30,36,410
+    lo,hi = ext["cost"]; p0,p1 = ext["pass_rate"]
+    X = lambda v: L + math.log(v/lo)/math.log(hi/lo)*(W-L-R)
+    Y = lambda v: B - (v-p0)/(p1-p0)*(B-T)
+    b = ['<title>Cost, pass rate and speed: default cost versus pass view</title>',
+         '<desc>Ringed configs are strict Pareto trade-offs. All measurements and intervals come from the embedded dataset.</desc>']
+    for v in log_ticks(lo,hi):
+        b += [f'<path class="ex-grid" d="M{X(v):.2f} {T}V{B}"/>',text(X(v),B+26,dataset.usd(v,tick=True),12,"middle",MUTED)]
+    for i in range(math.ceil(p0*10),11):
+        v=i/10
+        b += [f'<path class="ex-grid" d="M{L} {Y(v):.2f}H{W-R}"/>',text(L-10,Y(v)+4,f'{100*v:.0f}%',12,"end",MUTED)]
+    frontier = sorted([r for r in rows if membership[r['key']]['on_frontier']],key=lambda r:r['usd_per_pass'])
+    if frontier:
+        d='M'+f'{X(frontier[0]["usd_per_pass"]):.2f} {B}'
+        for r in frontier: d+=f'H{X(r["usd_per_pass"]):.2f}V{Y(r["pass_rate"]):.2f}'
+        d+=f'H{W-R}'
+        b += [f'<path class="ex-shade" d="{d}V{B}Z"/>',f'<path class="ex-front" d="{d}"/>']
+    positions={r['config']:(X(r['usd_per_pass']),Y(r['pass_rate'])) for r in rows}
+    for r in rows:
+        x,y=positions[r['config']]; col=explorer_colour(r)
+        if r['fast_twin'] in positions:
+            tx,ty=positions[r['fast_twin']]
+            b.append(f'<path class="ex-trail" stroke="{col}" stroke-dasharray="3 3" d="M{tx:.2f} {ty:.2f}L{x:.2f} {y:.2f}"/>')
+        ci=r['ci95_plot']
+        b.append(f'<path class="ex-ci" stroke="{col}" d="M{x:.2f} {Y(ci[0]):.2f}V{Y(ci[1]):.2f}"/>')
+        title=f'{r["display"]}: {r["passes"]}/{r["n"]}, {dataset.usd(r["usd_per_pass"])} per pass, {r["median_s"]:g} s; {r["coverage_note"]}'
+        b.append(f'<g class="ex-point" data-key="{escape(r["key"])}" tabindex="0" role="button" aria-label="{escape(title)}"><title>{escape(title)}</title>')
+        if membership[r['key']]['on_frontier']: b.append(f'<circle class="ex-ring" cx="{x:.2f}" cy="{y:.2f}" r="11"/>')
+        b += [explorer_marker(r,x,y),'</g>']
+    # A compact, collision-free label rail keeps the default SVG legible without JS.
+    for i,r in enumerate(frontier):
+        b.append(text(L+(i%3)*210,20+(i//3)*16,r['display'],12,fill=INK))
+    b += [text((L+W-R)/2,H-18,'$ per pass (log) · left is cheaper',12,'middle',MUTED),text(22,(T+B)/2,'Pass rate · up is better',12,'middle',MUTED,rotate=-90)]
+    if standalone:
+        tokens = '@import url("../../../docs/page/tokens.css");'
+        paint = ".ex-grid{fill:none;stroke:var(--data-grid)}.ex-front{fill:none;stroke:var(--frontier);stroke-dasharray:5 4}.ex-shade{fill:var(--data-beaten)}.ex-ci{fill:none;stroke-width:1.5;opacity:.35}.ex-ring{fill:none;stroke:var(--frontier);stroke-width:2}.ex-trail{fill:none;opacity:.5}.ex-svg{background:var(--panel)}"
+        b.insert(0,"<style>"+tokens+paint+"</style>")
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" class="ex-svg">'+''.join(b)+'</svg>')
+
+
+def explorer_panels(exp):
+    """Static by-model panels; JS follows the selected set and filters."""
+    st = next(s for s in exp["sets"] if s["id"] == exp["default_set"])
+    rows = [r for r in exp["rows"] if r["key"] in st["rows"] and r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None]
+    view = st["views"]["list"]["front"]; out=[]
+    for panel,stat in view["panels"].items():
+        group = [r for r in rows if r["panel"] == panel]
+        if not group: continue
+        ext=stat["extents"]; lo,hi=ext["cost"]; p0,p1=ext["pass_rate"]
+        X=lambda v: 25+math.log(v/lo)/math.log(hi/lo)*190
+        Y=lambda v: 140-(v-p0)/(p1-p0)*115
+        fr=sorted([r for r in rows if view["membership"][r["key"]]["on_frontier"]],key=lambda r:r["usd_per_pass"])
+        d=""
+        for i,r in enumerate(fr): d+=("H" if i else "M")+f'{X(r["usd_per_pass"]):.2f}'+("V" if i else " ")+f'{Y(r["pass_rate"]):.2f}'
+        if d: d+='H240'
+        b=[f'<path class="ex-shade" d="{d}V160H{X(fr[0]["usd_per_pass"]):.2f}Z"/><path class="ex-front" d="{d}"/>'] if d else []
+        for r in rows:
+            if r not in group: b.append(f'<circle class="ex-ghost" cx="{X(r["usd_per_pass"]):.2f}" cy="{Y(r["pass_rate"]):.2f}" r="2"/>')
+        normal=sorted([r for r in group if r['mode']=='normal'],key=lambda r: {'low':0,'medium':1,'high':2,'xhigh':3}.get(r['effort'],4))
+        if len(normal)>1: b.append('<polyline class="ex-trail" fill="none" stroke="'+explorer_colour(normal[0])+'" points="'+' '.join(f'{X(r["usd_per_pass"]):.2f},{Y(r["pass_rate"]):.2f}' for r in normal)+'"/>')
+        for r in group:
+            x,y=X(r['usd_per_pass']),Y(r['pass_rate'])
+            b += [f'<g data-key="{escape(r["key"])}"><title>{escape(r["display"])}</title>',explorer_marker(r,x,y),text(min(220,x+10),max(14,y-10),{'low':'L','medium':'M','high':'H','xhigh':'XH'}.get(r['effort'],'D'),12),'</g>']
+        out.append(f'<div class="card"><h4>{escape(panel)}</h4><p class="ex-meta">{stat["on_frontier"]} of {stat["total"]} on frontier · {stat["beaten"]} beaten</p><svg viewBox="0 0 240 160" role="img"><title>{escape(panel)} detail</title>{"".join(b)}</svg></div>')
+    return ''.join(out)
+
+
+def explorer_radars(exp):
+    st=next(s for s in exp['sets'] if s['id']==exp['default_set']); ext=st['views']['list']['extents']
+    rows=[r for r in exp['rows'] if r['key'] in st['rows']]; lo,hi=ext['cost']; p0,p1=ext['pass_rate']; tmax=ext['median_s'][1]; out=[]
+    def point(i,v):
+        a=-math.pi/2+i*2*math.pi/3
+        return f'{100+math.cos(a)*60*v:.2f},{85+math.sin(a)*60*v:.2f}'
+    for r in rows:
+        b=[]
+        for v in (.33,.66,1): b.append(f'<polygon class="ex-grid" fill="none" points="{" ".join(point(i,v) for i in range(3))}"/>')
+        for i,label in enumerate(('pass','cheap','fast')):
+            x,y=map(float,point(i,1.3).split(',')); b.append(text(x,y+4,label,12,'middle'))
+        if r['cost_kind']!='unmetered' and r['usd_per_pass'] is not None:
+            values=[(r['pass_rate']-p0)/(p1-p0),1-math.log(r['usd_per_pass']/lo)/math.log(hi/lo),1-r['median_s']/tmax]
+            b.append(f'<polygon fill="{explorer_colour(r)}" fill-opacity=".16" stroke="{explorer_colour(r)}" points="{" ".join(point(i,max(.02,min(1,v))) for i,v in enumerate(values))}"/>')
+        else: b.append(text(100,88,'cost unavailable',12,'middle'))
+        out.append(f'<div class="card ex-radar" data-key="{escape(r["key"])}"><h4>{escape(r["display"])}</h4><svg viewBox="0 0 200 180" role="img"><title>{escape(r["display"])} normalised radar</title>{"".join(b)}</svg><p class="ex-meta">{r["passes"]}/{r["n"]} · {dataset.usd(r["usd_per_pass"])} · {r["median_s"]:g} s</p></div>')
+    return ''.join(out)
 
 
 if __name__ == "__main__":

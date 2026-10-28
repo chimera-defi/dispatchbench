@@ -1,0 +1,52 @@
+/* FABLE TOKENS BEGIN — one swappable block.
+   Source: /home/agents/.claude/skills/fable-design/tokens/ (identical to
+   /home/agents/artifacts/pareto-v6-handoff-20261028/fable/tokens/).
+   Light chart colours use darker steps of the same data hue families. */
+:root{
+ --font-body:Inter,system-ui,sans-serif;--font-heading:var(--font-body);--font-mono:ui-monospace,monospace;
+ --body:var(--font-body);--display:var(--font-heading);--mono:var(--font-mono);
+ --radius-sm:4px;--radius-md:8px;--radius-lg:14px;
+ --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-6:24px;
+ --color-neutral-100:#f3f5fe;--color-neutral-200:#e4e7f5;--color-neutral-300:#cfd3e5;--color-neutral-400:#b2b6ca;--color-neutral-500:#9397ab;--color-neutral-600:#75798c;--color-neutral-700:#595d6c;--color-neutral-800:#3f424d;--color-neutral-900:#292b31;
+ --color-accent-100:#fff2f2;
+ --color-accent-200:#ffdfe0;
+ --color-accent-300:#fec2c5;
+ --color-accent-400:#fe949b;
+ --color-accent-500:#f65b6f;
+ --color-accent-600:#cb4457;
+ --color-accent-700:#a02e40;
+ --color-accent-800:#78182a;
+ --color-accent-900:#4f121b;
+ --color-accent:var(--color-accent-500);
+ --bg:var(--color-neutral-100);--panel:#fff2f2;--fg:#292b31;--muted:#595d6c;--line:#cfd3e5;
+ --accent:#a02e40;--accent-text:var(--color-accent-700);--frontier:var(--accent);
+ --data-claude:#865025;--data-codex:#365f91;--data-codex-old:#486d98;--data-grok:#286b65;--data-pipeline:#714496;
+ --data-haiku:var(--data-claude);--data-sonnet:#9a4e43;--data-luna:#526694;--data-sol:#3f5c9b;--data-astra:var(--data-pipeline);--data-terra:#536e94;--data-other:var(--muted);
+ --data-effort-low:#75798c;--data-effort-medium:#595d6c;--data-effort-high:#3f424d;--data-effort-xhigh:#292b31;--data-effort-default:var(--muted);
+ --data-normal:var(--muted);--data-fast:var(--data-claude);--data-bare:var(--data-grok);--devin:#8d3c95;--data-devin:var(--devin);
+ --claude:var(--data-claude);--sonnet:var(--data-sonnet);--codex:var(--data-codex);--codex56:var(--data-codex-old);--grok:var(--data-grok);
+ --good:var(--data-grok);--warn:var(--data-claude);--bad:var(--color-accent-700);
+ --data-grid:color-mix(in srgb,var(--fg) 14%,transparent);--data-beaten:color-mix(in srgb,var(--fg) 7%,transparent);--data-frontier:var(--frontier);--data-focus:var(--fg);
+ --shadow-sm:0 0 0 1px var(--line);--shadow-md:0 0 0 1px var(--line),0 6px 18px rgba(0,0,0,.18);--mask-opaque:#000;
+ color-scheme:light dark;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+ --bg:#1d1f27;--panel:#2b2d37;--fg:#e9e9ed;--muted:var(--color-neutral-300);--line:var(--color-neutral-800);
+ --accent:var(--color-accent-500);--accent-text:var(--color-accent-300);--frontier:var(--color-accent-400);
+ --data-claude:#e0a872;--data-codex:#7fb0e6;--data-codex-old:#b9d3f0;--data-grok:#8fc7c0;--data-pipeline:#c7a2ea;
+ --data-haiku:#e0a872;--data-sonnet:#e58a7c;--data-luna:#a9c8ee;--data-sol:#7f9fe8;--data-astra:#c7a2ea;--data-terra:#b9d3f0;
+ --data-effort-low:#9397ab;--data-effort-medium:#b2b6ca;--data-effort-high:#f3f5fe;--data-effort-xhigh:#e4e7f5;
+ --devin:#d79be8;--bad:var(--color-accent-400);
+ color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+ --bg:#1d1f27;--panel:#2b2d37;--fg:#e9e9ed;--muted:var(--color-neutral-300);--line:var(--color-neutral-800);
+ --accent:var(--color-accent-500);--accent-text:var(--color-accent-300);--frontier:var(--color-accent-400);
+ --data-claude:#e0a872;--data-codex:#7fb0e6;--data-codex-old:#b9d3f0;--data-grok:#8fc7c0;--data-pipeline:#c7a2ea;
+ --data-haiku:#e0a872;--data-sonnet:#e58a7c;--data-luna:#a9c8ee;--data-sol:#7f9fe8;--data-astra:#c7a2ea;--data-terra:#b9d3f0;
+ --data-effort-low:#9397ab;--data-effort-medium:#b2b6ca;--data-effort-high:#f3f5fe;--data-effort-xhigh:#e4e7f5;
+ --devin:#d79be8;--bad:var(--color-accent-400);
+ color-scheme:dark;
+}
+:root[data-theme="light"]{color-scheme:light}
+/* FABLE TOKENS END */

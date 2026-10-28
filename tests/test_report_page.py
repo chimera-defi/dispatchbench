@@ -477,7 +477,7 @@ def test_rung_dip_labels_clear_series_and_breaking_line(summary):
         points = [tuple(map(float, pair.split(','))) for pair in series.get('points').split()]
         segments.extend(zip(points, points[1:]))
     for line in svg.findall('s:line', NS):
-        if line.get('stroke') == 'var(--bad,#b3261e)':
+        if line.get('stroke') == 'var(--bad)':
             segments.append(((float(line.get('x1')), float(line.get('y1'))),
                              (float(line.get('x2')), float(line.get('y2')))))
     for label in svg.findall('s:text[@class="dip-label"]', NS):

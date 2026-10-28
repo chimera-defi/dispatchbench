@@ -1,70 +1,129 @@
-<p class="sub">Pick any two measures. Purple ring: nothing beats it on both. Tap a point.</p>
-<div class="ctl">
-<label>x <select id="ex"></select></label> <label><input type="checkbox" id="lx"> log</label>
-<label>y <select id="ey"></select></label> <label><input type="checkbox" id="ly"> log</label>
-<label>frontier over <select id="fl">__FLOOR_OPTIONS__</select></label>
+<div class="pareto-explorer" id="pareto-explorer">
+<p class="ex-lede">Cost, pass rate and speed in one space. Choose a view, scroll to zoom, drag to pan or rotate. Ringed points: nothing beats them.</p>
+<div class="ex-controls" hidden>
+<div class="seg ex-views" aria-label="Chart view">__VIEW_BUTTONS__</div>
+<label class="field">Problem set <select class="input" id="ex-set">__SET_OPTIONS__</select></label>
+<div class="seg" aria-label="Codex pricing"><button class="btn" data-pricing="list" aria-pressed="true">List price</button><button class="btn" data-pricing="quota" aria-pressed="false">On quota</button></div>
+<button class="btn" id="ex-reset">Reset zoom</button>
 </div>
-<div class="ctl" id="cf"></div>
-<figure id="xfig"><div id="xplot"></div><div id="tip" hidden></div>
-<figcaption>Hollow = exploratory config. Codex $ is a proxy.</figcaption></figure>
+<p id="ex-set-note" class="ex-meta">__SET_NOTE__</p>
+<details class="ex-filters" hidden><summary>Filters</summary>
+<div class="ex-controls"><label class="field">Min pass <select class="input" id="ex-floor">__FLOOR_OPTIONS__</select></label>
+<label class="field">Colour by <select class="input" id="ex-colour"><option value="vendor">Vendor</option><option value="model">Model</option><option value="effort">Effort</option><option value="mode">Mode</option></select></label></div>
+<div id="ex-facets" class="ex-controls">__FACET_BUTTONS__</div>
+<p class="ex-meta">Shape = vendor: circle Claude · diamond Codex · triangle Grok · square pipeline. Hollow = fast, dashed edge = bare. Size = effort. Whiskers = confidence interval.</p>
+</details>
+<details class="ex-configs" hidden><summary>Configs in this set</summary><div class="ex-controls"><button class="btn" id="ex-all">all</button><button class="btn" id="ex-none">none</button></div><div id="ex-config-list" class="ex-controls">__CONFIG_BUTTONS__</div></details>
+<div class="ex-layout"><div class="ex-main"><div id="ex-chart" class="ex-chart">__EXPLORER_SVG__</div><div id="ex-legend" class="ex-meta">Ring = best trade-off · solid = normal · hollow = fast · dashed edge = bare</div><p id="ex-excluded" class="ex-meta">__EXCLUDED__</p></div>
+<aside class="ex-aside"><div class="card" id="ex-detail" aria-live="polite">__DETAIL__</div>
+<div class="card"><h3>Best trade-offs</h3><p class="ex-meta">__STRICT_RULE__</p><ol id="ex-best">__BEST__</ol></div>
+<div class="card"><h3>The picks</h3><p class="ex-meta">__WINNER_PRICING__</p><div id="ex-picks">__PICKS__</div></div></aside></div>
+<details class="ex-models"><summary>By model</summary><p class="ex-meta">Each panel zooms to its model. Dashed staircase = the whole chart’s frontier; shaded area is beaten. Ghost dots show other models. Letters name effort. Pipelines split by gate.</p><div id="ex-model-grid" class="ex-model-grid">__PANELS__</div></details>
+<details class="ex-radars"><summary>Radar per config</summary><p class="ex-meta">Pass, cheap and fast use the selected set’s measured axes, normalised to the displayed extents. Unsupported quality and repo scores are omitted.</p><div id="ex-radar-grid" class="ex-model-grid">__RADARS__</div></details>
+<p class="ex-meta">__LEGACY_RULE__</p>
+<noscript><p>Default cost versus pass view. Enable JavaScript for other sets, pricing, filters, zoom and selection. Every config is listed in Results and Everything we tried.</p></noscript>
+</div>
 <script>
-(function(){
-var X=JSON.parse(document.getElementById("data").textContent).explorer,D=X.points;
-var USD=Object.fromEntries(X.usd_ticks.map(function(p){return [p[0],p[1]]}));
-function tf(k,v){if(k=="pass")return (100*v).toFixed(0)+"%";var t=+v.toPrecision(3);if(k=="usd")return USD[+v.toPrecision(10)];if(k=="med")return t+" s";return t>=1000?(t/1000)+"k":String(t)}
-var M={pass:{l:"pass rate",f:function(v){return (100*v).toFixed(0)+"%"},up:1},
- usd:{l:"$ per pass"},
- med:{l:"median seconds",f:function(v){return v.toFixed(1)+" s"}},
- inp:{l:"input tokens per call",f:function(v){return Math.round(v).toLocaleString()}},
- rsn:{l:"reasoning tokens per call",f:function(v){return Math.round(v).toLocaleString()}}};
-var st={x:"usd",y:"med",lx:true,ly:false,fl:String(X.default_floor),off:{}};
-try{var sv=JSON.parse(localStorage.getItem("rb-x2")||"null");if(sv)st=sv}catch(e){}
-var ex=document.getElementById("ex"),ey=document.getElementById("ey");
-for(var k in M){ex.add(new Option(M[k].l,k));ey.add(new Option(M[k].l,k))}
-var fl=document.getElementById("fl");fl.value=st.fl;fl.onchange=function(){st.fl=fl.value;draw()};ex.value=st.x;ey.value=st.y;document.getElementById("lx").checked=st.lx;document.getElementById("ly").checked=st.ly;
-var cf=document.getElementById("cf");
-D.forEach(function(d){var l=document.createElement("label");l.innerHTML='<input type="checkbox"'+(st.off[d.c]?"":" checked")+'> <i style="background:'+d.col+'"></i>'+d.d;
- l.firstChild.onchange=function(e){st.off[d.c]=!e.target.checked;draw()};cf.appendChild(l)});
-ex.onchange=function(){st.x=ex.value;draw()};ey.onchange=function(){st.y=ey.value;draw()};
-document.getElementById("lx").onchange=function(e){st.lx=e.target.checked;draw()};
-document.getElementById("ly").onchange=function(e){st.ly=e.target.checked;draw()};
-function ticks(lo,hi,log,few){var t=[];if(log){var e0=Math.floor(Math.log10(lo)),e1=Math.ceil(Math.log10(hi));
- for(var e=e0;e<=e1;e++)(few?[1,5]:[1,2,5]).forEach(function(m){var v=m*Math.pow(10,e);if(v>=lo*.999&&v<=hi*1.001)t.push(v)});return t}
- var r=hi-lo,s=Math.pow(10,Math.floor(Math.log10(r/5)));[1,2,2.5,5,10].some(function(m){if(r/(m*s)<=6){s*=m;return true}});
- for(var v=Math.ceil(lo/s)*s;v<=hi+1e-12;v+=s)t.push(+v.toPrecision(10));return t}
-function scale(vals,log,a,b,few){var lo=Math.min.apply(0,vals),hi=Math.max.apply(0,vals);
- if(log){lo/=1.5;hi*=1.5}else{var p=(hi-lo||Math.abs(hi)||1)*.12;lo-=p;hi+=p;if(Math.min.apply(0,vals)>=0&&lo<0)lo=0}
- var f=log?function(v){return a+(Math.log(v)-Math.log(lo))/(Math.log(hi)-Math.log(lo))*(b-a)}:function(v){return a+(v-lo)/(hi-lo)*(b-a)};
- return {f:f,t:ticks(lo,hi,log,few)}}
-function esc(s){return String(s).replace(/[&<]/g,function(c){return c=="&"?"&amp;":"&lt;"})}
-function draw(){try{localStorage.setItem("rb-x2",JSON.stringify(st))}catch(e){}
- var box=document.getElementById("xplot"),W=Math.max(300,box.clientWidth),H=Math.round(Math.min(460,Math.max(300,W*.62)));
- var small=W<500,L=small?62:84,R=small?14:24,T=16,B=small?52:58;
- var pts=D.filter(function(d){return !st.off[d.c]&&d[st.x]>0&&d[st.y]>0});
- var g=[];
- if(!pts.length){box.innerHTML='<p class="meta" style="padding:40px 12px">No configs selected.</p>';return}
- var sx=scale(pts.map(function(d){return d[st.x]}),st.lx,L,W-R,small),sy=scale(pts.map(function(d){return d[st.y]}),st.ly,H-B,T);
- sx.t.forEach(function(v){var x=sx.f(v);if(x<L-1||x>W-R+1)return;g.push('<line x1="'+x+'" x2="'+x+'" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--line)"/><text x="'+x+'" y="'+(H-B+16)+'" text-anchor="middle" style="fill:var(--muted)">'+tf(st.x,v)+'</text>')});
- sy.t.forEach(function(v){var y=sy.f(v);if(y>H-B+1||y<T-1)return;g.push('<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)"/><text x="'+(L-8)+'" y="'+(y+4)+'" text-anchor="end" style="fill:var(--muted)">'+tf(st.y,v)+'</text>')});
- g.push('<text x="'+((L+W-R)/2)+'" y="'+(H-12)+'" text-anchor="middle" style="fill:var(--fg)">'+M[st.x].l+(st.lx?" (log)":"")+'</text>');
- g.push('<text transform="translate(14,'+((T+H-B)/2)+') rotate(-90)" text-anchor="middle" style="fill:var(--fg)">'+M[st.y].l+(st.ly?" (log)":"")+'</text>');
- function better(a,b,k){return M[k].up?a>=b:a<=b}function strict(a,b,k){return M[k].up?a>b:a<b}
- var cand=pts.filter(function(p){return p.pass>=+st.fl});var fr=cand.filter(function(p){return !cand.some(function(q){return q!==p&&better(q[st.x],p[st.x],st.x)&&better(q[st.y],p[st.y],st.y)&&(strict(q[st.x],p[st.x],st.x)||strict(q[st.y],p[st.y],st.y))})});
- if(st.x!==st.y&&fr.length>1){fr.sort(function(a,b){return a[st.x]-b[st.x]});
-  g.push('<polyline fill="none" stroke="var(--frontier)" stroke-width="2" stroke-dasharray="5 4" points="'+fr.map(function(p){return sx.f(p[st.x])+","+sy.f(p[st.y])}).join(" ")+'"/>')}
- var placed=[];
- pts.forEach(function(p,i){var x=sx.f(p[st.x]),y=sy.f(p[st.y]),onf=fr.indexOf(p)>=0;
-  g.push('<circle data-i="'+D.indexOf(p)+'" cx="'+x+'" cy="'+y+'" r="7" fill="'+(p.exp?"var(--panel)":p.col)+'" stroke="'+(onf?"var(--frontier)":p.col)+'" stroke-width="'+(onf?3:2)+'" style="cursor:pointer"/>')});
- pts.filter(function(p){return !small||fr.indexOf(p)>=0}).sort(function(a,b){return sy.f(a[st.y])-sy.f(b[st.y])}).forEach(function(p){var x=sx.f(p[st.x]),y=sy.f(p[st.y]),w=p.d.length*(small?5.6:6.4)+4;
-  var right=x+12+w>W-R,lx=right?x-12-w:x+12,ly=y+4;
-  function hit(){return placed.some(function(r){return Math.abs(r[1]-ly)<13&&lx<r[0]+r[2]&&r[0]<lx+w})}
-  for(var n=0;n<8&&hit();n++)ly+=(n%2?-1:1)*13*(n+1);
-  if(ly>H-B-4){ly=H-B-4;for(n=0;n<8&&hit();n++)ly-=13}placed.push([lx,ly,w]);g.push('<text x="'+lx+'" y="'+ly+'" style="fill:'+(p.exp?"var(--muted)":"var(--fg)")+'" pointer-events="none">'+esc(p.d)+'</text>')});
- box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="'+(small?11:12)+'" role="img" aria-label="'+M[st.y].l+' against '+M[st.x].l+'">'+g.join("")+'</svg>';
- box.querySelectorAll("circle").forEach(function(c){function show(){var d=D[+c.getAttribute("data-i")],t=document.getElementById("tip");
-   t.innerHTML='<b>'+esc(d.d)+'</b>'+(d.exp?' <span class="tag">exploratory</span>':'')+'<br>'+Object.keys(M).map(function(k){return M[k].l+': '+(k=="usd"?d.usd_text:M[k].f(d[k]))}).join("<br>")+'<br>$ kind: '+d.kind;
-   t.hidden=false;var bx=box.getBoundingClientRect(),cx=+c.getAttribute("cx"),cy=+c.getAttribute("cy");
-   t.style.left=Math.min(cx+12,bx.width-t.offsetWidth-4)+"px";t.style.top=Math.max(0,cy-t.offsetHeight-10)+"px"}
-  c.onmouseenter=show;c.onclick=show;c.onmouseleave=function(){document.getElementById("tip").hidden=true}})}
-var rt,lw=0,bx=document.getElementById("xplot");function re(){var w=bx.clientWidth;if(w!==lw){lw=w;clearTimeout(rt);rt=setTimeout(draw,60)}}if(window.ResizeObserver)new ResizeObserver(re).observe(bx);window.addEventListener("resize",re);draw()})();
+document.addEventListener('DOMContentLoaded', function(){
+'use strict';
+const X=JSON.parse(document.getElementById("data").textContent).explorer;
+const root=document.getElementById('pareto-explorer'); if(!root)return;
+const $=s=>root.querySelector(s), $$=s=>Array.from(root.querySelectorAll(s));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rowMap=new Map(X.rows.map(r=>[r.key,r]));
+const st={view:X.default_view,set:X.default_set,quota:false,minPass:X.default_floor,colorBy:'vendor',off:new Set(),facets:new Set(),prereg:false,sel:null,hover:null,zk:1,zx:0,zy:0,yaw:-36,pitch:24};
+const money=v=>v==null?'unavailable':v===0?'$0':'$'+Number(v.toPrecision(2)).toLocaleString('en-US',{maximumFractionDigits:8});
+const pc=v=>(100*v).toFixed(1).replace(/\.0$/,'')+'%';
+const cost=r=>st.quota?r.quota_usd_per_pass:r.usd_per_pass;
+function colour(r,facet=st.colorBy){let k=facet==='vendor'?(r.family==='Codex'&&r.generation==='5.6'?'codex-old':r.family.toLowerCase()):facet==='model'?r.model_short:facet==='effort'?'effort-'+r.effort:r.mode;return 'var(--data-'+k+')'}
+const objs=()=>X.views[st.view].objectives;
+const val=(r,k)=>k==='cost'?cost(r):r[k];
+function eligible(r,view=st.view){return r.pass_rate>=Math.max(st.minPass,X.views[view].min_pass||0)&&X.views[view].objectives.every(([k])=>val(r,k)!=null&&(k!=='cost'||r.cost_kind!=='unmetered'))}
+function dominates(a,b,view=st.view){return X.views[view].objectives.every(([k,d])=>val(a,k)*d>=val(b,k)*d)&&X.views[view].objectives.some(([k,d])=>val(a,k)*d>val(b,k)*d)}
+function members(rows,view=st.view){const e=rows.filter(r=>eligible(r,view));const m=new Map();rows.forEach(r=>{const beaten=e.includes(r)?e.filter(a=>dominates(a,r,view)):[];m.set(r.key,{eligible:e.includes(r),beaten_by:beaten,on_frontier:e.includes(r)&&!beaten.length})});return m}
+function mark(r,x,y,sz=6,facet){const col=colour(r,facet),a=' fill="'+(r.mode==='fast'||r.mode==='bare'?'var(--panel)':col)+'" stroke="'+col+'" stroke-width="2"'+(r.mode==='bare'?' stroke-dasharray="3 2"':'');if(r.mode==='pipeline')return `<rect x="${x-sz}" y="${y-sz}" width="${2*sz}" height="${2*sz}"${a}/>`;if(r.family==='Codex')return `<path d="M${x} ${y-sz}l${sz} ${sz}l${-sz} ${sz}l${-sz} ${-sz}Z"${a}/>`;if(r.family==='Grok')return `<path d="M${x} ${y-sz}l${sz} ${2*sz}h${-2*sz}Z"${a}/>`;if(r.family==='Devin')return `<path d="M${x-sz} ${y}h${2*sz}M${x} ${y-sz}v${2*sz}" stroke="${col}" stroke-width="3"/>`;return `<circle cx="${x}" cy="${y}" r="${sz}"${a}/>`}
+const txt=(x,y,s,anchor='start',cls='')=>`<text x="${x}" y="${y}" text-anchor="${anchor}" class="${cls}">${esc(s)}</text>`;
+const line=(a,b,cls,extra='')=>`<path class="${cls}" d="M${a[0]} ${a[1]}L${b[0]} ${b[1]}" ${extra}/>`;
+function ticks(lo,hi,log=false){const out=[];if(log){for(let e=Math.floor(Math.log10(lo));e<=Math.ceil(Math.log10(hi));e++)for(const m of [1,2,5]){const v=m*10**e;if(v>=lo&&v<=hi)out.push(v)}}else {const step=10**Math.floor(Math.log10((hi-lo)/4));const mult=[1,2,5,10].find(m=>(hi-lo)/(step*m)<=6)||10;for(let v=Math.ceil(lo/(step*mult))*step*mult;v<=hi;v+=step*mult)out.push(v)}return out}
+function geometry(ext,width,height,view=st.view,zoom=true){const L=78,R=28,T=46,B=height-68;const c=ext.cost||[1,10],p=ext.pass_rate||[0,1],t=ext.median_s||[0,1];
+ const cn=v=>v===0?0:.12+.88*Math.log(Math.max(v,c[0])/c[0])/Math.log(c[1]/c[0]);const pn=v=>(v-p[0])/(p[1]-p[0]);const tn=v=>v/t[1];
+ const coord=r=>{let u=view==='side'?tn(r.median_s):cn(cost(r)),v=view==='top'?tn(r.median_s):1-pn(r.pass_rate);return [L+u*(width-L-R),T+v*(B-T)]};
+ const project=(c0,p0,t0)=>{let x=(cn(c0)-.5)*2.6,y=(pn(p0)-.5)*1.6,z=(.5-tn(t0))*1.8;const a=st.yaw*Math.PI/180,b=st.pitch*Math.PI/180,x1=x*Math.cos(a)+z*Math.sin(a),z1=-x*Math.sin(a)+z*Math.cos(a),y1=y*Math.cos(b)-z1*Math.sin(b);return [width/2+x1*width*.24,height/2-y1*height*.32,z1]};
+ const z=q=>zoom&&view!=='3d'&&view!=='par'?[q[0]*st.zk+st.zx,q[1]*st.zk+st.zy]:q;
+ return {L,R,T,B,cn,pn,tn,coord:r=>z(view==='3d'?project(cost(r),r.pass_rate,r.median_s):coord(r)),project,z,
+  axis:(k,v)=>z(k==='cost'?[L+cn(v)*(width-L-R),B]:k==='pass_rate'?[L,T+(1-pn(v))*(B-T)]:view==='top'?[L,T+tn(v)*(B-T)]:[L+tn(v)*(width-L-R),B])};}
+function staircase(fr,geo,width){const sorted=fr.slice().sort((a,b)=>val(a,objs()[0][0])-val(b,objs()[0][0]));let d='';sorted.forEach((r,i)=>{const q=geo.coord(r);d+=(i?'H'+q[0]+'V':'M'+q[0]+' ')+q[1]});if(d)d+='H'+width;return d}
+function pointNode(r,q,m,panel=false){const focused=(st.hover||st.sel)===r.key,sz=({low:4.5,medium:5.5,high:6.5,xhigh:7.5})[r.effort]||5;
+ return `<g class="ex-point${focused?' ex-focused':''}" data-key="${esc(r.key)}" data-x="${q[0]}" data-y="${q[1]}" tabindex="0" role="button" aria-label="${esc(r.display)}" opacity="${!m.eligible?.22:m.on_frontier?1:.5}"><title>${esc(r.display)}: ${r.passes}/${r.n}, ${money(cost(r))}, ${r.median_s} s</title>${m.on_frontier||focused?`<circle class="ex-ring" cx="${q[0]}" cy="${q[1]}" r="${sz+5}"/>`:''}${mark(r,q[0],q[1],sz,panel&&r.mode==='pipeline'?'model':undefined)}<circle cx="${q[0]}" cy="${q[1]}" r="14" fill="transparent"/></g>`}
+function chart(rows,mem,ext,width=760,height=480){const view=st.view,g=geometry(ext,width,height);let b=[];const fr=rows.filter(r=>mem.get(r.key).on_frontier),focus=rows.find(r=>r.key===(st.hover||st.sel));const positions=new Map(rows.map(r=>[r.key,g.coord(r)]));
+ if(view==='par'){
+  const ax=['cost','pass_rate','median_s'],xs=[width*.15,width*.5,width*.85],y=(k,v)=>height-64-(k==='cost'?1-g.cn(v):k==='pass_rate'?g.pn(v):1-g.tn(v))*(height-128);
+  ax.forEach((k,i)=>{b.push(line([xs[i],64],[xs[i],height-64],'ex-grid'),txt(xs[i],30,k==='cost'?'$ per pass (log)':k==='pass_rate'?'Pass rate':'Median seconds','middle'));const e=k==='cost'?ext.cost:ext[k];if(e)ticks(e[0],e[1],k==='cost').forEach(v=>b.push(txt(xs[i]+6,y(k,v)+4,k==='cost'?money(v):k==='pass_rate'?pc(v):v.toFixed(0)+' s')))});
+  rows.forEach(r=>{const m=mem.get(r.key);let d='';ax.forEach((k,i)=>d+=(i?'L':'M')+xs[i]+' '+y(k,val(r,k)));b.push(`<path class="ex-par ex-point" tabindex="0" role="button" data-key="${esc(r.key)}" d="${d}" stroke="${colour(r)}" opacity="${!m.eligible?.12:m.on_frontier?.9:.3}" stroke-width="${r.key===(st.hover||st.sel)?4:2}"><title>${esc(r.display)}</title></path>`)});
+ }else{
+  const addAxis=(k,e)=>{if(!e)return;let previous=-Infinity;ticks(e[0],e[1],k==='cost').forEach(v=>{const q=g.axis(k,v);if(k==='pass_rate'||view==='top'&&k==='median_s'){if(q[1]>=g.T&&q[1]<=g.B)b.push(line([g.L,q[1]],[width-g.R,q[1]],'ex-grid'),txt(g.L-8,q[1]+4,k==='pass_rate'?pc(v):v.toFixed(0)+' s','end'))}else if(q[0]>=g.L&&q[0]<=width-g.R){const label=k==='cost'?money(v):v.toFixed(0)+' s';b.push(line([q[0],g.T],[q[0],g.B],'ex-grid'));if(q[0]-previous>label.length*4+16){b.push(txt(q[0],g.B+25,label,'middle'));previous=q[0]}}})};
+  if(view==='3d'){
+   const c=ext.cost||[1,10],p=ext.pass_rate||[0,1],t=ext.median_s||[0,1];
+   for(const v of ticks(c[0],c[1],true)){b.push(line(g.project(v,p[0],0),g.project(v,p[0],t[1]),'ex-grid'),line(g.project(v,p[0],t[1]),g.project(v,1,t[1]),'ex-grid'))}
+   for(const v of ticks(0,t[1]))b.push(line(g.project(c[0],p[0],v),g.project(c[1],p[0],v),'ex-grid'));
+   const projectedAxis=(values,at,fmt,title)=>{if(!values.length)return;const a=at(values[0]),z=at(values[values.length-1]);if(Math.hypot(a[0]-z[0],a[1]-z[1])<60)return;values.forEach(v=>{const q=at(v);b.push(txt(q[0],q[1]+16,fmt(v),'middle'))});b.push(txt(z[0],z[1]+34,title,'middle'))};
+   projectedAxis(ticks(c[0],c[1],true),v=>g.project(v,p[0],0),money,'$ per pass');
+   projectedAxis(ticks(p[0],1),v=>g.project(c[0],v,0),pc,'pass rate');
+   projectedAxis(ticks(0,t[1]),v=>g.project(c[1],p[0],v),v=>v.toFixed(0)+' s','median seconds');
+   for(const v of ticks(p[0],1))b.push(line(g.project(c[0],v,t[1]),g.project(c[1],v,t[1]),'ex-grid'),line(g.project(c[0],v,0),g.project(c[0],v,t[1]),'ex-grid'));
+   rows.forEach(r=>b.push(line(g.coord(r),g.project(cost(r),p[0],r.median_s),'ex-drop',`stroke="${colour(r)}"`)));
+  }else{
+   addAxis(view==='side'?'median_s':'cost',view==='side'?ext.median_s:ext.cost);addAxis(view==='top'?'median_s':'pass_rate',view==='top'?ext.median_s:ext.pass_rate);
+   if(ext.zero_lane&&view!=='side')b.push(txt(g.L,g.B+25,'$0 quota','middle'));
+   b.push(txt(width/2,height-18,view==='side'?'Median seconds · left is faster':'$ per pass (log) · left is cheaper','middle'),`<text transform="translate(20 ${height/2}) rotate(-90)" text-anchor="middle">${view==='top'?'Median seconds · down is faster':'Pass rate · up is better'}</text>`);
+   const d=staircase(fr,g,width-g.R);if(d)b.push(`<path class="ex-shade" d="${d}V${view==='top'?g.T:g.B}H${g.coord(fr.slice().sort((a,b)=>val(a,objs()[0][0])-val(b,objs()[0][0]))[0])[0]}Z"/><path class="ex-front" d="${d}"/>`);
+  }
+  const trails=new Map();rows.forEach(r=>{const k=r.panel+'|'+r.mode;if(!trails.has(k))trails.set(k,[]);trails.get(k).push(r)});const eo={low:0,medium:1,high:2,xhigh:3,default:4};
+  trails.forEach(rr=>{rr.sort((a,b)=>eo[a.effort]-eo[b.effort]);rr.forEach((r,i)=>{if(i&&r.mode!=='pipeline')b.push(line(g.coord(rr[i-1]),g.coord(r),'ex-trail',`stroke="${colour(r)}"`))})});
+  rows.forEach(r=>{const twin=rows.find(o=>o.config===r.fast_twin);if(twin)b.push(line(g.coord(twin),g.coord(r),'ex-trail',`stroke="${colour(r)}" stroke-dasharray="3 3"`));if(view!=='top'){const a={...r,pass_rate:r.ci95_plot[0]},z={...r,pass_rate:r.ci95_plot[1]};b.push(line(g.coord(a),g.coord(z),'ex-ci',`stroke="${colour(r)}"`))}});
+  if(focus)mem.get(focus.key).beaten_by.forEach(r=>{if(positions.has(r.key))b.push(line(g.coord(focus),g.coord(r),'ex-beat'))});
+  rows.slice().sort((a,b)=>(g.coord(a)[2]||0)-(g.coord(b)[2]||0)).forEach(r=>b.push(pointNode(r,g.coord(r),mem.get(r.key))));
+  const placed=[],labels=[];
+  rows.filter(r=>mem.get(r.key).on_frontier||r.winner_pick||r===focus||st.zk>=2.2).forEach(r=>{const q=g.coord(r);if(q[0]<g.L||q[0]>width-g.R||q[1]<g.T||q[1]>g.B)return;const same=labels.find(l=>Math.hypot(l.q[0]-q[0],l.q[1]-q[1])<1);if(same)same.names.push(r.display);else labels.push({q,names:[r.display]})});
+  labels.forEach(l=>{const q=l.q,label=l.names.length>1?l.names.length+' tied at this point':l.names[0],w=label.length*7;let lx=Math.min(width-g.R-w,Math.max(g.L,q[0]+14)),ly=q[1]-14;let tries=0;while(placed.some(p=>Math.abs(p.y-ly)<18&&lx<p.x+p.w&&p.x<lx+w)&&tries++<20)ly+=18;if(ly>g.B)ly=g.T+18*(placed.length+1);placed.push({x:lx,y:ly,w});b.push(line(q,[lx,ly-4],'ex-leader'),txt(lx,ly,label,'start','ex-label'))});
+ }
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" role="img" class="ex-svg"><title>${esc(X.views[view].label)}</title><defs><clipPath id="ex-clip"><rect x="44" y="0" width="${width-44}" height="${height-45}"/></clipPath></defs><g clip-path="url(#ex-clip)">${b.join('')}</g></svg>`;
+}
+function radar(r,ext){const c=ext.cost||[1,10],p=ext.pass_rate||[0,1],t=ext.median_s||[0,1];const values=[(r.pass_rate-p[0])/(p[1]-p[0]),cost(r)==null?null:cost(r)===0?1:1-Math.log(cost(r)/c[0])/Math.log(c[1]/c[0]),1-r.median_s/t[1]],names=['pass','cheap','fast'];const pos=(i,v)=>[100+Math.cos(-Math.PI/2+i*2*Math.PI/3)*60*v,85+Math.sin(-Math.PI/2+i*2*Math.PI/3)*60*v];let b=[];[.33,.66,1].forEach(v=>b.push(`<polygon class="ex-grid" fill="none" points="${values.map((_,i)=>pos(i,v).join(',')).join(' ')}"/>`));names.forEach((n,i)=>{b.push(line([100,85],pos(i,1),'ex-grid'));const q=pos(i,1.3);b.push(txt(q[0],q[1]+4,n,'middle'))});if(values.every(v=>v!=null))b.push(`<polygon points="${values.map((v,i)=>pos(i,Math.max(.02,Math.min(1,v))).join(',')).join(' ')}" fill="${colour(r)}" fill-opacity=".16" stroke="${colour(r)}"/>`);else b.push(txt(100,88,'cost unavailable','middle'));return `<div class="card ex-radar" data-key="${esc(r.key)}"><h4>${esc(r.display)}</h4><svg viewBox="0 0 200 180" role="img"><title>${esc(r.display)} normalised radar</title>${b.join('')}</svg><p class="ex-meta">${r.passes}/${r.n} · ${money(cost(r))} · ${r.median_s} s</p></div>`}
+function detail(r,mem){if(!r)return '<h3>No config selected</h3>';const m=mem.get(r.key),ci=r.ci95_plot;return `<h3>${esc(r.display)}</h3><p class="tag">${m.on_frontier?'On frontier':!m.eligible?'Outside this view':st.quota&&r.family==='Claude'?'Best when Codex is out':'Beaten'}</p><p class="ex-meta">${esc([r.family,r.model_short,r.effort,r.mode,r.generation,r.prereg?'pre-registered':'added after'].join(' · '))}</p><dl class="ex-values"><dt>Pass</dt><dd>${r.passes}/${r.n} (${pc(r.pass_rate)})</dd><dt>Confidence interval</dt><dd>${pc(ci[0])}–${pc(ci[1])}</dd><dt>$ per pass</dt><dd>${money(cost(r))} · ${esc(r.cost_kind)}</dd><dt>Median</dt><dd>${r.median_s} s</dd></dl><p>${esc(r.complete_marker||r.coverage_note)} · ${esc(r.rule)}</p>${r.derived?'<p class="tag">Derived: '+esc(r.derived_note||'pooled or sliced measured attempts')+'</p>':''}<p>${m.beaten_by.length?'Beaten by '+m.beaten_by.map(a=>esc(a.display)).join(', '):m.eligible?'No eligible config strictly beats this one.':'Below the minimum pass rate or missing a required measurement.'}</p>`}
+function bindPoints(container){container.querySelectorAll('[data-key]').forEach(el=>{const k=el.dataset.key;if(el.classList.contains('ex-point')){el.onpointerenter=()=>focus(k,true);el.onpointerleave=()=>{st.hover=null;updateDetail()};el.onfocus=()=>focus(k,true)}el.onclick=()=>focus(k,false);el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();focus(k,false)}}})}
+let currentRows=[],currentMem;
+function updateDetail(){const r=currentRows.find(r=>r.key===(st.hover||st.sel))||currentRows[0];$('#ex-detail').innerHTML=detail(r,currentMem);$$('.ex-point').forEach(el=>el.classList.toggle('ex-focused',el.dataset.key===(st.hover||st.sel)));const svg=$('#ex-chart svg');if(svg){const old=svg.querySelector('.ex-focus-lines');if(old)old.remove();const points=Array.from(svg.querySelectorAll('.ex-point[data-x]')),a=points.find(e=>e.dataset.key===r?.key);if(a){let lines='';currentMem.get(r.key).beaten_by.forEach(b=>{const q=points.find(e=>e.dataset.key===b.key);if(q)lines+=line([a.dataset.x,a.dataset.y],[q.dataset.x,q.dataset.y],'ex-beat')});svg.insertAdjacentHTML('beforeend','<g class="ex-focus-lines" pointer-events="none">'+lines+'</g>')}}}
+function focus(k,hover){if(hover)st.hover=k;else {st.sel=k;st.hover=null}updateDetail();if(!hover)render(false)}
+function render(rebuild=true){const active=document.activeElement,focusAttr=active?.dataset?.config?'config':active?.dataset?.key?'key':null,focusKey=focusAttr?active.dataset[focusAttr]:null,focusTag=active?.tagName;const set=X.sets.find(s=>s.id===st.set),all=set.rows.map(k=>rowMap.get(k));const rr=all.filter(r=>!st.off.has(r.key)&&!st.facets.has('family:'+r.family)&&!st.facets.has('mode:'+r.mode)&&!st.facets.has('generation:'+r.generation)&&(!st.prereg||r.prereg));const rows=rr.filter(r=>!objs().some(([k])=>k==='cost')||cost(r)!=null&&r.cost_kind!=='unmetered');const mem=members(rows);currentRows=rows;currentMem=mem;const price=st.quota?'quota':'list',ext=set.views[price].extents;
+ $('#ex-set-note').textContent=set.note||'';
+ $('#ex-chart').innerHTML=rows.length?chart(rows,mem,ext,Math.max(320,Math.min(760,$('#ex-chart').clientWidth))):'<p class="ex-empty">'+esc(set.empty_reason||'No configs match these filters or have the required measurements.')+'</p>';
+ $('#ex-excluded').textContent=rr.filter(r=>!rows.includes(r)).map(r=>r.display+': '+r.coverage_note+'; cost unavailable — use Speed × Pass.').join(' ');
+ const front=rows.filter(r=>mem.get(r.key).on_frontier),ties=[];front.forEach(r=>{const tied=ties.find(t=>objs().every(([k])=>val(t[0],k)===val(r,k)));if(tied)tied.push(r);else ties.push([r])});
+ $('#ex-best').innerHTML=ties.map(t=>'<li><button class="btn" data-key="'+esc(t[0].key)+'">'+t.map(r=>esc(r.display)).join(' = ')+'</button></li>').join('')||'<li>No eligible trade-offs.</li>';
+ $('#ex-picks').innerHTML=Object.entries(X.winner_picks).map(([c,pick])=>{const r=all.find(r=>r.config===c);return '<p>'+esc(pick)+': '+(r?'<button class="btn" data-key="'+esc(r.key)+'">'+esc(r.display)+'</button> · '+(mem.get(r.key)?.on_frontier?'on frontier':st.quota&&r.family==='Claude'?'best when Codex is out':'outside frontier / filters'):'no attempts in this set')+'</p>'}).join('');
+ const panels=[];new Set(rows.map(r=>r.panel)).forEach(panel=>{const group=rows.filter(r=>r.panel===panel),v=st.view==='3d'||st.view==='par'?'front':st.view,m=members(rows,v),e=set.views[price][v].panels[panel].extents,g=geometry(e,240,160,v,false);const mf=rows.filter(r=>m.get(r.key).on_frontier).sort((a,b)=>val(a,X.views[v].objectives[0][0])-val(b,X.views[v].objectives[0][0]));let d='';mf.forEach((r,i)=>{const q=g.coord(r);d+=(i?'H'+q[0]+'V':'M'+q[0]+' ')+q[1]});if(d)d+='H240';const shade=d?`<path class="ex-shade" d="${d}V${v==='top'?0:160}H${g.coord(mf[0])[0]}Z"/><path class="ex-front" d="${d}"/>`:'';let dots=[];rows.filter(r=>!group.includes(r)).forEach(r=>{const q=g.coord(r);dots.push(`<circle cx="${q[0]}" cy="${q[1]}" r="2" class="ex-ghost"/>`)});const order={low:0,medium:1,high:2,xhigh:3,default:4};group.filter(r=>r.mode==='normal').sort((a,b)=>order[a.effort]-order[b.effort]).forEach((r,i,a)=>{if(i)dots.push(line(g.coord(a[i-1]),g.coord(r),'ex-trail',`stroke="${colour(r)}"`))});group.forEach(r=>{const q=g.coord(r);dots.push(pointNode(r,q,m.get(r.key),true),txt(Math.min(220,q[0]+10),Math.max(14,q[1]-8),({low:'L',medium:'M',high:'H',xhigh:'XH',default:'D'})[r.effort]||r.effort,'start','ex-effort'))});panels.push('<div class="card"><h4>'+esc(panel)+'</h4><p class="ex-meta">'+group.filter(r=>m.get(r.key).on_frontier).length+' of '+group.length+' on frontier · '+group.filter(r=>m.get(r.key).beaten_by.length).length+' beaten</p><svg viewBox="0 0 240 160" role="img"><title>'+esc(panel)+' detail</title>'+shade+dots.join('')+'</svg></div>')});$('#ex-model-grid').innerHTML=panels.join('');
+ if(rebuild||!$('#ex-radar-grid').childElementCount)$('#ex-radar-grid').innerHTML=rr.map(r=>radar(r,ext)).join('');
+ const legend=new Map();rows.forEach(r=>{const label=st.colorBy==='vendor'?(r.family==='Codex'&&r.generation==='5.6'?'Codex 5.6':r.family):st.colorBy==='model'?r.model_short:r[st.colorBy];legend.set(label,colour(r))});
+ $('#ex-legend').innerHTML=Array.from(legend,([label,c])=>'<span style="border-left:8px solid '+c+';padding-left:6px;">'+esc(label)+'</span>').join(' · ')+' · ring = best trade-off';
+ if(rebuild)$('#ex-config-list').innerHTML=all.map(r=>'<button class="btn" data-config="'+esc(r.key)+'" aria-pressed="'+!st.off.has(r.key)+'">'+esc(r.display)+'</button>').join('');
+ $$('[data-config]').forEach(b=>b.onclick=()=>{st.off.has(b.dataset.config)?st.off.delete(b.dataset.config):st.off.add(b.dataset.config);render()});
+ $$('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===st.view)));$$('[data-pricing]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.pricing==='quota')===st.quota)));
+ updateDetail();bindPoints($('#ex-chart'));bindPoints($('#ex-best'));bindPoints($('#ex-picks'));bindPoints($('#ex-model-grid'));bindPoints($('#ex-radar-grid'));bindDrag();if(focusKey){const target=$$('[data-'+focusAttr+']').find(e=>e.dataset[focusAttr]===focusKey&&e.tagName===focusTag);if(target)target.focus({preventScroll:true})}
+}
+let drag=null;
+function bindDrag(){const svg=$('#ex-chart svg');if(!svg)return;svg.onwheel=e=>{if(st.view==='3d'||st.view==='par')return;e.preventDefault();const r=svg.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*svg.viewBox.baseVal.width,y=(e.clientY-r.top)/r.height*svg.viewBox.baseVal.height,k=Math.max(1,Math.min(12,st.zk*Math.exp(-e.deltaY*.0015))),f=k/st.zk;st.zx=x-(x-st.zx)*f;st.zy=y-(y-st.zy)*f;st.zk=k;render(false)};
+ svg.onpointerdown=e=>{if(e.target.closest('.ex-point'))return;drag={x:e.clientX,y:e.clientY,zx:st.zx,zy:st.zy,yaw:st.yaw,pitch:st.pitch,scale:svg.viewBox.baseVal.width/svg.getBoundingClientRect().width};svg.setPointerCapture(e.pointerId)};
+}
+window.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(st.view==='3d'||st.zk===1){if(Math.hypot(dx,dy)<4)return;st.view='3d';st.yaw=drag.yaw+dx*.45;st.pitch=Math.max(-5,Math.min(90,drag.pitch+dy*.45))}else{st.zx=drag.zx+dx*drag.scale;st.zy=drag.zy+dy*drag.scale}render(false)});window.addEventListener('pointerup',()=>drag=null);
+function reset(){st.zk=1;st.zx=st.zy=0}
+window.addEventListener('resize',()=>{if(root.dataset.ready)render(false)});
+let animation=0;
+function setView(view){cancelAnimationFrame(animation);const presets={front:[0,0],top:[0,90],side:[-90,0],'3d':[-36,24]},from=presets[st.view],to=presets[view];reset();if(!from||!to||window.matchMedia('(prefers-reduced-motion: reduce)').matches){st.view=view;render();return}const start=performance.now();st.view='3d';function frame(now){const t=Math.min(1,(now-start)/700),e=1-(1-t)**3;st.yaw=from[0]+(to[0]-from[0])*e;st.pitch=from[1]+(to[1]-from[1])*e;if(t===1)st.view=view;render(false);if(t<1)animation=requestAnimationFrame(frame)}animation=requestAnimationFrame(frame)}
+$$('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));$$('[data-pricing]').forEach(b=>b.onclick=()=>{st.quota=b.dataset.pricing==='quota';render()});
+$('#ex-set').onchange=e=>{st.set=e.target.value;st.sel=st.hover=null;st.off.clear();reset();render()};$('#ex-floor').onchange=e=>{st.minPass=Number(e.target.value);render()};$('#ex-colour').onchange=e=>{st.colorBy=e.target.value;render()};$('#ex-reset').onclick=()=>{reset();render()};$('#ex-all').onclick=()=>{st.off.clear();render()};$('#ex-none').onclick=()=>{const set=X.sets.find(s=>s.id===st.set);set.rows.forEach(k=>st.off.add(k));render()};
+$$('[data-facet]').forEach(b=>b.onclick=()=>{const k=b.dataset.facet;if(k==='prereg')st.prereg=!st.prereg;else st.facets.has(k)?st.facets.delete(k):st.facets.add(k);b.setAttribute('aria-pressed',String(k==='prereg'?st.prereg:!st.facets.has(k)));render()});
+$$('.ex-controls[hidden],.ex-filters[hidden],.ex-configs[hidden]').forEach(e=>e.hidden=false);
+render();root.dataset.ready='true';
+});
 </script>
