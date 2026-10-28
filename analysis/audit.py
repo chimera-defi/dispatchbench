@@ -5,7 +5,7 @@
 2. Every chart in results/report/charts equals what analysis.charts draws from that summary.
 3. results/report/luna_rescue.md equals the table analysis.luna_rescue computes from the appendix rows.
 4. README.md, docs/REPORT.md, results/report/page.html and results/report/facts_used.json equal what analysis.report renders from the
-   template; docs/RAW_RUNS.md equals analysis.raw_runs (except the manifest hash, which carries the commit sha); results/dataset.json
+   template; docs/RAW_RUNS.md equals analysis.raw_runs; results/dataset.json
    equals what analysis.dataset builds from the jsonl files (results/report/og.png needs a browser and is not compared).
 5. The templates (README, report, page and docs/page/*.html text) hold no digit of their own outside {{facts}}, code spans and link targets,
    except the categories listed with a reason in docs/audit_allow.json (versions, years, deviation and finding ids, the name pass@1).
@@ -109,7 +109,7 @@ def main():
     checked += same("tables", tab, os.path.join(RES, "report", "tables.md"), fails)
     have_manifest = os.path.join(RES, "manifest.json")
     if os.path.exists(have_manifest):
-        current = json.load(open(have_manifest)); current.pop("git_sha", None); man.pop("git_sha", None)
+        current = json.load(open(have_manifest))
         checked += 1
         if json.dumps(current, indent=1) != json.dumps(man, indent=1):
             fails.append("manifest: results/manifest.json differs from what the data give (run make report)")
@@ -125,10 +125,8 @@ def main():
     checked += same("report", full, report.REPORT, fails)
     checked += same("page", page, report.PAGE, fails)
 
-    # RAW_RUNS.md hashes manifest.json, which carries the commit sha; mask that one hash so the check holds across commits.
-    mask = lambda t: re.sub(r"(results/manifest\.json\]\([^)]*\) \| `)[0-9a-f]{64}", r"\1-", t)
     raw = raw_runs.OUTPUT.read_text() if raw_runs.OUTPUT.exists() else ""
-    if mask(raw) != mask(raw_runs.render()): fails.append("raw runs: docs/RAW_RUNS.md differs from what the data give (run make report)")
+    if raw != raw_runs.render(): fails.append("raw runs: docs/RAW_RUNS.md differs from what the data give (run make report)")
     checked += 1
     checked += same("dataset", dataset.text(ds), dataset.PATH, fails)  # the cached table equals what the rows give
     fails += configs.check_registry(dataset.keys(ds))  # every config with rows is registered, and every entry has rows
