@@ -304,7 +304,7 @@ def logscale(lo, hi, a, b):
 def tip(c, v):
     k = " (exploratory)" if point_category(c) == "exploratory" else ""
     return (f"{DISP(c)}{k} [main ladder]: {v['passes']}/{v['n']} passed, {dataset.usd(v['usd_per_pass'])} per pass ({'estimated from tokens' if v['cost_kind'] == 'proxy' else 'measured bill'}), "
-            f"median {v['latency_s']['median']:.1f} s")
+            f"median {dataset.median_seconds(v):.1f} s")
 
 
 FAST_PAIRS = [("sol61-high", "sol61-high-fast"), ("astra-medium", "astra-medium-fast")]
@@ -377,7 +377,7 @@ def ladder_repairs(free, stat, arms=None):
                     "col": "var(--frontier)" if pipeline else FAM(c),
                     "shape": SHAPE(builder), "w": None, "on": False, "free_mode": free,
                     "saved_usd": v["usd_saved_per_pass"], "normal_usd": v["usd_per_pass"], "free_usd": v["claude_usd_per_pass"],
-                    "tip": f"{name}: {v['passes']}/{v['n']} passed. {dataset.usd(usd)} per pass. Median {v['median_s']:.1f} s. {configs.set_label('rescue set', capital=True)} only. "
+                    "tip": f"{name}: {v['passes']}/{v['n']} passed. {dataset.usd(usd)} per pass. Median {dataset.median_seconds(v):.1f} s. {configs.set_label('rescue set', capital=True)} only. "
                     + quota_tip(v["usd_per_pass"], v["claude_usd_per_pass"], v["usd_saved_per_pass"])
                     + (" (" + v["derived_note"] + ")" if "derived_note" in v else "")})
     return pts
@@ -403,7 +403,7 @@ def grok_chart_points(s, stat):
                     "x": x, "y": y, "rate": v["pass_at_1"], "hollow": "-fast" in c, "dash": "bare" in c, "w": w,
                     "saved_usd": v.get("usd_saved_per_pass") or 0, "normal_usd": usd, "free_usd": usd, "free_mode": False,
                     "tip": (f"{DISP(c)}: {v['passes']}/{v['n']} passed, {dataset.usd(usd)} per pass "
-                            f"(measured bill), median {v['latency_s']['median']:.1f} s. {note}")})
+                            f"(measured bill), median {dataset.median_seconds(v):.1f} s. {note}")})
     return pts
 
 
@@ -632,7 +632,7 @@ def fast(s):
                (configs.set_label("L7 set"), s["hard"])) for pair in FAST_PAIRS for c in pair]
     rows = [(f"{'L7' if label == configs.set_label('L7 set') else 'ladder'} · {DISP(c)}",
              v["latency_s"]["median"], FAM(c), c.endswith("-fast")) for label, c, v in entries]
-    values = [f"{v['latency_s']['median']:.1f}s · {dataset.usd(v['usd_per_pass'])}" for _, _, v in entries]
+    values = [f"{dataset.median_seconds(v):.1f}s · {dataset.usd(v['usd_per_pass'])}" for _, _, v in entries]
     return '<div class="compact-bars">' + hatch_phone(charts.bars("Normal and fast mode", rows, str, "", values=values, responsive=True)) + '</div>'
 
 
@@ -744,17 +744,17 @@ def short_table(s, need):
     those, or how many attempts missed."""
     E = every(s); a = rescue_arms(s)
     top = [(c, row(DISP(c), FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], 0.0 if CODEX(c) else E[c]["usd_per_pass"],
-               E[c]["latency_s"]["median"], verdict(c, E[c], need, E, a),
+               dataset.median_seconds(E[c]), verdict(c, E[c], need, E, a),
                E[c]["cost_kind"] == "proxy", rate=E[c]["pass_at_1"], key=s["facts"]["verdict_key"],
                set_name=configs.set_label("main ladder") if configs.low_context(c) else "")) for c in ORDER]
     clean = [c for c, _ in HARD if a[c]["passes"] == a[c]["n"]]; need(clean, "some rescue-set row never failed")
     hv = lambda c: "0 misses" if c in clean else f"missed {a[c]['misses']}"
     duplicates = set(configs.PLAIN_PIPELINE_DUPLICATES)
     hard = [(c, row(SHORT(name), "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], 0.0 if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
-                a[c]["median_s"], hv(c), CODEX(c), a[c].get("derived_note", ""), rate=a[c]["pass_rate"], key=s["facts"]["verdict_key"],
+                dataset.median_seconds(a[c]), hv(c), CODEX(c), a[c].get("derived_note", ""), rate=a[c]["pass_rate"], key=s["facts"]["verdict_key"],
                 set_name=configs.set_label("rescue set") if configs.low_context(c, "rescue") else "")) for c, name in HARD if c not in duplicates]
     dv = devin(s)
-    dv_rows = [(c, row(DISP(c), FAM(c), v["passes"], v["n"], None, None, v["latency_s"]["median"], "not a delegate (free tier)",
+    dv_rows = [(c, row(DISP(c), FAM(c), v["passes"], v["n"], None, None, dataset.median_seconds(v), "not a delegate (free tier)",
                        rate=v["pass_at_1"], key=s["facts"]["verdict_key"])) for c, v in dv.items()]
     devin_rows = ('<tr class="grp"><th colspan="6">' + esc("Devin: " + configs.DEVIN_NOTE) + '</th></tr>' if dv_rows else "") + "".join(b for _, b in dv_rows)
     problems = sorted(s["problems"])
@@ -919,7 +919,7 @@ def rescue_subtitle(s=None):
 
 def speed_frontier_text(s, names):
     E = every(s)
-    return ", ".join(f"{DISP(c)} ({E[c]['latency_s']['median']:.1f} s, {dataset.usd(E[c]['usd_per_pass'])} per pass"
+    return ", ".join(f"{DISP(c)} ({dataset.median_seconds(E[c]):.1f} s, {dataset.usd(E[c]['usd_per_pass'])} per pass"
                      + (f", {100 * E[c]['pass_at_1']:.1f}% passed" if E[c]['passes'] < E[c]['n'] else "") + ")" for c in names)
 
 
@@ -1052,7 +1052,7 @@ def winner_table(ds, need):
     rows = []
     for i, (use, r, why) in enumerate(choices, 1):
         price = ("~" if r["cost_kind"] == "proxy" else "") + dataset.usd(r["usd_per_pass"])
-        cells = (f"{i}. {use}", r["display"], f"{r['passes']}/{r['n']}", price, f"{r['median_s']:.1f} s", why)
+        cells = (f"{i}. {use}", r["display"], f"{r['passes']}/{r['n']}", price, f"{dataset.median_seconds(r):.1f} s", why)
         rows.append('<tr>' + "".join(
             f'<td data-label="{esc(label)}"><span>{configs.cell_markup(esc(cell))}</span></td>' for label, cell in zip(head, cells)) + '</tr>')
     caption = ds["facts"]["winner_caption"]

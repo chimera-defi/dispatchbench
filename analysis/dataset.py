@@ -12,7 +12,7 @@ Sets (mutually exclusive; every row lands in exactly one, or this module raises)
   rescue arms     appendix/luna_rescue.jsonl (35 attempts per arm on the rescue problems)
   pilot, pilot repo task, trim probe, harness bias   one set per file
 A set in DERIVED (rescue set: a main-run config restricted to the 7 rescue problems, repeats 1-5) repeats rows already in another set, is flagged\nderived: true and is excluded from "all runs".\nColumns: id, derived, source, config, display, family, category, what, set, passes, n, pass_rate, ci95, usd_per_pass, claude_usd_per_pass,
-codex_usd_per_pass, usd_per_call, spend, spend_claude, spend_codex, unknown_usd, median_s, p25_s, p75_s, tokens_in_mean, tokens_out_mean,
+codex_usd_per_pass, usd_per_call, spend, spend_claude, spend_codex, unknown_usd, median_s, median_s_raw (unrounded presentation evidence), p25_s, p75_s, tokens_in_mean, tokens_out_mean,
 cost_kind, by_rung ({L1: [passed, n]}), groups (problems or tasks). No model calls. Run: python3 -m analysis.dataset"""
 import json, os, statistics
 from collections import defaultdict
@@ -163,6 +163,7 @@ def _row(src, name, st, rr):
             "codex_usd_per_pass": round((spend - sc - sg) / k, 6) if k and complete else None, "usd_per_call": round(spend / n, 6) if complete else None,
             "spend": round(spend, 6), "spend_claude": round(sc, 6), "spend_codex": round(spend - sc - sg, 6), "unknown_usd": n - len(known),
             **({"spend_grok": round(sg, 6)} if rr[0]["cli"] == "grok" else {}),
+            "median_s_raw": statistics.median(secs),
             "median_s": round(statistics.median(secs), 2), "p25_s": round(p25, 2), "p75_s": round(p75, 2),
             "tokens_in_mean": round(statistics.mean(x["in"] or 0 for x in rr)), "tokens_out_mean": round(statistics.mean(x["out"] or 0 for x in rr)),
             "tokens_cached_mean": round(statistics.mean(x["cached"] for x in rr)),
@@ -235,6 +236,14 @@ def need(cond, why):
     """A sentence in the template depends on this holding. If the data change so that it no longer does, fail instead of printing a false sentence."""
     if not cond:
         raise AssertionError(f"template wording no longer matches the data: {why}")
+
+
+def median_seconds(v):
+    """Unrounded median for presentation; historical plotting values stay intact."""
+    if "latency_s" in v:
+        latency = v["latency_s"]
+        return latency.get("median_raw", latency["median"])
+    return v.get("median_s_raw", v["median_s"])
 
 
 def p1(d):
@@ -347,6 +356,8 @@ def fairness_facts():
     codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
     facts['hb_errors'] = str(sum(r['outcome'] == 'harness_error' for r in codex))
     facts['hb_full_calls'] = str(len(rows))
+    facts["hb_repeat_cap_lines"] = "two"
+    facts["hb_repeat_cap_source"] = "c6528128a7a66fdc0ecd4031a9228ce8b53f5a98"
     need(len(rows) == sum(len([r for r in rows if r['config'] == c and r['harness'] == h])
                          for c in harness_bias.CFGS for h in ('claude-one-shot', 'codex-tool-loop')),
          "full harness run counts every paired call")
@@ -456,7 +467,7 @@ def _facts(s, arms):
     for c, v in every.items():
         k = c.replace("-", "_")
         F[f"{k}_pass"] = pct(v["pass_at_1"]); F[f"{k}_k"] = f"{v['passes']}/{v['n']}"; F[f"{k}_upp"] = usd(v["usd_per_pass"])
-        F[f"{k}_med"] = f"{v['latency_s']['median']:.1f}"; F[f"{k}_rsn"] = n(v["tokens_mean"]["reasoning_tok"]); F[f"{k}_rsn10"] = about(v["tokens_mean"]["reasoning_tok"])
+        F[f"{k}_med"] = f"{median_seconds(v):.1f}"; F[f"{k}_rsn"] = n(v["tokens_mean"]["reasoning_tok"]); F[f"{k}_rsn10"] = about(v["tokens_mean"]["reasoning_tok"])
         F[f"{k}_in"] = n(v["tokens_mean"]["in_tok"])
     F["model_names"] = f"luna = {cfg['luna-low']['model']}, sol61 = {ex['sol61-high']['model']}, astra = {ex['astra-medium']['model']}"
     F["ref_unit"] = f"{1:.2f}"
@@ -651,7 +662,7 @@ def _facts(s, arms):
     pf = s["pilot_fast"]; F["fast_mult"] = f'{json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]:g}×'
     F["fast_problems"] = str(len({r["problem"] for r in prow if r["config"] == "sol61-low-defa"})); F["fast_rounds"] = str(pf["sol61-low/default"]["n"] // int(F["fast_problems"]))
     assert all(v["passes"] == v["n"] for v in pf.values()), "fast-mode text says every call passed"
-    for k, v in pf.items(): F[f"fast_{k.split('-')[0].rstrip('0123456789')}_{'def' if k.endswith('default') else 'fast'}"] = f"{v['median_s']:.1f}"
+    for k, v in pf.items(): F[f"fast_{k.split('-')[0].rstrip('0123456789')}_{'def' if k.endswith('default') else 'fast'}"] = f"{median_seconds(v):.1f}"
     F["fast_luna_change"] = (f"stayed at {F['fast_luna_def']} s" if F["fast_luna_def"] == F["fast_luna_fast"]
                              else f"changed from {F['fast_luna_def']} s to {F['fast_luna_fast']} s")
     F["pilot_r2_configs"] = str(sum(1 for v in pl.values() if v["problems"] > 3))
@@ -950,10 +961,10 @@ def _tables(s, arms):
     if s.get("grok"):
         T["grok"] = md_table(["config", "coverage", "passed", "$ per pass", "total $ (CLI-measured)", "median s"],
             [[DISP(c), f'{len(v["by_problem"])} of {nprob} problems', f'{pct(v["pass_at_1"])} ({v["passes"]}/{v["n"]})',
-              usd(v["usd_per_pass"]), usd(v["usd_total"]), f'{v["latency_s"]["median"]:.1f}'] for c, v in s["grok"].items()])
+              usd(v["usd_per_pass"]), usd(v["usd_total"]), f'{median_seconds(v):.1f}'] for c, v in s["grok"].items()])
     T["result"] = md_table(["config", "pass rate", "95% CI", "median s", "slow-call time s", "$ per pass", "total $ (all calls)", "$ kind"],
                            [[DISP(c) + (" †" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], nprob),
-                             f"{v['latency_s']['median']:.1f}", f"{v['latency_s']['p90']:.1f}", f"{usd(v['usd_per_pass'])}", f"{usd(v['usd_total'])}", v["cost_kind"]]
+                             f"{median_seconds(v):.1f}", f"{v['latency_s']['p90']:.1f}", f"{usd(v['usd_per_pass'])}", f"{usd(v['usd_total'])}", v["cost_kind"]]
                             for c, v in {**cfg, **ex}.items()])
     T["result_detail"] = md_table(["config", "pass rate 95% CI", "slow-call time s", "total $ (all calls)"],
                                   [[DISP(c) + (" †" if c in ex else ""), ci_text(v["passes"], v["n"], v["ci95"], nprob),
@@ -972,7 +983,7 @@ def _tables(s, arms):
     hard = s["hard"]; hp = sorted({p for v in hard.values() for p in v["by_problem"]})
     T["l7"] = md_table(["config", "passed", "95% CI"] + [plabel(p) for p in hp] + ["median s", "mean reasoning tokens", "$ per pass", "$ kind"],
                        [[c, f"{v['passes']}/{v['n']}", ci_text(v["passes"], v["n"], v["ci95"], len(hp))] + [f"{v['by_problem'].get(p, 0)}/5" for p in hp]
-                        + [f"{v['latency_s']['median']:.1f}", n(v["tokens_mean"]["reasoning_tok"]), f"{usd(v['usd_per_pass'])}", v["cost_kind"]] for c, v in hard.items()])
+                        + [f"{median_seconds(v):.1f}", n(v["tokens_mean"]["reasoning_tok"]), f"{usd(v['usd_per_pass'])}", v["cost_kind"]] for c, v in hard.items()])
     fail = s["failures"]; cols = list(dict.fromkeys(c for f in fail.values() for c in f["cells"]))
     ab = {"wrong": "w", "crash": "c", "timeout": "t", "no_code": "n"}
 
@@ -991,7 +1002,7 @@ def _tables(s, arms):
                             [[c, f"{v['task_complete']}/{v['n']} complete ({v['hidden_pass']}/{v['n']} hidden){audit_mark(red[c])}", f"{v['own_tests_written']}/{v['n']}",
                               (lambda rr: "no transcripts" if not rr else str(sum(r["test_functions_added"] for r in rr)) if all(r["test_functions_added"] is not None for r in rr)
                                else f"≥{sum(r['test_functions_lower_bound'] for r in rr)}")([r for r in at if r["config"] == c]),
-                              f"{v['latency_s']['median']:.1f}", f"{usd(v['usd_per_run'])}", usd(v["usd_per_pass"]), v["cost_kind"]] for c, v in sorted(ag.items(), key=lambda kv: (kv[1]["usd_per_run"] is None, kv[1]["usd_per_run"] or 0))])
+                              f"{median_seconds(v):.1f}", f"{usd(v['usd_per_run'])}", usd(v["usd_per_pass"]), v["cost_kind"]] for c, v in sorted(ag.items(), key=lambda kv: (kv[1]["usd_per_run"] is None, kv[1]["usd_per_run"] or 0))])
     rg = t1_regrade(); byc = defaultdict(list)
     for r in rg:
         if r["status"] == "regraded" and r["config"] not in configs.GROK_CONFIGS: byc[(r["file"], r["config"])].append(r)  # Grok configs are named only in the Grok section
@@ -1000,10 +1011,10 @@ def _tables(s, arms):
                                  f"{sum(r['new_hidden_pass'] for r in v)}/{len(v)}", f"{sum(r['task_complete'] for r in v)}/{len(v)}"]
                                 for (f, c), v in sorted(byc.items())])
     a = arms
-    T["rescue"] = md_table(["config", "passed", "$ per pass", "median s"], [[v["label"], f"{v['passes']}/{v['n']}", f"{usd(v['usd_per_pass'])}", f"{v['median_s']:.1f}"] for v in a.values()])
+    T["rescue"] = md_table(["config", "passed", "$ per pass", "median s"], [[v["label"], f"{v['passes']}/{v['n']}", f"{usd(v['usd_per_pass'])}", f"{median_seconds(v):.1f}"] for v in a.values()])
     pr = s["trim"]["pair"]; lab = {"haiku": "haiku-low, tools off", "luna/base": "luna-low, stock harness", "luna/nofeat": "luna-low, tool features off", "luna/noshell": "luna-low, stripped"}
     T["pilot"] = md_table(["config", "passes", "median input", "median s", "$ per call", "$ kind"],
-                          [[lab[c], f"{v['passes']}/{v['n']}", n(v["in_median"]), f"{v['median_s']:.1f}", f"{usd(v['usd_per_call'])}", v["cost_kind"]] for c, v in pr.items() if c in lab])
+                          [[lab[c], f"{v['passes']}/{v['n']}", n(v["in_median"]), f"{median_seconds(v):.1f}", f"{usd(v['usd_per_call'])}", v["cost_kind"]] for c, v in pr.items() if c in lab])
     T["quality"] = quality_table(s)
     T["fastmode"], T["blind"] = fastmode_tables(s)
     T["configs"] = md_table(["config", "CLI", "model", "effort"], [[c, {"claude": "Claude Code", "codex": "Codex CLI"}[v["cli"]], v["model"], v["effort"]] for c, v in cfg.items()])
@@ -1152,7 +1163,7 @@ def _project(ds, summary):
                       "claude_usd_per_pass": r["claude_usd_per_pass"], "usd_saved_per_pass": r["usd_saved_per_pass"],
                       "usd_per_1k_tokens": r["usd_per_1k_tokens"], "by_group": r["by_group"],
                       "input_floor": r["input_floor"], "cost_kind": r["cost_kind"],
-                      "latency_s": {"median": r["median_s"], "p25": r["p25_s"], "p75": r["p75_s"], "p90": r["p90_s"], "max": r["max_s"]},
+                      "latency_s": {"median_raw": r["median_s_raw"], "median": r["median_s"], "p25": r["p25_s"], "p75": r["p75_s"], "p90": r["p90_s"], "max": r["max_s"]},
                       "tokens_mean": {"in_tok": r["tokens_in_mean"], "cached_tok": r["tokens_cached_mean"],
                                       "out_tok": r["tokens_out_mean"], "reasoning_tok": r["tokens_reasoning_mean"]},
                       "by_rung": {g: {"passed": k, "n": n} for g, (k, n) in r["by_rung"].items()}})
@@ -1169,7 +1180,7 @@ def _rescue(ds, arms, checked):
     for c, a in arms.items():
         source, set_ = ("rescue", "rescue arms") if ("rescue", c) in configs.REGISTRY else ("main", "rescue set")
         r = get(ds, c, set_, source)
-        a.update({k: r[k] for k in ("passes", "n", "pass_rate", "usd_per_pass", "claude_usd_per_pass", "median_s",
+        a.update({k: r[k] for k in ("passes", "n", "pass_rate", "usd_per_pass", "claude_usd_per_pass", "median_s", "median_s_raw",
                                   "p25_s", "p75_s", "misses", "usd_saved_per_pass")})
         a["usd_total"] = r["spend"]
         a["derived"] = r["derived"]
@@ -1783,7 +1794,7 @@ def _devin(ds, s):
     for r in rows: by.setdefault(r["outcome"], []).append(r["problem"])
     names = lambda oc: ", ".join(pshort(p) for p in sorted(by.get(oc, []))) or "none"
     F["devin_k"], F["devin_n"] = str(v["passes"]), str(v["n"])
-    F["devin_median_s"] = f'{v["latency_s"]["median"]:.1f}'
+    F["devin_median_s"] = f'{median_seconds(v):.1f}'
     F["devin_model"] = v["model"]
     F["devin_error"] = configs.DEVIN_UPGRADE_ERROR
     F["devin_stage2_min"] = str(configs.DEVIN_STAGE2_MIN)
@@ -1811,6 +1822,7 @@ def view(ds):
 # Where a fact comes from, by key prefix: the jsonl files (or the design table) its number is computed from. Coarse on purpose:
 # every fact is built by analysis.dataset from the rows below, and the prefix names the run files those rows come from.
 FACT_SOURCES = (
+    ("hb_repeat_cap_", "c6528128a7a66fdc0ecd4031a9228ce8b53f5a98"),
     ("d_", None), ("t1v2_", "results/2026-10-28-t1-hidden-v2-regrade.jsonl (bench/regrade_t1.py)"), ("audit_", "audit session forensics (stage2b/FORENSICS.md), pending results/annotations.json"),
     ("grok_cli_", "results/*grok*.jsonl, CLI-reported cost"), ("ag_", "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"),
     ("grok_", "results/2026-10-26-grok-function.jsonl + results/2026-10-28-grok-spectrum-function.jsonl + results/2026-10-27-grok-agentic.jsonl"),
@@ -1825,6 +1837,8 @@ FACT_UNITS = ((r"^\$[\d.,]+[kM]?$", "usd"), (r"^[\d.,]+%$", "percent"), (r"^\d+/
 
 def fact_object(key, display, constants):
     unit = "list" if isinstance(display, list) else next((u for pat, u in FACT_UNITS if re.match(pat, display)), "text")
+    if key == "hb_repeat_cap_lines":
+        return {"value": 2, "unit": "count", "display": display, "source": "c6528128a7a66fdc0ecd4031a9228ce8b53f5a98"}
     value = display
     if unit in ("usd", "percent", "ratio", "seconds", "count"):
         num = re.sub(r"[^\d.]", "", display.replace(",", ""))
