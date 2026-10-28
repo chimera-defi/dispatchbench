@@ -63,3 +63,8 @@ clean-report:
 .PHONY: quality
 quality:
 	$(PY) -m bench.quality.run --jobs 4
+
+# Read-only fetch from the site; SHA is deliberately required and immutable.
+.PHONY: sync-design-system
+sync-design-system:
+	$(PY) docs/page/design-system/scripts/sync.py "$(SHA)" $(if $(SOURCE_REPO),--source-repo "$(SOURCE_REPO)")
