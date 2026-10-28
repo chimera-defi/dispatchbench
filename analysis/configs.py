@@ -43,7 +43,8 @@ NOTATION = {
 
 
 SOURCES = {  # source id -> files under results/ that hold its rows
-    "main": ["2026-10-22b-function.jsonl", "2026-10-26-grok-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
+    "main": ["2026-10-22b-function.jsonl", "2026-10-26-grok-function.jsonl", "2026-10-28-grok-spectrum-function.jsonl",
+             "2026-10-28-terra-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
     "rescue": ["appendix/luna_rescue.jsonl"], "pilot": ["2026-10-22-pilot.jsonl"], "pilot-agentic": ["2026-10-22-pilot-agentic.jsonl"],
     "harness-bias": ["appendix/harness_bias.jsonl", "appendix/codex_harness.jsonl"]}  # the last two land with the codex-own-harness branch
 CATEGORIES = ["main ladder", "exploratory", "fast mode and xhigh", "rescue pipeline", "repo tasks", "trim", "pilot", "harness-bias", "low context"]
@@ -60,12 +61,21 @@ add("main", "exploratory",
     ("haiku-high", "Claude Haiku, high effort (added after the main run)"), ("luna-high", "gpt-6-luna, high effort (added after the main run)"),
     ("luna-low-bare", "luna-low with the Codex system prompt and tool features stripped (trim level noshell)"),
     ("luna56-low", "gpt-5.6-luna, low effort"), ("luna56-high", "gpt-5.6-luna, high effort"), ("sol56-high", "gpt-5.6-sol, high effort"),
-    ("sol61-high", "gpt-6.1-sol, high effort (default tier)"), ("astra-medium", "gpt-6-astra, medium effort"))
+    ("sol61-high", "gpt-6.1-sol, high effort (default tier)"), ("astra-medium", "gpt-6-astra, medium effort"),
+    ("terra61-low", "gpt-6.1-terra, low effort (added 2026-10-28, operator request; main ladder p01–p12, 5 repeats)"),
+    ("terra61-high", "gpt-6.1-terra, high effort (added 2026-10-28, operator request; main ladder p01–p12, 5 repeats)"),
+    ("terra56-low", "gpt-5.6-terra, low effort. Extra data: one repeat on p01–p12 (the operator meant gpt-6.1-terra)"),
+    ("terra56-high", "gpt-5.6-terra, high effort. Extra data: one repeat on p01–p12 (the operator meant gpt-6.1-terra)"))
+ONE_REPEAT = ("terra56-low", "terra56-high")  # gpt-5.6-terra, one repeat on p01-p12: extra data, listed in tables only, never charted
+FIRST_GROK_FILE = "results/2026-10-26-grok-function.jsonl"  # the earlier 2-repeat run on p01-p06; history, never edited
+GROK_PARTIAL = ("grok47-medium",)  # p01-p06 only (PLAN.md deviation 23): in tables, not on charts
+CHART_HIDDEN = ONE_REPEAT + GROK_PARTIAL
 GROK_CONFIGS = ("grok47-low", "grok47-medium", "grok47-high", "grok47fast-low")
 add("main", "exploratory", *((c,
     f"Grok {'grok-4.7-build-fast' if c.startswith('grok47fast') else 'grok-4.7'}, {c.rsplit('-', 1)[1]} effort; "
     "grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; "
-    "function track p01–p06 (L1–L3), L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained; 6 of 12 problems") for c in GROK_CONFIGS))
+    + ("function track p01–p06 (L1–L3) only, not extended (PLAN.md deviation 23); 6 of 12 problems" if c == "grok47-medium" else
+       "function track p01–p12 (L1–L6), 2026-10-28 full spectrum: 5 repeats per problem (L2–L3 had been shortened to 2 repeats on 2026-10-26)")) for c in GROK_CONFIGS))
 add("main", "fast mode and xhigh",
     ("sol61-high-fast", "sol61-high on Codex priority tier (fast mode). Same model and effort, about twice the price."),
     ("astra-medium-fast", "astra-medium on the Codex priority tier (fast mode)"), ("sol61-xhigh", "gpt-6.1-sol at xhigh effort"))
