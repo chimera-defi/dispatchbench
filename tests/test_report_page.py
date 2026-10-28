@@ -9,6 +9,7 @@ import pytest
 
 from analysis import charts, configs, dataset, harness_bias, page, report, summarize
 from html import unescape
+from html.parser import HTMLParser
 
 ROOT = Path(__file__).resolve().parents[1]
 NS = {"s": "http://www.w3.org/2000/svg"}
@@ -438,7 +439,7 @@ def test_winner_and_conclusion_agree_and_sets_are_collapsed(summary):
     assert facts['winner_intro'] + ' ' + facts['winner_price'] == facts['winner_line']
     assert 'Codex first' not in template
     winner = re.search(r'<section[^>]*id="winner">(.*?)</section>', template, re.S)[1]
-    assert winner.index('{{winner_intro}}') < winner.index('<details') < winner.index('{{winner_price}}') < winner.index('{{w_winner}}')
+    assert winner.index('<details') < winner.index('{{winner_intro}}') < winner.index('{{winner_price}}') < winner.index('{{w_winner}}')
     assert '<details class="sets"><summary>' in page.sets_box(summary)
     assert ' open' not in page.sets_box(summary).split('>')[0]
     assert template.index('{{w_sets}}') > template.index('{{w_pass_cost}}')
@@ -448,6 +449,60 @@ def test_winner_and_conclusion_agree_and_sets_are_collapsed(summary):
     assert 'p01 overlap_minutes (L1)' in problems
     first = problems.split('<li class="prow">', 1)[1].split('</li>', 1)[0]
     assert first.index('p01 overlap_minutes (L1)') < first.index('class="lc medium"')
+
+
+def test_winner_has_one_decision_and_three_short_bullets():
+    html = report.render()[2]
+    winner = re.search(r'<section[^>]*id="winner">(.*?)</section>', html, re.S)[1]
+    visible, picks = winner.split('<details', 1)
+    decisions = re.findall(r'<p class="winner-decision">(.*?)</p>', visible, re.S)
+    assert len(decisions) == 1
+    plain = lambda text: unescape(re.sub(r'<[^>]+>', '', text))
+    assert plain(decisions[0]) == dataset.read()['facts']['winner_default']
+    assert visible.count('<p') == 1
+    bullets = re.findall(r'<li>(.*?)</li>', visible, re.S)
+    assert len(bullets) == 3
+    assert all(len(plain(bullet).split()) <= 12 for bullet in bullets)
+    assert '→' not in plain(visible)
+    for key in ('winner_intro', 'winner_claude_to_codex', 'winner_codex_to_claude'):
+        assert dataset.read()['facts'][key] in plain(picks)
+    assert 'Repo tasks counted as task complete: hidden and visible tests both pass.' in plain(picks)
+
+
+def test_section_chrome_uses_text_and_stacks_phone_label():
+    class Summaries(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.texts = []
+            self.in_summary = False
+
+        def handle_starttag(self, tag, attrs):
+            if tag == 'summary':
+                self.in_summary = True
+                self.texts.append('')
+
+        def handle_endtag(self, tag):
+            if tag == 'summary':
+                self.in_summary = False
+
+        def handle_data(self, text):
+            if self.in_summary:
+                self.texts[-1] += text
+
+    html = report.render()[2]
+    summaries = Summaries()
+    summaries.feed(html)
+    assert summaries.texts
+    emoji = re.compile(r'[\u2300-\u23ff\u2600-\u27bf\ufe0f\U0001f000-\U0001faff]')
+    assert not any(emoji.search(text) for text in summaries.texts)
+    # This final override wins over the synced theme's heading margin. The
+    # phone grid gives the label a whole row, including at 390px after JS.
+    css = (ROOT / 'docs/page/style.css').read_text()
+    overrides = css.split('/* FABLE PAGE RULES END */', 1)[1]
+    assert '.verdict>h2{margin-top:0}' in overrides
+    phone = re.search(r'@media\(max-width:600px\)\{(.*)', overrides, re.S)[1]
+    assert 'section.collapsible>h2>.sec-toggle{display:grid;grid-template-columns:auto minmax(0,1fr) auto}' in phone
+    assert 'section.collapsible>h2>.sec-toggle>.ex-kicker{grid-column:1/-1;margin-bottom:0}' in phone
 
 
 def test_winner_verdict_and_luna_high_tradeoff(summary):
