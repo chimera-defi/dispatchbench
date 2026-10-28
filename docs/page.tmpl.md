@@ -107,21 +107,22 @@
 </section>
 <section id="grok">
 <h2><span class="num"></span>Grok</h2>
-{{table:grok_at_glance}}
 {{table:grok_summary}}
+{{table:grok_at_glance}}
 <h3>Where does Grok get to?</h3>
+<p class="small">{{grok_key}}</p>
 {{table:grok_reach}}
-<p>{{grok_reach_note}}</p>
-<h3>Closest equivalent</h3>
+<p class="small">{{grok_reach_note}}</p>
+<h3>Closest lanes</h3>
 {{table:grok_equivalent}}
 {{table:grok_selection_note}}
-<details><summary>All matching lanes</summary>
+<details><summary>All comparable lanes</summary>
 <p>{{grok_match_rule}}</p>
 <p class="small">{{grok_scope}}</p>
 {{table:grok_equivalent_all}}
 </details>
 <h3>Is Grok better at anything?</h3>
-<p>{{grok_verdict}}</p>
+{{table:grok_verdict}}
 {{table:grok_repository}}
 {{w_grok_catalog}}
 </section>
@@ -181,7 +182,6 @@
 </ul>
 {{w_grid}}
 <p class="small">{{grok_not_run}}</p>
-{{w_grok_fail}}
 <ul class="tight small">
 <li>p04 taller_within (L2): luna-low, luna-medium and luna-low-bare each passed only {{p04_passes}} of {{repeats}} tries.</li>
 <li>haiku-low never gave a wrong answer.</li>

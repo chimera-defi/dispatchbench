@@ -40,7 +40,7 @@ def esc(t):
 
 # Marker shape by model (colour stays the vendor): read the chart without a label on every point.
 def SHAPE(c):
-    if c.startswith("grok"): return "star"
+    if c.startswith("grok"): return "hexagon"
     if "luna" in c:
         return "triangle-down" if "high" in c else "triangle-right" if "medium" in c else "triangle"
     return "circle" if c.startswith("haiku") else "square" if c.startswith("sonnet") else "star" if c.startswith("astra") else "diamond"
@@ -73,6 +73,7 @@ def marker(kind, x, y, fill, stroke, dash=False, k=1.0, width=2.5):
     a = f' fill="{fill}" stroke="{stroke}" stroke-width="{width}"' + (' stroke-dasharray="3 2"' if dash else "")
     if kind == "circle": return f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{6.5 * k:.1f}"{a}/>'
     if kind == "square": return f'<rect x="{x - 6 * k:.1f}" y="{y - 6 * k:.1f}" width="{12 * k:.1f}" height="{12 * k:.1f}"{a}/>'
+    if kind == "hexagon": return f'<polygon points="{charts.hexagon(x, y, 10 * k)}"{a}/>'
     if kind == "triangle": v = [(0, -8.5), (7.5, 5.5), (-7.5, 5.5)]
     elif kind == "triangle-down": v = [(0, 8.5), (7.5, -5.5), (-7.5, -5.5)]
     elif kind == "triangle-right": v = [(8.5, 0), (-5.5, 7.5), (-5.5, -7.5)]
@@ -119,7 +120,7 @@ def separate_points(pts, X, Y):
         placed.append((x, y))
 
 
-def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=84, R=16, T=14, B=322, extra="", stat=None, variant=None, minor=(), badges=False, picks_note="", key_labels=None, front_end=None, label_right=None):
+def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=84, R=16, T=14, B=322, extra="", stat=None, variant=None, minor=(), badges=False, picks_note="", key_labels=None):
     """pts: dicts with c, x, y, w (whisker (axis, lo, hi) or None), tip, hollow. fr: the frontier path. Only frontier points
     get a text label; every point is in the key beside the chart, and hovering (or tapping) a point or a key row shows its tip."""
     separate_points(pts, X, Y)
@@ -139,8 +140,7 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
     start = re.match(r"M([\d.]+)", fr)
     if badges and start:  # shade what the best trade-offs beat: the corner on the worse side of the staircase
         g.append(f'<path class="zone" data-t="{T}" d="{fr}{f" V{B} Z" if stat == "pass" else f" V{T} H{start[1]} Z"}" fill="var(--frontier)" fill-opacity=".09" stroke="none" pointer-events="none"/>')
-    end = W - R if front_end is None else front_end
-    g.append(f'<path d="{fr}" data-front="{stat or ""}" data-b="{B}" data-end="{end}" data-t="{T}" fill="none" stroke="var(--frontier)" stroke-width="{2.5 if badges else 4}"{"" if badges else " stroke-dasharray=\"9 6\""} stroke-linejoin="round"/>' + extra)
+    g.append(f'<path d="{fr}" data-front="{stat or ""}" data-b="{B}" data-end="{W - R}" data-t="{T}" fill="none" stroke="var(--frontier)" stroke-width="{2.5 if badges else 4}"{"" if badges else " stroke-dasharray=\"9 6\""} stroke-linejoin="round"/>' + extra)
     for p in sorted(pts, key=lambda p: p["on"]):  # frontier points drawn last, on top
         px, py = plot_xy(p, X, Y)
         col = p.get("col") or FAM(p["c"])
@@ -168,8 +168,7 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
     else: labelled = [p for p in pts if not p.get("quiet") and (p["on"] or ("+" in p["c"] if p.get("set") == "rescue" else p.get("label")))]
     labelled = [p for p in labelled if not p.get("partial")]
     anchors = [p for p in pts if not p.get("partial")]
-    box_r = W if label_right is None else label_right
-    for p, (x, y, a) in place(labelled, X, Y, labels, (L, box_r - 2, T - 6, B - 2), walls, also=anchors):
+    for p, (x, y, a) in place(labelled, X, Y, labels, (L, W - 2, T - 6, B - 2), walls, also=anchors):
         if p["lead"]: g.append((f'<line class="label-leader" data-c="{esc(p["c"])}" data-cat="{point_category(p["c"])}" x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="var(--muted)" stroke-width="1"/>') % p["lead"])
         g.append(f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{a}" class="lbl{' on' if p["on"] else ''}" data-cat="{point_category(p["c"])}" data-set="{p.get("set", "main")}">{esc(p.get("name", p["c"]))}</text>')
     g.append("</svg>")
@@ -481,23 +480,16 @@ def pass_cost(s, free=None, problem_set="main"):
 def speed_cost(s, free=None, problem_set="main"):
     """Median seconds against paid $ per pass, log; frontier requires MIN_PASS."""
     if free is None: return ladder_toggle(speed_cost, s)
-    L, R, T, B, W0 = 84, 16, 14, 410 if problem_set == "main" else 316, 560
+    L, R, T, B, W = 84, 16, 14, 410 if problem_set == "main" else 316, 560
     H = B + 58
     pts = ladder_points(s, free, "speed", problem_set)
-    # The full ladder sets the scale. Grok, which is slower, extends the canvas on that same px/s and stays off the frontier.
-    base = [p for p in pts if not p.get("partial")]
+    # Axis spans every median plus a margin, in 5 s blocks, so slower Grok points fit the same 560 px canvas. Whiskers are clipped to it.
+    base = [p for p in pts if not p.get("partial")]  # Grok must not set the lowest $ or join the frontier
     xmin = max(0, math.floor((min(p["x"] for p in base) - 1) / 5) * 5)
-    xmax0 = math.ceil((max(p["x"] for p in base) + 1) / 5) * 5
     xmax = math.ceil((max(p["x"] for p in pts) + 1) / 5) * 5
-    plot0 = W0 - R - L
-    X = lambda v: L + (v - xmin) / (xmax0 - xmin) * plot0
-    edge = W0 - R
-    span = X(xmax) + R
-    W = int(span) if span == int(span) else span
+    X = lambda v: L + (v - xmin) / (xmax - xmin) * (W - R - L)
     for p in pts:
-        if p["w"]:
-            cap = xmax if p.get("partial") else xmax0
-            p["w"] = ("x", max(xmin, p["w"][1]), min(cap, p["w"][2]))
+        if p["w"]: p["w"] = ("x", max(xmin, p["w"][1]), min(xmax, p["w"][2]))
     paid = [p["y"] for p in base if p["y"] > 0]
     lo = 5e-4 if min(paid) >= 5e-4 else 10 ** math.floor(math.log10(min(paid)))
     lane = any(p["y"] == 0 for p in base)
@@ -508,7 +500,7 @@ def speed_cost(s, free=None, problem_set="main"):
     for p in pts:
         p["on"] = p in fr
         p["quiet"] = p["y"] == 0 and not p["on"] and not pick(p["c"])
-    d = (f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{edge}") if fr else ""
+    d = (f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}") if fr else ""
     xt = [(v, f"{v} s") for v in range(xmin, xmax + 1, 5)]
     yt = [(v, dataset.usd(v)) for v in (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1) if v >= lo] + [(0, "$0")] * lane
     zero = f'<line x1="{L}" x2="{W - R}" y1="{B - 44}" y2="{B - 44}" stroke="var(--muted)" stroke-dasharray="2 4"/>' if lane else ""
@@ -520,11 +512,11 @@ def speed_cost(s, free=None, problem_set="main"):
     xlab = "median seconds per call" + (" (bar on hover: middle half of calls)" if any(p["w"] for p in pts) else "")
     legend = grok_group_label(s)
     g = scatter(pts, d, X, Y, xt, yt, xlab, "$ per pass (log)", "", lab,
-                W=W, H=H, B=B, extra=zero + fast_pairs(pts, X, Y), stat="speed", variant="free" if free else "normal",
+                H=H, B=B, extra=zero + fast_pairs(pts, X, Y), stat="speed", variant="free" if free else "normal",
                 badges=True, picks_note=PICKS_NOTE["speed"],
                 minor=[v for v in range(xmin + 1, xmax) if v % 5],
-                key_labels={"grok": legend} if legend else None, front_end=edge, label_right=W0)
-    return g.replace("</svg>", f'<text x="{edge - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>', 1), [p["c"] for p in fr]
+                key_labels={"grok": legend} if legend else None)
+    return g.replace("</svg>", f'<text x="{W - R - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>', 1), [p["c"] for p in fr]
 
 
 # Display names for rescue-set rows, used by every chart and table so a pipeline reads the same everywhere. luna-high on the hard
@@ -546,23 +538,27 @@ def hard_speed_cost(arms=None):
     return speed_cost({"rescue": arms or rescue_arms()}, free=False, problem_set="rescue")
 
 
-def grid(s):
-    """Problems (rows, by rung) × configs (columns); each cell is passes out of the attempts at that problem."""
+def grid(s, grok=None):
+    """Problems (rows, by rung) × configs (columns); each cell is passes out of the attempts at that problem.
+    grok maps each Grok config to {problem: [passes, attempts]}; it covers the first half only, so other cells show a dash."""
+    grok = grok or {}; cols = ORDER + [c for c in GROK_ORDER if c in grok]
     E = every(s); probs = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
     main = set(probs)
     hard = sorted({p for v in s["hard"].values() for p in v["by_problem"]})
     def cell(p, c):
+        if c in grok:
+            k, n = grok[c].get(p, (None, None)); return (k, n)
         v = E.get(c) if p in main else s["hard"].get(c)
         cell = v["by_group"].get(p) if v else None
         return (cell["passes"], cell["n"]) if cell else (None, None)
-    out = [f'<div class="grid" style="--n:{len(ORDER)};grid-template-columns:minmax(150px,auto) repeat({len(ORDER)},minmax(40px,1fr))">', '<div class="h m">problem</div>']
-    out += [f'<div class="h{" fast" if c.endswith("-fast") else ""}">{esc(DISP(c))}</div>' for c in ORDER]
+    out = [f'<div class="grid" style="--n:{len(cols)};grid-template-columns:minmax(150px,auto) repeat({len(cols)},minmax(40px,1fr))">', '<div class="h m">problem</div>']
+    out += [f'<div class="h{" fast" if c.endswith("-fast") else ""}">{esc(DISP(c))}</div>' for c in cols]
     for p in probs + hard:
         if p == hard[0]: out.append(f'<div class="set-separator" style="grid-column:1 / -1">L7 set</div>')
         rung = s["problems"][p]["rung"] if p in main else 7
         out.append(f'<div class="m">{plabel_html(p, rung)}'
                    f'<span class="lc {LC[p].lower()}" title="{LC[p]}: my LeetCode difficulty guess">{LC[p][0]}</span></div>')
-        for c in ORDER:
+        for c in cols:
             k, n = cell(p, c)
             if k is None:
                 out.append('<div class="muted">–</div>'); continue
@@ -707,11 +703,16 @@ def verdict(c, v, need, E, arms=None):
 HARD = list(NAME.items())
 
 
+def dot(col, grok=False):
+    """The family-colour swatch before a config name. Grok is black, so it gets the legend's white ring."""
+    return f'<span class="dot" style="background:{col}{";box-shadow:0 0 0 1.5px #fff" if grok else ""}"></span>'
+
+
 def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, rate, key="", set_name=""):
     r = rate; cls = "good" if r >= 0.95 else "warn" if r >= MIN_PASS else "bad"
     attr = f' title="{esc(derived)}"' if derived else ""
     suffix = f'<span class="muted"> · {esc(set_name)}</span>' if set_name else ""
-    return (f'<tr{attr}><td><span class="dot" style="background:{col}"></span>{esc(name)}{suffix}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
+    return (f'<tr{attr}><td>{dot(col)}{esc(name)}{suffix}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
             f'<td>{configs.cell_markup(("~" if proxy else "") + dataset.usd(usd))}</td><td>{dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell" title="{esc(key)}">{verdict}</td></tr>')
 
 
@@ -748,29 +749,6 @@ def short_table(s, need):
     return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>$ per pass</th>'
             '<th>Claude $</th><th>median s</th><th>verdict</th></tr></thead>'
             + group(ladder_label, top, "main") + group(subset_label, hard, "rescue") + low_group + '</table></div>')
-
-
-def grok_fail(s):
-    """Append partial-ladder config rows to the failure widget in its existing colours."""
-    lane = s.get("grok", {})
-    if not lane: return ""
-    rungs = sorted({v["rung"] for v in s["problems"].values()})
-    out = ['<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th>']
-    out += [f'<th>L{g}</th>' for g in rungs]
-    out.append('</tr></thead><tbody>')
-    for c, v in lane.items():
-        out.append(f'<tr><td>{esc(c)}</td>')
-        for g in rungs:
-            cell = v["by_rung"].get(f"L{g}")
-            if not cell:
-                out.append('<td class="muted">not run</td>')
-                continue
-            k, n = cell["passed"], cell["n"]
-            colour = "good" if k == n else "warn" if k * 2 > n else "bad"
-            out.append(f'<td style="background:var(--{colour});color:var(--panel);font-weight:600">{k}/{n}</td>')
-        out.append('</tr>')
-    return "".join(out + ["</tbody></table></div>"])
-
 
 
 def result_notes(s):
@@ -1065,10 +1043,10 @@ def widgets(s, need, ds=None, names=None):
     nm = {c: DISP(c) for c in arms}
     renderers = {"pass_cost": lambda: a, "speed_cost": lambda: b, "hard_pass_cost": lambda: ha, "hard_speed_cost": lambda: hb,
             "hard_front_pass": lambda: ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": lambda: ", ".join(SHORT(nm[c]) for c in hfb),
-            "sets": lambda: sets_box(s), "grid": lambda: grid(s), "floor": lambda: floor(s), "pipes": lambda: pipes(arms),
+            "sets": lambda: sets_box(s), "grid": lambda: grid(s, (ds or dataset.read()).get("grok_comparison", {}).get("by_problem")), "floor": lambda: floor(s), "pipes": lambda: pipes(arms),
             "fast": lambda: fast(s), "explorer": lambda: explorer(s), "short_table": lambda: short_table(s, need),
             "full_table": lambda: full_table(ds or dataset.read()), "result_notes": lambda: result_notes(s),
-            "grok_catalog": lambda: "", "grok_fail": lambda: grok_fail(s),
+            "grok_catalog": lambda: "",
             "front_pass": lambda: ", ".join(map(DISP, fa)),
             "front_speed": lambda: speed_frontier_text(s, fb), "winner": lambda: winner_table(ds or dataset.read(), need),
             "hb_qa": lambda: "".join(f'<li>{esc(line)}</li>' for line in s["facts"]["hb_qa"]),

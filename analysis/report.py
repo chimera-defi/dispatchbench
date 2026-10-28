@@ -42,8 +42,8 @@ def md_table(head, rows):
 
 def tables_md(ds):
     tables = {name: md_table(**spec) if isinstance(spec, dict) else spec for name, spec in ds["tables"].items()}
-    if "grok_summary" in ds["facts"]:
-        tables["grok_summary"] = ds["facts"]["grok_summary"]
+    for key in ("grok_summary", "grok_verdict"):
+        if key in ds["facts"]: tables[key] = ds["facts"][key]
     return tables
 
 # ---------- rendering ----------
@@ -54,7 +54,7 @@ PLACE = re.compile(r"\{\{([^{}]+)\}\}")
 def fill(text, F, T, mode, chart_bodies=None):
     def sub(m):
         k = m.group(1)
-        if k.startswith("table:"): return T[k[6:]] if mode == "readme" else to_html(T[k[6:]])
+        if k.startswith("table:"): return T[k[6:]] if mode == "readme" else to_html(T[k[6:]], dots=k.startswith("table:grok_"))
         if k.startswith("chart:"):
             f, cap = k[6:].split("|", 1)
             if mode == "readme": return f"![{cap}](results/report/charts/{f})"
@@ -89,7 +89,14 @@ def inline(t):
     return "".join(out)
 
 
-def to_html(md):
+def config_cell(cell):
+    """A cell that is exactly a config name gets the same family dot as in the Results table."""
+    name = html.unescape(re.sub(r"<[^>]+>", "", cell)).strip()
+    known = {configs.display(c): c for c in [*pagew.GROK_ORDER, *pagew.ORDER]}
+    return pagew.dot(pagew.FAM(known[name]), known[name].startswith("grok")) + cell if name in known else cell
+
+
+def to_html(md, dots=False):
     """Enough markdown for this one template: headings, paragraphs, lists, tables, fenced code, blockquotes and raw HTML blocks."""
     L = md.split("\n"); i = 0; out = []
     while i < len(L):
@@ -113,7 +120,7 @@ def to_html(md):
             cells = [[c.strip() for c in r.strip().strip("|").split(" | ")] for r in L[i:j]]
             head, body = cells[0], cells[2:]
             th = "".join(f"<th>{inline(c)}</th>" for c in head)
-            trs = "".join("<tr>" + "".join(f"<td>{configs.cell_markup(inline(c))}</td>" for c in r) + "</tr>" for r in body)
+            trs = "".join("<tr>" + "".join(f"<td>{(config_cell if dots else str)(configs.cell_markup(inline(c)))}</td>" for c in r) + "</tr>" for r in body)
             out.append(f"<div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table></div>"); i = j; continue
         if line.startswith("> "):
             j = i; buf = []

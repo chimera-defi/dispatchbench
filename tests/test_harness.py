@@ -166,7 +166,7 @@ def test_quota_or_rate_limit_stops_lane(track, error, monkeypatch):
     args += ["--phase", "test", "--problems", "p1,p2"] if track == "function" else ["--tasks", "t1,t2"]
     monkeypatch.setattr("sys.argv", args)
     monkeypatch.setattr(R, "claude_spend", lambda: 0)
-    if track == "agentic": monkeypatch.setattr(A, "export", lambda: None)
+    if track == "agentic": monkeypatch.setattr(A, "export", lambda *args, **kwargs: None)
     module.main()
     assert module.one.call_count == 1
 
@@ -291,7 +291,7 @@ def test_export_selects_newest_grader_for_each_trial(task, tmp_path, monkeypatch
 
 def test_regrade_flag_is_forwarded_to_trials(monkeypatch):
     monkeypatch.setattr(A, "one", Mock(return_value="cached"))
-    monkeypatch.setattr(A, "export", lambda: None)
+    monkeypatch.setattr(A, "export", lambda *args, **kwargs: None)
     monkeypatch.setattr("sys.argv", ["run", "--configs", "luna-low", "--tasks", "t1", "--repeats", "1", "--lanes", "1", "--regrade"])
     A.main()
     A.one.assert_called_once_with("luna-low", "t1", 1, 1, regrade=True)
