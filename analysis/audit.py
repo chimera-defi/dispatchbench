@@ -135,7 +135,9 @@ def main():
     # Tooltip wrappers preserve the original catalog cell text and values.
     catalog_page = re.sub(r'<(abbr|tspan) class="notation-use"[^>]*>(.*?)</\1>', r'\2', page)
     for e in dataset.catalog_rows(ds):  # ... and the page shows every registry entry with its dataset numbers
-        cell = f">{html.escape(e['display'])}</td><td>{html.escape(e['what'])}</td><td>{e['passes']}/{e['n']}</td>"
+        mark = (f"{e['task_complete']}/{e['n']} complete ({e['hidden_pass']}/{e['n']} hidden)"
+                if e["rule"] == dataset.RULE_COMPLETE else f"{e['passes']}/{e['n']}")
+        cell = f">{html.escape(e['display'])}</td><td>{html.escape(e['what'])}</td><td>{mark}</td>"
         if cell not in catalog_page: fails.append(f"page: {e['id']} is missing from the page's Everything we tried section, or its pass count differs from the dataset")
     checked += 1
 

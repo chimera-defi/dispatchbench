@@ -22,7 +22,7 @@ Repository tasks use agent CLIs, with code execution and retries.
 
 Main ladder: {{n_problems}} problems, each attempted {{repeats}} times per config.
 
-Total spend, by kind: Claude {{claude_usd}} (CLI-reported), Codex {{codex_usd}} (list-price proxy), Grok {{grok_cli_usd}} (CLI-reported), plus Claude pilot and appendix arms {{claude_aux_usd}}.
+Total spend, by kind: Claude {{claude_total_usd}} (CLI-reported), Codex {{codex_total_usd}} (list-price proxy), Grok {{grok_cli_usd}} (CLI-reported). Includes pilot and appendix arms: Claude {{claude_aux_usd}}, Codex {{codex_aux_usd}} ({{codex_pilot_usd}} pilot, {{codex_appendix_usd}} appendix and trim).
 
 ## How to read it
 

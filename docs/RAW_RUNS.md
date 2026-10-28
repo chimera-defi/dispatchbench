@@ -69,7 +69,7 @@ Their hashes hold only for the commit you read. Regenerate this index after rebu
 
 | File | SHA-256 |
 |---|---|
-| [results/manifest.json](../results/manifest.json) | `39069a2fc17e2aea7475df59a44ce9d708762455bf0b030e9d6770ea1ee62024` |
+| [results/manifest.json](../results/manifest.json) | `982f487472ce570d2b27010dd1be7bfe8c224ded1baaa1907c999bb16ca4474b` |
 | [results/prices.json](../results/prices.json) | `f215215ae059ffe9eaaa7d907fe844246d72fa2af96ee242793f290d0514992c` |
 | [results/agentic_tests.json](../results/agentic_tests.json) | `bbf0dda405ca67a8da3139325b59fdd780073888359b54382adb739bddada3b5` |
 | [results/quality.jsonl](../results/quality.jsonl) | `67a5f24651a2366f5f37ead0250d9eb59131ab37c76c85e533b5e76eec8ea747` |
