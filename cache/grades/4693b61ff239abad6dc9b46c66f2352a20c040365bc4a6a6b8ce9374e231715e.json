@@ -1,0 +1,1 @@
+{"outcome": "crash", "detail": "small cases: crash:rc=1  line 139, in format_exception\n    te = TracebackException(type(value), value, tb, limit=limit, compact=True)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nMemoryError"}

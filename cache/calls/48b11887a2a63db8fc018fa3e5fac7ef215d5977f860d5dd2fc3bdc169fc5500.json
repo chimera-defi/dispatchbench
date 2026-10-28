@@ -1,0 +1,23 @@
+{
+ "key": "48b11887a2a63db8fc018fa3e5fac7ef215d5977f860d5dd2fc3bdc169fc5500",
+ "ts": "2026-10-28T01:27:21+00:00",
+ "phase": "exploratory",
+ "config": "devin16slow-default",
+ "cli": "devin",
+ "cli_version": "3000.11.228",
+ "model": "swe-1-6-slow",
+ "effort": "default",
+ "problem": "p07_weighted_distance_sums",
+ "repeat": 1,
+ "lanes": 2,
+ "prompt_sha": "d98e731ec858",
+ "wall_s": 9.417994574003387,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef weighted_distance_sums(n: int, edges: list[list[int]], w: list[int]) -> list[int]:\n    from collections import deque\n    \n    # Build adjacency list\n    adj = [[] for _ in range(n)]\n    for u, v in edges:\n        adj[u].append(v)\n        adj[v].append(u)\n    \n    # subtree_weight[i] = sum of weights in subtree rooted at i (when parent is p)\n    subtree_weight = [0] * n\n    parent = [-1] * n\n    \n    # First DFS: compute subtree weights and S(0)\n    stack = [(0, -1, 0)]  # (node, parent, state) state 0 = pre, 1 = post\n    order = []\n    \n    while stack:\n        node, par, state = stack.pop()\n        if state == 0:\n            parent[node] = par\n            subtree_weight[node] = w[node]\n            stack.append((node, par, 1))\n            for nei in adj[node]:\n                if nei != par:\n                    stack.append((nei, node, 0))\n        else:\n            for nei in adj[node]:\n                if nei != par:\n                    subtree_weight[node] += subtree_weight[nei]\n    \n    total_weight = subtree_weight[0]\n    \n    # Compute S(0) by doing another DFS\n    S = [0] * n\n    stack = [(0, -1, 0)]  # (node, parent, dist)\n    while stack:\n        node, par, dist = stack.pop()\n        S[0] += w[node] * dist\n        for nei in adj[node]:\n            if nei != par:\n                stack.append((nei, node, dist + 1))\n    \n    # Second DFS: compute S for all nodes using rerooting\n    stack = [0]\n    parent[0] = -2  # mark as visited\n    while stack:\n        node = stack.pop()\n        for nei in adj[node]:\n            if parent[nei] == -1:\n                parent[nei] = node\n                # When moving from node to nei:\n                # - nodes in nei's subtree get 1 closer: subtract subtree_weight[nei]\n                # - other nodes get 1 farther: add (total_weight - subtree_weight[nei])\n                S[nei] = S[node] + total_weight - 2 * subtree_weight[nei]\n                stack.append(nei)\n    \n    return S\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}
