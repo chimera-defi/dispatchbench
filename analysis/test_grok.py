@@ -378,9 +378,11 @@ OLD_GROK_CLAIMS = (
 # Digests include every byte outside Grok. Re-pinned 2026-10-28 after Grok-only changes outside the section: the shared
 # #results/#grok table CSS, the Grok marker shape, the speed chart axis and Grok columns in the fail grid.
 # Re-pinned 2026-10-28: everything outside the Grok section changed with the Terra rows (tables, charts, Interesting, equivalents).
+# Re-pinned 2026-10-28 for Commit A: Devin rows (tables, fail grid, rung chart, heatmap, catalog), the share-card meta tags in
+# the page head, and the relabelled pareto chart labels. The Grok repository-tasks subsection is unchanged.
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': '06086a0e977102e9b71ee24b293cec8134cb0a869a38dd436e2823ce672ff1c9',
-    'docs/REPORT.md': '6edb98036abf18445b65a972ccda1334912a33fef8b04ca62c890d708ee53b16',
+    'results/report/page.html': '8593b7f1ed551d664899fa9f33e189748924684fe19502a861419d24e103d00f',
+    'docs/REPORT.md': '37a8923c5c363263bdafd03f87c8c5f136ad617ce0807fcf3a6498542ba65565',
 }
 
 

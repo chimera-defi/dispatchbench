@@ -147,14 +147,14 @@ def _row(src, name, st, rr):
             "misses": n - k, "ci95_plot": ci or ([0.05 ** (1 / len(cells)), 1.0] if k == n else [0.0, 0.0]),
             "usd_saved_per_pass": round((spend - sc - sg) / k, 6) if k and complete else None,
             "usd_per_1k_tokens": (1000 * round(spend / n, 6) / (round(statistics.mean(x["in"] or 0 for x in rr)) + round(statistics.mean(x["out"] or 0 for x in rr)))) if complete and any((x["in"] or 0) + (x["out"] or 0) for x in rr) else None,
-            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "measured" if summarize.measured(rr[0]) else "proxy"}
+            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "unmetered" if rr[0]["cli"] == "devin" else "measured" if summarize.measured(rr[0]) else "proxy"}
 
 
 def _base():
     groups = defaultdict(list)
     for src, name, st, x in _rows(): groups[(src, name, st)].append(x)
     rows = [_row(src, name, st, rr) for (src, name, st), rr in groups.items()]
-    need(all(not r["unknown_usd"] for r in rows), "every table row has complete measured or proxy costs")
+    need(all(not r["unknown_usd"] or r["config"] in configs.DEVIN_CONFIGS for r in rows), "every table row (except the Devin free tier, which reports no tokens or cost) has complete measured or proxy costs")
     allr = defaultdict(list)
     for (src, name, st), rr in groups.items():
         if src == "main" and st in ALL_RUN_SETS: allr[(src, name)] += rr
@@ -334,7 +334,7 @@ def fairness_facts():
 def _facts(s, arms):
     F = Facts(); cfg, ex, ag, hard = s["configs"], s["exploratory"], s["agentic"], s["hard"]
     rows = summarize.function_rows(); agent = summarize.agentic_rows(); main_rows = [r for r in rows if r["phase"] == "main"]
-    every = {**cfg, **{c: v for c, v in ex.items() if c not in configs.ONE_REPEAT}}  # one-repeat extras are tables-only
+    every = {**cfg, **{c: v for c, v in ex.items() if c not in configs.ONE_REPEAT + configs.DEVIN_CONFIGS}}  # one-repeat extras are tables-only; Devin has 1 repeat and no $
     nprob = len(s["problems"]); ntask = len(next(iter(ag.values()))["by_task"])
     F.update(n_ladder_configs=str(len(every)), n_problems=str(nprob), n_tasks=str(ntask), n_configs=str(len(cfg)), n_l7=str(len({p for v in hard.values() for p in v["by_problem"]})),
              repeats=str(cfg["haiku-low"]["n"] // nprob), n_calls=str(cfg["haiku-low"]["n"]), n_all_problems=str(nprob + len({p for v in hard.values() for p in v["by_problem"]})),
@@ -344,7 +344,7 @@ def _facts(s, arms):
     # Models and versions: one CLI version per vendor across the function track.
     by_cli = defaultdict(set)
     for r in rows:
-        if r["config"] not in configs.GROK_CONFIGS and not r["config"].startswith("terra"): by_cli[r["cli"], r["cli_version"]].add(r["model"])
+        if r["config"] not in configs.GROK_CONFIGS and not r["config"].startswith("terra") and r["cli"] != "devin": by_cli[r["cli"], r["cli_version"]].add(r["model"])
     need(len({cli for cli, _ in by_cli}) == len(by_cli) == 2, "one CLI version per vendor")
     vers = dict(by_cli)
     F["versions_claude"] = next(f"Main bench, Claude Code {v}: {', '.join(sorted(m))}." for (c, v), m in vers.items() if c == "claude")
@@ -817,8 +817,8 @@ def _tables(s, arms):
                                     f"{v['latency_s']['p90']:.1f}", ("~" if v["cost_kind"] == "proxy" else "") + usd(v["usd_total"])]
                                    for c, v in sorted({**cfg, **ex}.items(), key=lambda pair: configs.low_context(pair[0]))])
     T["tokens"] = md_table(["config", "mean input", "of which cached", "mean output", "of which reasoning", "$ per 1k tokens"],
-                           [[DISP(c) + (" †" if c in ex else ""), n(v["tokens_mean"]["in_tok"]), n(v["tokens_mean"]["cached_tok"]), n(v["tokens_mean"]["out_tok"]),
-                             n(v["tokens_mean"]["reasoning_tok"]), usd(v["usd_per_1k_tokens"])]
+                           [[DISP(c) + (" †" if c in ex else "")] + (["–"] * 5 if v["cost_kind"] == "unmetered" else [n(v["tokens_mean"]["in_tok"]), n(v["tokens_mean"]["cached_tok"]), n(v["tokens_mean"]["out_tok"]),
+                             n(v["tokens_mean"]["reasoning_tok"]), usd(v["usd_per_1k_tokens"])])
                             for c, v in {**cfg, **ex}.items()])
     from bench.trim_probe import LEVELS
     fl = s["trim"]["floor"]; names = {"base": "stock harness", "nodoc": "+ no project docs", "noctx": "+ no env/permission context", "nofeat": "+ tool features off",
@@ -991,11 +991,11 @@ def _project(ds, summary):
     for block, source, set_ in (("configs", "main", "main ladder"), ("exploratory", "main", "main ladder"),
                                 ("hard", "main", "L7 set"), ("agentic", "agentic", "repo tasks"), ("grok", "main", "partial ladder")):
         for c, v in summary.get(block, {}).items():
-            r = get(ds, c, "partial ladder" if block == "exploratory" and c in configs.ONE_REPEAT else set_, source)
+            r = get(ds, c, "partial ladder" if block == "exploratory" and c in configs.ONE_REPEAT + configs.DEVIN_CONFIGS else set_, source)
             r.update({k: v[k] for k in ("cli", "model", "effort", "outcomes", "breaking_point") if k in v})
             v.update({"n": r["n"], "passes": r["passes"], "pass_at_1": r["pass_rate"], "misses": r["misses"],
                       "ci95": r["ci95"] or [r["pass_rate"], r["pass_rate"]], "ci95_plot": r["ci95_plot"],
-                      "usd_per_pass": r["usd_per_pass"], "usd_text": usd(r["usd_per_pass"]), "usd_per_call": r["usd_per_call"], "usd_total": r["spend"],
+                      "usd_per_pass": r["usd_per_pass"], "usd_text": usd(r["usd_per_pass"]), "usd_per_call": r["usd_per_call"], "usd_total": None if r["cost_kind"] == "unmetered" else r["spend"],
                       "claude_usd_per_pass": r["claude_usd_per_pass"], "usd_saved_per_pass": r["usd_saved_per_pass"],
                       "usd_per_1k_tokens": r["usd_per_1k_tokens"], "by_group": r["by_group"],
                       "input_floor": r["input_floor"], "cost_kind": r["cost_kind"],
@@ -1281,7 +1281,7 @@ def build(summary=None):
                     "fast_mode_multiplier": json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"],
                     "host_agents_md": HOST_AGENTS_MD, "min_pass": MIN_PASS,
                     "xor_time_bound": re.search(r"0 <= t <= ([^`]+)", xor_statement).group(1).replace("**", "^"),
-                    "usd_ticks": _currency_ticks([v["usd_per_pass"] for v in {**s["configs"], **s["exploratory"]}.values()])}
+                    "usd_ticks": _currency_ticks([v["usd_per_pass"] for v in {**s["configs"], **s["exploratory"]}.values() if v["usd_per_pass"] is not None])}
     s["design"] = ds["design"]
     ds["categories"] = {cat: {"n_configs": len(rr), "spend": sum(r["spend"] for r in rr)}
                         for cat in configs.CATEGORIES
@@ -1324,10 +1324,45 @@ def build(summary=None):
         ds["facts"]["grok_not_run"] = (
             (f"{', '.join(short)} covers {sorted(s['grok'][short[0]]['by_problem'])[0][:3]}–{sorted(s['grok'][short[0]]['by_problem'])[-1][:3]} only, "
              "so its cells for the other problems are dashes. ") if short else "") + "A dash means no attempt, not a failure."
+    _devin(ds, s)
     _equivalents(ds)
     _interesting(ds)
     method_appendix(ds)
     return ds
+
+
+def _devin(ds, s):
+    """The Devin free-tier lane (PLAN.md deviation 24): facts and one table. It has no token or cost data, so it never gets a $ per pass."""
+    F, lane = ds["facts"], {c: v for c, v in s["exploratory"].items() if c in configs.DEVIN_CONFIGS}
+    F["devin_group"] = configs.DEVIN_GROUP
+    if not lane: return
+    c = next(iter(lane)); v = lane[c]
+    rows = [r for r in summarize.function_rows() if r["config"] == c]
+    plan = open(os.path.join(ROOT, "PLAN.md")).read()
+    need(configs.DEVIN_UPGRADE_ERROR in plan and f"{configs.DEVIN_STAGE2_MIN}/12" in plan and v["model"] in plan, "PLAN.md deviation 24 holds the Devin error text, the stage-2 bar and the model")
+    need(v["n"] == len(s["problems"]) == len(rows) and v["usd_per_pass"] is None and v["cost_kind"] == "unmetered", "Devin ran each problem once and has no $")
+    by = {}
+    for r in rows: by.setdefault(r["outcome"], []).append(r["problem"])
+    names = lambda oc: ", ".join(pshort(p) for p in sorted(by.get(oc, []))) or "none"
+    F["devin_k"], F["devin_n"] = str(v["passes"]), str(v["n"])
+    F["devin_median_s"] = f'{v["latency_s"]["median"]:.1f}'
+    F["devin_model"] = v["model"]
+    F["devin_error"] = configs.DEVIN_UPGRADE_ERROR
+    F["devin_stage2_min"] = str(configs.DEVIN_STAGE2_MIN)
+    F["devin_lead"] = (f"Devin ran each of the {v['n']} main-ladder problems once on {v['model']}. It passed {v['passes']}/{v['n']} (pass rate {pct(v['pass_at_1'])}), "
+                       f"with a median {F['devin_median_s']} s per call. Timeouts: {names('timeout')}. Wrong answers: {names('wrong')}. Crashes: {names('crash')}. "
+                       "It reports no tokens and no cost, so it has no $ per pass and appears on no $ chart, in no Winner pick and on no best-trade-offs line.")
+    F["devin_why"] = (f"Only {v['model']} ran. The account is on the free tier, and every other Devin-native model (adaptive, swe-2-medium, swe-2-high, swe-2-max and the "
+                      f"-lightning variants) returned exactly: {configs.DEVIN_UPGRADE_ERROR}")
+    F["devin_bypass"] = ("The rows bypass devin-delegate, which has no model passthrough, wraps the prompt in an envelope, falls back to Codex on failure, "
+                         "injects auto-context and caches results. The bench called the devin CLI directly in an empty directory, in auto permission mode, one repeat.")
+    F["devin_stage2"] = (f"Stage 2 (repeats 2 to 5) needed at least {configs.DEVIN_STAGE2_MIN} of {v['n']} on stage 1. It got {v['passes']}, so it did not run.")
+    F["devin_verdict"] = "Verdict: not a delegate on the free tier."
+    outcome = {r["problem"]: r["outcome"] for r in rows}
+    ds["tables"]["devin_reach"] = md_table(
+        ["rung", "passed", "what happened"],
+        [[g, f"{r['passed']}/{r['n']}", ", ".join(f"{pshort(p)} {outcome[p]}" for p in sorted(s["problems"]) if f"L{s['problems'][p]['rung']}" == g and outcome[p] != "pass") or "all passed"]
+         for g, r in v["by_rung"].items()])
 
 
 def view(ds):

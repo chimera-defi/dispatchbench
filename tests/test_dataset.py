@@ -19,8 +19,10 @@ def test_keys_unique_and_registered(ds):
 def test_matches_summary(ds):
     s = json.load(open(os.path.join(RES, "summary.json")))
     for c, v in {**s["configs"], **(s.get("exploratory") or {})}.items():
-        r = dataset.get(ds, c, "partial ladder" if c in configs.ONE_REPEAT else "main ladder")
-        assert r["n"] == v["n"] and abs(r["spend"] - v["usd_total"]) < 1e-3, c
+        r = dataset.get(ds, c, "partial ladder" if c in configs.ONE_REPEAT + configs.DEVIN_CONFIGS else "main ladder")
+        # An unmetered config (Devin free tier) has no bill: the summary says None and the dataset books $0, never a guess.
+        want = 0 if v["usd_total"] is None and c in configs.DEVIN_CONFIGS else v["usd_total"]
+        assert r["n"] == v["n"] and abs(r["spend"] - want) < 1e-3, c
 
 
 def test_all_runs_pools_only_function_sets(ds):

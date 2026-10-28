@@ -1,7 +1,7 @@
 <header class="head">
 <p class="headlinks"><a href="https://chimericlabs.xyz/">← Chimeric Labs</a><a href="https://github.com/chimera-defi/dispatchbench">Source on GitHub</a></p>
 <h1>DispatchBench: which model should a coding task go to?</h1>
-<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#pareto">Cost vs accuracy</a><a href="#results">Results</a><a href="#grok">Grok</a><a href="#method">How it was run</a><a href="#fail">Where they fail</a><a href="#tokens">Baseline input tokens</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#limits">Limitations</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#interesting">Interesting</a><a href="#equiv">Codex vs Claude</a></nav>
+<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#pareto">Cost vs accuracy</a><a href="#results">Results</a><a href="#grok">Grok and Devin</a><a href="#method">How it was run</a><a href="#fail">Where they fail</a><a href="#tokens">Baseline input tokens</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#limits">Limitations</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#interesting">Interesting</a><a href="#equiv">Codex vs Claude</a></nav>
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
@@ -106,7 +106,7 @@
 </details>
 </section>
 <section id="grok">
-<h2><span class="num"></span>Grok</h2>
+<h2><span class="num"></span>Grok and Devin</h2>
 {{table:grok_lead}}
 <h3>Where does Grok get to?</h3>
 {{table:grok_full_reach}}
@@ -136,6 +136,15 @@
 <h3>First run: was Grok better at anything?</h3>
 {{table:grok_verdict}}
 {{table:grok_repository}}
+<h3 id="devin">Devin on the free tier</h3>
+<p>{{devin_lead}}</p>
+{{table:devin_reach}}
+<ul class="tight small">
+<li>{{devin_why}}</li>
+<li>{{devin_bypass}}</li>
+<li>{{devin_stage2}}</li>
+</ul>
+<p><b>{{devin_verdict}}</b> The Results table and the failure grid list it as {{devin_group}}.</p>
 {{w_grok_catalog}}
 </section>
 <section class="method" id="method">

@@ -47,6 +47,7 @@ report:              ## render existing results; grading/export is explicit to p
 	$(PY) -m analysis.luna_rescue > results/report/luna_rescue.md
 	$(PY) -m analysis.report
 	$(PY) -m analysis.raw_runs
+	$(PY) -m analysis.og
 
 audit:               ## fail if any committed number, table, chart, README or page differs from what the data give
 	$(PY) -m analysis.audit

@@ -20,6 +20,7 @@ The main run was on 2026-10-22: $2.46 of Claude CLI-reported spend (function + a
 | sol61-medium | 97% (58/60) | 87%–100% | 22.6 | 36.2 | $0.015 | $0.87 | proxy |
 | astra-medium † | 100% (60/60) | ≥78% (all passed) | 20.9 | 35.6 | $0.075 | $4.52 | proxy |
 | astra-medium ⚡ † | 100% (60/60) | ≥78% (all passed) | 9.9 | 13.6 | $0.15 | $9.12 | proxy |
+| devin16slow-default † | 50% (6/12) | 25%–75% | 10.5 | 15.8 | – | – | unmetered |
 | haiku-high † | 100% (60/60) | ≥78% (all passed) | 14.7 | 37.6 | $0.0028 | $0.17 | measured |
 | luna-high † | 92% (55/60) | 82%–100% | 12.2 | 22.9 | $0.0010 | $0.058 | proxy |
 | luna-low-bare † | 73% (44/60) | 52%–92% | 6.8 | 11.1 | $0.00080 | $0.035 | proxy |
@@ -288,6 +289,7 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 | sol61-medium | 15,380 | 12,346 | 718 | 209 | $0.00090 |
 | astra-medium † | 15,319 | 12,207 | 639 | 127 | $0.0047 |
 | astra-medium ⚡ † | 15,316 | 12,160 | 646 | 136 | $0.0095 |
+| devin16slow-default † | – | – | – | – | – |
 | haiku-high † | 4,418 | 649 | 4,123 | 3,353 | $0.00033 |
 | luna-high † | 14,688 | 11,520 | 1,060 | 526 | $0.000061 |
 | luna-low-bare † | 6,144 | 3,255 | 528 | 0 | $0.000088 |

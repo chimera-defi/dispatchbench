@@ -10,7 +10,7 @@ FONT = "font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, 
 INK, MUTED, GRID, PLATE = "var(--fg,#1d2321)", "var(--muted,#5d6763)", "var(--line,#dde2de)", "var(--panel,#ffffff)"
 HOST_AGENTS_MD = dataset.HOST_AGENTS_MD
 BADC, WARNC = "var(--bad,#b3261e)", "var(--warn,#a86b00)"
-FAMILY = lambda c: "var(--grok,#000)" if c.startswith("grok") else "var(--claude,#b4572e)" if c.startswith("haiku") else "var(--sonnet,#2f8f7d)" if c.startswith("sonnet") else "var(--codex,#3a5bb8)"
+FAMILY = lambda c: "var(--grok,#000)" if c.startswith("grok") else "var(--devin,#c2257f)" if c.startswith("devin") else "var(--claude,#b4572e)" if c.startswith("haiku") else "var(--sonnet,#2f8f7d)" if c.startswith("sonnet") else "var(--codex,#3a5bb8)"
 
 
 # Per-label vertical offsets so neighbouring points' labels do not collide.
@@ -75,7 +75,7 @@ def pareto_chart(s, hero=False):
     if len(front) > 1:
         pts = " ".join(f"{X(cfg[c]['usd_per_pass']):.1f},{Y(cfg[c]['pass_at_1']):.1f}" for c in front)
         b.append(f"<polyline points='{pts}' fill='none' stroke='{INK}' stroke-width='1.5' stroke-dasharray='5 4'/>")
-    taken, label_boxes = [], []
+    taken, label_boxes, pending = [], [], []
     for c, v in allc.items():
         x, y = X(v["usd_per_pass"]), Y(v["pass_at_1"]); on = c in front; hollow = "-fast" in c
         taken.append((x, y))
@@ -97,12 +97,30 @@ def pareto_chart(s, hero=False):
             dy = HERO_LEFT.get(c, -10 if v["pass_at_1"] == 1 else 4)
             b.append(text(x - 10 if left else x + 10, y + dy, label, 12, "end" if left else "start", INK, "600" if pick else "normal"))
             continue
-        lx, ly = (x - 10 if right else x + 10), y + LABEL_DY.get(c, -8)
-        anchor = "end" if right else "start"
-        b.append(text(lx, ly, label, 11, anchor, MUTED if hollow else INK))
+        pending.append((c, x, y, right, label, hollow, col, on))
+    # Labels go down after every mark is known. Each takes its preferred spot, else the nearest free one (a leader joins a
+    # moved label to its mark); no label box may touch another label box or a mark.
+    for c, x, y, right, label, hollow, col, on in sorted(pending, key=lambda r: (not r[7], r[2], r[1])):
         tw = 6.4 * len(label)
-        left = lx - tw if anchor == "end" else lx
-        label_boxes.append((left, ly - 12, left + tw, ly + 3))
+        pref = LABEL_DY.get(c, -8)
+        spot = None
+        for dy in [pref] + [d for k in range(1, 26) for d in (pref - 14 * k, pref + 14 * k)]:
+            for side in ((right, not right) if dy == pref else (right, not right)):
+                lx, ly = (x - 10 if side else x + 10), y + dy
+                left = lx - tw if side else lx
+                rect = (left, ly - 12, left + tw, ly + 3)
+                if rect[0] < L or rect[2] > W - 6 or rect[1] < 30 or rect[3] > H - B + 4: continue
+                if any(not (rect[2] < q[0] or rect[0] > q[2] or rect[3] < q[1] or rect[1] > q[3]) for q in label_boxes): continue
+                if any(math.hypot(cx - x, cy - y) > 1 and rect[0] < cx + 8 and rect[2] > cx - 8 and rect[1] < cy + 8 and rect[3] > cy - 8 for cx, cy in taken): continue
+                spot = (lx, ly, "end" if side else "start", rect); break
+            if spot: break
+        if spot is None:
+            spot = (x + 10, y + pref, "start", (x + 10, y + pref - 12, x + 10 + tw, y + pref + 3))
+        lx, ly, anchor, rect = spot
+        label_boxes.append(rect)
+        if abs(ly - y) >= 20:
+            b.append(f"<line x1='{x:.1f}' x2='{lx:.1f}' y1='{y + (6 if ly > y else -6):.1f}' y2='{ly + (-3 if ly > y else 3):.1f}' stroke='{col}' stroke-width='1' opacity='0.6'/>")
+        b.append(text(lx, ly, label, 11, anchor, MUTED if hollow else INK))
     for c, v in grok.items():
         x, y = X(v["usd_per_pass"]), Y(v["pass_at_1"])
         step = 0
@@ -240,6 +258,9 @@ def rung_rows(s, ds=None):
     keep = list(s["configs"]) + [c for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex]  # fast mode beside its default tier
     by = {r["config"]: r["by_rung"] for r in ds["rows"] if r["source"] == "main" and r["set"] == "main ladder"}
     rows = {c: {g: tuple(v) for g, v in by[c].items()} for c in keep}
+    for r in ds["rows"]:  # Devin free tier: 1 repeat, so a partial ladder; shown here for pass rates, never for $
+        if r["source"] == "main" and r["set"] == "partial ladder" and r["config"] in configs.DEVIN_CONFIGS:
+            rows[r["config"]] = {g: tuple(v) for g, v in r["by_rung"].items()}
     return rows, sorted({g for r in rows.values() for g in r}, key=lambda g: int(g[1:]))
 
 
@@ -248,7 +269,7 @@ def rung_chart(s, ds=None):
     each cell is passes out of the attempts on that rung. Perfect cells stay plain, so the misses stand out."""
     from analysis.page import ORDER, config_marker  # lazy: page imports this module
     cfg, rungs = rung_rows(s, ds)
-    names = sorted(cfg, key=lambda c: ORDER.index(c) if c in ORDER else len(ORDER))
+    names = sorted(cfg, key=lambda c: ORDER.index(c) if c in ORDER else len(ORDER))  # Devin last: it is not in ORDER
     L, T, cw, rh = 190, 270, 90, 30
     W = L + len(rungs) * cw + 12
     H = T + rh * len(names) + 40
@@ -283,12 +304,14 @@ def rung_chart(s, ds=None):
 def heatmap(s):
     """Main-run configs first, then exploratory ones (muted headers, after a gap); a dash where a config did not run a problem."""
     ex = {c: v for c, v in (s.get("exploratory") or {}).items() if c not in configs.CHART_HIDDEN}
-    cols = [(c, {p: v[c] for p, v in s["problems"].items()}, False) for c in s["configs"]] + [(c, v["by_problem"], True) for c, v in ex.items()]
+    dv = {c: v for c, v in (s.get("exploratory") or {}).items() if c in configs.DEVIN_CONFIGS}  # 1 repeat: cells are 0 or 1 of 1
+    cols = [(c, {p: v[c] for p, v in s["problems"].items()}, False) for c in s["configs"]] + [(c, v["by_problem"], True) for c, v in ex.items()] \
+        + [(c, v["by_problem"], True) for c, v in dv.items()]
     probs = sorted(s["problems"], key=lambda q: (s["problems"][q]["rung"], q)); cw, ch, L, T, gap = 50, 24, 250, 130, 14
     X = lambda j: L + j * cw + (gap if cols[j][2] else 0)
     W, H = X(len(cols) - 1) + cw + 20, T + ch * len(probs) + 40
     b = [text(12, 24, "Passes out of 5 per problem and config", 14, weight="600"),
-         text(12, 42, "Main ladder, p01–p12, rungs L1–L6 (2 per rung). Left: main run. Right, muted: exploratory configs; ⚡ = fast mode.", 11, fill=MUTED)]
+         text(12, 42, "Main ladder, p01–p12, rungs L1–L6 (2 per rung). Left: main run. Right, muted: exploratory configs; ⚡ = fast mode. Last column: Devin, 1 try per problem (0 or 1).", 11, fill=MUTED)]
     for j, (c, _, x) in enumerate(cols):  # rotated headers so every config fits
         b.append(text(X(j) + cw / 2 + 4, T - 8, DISP(c), 11, "start", MUTED if x else INK, rotate=-55))
     for i, p in enumerate(probs):
@@ -298,7 +321,8 @@ def heatmap(s):
             k = bp.get(p)
             if k is None:
                 b.append(text(X(j) + cw / 2, y + ch / 2 + 4, "–", 11, "middle", MUTED)); continue
-            fill, op = ("var(--bad,#b3261e)", 0.35) if k == 0 else ("var(--good,#1c7c3c)", 0.1 + 0.09 * k)
+            top = 1 if c in dv else 5  # Devin's single try is a full-strength cell
+            fill, op = ("var(--bad,#b3261e)", 0.35) if k == 0 else ("var(--good,#1c7c3c)", 0.1 + 0.09 * k * 5 / top)
             b.append(f"<rect x='{X(j) + 1}' y='{y + 1}' width='{cw - 2}' height='{ch - 2}' fill='{fill}' opacity='{op:.2f}'/>")
             b.append(text(X(j) + cw / 2, y + ch / 2 + 4, k, 11, "middle", INK))
     return svg(W, H, b)
