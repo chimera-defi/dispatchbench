@@ -180,7 +180,7 @@ def render(used_facts=None):
     shell = open(os.path.join(PAGE_DIR, "shell.html")).read()
     script = open(os.path.join(PAGE_DIR, "sort.js")).read().strip().replace("__RESCUE_SET_LABEL__", json.dumps(configs.set_label("rescue set")))
     block = data_block(ds, s, used_facts, T, page_tmpl, chart_bodies, W)
-    page = shell.replace("__CSS__", open(os.path.join(PAGE_DIR, "style.css")).read().strip()).replace("__OG_DESC__", html.escape(og.takeaway(ds["facts"]))).replace("__BODY__", body.replace("__DATA__", block)).replace("__JS__", script)
+    page = shell.replace("__CSS__", pagew.styles()).replace("__OG_DESC__", html.escape(og.takeaway(ds["facts"]))).replace("__BODY__", body.replace("__DATA__", block)).replace("__JS__", script)
     return readme, report, page
 
 

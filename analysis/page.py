@@ -20,6 +20,13 @@ FAM = lambda c: "var(--grok)" if c.startswith("grok") else "var(--devin)" if c.s
 NS = 'xmlns="http://www.w3.org/2000/svg"'
 
 
+def styles():
+    """Bundle CSS in cascade order for the single-file deployment."""
+    page_dir = os.path.join(os.path.dirname(__file__), "..", "docs", "page")
+    return "\n".join(open(os.path.join(page_dir, name)).read().strip()
+                     for name in ("tokens.css", "topbar.css", "style.css"))
+
+
 def every(s):
     """Every config the $ charts and tables may plot. The Devin free tier reports no tokens or cost, so it is left out (see devin(s))."""
     return {**s["configs"], **{c: v for c, v in s["exploratory"].items() if c not in configs.DEVIN_CONFIGS}}

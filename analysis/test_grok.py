@@ -402,8 +402,9 @@ OLD_GROK_CLAIMS = (
 # I: re-pinned for the v6 explorer and Fable theme; old plot data and visible
 # facts are separately compared with main 3561692 in test_pareto_explorer.py.
 # S1-S4: theme, topbar, explorer fixes
+# S5: inline tokens/topbar CSS
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': 'c89c90bab33ac348ff51aa1f9527f317d25b6fa4e34e66a71b591651453ce2db',
+    'results/report/page.html': '98a50c33d91a148387ac6d572f86e8442ccaa03709d01b76288aae99b8c8172b',
     'docs/REPORT.md': 'd3e3893c66e2f4ec06f26e2adcfbf82a9bac634293b2e555f252666000a1142e',
 }
 
