@@ -163,7 +163,7 @@
 </details>
 <ul class="tight small">
 <li>Each config tries each problem {{repeats}} times, tools off.</li>
-<li>Total spend, by kind: Claude {{claude_usd}} (CLI-reported), Codex {{codex_usd}} (list-price proxy), Grok {{grok_cli_usd}} (CLI-reported), plus Claude pilot and appendix arms {{claude_aux_usd}}.</li>
+<li>Total spend, by kind: Claude {{claude_total_usd}} (CLI-reported), Codex {{codex_total_usd}} (list-price proxy), Grok {{grok_cli_usd}} (CLI-reported). Includes pilot and appendix arms: Claude {{claude_aux_usd}}, Codex {{codex_aux_usd}} ({{codex_pilot_usd}} pilot, {{codex_appendix_usd}} appendix and trim).</li>
 </ul>
 <details><summary>📐 How to read this data: sets, tests, prices, intervals</summary>
 <ul class="tight small">
@@ -312,7 +312,7 @@
 <li>The problems ship with this repo, so later models can read them.</li>
 <li>The {{ci_level}} range resamples whole problems, since tries on the same problem are related.</li>
 <li>L7 has {{n_l7}} problems. Perfect score: {{l7_bound}}. That only shows a pass rate of at least {{l7_lo}}.</li>
-<li>Repo tasks: luna-low completes {{ag_mark_luna_iso}} in the clean-home rerun and every other config completes every run. With {{ag_n}} tasks they cannot rule out skill differences.</li>
+<li>Repo tasks: luna-low: {{ag_mark_luna_iso}} in the clean-home rerun and every other config completes every run. With {{n_tasks}} tasks × {{agent_repeats}} repeats = {{ag_n}} runs per config they cannot rule out skill differences.</li>
 <li>Paired gaps of {{nosep_gap}} points or less showed no separation; {{sep_gap}}-point gaps did.</li>
 <li><code>PLAN.md</code> was committed before the main run; a same-day pilot came first.</li>
 <li>{{n_exploratory}} configs were added after seeing the main-run results (†). These include the haiku-high and sol61-high picks:<ul>{{exploratory_items}}</ul></li>

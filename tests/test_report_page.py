@@ -14,6 +14,18 @@ ROOT = Path(__file__).resolve().parents[1]
 NS = {"s": "http://www.w3.org/2000/svg"}
 
 
+def test_catalog_repo_tasks_name_both_pass_rules_and_the_cost_denominator():
+    ds = dataset.read()
+    output = configs.section("", ds, ROOT)
+    table = next(t for t in output.split("</table>") if "Repo tasks: gpt-6-luna, low" in t)
+    assert "<th>$ per complete task</th>" in table
+    row = next(r for r in table.split("</tr>") if "Repo tasks: gpt-6-luna, low" in r)
+    assert "<td>7/12 complete (12/12 hidden)</td>" in row
+    assert "passed our hidden tests" not in row
+    luna = dataset.get(ds, "luna-low", "repo tasks", "agentic")
+    assert dataset.usd(luna["spend"] / luna["task_complete"]) in row
+
+
 def test_reader_set_labels_and_complete_notation_legend():
     from html import unescape
     from html.parser import HTMLParser

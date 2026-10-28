@@ -16,7 +16,7 @@ TASKS = os.path.join(ROOT, "bench", "agentic", "tasks")
 CACHE = os.path.join(ROOT, "cache", "agentic")
 RAW = os.path.join(ROOT, "cache", "raw")
 PATCHES = os.path.join(ROOT, "cache", "agentic_patches")
-GRADER_VERSION = 3  # 3: t1_discount hidden suite rejects a bool percentage (commit G)
+GRADER_VERSIONS = {"t1_discount": 3}  # unchanged tasks keep version 2 cache identities
 OUT = os.path.join(ROOT, "results", "2026-10-22b-agentic.jsonl")
 TASK_IDS = sorted(d for d in os.listdir(TASKS) if d.startswith("t"))
 
@@ -40,13 +40,17 @@ def tree_hash(*dirs):
     return h.hexdigest()
 
 
+def grader_version(task):
+    return GRADER_VERSIONS.get(task, 2)
+
+
 def key_for(config, task, rep, legacy=False):
     cli, mid, eff = CONFIGS[config]; t = os.path.join(TASKS, task)
     dirs = [os.path.join(t, "repo"), os.path.join(t, "hidden")] + ([] if legacy else [os.path.join(t, "solution")])
     identity = {"track": "agentic", "config": config, "model": mid, "effort": eff, "cli": cli, "cli_version": cli_version(cli),
                        "flags": {"claude": CLAUDE_FLAGS, "codex": CODEX_FLAGS, "grok": GROK_FLAGS}[cli], "prompt": open(os.path.join(t, "TASK.md")).read(),
                        "task": task, "task_tree": tree_hash(*dirs), "repeat": rep}
-    if not legacy: identity["grader_version"] = GRADER_VERSION
+    if not legacy: identity["grader_version"] = grader_version(task)
     if cli == "codex": identity["codex_home"] = "isolated"
     blob = json.dumps(identity, sort_keys=True)
     return hashlib.sha256(blob.encode()).hexdigest()
@@ -196,7 +200,7 @@ def one(config, task, rep, lanes, regrade=False):
         shutil.rmtree(w, ignore_errors=True)
     if res.get("error"):
         res["error"] = res["error"].replace(w, "<cwd>").replace(os.path.expanduser("~"), "~")
-    entry = dict(key=key, ts=datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"), track="agentic", grader_version=GRADER_VERSION, config=config, cli=cli,
+    entry = dict(key=key, ts=datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"), track="agentic", grader_version=grader_version(task), config=config, cli=cli,
                  cli_version=cli_version(cli), model=mid, effort=eff, task=task, repeat=rep, lanes=lanes, wall_s=wall, **res,
                  visible_pass=vis["ok"], visible=vis, hidden_pass=hid["ok"], hidden=hid, task_complete=vis["ok"] and hid["ok"], own_tests=own, tests_tampered=tampered,
                  diff_stat=diff[-1] if diff else "", patch=os.path.relpath(os.path.join(PATCHES, key + ".patch"), ROOT))

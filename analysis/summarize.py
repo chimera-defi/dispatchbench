@@ -250,12 +250,19 @@ def failures(rows):
     return out
 
 
+def priority_codex(r):
+    return r.get("cli", "").startswith("codex") and (r.get("service_tier") or "").startswith("priority")
+
+
 def pilot_reprice():
     """The pilot priced priority-tier Codex rows at 1.5x list; the published multiplier is 2x. Recompute both."""
     mult = json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]
-    rows = [r for r in load(PILOT) if r["cli"] == "codex" and "priority" in (r.get("service_tier") or "") and r["model"] in PRICES]
-    base = sum(cost(r) for r in rows)
-    return {"rows": len(rows), "usd_at_1_5x": round(1.5 * base, 4), "usd_at_2x": round(mult * base, 4), "multiplier_source": "results/prices.json"}
+    rows = [r for r in load(PILOT) if priority_codex(r)]
+    base = sum(list_cost(r) for r in rows)
+    # Before F, dataset._mult applied the multiplier only to phase == "pilot".
+    already = sum(r["phase"] == "pilot" for r in rows)
+    return {"rows": len(rows), "newly_multiplied_rows": len(rows) - already, "previously_multiplied_rows": already,
+            "usd_at_1_5x": round(1.5 * base, 4), "usd_at_2x": round(mult * base, 4), "multiplier_source": "results/prices.json"}
 
 
 def pilot_block():
@@ -264,8 +271,7 @@ def pilot_block():
     mult = json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]
     for c in dict.fromkeys(r["config"] for r in rows):
         rr = [r for r in rows if r["config"] == c]
-        prio = rr[0]["cli"].startswith("codex") and (rr[0].get("service_tier") or "").startswith("priority")
-        dollars = [r["cost_usd"] if r["cli"].startswith("claude") else scale(cost(r), mult if prio else 1) for r in rr]
+        dollars = [r["cost_usd"] if r["cli"].startswith("claude") else scale(cost(r), mult if priority_codex(r) else 1) for r in rr]
         out[c] = {"cli": rr[0]["cli"], "model": rr[0]["model"], "effort": rr[0]["effort"], "passes": sum(bool(r["passed"]) for r in rr), "n": len(rr),
                   "problems": len({r["problem"] for r in rr}), "service_tier": rr[0].get("service_tier"), "ladder": rr[0]["phase"] == "ladder",
                   "input_floor": min(r["in_tok"] for r in rr), "median_s": round(statistics.median(r["wall_s"] for r in rr), 2),
@@ -671,7 +677,9 @@ def tables(s):
     sp = s["spend"]
     L += ["", "## Spend", "", "Auxiliary runs and pilot excluded from the function + agentic totals.", "", f"- Claude CLI-reported cost (list basis), function + agentic only: {money(sp['claude_measured_usd'])} (function {money(sp['claude_function_usd'])}, agentic {money(sp['claude_agentic_usd'])}).",
           f"- Codex token-price estimate, function + agentic only: {money(sp['codex_proxy_usd'])}.",
-          f"- Pilot repricing: {s['pilot_reprice']['rows']} priority-tier Codex rows cost {dataset_usd(s['pilot_reprice']['usd_at_1_5x'])} at the pilot's 1.5× and {dataset_usd(s['pilot_reprice']['usd_at_2x'])} at the published 2×.", ""]
+          f"- Pilot repricing: {s['pilot_reprice']['rows']} priority rows; {s['pilot_reprice']['newly_multiplied_rows']} newly at 2× "
+          f"({s['pilot_reprice']['previously_multiplied_rows']} already multiplied). Those Codex rows cost {dataset_usd(s['pilot_reprice']['usd_at_1_5x'])} "
+          f"at the pilot's 1.5× and {dataset_usd(s['pilot_reprice']['usd_at_2x'])} at the published 2×.", ""]
     return "\n".join(L)
 
 

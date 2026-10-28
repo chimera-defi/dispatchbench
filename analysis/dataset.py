@@ -51,7 +51,7 @@ ALL_RUN_SETS = ("main ladder", "partial ladder", "extra repeats", "L7 set", "cal
 def _mult(r):
     """Fast-mode multiplier: summarize.cost already applies it to the fast configs; pilot rows carry their tier, and every
     priority-tier Codex pilot row is priced at the published multiplier (the pilot itself used 1.5x), as summarize.pilot_block does."""
-    if str(r.get("service_tier", "")).startswith("priority") and str(r.get("cli", "")).startswith("codex"):
+    if summarize.priority_codex(r):
         return json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]
     return 1
 
@@ -353,7 +353,7 @@ REGRADE = os.path.join(RES, "2026-10-28-t1-hidden-v2-regrade.jsonl")
 
 def t1_regrade():
     """Rows of the t1_discount regrade under the stricter hidden suite (bench/regrade_t1.py), no model calls."""
-    return [json.loads(l) for l in open(REGRADE)] if os.path.exists(REGRADE) else []
+    return load(REGRADE)
 
 
 def _facts(s, arms):
@@ -747,12 +747,21 @@ def _facts(s, arms):
     import glob as _glob
     gk = [r for f in sorted(_glob.glob(os.path.join(RES, "*grok*.jsonl"))) for r in load(f) if r.get("cli") == "grok"]
     F["grok_cli_usd"] = usd(sum(map(cost, gk)))
-    aux = defaultdict(float); out_rows = _rows()
+    aux = defaultdict(float); codex_aux = defaultdict(float); out_rows = _rows()
     for src_, _n, _st, r_ in out_rows:
-        if src_ in ("pilot", "pilot-agentic", "rescue", "harness-bias", "trim"): aux[src_] += r_["claude"] or 0
+        if src_ in ("pilot", "pilot-agentic", "rescue", "harness-bias", "trim"):
+            aux[src_] += r_["claude"] or 0
+            codex_aux[src_] += (r_["usd"] or 0) - (r_["claude"] or 0)
     F["claude_pilot_usd"] = usd(aux["pilot"] + aux["pilot-agentic"]); F["claude_appendix_usd"] = usd(aux["rescue"] + aux["harness-bias"] + aux["trim"])
     F["claude_aux_usd"] = usd(sum(aux.values()))
+    F["codex_pilot_usd"] = usd(codex_aux["pilot"] + codex_aux["pilot-agentic"])
+    F["codex_appendix_usd"] = usd(codex_aux["rescue"] + codex_aux["harness-bias"] + codex_aux["trim"])
+    F["codex_aux_usd"] = usd(sum(codex_aux.values()))
+    F["claude_total_usd"] = usd(sp["claude_measured_usd"] + sum(aux.values()))
+    F["codex_total_usd"] = usd(sp["codex_proxy_usd"] + sum(codex_aux.values()))
     pr_ = s["pilot_reprice"]; F["pilot_mult_used"] = "{:g}×".format(float(re.search(r"x([\d.]+) priority", next(r["cost_kind"] for r in load(os.path.join(RES, "2026-10-22-pilot.jsonl")) if "x1" in str(r.get("cost_kind")))).group(1))); F["pilot_usd_15x"] = usd(pr_["usd_at_1_5x"]); F["pilot_usd_2x"] = usd(pr_["usd_at_2x"]); F["pilot_reprice_rows"] = str(pr_["rows"])
+    F["pilot_reprice_new_rows"] = str(pr_["newly_multiplied_rows"])
+    F["pilot_reprice_already_rows"] = str(pr_["previously_multiplied_rows"])
     F["pilot_total_usd"] = usd(sum(r_["usd"] or 0 for src_, _n, _st, r_ in out_rows if src_ == "pilot"))
     for c in NEW_CODEX:
         k = "x_" + c.replace("-", "_"); e, h = ex[c], hard[c]

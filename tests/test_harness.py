@@ -221,8 +221,19 @@ def test_success_requires_all_visible_and_hidden_tests(task, monkeypatch):
 
 def test_grader_version_changes_new_cache_key(task, monkeypatch):
     key = A.key_for("luna-low", "t1", 1)
-    monkeypatch.setattr(A, "GRADER_VERSION", A.GRADER_VERSION + 1)
+    monkeypatch.setitem(A.GRADER_VERSIONS, "t1", A.grader_version("t1") + 1)
     assert A.key_for("luna-low", "t1", 1) != key
+
+
+@pytest.mark.parametrize("task_id", ["t2_cache_bugs", "t3_config_refs", "t4_retry_queue"])
+def test_unchanged_task_reuses_stored_v2_key(monkeypatch, task_id):
+    rows = map(json.loads, (Path(A.ROOT) / "results/2026-10-27-grok-agentic.jsonl").read_text().splitlines())
+    row = next(r for r in rows if r["config"] == "grok47-high" and r["task"] == task_id and r["repeat"] == 2)
+    monkeypatch.setattr(A, "cli_version", lambda cli: row["cli_version"])
+    assert row["grader_version"] == A.grader_version(task_id) == 2
+    assert A.key_for(row["config"], task_id, row["repeat"]) == row["key"]
+    monkeypatch.setitem(A.GRADER_VERSIONS, "t1_discount", A.grader_version("t1_discount") + 1)
+    assert A.key_for(row["config"], task_id, row["repeat"]) == row["key"]
 
 
 def legacy_entry(config, task):
@@ -264,7 +275,7 @@ def test_regrade_explicitly_bypasses_legacy_cache(task, monkeypatch):
     A.one("haiku-low", "t1", 1, 1, regrade=True)
     assert call.call_count == 1 and legacy.read_bytes() == before
     current = json.loads((Path(A.CACHE) / (A.key_for("haiku-low", "t1", 1) + ".json")).read_text())
-    assert current["grader_version"] == A.GRADER_VERSION and current["outcome"] == "timeout"
+    assert current["grader_version"] == A.grader_version("t1") and current["outcome"] == "timeout"
 
 
 def test_export_selects_newest_grader_for_each_trial(task, tmp_path, monkeypatch):
