@@ -1,5 +1,5 @@
 /* Source: chimera-defi/chimericlabs-llc design-system/dispatchbench/dispatchbench-theme.css
-   Pinned SHA: c56032fca7ccb5a9661c247f0d6160a576c4b637 */
+   Pinned SHA: 2109b3b149e92ca388c4392f57d9b48aa040b4fb */
 body{color:var(--color-text);font-family:var(--font-body);font-size:15px;line-height:22px}
 main{max-width:1200px;margin:0 auto;padding-inline:max(clamp(20px,5vw,72px),env(safe-area-inset-left,0px),env(safe-area-inset-right,0px))}
 h1{font-size:clamp(40px,6vw,80px);line-height:1.1;letter-spacing:-0.015em;font-weight:500}
