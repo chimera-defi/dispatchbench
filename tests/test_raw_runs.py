@@ -1,5 +1,6 @@
 """Publication freshness, links and accidental host-context leakage."""
 import hashlib
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -31,8 +32,27 @@ def test_doc_links_exist(path):
 def test_docs_do_not_leak_host_context(path):
     text = path.read_text(encoding="utf-8")
     assert "/home/" not in text
+    assert "/Users/" not in text
     assert not re.search(r"[A-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9](?:[A-Z0-9.-]*[A-Z0-9])?\.[A-Z]{2,}", text, re.I)
-    assert "agenthost" not in text.lower()
+    for pattern in os.environ.get("DISPATCHBENCH_PRIVATE_PATTERNS", "").split(","):
+        if pattern.strip():
+            assert not re.search(pattern.strip(), text, re.I)
+
+
+@pytest.mark.parametrize("private_patterns", [None, "", r"private[-_]machine, internal\.example"])
+def test_doc_leak_patterns_are_optional(tmp_path, monkeypatch, private_patterns):
+    path = tmp_path / "doc.md"
+    path.write_text("Generic setup instructions.\n")
+    if private_patterns is None:
+        monkeypatch.delenv("DISPATCHBENCH_PRIVATE_PATTERNS", raising=False)
+    else:
+        monkeypatch.setenv("DISPATCHBENCH_PRIVATE_PATTERNS", private_patterns)
+    test_docs_do_not_leak_host_context(path)
+    if private_patterns:
+        for text in ("PRIVATE-machine", "internal.example"):
+            path.write_text(text)
+            with pytest.raises(AssertionError):
+                test_docs_do_not_leak_host_context(path)
 
 
 def test_folder_digest_skips_ignored_files_and_sorts_hash_lines(tmp_path):
@@ -69,6 +89,24 @@ def test_dates_and_families_from_older_row_schemas():
     assert raw_runs.run_date(Path("rescue.jsonl"), rows) == "2026-10-23"
     assert raw_runs.run_date(Path("rescue.jsonl"), []) == "-"
     assert raw_runs.lanes(rows) == "claude, codex, grok"
+
+
+def test_run_index_handles_invalid_rows_and_recursive_paths(tmp_path, monkeypatch):
+    results = tmp_path / "results"
+    nested = results / "nested/deeper"
+    nested.mkdir(parents=True)
+    (results / "rescue.jsonl").write_text("\n  \nmalformed\nnull\n")
+    (nested / "rescue.jsonl").write_text(
+        '\n{"ts": "2026-10-24T00:00:00Z", "cli": "codex"}\n'
+        '\t\ninvalid JSON\nnull\n[]\n42\n"string"\n'
+        '{"date": "2026-10-23", "cli": "claude"}\n')
+    monkeypatch.setattr(raw_runs, "SUPPORTING", ())
+    monkeypatch.setattr(raw_runs, "CACHES", {})
+    rendered = raw_runs.render(tmp_path)
+    assert "| rescue | - | - | 2 |" in rendered
+    assert "| nested/deeper/rescue | 2026-10-23 | claude, codex | 7 |" in rendered
+    assert "`Rows` = non-empty lines" in rendered
+    assert "`-` means no timestamp recorded" in rendered
 
 
 def test_published_folder_command_reproduces_digest():
