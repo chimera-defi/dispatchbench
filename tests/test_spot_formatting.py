@@ -17,23 +17,40 @@ class Measurements(HTMLParser):
         super().__init__()
         self.tips, self.tables = [], []
         self.table = self.row = self.cell = None
+        self.table_contexts = []
+        self.section = None
+        self.details = []
+        self.summary = False
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        if tag == 'section':
+            self.section = attrs.get('id')
+        if tag == 'details':
+            self.details.append('')
+        if tag == 'summary':
+            self.summary = True
         if 'data-tip' in attrs:
             self.tips.append(attrs['data-tip'])
         if tag == 'table':
             self.table = []
+            self.table_contexts.append((self.section, tuple(self.details)))
         if tag == 'tr':
             self.row = []
         if tag in ('td', 'th'):
             self.cell = []
 
     def handle_data(self, text):
+        if self.summary:
+            self.details[-1] += text
         if self.cell is not None:
             self.cell.append(text)
 
     def handle_endtag(self, tag):
+        if tag == 'summary':
+            self.summary = False
+        if tag == 'details':
+            self.details.pop()
         if tag in ('td', 'th') and self.cell is not None:
             self.row.append(''.join(self.cell).strip())
             self.cell = None
@@ -100,33 +117,94 @@ def test_page_tooltips_and_tables_format_dataset_measurements_once():
         assert row[1] == f"{100 * v['pass_at_1']:.0f}% ({v['passes']}/{v['n']})"
         assert row[2].lstrip('~') == dataset.usd(v['usd_per_pass'])
         assert row[4] == f'{dataset.median_seconds(v):.1f}'
-    # Sweep every median column, including partial, hard, repo, pipeline and catalog
-    # rows. Each value must match a raw median for that named config/population.
-    expected = defaultdict(set)
-    for r in ds['rows']:
-        for name in (r['config'], r['display']):
-            expected[name].add(f"{r['median_s_raw']:.1f}")
-    # Same-problem comparison tables and the historical Grok population carry raw
-    # medians under their own explicit metrics; they are separate populations.
-    for key in ('grok_first', 'grok_comparison'):
-        for c, v in ds[key]['metrics'].items():
-            expected[c].add(f"{v['median_s']:.1f}")
-            expected[configs.display(c)].add(f"{v['median_s']:.1f}")
-    seen = set()
-    for table in reader.tables:
+    assert 'median 39.5 s' not in Path(report.PAGE).read_text()
+
+
+def test_page_table_medians_match_exact_populations():
+    ds = dataset.read()
+    reader = Measurements()
+    reader.feed(Path(report.PAGE).read_text())
+    # A config has several distinct populations. Keep source/set in the lookup;
+    # never accept another population's median just because the config matches.
+    ladder = {r['display']: r for r in ds['rows']
+              if r['source'] == 'main' and r['set'] in ('main ladder', 'partial ladder')}
+    rescue = {page.SHORT(name): ds['rescue'][c] for c, name in page.HARD}
+    schemas = {tuple(v['head']): key for key, v in ds['tables'].items()
+               if isinstance(v, dict) and 'median s' in v['head']}
+    fast_rows = dataset.summarize.function_rows()
+    checked = set()
+    catalog_seen = set()
+    for table, (section, details) in zip(reader.tables, reader.table_contexts):
         if not table or 'median s' not in table[0]:
             continue
-        col = table[0].index('median s')
-        name_col = table[0].index('comparable lane') if 'comparable lane' in table[0] else 0
+        head = table[0]
+        col = head.index('median s')
+        is_primary = head == ['config', 'passed', '$ per pass', 'Claude $', 'median s', 'verdict']
+        is_catalog = head[0] == 'name'
+        key = 'primary' if is_primary else 'catalog' if is_catalog else schemas[tuple(head)]
+        checked.add(key)
+        group = None
+        if is_catalog:
+            category = details[-1].split(':')[0]
+            category = {'retest pipeline': 'rescue pipeline',
+                        'Low context (prompt or tool text trimmed)': 'low context'}.get(category, category)
+            candidates = [r for r in dataset.catalog_rows(ds) if r['category'] == category
+                          and (r['config'] in configs.GROK_CONFIGS) == (section == 'grok')]
+            catalog = {r['display']: r for r in candidates}
+            assert len(catalog) == len(candidates), (section, category, candidates)
+            seen = set()
         for row in table[1:]:
-            if len(row) <= col:
+            if len(row) == 1:
+                # The primary table repeats names in separate ladder/retest groups.
+                assert is_primary, (key, row)
+                group = row[0].split(':')[0]
                 continue
-            name = row[name_col].removesuffix(' †')
-            if name in expected:
-                assert row[col] in expected[name], (name, row[col], expected[name])
+            assert len(row) == len(head), (key, row)
+            name = row[0].removesuffix(' †')
+            population = key
+            precision = 1
+            if is_catalog:
+                v = catalog[name]
+                raw = v['median_s_raw']
+                population = (v['source'], v['config'], v['set'])
                 seen.add(name)
-    assert all(configs.display(c) in seen or c in seen for c in sources)
-    assert 'median 39.5 s' not in Path(report.PAGE).read_text()
+                catalog_seen.add(population)
+            elif is_primary:
+                if group == 'Retest set':
+                    evidence = rescue[name]['metrics_from']
+                    v = dataset.get(ds, evidence['config'], evidence['set'], evidence['source'])
+                else:
+                    assert group in ('Main ladder', 'Devin'), group
+                    v = ladder[name]
+                raw = v['median_s_raw']
+                population = (v['source'], v['config'], v['set'])
+            elif key in ('grok_full_reach', 'grok_full_lanes', 'grok_reach', 'grok_equivalent_all'):
+                population = 'grok_comparison' if key.startswith('grok_full') else 'grok_first'
+                lane = row[head.index('comparable lane')] if 'comparable lane' in head else name
+                metrics = {configs.display(c): v for c, v in ds[population]['metrics'].items()}
+                raw = metrics[lane]['median_s']  # These metrics retain unrounded medians.
+            elif key == 'fastmode':
+                labels = {dataset.FM_LABEL[c].format(lo=min(v['repeats']), hi=max(v['repeats'])): c
+                          for c, v in ds['report']['fastmode'].items()}
+                c = labels[name]
+                attempts = [r['wall_s'] for r in fast_rows if r['config'] == c and r['phase'] == 'fastmode']
+                assert len(attempts) == ds['report']['fastmode'][c]['n']
+                raw = statistics.median(attempts)
+                population = ('main', c, 'fastmode')
+            elif key in ('equiv', 'equiv_back', 'equiv_all'):
+                raw = [ladder[lane]['median_s_raw'] for lane in name.split(' → ')]
+                precision = 0
+            else:
+                # Fail on new table types until their source population is explicit.
+                pytest.fail(f'Unmapped median table: {key}')
+            values = raw if isinstance(raw, list) else [raw]
+            expected = ' → '.join(f'{v:.{precision}f}' for v in values)
+            assert row[col] == expected, (key, name, population, row[col], expected)
+        if is_catalog:
+            assert seen == set(catalog), (section, category, seen, set(catalog))
+    assert checked == {'primary', 'catalog', 'grok_full_reach', 'grok_full_lanes',
+                       'grok_reach', 'grok_equivalent_all', 'fastmode', 'equiv_all'}
+    assert catalog_seen == {(r['source'], r['config'], r['set']) for r in dataset.catalog_rows(ds)}
 
 
 def test_harness_repeat_cap_fact_has_primary_provenance():
