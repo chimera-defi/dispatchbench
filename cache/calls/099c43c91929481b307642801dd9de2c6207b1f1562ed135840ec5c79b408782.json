@@ -1,0 +1,23 @@
+{
+ "key": "099c43c91929481b307642801dd9de2c6207b1f1562ed135840ec5c79b408782",
+ "ts": "2026-10-28T01:27:57+00:00",
+ "phase": "exploratory",
+ "config": "devin16slow-default",
+ "cli": "devin",
+ "cli_version": "3000.11.228",
+ "model": "swe-1-6-slow",
+ "effort": "default",
+ "problem": "p10_avoid_count",
+ "repeat": 1,
+ "lanes": 2,
+ "prompt_sha": "ae3e79b27a12",
+ "wall_s": 11.39296602102695,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef avoid_count(n: int, alphabet: str, banned: list[str]) -> int:\n    MOD = 1_000_000_007\n    \n    if n == 0:\n        return 1\n    \n    # Build Aho-Corasick automaton\n    # Each node: children dict, fail link, is_terminal\n    trie = [{'children': {}, 'fail': 0, 'terminal': False}]\n    \n    for word in banned:\n        node = 0\n        for ch in word:\n            if ch not in trie[node]['children']:\n                trie.append({'children': {}, 'fail': 0, 'terminal': False})\n                trie[node]['children'][ch] = len(trie) - 1\n            node = trie[node]['children'][ch]\n        trie[node]['terminal'] = True\n    \n    # Build failure links using BFS\n    from collections import deque\n    q = deque()\n    \n    # Initialize: children of root have fail = 0\n    for ch, child in trie[0]['children'].items():\n        trie[child]['fail'] = 0\n        q.append(child)\n    \n    while q:\n        node = q.popleft()\n        for ch, child in trie[node]['children'].items():\n            q.append(child)\n            # Follow failure links\n            fail = trie[node]['fail']\n            while fail and ch not in trie[fail]['children']:\n                fail = trie[fail]['fail']\n            trie[child]['fail'] = trie[fail]['children'].get(ch, 0)\n            # Terminal propagates through fail links\n            if trie[trie[child]['fail']]['terminal']:\n                trie[child]['terminal'] = True\n    \n    # Get safe states (non-terminal)\n    safe_states = [i for i, node in enumerate(trie) if not node['terminal']]\n    state_to_idx = {state: i for i, state in enumerate(safe_states)}\n    num_states = len(safe_states)\n    \n    if num_states == 0:\n        return 0\n    \n    # Build transition matrix\n    # mat[i][j] = number of chars that take safe state i to safe state j\n    mat = [[0] * num_states for _ in range(num_states)]\n    \n    for state in safe_states:\n        i = state_to_idx[state]\n        for ch in alphabet:\n            # Follow the automaton transition\n            next_state = state\n            while next_state and ch not in trie[next_state]['children']:\n                next_state = trie[next_state]['fail']\n            next_state = trie[next_state]['children'].get(ch, 0)\n            \n            if not trie[next_state]['terminal']:\n                j = state_to_idx[next_state]\n                mat[i][j] += 1\n    \n    # Matrix multiplication\n    def mat_mult(A, B):\n        n = len(A)\n        C = [[0] * n for _ in range(n)]\n        for i in range(n):\n            for k in range(n):\n                if A[i][k]:\n                    aik = A[i][k]\n                    for j in range(n):\n                        C[i][j] = (C[i][j] + aik * B[k][j]) % MOD\n        return C\n    \n    # Matrix exponentiation\n    def mat_pow(M, power):\n        n = len(M)\n        # Identity matrix\n        result = [[1 if i == j else 0 for j in range(n)] for i in range(n)]\n        while power:\n            if power & 1:\n                result = mat_mult(result, M)\n            M = mat_mult(M, M)\n            power >>= 1\n        return result\n    \n    # Compute M^n\n    result_mat = mat_pow(mat, n)\n    \n    # Sum of entries in row 0 (starting from initial state 0)\n    if 0 not in state_to_idx:\n        return 0\n    \n    start_row = state_to_idx[0]\n    total = sum(result_mat[start_row]) % MOD\n    return total\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

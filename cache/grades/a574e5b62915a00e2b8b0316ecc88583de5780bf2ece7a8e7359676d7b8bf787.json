@@ -1,0 +1,1 @@
+{"outcome": "crash", "detail": "small cases: crash:SyntaxError: name 'i' is used prior to nonlocal declaration (cand-s0yyj4wg.py, line 127)"}

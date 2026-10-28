@@ -1,0 +1,23 @@
+{
+ "key": "43268e2506a9be03f5b06468259704636fc45e7fd1b4203878ce551f2967108e",
+ "ts": "2026-10-28T01:28:07+00:00",
+ "phase": "exploratory",
+ "config": "devin16slow-default",
+ "cli": "devin",
+ "cli_version": "3000.11.228",
+ "model": "swe-1-6-slow",
+ "effort": "default",
+ "problem": "p11_best_average",
+ "repeat": 1,
+ "lanes": 2,
+ "prompt_sha": "2183e22bdc23",
+ "wall_s": 10.341510544007178,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef best_average(a: list[int], k: int) -> list[int]:\n    from math import gcd\n    \n    n = len(a)\n    \n    def check(x: float) -> bool:\n        # Check if there exists subarray of length >= k with average >= x\n        # Transform: a[i] - x, find subarray with sum >= 0\n        prefix = [0.0] * (n + 1)\n        for i in range(n):\n            prefix[i + 1] = prefix[i] + a[i] - x\n        \n        # min_prefix[i] = minimum prefix sum among positions 0..i-k\n        min_prefix = [0.0] * (n + 1)\n        min_prefix[0] = prefix[0]\n        for i in range(1, n + 1):\n            if i - k >= 0:\n                min_prefix[i] = min(min_prefix[i - 1], prefix[i - k])\n            else:\n                min_prefix[i] = min_prefix[i - 1]\n        \n        for i in range(k, n + 1):\n            if prefix[i] - min_prefix[i] >= -1e-12:\n                return True\n        return False\n    \n    # Binary search for the maximum average\n    lo, hi = 0.0, float(max(a))\n    for _ in range(80):\n        mid = (lo + hi) / 2\n        if check(mid):\n            lo = mid\n        else:\n            hi = mid\n    \n    # Now find the actual subarray with average >= lo\n    # Use the check with a slight tolerance to find a valid subarray\n    target = lo - 1e-12\n    \n    # Find best subarray by checking all candidates\n    best_sum = -1\n    best_len = 1\n    \n    prefix = [0] * (n + 1)\n    for i in range(n):\n        prefix[i + 1] = prefix[i] + a[i]\n    \n    # Check all subarrays of length >= k\n    for length in range(k, n + 1):\n        for start in range(0, n - length + 1):\n            end = start + length\n            s = prefix[end] - prefix[start]\n            # Compare s/length with best_sum/best_len\n            if best_sum == -1 or s * best_len > best_sum * length:\n                best_sum = s\n                best_len = length\n    \n    # Reduce fraction\n    g = gcd(best_sum, best_len)\n    return [best_sum // g, best_len // g]\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}
