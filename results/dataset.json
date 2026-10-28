@@ -35062,9 +35062,9 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "explorer_finding": {
-   "value": "On the main ladder plus partial runs, at list price, the frontier is luna-low-bare, luna-medium, luna-high, haiku-low, haiku-medium, haiku-high. haiku-high is cheapest at the top observed pass rate (100%), at $0.0028 per pass. Partial runs are labelled per config; their rates are not like-for-like with the full ladder.",
+   "value": "haiku-high is cheapest at 100%, at $0.0028 per pass. On the main ladder plus partial runs, at list price, that is the top observed pass rate; the frontier is luna-low-bare, luna-medium, luna-high, haiku-low, haiku-medium, haiku-high. Partial runs are labelled per config; their rates are not like-for-like with the full ladder.",
    "unit": "text",
-   "display": "On the main ladder plus partial runs, at list price, the frontier is luna-low-bare, luna-medium, luna-high, haiku-low, haiku-medium, haiku-high. haiku-high is cheapest at the top observed pass rate (100%), at $0.0028 per pass. Partial runs are labelled per config; their rates are not like-for-like with the full ladder.",
+   "display": "haiku-high is cheapest at 100%, at $0.0028 per pass. On the main ladder plus partial runs, at list price, that is the top observed pass rate; the frontier is luna-low-bare, luna-medium, luna-high, haiku-low, haiku-medium, haiku-high. Partial runs are labelled per config; their rates are not like-for-like with the full ladder.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   }
  },

@@ -666,6 +666,8 @@ def explorer(s):
     rows = [r for r in exp["rows"] if r["key"] in st["rows"]]
     membership = st["views"]["list"]["front"]["membership"]
     plotted = [r for r in rows if r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None]
+    legend = {r["family"] + " " + r["generation"] if charts.explorer_colour(r) == "var(--data-codex-old)" else r["family"]:
+              charts.explorer_colour(r) for r in plotted}
     fr = [r for r in plotted if membership[r["key"]]["on_frontier"]]
     button = lambda r: f'<button class="btn" data-key="{esc(r["key"])}">{esc(r["display"])} · {charts.explorer_cost_label(r)}</button>'
     detail = ""
@@ -679,6 +681,7 @@ def explorer(s):
         "__FLOOR_OPTIONS__": "".join(f'<option value="{v}">{"Any" if not v else "≥ " + str(round(v*100)) + "%"}</option>' for v in exp["floors"]),
         "__SET_NOTE__": esc(st["note"]), "__STRICT_RULE__": esc(exp["rule"]), "__LEGACY_RULE__": esc(exp["legacy_rule"]),
         "__EXPLORER_FINDING__": esc(s["facts"]["explorer_finding"]),
+        "__LEGEND__": " · ".join(f'<span style="border-left:8px solid {colour};padding-left:6px;">{esc(label)}</span>' for label, colour in legend.items()),
         "__WINNER_PRICING__": esc(exp["winner_pricing"]), "__EXPLORER_SVG__": charts.explorer_svg(exp, width=320),
         "__EXCLUDED__": " ".join(esc(r["display"] + ": " + r["coverage_note"] + "; cost unavailable — use Speed × Pass.") for r in rows if r not in plotted),
         "__DETAIL__": detail, "__BEST__": "".join("<li>"+button(r)+"</li>" for r in fr),

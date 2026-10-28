@@ -1683,9 +1683,10 @@ def explorer_finding(exp):
     top = max(r["pass_rate"] for r in rows)
     cheapest = min(r["usd_per_pass"] for r in rows if r["pass_rate"] == top)
     picks = sorted(r["display"] for r in rows if r["pass_rate"] == top and r["usd_per_pass"] == cheapest)
-    return ("On the " + st["label"][0].lower() + st["label"][1:].replace(" + ", " plus ") + ", at list price, the frontier is "
-            + ", ".join(r["display"] for r in frontier) + ". " + ", ".join(picks)
-            + f" is cheapest at the top observed pass rate ({top:.0%}), at {usd(cheapest)} per pass. "
+    return (", ".join(picks) + f" is cheapest at {top:.0%}, at {usd(cheapest)} per pass. "
+            + "On the " + st["label"][0].lower() + st["label"][1:].replace(" + ", " plus ")
+            + ", at list price, that is the top observed pass rate; the frontier is "
+            + ", ".join(r["display"] for r in frontier) + ". "
             + st["note"])
 
 
