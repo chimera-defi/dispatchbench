@@ -29,7 +29,8 @@ Path | what | produced by | read by. Cache (`cache/`, 15 MB) holds raw call tran
 - `research/review-sol61/REVIEW.md` independent review of the bench and page (branch review-sol61) | a reviewer session | humans; findings tracked in the page work
 - `research/review-astra/REVIEW.md` second review (branch review-astra); both were root REVIEW.md files, moved here to avoid the name clash | a reviewer session | humans
 - `review-sol61/probe.py`, `probe.json`, `audit.txt` offline fairness and harness probes and their output | probe.py (offline, no model calls) | REVIEW.md, receipt.json
-- `review-sol61/receipt.json`, `review.bundle` hashes of the reviewed files and a git bundle of the review commits | the reviewer | nobody at run time; receipt.json still names the old root path REVIEW.md
+- `review-sol61/receipt.json` historical hashes of the reviewed files | the reviewer | nobody at run time; receipt.json still names the old root path REVIEW.md and the removed bundle
+- `review-sol61/review.bundle` was removed from the tree on 2026-10-28 because it contains a local home path and needs a parent commit outside public history, so it cannot be imported. Older commits still contain it; read `research/review-sol61/REVIEW.md` instead.
 - `review-astra/probe.json` output of `bench/review_probe.py` | bench/review_probe.py | research/review-astra/REVIEW.md
 - `codex-own-harness` is merged (via fairness-qa): `appendix/harness_bias.jsonl`, `appendix/codex_harness.jsonl` | analysis/harness_bias.py | dataset, page Q&A
 
