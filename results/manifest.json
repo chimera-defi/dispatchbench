@@ -93,6 +93,26 @@
    "model": "gpt-6-astra",
    "effort": "medium"
   },
+  "terra56-low": {
+   "cli": "codex",
+   "model": "gpt-5.6-terra",
+   "effort": "low"
+  },
+  "terra56-high": {
+   "cli": "codex",
+   "model": "gpt-5.6-terra",
+   "effort": "high"
+  },
+  "terra61-low": {
+   "cli": "codex",
+   "model": "gpt-6.1-terra",
+   "effort": "low"
+  },
+  "terra61-high": {
+   "cli": "codex",
+   "model": "gpt-6.1-terra",
+   "effort": "high"
+  },
   "grok47-low": {
    "cli": "grok",
    "model": "grok-4.7",
@@ -174,14 +194,14 @@
   4
  ],
  "first_call_utc": "2026-10-22T08:32:54+00:00",
- "last_call_utc": "2026-10-26T23:09:09+00:00",
+ "last_call_utc": "2026-10-28T01:12:20+00:00",
  "rows_by_phase": {
   "calibration": 30,
   "escalation": 15,
-  "exploratory": 550,
+  "exploratory": 694,
   "fastmode": 105,
   "hard": 195,
-  "main": 447,
+  "main": 561,
   "warmup": 6
  },
  "agentic_runs": 84,
@@ -190,21 +210,29 @@
   "claude_measured_usd": 2.4624,
   "claude_function_usd": 1.6128,
   "claude_agentic_usd": 0.8496,
-  "codex_proxy_usd": 36.2653,
+  "codex_proxy_usd": 37.7254,
   "codex_fastmode_usd": 3.4069,
   "calls": {
-   "function": 1348,
+   "function": 1606,
    "agentic": 84
   },
-  "grok_measured_usd": 6.4254
+  "grok_measured_usd": 22.3741
  },
- "errors": [],
+ "errors": [
+  {
+   "key": "b4894229e41f",
+   "config": "grok47-high",
+   "error": "-reasoning-effort', 'high', '--output-format', 'json', '--tools', 'read_file', '--disallowed-tools', 'read_file,search_tool,use_tool', '--no-subagents', '--disable-web-search', '--max-turns', '1', '--no-plan', '--verbatim', '--permission-mode', 'dontAsk', '--no-leader']' timed out after 1200 seconds"
+  }
+ ],
  "prices": "results/prices.json",
  "generated_from": [
   "results/2026-10-22b-agentic.jsonl",
   "results/2026-10-22b-function.jsonl",
   "results/2026-10-25-isolated-agentic.jsonl",
-  "results/2026-10-26-grok-function.jsonl"
+  "results/2026-10-26-grok-function.jsonl",
+  "results/2026-10-28-grok-spectrum-function.jsonl",
+  "results/2026-10-28-terra-function.jsonl"
  ],
  "exploratory": {
   "results/2026-10-22b-trim.jsonl": {
@@ -385,5 +413,18 @@
    }
   }
  },
- "git_sha": "4746fefac419ec22c5236be14d5f54d2d5a0695d"
+ "models_ran": [
+  "claude-haiku-5-5",
+  "claude-sonnet-5-5",
+  "gpt-5.6-luna",
+  "gpt-5.6-sol",
+  "gpt-5.6-terra",
+  "gpt-6-astra",
+  "gpt-6-luna",
+  "gpt-6.1-sol",
+  "gpt-6.1-terra",
+  "grok-4.7",
+  "grok-4.7-build-fast"
+ ],
+ "git_sha": "b40b4471860fcaeabea9c963bb8ea6373a6b101d"
 }

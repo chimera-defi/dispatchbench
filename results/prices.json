@@ -29,6 +29,12 @@
    "output": 50.0,
    "verified": "https://developers.openai.com/api/docs/models/gpt-6-astra, 2026-10-22: input $10, cached input $1, output $50"
   },
+  "gpt-6.1-terra": {
+   "input": 1.0,
+   "cached_input": 0.05,
+   "output": 5.0,
+   "verified": "https://developers.openai.com/api/docs/models/gpt-6.1-terra, 2026-10-28: input $1, cached input $0.05, output $5"
+  },
   "gpt-5.6-terra": {
    "input": 2.0,
    "cached_input": 0.2,

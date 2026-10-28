@@ -38,6 +38,7 @@ MIN_PASS = 0.90
 QUALITY = os.path.join(RES, "quality.jsonl")
 NEW_CODEX = ("sol61-high", "sol56-high", "astra-medium", "luna56-high", "luna56-low")
 GROWTH_MARGIN = 0.3
+TERRA_TRIGGER = {"gap_points": 10, "ratio": (0.5, 2.0)}  # PLAN.md deviation 23: run terra high in fast mode only if this fires
 
 REPORT_PROBLEMS = 12; REPEATS = 5
 DERIVED = ("rescue set",)  # slices of rows that are also in another set; never summed into "all runs"
@@ -333,7 +334,7 @@ def fairness_facts():
 def _facts(s, arms):
     F = Facts(); cfg, ex, ag, hard = s["configs"], s["exploratory"], s["agentic"], s["hard"]
     rows = summarize.function_rows(); agent = summarize.agentic_rows(); main_rows = [r for r in rows if r["phase"] == "main"]
-    every = {**cfg, **ex}
+    every = {**cfg, **{c: v for c, v in ex.items() if c not in configs.ONE_REPEAT}}  # one-repeat extras are tables-only
     nprob = len(s["problems"]); ntask = len(next(iter(ag.values()))["by_task"])
     F.update(n_ladder_configs=str(len(every)), n_problems=str(nprob), n_tasks=str(ntask), n_configs=str(len(cfg)), n_l7=str(len({p for v in hard.values() for p in v["by_problem"]})),
              repeats=str(cfg["haiku-low"]["n"] // nprob), n_calls=str(cfg["haiku-low"]["n"]), n_all_problems=str(nprob + len({p for v in hard.values() for p in v["by_problem"]})),
@@ -343,11 +344,15 @@ def _facts(s, arms):
     # Models and versions: one CLI version per vendor across the function track.
     by_cli = defaultdict(set)
     for r in rows:
-        if r["config"] not in configs.GROK_CONFIGS: by_cli[r["cli"], r["cli_version"]].add(r["model"])
+        if r["config"] not in configs.GROK_CONFIGS and not r["config"].startswith("terra"): by_cli[r["cli"], r["cli_version"]].add(r["model"])
     need(len({cli for cli, _ in by_cli}) == len(by_cli) == 2, "one CLI version per vendor")
     vers = dict(by_cli)
     F["versions_claude"] = next(f"Main bench, Claude Code {v}: {', '.join(sorted(m))}." for (c, v), m in vers.items() if c == "claude")
     F["versions_codex"] = next(f"Main bench, Codex CLI {v}: {', '.join(sorted(m))}." for (c, v), m in vers.items() if c == "codex")
+    terra = defaultdict(set)  # the Terra rows (2026-10-28) ran on a later Codex build
+    for r in rows:
+        if r["config"].startswith("terra"): terra[r["cli_version"]].add(r["model"])
+    F["versions_codex"] += "".join(f" Terra rows, Codex CLI {v}: {', '.join(sorted(m))}." for v, m in sorted(terra.items()))
     # The Codex-built bench (Whose bench?) also ran newer CLI builds.
     norm = lambda v: v.replace("codex-cli ", "").replace(" (Claude Code)", "")
     extra = defaultdict(set)
@@ -364,10 +369,14 @@ def _facts(s, arms):
     F["run_dates"] = f"All calls ran {days[0]} to {days[-1]}."
     F["cite"] = f"Cite as: DispatchBench ({days[-1][:4]}), github.com/chimera-defi/dispatchbench."
     # Function-track Codex calls never used a tool, so none could read the reference solutions.
-    func = [r for r in rows if r["cli"] == "codex"]
-    need(all(isinstance(r.get("tool_items"), int) for r in func), "every function-track Codex row records tool_items")
+    terra_rows = [r for r in rows if r["cli"] == "codex" and r["config"].startswith("terra")]
+    func = [r for r in rows if r["cli"] == "codex" and not r["config"].startswith("terra")]
+    need(all(isinstance(r.get("tool_items"), int) for r in func + terra_rows), "every function-track Codex row records tool_items")
     need(not any(r["tool_items"] for r in func), "no function-track Codex call used a tool")
     F["codex_tool_free"] = f"{n(len(func))} of {n(len(func))}"
+    logged = [r for r in terra_rows if r["tool_items"]]  # the raw event type was not kept, only the count
+    F["terra_tool_note"] = (f"Terra (added later) is the exception: {len(logged)} of {len(terra_rows)} calls logged one item that was not a message or reasoning, "
+                            f"so a tool may have run. {sum(r['passed'] for r in logged)} of those {len(logged)} passed. The raw item type was not kept." if logged else "")
     # Held-out router: per problem, the cheapest config that passed tries 1-3; scored on tries 4-5.
     ladder = [r for r in rows if r["config"] in every and r["phase"] in ("main", "exploratory", "fastmode") and r["repeat"] <= REPEATS and r["rung"] <= 6]
     cell = defaultdict(list)
@@ -710,11 +719,16 @@ def _facts(s, arms):
         f"It passes {medium['passes']}/{medium['n']} to luna-low's {low['passes']}/{low['n']}. "
         f"{configs.set_label('main ladder', capital=True)} only; every point counts.")
     if s.get("grok"):
-        covered = sorted({p for v in s["grok"].values() for p in v.get("by_problem", {})})
+        shown = [c for c in s["grok"] if c not in configs.CHART_HIDDEN]
+        covered = sorted({p for c in shown for p in s["grok"][c].get("by_problem", {})})
+        hidden = [c for c in s["grok"] if c in configs.CHART_HIDDEN]
         if covered:
-            F["grok_chart_note"] = (
-                f"Grok points use {covered[0][:3]}-{covered[-1][:3]} only "
-                f"({len(covered)} of {len(s['problems'])} problems), so they are not a like-for-like main-ladder comparison.")
+            span = f"all {len(covered)} problems" if len(covered) == len(s["problems"]) else f"{len(covered)} of {len(s['problems'])} problems"
+            part = ""
+            if hidden:
+                own = sorted({p for c in hidden for p in s["grok"][c]["by_problem"]})
+                part = f" {', '.join(hidden)} ({own[0][:3]}–{own[-1][:3]} only) is not plotted."
+            F["grok_chart_note"] = f"Grok: black hexagons, {span}, outside the best-trade-off line.{part}"
             F["frontier_caption"] += " " + F["grok_chart_note"]
     F['winner_caption'] = (
         f"Numbers: the {nprob}-problem {configs.set_label('main ladder')}, {hl['n']} tries per config. "
@@ -977,7 +991,7 @@ def _project(ds, summary):
     for block, source, set_ in (("configs", "main", "main ladder"), ("exploratory", "main", "main ladder"),
                                 ("hard", "main", "L7 set"), ("agentic", "agentic", "repo tasks"), ("grok", "main", "partial ladder")):
         for c, v in summary.get(block, {}).items():
-            r = get(ds, c, set_, source)
+            r = get(ds, c, "partial ladder" if block == "exploratory" and c in configs.ONE_REPEAT else set_, source)
             r.update({k: v[k] for k in ("cli", "model", "effort", "outcomes", "breaking_point") if k in v})
             v.update({"n": r["n"], "passes": r["passes"], "pass_at_1": r["pass_rate"], "misses": r["misses"],
                       "ci95": r["ci95"] or [r["pass_rate"], r["pass_rate"]], "ci95_plot": r["ci95_plot"],
@@ -1047,6 +1061,10 @@ def _currency_ticks(values):
     return sorted(labels.items())
 
 
+def joined_names(names):
+    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
+
+
 def _equivalents(ds):
     """Codex vs Claude: for each Claude config, the cheapest Codex config on the main ladder that passes at least as often."""
     rows = [r for r in ds["rows"] if r["source"] == "main" and r["set"] == "main ladder" and r["usd_per_pass"]]
@@ -1061,8 +1079,10 @@ def _equivalents(ds):
         out.append([f'{r["display"]} → {m["display"]}', f'{pct(r)} → {pct(m)}', f'{usd(r["usd_per_pass"])} → ~{usd(m["usd_per_pass"])}',
                     f'{r["median_s"]:.0f} → {m["median_s"]:.0f}'])
     ds["tables"]["equiv"] = md_table(["Claude → Codex match", "passed", "$ per pass", "median s"], out)
-    need(all(m["usd_per_pass"] > r["usd_per_pass"] for r, m in pairs), "every Codex match costs more per pass at list price")
-    need(all(m["median_s"] > r["median_s"] for r, m in pairs), "every cheapest Codex match is slower")
+    undercut = [(r, m) for r, m in pairs if m["usd_per_pass"] <= r["usd_per_pass"]]
+    need(undercut and len(undercut) < len(pairs), "some, not all, cheapest Codex matches cost less per pass at list price")
+    slower = [(r, m) for r, m in pairs if m["median_s"] > r["median_s"]]
+    need(slower and len(slower) < len(pairs), "some, not all, cheapest Codex matches are slower")
     top = [r for r in claude if r["pass_rate"] == 1]
     tops = {m["config"] for r, m in pairs if r["pass_rate"] == 1}
     need(len(tops) == 1 and top, "the 100% Claude configs share one cheapest Codex match")
@@ -1088,18 +1108,21 @@ def _equivalents(ds):
     forward = {r['config']: m for r, m in pairs}
     reverse = {q['config']: m for q, m in back}
     need({c: m['config'] for c, m in forward.items()} == {
-        'haiku-low': 'sol61-medium', 'haiku-medium': 'sol61-high',
-        'haiku-high': 'sol61-high', 'sonnet-medium': 'sol61-high'},
+        'haiku-low': 'terra61-high', 'haiku-medium': 'terra61-low',
+        'haiku-high': 'terra61-low', 'sonnet-medium': 'terra61-low'},
          "Winner Claude-to-Codex summary covers every cheapest main-ladder pass-rate match")
-    need(reverse['sol61-medium']['config'] == 'haiku-medium'
-         and reverse['sol61-high']['config'] == 'haiku-high',
+    need(reverse['sol61-medium']['config'] == 'haiku-medium' and reverse['sol61-high']['config'] == 'haiku-high'
+         and reverse['terra61-low']['config'] == 'haiku-high' and reverse['terra61-high']['config'] == 'haiku-medium',
          "Winner Codex-to-Claude summary uses the cheapest main-ladder pass-rate matches")
+    groups = {}
+    for r, m in pairs:
+        groups.setdefault(m["display"], []).append(r["display"])
     F['winner_claude_to_codex'] = (
-        f"Cheapest main-ladder pass-rate matches, Claude → Codex: {claude[0]['display']} → {forward['haiku-low']['display']}. "
-        f"{', '.join(r['display'] for r in claude[1:-1])} and {claude[-1]['display']} → {forward['haiku-medium']['display']}.")
+        "Cheapest main-ladder pass-rate matches, Claude → Codex: "
+        + ". ".join(f"{joined_names(names)} → {match}" for match, names in groups.items()) + ".")
     F['winner_codex_to_claude'] = (
         "Cheapest main-ladder pass-rate matches, Codex → Claude: "
-        + "; ".join(f"{DISP(c)} → {reverse[c]['display']}" for c in ('sol61-medium', 'sol61-high')) + ".")
+        + "; ".join(f"{DISP(c)} → {reverse[c]['display']}" for c in ('terra61-low', 'terra61-high', 'sol61-medium', 'sol61-high')) + ".")
     cheaper = [q for q, m in back if m["usd_per_pass"] < q["usd_per_pass"]]
     dearer = [q for q, m in back if m["usd_per_pass"] >= q["usd_per_pass"]]
     need(dearer and all(q["display"].startswith("luna-") for q in dearer), "only luna configs undercut their Claude match on price")
@@ -1109,7 +1132,12 @@ def _equivalents(ds):
     need(len(pairs) == len(claude) and len(back) == len(codex), "the merged match table covers both vendors in both directions")
     need(cheaper and len(cheaper) + len(dearer) == len(back), "every reverse match has a pinned price comparison")
     F["equiv_takeaway"] = (
-        f'All {len(pairs)} Claude configs have Codex matches. Each match costs more at list price and runs slower. '
+        f'All {len(pairs)} Claude configs have Codex matches. {len(pairs) - len(undercut)} of {len(pairs)} cost more at list price; '
+        + joined_names([f'{m["display"]} costs less than {r["display"]}' for r, m in undercut]) + ". "
+        f'{len(slower)} of {len(pairs)} also run slower. '
+        + " ".join(f'{m["display"]} runs faster than {joined_names(ns)}.' for m, ns in
+                   ((m, [r["display"] for r2, m2 in pairs if m2 is m and m2["median_s"] <= r2["median_s"] for r in [r2]])
+                    for m in {id(m): m for _, m in pairs}.values()) if ns) + " "
         f'All {len(back)} Codex configs have Claude matches. Claude is cheaper for {len(cheaper)}. '
         'Only luna undercuts its Claude match, with more misses.')
     F["equiv_back_takeaway"] = (f'Every Codex config has a Claude match. It is cheaper for {len(cheaper)} of {len(back)}. '
@@ -1147,6 +1175,28 @@ def _interesting(ds):
         f'sol56-high takes {old["median_s"]:.1f} s at ~{usd(old["usd_per_pass"])} per pass.',
         f'sol61-high takes {new["median_s"]:.1f} s at ~{usd(new["usd_per_pass"])}. ⚡ cuts that to {fast["median_s"]:.1f} s, at ~{usd(fast["usd_per_pass"])}.',
         'So the newer model is cheaper but slower. ⚡ does not close the gap.'])
+    # Terra (2026-10-28, operator question). Fast mode is tried only if the pre-registered trigger fires (PLAN.md, deviation 23).
+    tl, th, s56 = (get(ds, c, ml) for c in ("terra61-low", "terra61-high", "sol56-high"))
+    gap = 100 * (tl["pass_rate"] - th["pass_rate"]); ratio = th["median_s"] / s56["median_s"]
+    fired = abs(gap) >= TERRA_TRIGGER["gap_points"] or not TERRA_TRIGGER["ratio"][0] <= ratio <= TERRA_TRIGGER["ratio"][1]
+    need(not fired and th["median_s"] < s56["median_s"] and th["pass_rate"] < s56["pass_rate"] == 1 and tl["pass_rate"] == 1 and tl["median_s"] < s56["median_s"],
+         "terra61-high is faster than sol56-high but misses; terra61-low matches its pass rate and is faster; the fast-mode trigger did not fire")
+    misses = sorted((r["problem"], r["repeat"]) for r in summarize.function_rows() if r["config"] == "terra61-high" and not r["passed"])
+    miss_problems = sorted({p for p, _ in misses}); mplabel = ", ".join(pshort(p) for p in miss_problems)
+    t56 = {c: get(ds, c, "partial ladder") for c in configs.ONE_REPEAT}
+    F["int_terra"] = " ".join([
+        "Sol 6.1 high on fast was slower than Sol 5.6 high — does Terra high match or beat Sol 5.6 high on speed and pass rate?",
+        f'It is faster but misses. terra61-high takes {th["median_s"]:.1f} s to sol56-high\'s {s56["median_s"]:.1f} s, '
+        f'and passes {th["passes"]}/{th["n"]} to {s56["passes"]}/{s56["n"]}. '
+        f'The {th["n"] - th["passes"]} misses are on {mplabel} (repeats {", ".join(str(r) for _, r in misses)}).',
+        f'terra61-low matches sol56-high at {tl["passes"]}/{tl["n"]} and is faster, {tl["median_s"]:.1f} s.',
+        f'Cost per pass, list-price estimates: terra61-low ~{usd(tl["usd_per_pass"])}, terra61-high ~{usd(th["usd_per_pass"])}, '
+        f'sol56-high ~{usd(s56["usd_per_pass"])}.',
+        f'Fast mode was not tried. The trigger was a low/high gap of {TERRA_TRIGGER["gap_points"]} points or more, '
+        f'or terra high outside {TERRA_TRIGGER["ratio"][0]:g}–{TERRA_TRIGGER["ratio"][1]:g}× of sol56-high\'s median. '
+        f'The gap is {gap:.1f} points and the ratio is {ratio:.2f}×, so it did not fire.',
+        f'Extra data, one repeat each: gpt-5.6-terra passed {t56["terra56-high"]["passes"]}/{t56["terra56-high"]["n"]} at high '
+        f'and {t56["terra56-low"]["passes"]}/{t56["terra56-low"]["n"]} at low.'])
     lo, hl = get(ds, "luna-low", ml), get(ds, "haiku-low", ml)
     need(lo["usd_per_pass"] < hl["usd_per_pass"] and lo["pass_rate"] < hl["pass_rate"], "luna-low is cheaper per pass than haiku-low but passes less")
     F["int_luna"] = (f'luna-low is cheaper per pass than haiku-low: ~{usd(lo["usd_per_pass"])} to {usd(hl["usd_per_pass"])}. '
@@ -1239,15 +1289,17 @@ def build(summary=None):
     ds["report"] = s
     ds["facts"] = _facts(s, arms)
     ds["tables"] = _tables(s, arms)
-    comparison = grok.build(ds, s)
+    # The earlier 2-repeat run on p01-p06, kept whole under its own label (its tests pin the original sentences and rows).
+    comparison = grok.build(ds, s, "grok_first", first=True)
     if comparison:
-        ds["grok_comparison"] = comparison
-        paragraphs, verdict = grok.prose(comparison, s["grok"])
+        ds["grok_first"] = comparison
+        lane = s["grok_first"]
+        paragraphs, verdict = grok.prose(comparison, lane)
         ds["facts"].update(grok_summary="\n\n".join(paragraphs), grok_verdict=verdict,
-                           grok_reach_note=grok.reach_note(comparison, s["grok"]))
-        ds["tables"].update(grok.tables(comparison, s["grok"], usd))
+                           grok_reach_note=grok.reach_note(comparison, lane))
+        ds["tables"].update(grok.tables(comparison, lane, usd))
         probs = comparison["problems"]
-        last = max(int(g[1:]) for v in s["grok"].values() for g in v["by_rung"])
+        last = max(int(g[1:]) for v in lane.values() for g in v["by_rung"])
         ds["facts"]["grok_scope"] = (
             f"Same-problem comparisons use {probs[0][:3]}–{probs[-1][:3]} ({len(probs)} of {len(s['problems'])} problems), "
             "main + exploratory phases only. Warmup, calibration, fastmode, escalation and hard phases are excluded. "
@@ -1256,11 +1308,22 @@ def build(summary=None):
         ds["facts"]["grok_match_rule"] = (
             f"A lane is comparable when it clears the same rungs and first misses at the same rung on the {len(s['problems'])}-problem "
             f"main ladder. If a Grok config never missed through L{last}, every lane that clears through L{last} counts, with its later results shown.")
+        counts = [n for c in lane for rung in comparison["repeat_counts"][c].values() for n in rung.values()]
+        ds["facts"]["grok_first_title"] = f"First run ({min(counts)} repeats, {probs[0][:3]}–{probs[-1][:3]})"
         rungs = sorted({v["rung"] for v in s["problems"].values()})
         ds["facts"]["grok_key"] = (f"A lane is an existing config: one model at one effort. Rungs L{min(rungs)}–L{max(rungs)} get harder step by step. "
                                    "Cleared through L2 means every call passed on L1 and L2.")
-        ds["facts"]["grok_not_run"] = (f"Grok columns cover the first half only. L{last + 1}–L{max(rungs)} were not run. "
-                                             "A dash means no attempt, not a failure.")
+    # The full spectrum (2026-10-28): every problem, 5 repeats, for low, fast-low and high; medium stays on p01-p06.
+    full = grok.build(ds, s)
+    if full:
+        ds["grok_comparison"] = full
+        ds["tables"].update(grok.full_tables(full, s["grok"], usd))
+        ds["tables"]["grok_lead"], ds["tables"]["grok_better"] = grok.full_lead(full, s["grok"], usd)
+        ds["facts"]["grok_full_note"] = grok.full_note(full, s["grok"], summarize.function_rows())
+        short = [c for c in s["grok"] if c not in grok.full_run(full, s["grok"])]
+        ds["facts"]["grok_not_run"] = (
+            (f"{', '.join(short)} covers {sorted(s['grok'][short[0]]['by_problem'])[0][:3]}–{sorted(s['grok'][short[0]]['by_problem'])[-1][:3]} only, "
+             "so its cells for the other problems are dashes. ") if short else "") + "A dash means no attempt, not a failure."
     _equivalents(ds)
     _interesting(ds)
     method_appendix(ds)

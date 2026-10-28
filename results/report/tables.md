@@ -56,16 +56,16 @@ Fast-mode $ use the published multiplier (results/prices.json). Main ladder = p0
 | p11 best_average (L6) | 5 | 5 | 5 | 4 | 2 | 5 | 5 | 5 | 5 | 5 |
 | p12 sheet (L6) | 4 | 5 | 5 | 0 | 0 | 3 | 5 | 5 | 5 | 5 |
 
-## Grok (first half)
+## Grok (all 12 problems; grok47-medium p01–p06 only)
 
-Exploratory function lane, added 2026-10-26 at operator request: p01–p06 (L1–L3). L1: 5 repeats; L2–L3: shortened to 2 repeats, existing extra repeats retained. CLI-reported cost; list price not used. L4–L6 were not run; excluded from full-ladder comparisons.
+Exploratory function lane, added 2026-10-26 at operator request and completed 2026-10-28 (PLAN.md deviation 23): p01–p12 (L1–L6), 5 repeats per problem for every config except grok47-medium, which stayed on p01–p06 and was not extended. CLI-reported cost; list price not used. A call killed at the time limit has no bill and counts as a miss at $0.
 
 | config | coverage | passed | $ per pass | total $ | median s |
 |---|---|---|---|---|---|
-| grok47-low | 6 of 12 problems | 96% (23/24) | $0.054 | $1.24 | 26.46 |
+| grok47-low | 12 of 12 problems | 88% (53/60) | $0.082 | $4.33 | 39.45 |
 | grok47-medium | 6 of 12 problems | 95% (20/21) | $0.066 | $1.33 | 32.56 |
-| grok47-high | 6 of 12 problems | 100% (18/18) | $0.072 | $1.29 | 40.97 |
-| grok47fast-low | 6 of 12 problems | 96% (23/24) | $0.11 | $2.56 | 19.38 |
+| grok47-high | 12 of 12 problems | 95% (57/60) | $0.13 | $7.52 | 105.72 |
+| grok47fast-low | 12 of 12 problems | 85% (51/60) | $0.18 | $9.19 | 34.0 |
 
 ## Paired differences in pass@1 (a − b, same problems)
 
@@ -237,6 +237,62 @@ By rung: L1 10/10, L2 10/10, L3 10/10, L4 10/10, L5 10/10, L6 10/10
 | sol61-high ⚡ | haiku-low | +5.0 pts | +0.0 to +15.0 |
 | sol61-high ⚡ | luna-medium | +21.7 pts | +3.3 to +45.0 |
 
+## Exploratory, not pre-registered: terra56-high (stock harness, one repeat on the full ladder)
+
+By rung: L1 2/2, L2 2/2, L3 2/2, L4 2/2, L5 2/2, L6 2/2
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| terra56-high | 100% (12/12) | ≥78% (all passed) | none ≤ L6 | 17.52 | 34.12 | 13040 | $0.018 | $0.018 | $0.038 | proxy |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| terra56-high | luna-low | +23.3 pts | +5.0 to +45.0 |
+| terra56-high | haiku-low | +5.0 pts | +0.0 to +15.0 |
+| terra56-high | luna-medium | +21.7 pts | +3.3 to +43.3 |
+
+## Exploratory, not pre-registered: terra56-low (stock harness, one repeat on the full ladder)
+
+By rung: L1 2/2, L2 2/2, L3 2/2, L4 2/2, L5 1/2, L6 0/2
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| terra56-low | 75% (9/12) | 50%–100% | L6 | 14.05 | 22.3 | 13041 | $0.013 | $0.018 | $0.044 | proxy |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| terra56-low | luna-low | -1.7 pts | -21.7 to +20.0 |
+| terra56-low | haiku-low | -20.0 pts | -41.7 to +0.0 |
+| terra56-low | luna-medium | -3.3 pts | -26.7 to +18.3 |
+
+## Exploratory, not pre-registered: terra61-high (stock harness, full ladder)
+
+By rung: L1 10/10, L2 8/10, L3 10/10, L4 10/10, L5 10/10, L6 10/10
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| terra61-high | 97% (58/60) | 88%–100% | none ≤ L6 | 11.93 | 19.51 | 15668 | $0.0077 | $0.0079 | $0.020 | proxy |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| terra61-high | luna-low | +20.0 pts | +3.3 to +40.0 |
+| terra61-high | haiku-low | +1.7 pts | -10.0 to +13.3 |
+| terra61-high | luna-medium | +18.3 pts | +1.7 to +40.0 |
+
+## Exploratory, not pre-registered: terra61-low (stock harness, full ladder)
+
+By rung: L1 10/10, L2 10/10, L3 10/10, L4 10/10, L5 10/10, L6 10/10
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| terra61-low | 100% (60/60) | ≥78% (all passed) | none ≤ L6 | 10.34 | 20.92 | 18871 | $0.010 | $0.010 | $0.022 | proxy |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| terra61-low | luna-low | +23.3 pts | +5.0 to +45.0 |
+| terra61-low | haiku-low | +5.0 pts | +0.0 to +15.0 |
+| terra61-low | luna-medium | +21.7 pts | +3.3 to +45.0 |
+
 ## L7, added after the main run (3 problems × 5 attempts)
 
 Not pre-registered (PLAN.md, deviation 16), so it is reported apart from L1–L6 and does not change any number above.
@@ -261,21 +317,21 @@ Not pre-registered (PLAN.md, deviation 16), so it is reported apart from L1–L6
 
 Every problem on which at least one config failed at least once, over all phases (main, escalation, exploratory, L7). Cells show passes/attempts and, for the failures, the outcome: w = wrong answer, c = crash, t = timeout, n = no code. A dash means not run.
 
-| problem | haiku-low | haiku-medium | sonnet-medium | luna-low | luna-medium | sol61-medium | astra-medium | astra-medium ⚡ | haiku-high | luna-high | luna-low-bare | luna56-high | luna56-low | sol56-high | sol61-high | sol61-high ⚡ |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| p03 ledger (L2) | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 3/5 (1c 1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 |
-| p04 taller_within (L2) | 5/5 | 5/5 | 5/5 | 1/5 (2t 2w) | 1/5 (1t 3w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/5 (4w) | 4/5 (1w) | 4/5 (1w) | 5/5 | 5/5 | 5/5 |
-| p05 pass_route (L3) | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 |
-| p06 calc (L3) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 1/5 (4w) | 5/5 | 5/5 | 5/5 |
-| p07 weighted_distance_sums (L4) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 3/5 (1t 1w) | 5/5 | 5/5 | 5/5 |
-| p08 recur (L4) | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1t) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 |
-| p09 k_machine_schedule (L5) | 3/5 (2t) | 5/5 | 5/5 | 2/5 (2t 1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 |
-| p10 avoid_count (L5) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 4/5 (1w) | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 |
-| p11 best_average (L6) | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 2/5 (3w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 2/5 (1c 2w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 |
-| p12 sheet (L6) | 4/5 (1c) | 5/5 | 5/5 | 0/5 (4c 1w) | 0/5 (4c 1w) | 3/5 (2c) | 5/5 | 5/5 | 5/5 | 3/5 (2c) | 0/5 (4c 1w) | 3/5 (2c) | 1/5 (3c 1w) | 5/5 | 5/5 | 5/5 |
-| p13 xor_ring (L7) | 5/5 | 5/5 | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 4/5 (1c) | 3/5 (2w) | 5/5 | 5/5 | 5/5 |
-| p14 bounce_board (L7) | 5/5 | 4/5 (1c) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 2/5 (3c) | 2/5 (3c) | 3/5 (2c) | 5/5 | 5/5 |
-| p15 paint_erase (L7) | 2/5 (3t) | 4/5 (1t) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 3/5 (2w) | 3/5 (2w) | 5/5 | 5/5 | 5/5 |
+| problem | haiku-low | haiku-medium | sonnet-medium | luna-low | luna-medium | sol61-medium | astra-medium | astra-medium ⚡ | haiku-high | luna-high | luna-low-bare | luna56-high | luna56-low | sol56-high | sol61-high | sol61-high ⚡ | terra56-high | terra56-low | terra61-high | terra61-low |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| p03 ledger (L2) | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 3/5 (1c 1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 |
+| p04 taller_within (L2) | 5/5 | 5/5 | 5/5 | 1/5 (2t 2w) | 1/5 (1t 3w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/5 (4w) | 4/5 (1w) | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 3/5 (2w) | 5/5 |
+| p05 pass_route (L3) | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 |
+| p06 calc (L3) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 1/5 (4w) | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 |
+| p07 weighted_distance_sums (L4) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 3/5 (1t 1w) | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 |
+| p08 recur (L4) | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1t) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 |
+| p09 k_machine_schedule (L5) | 3/5 (2t) | 5/5 | 5/5 | 2/5 (2t 1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 0/1 (1w) | 5/5 | 5/5 |
+| p10 avoid_count (L5) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 4/5 (1w) | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 |
+| p11 best_average (L6) | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 2/5 (3w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 2/5 (1c 2w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 0/1 (1w) | 5/5 | 5/5 |
+| p12 sheet (L6) | 4/5 (1c) | 5/5 | 5/5 | 0/5 (4c 1w) | 0/5 (4c 1w) | 3/5 (2c) | 5/5 | 5/5 | 5/5 | 3/5 (2c) | 0/5 (4c 1w) | 3/5 (2c) | 1/5 (3c 1w) | 5/5 | 5/5 | 5/5 | 1/1 | 0/1 (1t) | 5/5 | 5/5 |
+| p13 xor_ring (L7) | 5/5 | 5/5 | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 4/5 (1c) | 3/5 (2w) | 5/5 | 5/5 | 5/5 | – | – | – | – |
+| p14 bounce_board (L7) | 5/5 | 4/5 (1c) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 2/5 (3c) | 2/5 (3c) | 3/5 (2c) | 5/5 | 5/5 | – | – | – | – |
+| p15 paint_erase (L7) | 2/5 (3t) | 4/5 (1t) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 3/5 (2w) | 3/5 (2w) | 5/5 | 5/5 | 5/5 | – | – | – | – |
 
 ## Agentic track (hidden tests)
 
@@ -362,5 +418,5 @@ The pilot's Codex ladder records only the levels that were actually tested. Ever
 Auxiliary runs and pilot excluded from the function + agentic totals.
 
 - Claude CLI-reported cost (list basis), function + agentic only: $2.46 (function $1.61, agentic $0.85).
-- Codex token-price estimate, function + agentic only: $36.27.
+- Codex token-price estimate, function + agentic only: $37.73.
 - Pilot repricing: 83 priority-tier Codex rows cost $3.52 at the pilot's 1.5× and $4.69 at the published 2×.

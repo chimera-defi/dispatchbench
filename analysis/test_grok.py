@@ -63,12 +63,14 @@ def test_grok_scope_rejects_rows_after_allowed_section(section, row):
 
 def test_grok_scope_report_svgs():
     """Grok config names belong on the two report figures and nowhere else in results/report/charts."""
-    note = "Grok points use p01-p06 only (6 of 12 problems), so they are not a like-for-like main-ladder comparison."
+    note = "Grok: black hexagons"
     for path in Path(charts.OUT).glob("*.svg"):
         text = path.read_text()
         found = set(re.findall(r"grok47[a-z-]*", text))
         if path.name in {"pareto.svg", "cost_time.svg"}:
-            assert found == set(configs.GROK_CONFIGS), path.name
+            assert found - set(configs.GROK_PARTIAL) == set(configs.GROK_CONFIGS) - set(configs.GROK_PARTIAL), path.name
+            # grok47-medium is named only in the note saying it is not plotted.
+            assert text.count("grok47-medium") == 1 and "grok47-medium (p01–p06 only) is not plotted" in text
             assert note in text
         else:
             assert not found, path.name
@@ -111,12 +113,12 @@ def test_grok_reach_counts_and_note_follow_source_rows():
     assert "on p06_calc" not in ds["facts"]["grok_summary"]
     assert "(18, 21, 24)" in note and "from 5 to 2 repeats partway through L2" in note
     assert "30 = 6 problems × 5 repeats" in note and "read the rung reached, not the total" in note
-    changed = copy.deepcopy(ds["grok_comparison"])
+    changed = copy.deepcopy(ds["grok_first"])
     for c in configs.GROK_CONFIGS:
         changed["metrics"][c]["n"] = 36
         for rung in changed["repeat_counts"][c].values():
             for p in rung: rung[p] *= 2
-    note = grok.reach_note(changed, ds["report"]["grok"])
+    note = grok.reach_note(changed, ds["report"]["grok_first"])
     assert "(36)" in note and "from 10 to 4 repeats" in note
 
 
@@ -166,7 +168,7 @@ def test_first_half_rows_render_without_changing_full_ladder(monkeypatch):
             grok = copy.deepcopy(r)
             grok.update(config=c, cli="grok", model="grok-4.7-build-fast" if c.startswith("grok47fast") else "grok-4.7",
                         effort=c.rsplit("-", 1)[1], phase="main", cli_version="test-grok",
-                        ts="2026-10-26T10:00:00Z", key=c + r["key"], cost_usd=0.123456,
+                        ts="2026-10-26T10:00:00Z", key=c + r["key"], cost_usd=0.123456, _file=configs.FIRST_GROK_FILE,
                         passed=c != "grok47-high", outcome="wrong" if c == "grok47-high" else "pass")
             rows.append(grok)
     baseline = dataset.read()
@@ -186,10 +188,10 @@ def test_first_half_rows_render_without_changing_full_ladder(monkeypatch):
         if name in {"pareto.svg", "cost_time.svg"}:
             assert body != base_charts[name]
             assert "grok47-low" in body and "grok47-high" not in body
-            assert "not a like-for-like" in body
+            assert "Grok: black hexagons, 6 of 12 problems" in body and "not a like-for-like" not in body
         else:
             assert body == base_charts[name], name
-    assert "Grok (first half)" in tables
+    assert "## Grok (first half, 6 of 12 problems)" in tables
     for c in configs.GROK_CONFIGS:
         assert c in manifest["configs"]
         assert c not in page.ORDER
@@ -206,7 +208,7 @@ def test_first_half_rows_render_without_changing_full_ladder(monkeypatch):
     readme, full, html = report.render()
     assert "## Grok\n" in full and "6 of 12 problems" in full
     assert '<section id="grok">' in html and "6 of 12 problems" in html
-    assert "L4–L6 were not run" in html and "CLI-reported cost; list price not used" in html
+    assert "A dash means no attempt, not a failure." in html and "CLI-reported cost; list price not used" in html
     assert all(c in html for c in configs.GROK_CONFIGS)
     scope = GrokScope()
     scope.feed(html)
@@ -375,9 +377,10 @@ OLD_GROK_CLAIMS = (
 
 # Digests include every byte outside Grok. Re-pinned 2026-10-28 after Grok-only changes outside the section: the shared
 # #results/#grok table CSS, the Grok marker shape, the speed chart axis and Grok columns in the fail grid.
+# Re-pinned 2026-10-28: everything outside the Grok section changed with the Terra rows (tables, charts, Interesting, equivalents).
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': 'b80d03944bfb9de071b32b17784faa525d256a52cfc8ef0ad1d0ce903c192c5f',
-    'docs/REPORT.md': '27f19515b597ba56a08c231b206d4f6f51b5b38ed48ed8f572395167b84f987a',
+    'results/report/page.html': '06086a0e977102e9b71ee24b293cec8134cb0a869a38dd436e2823ce672ff1c9',
+    'docs/REPORT.md': '6edb98036abf18445b65a972ccda1334912a33fef8b04ca62c890d708ee53b16',
 }
 
 
@@ -488,9 +491,9 @@ def test_grok_closest_tables_keep_one_lane_per_family_and_expand_all():
 
 def test_grok_summary_cost_wins_follow_measurements(monkeypatch):
     ds = dataset.read()
-    comparison = copy.deepcopy(ds['grok_comparison'])
+    comparison = copy.deepcopy(ds['grok_first'])
     repository = grok.repository_comparison()
-    lane = ds['report']['grok']
+    lane = ds['report']['grok_first']
     monkeypatch.setattr(grok, 'repository_comparison', lambda: repository)
     _, verdict = grok.prose(comparison, lane)
     summary = grok.at_a_glance(comparison, lane, repository)
@@ -522,9 +525,9 @@ def test_grok_summary_cost_wins_follow_measurements(monkeypatch):
 
 def test_grok_ranges_cover_all_perfect_lanes_and_follow_measurements():
     ds = dataset.read()
-    comparison = copy.deepcopy(ds['grok_comparison'])
+    comparison = copy.deepcopy(ds['grok_first'])
     repository = grok.repository_comparison()
-    lane = ds['report']['grok']
+    lane = ds['report']['grok_first']
     summary = grok.at_a_glance(comparison, lane, repository)
     assert 'grok47-low, grok47-medium and grok47fast-low (cleared through L2)' in summary
     assert 'grok47-low, grok47-medium and grok47fast-low cleared L1–L2. Each first missed at L3.' in summary
@@ -537,3 +540,16 @@ def test_grok_ranges_cover_all_perfect_lanes_and_follow_measurements():
     repository['metrics']['luna-low']['median_s'] = 0.001
     changed = grok.at_a_glance(comparison, lane, repository)
     assert 'Across all Codex 100% lanes, Grok takes 0.8–15.1× as long' in changed
+
+
+def test_full_spectrum_headline_counts_come_from_the_data():
+    """grok47-high 57/60 and terra61-low 60/60, read from the graded rows and from the built page."""
+    rows = summarize.function_rows()
+    tally = lambda c: (sum(r["passed"] for r in rows if r["config"] == c), sum(1 for r in rows if r["config"] == c))
+    assert tally("grok47-high") == (57, 60) and tally("terra61-low") == (60, 60)
+    ds = dataset.read()
+    assert (ds["report"]["grok"]["grok47-high"]["passes"], ds["report"]["grok"]["grok47-high"]["n"]) == (57, 60)
+    terra = dataset.get(ds, "terra61-low", "main ladder")
+    assert (terra["passes"], terra["n"]) == (60, 60)
+    page_text = Path(report.PAGE).read_text()
+    assert all(x in page_text for x in ("57/60", "53/60", "51/60", "60/60", "58/60"))

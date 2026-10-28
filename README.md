@@ -6,7 +6,7 @@ Which model should a coding task go to?
 
 ## What it measures
 
-We compare 16 model-and-effort configs on fresh Python problems.
+We compare 18 model-and-effort configs on fresh Python problems.
 The main run used 6 of them on 12 problems.
 The set contains 15 problems and 4 small repository tasks.
 Function tasks ask for one answer, with no tool use allowed.
@@ -22,7 +22,7 @@ Repository tasks use agent CLIs, with code execution and retries.
 
 Main ladder: 12 problems, each attempted 5 times per config.
 
-Total spend: $2.46 Claude, about $36 Codex (estimated).
+Total spend: $2.46 Claude, about $38 Codex (estimated).
 
 ## How to read it
 
