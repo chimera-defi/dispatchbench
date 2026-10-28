@@ -410,8 +410,9 @@ OLD_GROK_CLAIMS = (
 # P4: P4f spot-check - raw-median presentation and harness-build provenance.
 # Grok HTML changes only one catalog cell: <td>39.5</td> -> <td>39.4</td>.
 # P4h: re-pinned for the chart-adjacent colour key and finding-first explorer caption; Grok section bytes unchanged.
+# P4i: re-pinned for keyboard sorting buttons and shared table styles; Grok section bytes unchanged.
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': '7040431ca9562aac5955735877f9f44417c8bce9928db83600a73bfa6bdd3239',
+    'results/report/page.html': '394cb458eec878c79da903ac936f4b954e8878ec7c4a55fbfbcd734ad7cbba8f',
     'docs/REPORT.md': 'de2e362eb61a9240b1cd23e4bc03a83f38001ff5d54353e941315f4effd97507',
 }
 
