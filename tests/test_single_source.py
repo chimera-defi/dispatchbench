@@ -75,10 +75,12 @@ def test_every_pass_count_names_its_rule(ds):
     """Rows, the rescue arms and the derived pipelines: a pass count without a rule fails."""
     assert dataset.RULES == ("function tests (reference + brute force)", "hidden tests", "task_complete")
     for r in ds["rows"]:
-        assert r["rule"] in dataset.RULES[:2], r["id"]
         if r["set"] == "repo tasks":
-            assert r["rule"] == "hidden tests" and r["task_complete_rule"] == "task_complete" and "task_complete" in r, r["id"]
+            # one headline rule: task complete; the hidden-suite count rides beside it
+            assert r["rule"] == "task_complete" and r["hidden_rule"] == "hidden tests" and "hidden_pass" in r and "task_complete" in r, r["id"]
+            assert r["passes"] == r["task_complete"] and r["hidden_pass"] >= r["passes"], r["id"]
         else:
+            assert r["rule"] in dataset.RULES[:2], r["id"]
             assert "task_complete" not in r or r["source"] == "agentic", r["id"]
     for name, v in ds["rescue"].items(): assert v["rule"] in dataset.RULES, name
     for cfg, groups in ds["derived_pipelines"].items():
@@ -93,7 +95,7 @@ def test_rendered_pass_columns_and_repo_cells_name_their_rule(ds):
             if dataset.PASS_HEAD.search(h):
                 assert any(w in h for w in ("function tests", "hidden", "task complete")), (name, h)
     for row in ds["tables"]["agentic"]["rows"]:
-        assert row[1].endswith(" hidden tests") and " task_complete" in row[2], row
+        assert re.search(r"\d+/\d+ complete \(\d+/\d+ hidden\)", row[1]), row  # the one marker: task complete first, hidden beside it
     assert "task_complete" in ds["tables"]["grok_repository"]
 
 

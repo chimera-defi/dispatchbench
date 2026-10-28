@@ -41,20 +41,20 @@ Blank lines, malformed JSON and non-object values are skipped when deriving date
 
 ## Repo-task pass counts
 
-Two pass rules. Passed our hidden tests: our hidden suite passes against the delivered code. Task complete: hidden and visible tests (the delivered `tests/` directory) both pass.
+One headline rule, task complete: hidden and visible tests (the delivered `tests/` directory) both pass. The hidden-suite count (our hidden suite alone) is the secondary column.
 Older rows lack `task_complete`; it is derived as `visible_pass and hidden_pass`.
 
-| Run | Config | Passed our hidden tests | Task complete |
+| Run | Config | Task complete | Passed our hidden tests |
 |---|---|---:|---:|
 | 2026-10-22b-agentic | astra-medium | 12/12 | 12/12 |
 | 2026-10-22b-agentic | haiku-high | 12/12 | 12/12 |
 | 2026-10-22b-agentic | haiku-low | 12/12 | 12/12 |
-| 2026-10-22b-agentic | luna-low | 12/12 | 11/12 |
+| 2026-10-22b-agentic | luna-low | 11/12 | 12/12 |
 | 2026-10-22b-agentic | sol61-high | 12/12 | 12/12 |
 | 2026-10-22b-agentic | sol61-medium | 12/12 | 12/12 |
 | 2026-10-22b-agentic | sonnet-medium | 12/12 | 12/12 |
 | 2026-10-25-isolated-agentic | astra-medium | 12/12 | 12/12 |
-| 2026-10-25-isolated-agentic | luna-low | 12/12 | 7/12 |
+| 2026-10-25-isolated-agentic | luna-low | 7/12 | 12/12 |
 | 2026-10-25-isolated-agentic | sol61-high | 12/12 | 12/12 |
 | 2026-10-25-isolated-agentic | sol61-medium | 12/12 | 12/12 |
 | 2026-10-27-grok-agentic | grok47-high | 8/8 | 8/8 |
@@ -68,7 +68,7 @@ Their hashes hold only for the commit you read. Regenerate this index after rebu
 
 | File | SHA-256 |
 |---|---|
-| [results/manifest.json](../results/manifest.json) | `bf22cd082742caf8cbe75d77f7fe2172ec8ac3e0c78723a2e32f0f8ecf9bbe75` |
+| [results/manifest.json](../results/manifest.json) | `583791fa3f56243040137d911adb6881c3dbdd680c714ed1ae3e49eec69c6c6f` |
 | [results/prices.json](../results/prices.json) | `f215215ae059ffe9eaaa7d907fe844246d72fa2af96ee242793f290d0514992c` |
 | [results/agentic_tests.json](../results/agentic_tests.json) | `bbf0dda405ca67a8da3139325b59fdd780073888359b54382adb739bddada3b5` |
 | [results/quality.jsonl](../results/quality.jsonl) | `67a5f24651a2366f5f37ead0250d9eb59131ab37c76c85e533b5e76eec8ea747` |

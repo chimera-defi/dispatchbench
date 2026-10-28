@@ -1,6 +1,6 @@
 {
  "dropped_facts": {
-  "codex_usd": "The page intentionally rounds the estimated Codex total to the nearest five dollars; exact spend remains in results/dataset.json and docs/REPORT.md.",
+  "codex_usd": "The page shows the Codex total at its computed precision (the earlier rounding is removed); spend by kind is in results/dataset.json and docs/REPORT.md.",
   "winner_fallback": "Removed the duplicate Winner fallback paragraph; winner_price and the budget-pick row retain the recommendation, perfect score and price.",
   "equiv_back_takeaway": "The section lead now states both directions (all 12 Codex configs matched, Claude cheaper for 8, only luna undercuts); this note repeated it."
  },
@@ -29,7 +29,7 @@
   "page text: Repo tasks: pass rate vs $ per run. All marks are circles here; read the labels. Scroll sideways on narrow screens.": "Replaced the obsolete circles caption after adding family markers; explicitly reports absent fast-mode repo data.",
   "page text: SemiAnalysis: Anthropic plans give ~5× OpenAI's API-priced value at the Opus/Sol tier. We price list-rate calls, not plan quotas, so we can’t test that. At list price, haiku-high beats sol61-high ~7× per pass; tiers differ. On repo tasks the gap is ~8×. But luna-low was cheapest there and passed every repo task.": "Split the SemiAnalysis comparison into sentence-sized bullets; its attribution and all comparisons remain.",
   "page text: The 95% range is 3 to 23 points.": "Split the confidence level from its interval endpoints; all three values remain.",
-  "page text: The bench cost $2.46 on Claude. Codex quota use is estimated at $36.27.": "Rounded the estimated Codex total to the nearest five dollars as requested; exact spend remains in the dataset and full report.",
+  "page text: The bench cost $2.46 on Claude. Codex quota use is estimated at $36.27.": "Replaced by the spend line by kind (Claude, Codex, Grok, Claude pilot and appendix) at computed precision; the figures stay in the dataset and full report.",
   "page text: Wren is not among the configs tested.": "Removed the redundant orchestrator exclusion; the run-by line and complete tested-config catalog retain the scope.",
   "page text: luna = gpt-6-luna, sol61 = gpt-6.1-sol, astra = gpt-6-astra, luna56 = gpt-5.6-luna, sol56 = gpt-5.6-sol (older generation).": "Split model identifiers into shorter sentences; every identifier and the older-generation note remain.",
   "page text: luna-low is cheaper per pass than haiku-low: ~$0.00090 to $0.0011. But it passes 77% to 95%.": "Split the luna price and pass comparisons into separate bullets; both pairs of values remain.",
@@ -148,11 +148,11 @@
   "page text: So the newer model is cheaper but slower, and ⚡ does not close the gap.": "Restored int_sol as one Interesting finding bullet; its comparisons and sentences remain together. The sol-generation closing sentence is shortened within that bullet.",
   "page text: luna-low is cheaper per pass than haiku-low: ~$0.00090 to $0.0011.": "Restored int_luna as one Interesting finding bullet; every original sentence and measurement remains together.",
   "page text: But it passes 77% to 95%.": "Restored int_luna as one Interesting finding bullet; every original sentence and measurement remains together.",
-  "page text: SemiAnalysis: Anthropic plans give ~5× OpenAI's API-priced value at the Opus/Sol tier.": "Restored int_semi as one Interesting finding bullet; every original sentence and measurement remains together.",
-  "page text: We price list-rate calls, not plan quotas, so we can’t test that.": "Restored int_semi as one Interesting finding bullet; every original sentence and measurement remains together.",
-  "page text: At list price, haiku-high beats sol61-high ~7× per pass; tiers differ.": "Restored int_semi as one Interesting finding bullet; every original sentence and measurement remains together.",
-  "page text: On repo tasks the gap is ~8×.": "Restored int_semi as one Interesting finding bullet; every original sentence and measurement remains together.",
-  "page text: But luna-low was cheapest there and passed every repo task.": "Restored int_semi as one Interesting finding bullet; every original sentence and measurement remains together.",
+  "page text: SemiAnalysis: Anthropic plans give ~5× OpenAI's API-priced value at the Opus/Sol tier.": "Corrected, not removed: under the headline task-complete rule luna-low is cheapest per run but not per complete task, so the sentence is recomputed from the data (audit F2).",
+  "page text: We price list-rate calls, not plan quotas, so we can’t test that.": "Corrected, not removed: under the headline task-complete rule luna-low is cheapest per run but not per complete task, so the sentence is recomputed from the data (audit F2).",
+  "page text: At list price, haiku-high beats sol61-high ~7× per pass; tiers differ.": "Corrected, not removed: under the headline task-complete rule luna-low is cheapest per run but not per complete task, so the sentence is recomputed from the data (audit F2).",
+  "page text: On repo tasks the gap is ~8×.": "Corrected, not removed: under the headline task-complete rule luna-low is cheapest per run but not per complete task, so the sentence is recomputed from the data (audit F2).",
+  "page text: But luna-low was cheapest there and passed every repo task.": "Corrected, not removed: under the headline task-complete rule luna-low is cheapest per run but not per complete task, so the sentence is recomputed from the data (audit F2).",
   "page text: On Codex's bench, both families gained.": "Restored int_harness as one Interesting finding bullet; every original sentence and measurement remains together.",
   "page text: luna-low rose from 36 to 47 passes.": "Restored int_harness as one Interesting finding bullet; every original sentence and measurement remains together.",
   "page text: It cost ~3× per pass and took ~3× the median time.": "Restored int_harness as one Interesting finding bullet; every original sentence and measurement remains together.",

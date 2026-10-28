@@ -6,7 +6,7 @@ Which model should a coding task go to?
 
 ## What it measures
 
-We compare {{n_ladder_configs}} model-and-effort configs on fresh Python problems.
+We compare {{n_configs_all}} model-and-effort configs on fresh Python problems.
 The main run used {{n_configs}} of them on {{n_problems}} problems.
 The set contains {{n_all_problems}} problems and {{n_tasks}} small repository tasks.
 Function tasks ask for one answer, with no tool use allowed.
@@ -22,11 +22,11 @@ Repository tasks use agent CLIs, with code execution and retries.
 
 Main ladder: {{n_problems}} problems, each attempted {{repeats}} times per config.
 
-Total spend: {{claude_usd}} Claude, about {{codex_usd_rounded}} Codex (estimated).
+Total spend, by kind: Claude {{claude_usd}} (CLI-reported), Codex {{codex_usd}} (list-price proxy), Grok {{grok_cli_usd}} (CLI-reported), plus Claude pilot and appendix arms {{claude_aux_usd}}.
 
 ## How to read it
 
-Pass rate measures answers passing every hidden test.
+Function pass rate measures answers passing every hidden test. Repo-task counts use one rule, task complete: {{repo_legend}}.
 Read each problem set separately.
 Claude dollars use CLI-reported costs.
 Codex dollars estimate tokens at list prices; subscriptions use quota.

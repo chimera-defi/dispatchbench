@@ -623,11 +623,11 @@ def tables(s):
         for p, f in s["failures"].items():
             L.append(f"| {plabel(p, f['rung'])} | " + " | ".join(cell(f["cells"].get(c)) for c in cfgs) + " |")
     if s["agentic"]:
-        L += ["", "## Agentic track (two pass rules)", "",
-              "Passed our hidden tests = our hidden suite passes against the delivered code. Task complete = hidden and visible tests both pass (the delivered `tests/` directory, including tests the agent added). Both counts are shown.", "",
-              "| config | passed our hidden tests | 95% CI | visible suite, incl. agent's own tests | task complete (hidden and visible pass) | median s | input floor | $/run | $ kind |", "|---|---|---|---|---|---|---|---|---|"]
+        L += ["", "## Agentic track (headline: task complete)", "",
+              "Task complete (the headline rule) = our hidden suite and the delivered `tests/` directory (including tests the agent added) both pass. Passed our hidden tests = our hidden suite alone, the secondary count.", "",
+              "| config | task complete (headline) | passed our hidden tests | 95% CI (hidden) | visible suite, incl. agent's own tests | median s | input floor | $/run | $ kind |", "|---|---|---|---|---|---|---|---|---|"]
         for c, v in s["agentic"].items():
-            L.append(f"| {c} | {v['hidden_pass']}/{v['n']} | {ci_text(v['hidden_pass'], v['n'], v['ci95'], len(v['by_task']))} | {v['visible_pass']}/{v['n']} | {v['task_complete']}/{v['n']} | {v['latency_s']['median']} | "
+            L.append(f"| {c} | {v['task_complete']}/{v['n']} | {v['hidden_pass']}/{v['n']} | {ci_text(v['hidden_pass'], v['n'], v['ci95'], len(v['by_task']))} | {v['visible_pass']}/{v['n']} | {v['latency_s']['median']} | "
                      f"{v['input_floor'][0]} | {money(v['usd_per_run'])} | {v['cost_kind']} |")
         for label, blk in s["agentic_counts"].items():
             L += ["", f"{label} (`{blk['file']}`):", "", "| config | passed our hidden tests | task complete (hidden and visible pass) |", "|---|---|---|"]
