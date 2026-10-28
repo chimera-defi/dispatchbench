@@ -51,6 +51,7 @@
 "g_hi_fixed_words",
 "g_hi_missed",
 "g_lo_fixed",
+"grok_chart_note",
 "grok_match_rule",
 "grok_not_run",
 "grok_reach_note",

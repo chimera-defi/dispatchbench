@@ -24,7 +24,7 @@ class GrokScope(HTMLParser):
     def check(self, text):
         for config in re.findall(r"grok47[a-z-]*", text):
             section = next((attrs.get("id") for tag, attrs in reversed(self.elements) if tag == "section"), None)
-            assert section in {"grok", "fail"}, (config, section)
+            assert section in {"grok", "fail", "pareto"}, (config, section)
             self.counts[config][section] += 1
 
     def handle_starttag(self, tag, attrs):
@@ -48,7 +48,7 @@ class GrokScope(HTMLParser):
         self.check(text)
 
 
-@pytest.mark.parametrize("section", ["grok", "fail"])
+@pytest.mark.parametrize("section", ["grok", "fail", "pareto"])
 @pytest.mark.parametrize("row", [
     '<tr><td>grok47-low</td></tr>',
     '<tr data-config="grok47-high"><td>Grok</td></tr>',
@@ -61,6 +61,19 @@ def test_grok_scope_rejects_rows_after_allowed_section(section, row):
             GrokScope().feed(allowed + outside)
 
 
+def test_grok_scope_report_svgs():
+    """Grok config names belong on the two report figures and nowhere else in results/report/charts."""
+    note = "Grok points use p01-p06 only (6 of 12 problems), so they are not a like-for-like main-ladder comparison."
+    for path in Path(charts.OUT).glob("*.svg"):
+        text = path.read_text()
+        found = set(re.findall(r"grok47[a-z-]*", text))
+        if path.name in {"pareto.svg", "cost_time.svg"}:
+            assert found == set(configs.GROK_CONFIGS), path.name
+            assert note in text
+        else:
+            assert not found, path.name
+
+
 def test_grok_scope_generated_page():
     html = Path(report.PAGE).read_text()
     scope = GrokScope()
@@ -68,7 +81,7 @@ def test_grok_scope_generated_page():
     scope.close()
     assert not scope.elements
     assert set(scope.counts) == set(configs.GROK_CONFIGS)
-    assert all(set(counts) == {"grok", "fail"} for counts in scope.counts.values())
+    assert all(set(counts) == {"grok", "fail", "pareto"} for counts in scope.counts.values())
     inventory = html.split('<summary>Everything we tried</summary>')[-1]
     assert 'Grok: <a href="#grok">see the Grok section</a>' in inventory
     assert not any(c in inventory for c in configs.GROK_CONFIGS)
@@ -167,7 +180,15 @@ def test_first_half_rows_render_without_changing_full_ladder(monkeypatch):
     for block in ("configs", "exploratory", "paired", "pareto"):
         assert ds["report"][block] == baseline["report"][block]
     assert not any(c in configs.GROK_CONFIGS for problem in summary["failures"].values() for c in problem["cells"])
-    assert charts.build(ds) == charts.build(baseline)
+    got, base_charts = charts.build(ds), charts.build(baseline)
+    assert got.keys() == base_charts.keys()
+    for name, body in got.items():
+        if name in {"pareto.svg", "cost_time.svg"}:
+            assert body != base_charts[name]
+            assert "grok47-low" in body and "grok47-high" not in body
+            assert "not a like-for-like" in body
+        else:
+            assert body == base_charts[name], name
     assert "Grok (first half)" in tables
     for c in configs.GROK_CONFIGS:
         assert c in manifest["configs"]
@@ -190,7 +211,9 @@ def test_first_half_rows_render_without_changing_full_ladder(monkeypatch):
     scope = GrokScope()
     scope.feed(html)
     assert set(scope.counts) == set(configs.GROK_CONFIGS)
-    assert all(set(counts) == {"grok", "fail"} for counts in scope.counts.values())
+    assert all({"grok", "fail"} <= set(counts) <= {"grok", "fail", "pareto"} for counts in scope.counts.values())
+    assert "pareto" in scope.counts["grok47-low"]
+    assert "pareto" not in scope.counts["grok47-high"]
     assert "Grok" not in readme  # README currently shows only the Winner table.
     assert "Grok" not in full.split("## Grok\n")[0]
     assert "Grok" not in full.split("## Can luna")[1]
@@ -351,7 +374,7 @@ OLD_GROK_CLAIMS = (
 
 # Digests include every byte outside Grok, including the fail table.
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': '4d4fe30382deacb7a2285568b1210bf0befda162ef87925cf0431ce66a3ef589',
+    'results/report/page.html': '1902f1b5fc0bf3c8a3b8efeb27f5a6a2f635b71017cd7d70d03a7847c99451f3',
     'docs/REPORT.md': '27f19515b597ba56a08c231b206d4f6f51b5b38ed48ed8f572395167b84f987a',
 }
 

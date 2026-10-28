@@ -2,15 +2,15 @@
    token bars, what to do, then collapsed notes. Colours are CSS variables, redefined for dark mode. */
 :root{
   --bg:#f6f7f4; --panel:#ffffff; --fg:#1d2321; --muted:#5d6763; --line:#dde2de;
-  --accent:#0f7a5c; --claude:#b4572e; --sonnet:#2f8f7d; --frontier:#7b3fe4; --codex:#3a5bb8; --codex56:#688acf; --good:#1c7c3c; --warn:#a86b00; --bad:#b3261e;
+  --accent:#0f7a5c; --claude:#b4572e; --sonnet:#2f8f7d; --frontier:#7b3fe4; --codex:#3a5bb8; --codex56:#688acf; --grok:#000; --good:#1c7c3c; --warn:#a86b00; --bad:#b3261e;
   --display:"Fraunces",Georgia,serif; --body:"Atkinson Hyperlegible",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141917; --panel:#1b2220; --fg:#e6ece9; --muted:#9aa6a1; --line:#2c3633;
-  --accent:#4cc79d; --claude:#e08a62; --sonnet:#5cc7b2; --frontier:#b48cff; --codex:#7f9cf0; --codex56:#d4bd68; --good:#5fcf83; --warn:#e3b04b; --bad:#ff7a6e; color-scheme:dark}}
+  --accent:#4cc79d; --claude:#e08a62; --sonnet:#5cc7b2; --frontier:#b48cff; --codex:#7f9cf0; --codex56:#d4bd68; --grok:#111; --good:#5fcf83; --warn:#e3b04b; --bad:#ff7a6e; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141917; --panel:#1b2220; --fg:#e6ece9; --muted:#9aa6a1; --line:#2c3633;
-  --accent:#4cc79d; --claude:#e08a62; --sonnet:#5cc7b2; --frontier:#b48cff; --codex:#7f9cf0; --codex56:#d4bd68; --good:#5fcf83; --warn:#e3b04b; --bad:#ff7a6e; color-scheme:dark}
+  --accent:#4cc79d; --claude:#e08a62; --sonnet:#5cc7b2; --frontier:#b48cff; --codex:#7f9cf0; --codex56:#d4bd68; --grok:#111; --good:#5fcf83; --warn:#e3b04b; --bad:#ff7a6e; color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--body)}
 main{max-width:920px;margin:0 auto;padding-block:32px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
@@ -135,7 +135,8 @@ tr.grp th::after{content:none}
 .category-filter input:disabled{cursor:default}
 .cwrap.hide-main .cvariant [data-cat="main"],.cwrap.hide-main .cvariant [data-from-cat="main"],
 .cwrap.hide-fast .cvariant [data-cat="fast"],.cwrap.hide-pipelines .cvariant [data-cat="pipelines"],
-.cwrap.hide-exploratory .cvariant [data-cat="exploratory"]{display:none}
+.cwrap.hide-exploratory .cvariant [data-cat="exploratory"],
+.cwrap.hide-grok .cvariant [data-cat="grok"]{display:none}
 .frontier-note,.set-note{grid-column:1/-1;margin:0;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
 .ckeys{min-width:0;display:grid;gap:6px}
 .key-group{border:1px solid var(--line);border-radius:6px;min-width:0}
@@ -301,6 +302,8 @@ svg .zone{pointer-events:none}
 svg .rk-n{font:700 13px var(--body);fill:var(--panel)}
 .chart svg text.rk-n{font-size:13px;font-weight:700;fill:var(--panel)}
 .cplot .pt[data-out]{opacity:.45}
+.cplot .pt[data-cat="grok"]{opacity:1}
+.cwrap.hov .pt.dim[data-cat="grok"]{opacity:.18}
 .cplot .pt>line{opacity:0;transition:opacity .12s}
 .cplot .pt[data-best]>line,.cplot .pt:hover>line,.cplot .pt:focus>line,.cplot .pt.hi>line{opacity:1}
 .picks{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin:0;padding:6px 2px 2px;background:var(--panel);font-size:13px}

@@ -709,6 +709,13 @@ def _facts(s, arms):
         f"luna-low is not a best trade-off: luna-medium costs the same, {usd(medium['usd_per_pass'], sig=1)} per pass. "
         f"It passes {medium['passes']}/{medium['n']} to luna-low's {low['passes']}/{low['n']}. "
         f"{configs.set_label('main ladder', capital=True)} only; every point counts.")
+    if s.get("grok"):
+        covered = sorted({p for v in s["grok"].values() for p in v.get("by_problem", {})})
+        if covered:
+            F["grok_chart_note"] = (
+                f"Grok points use {covered[0][:3]}-{covered[-1][:3]} only "
+                f"({len(covered)} of {len(s['problems'])} problems), so they are not a like-for-like main-ladder comparison.")
+            F["frontier_caption"] += " " + F["grok_chart_note"]
     F['winner_caption'] = (
         f"Numbers: the {nprob}-problem {configs.set_label('main ladder')}, {hl['n']} tries per config. "
         "Time = median seconds. ~ = estimated from tokens; Claude costs are measured.")

@@ -10,7 +10,7 @@ FONT = "font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, 
 INK, MUTED, GRID, PLATE = "var(--fg,#1d2321)", "var(--muted,#5d6763)", "var(--line,#dde2de)", "var(--panel,#ffffff)"
 HOST_AGENTS_MD = dataset.HOST_AGENTS_MD
 BADC, WARNC = "var(--bad,#b3261e)", "var(--warn,#a86b00)"
-FAMILY = lambda c: "var(--grok,#b34f91)" if c.startswith("grok") else "var(--claude,#b4572e)" if c.startswith("haiku") else "var(--sonnet,#2f8f7d)" if c.startswith("sonnet") else "var(--codex,#3a5bb8)"
+FAMILY = lambda c: "var(--grok,#000)" if c.startswith("grok") else "var(--claude,#b4572e)" if c.startswith("haiku") else "var(--sonnet,#2f8f7d)" if c.startswith("sonnet") else "var(--codex,#3a5bb8)"
 
 
 # Per-label vertical offsets so neighbouring points' labels do not collide.
@@ -19,9 +19,12 @@ LABEL_LEFT = {"haiku-low", "sonnet-medium"}  # left of the point, clear of luna-
 HERO_LEFT = {"sonnet-medium": 18, "haiku-medium": 4}  # README hero: left of the point, label dy; clear of the 100% row picks
 
 
-def svg(w, h, body):
-    return (f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {w} {h}' width='{w}' height='{h}' {FONT} font-size='12'>"
-            f"<rect width='{w}' height='{h}' fill='{PLATE}'/>{''.join(body)}</svg>\n")
+def svg(w, h, body, x=0, y=0):
+    if not x and not y:
+        return (f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {w} {h}' width='{w}' height='{h}' {FONT} font-size='12'>"
+                f"<rect width='{w}' height='{h}' fill='{PLATE}'/>{''.join(body)}</svg>\n")
+    return (f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='{x} {y} {w} {h}' width='{w}' height='{h}' {FONT} font-size='12'>"
+            f"<rect x='{x}' y='{y}' width='{w}' height='{h}' fill='{PLATE}'/>{''.join(body)}</svg>\n")
 
 
 def text(x, y, s, size=12, anchor="start", fill=INK, weight="normal", rotate=None):
@@ -44,6 +47,8 @@ def pareto_chart(s, hero=False):
     cfg = {c: v for c, v in s["configs"].items() if v["usd_per_pass"]}
     extra = {c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"]}  # exploratory, not on the pre-registered frontier
     allc = {**cfg, **extra}
+    # Grok ran p01-p06 only. It is drawn on the same scale, never used to set it, and never joins the frontier. The README hero stays the full ladder.
+    grok = {} if hero else {c: v for c, v in (s.get("grok") or {}).items() if v.get("usd_per_pass")}
     W, H, L, R, T, B = 760, 480, 96, 30, 50, 80
     xs = [v["usd_per_pass"] for v in allc.values()]
     x0, x1 = min(xs) / 1.6, max(xs) * 1.6; y0 = 0.6
@@ -60,8 +65,10 @@ def pareto_chart(s, hero=False):
     if len(front) > 1:
         pts = " ".join(f"{X(cfg[c]['usd_per_pass']):.1f},{Y(cfg[c]['pass_at_1']):.1f}" for c in front)
         b.append(f"<polyline points='{pts}' fill='none' stroke='{INK}' stroke-width='1.5' stroke-dasharray='5 4'/>")
+    taken, label_boxes = [], []
     for c, v in allc.items():
         x, y = X(v["usd_per_pass"]), Y(v["pass_at_1"]); on = c in front; hollow = "-fast" in c
+        taken.append((x, y))
         lo, hi = v["ci95"]
         col = FAMILY(c)
         if not hero:
@@ -80,9 +87,54 @@ def pareto_chart(s, hero=False):
             dy = HERO_LEFT.get(c, -10 if v["pass_at_1"] == 1 else 4)
             b.append(text(x - 10 if left else x + 10, y + dy, label, 12, "end" if left else "start", INK, "600" if pick else "normal"))
             continue
-        b.append(text(x - 10 if right else x + 10, y + LABEL_DY.get(c, -8), label, 11, "end" if right else "start", MUTED if hollow else INK))
+        lx, ly = (x - 10 if right else x + 10), y + LABEL_DY.get(c, -8)
+        anchor = "end" if right else "start"
+        b.append(text(lx, ly, label, 11, anchor, MUTED if hollow else INK))
+        tw = 6.4 * len(label)
+        left = lx - tw if anchor == "end" else lx
+        label_boxes.append((left, ly - 12, left + tw, ly + 3))
+    for c, v in grok.items():
+        x, y = X(v["usd_per_pass"]), Y(v["pass_at_1"])
+        step = 0
+        while any(math.dist((x + step, y), p) < 14 for p in taken):
+            step += 18  # only this mark moves; the series it collided with stays put
+        x += step
+        taken.append((x, y))
+        lo, hi = v["ci95"]
+        col = FAMILY(c)
+        b.append(f"<line x1='{x:.1f}' x2='{x:.1f}' y1='{Y(max(lo, y0)):.1f}' y2='{Y(hi):.1f}' stroke='{col}' stroke-width='2' opacity='0.35'/>")
+        b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='5.5' fill='{col}' stroke='#fff' stroke-width='1.5'/>")
+        label = f"{DISP(c)} ({100 * v['pass_at_1']:.0f}%)"
+        tw = 6.4 * len(label)
+        spot = None
+        for dx, dy, anchor in ((10, -8, "start"), (-10, -8, "end"), (10, 14, "start"), (-10, 14, "end"),
+                               (10, -22, "start"), (-10, 28, "end"), (-10, 32, "end"), (10, 28, "start"),
+                               (-10, 42, "end"), (-10, 56, "end"), (-10, 68, "end")):
+            lx, ly = x + dx, y + dy
+            left = lx - tw if anchor == "end" else lx
+            rect = (left, ly - 12, left + tw, ly + 3)
+            if rect[0] < L or rect[2] > W - 6 or rect[1] < 30 or rect[3] > H - B:
+                continue
+            if any(not (rect[2] < q[0] or rect[0] > q[2] or rect[3] < q[1] or rect[1] > q[3]) for q in label_boxes):
+                continue
+            if any(math.hypot(cx - x, cy - y) > 1 and rect[0] < cx + 8 and rect[2] > cx - 8 and rect[1] < cy + 8 and rect[3] > cy - 8 for cx, cy in taken):
+                continue
+            spot = (lx, ly, anchor, rect)
+            break
+        if spot is None:
+            spot = (x + 10, y + 14, "start", None)
+        lx, ly, anchor, rect = spot
+        if rect:
+            label_boxes.append(rect)
+        if abs(ly - y) >= 20:  # the 100% row is already full, so a moved Grok label keeps a leader
+            b.append(f"<line x1='{x:.1f}' x2='{lx:.1f}' y1='{y + (6 if ly > y else -6):.1f}' y2='{ly + (-3 if ly > y else 3):.1f}' stroke='{col}' stroke-width='1' opacity='0.6'/>")
+        b.append(text(lx, ly, label, 11, anchor, INK))
     b.append(text(L, H - 10, "Dashed: best trade-offs. Hollow: fast mode. Codex $ is a token-price estimate." if hero else
                   "Dashed: best trade-offs. Bars: 95% CI. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
+    note = "" if hero else (s.get("facts") or {}).get("grok_chart_note", "")
+    if note:
+        b.append(text(L, H + 8, note, 10, fill=MUTED))
+        return svg(W, H + 22, b)
     return svg(W, H, b)
 
 
@@ -104,18 +156,28 @@ def cost_time_chart(s):
     y1 = math.ceil(max(p[1] for p in pts.values()) / 5) * 5 + 5
     X = lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R)
     Y = lambda t: H - B - t / y1 * (H - T - B)
-    b = [text(L, 24, "Cost per passing solution vs median latency (main ladder p01-p12, x log)", 14, weight="600")]
+    title = "Cost per passing solution vs median latency (main ladder p01-p12, x log)"
+    b = [text(L, 24, title, 14, weight="600")]
     for t in range(0, int(y1) + 1, 5):
         b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(t):.1f}' y2='{Y(t):.1f}' stroke='{GRID}'/>", text(L - 8, Y(t) + 4, f"{t} s", 11, "end", MUTED)]
+    # Grok is slower than this axis. Extra gridlines sit above it; the scale and the existing lines stay.
+    grok = {c: v for c, v in (s.get("grok") or {}).items() if v.get("usd_per_pass")}
+    tops = []
+    gmax = max((v["latency_s"]["median"] for v in grok.values()), default=0)
+    if gmax > y1:
+        for t in range(int(y1) + 5, math.ceil(gmax / 5) * 5 + 1, 5):
+            b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(t):.1f}' y2='{Y(t):.1f}' stroke='{GRID}'/>", text(L - 8, Y(t) + 4, f"{t} s", 11, "end", MUTED)]
+            tops.append(Y(t) - 11)
     for v in log_ticks(x0, x1):
         b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{H - B}' stroke='{GRID}'/>", text(X(v), H - B + 18, dataset.usd(v, tick=True), 11, "middle", MUTED)]
     b += [text((L + W - R) / 2, H - B + 38, "$ per passing call", 12, "middle", MUTED),
           text(26, (T + H - B) / 2, "median seconds per call", 12, "middle", MUTED, rotate=-90)]
     if len(front) > 1:
         b.append(f"<polyline points='{' '.join(f'{X(pts[c][0]):.1f},{Y(pts[c][1]):.1f}' for c in front)}' fill='none' stroke='{PURPLE}' stroke-width='2.5' stroke-dasharray='6 4'/>")
-    lanes = {}
+    lanes, taken = {}, []
     for c, (x, t) in sorted(pts.items(), key=lambda item: item[1][0]):
         hollow = "-fast" in c; px, py = X(x), Y(t)
+        taken.append((px, py))
         col = FAMILY(c)
         b.append(f"<circle cx='{px:.1f}' cy='{py:.1f}' r='6' fill='{PLATE if hollow else col}' stroke='{PURPLE if c in front else col if hollow else PLATE}' stroke-width='{3 if c in front else 2 if hollow else 1.5}'/>")
         lab = f"{DISP(c)} ({100 * allc[c]['pass_at_1']:.0f}%){' *' if allc[c]['cost_kind'] == 'proxy' else ''}"; w = 6.3 * len(lab)
@@ -125,8 +187,41 @@ def cost_time_chart(s):
         lanes[0].append((xl, xl + w, ly))
         if lane: b.append(f"<line x1='{px:.1f}' x2='{px:.1f}' y1='{py - 7:.1f}' y2='{ly + 3:.1f}' stroke='{col}' stroke-width='1' opacity='0.6'/>")
         b.append(text(xl, ly, lab, 11, fill=MUTED if hollow else INK))
+    for c, v in grok.items():  # after the other labels, so their lanes stay where they were
+        x, t = v["usd_per_pass"], v["latency_s"]["median"]
+        px, py = X(x), Y(t)
+        step = 0
+        while any(math.dist((px + step, py), p) < 14 for p in taken):
+            step += 18
+        px += step
+        taken.append((px, py))
+        col = FAMILY(c)
+        b.append(f"<circle cx='{px:.1f}' cy='{py:.1f}' r='6' fill='{col}' stroke='#fff' stroke-width='1.5'/>")
+        tops.append(py - 6)
+        lab = f"{DISP(c)} ({100 * v['pass_at_1']:.0f}%)"; w = 6.3 * len(lab)
+        xl = px - 10 - w if px + 10 + w > W - R else px + 10
+        lane = next(k for k in range(30) if all(abs(ly - (py - 12 - 16 * k)) >= 15 or e < xl - 6 or s0 > xl + w + 6 for s0, e, ly in lanes.setdefault(0, [])))
+        ly = py - 12 - 16 * lane
+        lanes[0].append((xl, xl + w, ly))
+        tops.append(ly - 11)
+        if lane: b.append(f"<line x1='{px:.1f}' x2='{px:.1f}' y1='{py - 7:.1f}' y2='{ly + 3:.1f}' stroke='{col}' stroke-width='1' opacity='0.6'/>")
+        b.append(text(xl, ly, lab, 11, fill=INK))
     b.append(text(L, H - 10, f"Purple ring: best trade-offs, pass rate ≥ {100 * MIN_PASS:.0f}%, then cost and time. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
-    return svg(W, H, b)
+    note = (s.get("facts") or {}).get("grok_chart_note", "")
+    pad = 0
+    if note:
+        b.append(text(L, H + 8, note, 10, fill=MUTED))
+        pad = 22
+    high = [y for y in tops if y < 24]
+    if high:
+        title_y = min(high) - 16
+        b[0] = text(L, title_y, title, 14, weight="600")
+        view_y = math.floor(title_y - 18)
+        if gmax > y1:
+            for v in log_ticks(x0, x1):  # extend the grid into the new strip without moving the lines already drawn
+                b.append(f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{Y(math.ceil(gmax / 5) * 5):.1f}' y2='{T}' stroke='{GRID}'/>")
+        return svg(W, (H + pad) - view_y, b, y=view_y)
+    return svg(W, H + pad, b)
 
 
 def rung_rows(s, ds=None):
