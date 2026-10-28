@@ -108,6 +108,7 @@ Cost per pass is $0.054 to $0.111. Claude haiku and the Codex luna lanes are und
 - grok47-high cleared L1–L3. It was not run further.
 - Against the closest lanes, Grok is slower and costs more per pass. The tables below give the multiples.
 - Repo tasks: grok47-high passed 8/8 at 442.1 s median. grok47-low passed 8/8 at 98.9 s median.
+- Repo-task pass rule: task complete (hidden and visible tests both pass); hidden tests alone: grok47-high 8/8, grok47-low 8/8.
 - The repo sample is small and ran on a shared host.
 - Per the routing rule, Claude Haiku stays the first fallback when Codex is out. These runs show Grok is usable after that on small repo tasks.
 
@@ -202,6 +203,8 @@ Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory ph
 
 Grok is a usable fallback for these small repo tasks when Codex is out. Claude is faster and cheaper. grok47-low passed 8/8 at 98.9 s median. Today’s Claude fallback lanes (haiku-high 12/12, haiku-low 12/12, sonnet-medium 12/12) took 27.7–58.4 s median.
 
+Pass rules. `task complete k/n` counts runs where the hidden tests and the delivered visible tests both pass. Passed our hidden tests alone: grok47-high 8/8, grok47-low 8/8, astra-medium 12/12, haiku-high 12/12, haiku-low 12/12, luna-low 12/12, sol61-high 12/12, sol61-medium 12/12, sonnet-medium 12/12.
+
 | Grok config | family | closest lane | Grok time / lane | Grok $ per pass / lane |
 |---|---|---|---|---|
 | grok47-high | Claude | haiku-high | 7.57× | 44.34× |
@@ -236,7 +239,7 @@ Each family shows the lane with the closest pass rate. Ties use the closest medi
 
 4 tasks (t1_discount, t2_cache_bugs, t3_config_refs, t4_retry_queue); Grok: 2 repeats per task and config, 4 parallel lanes, tools on, no web or subagents, 1,500 s timeout; all 16 runs retained with no performance stop rule. Existing lanes: 3 repeats per task; clean-home Codex replacements are used where available. A pass requires both visible and hidden tests; hidden tests run after the agent exits.
 
-| config | pass k/n | median wall s | $ per pass | median turns |
+| config | task complete k/n | median wall s | $ per pass | median turns |
 |---|---|---|---|---|
 | grok47-high | 8/8 | 442.1 | $0.54 | 9 |
 | grok47-low | 8/8 | 98.9 | $0.19 | 5 |
@@ -265,11 +268,13 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 1. **"Low effort" is not the same budget on both CLIs, and on the point estimates that explains most of luna's gap.** At low and medium effort luna emits a mean of 0 and 7 reasoning tokens per call; haiku-low emits about 1,030. At those settings luna passes 77% and 78%, and haiku-low passes 95% (paired difference +18.3 pts, CI +1.7 to +38.3). At high effort luna emits about 530 reasoning tokens and passes 92% (55/60), 3.3 pts below haiku-low (CI −13.3 to +6.7). Its cost per pass, $0.0010, is close to haiku-low's $0.0011, and its median latency is 12.2 s against 10.0 s.
 2. **Luna's misses at low and medium effort cluster on three problems.** Together they pass 2/10 attempts on p04 taller_within (L2), 6/10 on p11 best_average (L6) and 0/10 on p12 sheet (L6). The pre-registered escalation re-ran those three at high effort: 13/15 against luna-medium's 3/15. The three were chosen because luna failed them, so that ratio overstates the general gain; the full-ladder luna-high run is the unbiased version (+13.3 pts against luna-medium, CI −5.0 to +35.0).
 3. **Stripping the Codex harness halves luna's input but does not make it as accurate as Haiku.** On the full ladder stripped luna passes 73% against haiku-low's 95%: −21.7 pts, CI −43.3 to 0.0, so the interval's upper end touches zero. Its cost per pass, $0.00080, depends on Codex's prompt cache: with no input served from cache it would be $0.0012, 7% above Haiku's measured $0.0011 (which includes Claude's own cache discount).
-4. **The repo tasks did not separate the configs.** The four configs first run passed every hidden test, 12/12 runs each (so did the two added later, finding 5). What differs is cost per run: luna-low $0.0033, haiku-low $0.0051, sonnet-medium $0.054, sol61-medium $0.079, a 24× spread for the same outcome. sol61-medium took 85 s; luna-low took 24 s. The two Claude configs took about 28 s.
+4. **The repo tasks separate the configs only a little.** Under the hidden-test rule (passed our hidden tests: our hidden suite passes against the delivered code) the four configs first run passed every hidden test, 12/12 runs each (so did the two added later, finding 5). Under the task-complete rule (task complete: hidden and visible tests both pass) luna-low misses 1 run in the original run (11/12) and 5 in the clean-home rerun (7/12), each time by leaving 1 to 2 visible tests failing while the hidden tests passed; no run edited the shipped tests or errored, and the red-suite runs are under audit. Every task prompt told the agent to add tests and that all tests must pass, so a red visible suite means the run did not do what the prompt asked. Every other config completes every run. Cost per run is the larger difference: luna-low $0.0033, haiku-low $0.0051, sonnet-medium $0.054, sol61-medium $0.079, a 24× spread. sol61-medium took 85 s; luna-low took 24 s. The two Claude configs took about 28 s.
 
-5. **Two later Codex configs never failed, and they move the cost to the Codex bill** (exploratory, added 2026-10-23). sol61-high (gpt-6.1-sol at high effort) and astra-medium (gpt-6-astra) passed every L1–L6 attempt (60/60, 60/60), every L7 attempt (15/15, 15/15) and all 12 repo-task runs. On luna's hardest problems, with haiku-low repairing only when the statement's examples fail, they needed 0 and 0 repairs (35/35, 35/35), so their Claude cost there was $0 and $0 per pass. By list price they are dear: $0.019 and $0.075 per pass on L1–L6, 1.5× and 6× sonnet-medium's. astra-medium is faster (20.9 s against 27.4 s on L1–L6, 66 s against 118 s on the repo tasks) and uses about 4.0× as much at list price; both are much slower than a Claude builder on the repo tasks (about 28 s for haiku-low and sonnet-medium).
+   *Correction, 2026-10-28.* A reader pointed out that "passed every hidden test" hid luna-low's visible-test misses. Both counts are now shown.
+
+5. **Two later Codex configs never failed, and they move the cost to the Codex bill** (exploratory, added 2026-10-23). sol61-high (gpt-6.1-sol at high effort) and astra-medium (gpt-6-astra) passed every L1–L6 attempt (60/60, 60/60), every L7 attempt (15/15, 15/15) and all 12 repo-task runs (on both rules: hidden tests, and task complete). On luna's hardest problems, with haiku-low repairing only when the statement's examples fail, they needed 0 and 0 repairs (35/35, 35/35), so their Claude cost there was $0 and $0 per pass. By list price they are dear: $0.019 and $0.075 per pass on L1–L6, 1.5× and 6× sonnet-medium's. astra-medium is faster (20.9 s against 27.4 s on L1–L6, 66 s against 118 s on the repo tasks) and uses about 4.0× as much at list price; both are much slower than a Claude builder on the repo tasks (about 28 s for haiku-low and sonnet-medium).
 6. **The other later Codex configs change nothing.** sol56-high (gpt-5.6-sol) never fails on L1–L6 but misses on L7 (13/15) at 28× haiku-medium's price per pass. The older luna is worse and dearer: luna56-high passes 9/15 on L7 against gpt-6 luna-high's 15/15, and costs 2.8× as much per pass on L1–L6 (gpt-5.6-luna lists at twice gpt-6-luna's input price and more than twice its output price). Findings 5 and 6 are exploratory: the configs were chosen after the main results were known, and Codex dollars are list-price proxies.
-7. **Parity starts at haiku-high** (exploratory, added 2026-10-24). haiku-medium still misses: 59/60 on L1–L6 and 1 crash and 1 timeout on L7 (13/15). haiku-high passed every attempt: 60/60 on L1–L6, 15/15 on L7 and 12/12 repo-task runs. It costs $0.0028 per pass on L1–L6 (1.9× haiku-medium's, from 1.6× the output tokens) and $0.0034 on L7. That is 4× cheaper than sonnet-medium, 7× cheaper than sol61-high and 27× cheaper than astra-medium on L1–L6 (5×, 7× and 25× on L7; the Codex figures are list-price proxies). Median time is 14.7 s on L1–L6 against 27.4 s for sol61-high and 20.9 s for astra-medium, and 27 s on L7 against 53 s and 31 s. sonnet-medium is still the fastest of the four (10.1 s, 15 s on L7). The tail is long: p90 38 s on L1–L6, and repo tasks take 58 s at the median. It ran after the main results were known, so read it as a strong lead, not a pre-registered result.
+7. **Parity starts at haiku-high** (exploratory, added 2026-10-24). haiku-medium still misses: 59/60 on L1–L6 and 1 crash and 1 timeout on L7 (13/15). haiku-high passed every attempt: 60/60 on L1–L6, 15/15 on L7 and 12/12 repo-task runs (both rules). It costs $0.0028 per pass on L1–L6 (1.9× haiku-medium's, from 1.6× the output tokens) and $0.0034 on L7. That is 4× cheaper than sonnet-medium, 7× cheaper than sol61-high and 27× cheaper than astra-medium on L1–L6 (5×, 7× and 25× on L7; the Codex figures are list-price proxies). Median time is 14.7 s on L1–L6 against 27.4 s for sol61-high and 20.9 s for astra-medium, and 27 s on L7 against 53 s and 31 s. sonnet-medium is still the fastest of the four (10.1 s, 15 s on L7). The tail is long: p90 38 s on L1–L6, and repo tasks take 58 s at the median. It ran after the main results were known, so read it as a strong lead, not a pre-registered result.
 
 ![Pass rate against cost per passing solution. Dashed: Pareto frontier of the pre-registered configs. Bars: 95% CI.](../results/report/charts/pareto.svg)
 
@@ -348,7 +353,7 @@ Medians are over each config's passing L1–L6 solutions, so a config that fails
 
 **Repo tasks.** Every task asked for a regression test. Whether the requested test file exists is checked by the harness after each run. The function counts come from the agents' own transcripts; Codex logs list the test files it touched but not always their contents, so its function counts are lower bounds.
 
-| config | hidden tests passed | complete task | runs that wrote the requested test file | test functions added | median s | $ per run | $ kind |
+| config | passed our hidden tests | task complete (hidden and visible pass) | runs that wrote the requested test file | test functions added | median s | $ per run | $ kind |
 |---|---|---|---|---|---|---|---|
 | luna-low | 12/12 | 7/12 | 12/12 | no transcripts | 24.1 | $0.0033 | proxy |
 | haiku-low | 12/12 | 12/12 | 12/12 | 114 | 28.3 | $0.0051 | measured |
@@ -358,7 +363,7 @@ Medians are over each config's passing L1–L6 solutions, so a config that fails
 | sol61-high | 12/12 | 12/12 | 12/12 | no transcripts | 117.9 | $0.097 | proxy |
 | astra-medium | 12/12 | 12/12 | 12/12 | no transcripts | 65.6 | $0.45 | proxy |
 
-![Repo tasks: hidden-test pass rate against dollars per run.](../results/report/charts/agentic.svg)
+![Repo tasks: both pass rules against dollars per run. Filled mark: passed our hidden tests; ring: task complete (hidden and visible tests both pass).](../results/report/charts/agentic.svg)
 
 ## Harder rung (L7), added after the main run
 
@@ -381,7 +386,7 @@ Three more problems, written and checked before any model saw them (PLAN.md, dev
 | luna56-low | 8/15 | 27%–80% | 3/5 | 2/5 | 3/5 | 11.6 | 761 | $0.0046 | proxy |
 
 - **Of the four configs first run on L7, only haiku-low failed, and only on speed.** All 3 misses are timeouts on the same p15 paint_erase case: 50,000 single cells painted with a high colour, then 50,000 paints across the whole strip. The failing solutions keep a sorted list of coloured intervals and visit every interval a paint covers, which is quadratic on that case; the 2 passing attempts used a segment tree. None of haiku-low's answers was wrong.
-- **The other three did not separate.** With three problems, a perfect score only bounds the pass rate at ≥15/15 (one-sided 95%), so this says L7 is still not hard enough for them, not that they are equally strong. What does separate them is price and time: luna-high costs $0.0015 per pass (proxy) against $0.017–$0.018 for sol61-medium and sonnet-medium, and sonnet-medium is the fastest at 15 s.
+- **The other three stayed tied.** With three problems, a perfect score only bounds the pass rate at ≥15/15 (one-sided 95%), so this says L7 is still not hard enough for them, not that they are equally strong. What does separate them is price and time: luna-high costs $0.0015 per pass (proxy) against $0.017–$0.018 for sol61-medium and sonnet-medium, and sonnet-medium is the fastest at 15 s.
 - Both effort-adaptive configs spent more reasoning on L7 than on L1–L6: haiku-low 2.4× (1,027 → 2,506 tokens), luna-high 3.0× (526 → 1,569).
 
 ## Where they fail
@@ -432,7 +437,7 @@ The design was pre-registered in [PLAN.md](../PLAN.md) and committed before the 
 
 `make selftest` checks all three. Candidates run in a separate `python3 -I` process with a 2 GB memory cap. Large cases get max(2 s, 10 × the reference's time). Grading happens after generation, one problem at a time, so parallel model calls cannot cause false timeouts. The L6 problems were written after a calibration run showed three configs passing all of L1–L5 (PLAN.md, deviation 5).
 
-**Repo tasks.** 4 small repo tasks: add a feature, fix four bugs, add config interpolation, add a retry queue. Each has visible tests plus hidden tests that are copied in only after the agent exits. Both CLIs get shell and file-edit tools, and no user settings or MCP servers. A run passes when every hidden test passes. The harness also records whether the agent edited the original tests (none did) and whether it wrote the regression test the task asked for.
+**Repo tasks.** 4 small repo tasks: add a feature, fix four bugs, add config interpolation, add a retry queue. Each has visible tests plus hidden tests that are copied in only after the agent exits. Both CLIs get shell and file-edit tools, and no user settings or MCP servers. Two pass rules are reported. A run "passed our hidden tests" when our hidden suite passes against the delivered code, with the same collected test ids as the reference. A run is "task complete" when the hidden suite and the delivered `tests/` directory (the shipped visible tests plus any the agent added) both pass. Every task prompt told the agent to add tests and that all tests must pass. The harness also records whether the agent edited the original tests (none did) and whether it wrote the regression test the task asked for.
 
 **Escalation.** Pre-registered rule: if a model's highest base effort passes 2/5 or fewer on a problem, the next effort level runs 5 attempts on that problem only. It fired once, for luna. Because the subset is picked by failure, the escalation table reports counts and no interval.
 
@@ -458,7 +463,7 @@ rebuilds every table, chart and number in this README and the page from the cach
 
 - **Small sample.** 12 problems and 4 repo tasks, with 5 and 3 attempts. The intervals are wide; read them before the point estimates.
 - **The breaking point is unstable at this size.** With 10 attempts per rung, two attempts move it. Stripped luna breaks at L2 (4/10) and stock luna at L6, yet stripped luna then scores 10/10 on L3. The rung order is the author's prior about difficulty, not a measurement, and the per-problem chart shows where it was wrong (for luna, p04 taller_within at L2 is harder than every problem except p12 sheet).
-- **The repo tasks hit a ceiling.** All 84 runs passed. They show cost and latency differences, not capability differences.
+- **The repo tasks nearly hit a ceiling.** All 84 runs passed our hidden tests; under task complete (hidden and visible tests both pass) only luna-low falls short (7/12). They mostly show cost and latency differences, not capability differences.
 - **Codex cost is a proxy**, and it depends on the provider's prompt cache. Identical prompts got between 0 and 6.1k cached tokens (stripped luna on p06 calc), which moves a Codex call's cost by up to 5.8×. The stripped-luna figures give a no-cache bound for that reason. Claude cost is measured, but it is the CLI's own accounting.
 - **Harnesses are matched, not identical.** Codex cannot turn tools off on the function track; it gets a read-only sandbox and an instruction. Codex also injects the host's user-level `AGENTS.md` (about 1.3k tokens), so every function-track Codex input count includes tokens a clean install would not have. Repo-task rows were rerun with a clean Codex home; a clean rerun of 995 function calls passed 889 versus 890, so those rows were kept. Claude Code keeps its own default system prompt.
 - **Latency is wall-clock through the CLI** on one host with up to 4 calls in flight. It includes CLI start-up and network time, and is not comparable to API time-to-first-token. The exploratory stripped-luna run used one lane at a different time of day, so its latency is not a clean comparison with luna-low.

@@ -8,6 +8,7 @@ from xml.etree import ElementTree as ET
 import pytest
 
 from analysis import charts, configs, dataset, harness_bias, page, report
+from html import unescape
 
 ROOT = Path(__file__).resolve().parents[1]
 NS = {"s": "http://www.w3.org/2000/svg"}
@@ -744,3 +745,16 @@ def test_landcheck_flags_dropped_facts_and_placeholder_cells(monkeypatch):
         assert landcheck.placeholder_cells(built[:cell.start(2)] + placeholder + built[cell.end(2):])
     monkeypatch.setattr(landcheck, "git", lambda *a: '["__probe__"]' if a[0] == "show" and a[1].endswith(landcheck.USED) else real_git(*a))
     assert "dropped_facts: __probe__" in landcheck.page_findings("HEAD")
+
+
+def test_every_repo_task_summary_names_a_pass_rule():
+    """Each sentence about repo-task passes on the README, report and page must say which rule it counts."""
+    from analysis import report
+    readme, full, page_html = report.render()
+    rule = re.compile(r"hidden[- ]test|hidden and visible|task[- ]complete|both (?:pass )?rules|hidden tests alone|on both rules", re.I)
+    for name, text in (("README", readme), ("report", full), ("page", re.sub(r"<[^>]+>", " ", unescape(page_html)))):
+        for m in re.finditer(r"[^.\n]*(?:repo[- ]tasks?|repo-task runs)[^.\n]*(?:passed|pass(?:es)?\b|12/12|8/8|complete)[^.\n]*", text, re.I):
+            if "function calls" in m.group(0): continue  # the clean-home note counts function-track calls, not repo-task runs
+            window = text[max(0, m.start() - 300): m.end() + 300]
+            assert rule.search(window), f"{name}: no pass rule near: {m.group(0)[:120]}"
+    assert "11/12" in full and "7/12" in full and "7/12" in page_html and "did not separate the configs" not in full + page_html

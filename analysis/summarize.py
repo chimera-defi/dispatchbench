@@ -62,6 +62,25 @@ def agentic_rows():
     return selected_rows(_sourced(AGENT), ("agentic",), ("config",), ("task", "repeat"))
 
 
+AGENTIC_SETS = (("original run", "2026-10-22b-agentic.jsonl"), ("isolated rerun", "2026-10-25-isolated-agentic.jsonl"),
+                ("Grok repo tasks", "2026-10-27-grok-agentic.jsonl"))
+
+
+def agentic_counts():
+    """Both pass rules per config for each repo-task file, from the raw rows: hidden = our hidden tests pass; complete =
+    hidden and visible tests both pass (older rows lack task_complete, so it is derived), plus failed visible tests per red run."""
+    out = {}
+    for label, name in AGENTIC_SETS:
+        rows = load(os.path.join(RES, name)); d = {}
+        for c in sorted({r["config"] for r in rows}):
+            rr = [r for r in rows if r["config"] == c]
+            done = [bool(r.get("task_complete", r["visible_pass"] and r["hidden_pass"])) for r in rr]
+            d[c] = {"n": len(rr), "hidden_pass": sum(bool(r["hidden_pass"]) for r in rr), "task_complete": sum(done),
+                    "red_visible": sorted((r["task"], r["repeat"], r["visible"]["failed"]) for r, ok in zip(rr, done) if not ok)}
+        out[label] = {"file": "results/" + name, "configs": d}
+    return out
+
+
 def rescue_rows():
     return load(os.path.join(RES, "appendix", "luna_rescue.jsonl"))
 
@@ -372,6 +391,7 @@ def build():
     cfg = s["configs"]
     s["pareto"] = pareto({c: (v["usd_per_pass"], v["pass_at_1"]) for c, v in cfg.items() if v["usd_per_pass"]})
     s["agentic"] = agentic_block(agent) if agent else {}
+    s["agentic_counts"] = agentic_counts()
     s["pilot_reprice"] = pilot_reprice()
     s["pilot"] = pilot_block()
     s["pilot_fast"] = pilot_fast()
@@ -600,10 +620,15 @@ def tables(s):
         for p, f in s["failures"].items():
             L.append(f"| {plabel(p, f['rung'])} | " + " | ".join(cell(f["cells"].get(c)) for c in cfgs) + " |")
     if s["agentic"]:
-        L += ["", "## Agentic track (hidden tests)", "", "| config | hidden pass | 95% CI | visible suite, incl. agent's own tests | complete task | median s | input floor | $/run | $ kind |", "|---|---|---|---|---|---|---|---|---|"]
+        L += ["", "## Agentic track (two pass rules)", "",
+              "Passed our hidden tests = our hidden suite passes against the delivered code. Task complete = hidden and visible tests both pass (the delivered `tests/` directory, including tests the agent added). Both counts are shown.", "",
+              "| config | passed our hidden tests | 95% CI | visible suite, incl. agent's own tests | task complete (hidden and visible pass) | median s | input floor | $/run | $ kind |", "|---|---|---|---|---|---|---|---|---|"]
         for c, v in s["agentic"].items():
             L.append(f"| {c} | {v['hidden_pass']}/{v['n']} | {ci_text(v['hidden_pass'], v['n'], v['ci95'], len(v['by_task']))} | {v['visible_pass']}/{v['n']} | {v['task_complete']}/{v['n']} | {v['latency_s']['median']} | "
                      f"{v['input_floor'][0]} | {money(v['usd_per_run'])} | {v['cost_kind']} |")
+        for label, blk in s["agentic_counts"].items():
+            L += ["", f"{label} (`{blk['file']}`):", "", "| config | passed our hidden tests | task complete (hidden and visible pass) |", "|---|---|---|"]
+            L += [f"| {c} | {v['hidden_pass']}/{v['n']} | {v['task_complete']}/{v['n']} |" for c, v in blk["configs"].items()]
         tasks = sorted({t for v in s["agentic"].values() for t in v["by_task"]})
         L += ["", "| config | " + " | ".join(tasks) + " |", "|---|" + "---|" * len(tasks)]
         for c, v in s["agentic"].items():

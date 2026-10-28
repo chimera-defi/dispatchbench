@@ -103,9 +103,9 @@ add("rescue", "rescue pipeline",
     ("luna-high-bare+haiku-review-all", "Arm G: luna-high builds; haiku-low reviews every answer"),
     ("luna-low+haiku-review-all", "Arm G: luna-low builds; haiku-low reviews every answer (arm E rerun from committed code)"))
 add("agentic", "repo tasks",
-    ("haiku-low", "Repo tasks with tools: Claude Haiku, low"), ("haiku-high", "Repo tasks: Claude Haiku, high"), ("sonnet-medium", "Repo tasks: Claude Sonnet, medium"),
-    ("luna-low", "Repo tasks: gpt-6-luna, low"), ("sol61-medium", "Repo tasks: gpt-6.1-sol, medium"), ("sol61-high", "Repo tasks: gpt-6.1-sol, high"),
-    ("astra-medium", "Repo tasks: gpt-6-astra, medium"))
+    ("haiku-low", "Repo tasks with tools, passed our hidden tests: Claude Haiku, low"), ("haiku-high", "Repo tasks, passed our hidden tests: Claude Haiku, high"), ("sonnet-medium", "Repo tasks, passed our hidden tests: Claude Sonnet, medium"),
+    ("luna-low", "Repo tasks, passed our hidden tests: gpt-6-luna, low"), ("sol61-medium", "Repo tasks, passed our hidden tests: gpt-6.1-sol, medium"), ("sol61-high", "Repo tasks, passed our hidden tests: gpt-6.1-sol, high"),
+    ("astra-medium", "Repo tasks, passed our hidden tests: gpt-6-astra, medium"))
 add("trim", "trim",
     ("luna/base", "Codex harness floor probe: luna, stock harness"), ("luna/nofeat", "luna, tool features stripped"), ("luna/noshell", "luna, features, shell and base instructions stripped"),
     ("luna/mininst", "luna, minimal instructions (one call)"), ("luna/noctx", "luna, no project context (one call)"), ("luna/nodoc", "luna, no docs (one call)"),

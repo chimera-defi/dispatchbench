@@ -381,8 +381,8 @@ OLD_GROK_CLAIMS = (
 # Re-pinned 2026-10-28 for Commit A: Devin rows (tables, fail grid, rung chart, heatmap, catalog), the share-card meta tags in
 # the page head, and the relabelled pareto chart labels. The Grok repository-tasks subsection is unchanged.
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': '8593b7f1ed551d664899fa9f33e189748924684fe19502a861419d24e103d00f',
-    'docs/REPORT.md': '37a8923c5c363263bdafd03f87c8c5f136ad617ce0807fcf3a6498542ba65565',
+    'results/report/page.html': 'b53106cbd2e3831688a536c0a91b1e9eb2636f35cdde18ee2d8f85ba0c6d0bec',
+    'docs/REPORT.md': 'c4a92010a874a6b9271c7af8a8455046992c40395bc9a44b533ea761efca6b12',
 }
 
 
