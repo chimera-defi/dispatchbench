@@ -80,12 +80,16 @@ def test_speed_whiskers_fit_axis_even_with_a_slower_config(summary, monkeypatch)
     seen = []
 
     def inspect(pts, fr, X, Y, *args, **kwargs):
-        seen.extend(X(p["w"][2]) for p in pts if p["w"])
+        width = kwargs.get("W", 560)
+        right = width - kwargs.get("R", 16)
+        xs = [X(p["w"][2]) for p in pts if p["w"]]
+        if xs:
+            seen.append((min(xs) >= kwargs.get("L", 84) - 1e-6 and max(xs) <= right + 1e-6))
         return original(pts, fr, X, Y, *args, **kwargs)
 
     monkeypatch.setattr(page, "scatter", inspect)
     page.speed_cost(summary)
-    assert seen and min(seen) >= 84 and max(seen) <= 544
+    assert seen and all(seen)
 
 
 @pytest.mark.parametrize("render,stat", [(page.pass_cost, "pass"), (page.speed_cost, "speed")])
@@ -98,7 +102,8 @@ def test_chart_free_mode_plots_zero_lane_and_set_attribution(summary, render, st
     points = {g.get("data-c"): g for g in svg.findall("s:g[@class='pt']", NS)}
     if problem_set == "main":
         values = page.every(summary)
-        assert set(points) == set(page.ORDER)
+        grok = {c for c, v in (summary.get("grok") or {}).items() if v.get("usd_per_pass")}
+        assert set(points) == set(page.ORDER) | grok
         zero = {c for c in page.ORDER if values[c]["claude_usd_per_pass"] == 0}
     else:
         values = page.rescue_arms()
@@ -111,7 +116,12 @@ def test_chart_free_mode_plots_zero_lane_and_set_attribution(summary, render, st
     assert "$0.00000" not in output and "log" in output
     for point in points.values():
         assert point.get("data-set") == problem_set
-        assert ("retest set" if problem_set == "rescue" else "main ladder") in point.get("data-tip").lower()
+        tip = point.get("data-tip")
+        if (point.get("data-c") or "").startswith("grok"):
+            assert "not a like-for-like" in tip
+            assert "main ladder" not in tip.lower()
+        else:
+            assert ("retest set" if problem_set == "rescue" else "main ladder") in tip.lower()
     for c in zero:
         assert "saved" in re.search(r'<li tabindex="0" data-c="' + re.escape(c) + r'"[^>]*>.*?</li>', output, re.S)[0]
 
@@ -131,6 +141,7 @@ def test_speed_axis_is_trimmed_with_one_second_gridlines(summary):
     svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
     ticks = [t.text for t in svg.findall("s:text", NS) if "x-tick" in t.get("class", "").split()]
     medians = [v["latency_s"]["median"] for c, v in page.every(summary).items() if c in page.ORDER]
+    medians += [v["latency_s"]["median"] for v in (summary.get("grok") or {}).values() if v.get("usd_per_pass")]
     first, last = (int(t.split()[0]) for t in (ticks[0], ticks[-1]))
     assert first > 0 and first <= min(medians) - 1 and last >= max(medians) + 1 and last - max(medians) < 6
     assert len(svg.findall("s:line[@stroke-opacity='.45']", NS)) == (last - first) - (last - first) // 5
@@ -149,6 +160,10 @@ def test_chart_set_toggle_and_grouped_keys(summary, render):
             assert ("open" in attrs) == (cat == "main")
             assert "<summary>" in body
             assert "(0)" not in body
+    assert 'data-cat="grok" checked' in output
+    assert "Grok (first half, 6 of 12 problems)" in output
+    assert output.count('data-cat="grok"') > output.count('class="cset s-rescue"')
+    assert len(re.findall(r'<details class="key-group" data-cat="grok"', output)) == 2
     pipeline_chip = re.search(r'<label[^>]*><input[^>]*data-cat="pipelines"[^>]*> pipelines</label>', output)[0]
     assert "disabled" in pipeline_chip
     assert 'title="only on the retest set"' in pipeline_chip
@@ -192,7 +207,8 @@ def test_scatter_ticks_use_dataset_usd_and_mobile_endpoint_fits(summary, render,
     ticks = [t for t in svg.findall("s:text", NS) if "x-tick" in t.get("class", "").split()]
     assert ticks
     assert ticks[-1].get("text-anchor") == "end"
-    assert float(ticks[-1].get("x")) <= 544
+    width = float(svg.get("viewBox").split()[2])
+    assert float(ticks[-1].get("x")) <= width - 16 + 1e-6
     mobile_ticks = [t for t in ticks if "tick-skip" not in t.get("class", "").split()]
     assert mobile_ticks == ticks[::-2][::-1]
 

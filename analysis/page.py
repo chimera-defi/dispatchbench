@@ -14,7 +14,7 @@ ORDER = ["haiku-low", "haiku-medium", "haiku-high", "sonnet-medium", "sol61-medi
 # ORDER compares all 12 problems; Grok's first-half lane has its own table order.
 GROK_ORDER = configs.GROK_CONFIGS
 WINNER_PICKS = {"sol61-high-fast": "default", "haiku-high": "budget", "sonnet-medium": "speed"}
-FAM = lambda c: "var(--grok,#b34f91)" if c.startswith("grok") else "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex56)" if c.startswith(("sol56", "luna56")) else "var(--codex)"
+FAM = lambda c: "var(--grok,#000)" if c.startswith("grok") else "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex56)" if c.startswith(("sol56", "luna56")) else "var(--codex)"
 NS = 'xmlns="http://www.w3.org/2000/svg"'
 
 
@@ -46,13 +46,22 @@ def SHAPE(c):
     return "circle" if c.startswith("haiku") else "square" if c.startswith("sonnet") else "star" if c.startswith("astra") else "diamond"
 
 
+def marker_paint(c, hollow, col):
+    """Grok is black in the light theme. A white outline keeps that mark readable on the dark theme too."""
+    if c.startswith("grok"):
+        return ("var(--panel)" if hollow else col, "#fff", 1.5)
+    return ("var(--panel)" if hollow else col, col, 2.5)
+
+
 def config_marker(c, x, y, col=None, k=1.0):
     """Across plots, hollow means fast mode, dashed means a stripped prompt."""
     col = col or FAM(c)
-    return marker(SHAPE(c), x, y, "var(--panel)" if "-fast" in c else col, col, "bare" in c, k)
+    fill, stroke, width = marker_paint(c, "-fast" in c, col)
+    return marker(SHAPE(c), x, y, fill, stroke, "bare" in c, k, width)
 
 
 def point_category(c):
+    if c.startswith("grok"): return "grok"  # registered as exploratory, but it is its own first-half series
     if "+" in c: return "pipelines"
     if c.endswith("-fast"): return "fast"
     # Winner picks sit with the main ladder in chart filters, even ones added after the main run (haiku-high).
@@ -60,8 +69,8 @@ def point_category(c):
     return "main" if main else "exploratory"
 
 
-def marker(kind, x, y, fill, stroke, dash=False, k=1.0):
-    a = f' fill="{fill}" stroke="{stroke}" stroke-width="2.5"' + (' stroke-dasharray="3 2"' if dash else "")
+def marker(kind, x, y, fill, stroke, dash=False, k=1.0, width=2.5):
+    a = f' fill="{fill}" stroke="{stroke}" stroke-width="{width}"' + (' stroke-dasharray="3 2"' if dash else "")
     if kind == "circle": return f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{6.5 * k:.1f}"{a}/>'
     if kind == "square": return f'<rect x="{x - 6 * k:.1f}" y="{y - 6 * k:.1f}" width="{12 * k:.1f}" height="{12 * k:.1f}"{a}/>'
     if kind == "triangle": v = [(0, -8.5), (7.5, 5.5), (-7.5, 5.5)]
@@ -77,21 +86,40 @@ def plot_xy(p, X, Y):
 
 
 def separate_points(pts, X, Y):
-    """Jitter coincident marks only; preserve the measured coordinates and tooltips."""
+    """Jitter coincident marks only; preserve the measured coordinates and tooltips.
+    Partial points are nudged afterwards and never join a group, so they cannot move another series."""
     groups = []
     for p in pts:
-        if "plot_x" in p: continue  # already placed, e.g. packed into the $0 lane
+        if p.get("partial") or "plot_x" in p: continue  # already placed, e.g. packed into the $0 lane
         xy = X(p["x"]), Y(p["y"])
         group = next((g for g in groups if math.dist(xy, g[0]) < 14), None)
         if group is None: groups.append((xy, [p]))
         else: group[1].append(p)
+    placed = []
     for (x, y), group in groups:
-        if len(group) < 2: continue
+        if len(group) < 2:
+            placed.append((x, y))
+            continue
         for i, p in enumerate(group):
-            p.update(plot_x=x + (i - (len(group) - 1) / 2) * 18, plot_y=y, label=True, jitter=True)
+            px = x + (i - (len(group) - 1) / 2) * 18
+            p.update(plot_x=px, plot_y=y, label=True, jitter=True)
+            placed.append((px, y))
+    for p in pts:
+        if p.get("partial") or "plot_x" not in p: continue
+        placed.append((p["plot_x"], p["plot_y"]))
+    for p in pts:
+        if not p.get("partial") or "plot_x" in p: continue
+        x, y = X(p["x"]), Y(p["y"])
+        step = 0
+        while any(math.dist((x + step, y), q) < 14 for q in placed):
+            step += 18
+        if step:
+            x += step
+            p.update(plot_x=x, plot_y=y, jitter=True)
+        placed.append((x, y))
 
 
-def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=84, R=16, T=14, B=322, extra="", stat=None, variant=None, minor=(), badges=False, picks_note=""):
+def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=84, R=16, T=14, B=322, extra="", stat=None, variant=None, minor=(), badges=False, picks_note="", key_labels=None, front_end=None, label_right=None):
     """pts: dicts with c, x, y, w (whisker (axis, lo, hi) or None), tip, hollow. fr: the frontier path. Only frontier points
     get a text label; every point is in the key beside the chart, and hovering (or tapping) a point or a key row shows its tip."""
     separate_points(pts, X, Y)
@@ -111,18 +139,22 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
     start = re.match(r"M([\d.]+)", fr)
     if badges and start:  # shade what the best trade-offs beat: the corner on the worse side of the staircase
         g.append(f'<path class="zone" data-t="{T}" d="{fr}{f" V{B} Z" if stat == "pass" else f" V{T} H{start[1]} Z"}" fill="var(--frontier)" fill-opacity=".09" stroke="none" pointer-events="none"/>')
-    g.append(f'<path d="{fr}" data-front="{stat or ""}" data-b="{B}" data-end="{W - R}" data-t="{T}" fill="none" stroke="var(--frontier)" stroke-width="{2.5 if badges else 4}"{"" if badges else " stroke-dasharray=\"9 6\""} stroke-linejoin="round"/>' + extra)
+    end = W - R if front_end is None else front_end
+    g.append(f'<path d="{fr}" data-front="{stat or ""}" data-b="{B}" data-end="{end}" data-t="{T}" fill="none" stroke="var(--frontier)" stroke-width="{2.5 if badges else 4}"{"" if badges else " stroke-dasharray=\"9 6\""} stroke-linejoin="round"/>' + extra)
     for p in sorted(pts, key=lambda p: p["on"]):  # frontier points drawn last, on top
         px, py = plot_xy(p, X, Y)
         col = p.get("col") or FAM(p["c"])
+        # data-out keeps sort.js from putting a partial series on the frontier. The grok colour rule undoes the fade.
+        outside = (not p.get("ok", True)) or p.get("partial")
         g.append(f'<g class="pt" {point_attrs(p)} data-v="{p["x"]!r} {p["y"]!r}" data-f="{X(p["x"]):.1f} {Y(p["y"]):.1f}"'
-                 f'{"" if p.get("ok", True) else " data-out=\"1\""}{" data-best=\"\"" if p["on"] else ""}>')
+                 f'{"" if not outside else " data-out=\"1\""}{" data-best=\"\"" if p["on"] else ""}>')
         if p["w"]:
             ax, lo, hi = p["w"]
             if ax == "x": g.append(f'<line x1="{X(lo):.1f}" x2="{X(hi):.1f}" y1="{py:.1f}" y2="{py:.1f}" stroke="{col}" stroke-width="2.5" stroke-opacity=".4"/>')
             else: g.append(f'<line x1="{px:.1f}" x2="{px:.1f}" y1="{Y(lo):.1f}" y2="{Y(hi):.1f}" stroke="{col}" stroke-width="2" stroke-opacity=".3"/>')
         if p["on"]: g.append(f'<circle class="ring" cx="{px:.1f}" cy="{py:.1f}" r="13" fill="none" stroke="var(--frontier)" stroke-width="{2.5 if badges else 3}"/>')
-        g.append(marker(p.get("shape", SHAPE(p["c"])), px, py, "var(--panel)" if p["hollow"] else col, col, p.get("dash")))
+        fill, stroke, width = marker_paint(p["c"], p["hollow"], col)
+        g.append(marker(p.get("shape", SHAPE(p["c"])), px, py, fill, stroke, p.get("dash"), width=width))
         g.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="14" fill="transparent"/></g>')  # hover target
     ranked = sorted((p for p in pts if p["on"]), key=lambda p: p["x"]) if badges else []
     if ranked:  # numbered chips on the best trade-offs; the names sit in the list under the plot
@@ -134,14 +166,17 @@ def scatter(pts, fr, X, Y, xt, yt, xlab, ylab, corner, labels, W=560, H=380, L=8
     walls = path_boxes(fr) + [(cx, cy - LH + 3, cx + CW * len(corner), cy + 3)]
     if badges: labelled = [p for p in pts if not p.get("quiet") and not p["on"] and p.get("label") and not p.get("jitter")]  # picks off the frontier keep a name
     else: labelled = [p for p in pts if not p.get("quiet") and (p["on"] or ("+" in p["c"] if p.get("set") == "rescue" else p.get("label")))]
-    for p, (x, y, a) in place(labelled, X, Y, labels, (L, W - 2, T - 6, B - 2), walls, also=pts):
+    labelled = [p for p in labelled if not p.get("partial")]
+    anchors = [p for p in pts if not p.get("partial")]
+    box_r = W if label_right is None else label_right
+    for p, (x, y, a) in place(labelled, X, Y, labels, (L, box_r - 2, T - 6, B - 2), walls, also=anchors):
         if p["lead"]: g.append((f'<line class="label-leader" data-c="{esc(p["c"])}" data-cat="{point_category(p["c"])}" x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="var(--muted)" stroke-width="1"/>') % p["lead"])
         g.append(f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{a}" class="lbl{' on' if p["on"] else ''}" data-cat="{point_category(p["c"])}" data-set="{p.get("set", "main")}">{esc(p.get("name", p["c"]))}</text>')
     g.append("</svg>")
     strip = picks(ranked, picks_note) if badges else ""
     if variant:
-        return f'<div class="cvariant v-{variant}"><div class="cplot">{"".join(g)}{strip}</div>{key(pts, stat)}</div>'
-    return f'<div class="cwrap"><div class="cplot">{"".join(g)}{strip}</div>{key(pts, stat)}<div class="ctip" hidden></div></div>'
+        return f'<div class="cvariant v-{variant}"><div class="cplot">{"".join(g)}{strip}</div>{key(pts, stat, key_labels)}</div>'
+    return f'<div class="cwrap"><div class="cplot">{"".join(g)}{strip}</div>{key(pts, stat, key_labels)}<div class="ctip" hidden></div></div>'
 
 
 def picks(ranked, note):
@@ -157,8 +192,9 @@ def point_attrs(p):
 
 def point_icon(p):
     col = p.get("col") or FAM(p["c"])
+    fill, stroke, width = marker_paint(p["c"], p["hollow"], col)
     return (f'<svg viewBox="-10 -10 20 20" {NS} aria-hidden="true">'
-            + marker(p.get("shape", SHAPE(p["c"])), 0, 0, "var(--panel)" if p["hollow"] else col, col, p.get("dash"), .8) + '</svg>')
+            + marker(p.get("shape", SHAPE(p["c"])), 0, 0, fill, stroke, p.get("dash"), .8, width) + '</svg>')
 
 
 def point_values(p, stat):
@@ -170,10 +206,11 @@ def point_values(p, stat):
     return value
 
 
-def key(pts, stat):
+def key(pts, stat, labels=None):
     """Every point grouped by the filter categories; only main starts expanded."""
+    labels = labels or {}
     groups = []
-    for cat in ("main", "fast", "pipelines", "exploratory"):
+    for cat in ("main", "fast", "pipelines", "exploratory", "grok"):
         rows = []
         for p in sorted((p for p in pts if point_category(p["c"]) == cat),
                         key=lambda p: (p["x"] if stat == "speed" else p["y"] * -1, p["y"] if stat == "speed" else p["x"])):
@@ -181,8 +218,10 @@ def key(pts, stat):
             rows.append(f'<li tabindex="0" {point_attrs(p)}{" class=on" if p["on"] else ""}>'
                         f'{point_icon(p)}<span class="n">{esc(nm)}</span><span class="v">{point_values(p, stat) if stat else ""}</span></li>')
         if rows:
+            title = labels.get(cat, cat)
+            style = ' style="text-transform:none;letter-spacing:0"' if cat == "grok" else ""
             groups.append(f'<details class="key-group" data-cat="{cat}"{" open" if cat == "main" else ""}>'
-                          f'<summary>{cat} ({len(rows)})</summary><ul class="ckey">{"".join(rows)}</ul></details>')
+                          f'<summary{style}>{esc(title)} ({len(rows)})</summary><ul class="ckey">{"".join(rows)}</ul></details>')
     return f'<div class="ckeys">{"".join(groups)}</div>'
 
 
@@ -277,6 +316,16 @@ def frontier_caption(s):
     return '<p class="frontier-note">' + esc(s["facts"]["frontier_caption"]) + '</p>'
 
 
+def grok_group_label(s):
+    """Legend name for the first-half series. The counts come from the problems Grok actually ran."""
+    lane = s.get("grok") or {}
+    covered = sorted({p for v in lane.values() for p in v.get("by_problem") or {}})
+    nprob = len(s.get("problems") or [])
+    if not covered or not nprob:
+        return None
+    return f"Grok (first half, {len(covered)} of {nprob} problems)"
+
+
 def ladder_toggle(render, s):
     normal, fr = render(s, free=False)
     free, _ = render(s, free=True)
@@ -285,10 +334,16 @@ def ladder_toggle(render, s):
     note = ('<p class="repair-note">Codex counted as free: its points move to the $0 lane. '
             'Each saving per pass is in the key and tooltip.</p>')
     main_categories = {point_category(c) for c in ORDER}
-    filters = '<div class="category-filter" role="group" aria-label="Point categories">' + "".join(
-        ('<label>' if cat in main_categories else f'<label class="disabled" title="only on the {configs.set_label("rescue set")}">')
-        + f'<input type="checkbox" data-cat="{cat}" checked' + ('' if cat in main_categories else ' disabled')
-        + f'> {cat}</label>' for cat in ("main", "fast", "pipelines", "exploratory")) + '</div>'
+    chips = []
+    for cat in ("main", "fast", "pipelines", "exploratory"):
+        on_main = cat in main_categories
+        chips.append(('<label>' if on_main else f'<label class="disabled" title="only on the {configs.set_label("rescue set")}">')
+                     + f'<input type="checkbox" data-cat="{cat}" checked' + ('' if on_main else ' disabled')
+                     + f'> {cat}</label>')
+    legend = grok_group_label(s)
+    if legend:  # no rescue key-group, so the page script disables this chip on the retest set
+        chips.append(f'<label><input type="checkbox" data-cat="grok" checked> {esc(legend)}</label>')
+    filters = '<div class="category-filter" role="group" aria-label="Point categories">' + "".join(chips) + '</div>'
     set_name = render.__name__ + "-set"
     sets = (f'<div class="set-filter" role="group" aria-label="Problem set">'
             f'<label><input type="radio" name="{set_name}" value="main" checked> {configs.set_label("main ladder", capital=True)}</label>'
@@ -322,6 +377,30 @@ def ladder_repairs(free, stat, arms=None):
     return pts
 
 
+def grok_chart_points(s, stat):
+    """Each Grok config on its own p01-p06 rows. Cost stays the measured bill in both quota modes."""
+    note = (s.get("facts") or {}).get("grok_chart_note", "")
+    pts = []
+    lane = s.get("grok") or {}
+    for c in GROK_ORDER:
+        v = lane.get(c)
+        if not v or not v.get("usd_per_pass"):
+            continue
+        usd = v["usd_per_pass"]
+        if stat == "speed":
+            w = ("x", v["latency_s"]["p25"], v["latency_s"]["p75"]) if "p25" in v.get("latency_s", {}) else None
+            x, y = v["latency_s"]["median"], usd
+        else:
+            w = ("y", v["ci95"][0], v["ci95"][1])
+            x, y = usd, v["pass_at_1"]
+        pts.append({"c": c, "name": DISP(c), "set": "main", "partial": True,
+                    "x": x, "y": y, "rate": v["pass_at_1"], "hollow": "-fast" in c, "dash": "bare" in c, "w": w,
+                    "saved_usd": v.get("usd_saved_per_pass") or 0, "normal_usd": usd, "free_usd": usd, "free_mode": False,
+                    "tip": (f"{DISP(c)}: {v['passes']}/{v['n']} passed, {dataset.usd(usd)} per pass "
+                            f"(measured bill), median {v['latency_s']['median']:.1f} s. {note}")})
+    return pts
+
+
 def ladder_points(s, free, stat, problem_set):
     if problem_set == "rescue": return ladder_repairs(free, stat, rescue_arms(s))
     pts = []
@@ -334,6 +413,8 @@ def ladder_points(s, free, stat, problem_set):
                     "y": usd if stat == "speed" else v["pass_at_1"], "rate": v["pass_at_1"], "hollow": "-fast" in c, "dash": "bare" in c, "w": w,
                     "saved_usd": v["usd_saved_per_pass"], "normal_usd": normal, "free_usd": quota, "free_mode": free,
                     "tip": tip(c, dict(v, usd_per_pass=usd)) + ". " + quota_tip(normal, quota, v["usd_saved_per_pass"])})
+    if problem_set == "main":
+        pts.extend(grok_chart_points(s, stat))
     return pts
 
 
@@ -368,13 +449,14 @@ def pass_cost(s, free=None, problem_set="main"):
     if free is None: return ladder_toggle(pass_cost, s)
     L, R, T, B, W = 84, 16, 14, 302 if problem_set == "main" else 214, 560  # the rescue plot is shorter: its list under the plot must not lengthen the page
     pts = ladder_points(s, free, "pass", problem_set)
-    ymin = min(.7, math.floor(min(p["y"] for p in pts) * 10) / 10)
-    paid = [p["x"] for p in pts if p["x"] > 0]
+    base = [p for p in pts if not p.get("partial")]  # Grok must not rescale the axes or join the frontier
+    ymin = min(.7, math.floor(min(p["y"] for p in base) * 10) / 10)
+    paid = [p["x"] for p in base if p["x"] > 0]
     lo = 5e-4 if min(paid) >= 5e-4 else 10 ** math.floor(math.log10(min(paid)))
-    lane = any(p["x"] == 0 for p in pts)
+    lane = any(p["x"] == 0 for p in base)
     X = zero_lane(logscale(lo, 3e-1, L + ZERO_LANE["pass"] * lane, W - R), L + 48)
     Y = lambda v: B - (v - ymin) / (1.1 - ymin) * (B - T)
-    fr = sorted(front(pts, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
+    fr = sorted(front(base, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
     pack_zero_lane([p for p in pts if p["x"] == 0], L + 48, Y)
     for p in pts:
         p["on"] = p in fr
@@ -390,34 +472,43 @@ def pass_cost(s, free=None, problem_set="main"):
            "haiku-high": (14, 20, "start"), "luna56-high": (14, 5, "start")}
     for p in pts:
         if pick(p["c"]): p["label"] = True
+    legend = grok_group_label(s)
     return scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, H=B + 58, B=B,
                    extra=zero + fast_pairs(pts, X, Y), stat="pass", variant="free" if free else "normal",
-                   badges=True, picks_note=PICKS_NOTE["pass"]), [p["c"] for p in fr]
+                   badges=True, picks_note=PICKS_NOTE["pass"], key_labels={"grok": legend} if legend else None), [p["c"] for p in fr]
 
 
 def speed_cost(s, free=None, problem_set="main"):
     """Median seconds against paid $ per pass, log; frontier requires MIN_PASS."""
     if free is None: return ladder_toggle(speed_cost, s)
-    L, R, T, B, W = 84, 16, 14, 410 if problem_set == "main" else 316, 560
+    L, R, T, B, W0 = 84, 16, 14, 410 if problem_set == "main" else 316, 560
     H = B + 58
     pts = ladder_points(s, free, "speed", problem_set)
-    # Axis spans the medians plus a margin, in 5 s blocks; whiskers are clipped to it.
-    xmin = max(0, math.floor((min(p["x"] for p in pts) - 1) / 5) * 5)
+    # The full ladder sets the scale. Grok, which is slower, extends the canvas on that same px/s and stays off the frontier.
+    base = [p for p in pts if not p.get("partial")]
+    xmin = max(0, math.floor((min(p["x"] for p in base) - 1) / 5) * 5)
+    xmax0 = math.ceil((max(p["x"] for p in base) + 1) / 5) * 5
     xmax = math.ceil((max(p["x"] for p in pts) + 1) / 5) * 5
-    X = lambda v: L + (v - xmin) / (xmax - xmin) * (W - R - L)
+    plot0 = W0 - R - L
+    X = lambda v: L + (v - xmin) / (xmax0 - xmin) * plot0
+    edge = W0 - R
+    span = X(xmax) + R
+    W = int(span) if span == int(span) else span
     for p in pts:
-        if p["w"]: p["w"] = ("x", max(xmin, p["w"][1]), min(xmax, p["w"][2]))
-    paid = [p["y"] for p in pts if p["y"] > 0]
+        if p["w"]:
+            cap = xmax if p.get("partial") else xmax0
+            p["w"] = ("x", max(xmin, p["w"][1]), min(cap, p["w"][2]))
+    paid = [p["y"] for p in base if p["y"] > 0]
     lo = 5e-4 if min(paid) >= 5e-4 else 10 ** math.floor(math.log10(min(paid)))
-    lane = any(p["y"] == 0 for p in pts)
+    lane = any(p["y"] == 0 for p in base)
     Y = zero_lane(logscale(lo, 3e-1, B - ZERO_LANE["speed"] * lane, T), B - 16)
-    for p in pts: p["ok"] = p.get("rate", 0) >= MIN_PASS
+    for p in pts: p["ok"] = (not p.get("partial")) and p.get("rate", 0) >= MIN_PASS
     ok = [p for p in pts if p["ok"]]
     fr = sorted(front(ok, speed_dominates), key=lambda p: p["x"])
     for p in pts:
         p["on"] = p in fr
         p["quiet"] = p["y"] == 0 and not p["on"] and not pick(p["c"])
-    d = (f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}") if fr else ""
+    d = (f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{edge}") if fr else ""
     xt = [(v, f"{v} s") for v in range(xmin, xmax + 1, 5)]
     yt = [(v, dataset.usd(v)) for v in (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1) if v >= lo] + [(0, "$0")] * lane
     zero = f'<line x1="{L}" x2="{W - R}" y1="{B - 44}" y2="{B - 44}" stroke="var(--muted)" stroke-dasharray="2 4"/>' if lane else ""
@@ -427,11 +518,13 @@ def speed_cost(s, free=None, problem_set="main"):
     for p in pts:
         if pick(p["c"]): p["label"] = True
     xlab = "median seconds per call" + (" (bar on hover: middle half of calls)" if any(p["w"] for p in pts) else "")
+    legend = grok_group_label(s)
     g = scatter(pts, d, X, Y, xt, yt, xlab, "$ per pass (log)", "", lab,
-                H=H, B=B, extra=zero + fast_pairs(pts, X, Y), stat="speed", variant="free" if free else "normal",
+                W=W, H=H, B=B, extra=zero + fast_pairs(pts, X, Y), stat="speed", variant="free" if free else "normal",
                 badges=True, picks_note=PICKS_NOTE["speed"],
-                minor=[v for v in range(xmin + 1, xmax) if v % 5])
-    return g.replace("</svg>", f'<text x="{W - R - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>', 1), [p["c"] for p in fr]
+                minor=[v for v in range(xmin + 1, xmax) if v % 5],
+                key_labels={"grok": legend} if legend else None, front_end=edge, label_right=W0)
+    return g.replace("</svg>", f'<text x="{edge - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>', 1), [p["c"] for p in fr]
 
 
 # Display names for rescue-set rows, used by every chart and table so a pipeline reads the same everywhere. luna-high on the hard

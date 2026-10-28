@@ -23756,7 +23756,8 @@
   "r_luna_high_bare_miss": "4",
   "n_exploratory": "10",
   "badge_disagreement_items": "<li>p01 overlap_minutes (L1) is Medium.</li><li>p06 calc (L3) is Hard.</li><li>p08 recur (L4) is Medium.</li>",
-  "frontier_caption": "luna-low is not a best trade-off: luna-medium costs the same, $0.0009 per pass. It passes 47/60 to luna-low's 46/60. Main ladder only; every point counts.",
+  "frontier_caption": "luna-low is not a best trade-off: luna-medium costs the same, $0.0009 per pass. It passes 47/60 to luna-low's 46/60. Main ladder only; every point counts. Grok points use p01-p06 only (6 of 12 problems), so they are not a like-for-like main-ladder comparison.",
+  "grok_chart_note": "Grok points use p01-p06 only (6 of 12 problems), so they are not a like-for-like main-ladder comparison.",
   "winner_caption": "Numbers: the 12-problem main ladder, 60 tries per config. Time = median seconds. ~ = estimated from tokens; Claude costs are measured.",
   "winner_other_routes": [
    "⚡ = fast mode: same answers, about 2× list price, faster."
