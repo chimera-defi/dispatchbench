@@ -283,11 +283,12 @@
 </details>
 <details class="small"><summary>How Codex built its bench</summary>
 <ul class="tight small">
-<li>gpt-6.1-sol high designed and wrote it in five turns.</li>
+<li>gpt-6.1-sol high designed and wrote it.</li>
 <li>Its dry runs missed two sandbox bugs. A live call found them; Codex fixed both.</li>
 <li>A final "plan and reorient" nudge changed no code.</li>
 <li>{{hb_subset}}</li>
-<li>We lifted its repeat cap, a two-line change, then ran {{hb_full_calls}} calls.</li>
+<li>We lifted its repeat cap, a {{hb_repeat_cap_lines}}-line change, then ran {{hb_full_calls}} calls.</li>
+<li>Repeat-cap change source: <code>{{hb_repeat_cap_source}}</code> (bench/codex_harness.py).</li>
 <li>It finished with {{hb_errors}} runner errors and no timeouts, in about {{hb_minutes}} minutes.</li>
 </ul>
 </details>
