@@ -16,11 +16,35 @@ Function track: {{n_problems}} problems × {{repeats}} attempts per config. Clic
 
 ## Grok
 
+{{table:grok_lead}}
+
+### Where does Grok get to?
+
+{{table:grok_full_reach}}
+
+{{grok_full_note}}
+
+### Closest lanes by pass rate
+
+{{table:grok_full_closest}}
+
+<details><summary>Every lane on the same problems</summary>
+
+{{table:grok_full_lanes}}
+
+</details>
+
+### Is Grok better at anything?
+
+{{table:grok_better}}
+
+### {{grok_first_title}}
+
 {{grok_summary}}
 
 {{table:grok_at_glance}}
 
-### Where does Grok get to?
+### First run: where it got to
 
 {{grok_key}}
 
@@ -28,7 +52,7 @@ Function track: {{n_problems}} problems × {{repeats}} attempts per config. Clic
 
 {{grok_reach_note}}
 
-### Closest lanes
+### First run: closest lanes
 
 {{table:grok_equivalent}}
 
@@ -44,7 +68,7 @@ Function track: {{n_problems}} problems × {{repeats}} attempts per config. Clic
 
 </details>
 
-### Is Grok better at anything?
+### First run: was Grok better at anything?
 
 {{table:grok_verdict}}
 

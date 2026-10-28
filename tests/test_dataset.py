@@ -19,7 +19,7 @@ def test_keys_unique_and_registered(ds):
 def test_matches_summary(ds):
     s = json.load(open(os.path.join(RES, "summary.json")))
     for c, v in {**s["configs"], **(s.get("exploratory") or {})}.items():
-        r = dataset.get(ds, c, "main ladder")
+        r = dataset.get(ds, c, "partial ladder" if c in configs.ONE_REPEAT else "main ladder")
         assert r["n"] == v["n"] and abs(r["spend"] - v["usd_total"]) < 1e-3, c
 
 

@@ -102,7 +102,7 @@ def test_chart_free_mode_plots_zero_lane_and_set_attribution(summary, render, st
     points = {g.get("data-c"): g for g in svg.findall("s:g[@class='pt']", NS)}
     if problem_set == "main":
         values = page.every(summary)
-        grok = {c for c, v in (summary.get("grok") or {}).items() if v.get("usd_per_pass")}
+        grok = {c for c, v in (summary.get("grok") or {}).items() if v.get("usd_per_pass") and c not in configs.CHART_HIDDEN}
         assert set(points) == set(page.ORDER) | grok
         zero = {c for c in page.ORDER if values[c]["claude_usd_per_pass"] == 0}
     else:
@@ -118,7 +118,7 @@ def test_chart_free_mode_plots_zero_lane_and_set_attribution(summary, render, st
         assert point.get("data-set") == problem_set
         tip = point.get("data-tip")
         if (point.get("data-c") or "").startswith("grok"):
-            assert "not a like-for-like" in tip
+            assert "outside the best-trade-off line" in tip and "like-for-like" not in tip
             assert "main ladder" not in tip.lower()
         else:
             assert ("retest set" if problem_set == "rescue" else "main ladder") in tip.lower()
@@ -161,7 +161,7 @@ def test_chart_set_toggle_and_grouped_keys(summary, render):
             assert "<summary>" in body
             assert "(0)" not in body
     assert 'data-cat="grok" checked' in output
-    assert "Grok (first half, 6 of 12 problems)" in output
+    assert "Grok (all 12 problems)" in output
     assert output.count('data-cat="grok"') > output.count('class="cset s-rescue"')
     assert len(re.findall(r'<details class="key-group" data-cat="grok"', output)) == 2
     pipeline_chip = re.search(r'<label[^>]*><input[^>]*data-cat="pipelines"[^>]*> pipelines</label>', output)[0]
@@ -506,13 +506,15 @@ def test_speed_frontier_lines_and_single_point_free_mode(summary):
     path = next(p for p in svg.findall('s:path', NS) if p.get('stroke') == 'var(--frontier)')
     assert path.get('d')
     labels = {t.text for t in svg.findall('s:text', NS) if 'lbl' in t.get('class', '')}
-    assert {'sol61-high ⚡', 'sonnet-medium'} <= labels  # picks off the frontier keep a name
+    # picks off the frontier keep a name. sonnet-medium and terra61-low (2026-10-28) sit within 14 px, so both are jittered apart and named in the key.
+    assert {'sol61-high ⚡', 'haiku-high'} <= labels and 'sonnet-medium' not in labels
     assert not {'haiku-low', 'luna-high'} & labels  # frontier points are numbered chips named in the list under the plot
     assert [t.text for t in svg.findall('.//s:text[@class="rk-n"]', NS)] == ['1', '2']
     assert re.findall(r'<b>(\d)</b><span>([^<]+)</span>', output.split('class="picks"', 1)[1])[:2] == [('1', 'haiku-low'), ('2', 'luna-high')]
     assert svg.find('s:path[@class="zone"]', NS).get('d').endswith('Z')
     output, names = page.speed_cost(summary, free=True)
-    assert names == ['astra-medium-fast']
+    # terra61-low (2026-10-28) is 0.44 s behind astra-medium ⚡, inside the 0.5 s tie tolerance, so it joins the $0 frontier.
+    assert names == ['astra-medium-fast', 'terra61-low']
     svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
     labels = {t.text for t in svg.findall('s:text', NS) if 'lbl' in t.get('class', '')}
     assert '<b>1</b><span>astra-medium ⚡</span>' in output
