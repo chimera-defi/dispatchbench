@@ -98,13 +98,13 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 6. **The other later Codex configs change nothing.** sol56-high (gpt-5.6-sol) never fails on L1–L6 but misses on L7 ({{x_sol56_high_hk}}) at {{x_sol56_vs_hm}} haiku-medium's price per pass. The older luna is worse and dearer: luna56-high passes {{x_luna56_high_hk}} on L7 against gpt-6 luna-high's {{x_base_luna_high_hk}}, and costs {{x_l56_vs_lh}} as much per pass on L1–L6 (gpt-5.6-luna lists at twice gpt-6-luna's input price and more than twice its output price). Findings 5 and 6 are exploratory: the configs were chosen after the main results were known, and Codex dollars are list-price proxies.
 7. **Parity starts at haiku-high** (exploratory, added 2026-10-24). haiku-medium still misses: {{haiku_medium_k}} on L1–L6 and {{hm_l7_miss}} on L7 ({{hm_l7_k}}). haiku-high passed every attempt: {{hh_k}} on L1–L6, {{hh_hk}} on L7 and {{ag_hh_k}} repo-task runs (both rules). It costs {{hh_upp}} per pass on L1–L6 ({{hh_vs_hm}} haiku-medium's, from {{hh_out_x}} the output tokens) and {{hh_hupp}} on L7. That is {{hh_sm_x}} cheaper than sonnet-medium, {{hh_s61h_x}} cheaper than sol61-high and {{hh_astra_x}} cheaper than astra-medium on L1–L6 ({{hh_sm_hx}}, {{hh_s61h_hx}} and {{hh_astra_hx}} on L7; the Codex figures are list-price proxies). Median time is {{hh_med}} s on L1–L6 against {{x_sol61_high_med}} s for sol61-high and {{x_astra_medium_med}} s for astra-medium, and {{hh_hmed}} s on L7 against {{l7_s61h_med}} s and {{l7_astra_med}} s. sonnet-medium is still the fastest of the four ({{sonnet_medium_med}} s, {{l7_sm_med}} s on L7). The tail is long: p90 {{hh_p90}} s on L1–L6, and repo tasks take {{ag_haiku_high_med}} s at the median. It ran after the main results were known, so read it as a strong lead, not a pre-registered result.
 
-{{chart:pareto.svg|Pass rate against cost per passing solution. Dashed: Pareto frontier of the pre-registered configs. Bars: 95% CI.}}
+{{chart:pareto.svg|Pass rate against cost per passing solution. Dashed: Pareto frontier of the pre-registered configs. Bars: {{d_ci_level}}% CI.}}
 
 {{chart:cost_time.svg|Cost per pass against median latency. Purple: among configs passing at least {{min_pass}}, the ones no other beats on both.}}
 
 {{chart:cost_total.svg|Total spend for each config's {{n_calls}} function-track calls.}}
 
-{{chart:cost_per_1k.svg|Dollars per 1,000 tokens processed. Codex is cheap per token because luna's list price is low and most of its tokens are cached input.}}
+{{chart:cost_per_1k.svg|Dollars per {{d_ktok}} tokens processed. Codex is cheap per token because luna's list price is low and most of its tokens are cached input.}}
 
 {{table:tokens}}
 
@@ -137,27 +137,29 @@ Medians are over each config's passing L1–L6 solutions, so a config that fails
 
 {{table:agentic}}
 
+{{audit_footnote}}
+
 {{chart:agentic.svg|Repo tasks: both pass rules against dollars per run. Filled mark: passed our hidden tests; ring: task complete (hidden and visible tests both pass).}}
 
 ## Harder rung (L7), added after the main run
 
-Three more problems, written and checked before any model saw them (PLAN.md, deviation 16), each harder than p12 sheet: a cellular automaton on a ring run for up to 10^18 steps (p13 xor_ring), exact expected turns on a board game with bounce-back and chained jumps (p14 bounce_board), and paint/erase operations on 10^9 cells (p15 paint_erase). 5 attempts per config: the four original configs first, then the five later Codex models. These rows are kept apart from L1–L6 and change no number above.
+Three more problems, written and checked before any model saw them (PLAN.md, deviation 16), each harder than p12 sheet: a cellular automaton on a ring run for up to {{d_xor_bound}} steps (p13 xor_ring), exact expected turns on a board game with bounce-back and chained jumps (p14 bounce_board), and paint/erase operations on {{d_p15_n}} cells (p15 paint_erase). {{repeats}} attempts per config: the four original configs first, then the five later Codex models. These rows are kept apart from L1–L6 and change no number above.
 
 {{table:l7}}
 
-- **Of the four configs first run on L7, only haiku-low failed, and only on speed.** All {{l7_hl_fail}} misses are timeouts on the same p15 paint_erase case: 50,000 single cells painted with a high colour, then 50,000 paints across the whole strip. The failing solutions keep a sorted list of coloured intervals and visit every interval a paint covers, which is quadratic on that case; the {{l7_hl_pass_p15}} passing attempts used a segment tree. None of haiku-low's answers was wrong.
-- **The other three stayed tied.** With three problems, a perfect score only bounds the pass rate at ≥{{l7_bound}} (one-sided 95%), so this says L7 is still not hard enough for them, not that they are equally strong. What does separate them is price and time: luna-high costs {{l7_luna_high_upp}} per pass (proxy) against {{l7_dear}} for sol61-medium and sonnet-medium, and sonnet-medium is the fastest at {{l7_sonnet_medium_med}} s.
+- **Of the four configs first run on L7, only haiku-low failed, and only on speed.** All {{l7_hl_fail}} misses are timeouts on the same p15 paint_erase case: {{d_p15_comb}} single cells painted with a high colour, then {{d_p15_comb}} paints across the whole strip. The failing solutions keep a sorted list of coloured intervals and visit every interval a paint covers, which is quadratic on that case; the {{l7_hl_pass_p15}} passing attempts used a segment tree. None of haiku-low's answers was wrong.
+- **The other three stayed tied.** With three problems, a perfect score only bounds the pass rate at ≥{{l7_bound}} (one-sided {{d_ci_level}}%), so this says L7 is still not hard enough for them, not that they are equally strong. What does separate them is price and time: luna-high costs {{l7_luna_high_upp}} per pass (proxy) against {{l7_dear}} for sol61-medium and sonnet-medium, and sonnet-medium is the fastest at {{l7_sonnet_medium_med}} s.
 - Both effort-adaptive configs spent more reasoning on L7 than on L1–L6: haiku-low {{l7_haiku_low_rsn_x}} ({{l7_haiku_low_rsn_a}} → {{l7_haiku_low_rsn_b}} tokens), luna-high {{l7_luna_high_rsn_x}} ({{l7_luna_high_rsn_a}} → {{l7_luna_high_rsn_b}}).
 
 ## Where they fail
 
-Every problem with at least one failure, over all phases. Cells are passes out of 5 (bold when 2 or fewer), then the failures: w wrong answer, c crash, t timeout. A dash means not run.
+Every problem with at least one failure, over all phases. Cells are passes out of {{repeats}} (bold when {{d_esc_max}} or fewer), then the failures: w wrong answer, c crash, t timeout. A dash means not run.
 
 {{table:fail}}
 
 - **sonnet-medium never failed**: {{sm_all}} across L1–L7. Of the configs added later, haiku-high, sol61-high and astra-medium matched it.
 - **p12 sheet (a spreadsheet evaluator) is where most configs break, and they break by crashing.** Of the {{p12_luna_n}} attempts by luna-low, luna-medium and stripped luna, {{p12_parse}} raise a parse error on one of the statement's own worked examples and {{p12_rec}} hit Python's recursion limit on a long chain of cell references; haiku-low's one miss is also the recursion limit.
-- **luna at low and medium effort fails p04 taller_within at L2**, a sliding-window count, and {{p04_wrong_ex1}} of its {{p04_wrong}} wrong answers are on the statement's own first worked example, `taller_within([5, 1, 4, 4, 9], 2)`. luna-high and every Claude config pass it 5/5.
+- **luna at low and medium effort fails p04 taller_within at L2**, a sliding-window count, and {{p04_wrong_ex1}} of its {{p04_wrong}} wrong answers are on the statement's own first worked example, `taller_within([5, 1, 4, 4, 9], 2)`. luna-high and every Claude config pass it {{repeats}}/{{repeats}}.
 - **haiku-low fails by being slow, not wrong**: {{hl_timeouts}} timeouts (p09 k_machine_schedule, p15 paint_erase) and {{hl_crashes}} crash over {{hl_attempts}} attempts, no wrong answers. haiku-medium's one miss is a wrong answer on p05 pass_route.
 
 ## Method
@@ -171,20 +173,21 @@ The design was pre-registered in [PLAN.md](PLAN.md) and committed before the fir
 **Function track.** {{n_problems}} problems on {{n_rungs}} rungs (L1–L6), {{per_rung}} per rung. Each prompt asks for one Python function. Tools are off: Claude runs with `--tools ""`; Codex runs in a read-only sandbox and is told not to use tools. Every problem ships with:
 
 - an efficient reference;
-- an independently written brute force that must agree with the reference on 2,000 random small inputs;
+- an independently written brute force that must agree with the reference on {{d_brute_inputs}} random small inputs;
 - at least two planted wrong solutions (greedy, off-by-one, float rounding, too slow, a missed rule) that the checker must reject.
 
-`make selftest` checks all three. Candidates run in a separate `python3 -I` process with a 2 GB memory cap. Large cases get max(2 s, 10 × the reference's time). Grading happens after generation, one problem at a time, so parallel model calls cannot cause false timeouts. The L6 problems were written after a calibration run showed three configs passing all of L1–L5 (PLAN.md, deviation 5).
+`make selftest` checks all three. Candidates run in a separate `python3 -I` process with a {{d_mem_gb}} GB memory cap. Large cases get max({{d_large_floor_s}} s, {{d_large_mult}} × the reference's time). Grading happens after generation, one problem at a time, so parallel model calls cannot cause false timeouts. The L6 problems were written after a calibration run showed three configs passing all of L1–L5 (PLAN.md, deviation 5).
 
 **Repo tasks.** {{n_tasks}} small repo tasks: add a feature, fix four bugs, add config interpolation, add a retry queue. Each has visible tests plus hidden tests that are copied in only after the agent exits. Both CLIs get shell and file-edit tools, and no user settings or MCP servers. Two pass rules are reported. A run "passed our hidden tests" when our hidden suite passes against the delivered code, with the same collected test ids as the reference. A run is "task complete" when the hidden suite and the delivered `tests/` directory (the shipped visible tests plus any the agent added) both pass. Every task prompt told the agent to add tests and that all tests must pass. The harness also records whether the agent edited the original tests (none did) and whether it wrote the regression test the task asked for.
 
-**Escalation.** Pre-registered rule: if a model's highest base effort passes 2/5 or fewer on a problem, the next effort level runs 5 attempts on that problem only. It fired once, for luna. Because the subset is picked by failure, the escalation table reports counts and no interval.
+**Escalation.** Pre-registered rule: if a model's highest base effort passes {{d_esc_max}}/{{repeats}} or fewer on a problem, the next effort level runs {{repeats}} attempts on that problem only. It fired once, for luna. Because the subset is picked by failure, the escalation table reports counts and no interval.
 
 **Statistics.**
 
 - pass@1 is the fraction of single attempts that pass, with no retries and no picking of the best answer.
-- Intervals are 95% hierarchical bootstrap intervals, {{n_boot}} resamples. Each resample draws problems, then attempts within each problem, so five attempts at one problem do not count as five independent data points ([Miller 2024](https://arxiv.org/abs/2411.00640)).
-- When every attempt passes, the bootstrap interval collapses to 100–100%. The table then shows the one-sided 95% lower bound 0.05^(1/m), with m the number of problems ({{n_problems}}, giving ≥{{bound_problems}}) or tasks ({{n_tasks}}, giving ≥{{bound_tasks}}), not attempts, so that repeats of one problem are not counted as independent.
+- Every pass rate names its rule. Function track: {{rule_function}}. Repo tasks: {{rule_hidden}} (our hidden suite passes) or {{rule_complete}} (hidden and visible tests both pass).
+- Intervals are {{d_ci_level}}% hierarchical bootstrap intervals, {{n_boot}} resamples. Each resample draws problems, then attempts within each problem, so five attempts at one problem do not count as five independent data points ([Miller 2024](https://arxiv.org/abs/2411.00640)).
+- When every attempt passes, the bootstrap interval collapses to {{d_ci_collapsed}}. The table then shows the one-sided {{d_ci_level}}% lower bound {{d_bound_formula}}, with m the number of problems ({{n_problems}}, giving ≥{{bound_problems}}) or tasks ({{n_tasks}}, giving ≥{{bound_tasks}}), not attempts, so that repeats of one problem are not counted as independent.
 - Differences between configs are paired on the same problems.
 - The breaking point of a config is the lowest rung where it passes {{break_at}} or less.
 
@@ -196,14 +199,14 @@ The design was pre-registered in [PLAN.md](PLAN.md) and committed before the fir
 make report
 ```
 
-rebuilds every table, chart and number in this README and the page from the cache. It makes no model calls and needs neither CLI installed. `make audit` re-renders both and fails if the committed copies differ, if `results/summary.json` differs from what the rows give, or if the template holds a number that is not computed from data and not on its short reasoned list of constants. `make run`, `make hard` and `make agentic` call models only for keys that are not cached yet.
+rebuilds every table, chart and number in this README and the page from the cache. It makes no model calls and needs neither CLI installed. `make audit` re-renders both and fails if the committed copies differ, if `results/dataset.json` differs from what the rows give, or if the template holds a number that is not computed from data and not on its short reasoned list of constants. `make run`, `make hard` and `make agentic` call models only for keys that are not cached yet.
 
 ## Limitations
 
 - **Small sample.** {{n_problems}} problems and {{n_tasks}} repo tasks, with {{repeats}} and {{agent_repeats}} attempts. The intervals are wide; read them before the point estimates.
 - **The breaking point is unstable at this size.** With {{rung_attempts}} attempts per rung, two attempts move it. Stripped luna breaks at L2 ({{lb_l2}}) and stock luna at L6, yet stripped luna then scores {{lb_l3}} on L3. The rung order is the author's prior about difficulty, not a measurement, and the per-problem chart shows where it was wrong (for luna, p04 taller_within at L2 is harder than every problem except p12 sheet).
 - **The repo tasks nearly hit a ceiling.** All {{ag_runs}} runs passed our hidden tests; under task complete (hidden and visible tests both pass) only luna-low falls short ({{ag_tc_luna_iso_k}}). They mostly show cost and latency differences, not capability differences.
-- **Codex cost is a proxy**, and it depends on the provider's prompt cache. Identical prompts got between 0 and {{cache_max}} cached tokens (stripped luna on p06 calc), which moves a Codex call's cost by up to {{cache_swing}}. The stripped-luna figures give a no-cache bound for that reason. Claude cost is measured, but it is the CLI's own accounting.
+- **Codex cost is a proxy**, and it depends on the provider's prompt cache. Identical prompts got between {{cache_min}} and {{cache_max}} cached tokens (stripped luna on p06 calc), which moves a Codex call's cost by up to {{cache_swing}}. The stripped-luna figures give a no-cache bound for that reason. Claude cost is measured, but it is the CLI's own accounting.
 - **Harnesses are matched, not identical.** Codex cannot turn tools off on the function track; it gets a read-only sandbox and an instruction. Codex also injects the host's user-level `AGENTS.md` (about {{host_agents_md}} tokens), so every function-track Codex input count includes tokens a clean install would not have. Repo-task rows were rerun with a clean Codex home; a clean rerun of {{isolation_calls_matched}} function calls passed {{isolation_passes_isolated}} versus {{isolation_passes_original}}, so those rows were kept. Claude Code keeps its own default system prompt.
 - **Latency is wall-clock through the CLI** on one host with up to {{lanes}} calls in flight. It includes CLI start-up and network time, and is not comparable to API time-to-first-token. The exploratory stripped-luna run used one lane at a different time of day, so its latency is not a clean comparison with luna-low.
 - **The cache key leaves out a few inputs.** The effort and model literals inside the trim probe are not hashed. The one-line system prompt and the grader's source are pinned by SHA-256 instead: the runners and the grader refuse to run if either file changes while cached results exist.
@@ -211,12 +214,12 @@ rebuilds every table, chart and number in this README and the page from the cach
 - **L7 was not pre-registered either**, and has only three problems; it ran on only some of the configs (see the L7 table).
 - **luna-high on the full ladder was not pre-registered.** It was added because the reasoning-token gap made the low/medium comparison unfair to luna. Treat its row as exploratory.
 - **The quality columns are descriptive.** Growth exponents come from the fastest of three timings at each of four input sizes on a shared host, so small differences are noise; the threshold for "worse than reference" is in PLAN.md.
-- `make selftest` takes about 12 minutes; `make report` takes seconds.
+- `make selftest` takes about {{d_selftest_min}} minutes; `make report` takes seconds.
 - **One run in time.** Hosted models change. CLI versions and run dates are in [results/manifest.json](results/manifest.json); a later re-run may differ.
 
 ## Appendix A: can refinements rescue luna-low? (exploratory, post hoc)
 
-After the main run, several changes were tried on the {{n_rescue_problems}} problems {{rescue_rule}}, the rescue set (p03 ledger, p04 taller_within, p08 recur, p09 k_machine_schedule, p10 avoid_count, p11 best_average, p12 sheet), with 5 attempts each, n = {{rescue_n}} per row. The problems were picked because luna failed them, so these rows overstate any gain and carry no confidence intervals. The baselines are the main run's attempts on the same problems. Rows are in [results/appendix/luna_rescue.jsonl](results/appendix/luna_rescue.jsonl).
+After the main run, several changes were tried on the {{n_rescue_problems}} problems {{rescue_rule}}, the rescue set (p03 ledger, p04 taller_within, p08 recur, p09 k_machine_schedule, p10 avoid_count, p11 best_average, p12 sheet), with {{repeats}} attempts each, n = {{rescue_n}} per row. The problems were picked because luna failed them, so these rows overstate any gain and carry no confidence intervals. The baselines are the main run's attempts on the same problems. Rows are in [results/appendix/luna_rescue.jsonl](results/appendix/luna_rescue.jsonl).
 
 {{table:rescue}}
 
@@ -234,7 +237,7 @@ Asked after the main run: can fan-outs use sol61-high in fast mode (the priority
 {{table:fastmode}}
 
 - **Fast mode is the same answers, sooner.** Every attempt passed, the code measures the same, and the median call took {{fm_fast_s}} s against {{fm_ctrl_s}} s ({{fm_faster}} faster), at {{fm_mult}} the list price.
-- **Fast mode on the whole main ladder and the L7 set (added 2026-10-24).** Both trusted Codex builders also ran in fast mode on all 12 main-ladder problems and the 3 L7 problems, 5 attempts each, and none missed. sol61-high ⚡: {{ff_s61_k}} and {{ff_s61_hk}} on L7, {{ff_s61_upp}} per pass and {{ff_s61_med}} s against {{ff_s61_dupp}} and {{ff_s61_dmed}} s at the default tier ({{ff_s61_faster}} quicker, {{ff_s61_x}} the cost per pass). astra-medium ⚡: {{ff_ast_k}} and {{ff_ast_hk}}, {{ff_ast_upp}} and {{ff_ast_med}} s against {{ff_ast_dupp}} and {{ff_ast_dmed}} s ({{ff_ast_faster}} quicker, {{ff_ast_x}} the cost per pass). The ⚡ rows are in every table and chart beside their default-tier twin; spend on them: {{ff_usd}}.
+- **Fast mode on the whole main ladder and the L7 set (added 2026-10-24).** Both trusted Codex builders also ran in fast mode on all {{n_problems}} main-ladder problems and the {{n_l7}} L7 problems, {{repeats}} attempts each, and none missed. sol61-high ⚡: {{ff_s61_k}} and {{ff_s61_hk}} on L7, {{ff_s61_upp}} per pass and {{ff_s61_med}} s against {{ff_s61_dupp}} and {{ff_s61_dmed}} s at the default tier ({{ff_s61_faster}} quicker, {{ff_s61_x}} the cost per pass). astra-medium ⚡: {{ff_ast_k}} and {{ff_ast_hk}}, {{ff_ast_upp}} and {{ff_ast_med}} s against {{ff_ast_dupp}} and {{ff_ast_dmed}} s ({{ff_ast_faster}} quicker, {{ff_ast_x}} the cost per pass). The ⚡ rows are in every table and chart beside their default-tier twin; spend on them: {{ff_usd}}.
 - **xhigh buys nothing here.** Same passes, {{fm_x_out}} the output tokens, {{fm_x_cost}} the cost per pass and {{fm_x_s}} s per call, with no better code on any measure.
 
 A blind read of {{bl_n}} passing solutions ({{bl_probs}} problems × {{bl_cfgs}} configs, shuffled, labels hidden, one Fable reviewer) scored readability and marked any it would not merge. All {{bl_blocks}} blocks were sonnet-medium answers; the Codex flagships and haiku-medium scored alike. One reviewer and one solution per cell is a small sample: read it as "no sign of bad code", not a ranking.
@@ -275,11 +278,11 @@ What we did not borrow: scale. These benchmarks run hundreds of problems, and Li
 @readme
 @readme ```
 @readme bench/            problems, prompts, runners, sandboxed grader
-@readme   problems/       15 problems (12 on L1-L6, 3 on L7): statement, reference, brute force, planted bugs
-@readme   agentic/        4 repo tasks (visible tests, hidden tests, reference solution) and their runner
+@readme   problems/       {{n_problems_all}} problems ({{n_problems}} on L1-L6, {{n_l7}} on L7): statement, reference, brute force, planted bugs
+@readme   agentic/        {{n_tasks}} repo tasks (visible tests, hidden tests, reference solution) and their runner
 @readme   quality/        code-quality measurements of the graded solutions (no model calls)
 @readme   pilot/          the earlier pilot's prompts and problems, reused by the trim probe
-@readme   run.py          function-track runner (cache-first, 4 lanes max, $8 Claude cap)
+@readme   run.py          function-track runner (cache-first, {{d_lanes}} lanes max, {{d_budget_usd}} Claude cap)
 @readme   escalate.py     pre-registered escalation step
 @readme   trim_probe.py   Codex harness floor probe (exploratory)
 @readme   plan_first.py   Appendix F plan-first rescue runner

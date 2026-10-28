@@ -41,4 +41,4 @@ Acceptance for each chart: `make report` leaves `git diff --stat results/report/
   of the main rows, which would overlap the main ladder set, so the set model needs a second axis (problem subset) before the rescue chart migrates.
 - by_task / by_problem / by_rung breakdowns are not columns yet.
 - The audit rule "every number shown equals the dataset" is checked for the Everything table (pass counts) and the migrated charts (byte equality); the
-  other numbers still come from summary.json, which `summarize` writes from the same rows.
+  other numbers come from the same dataset.json (its `report` block), folded in from `summarize` in memory; summary.json no longer exists.

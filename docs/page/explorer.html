@@ -2,22 +2,22 @@
 <div class="ctl">
 <label>x <select id="ex"></select></label> <label><input type="checkbox" id="lx"> log</label>
 <label>y <select id="ey"></select></label> <label><input type="checkbox" id="ly"> log</label>
-<label>frontier over <select id="fl"><option value="0">all shown</option><option value="0.75">pass rate ≥ 75%</option><option value="0.9">pass rate ≥ 90%</option></select></label>
+<label>frontier over <select id="fl">__FLOOR_OPTIONS__</select></label>
 </div>
 <div class="ctl" id="cf"></div>
 <figure id="xfig"><div id="xplot"></div><div id="tip" hidden></div>
 <figcaption>Hollow = exploratory config. Codex $ is a proxy.</figcaption></figure>
 <script>
 (function(){
-var D=__DATA__;
-var USD=Object.fromEntries(__USD_TICKS__.map(function(p){return [p[0],p[1]]}));
+var X=JSON.parse(document.getElementById("data").textContent).explorer,D=X.points;
+var USD=Object.fromEntries(X.usd_ticks.map(function(p){return [p[0],p[1]]}));
 function tf(k,v){if(k=="pass")return (100*v).toFixed(0)+"%";var t=+v.toPrecision(3);if(k=="usd")return USD[+v.toPrecision(10)];if(k=="med")return t+" s";return t>=1000?(t/1000)+"k":String(t)}
 var M={pass:{l:"pass rate",f:function(v){return (100*v).toFixed(0)+"%"},up:1},
  usd:{l:"$ per pass"},
  med:{l:"median seconds",f:function(v){return v.toFixed(1)+" s"}},
  inp:{l:"input tokens per call",f:function(v){return Math.round(v).toLocaleString()}},
  rsn:{l:"reasoning tokens per call",f:function(v){return Math.round(v).toLocaleString()}}};
-var st={x:"usd",y:"med",lx:true,ly:false,fl:"0.9",off:{}};
+var st={x:"usd",y:"med",lx:true,ly:false,fl:String(X.default_floor),off:{}};
 try{var sv=JSON.parse(localStorage.getItem("rb-x2")||"null");if(sv)st=sv}catch(e){}
 var ex=document.getElementById("ex"),ey=document.getElementById("ey");
 for(var k in M){ex.add(new Option(M[k].l,k));ey.add(new Option(M[k].l,k))}

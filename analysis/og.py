@@ -2,6 +2,7 @@
 Skipped with a message, keeping the committed PNG, when Chrome is missing or fails. Run by `make report`."""
 import json, os, shutil, subprocess, sys, tempfile
 from html import escape
+from analysis import dataset
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "results", "report", "og.png")
@@ -33,7 +34,7 @@ def build():
     chrome = next((p for p in (shutil.which(n) for n in ("google-chrome", "chromium", "chromium-browser")) if p), None)
     if not chrome:
         print("og.png: Chrome not found; kept the existing file"); return 0
-    facts = json.load(open(os.path.join(ROOT, "results", "dataset.json")))["facts"]
+    facts = dataset.read()["facts"]
     with tempfile.TemporaryDirectory() as d:
         src, png = os.path.join(d, "card.html"), os.path.join(d, "og.png")
         open(src, "w").write(card_html(facts))

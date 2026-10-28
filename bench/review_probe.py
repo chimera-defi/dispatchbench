@@ -78,7 +78,7 @@ def data_evidence():
             "codex_function_tool_items": sum(r.get("tool_items") or 0 for r in functions if r["cli"] == "codex"),
             "agentic": summary, "function_costs": costs, "pipeline_G": pipelines,
             "measured_cache_costs": measured,
-            "reported_claude_total": json.loads((ROOT / "results/summary.json").read_text())["spend"]["claude_measured_usd"],
+            "reported_claude_total": json.loads((ROOT / "results/dataset.json").read_text())["report"]["spend"]["claude_measured_usd"],
             "failed_visible_runs": [{k: r[k] for k in ("config", "task", "repeat", "key", "visible", "hidden")}
                                     for r in agents if not r["visible_pass"]]}
 

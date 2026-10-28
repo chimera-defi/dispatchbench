@@ -1,6 +1,6 @@
-"""Turn results/*.jsonl into results/summary.json and results/report/tables.md. No model calls.
+"""Turn results/*.jsonl into the in-memory summary that analysis.dataset folds into results/dataset.json. No model calls.
 
-Every number in the README and the report comes from summary.json, and every summary.json number is computed here
+Every number in the README and the report comes from dataset.json, and every summary number is computed here
 from rows in results/. Codex dollar figures are proxies (token counts x list price); Claude and Grok dollar figures are the
 CLI's measured total_cost_usd."""
 import json, os, statistics
@@ -23,7 +23,11 @@ PAIRS = [("haiku-medium", "haiku-low"), ("luna-medium", "luna-low"), ("sonnet-me
 BREAK_AT = 0.40
 
 
+LOADED = set()  # every results file the loaders have read this run; dataset.json marks them used
+
+
 def load(p):
+    LOADED.add(os.path.abspath(p))
     return [json.loads(l) for l in open(p)] if os.path.exists(p) else []
 
 
@@ -411,11 +415,10 @@ def build():
 
 def main():
     s, tab, man = build()
-    json.dump(s, open(os.path.join(RES, "summary.json"), "w"), indent=1)
     os.makedirs(os.path.join(RES, "report"), exist_ok=True)
     open(os.path.join(RES, "report", "tables.md"), "w").write(tab)
     json.dump(man, open(os.path.join(RES, "manifest.json"), "w"), indent=1)
-    print(f"summary: {s['phases'].get('main', 0)} main rows, {s['phases'].get('escalation', 0)} escalation rows, {len(load(AGENT))} agentic rows -> results/summary.json, results/report/tables.md")
+    print(f"summary: {s['phases'].get('main', 0)} main rows, {s['phases'].get('escalation', 0)} escalation rows, {len(load(AGENT))} agentic rows -> results/report/tables.md (dataset.json is the only number file)")
 
 
 def manifest(rows, agent, s):

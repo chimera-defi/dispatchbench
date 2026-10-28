@@ -309,15 +309,15 @@ OLD_GROK_ROWS = """
 | grok47-high | Claude | sonnet-medium | L6 | none | 30/30 | 9.5 | $0.010 | 4.3× | 7.2× |
 | grok47fast-low | Claude | haiku-medium | L2 | L3 | 29/30 | 10.6 | $0.0011 | 1.8× | 103.4× |
 | grok47fast-low | Codex | luna-high | L2 | L3 | 24/25 | 9.0 | $0.00092 | 2.2× | 121.1× |
-| grok47-high | 8/8 | 442.1 | $0.54 | 9 |
-| grok47-low | 8/8 | 98.9 | $0.19 | 5 |
-| astra-medium | 12/12 | 65.6 | $0.45 | 1 |
-| haiku-high | 12/12 | 58.4 | $0.012 | 10 |
-| haiku-low | 12/12 | 28.3 | $0.0051 | 5 |
-| luna-low | 7/12 | 24.1 | $0.0056 | 1 |
-| sol61-high | 12/12 | 117.9 | $0.097 | 1 |
-| sol61-medium | 12/12 | 84.5 | $0.079 | 1 |
-| sonnet-medium | 12/12 | 27.7 | $0.054 | 3 |
+| grok47-high | 8/8 task_complete | 442.1 | $0.54 | 9 |
+| grok47-low | 8/8 task_complete | 98.9 | $0.19 | 5 |
+| astra-medium | 12/12 task_complete | 65.6 | $0.45 | 1 |
+| haiku-high | 12/12 task_complete | 58.4 | $0.012 | 10 |
+| haiku-low | 12/12 task_complete | 28.3 | $0.0051 | 5 |
+| luna-low | 7/12 task_complete (under audit) | 24.1 | $0.0056 | 1 |
+| sol61-high | 12/12 task_complete | 117.9 | $0.097 | 1 |
+| sol61-medium | 12/12 task_complete | 84.5 | $0.079 | 1 |
+| sonnet-medium | 12/12 task_complete | 27.7 | $0.054 | 3 |
 | grok47-high | astra-medium | 6.74× | 1.20× |
 | grok47-high | haiku-high | 7.57× | 44.34× |
 | grok47-high | haiku-low | 15.63× | 105.53× |
@@ -380,9 +380,10 @@ OLD_GROK_CLAIMS = (
 # Re-pinned 2026-10-28: everything outside the Grok section changed with the Terra rows (tables, charts, Interesting, equivalents).
 # Re-pinned 2026-10-28 for Commit A: Devin rows (tables, fail grid, rung chart, heatmap, catalog), the share-card meta tags in
 # the page head, and the relabelled pareto chart labels. The Grok repository-tasks subsection is unchanged.
+# E: the page digest also covers the embedded data block, the rule labels and the rule note; REPORT.md carries the rule labels, the rule note, the audit footnote and tokenised figures.
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': 'b53106cbd2e3831688a536c0a91b1e9eb2636f35cdde18ee2d8f85ba0c6d0bec',
-    'docs/REPORT.md': 'c4a92010a874a6b9271c7af8a8455046992c40395bc9a44b533ea761efca6b12',
+    'results/report/page.html': 'b493880912a7c5d5c6234c39cfa7eaa477602796fa1dc73094b7ec39882c78e3',
+    'docs/REPORT.md': '0e97f6ffade91ee802061828abdecb08179d265bdfcd898bf5f1c62c2a9ff0e7',
 }
 
 

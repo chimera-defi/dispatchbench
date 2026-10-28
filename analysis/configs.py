@@ -270,3 +270,8 @@ LC = {"p01_overlap_minutes": "Medium", "p02_squash": "Easy", "p03_ledger": "Medi
       "p05_pass_route": "Medium", "p06_calc": "Hard", "p07_weighted_distance_sums": "Hard", "p08_recur": "Medium",
       "p09_k_machine_schedule": "Hard", "p10_avoid_count": "Hard", "p11_best_average": "Hard", "p12_sheet": "Hard",
       "p13_xor_ring": "Hard", "p14_bounce_board": "Hard", "p15_paint_erase": "Hard"}
+
+
+# Explorer and static speed-chart rules, read by analysis.page and written into dataset.json design.explorer
+TIE_ABS_S, TIE_REL = 0.5, 0.05  # a speed change below both 0.5 s and 5% is a tie
+PASS_FLOORS = (0.75, 0.9)       # the explorer's "frontier over pass rate >=" choices; the last is the pre-registered MIN_PASS
