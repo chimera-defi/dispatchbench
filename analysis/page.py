@@ -15,8 +15,8 @@ ORDER = ["haiku-low", "haiku-medium", "haiku-high", "sonnet-medium", "sol61-medi
 # where $ is not needed (results table, fail grid, rung chart); ORDER_ALL is that wider list.
 ORDER_ALL = ORDER + list(configs.DEVIN_CONFIGS)
 GROK_ORDER = configs.GROK_CONFIGS
-WINNER_PICKS = {"sol61-high-fast": "default", "haiku-high": "budget", "sonnet-medium": "speed"}
-FAM = lambda c: "var(--grok,#000)" if c.startswith("grok") else "var(--devin)" if c.startswith("devin") else "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex56)" if c.startswith(("sol56", "luna56")) else "var(--codex)"
+from analysis.dataset import WINNER_PICKS, front, speed_dominates
+FAM = lambda c: "var(--grok)" if c.startswith("grok") else "var(--devin)" if c.startswith("devin") else "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex56)" if c.startswith(("sol56", "luna56")) else "var(--codex)"
 NS = 'xmlns="http://www.w3.org/2000/svg"'
 
 
@@ -28,18 +28,6 @@ def every(s):
 def devin(s):
     """{config: block} for the Devin free-tier lane: 1 repeat on p01-p12, no token or $ data. Never on a $ chart."""
     return {c: v for c, v in s["exploratory"].items() if c in configs.DEVIN_CONFIGS}
-
-
-def front(pts, better):
-    """Points no other point beats on both axes. better(a, b) is True when a is at least as good as b on both."""
-    return [p for p in pts if not any(q is not p and better(q, p) and (q["x"], q["y"]) != (p["x"], p["y"]) for q in pts)]
-
-
-def speed_dominates(a, b):
-    """Cost must not rise; speed changes below both 0.5 s and 5% count as ties."""
-    tolerance = min(configs.TIE_ABS_S, b["x"] * configs.TIE_REL)
-    return (a["y"] < b["y"] and a["x"] <= b["x"] + tolerance or
-            a["y"] == b["y"] and a["x"] <= b["x"] - tolerance)
 
 
 def esc(t):
@@ -59,7 +47,7 @@ def SHAPE(c):
 def marker_paint(c, hollow, col):
     """Grok is black in the light theme. A white outline keeps that mark readable on the dark theme too."""
     if c.startswith("grok"):
-        return ("var(--panel)" if hollow else col, "#fff", 1.5)
+        return ("var(--panel)" if hollow else col, "var(--panel)", 1.5)
     return ("var(--panel)" if hollow else col, col, 2.5)
 
 
@@ -642,58 +630,55 @@ def fast(s):
 
 
 def explorer_data(s):
-    """The explorer's numbers: a projection of the dataset, embedded in the page's data block. The script reads them from there."""
-    points = [{"c": c, "d": DISP(c), "exp": e, "col": FAM(c), "fast": "-fast" in c,
-               "mark": config_marker(c, 0, 0), "kind": v["cost_kind"], "pass": v["pass_at_1"], "usd": v["usd_per_pass"], "usd_text": v["usd_text"],
-               "med": v["latency_s"]["median"], "inp": v["tokens_mean"]["in_tok"], "rsn": v["tokens_mean"]["reasoning_tok"]}
-              for e, group in ((False, s["configs"]), (True, every(s))) for c, v in group.items()
-              if e == (c not in s["configs"])]  # Devin has no $, so it stays out of the any-two-measures plot
-    d = s["design"]["explorer"]
-    return {"points": points, "usd_ticks": s["design"]["usd_ticks"], "floors": d["floors"], "default_floor": d["default_floor"], "tie": d["tie"]}
+    """The browser sees only the canonical dataset's explorer projection."""
+    exp = s["explorer"]
+    # Per-subset comparisons are interactive. Keep the full evidence graph in
+    # dataset.json; shipping its repeated beaten-by lists bloats the page and
+    # duplicates what the controls compute from the embedded measurements.
+    sets = []
+    for st in exp["sets"]:
+        views = {}
+        for pricing, group in st["views"].items():
+            views[pricing] = {"extents": group["extents"]}
+            for name in exp["views"]:
+                v = group[name]
+                views[pricing][name] = {"panels": v["panels"],
+                    "frontier": [key for key, m in v["membership"].items() if m["on_frontier"]]}
+        sets.append(dict(st, views=views))
+    return dict(exp, sets=sets)
 
 
 def explorer(s):
-    """Render interactive geometry around the embedded measurements and dollar labels."""
-    src = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "page", "explorer.html")
-    options = '<option value="0">all shown</option>' + "".join(f'<option value="{f}">pass rate ≥ {round(100 * f)}%</option>' for f in s["design"]["explorer"]["floors"])
-    body = open(src).read().replace("__FLOOR_OPTIONS__", options)
-    body = body.replace("frontier over", "best trade-offs over")
-    older = s["exploratory"]["sol56-high"]["model"].split("-")[1]
-    body = body.replace("Hollow = exploratory config. Codex $ is a proxy.",
-                        f"Solid = normal speed. Hollow = fast mode. Dashed edge = bare prompt. Alternate Codex colour = {older} generation. Shapes match the charts above. Labels connect to their own points. Codex $ is a list-price estimate.")
-    # Match the static speed chart: differences below both the absolute and the relative tolerance (design.explorer.tie) are ties.
-    body = body.replace('return M[k].up?a>=b:a<=b', 'return k=="med"?a<=b+Math.min(X.tie.abs_s,X.tie.rel*b):M[k].up?a>=b:a<=b')
-    body = body.replace('return M[k].up?a>b:a<b', 'return k=="med"?a<=b-Math.min(X.tie.abs_s,X.tie.rel*b):M[k].up?a>b:a<b')
-    body = body.replace('sx.t.forEach(function(v){', 'var tickEnd=-Infinity; sx.t.forEach(function(v){')
-    body = body.replace('if(x<L-1||x>W-R+1)return;',
-                        'if(x<L-1||x>W-R+1)return;var tw=tf(st.x,v).length*(small?6:7);if(x-tw/2<tickEnd+10)return;tickEnd=x+tw/2;')
-    start, end = body.index(' var placed=[];'), body.index(" box.innerHTML='<svg")
-    body = body[:start] + r"""
- var placed=[],dots=pts.map(function(p){return [sx.f(p[st.x]),sy.f(p[st.y])]}),fontSize=small?11:12;
- var measure=document.createElement('canvas').getContext('2d');measure.font=fontSize+'px -apple-system,Segoe UI,Helvetica,Arial,sans-serif';
- pts.forEach(function(p){var x=sx.f(p[st.x]),y=sy.f(p[st.y]),onf=fr.indexOf(p)>=0;
-  g.push('<g class="explorer-point" data-i="'+D.indexOf(p)+'" data-x="'+x+'" data-y="'+y+'" transform="translate('+x+' '+y+')" style="cursor:pointer">'+
-   '<title>'+esc(p.d)+'</title>'+(onf?'<circle r="12" fill="none" stroke="var(--frontier)" stroke-width="3"/>':'')+p.mark+'<circle r="14" fill="transparent"/></g>')});
- function overlap(a,b){return Math.max(0,Math.min(a[2],b[2])-Math.max(a[0],b[0]))*Math.max(0,Math.min(a[3],b[3])-Math.max(a[1],b[1]))}
- pts.filter(function(p){return !small||fr.indexOf(p)>=0}).sort(function(a,b){return (fr.indexOf(b)>=0)-(fr.indexOf(a)>=0)||sy.f(a[st.y])-sy.f(b[st.y])}).forEach(function(p){
-  var x=sx.f(p[st.x]),y=sy.f(p[st.y]),w=measure.measureText(p.d).width+6,h=fontSize+5,candidates=[];
-  [20,45,75,110,150].forEach(function(r){for(var angle=0;angle<360;angle+=30){var a=angle*Math.PI/180,dx=Math.cos(a)*r,dy=Math.sin(a)*r;
-    candidates.push([x+dx-(dx<0?w:0),y+dy])}});
-  for(var yy=T+h;yy<H-B;yy+=h+3)for(var xx=L;xx+w<W-R;xx+=24)candidates.push([xx,yy]);
-  var best=null;
-  candidates.forEach(function(c){var lx=c[0],ly=c[1],r=[lx,ly-h,lx+w,ly+3];
-   var outside=Math.max(0,L-r[0])+Math.max(0,r[2]-(W-R))+Math.max(0,T-r[1])+Math.max(0,r[3]-(H-B));
-   var collision=placed.reduce(function(s,q){return s+overlap(r,q)},0)+dots.reduce(function(s,q){return s+overlap(r,[q[0]-15,q[1]-15,q[0]+15,q[1]+15])},0);
-   var score=outside*10000+collision*1000+Math.hypot(lx+w/2-x,ly-h/2-y);
-   if(!best||score<best.score)best={score:score,r:r,lx:lx,ly:ly};
-  });
-  var r=best.r,qx=Math.max(r[0],Math.min(x,r[2])),qy=Math.max(r[1],Math.min(y,r[3])),dist=Math.hypot(qx-x,qy-y)||1;
-  placed.push(r);g.push('<line class="explorer-leader" x1="'+(x+(qx-x)*14/dist)+'" y1="'+(y+(qy-y)*14/dist)+'" x2="'+qx+'" y2="'+qy+'" stroke="var(--muted)" stroke-width="1"/>');
-  g.push('<text class="explorer-label" x="'+(best.lx+3)+'" y="'+best.ly+'" style="fill:var(--fg)" pointer-events="none">'+esc(p.d)+'</text>');
- });
-""" + body[end:]
-    body = body.replace('box.querySelectorAll("circle")', 'box.querySelectorAll(".explorer-point")')
-    body = body.replace('c.getAttribute("cx")', 'c.getAttribute("data-x")').replace('c.getAttribute("cy")', 'c.getAttribute("data-y")')
+    exp = s["explorer"]
+    st = next(st for st in exp["sets"] if st["id"] == exp["default_set"])
+    rows = [r for r in exp["rows"] if r["key"] in st["rows"]]
+    membership = st["views"]["list"]["front"]["membership"]
+    plotted = [r for r in rows if r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None]
+    fr = [r for r in plotted if membership[r["key"]]["on_frontier"]]
+    button = lambda r: f'<button class="btn" data-key="{esc(r["key"])}">{esc(r["display"])}</button>'
+    detail = ""
+    if plotted:
+        r = plotted[0]
+        detail = (f'<h3>{esc(r["display"])}</h3><p>{r["passes"]}/{r["n"]} passed · {dataset.usd(r["usd_per_pass"])} per pass · {r["median_s"]:g} s median</p>'
+                  f'<p class="ex-meta">CI {100*r["ci95_plot"][0]:.1f}%–{100*r["ci95_plot"][1]:.1f}% · {esc(r["cost_kind"])} · {esc(r["rule"])}</p>')
+    tokens = {
+        "__VIEW_BUTTONS__": "".join(f'<button class="btn" data-view="{v}" aria-pressed="{str(v == exp["default_view"]).lower()}">{esc(spec["label"])}</button>' for v, spec in exp["views"].items()),
+        "__SET_OPTIONS__": "".join(f'<option value="{esc(t["id"])}">{esc(t["label"])}</option>' for t in exp["sets"]),
+        "__FLOOR_OPTIONS__": "".join(f'<option value="{v}">{"Any" if not v else "≥ " + str(round(v*100)) + "%"}</option>' for v in exp["floors"]),
+        "__SET_NOTE__": esc(st["note"]), "__STRICT_RULE__": esc(exp["rule"]), "__LEGACY_RULE__": esc(exp["legacy_rule"]),
+        "__WINNER_PRICING__": esc(exp["winner_pricing"]), "__EXPLORER_SVG__": charts.explorer_svg(exp),
+        "__EXCLUDED__": " ".join(esc(r["display"] + ": " + r["coverage_note"] + "; cost unavailable — use Speed × Pass.") for r in rows if r not in plotted),
+        "__DETAIL__": detail, "__BEST__": "".join("<li>"+button(r)+"</li>" for r in fr),
+        "__PICKS__": "".join(f'<p>{esc(pick)}: '+button(r)+"</p>" for c,pick in exp["winner_picks"].items() for r in rows if r["config"] == c),
+        "__PANELS__": charts.explorer_panels(exp), "__RADARS__": charts.explorer_radars(exp),
+        "__CONFIG_BUTTONS__": "".join(f'<button class="btn" data-config="{esc(r["key"])}" aria-pressed="true">{esc(r["display"])}</button>' for r in rows),
+        "__FACET_BUTTONS__": "".join(f'<button class="btn" data-facet="{esc(k)}" aria-pressed="true">{esc(label)}</button>'
+                                   for k,label in [("family:"+f,f) for f in sorted({r["family"] for r in exp["rows"]})]
+                                   + [("mode:"+m,m) for m in ("normal","fast","bare","pipeline")]
+                                   + [("generation:5.6","gpt-5.6")]) + '<button class="btn" data-facet="prereg" aria-pressed="false">Pre-registered only</button>',
+    }
+    body = open(os.path.join(os.path.dirname(__file__), "..", "docs", "page", "explorer.html")).read()
+    for key,value in tokens.items(): body = body.replace(key,value)
     return body
 
 
@@ -726,7 +711,7 @@ HARD = list(NAME.items())
 
 def dot(col, grok=False):
     """The family-colour swatch before a config name. Grok is black, so it gets the legend's white ring."""
-    return f'<span class="dot" style="background:{col}{";box-shadow:0 0 0 1.5px #fff" if grok else ""}"></span>'
+    return f'<span class="dot" style="background:{col}{";box-shadow:0 0 0 1.5px var(--panel)" if grok else ""}"></span>'
 
 
 def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, rate, key="", set_name=""):
@@ -969,6 +954,9 @@ def notation_tooltips(body, ds):
             if tag == "section":
                 self.seen = set()
             raw = self.get_starttag_text()
+            # Terminate inline CSS declarations so tooling cannot read a later
+            # prose colour word as part of the preceding style value.
+            raw = re.sub(r'(style="[^"]*?)(?<!;)"', r'\1;"', raw)
             values = dict(attrs)
             if "dot" in values.get("class", "").split():
                 symbol = "purple dot" if "--frontier" in values.get("style", "") else "family dots"

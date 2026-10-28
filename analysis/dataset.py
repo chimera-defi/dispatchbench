@@ -79,11 +79,11 @@ def _harness_rows():
     return summarize.harness_rows(load(os.path.join(RES, "appendix", "harness_bias.jsonl")))
 
 
-def _rows():
+def _rows(include_grok_repo=False):
     """[(source, name, set, row dict with _usd/_claude/_pass/_sec/_group)] from every results file."""
     out = []
     def add(src, name, st, r, ok, sec, group, usd, tin, tout, tc=None, hid=None):
-        out.append((src, name, st, {"ok": bool(ok), "sec": sec, "group": group, "usd": usd, "claude": _claude(r, src, usd), "in": tin, "out": tout, "cached": r.get("cached_tok") or r.get("builder_cached") or 0, "reasoning": r.get("reasoning_tok") or 0, "cli": r.get("cli", r.get("builder_kind", "")), "rung": r.get("rung"), "file": r.get("_file"), "tc": tc, "hid": hid, "key": r.get("key"), "run_id": f"{r.get('_file', '')}#{r.get('key', '')[:12]}" if r.get("key") else None}))
+        out.append((src, name, st, {"ok": bool(ok), "sec": sec, "group": group, "usd": usd, "claude": _claude(r, src, usd), "in": tin, "out": tout, "cached": r.get("cached_tok") or r.get("builder_cached") or 0, "reasoning": r.get("reasoning_tok") or 0, "model": r.get("model", r.get("builder")), "effort": r.get("effort"), "service_tier": r.get("service_tier"), "cli": r.get("cli", r.get("builder_kind", "")), "rung": r.get("rung"), "file": r.get("_file"), "tc": tc, "hid": hid, "key": r.get("key"), "run_id": f"{r.get('_file', '')}#{r.get('key', '')[:12]}" if r.get("key") else None}))
     func = [r for r in summarize.function_rows() if r["phase"] != "warmup"]
     cover = defaultdict(set)
     for r in func:
@@ -111,6 +111,14 @@ def _rows():
     for f in configs.SOURCES["harness-bias"]:
         for r in (_harness_rows() if f == configs.SOURCES["harness-bias"][0] else load(os.path.join(RES, f))):
             add("harness-bias", f"{r['config']} / {'Codex' if r['phase'] == 'codex_harness' else 'Claude'} harness", "harness bias", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "harness-bias"), r["in_tok"], r["out_tok"])
+    if include_grok_repo:
+        # The historical Grok repo comparison already has its own source and
+        # totals. Offer those measured attempts in the explorer without changing
+        # the canonical historical report population or counting them twice.
+        for r in load(os.path.join(RES, "2026-10-27-grok-agentic.jsonl")):
+            done = bool(r.get("task_complete", r["visible_pass"] and r["hidden_pass"]))
+            add("grok-repo", r["config"], "repo tasks", r, done, r["wall_s"], r["task"],
+                _usd(r, "main"), r["in_tok"], r["out_tok"], tc=done, hid=bool(r["hidden_pass"]))
     return out
 
 
@@ -147,6 +155,9 @@ def _row(src, name, st, rr):
     spend = sum(known); sc = sum(cl)
     sg = sum(x["usd"] for x in rr if x["cli"] == "grok" and x["usd"] is not None)
     return {"id": e["id"], "source": src, "config": name, "display": e["display"], "family": e["family"], "category": e["category"], "what": e["what"], "set": st, "derived": st in DERIVED, "files": sorted({x["file"] for x in rr if x["file"]}) or e["files"],
+            "model": next((x["model"] for x in rr if x.get("model")), None),
+            "effort": next((x["effort"] for x in rr if x.get("effort")), None),
+            "service_tier": next((x["service_tier"] for x in rr if x.get("service_tier")), None),
             "passes": k, "n": n, "pass_rate": round(k / n, 4), "ci95": ci, "groups": len(cells),
             "usd_per_pass": round(spend / k, 6) if k and complete else None, "claude_usd_per_pass": round(sc / k, 6) if k and complete else None,
             "codex_usd_per_pass": round((spend - sc - sg) / k, 6) if k and complete else None, "usd_per_call": round(spend / n, 6) if complete else None,
@@ -1484,6 +1495,157 @@ def name_rules(tables):
         spec["head"] = [h if not PASS_HEAD.search(h) or any(r in h for r in ("hidden", "task complete")) else f"{h} (function tests)" for h in spec["head"]]
 
 
+
+# The earlier charts retain their published, explicitly stated speed tolerance.
+# The explorer uses strict_dominates only (no tolerance on any objective).
+WINNER_PICKS = {"sol61-high-fast": "default", "haiku-high": "budget", "sonnet-medium": "speed"}
+
+
+def front(pts, better):
+    return [p for p in pts if not any(q is not p and better(q, p) and (q["x"], q["y"]) != (p["x"], p["y"]) for q in pts)]
+
+
+def speed_dominates(a, b):
+    """Earlier-chart compatibility: cost cannot rise; speed tolerance is data."""
+    tolerance = min(configs.TIE_ABS_S, b["x"] * configs.TIE_REL)
+    return (a["y"] < b["y"] and a["x"] <= b["x"] + tolerance or
+            a["y"] == b["y"] and a["x"] <= b["x"] - tolerance)
+
+
+EXPLORER_VIEWS = {
+    "front": {"label": "Cost × Pass", "objectives": [["cost", -1], ["pass_rate", 1]]},
+    "top": {"label": "Cost × Speed", "objectives": [["cost", -1], ["median_s", -1]], "min_pass": MIN_PASS},
+    "side": {"label": "Speed × Pass", "objectives": [["median_s", -1], ["pass_rate", 1]]},
+    "3d": {"label": "3D", "objectives": [["cost", -1], ["pass_rate", 1], ["median_s", -1]]},
+    "par": {"label": "Parallel coordinates", "objectives": [["cost", -1], ["pass_rate", 1], ["median_s", -1]]},
+}
+
+
+def strict_dominates(a, b, objectives):
+    """At least as good everywhere, strictly better somewhere; identical points tie."""
+    return (all(a[k] * d >= b[k] * d for k, d in objectives)
+            and any(a[k] * d > b[k] * d for k, d in objectives))
+
+
+def explorer_facets(r):
+    c = r["config"]; base = c.split(" / ")[0]
+    if "-plan+" in base: base = base.split("+", 1)[1]
+    else: base = base.split("+", 1)[0]
+    pipeline = "+" in c or c.startswith("pipeline ")
+    mode = ("pipeline" if pipeline else "bare" if any(t in c for t in ("bare", "noshell", "nofeat", "mininst", "noctx", "nodoc", "lean"))
+            else "fast" if "-fast" in c or "47fast" in c or c.endswith("-prio") or str(r.get("service_tier") or "").startswith("priority") else "normal")
+    model_id = r.get("model") or ""
+    model = next((m for m in ("haiku", "sonnet", "luna", "sol", "astra", "terra", "grok", "devin") if m in (model_id + " " + base)), "other")
+    if base.startswith("codex"): model = "sol"
+    generation = ("5.6" if "56" in base or "5.6" in model_id else "6.1" if "61" in base or "6.1" in model_id
+                  else "6.x" if model in ("luna", "sol", "astra", "terra") else model_id or model)
+    effort = r.get("effort") or next((e for e in ("xhigh", "high", "medium", "low", "default") if re.search(r"(?:^|[-/])" + e + r"(?:$|[- /+])", base)), "low" if r["source"] == "trim" or base == "codex-bare" else "default")
+    twin = c.removesuffix("-fast") if c.endswith("-fast") else c.replace("-prio", "-defa") if c.endswith("-prio") else "grok47-low" if c == "grok47fast-low" else None
+    if twin is None and mode == "fast" and (r["source"], c + "-defa") in configs.REGISTRY:
+        twin = c + "-defa"
+    if "-fast+" in c: twin = c.replace("-fast+", "+")
+    bare_of = (c.removesuffix("-bare") if c.endswith("-bare") else
+               c.split("/")[0] + "/base" if "/" in c else
+               c.split("-noshell")[0] if "-noshell" in c else
+               c.removesuffix("-lean") if c.endswith("-lean") else None) if mode == "bare" else None
+    if c == "codex-bare": bare_of = "codex-low"
+    quota = None if r["cost_kind"] == "unmetered" or r["usd_per_pass"] is None else round(r["usd_per_pass"] - r["codex_usd_per_pass"], 6)
+    gate = ("plan" if "-plan+" in c else "retry" if "retry" in c else "review all" if "review-all" in c or "repair" in c
+            else "on fail" if "on-fail" in c else "pilot") if pipeline else None
+    return {"mode": mode, "generation": generation, "model_short": model, "effort": effort,
+            "fast_twin": twin, "bare_of": bare_of,
+            "prereg": r["source"] == "main" and r["category"] == "main ladder",
+            "quota_usd_per_pass": quota, "winner_pick": WINNER_PICKS.get(c), "winner_pricing": "list price" if c in WINNER_PICKS else None,
+            "panel": "pipeline: " + gate if pipeline else model + (" · " + generation if r["family"] == "Codex" else ""),
+            "gate": gate, "coverage_note": ("Devin probe: " + configs.DEVIN_NOTE if r["cost_kind"] == "unmetered" else
+                f"{r['groups']} problem/task groups; {r['n']} attempts"),
+            "complete_marker": f"{r['task_complete']}/{r['n']} complete ({r['hidden_pass']}/{r['n']} hidden)" if "task_complete" in r else None}
+
+
+def explorer_frontier(rows, view, quota=False, floor=0):
+    spec = EXPLORER_VIEWS[view]; objectives = spec["objectives"]
+    eligible = [dict(r, cost=r["quota_usd_per_pass"] if quota else r["usd_per_pass"]) for r in rows
+                if r["pass_rate"] >= max(floor, spec.get("min_pass", 0))
+                and (not any(k == "cost" for k, _ in objectives) or r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None)]
+    beaten = {r["key"]: [a["key"] for a in eligible if strict_dominates(a, r, objectives)] for r in eligible}
+    return {r["key"]: {"eligible": r["key"] in beaten, "on_frontier": r["key"] in beaten and not beaten[r["key"]],
+                        "beaten_by": beaten.get(r["key"], [])} for r in rows}
+
+
+def explorer_extents(rows, quota=False):
+    costs = [(r["quota_usd_per_pass"] if quota else r["usd_per_pass"]) for r in rows if r["cost_kind"] != "unmetered"]
+    paid = [v for v in costs if v is not None and v > 0]
+    rates = [v for r in rows for v in (*r["ci95_plot"], r["pass_rate"])]
+    times = [r["median_s"] for r in rows]
+    return {"cost": [min(paid) / 1.5, max(paid) * 1.5] if paid else None,
+            "zero_lane": 0 in costs, "pass_rate": [max(0, min(rates) - .03), 1.03] if rates else None,
+            "median_s": [0, max(times) * 1.12] if times and max(times) else None}
+
+
+def explorer_data(ds):
+    """All explorer measurements, facets and default frontiers. New rows need no page edit.
+
+    Pooled values are rebuilt from original attempts (never averaged from per-set
+    rates, and never count rescue slices or all-runs aggregates a second time).
+    """
+    for r in ds["rows"]: r.update(explorer_facets(r))
+    rows = [dict(r, key=r["id"] + "@" + r["set"]) for r in ds["rows"]]
+    for c, arm in ds["rescue"].items():
+        if not arm.get("derived_from"): continue
+        ref = arm["derived_from"]
+        base = get(ds, ref["config"], ref["set"], ref["source"])
+        r = dict(base, config=c, id="derived/" + c, display=configs.display(c), derived=True,
+                 derived_note=arm["derived_note"], derived_from=ref)
+        r.update(explorer_facets(r)); r["key"] = r["id"] + "@" + r["set"]; rows.append(r)
+    pooled = defaultdict(list)
+    repo = defaultdict(list)
+    for src, name, st, r in _rows(include_grok_repo=True):
+        if st not in DERIVED: pooled[(src, name)].append(r)
+        if src == "grok-repo": repo[name].append(r)
+    for name, rr in repo.items():
+        r = _row("grok-repo", name, "repo tasks", rr)
+        r["category"] = "repo tasks"; r.update(explorer_facets(r))
+        r["key"] = r["id"] + "@repo tasks"; rows.append(r)
+    for (src, name), rr in pooled.items():
+        r = _row(src, name, "everything pooled", rr); r.update(explorer_facets(r))
+        r.update(derived=True, key=r["id"] + "@everything pooled"); rows.append(r)
+    sets = [{"id": "main", "label": "Main ladder + partial runs", "rows": [r["key"] for r in rows if r["set"] in ("main ladder", "partial ladder")],
+             "note": "Partial runs are labelled per config; their rates are not like-for-like with the full ladder."},
+            {"id": "retest", "label": "Retest set + pipelines", "rows": [r["key"] for r in rows if r["set"] in ("rescue set", "rescue arms")],
+             "note": "Chosen from luna's misses. Rates do not compare with the main ladder. Derived pipelines are flagged."}]
+    labels = {"repo tasks": "Repo tasks (with tools)", "pilot": "Pilot (well-known problems)", "everything pooled": "Everything pooled"}
+    for st in sorted({r["set"] for r in rows} | {"repo tasks", "pilot", "trim probe", "everything pooled"}):
+        sets.append({"id": st, "label": labels.get(st, configs.set_label(st, capital=True)), "rows": [r["key"] for r in rows if r["set"] == st],
+                     "note": "Mixed sets, rules and tasks; a rough map, not a like-for-like comparison. Sources remain separate." if st == "everything pooled" else
+                             "Function sets only; overlapping retest slices excluded." if st == "all runs" else ""})
+    by_key = {r["key"]: r for r in rows}
+    for st in sets:
+        rr = [by_key[k] for k in st["rows"]]
+        st["empty_reason"] = None if rr else "No recorded attempts for this problem set."
+        st["views"] = {}
+        for pricing in ("list", "quota"):
+            quota = pricing == "quota"; views = {}
+            for v in EXPLORER_VIEWS:
+                membership = explorer_frontier(rr, v, quota)
+                panels = {}
+                for panel in sorted({r["panel"] for r in rr}):
+                    group = [r for r in rr if r["panel"] == panel]
+                    frontier = [r for r in rr if membership[r["key"]]["on_frontier"]]
+                    first = EXPLORER_VIEWS[v]["objectives"][0][0]
+                    frontier.sort(key=lambda r: (r["quota_usd_per_pass"] if quota else r["usd_per_pass"]) if first == "cost" else r[first])
+                    panels[panel] = {"on_frontier": sum(membership[r["key"]]["on_frontier"] for r in group), "total": len(group),
+                                     "beaten": sum(bool(membership[r["key"]]["beaten_by"]) for r in group),
+                                     "staircase": [[r["quota_usd_per_pass"] if quota else r["usd_per_pass"], r["pass_rate"], r["median_s"]] for r in frontier],
+                                     "extents": explorer_extents(group, quota)}
+                views[v] = {"membership": membership, "panels": panels}
+            st["views"][pricing] = {"extents": explorer_extents(rr, quota), **views}
+    return {"rows": rows, "sets": sets, "views": EXPLORER_VIEWS, "default_set": "main", "default_view": "front", "default_floor": 0,
+            "floors": [0, MIN_PASS, 1], "tie": {"abs_s": configs.TIE_ABS_S, "rel": configs.TIE_REL},
+            "rule": "Strict dominance: at least as good on every objective, strictly better on one; no tolerance.",
+            "legacy_rule": f"Earlier charts only: speed gaps below both {configs.TIE_ABS_S:g} s and {configs.TIE_REL:.0%} count as ties.",
+            "winner_picks": WINNER_PICKS, "winner_pricing": "Winner picks assume list price. On quota, Claude picks apply when Codex is out."}
+
+
 def build(summary=None):
     from bench.problems.p13_xor_ring import STATEMENT as xor_statement
     ds = _base()
@@ -1570,6 +1732,7 @@ def build(summary=None):
     name_rules(ds["tables"])
     read = {os.path.relpath(p, ROOT) for p in summarize.LOADED} | {f for r in ds["rows"] for f in r["files"]}
     for g in ds["generated_from"]: g["used"] = g["path"] in read  # a jsonl no loader opened is listed but unused
+    ds["explorer"] = explorer_data(ds)
     return ds
 
 
@@ -1609,7 +1772,7 @@ def _devin(ds, s):
 
 def view(ds):
     """Cached report-shaped projections of the canonical config/set rows."""
-    return {**ds["report"], "rescue": ds["rescue"], "facts": ds["facts"]}
+    return {**ds["report"], "rescue": ds["rescue"], "facts": ds["facts"], "explorer": ds["explorer"]}
 
 
 # Where a fact comes from, by key prefix: the jsonl files (or the design table) its number is computed from. Coarse on purpose:

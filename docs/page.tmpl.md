@@ -30,10 +30,12 @@
 <p class="small">LeetCode-style problems, written fresh for this bench. {{run_dates}}</p>
 </section>
 <section id="pareto">
-<h2><span class="num"></span>📊 Cost vs accuracy</h2>
+<h2><span class="ex-kicker">Cost vs accuracy</span><span class="num"></span>One chart, three trade-offs</h2>
+{{w_explorer}}
+<details class="earlier-charts"><summary>Earlier charts</summary>
 <div class="chart"><h3>🎯 Pass rate vs $ per pass</h3>{{w_pass_cost}}</div>
 <details open><summary>⏱️ Speed vs $ per pass</summary><div class="chart"><p class="sub">Best trade-offs, pass rate at least {{min_pass}}.</p>{{w_speed_cost}}</div></details>
-<div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="dot" style="background:var(--grok);box-shadow:0 0 0 1.5px #fff"></span>Grok</span><span><span class="ring"></span>Best trade-off (ringed, numbered)</span></div>
+<div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="dot" style="background:var(--grok);box-shadow:0 0 0 1.5px var(--panel)"></span>Grok</span><span><span class="ring"></span>Best trade-off (ringed, numbered)</span></div>
 <details class="small"><summary>How to read this data</summary>
 <ul class="tight small">
 <li>Colour = vendor. Shape = model: ● Haiku · ■ Sonnet. Triangles = luna · ◆ sol · ★ astra · ⬟ terra. Luna triangle direction = effort: up low, right medium, down high. Alternate Codex colour = the older gpt-{{older_generation}} models (luna56, sol56).</li>
@@ -58,6 +60,7 @@
 <p class="set-note">{{w_rescue_subtitle}}</p>
 {{w_sets}}
 <p class="small">Pipelines are on the "{{set_label_title}} + pipelines" tab.</p>
+</details>
 </details>
 </section>
 <section id="results">
@@ -340,7 +343,7 @@
 <p class="small"><b>Correction, 2026-10-28.</b> A reader pointed out that "passed every hidden test" hid luna-low's visible-test misses. The headline is now task complete, with the hidden-suite count beside it.</p>
 <details><summary>🎛️ Explorer and more charts</summary>
 <p class="small">Explorer plots any pair of measures.</p>
-<div class="chart"><h3>🎛️ Explorer</h3>{{w_explorer}}</div>
+<p class="small">The interactive explorer is in <a href="#pareto">Cost vs accuracy</a>.</p>
 {{chart:pass_by_rung.svg|Pass rate by difficulty rung}}
 {{chart:agentic.svg|Repo tasks: task complete vs $ per run (filled: task complete; ring: hidden suite only). {{agentic_fast_caption}}}}
 </details>

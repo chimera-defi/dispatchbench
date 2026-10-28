@@ -5,7 +5,7 @@ from pathlib import Path
 from analysis import configs, dataset, page
 
 ROOT = Path(__file__).resolve().parents[1]
-CSS = (ROOT / "docs/page/style.css").read_text()
+CSS = (ROOT / "docs/page/tokens.css").read_text()
 BACKGROUNDS = {"light": ("#ffffff", "#f6f7f4"), "dark": ("#1b2220", "#141917")}
 
 
