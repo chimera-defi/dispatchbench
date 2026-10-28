@@ -81,6 +81,14 @@
    "used": true
   },
   {
+   "path": "results/2026-10-28-t1-hidden-v2-regrade.jsonl",
+   "sha256": "4b07e11bddb5972ff2ec89f0d27cd777c7032ac238640553c99e0e17ec208631",
+   "rows": 37,
+   "date": "2026-10-28",
+   "lanes": "claude, codex, grok",
+   "used": false
+  },
+  {
    "path": "results/2026-10-28-terra-function.jsonl",
    "sha256": "99900e6c2ee5f7aceced99fa18e052c23a86f280c9116528ba78d947a52f010a",
    "rows": 144,
@@ -29625,6 +29633,54 @@
    "display": "All 6 failing tests in the 5 clean-home red runs are tests luna-low itself added, none a shipped test, and 0 runs edited the shipped tests. The audit reads 5 of the 6 red runs (clean-home and original) as wrong tests (the cache tests insert both entries at the same time, so both expire; the config tests expect behaviour the task does not ask for) and 1 as wrong code that the hidden suite missed (t1_discount accepts a boolean percentage; see the stricter-suite regrade below). The classification is still under audit until results/annotations.json carries the labels.",
    "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
   },
+  "t1v2_graded": {
+   "value": 16,
+   "unit": "count",
+   "display": "16",
+   "source": "results/2026-10-28-t1-hidden-v2-regrade.jsonl (bench/regrade_t1.py)"
+  },
+  "t1v2_nopatch": {
+   "value": 21,
+   "unit": "count",
+   "display": "21",
+   "source": "results/2026-10-28-t1-hidden-v2-regrade.jsonl (bench/regrade_t1.py)"
+  },
+  "t1v2_flip_n": {
+   "value": 1,
+   "unit": "count",
+   "display": "1",
+   "source": "results/2026-10-28-t1-hidden-v2-regrade.jsonl (bench/regrade_t1.py)"
+  },
+  "t1v2_table_n": {
+   "value": 12,
+   "unit": "count",
+   "display": "12",
+   "source": "results/2026-10-28-t1-hidden-v2-regrade.jsonl (bench/regrade_t1.py)"
+  },
+  "t1v2_other_n": {
+   "value": 4,
+   "unit": "count",
+   "display": "4",
+   "source": "results/2026-10-28-t1-hidden-v2-regrade.jsonl (bench/regrade_t1.py)"
+  },
+  "t1v2_flips": {
+   "value": "luna-low repeat 2 (clean-home rerun)",
+   "unit": "text",
+   "display": "luna-low repeat 2 (clean-home rerun)",
+   "source": "results/2026-10-28-t1-hidden-v2-regrade.jsonl (bench/regrade_t1.py)"
+  },
+  "t1v2_luna_hidden_k": {
+   "value": "11/12",
+   "unit": "k/n",
+   "display": "11/12",
+   "source": "results/2026-10-28-t1-hidden-v2-regrade.jsonl (bench/regrade_t1.py)"
+  },
+  "t1v2_line": {
+   "value": "Stricter hidden suite (t1_discount now rejects a boolean percentage): 16 stored t1 patches regraded with no model calls (12 in the table; the other 4 are in results/2026-10-28-t1-hidden-v2-regrade.jsonl and none flips); 1 run flips from hidden pass to fail: luna-low repeat 2 (clean-home rerun), which leaves luna-low at 11/12 hidden in the clean-home rerun. The 21 t1 runs of the 10-22 main run stored no patch and cannot be regraded. Headline counts stay on the suite each run was graded with. The task text says \"pct: int\", which does not say whether a boolean counts; the reference rejects it, so the gap was in our hidden suite.",
+   "unit": "text",
+   "display": "Stricter hidden suite (t1_discount now rejects a boolean percentage): 16 stored t1 patches regraded with no model calls (12 in the table; the other 4 are in results/2026-10-28-t1-hidden-v2-regrade.jsonl and none flips); 1 run flips from hidden pass to fail: luna-low repeat 2 (clean-home rerun), which leaves luna-low at 11/12 hidden in the clean-home rerun. The 21 t1 runs of the 10-22 main run stored no patch and cannot be regraded. Headline counts stay on the suite each run was graded with. The task text says \"pct: int\", which does not say whether a boolean counts; the reference rejects it, so the gap was in our hidden suite.",
+   "source": "results/2026-10-28-t1-hidden-v2-regrade.jsonl (bench/regrade_t1.py)"
+  },
   "ag_astra_medium_usd": {
    "value": 0.45,
    "unit": "usd",
@@ -33412,6 +33468,50 @@
      "$0.45",
      "$0.45",
      "proxy"
+    ]
+   ]
+  },
+  "t1_regrade": {
+   "head": [
+    "config",
+    "run set",
+    "t1 runs regraded",
+    "hidden as graded",
+    "hidden under stricter suite",
+    "task complete under stricter suite"
+   ],
+   "rows": [
+    [
+     "astra-medium",
+     "clean-home rerun",
+     "3",
+     "3/3",
+     "3/3",
+     "3/3"
+    ],
+    [
+     "luna-low",
+     "clean-home rerun",
+     "3",
+     "3/3",
+     "2/3",
+     "2/3"
+    ],
+    [
+     "sol61-high",
+     "clean-home rerun",
+     "3",
+     "3/3",
+     "3/3",
+     "3/3"
+    ],
+    [
+     "sol61-medium",
+     "clean-home rerun",
+     "3",
+     "3/3",
+     "3/3",
+     "3/3"
     ]
    ]
   },

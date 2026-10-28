@@ -139,6 +139,10 @@ Medians are over each config's passing L1–L6 solutions, so a config that fails
 
 {{audit_footnote}}
 
+{{t1v2_line}}
+
+{{table:t1_regrade}}
+
 {{chart:agentic.svg|Repo tasks: task complete against dollars per run. Filled mark: task complete (hidden and the run's own visible suite both green); ring: hidden suite only.}}
 
 ## Harder rung (L7), added after the main run
