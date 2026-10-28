@@ -34252,16 +34252,10 @@
    "display": "No misses. 4.6 s faster than haiku-high.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
-  "winner_line": {
-   "value": "Four configs passed every try in every set (repo tasks counted as task complete, hidden and visible tests both pass): haiku-high, sonnet-medium, sol61-high and astra-medium. haiku-high is the cheapest, at $0.0028 per pass.",
-   "unit": "text",
-   "display": "Four configs passed every try in every set (repo tasks counted as task complete, hidden and visible tests both pass): haiku-high, sonnet-medium, sol61-high and astra-medium. haiku-high is the cheapest, at $0.0028 per pass.",
-   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
-  },
   "winner_intro": {
-   "value": "Four configs passed every try in every set (repo tasks counted as task complete, hidden and visible tests both pass): haiku-high, sonnet-medium, sol61-high and astra-medium.",
+   "value": "Four configs passed every try in every set. They were haiku-high, sonnet-medium, sol61-high and astra-medium. Repo tasks counted as task complete: hidden and visible tests both pass.",
    "unit": "text",
-   "display": "Four configs passed every try in every set (repo tasks counted as task complete, hidden and visible tests both pass): haiku-high, sonnet-medium, sol61-high and astra-medium.",
+   "display": "Four configs passed every try in every set. They were haiku-high, sonnet-medium, sol61-high and astra-medium. Repo tasks counted as task complete: hidden and visible tests both pass.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "winner_price": {
@@ -34270,10 +34264,22 @@
    "display": "haiku-high is the cheapest, at $0.0028 per pass.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
-  "winner_default": {
-   "value": "Default delegate on Codex quota: sol61-high ⚡.",
+  "winner_line": {
+   "value": "Four configs passed every try in every set. They were haiku-high, sonnet-medium, sol61-high and astra-medium. Repo tasks counted as task complete: hidden and visible tests both pass. haiku-high is the cheapest, at $0.0028 per pass.",
    "unit": "text",
-   "display": "Default delegate on Codex quota: sol61-high ⚡.",
+   "display": "Four configs passed every try in every set. They were haiku-high, sonnet-medium, sol61-high and astra-medium. Repo tasks counted as task complete: hidden and visible tests both pass. haiku-high is the cheapest, at $0.0028 per pass.",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "winner_default": {
+   "value": "With Codex quota, use sol61-high ⚡.",
+   "unit": "text",
+   "display": "With Codex quota, use sol61-high ⚡.",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "winner_checks": {
+   "value": "Run sample tests; send a failed check to haiku-low.",
+   "unit": "text",
+   "display": "Run sample tests; send a failed check to haiku-low.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "winner_budget": {

@@ -4,17 +4,18 @@
 <nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#pareto">Cost vs accuracy</a><a href="#results">Results</a><a href="#grok">Grok and Devin</a><a href="#method">How it was run</a><a href="#fail">Where they fail</a><a href="#tokens">Baseline input tokens</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#limits">Limitations</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#interesting">Interesting</a><a href="#equiv">Codex vs Claude</a></nav>
 </header>
 <section class="verdict" id="winner">
-<h2 class="eyebrow"><span class="num"></span>🏆 WINNER</h2>
+<h2 class="eyebrow"><span class="num"></span>WINNER</h2>
+<p class="winner-decision"><b>{{winner_default}}</b></p>
 <ul class="tight">
-<li><b>{{winner_default}}</b></li>
-<li><b>{{winner_budget}}</b></li>
-<li><b>{{winner_speed}}</b></li>
-<li>{{winner_claude_to_codex}}</li>
-<li>{{winner_codex_to_claude}}</li>
+<li>{{winner_budget}}</li>
+<li>{{winner_speed}}</li>
+<li>{{winner_checks}}</li>
 </ul>
-<p><b>{{winner_intro}}</b></p>
 <details class="small"><summary>Picks and model names</summary>
+<p>{{winner_intro}}</p>
 <p>{{winner_price}}</p>
+<p>{{winner_claude_to_codex}}</p>
+<p>{{winner_codex_to_claude}}</p>
 <p class="small">Against haiku-high, sol61-high takes {{s61h_hh_t}} the time and ~{{s61h_hh_c}} the $ per pass. ⚡ makes that {{s61f_hh_t}} the time at ~{{s61f_hh_c}} the $.</p>
 {{w_winner}}
 <details class="small names"><summary>Model names</summary>
@@ -34,7 +35,7 @@
 {{w_explorer}}
 <details class="earlier-charts"><summary>Earlier charts</summary>
 <div class="chart"><h3>🎯 Pass rate vs $ per pass</h3>{{w_pass_cost}}</div>
-<details open><summary>⏱️ Speed vs $ per pass</summary><div class="chart"><p class="sub">Best trade-offs, pass rate at least {{min_pass}}.</p>{{w_speed_cost}}</div></details>
+<details open><summary>Speed vs $ per pass</summary><div class="chart"><p class="sub">Best trade-offs, pass rate at least {{min_pass}}.</p>{{w_speed_cost}}</div></details>
 <div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="dot" style="background:var(--grok);box-shadow:0 0 0 1.5px var(--panel)"></span>Grok</span><span><span class="ring"></span>Best trade-off (ringed, numbered)</span></div>
 <details class="small"><summary>How to read this data</summary>
 <ul class="tight small">
@@ -64,7 +65,7 @@
 </details>
 </section>
 <section id="results">
-<h2><span class="num"></span>📋 Results</h2>
+<h2><span class="num"></span>Results</h2>
 <p class="small">sol61-high ⚡ is the Codex pick. haiku-high is the cheapest config with no misses on the main ladder.</p>
 <p class="small">Verdict key: {{verdict_key}}</p>
 {{w_short_table}}
@@ -152,9 +153,9 @@
 {{w_grok_catalog}}
 </section>
 <section class="method" id="method">
-<h2><span class="num"></span>❓ How it was run</h2>
+<h2><span class="num"></span>How it was run</h2>
 <p class="small">Every config (model + effort) got the same new problems and hidden tests. Tools were off: no code runs, file reads or search. Logs confirm it for {{codex_tool_free}} Codex calls. {{terra_tool_note}}</p>
-<details><summary>📚 Problems by rung (Easy/Medium/Hard)</summary>
+<details><summary>Problems by rung (Easy/Medium/Hard)</summary>
 <ul class="tight small">
 <li>We wrote these problems for this bench.</li>
 <li>Each LeetCode link is the closest analogue I found by hand.</li>
@@ -168,7 +169,7 @@
 <li>Each config tries each problem {{repeats}} times, tools off.</li>
 <li>Total spend, by kind: Claude {{claude_total_usd}} (CLI-reported), Codex {{codex_total_usd}} (list-price proxy), Grok {{grok_cli_usd}} (CLI-reported). Includes pilot and appendix arms: Claude {{claude_aux_usd}}, Codex {{codex_aux_usd}} ({{codex_pilot_usd}} pilot, {{codex_appendix_usd}} appendix and trim).</li>
 </ul>
-<details><summary>📐 How to read this data: sets, tests, prices, intervals</summary>
+<details><summary>How to read this data: sets, tests, prices, intervals</summary>
 <ul class="tight small">
 <li>Planted wrong answers must fail the hidden tests. Sample tests = the worked examples the model sees.</li>
 <li>Cost totals leave out the pilot, runner (harness) bias, trim and {{set_label}} pipeline runs.</li>
@@ -184,7 +185,7 @@
 <li>Run by Wren, a {{orchestrator}} orchestrator.</li>
 </ul>
 </details>
-<details><summary>🧩 Models and versions</summary>
+<details><summary>Models and versions</summary>
 <ul class="tight small">
 <li>{{versions_claude}}</li>
 <li>{{versions_codex}}</li>
@@ -194,7 +195,7 @@
 {{w_legend}}
 </section>
 <section id="fail">
-<h2><span class="num"></span>🟥 Where they fail</h2>
+<h2><span class="num"></span>Where they fail</h2>
 <script type="application/json" id="data">__DATA__</script>
 <p class="small">{{worst_failure}}.</p>
 <details class="small"><summary>How to read this data</summary>
@@ -216,7 +217,7 @@
 </ul>
 </section>
 <section id="tokens">
-<h2><span class="num"></span>🧱 Baseline input tokens per call</h2>
+<h2><span class="num"></span>Baseline input tokens per call</h2>
 <p class="small">Trimming luna-low's Codex system prompt and tool features cuts mean input by {{in_cut}}.</p>
 <div class="chart floor">{{w_floor}}</div>
 <details class="small"><summary>How to read this data</summary>
@@ -228,7 +229,7 @@
 </details>
 </section>
 <section id="pipes">
-<h2><span class="num"></span>🔗 Pipelines: plan, check, fix</h2>
+<h2><span class="num"></span>Pipelines: plan, check, fix</h2>
 <p class="small">A pipeline chains steps. Usually a single model writes, then Haiku checks. The best, luna-high-bare →H all, passed {{r_luna_high_bare_haiku_review_all_k}}. It costs {{r_luna_high_bare_haiku_review_all_upp}} per pass. haiku-medium alone also passed every try. That pipeline cost {{hm_vs_pipe_x}} as much.</p>
 <div class="chart floor"><h3>Pass rate, $ per pass, median seconds</h3><p class="sub">{{pipes_caption}}</p>{{w_pipes}}</div>
 <details class="small"><summary>How to read this data</summary>
@@ -251,7 +252,7 @@
 </details>
 </section>
 <section id="fair">
-<h2><span class="num"></span>⚖️ Whose bench?</h2>
+<h2><span class="num"></span>Whose bench?</h2>
 <p class="small"><b>Does a Codex-built bench favour Codex models? {{hb_answer}} haiku-low still led on both, so no pick changes.</b></p>
 {{chart:harness_bias.svg|{{hb_n_problems}} hard problems, {{hb_repeats}} tries each}}
 {{table:harness_strengths}}
@@ -292,7 +293,7 @@
 </details>
 </section>
 <section class="verdict conclusion" id="conclusion">
-<h2 class="eyebrow"><span class="num"></span>✅ CONCLUSION</h2>
+<h2 class="eyebrow"><span class="num"></span>CONCLUSION</h2>
 <b>{{winner_line}}</b>
 <ol class="tight">
 <li>With Codex quota left, send each task to sol61-high ⚡.</li>
@@ -306,7 +307,7 @@
 </ul>
 </section>
 <section id="limits">
-<h2><span class="num"></span>⚠️ Limitations</h2>
+<h2><span class="num"></span>Limitations</h2>
 <p class="small"><b>A routing signal from a small, self-written set, not a general ranking. Read the intervals first.</b></p>
 <details><summary>What could mislead</summary>
 <ul class="tight">
@@ -335,13 +336,13 @@
 </details>
 </section>
 <section class="extras" id="extras">
-<h2><span class="num"></span>🔍 More charts</h2>
+<h2><span class="num"></span>More charts</h2>
 <p class="small">{{rung_breaks}}. luna-low-bare breaks at {{bare_rung_break}}; see the grid.</p>
 <p class="small">Repo tasks, task complete (hidden in brackets): luna-low {{ag_mark_luna_iso}} in the clean-home rerun ({{ag_mark_luna_orig}} in the original run); every other config completed every run. Every task prompt told agents to add tests and that all tests must pass. {{ag_why_red}} Costs ranged from {{ag_luna_low_usd}} to {{ag_astra_medium_usd}} per run; per complete task luna-low costs {{ag_luna_low_upp}} against haiku-low's {{ag_haiku_low_upp}}.</p>
 <p class="small">{{t1v2_line}}</p>
 {{table:t1_regrade}}
 <p class="small"><b>Correction, 2026-10-28.</b> A reader pointed out that "passed every hidden test" hid luna-low's visible-test misses. The headline is now task complete, with the hidden-suite count beside it.</p>
-<details><summary>🎛️ Explorer and more charts</summary>
+<details><summary>Explorer and more charts</summary>
 <p class="small">Explorer plots any pair of measures.</p>
 <p class="small">The interactive explorer is in <a href="#pareto">Cost vs accuracy</a>.</p>
 {{chart:pass_by_rung.svg|Pass rate by difficulty rung}}
@@ -354,12 +355,12 @@
 <h2><span class="num"></span>Notes: code quality, fast mode, appendix</h2>
 <p class="small">Sonnet's code read worst in a blind review.</p>
 
-<details><summary>🧪 Code quality</summary>
+<details><summary>Code quality</summary>
 {{table:quality}}
 <ul class="tight small">{{quality_fast_items}}</ul>
 
 </details>
-<details><summary>⚡ Codex fast mode and xhigh</summary>
+<details><summary>Codex fast mode and xhigh</summary>
 <p class="small">On the {{set_label}}, fast mode kept every pass and was {{fm_faster}} faster. Median times: {{fm_fast_s}} s vs {{fm_ctrl_s}} s. Price: {{fm_mult}} list, not a measured bill. xhigh effort (above high): same passes, {{fm_x_cost}} the cost, slower, no better code.</p>
 {{table:fastmode}}
 
@@ -386,7 +387,7 @@
 <h4>Fast-mode control</h4>
 <p class="small">The default-tier control is a separate {{fm_n}}-try run. Its {{fm_ctrl_s}} s differs from the Results row.</p>
 </details>
-<details id="appendix"><summary>📎 Appendix</summary>
+<details id="appendix"><summary>Appendix</summary>
 <p class="small">Headline numbers: see <a href="#method">How it was run</a>.</p>
 <h3>Codex CLI in the main benchmark</h3>
 <ul class="tight small">
@@ -453,7 +454,7 @@
 {{w_everything}}
 </section>
 <section id="interesting">
-<h2><span class="num"></span>💡 Interesting findings</h2>
+<h2><span class="num"></span>Interesting findings</h2>
 <ul class="tight">
 <li>{{int_sol}}</li>
 <li>{{int_terra}}</li>
@@ -467,10 +468,10 @@
 </ul>
 </section>
 <section id="equiv">
-<h2><span class="num"></span>🔁 Codex vs Claude</h2>
+<h2><span class="num"></span>Codex vs Claude</h2>
 <p><b>{{equiv_takeaway}}</b></p>
 {{table:equiv_all}}
-<details><summary>📝 How to read this data: matches</summary>
+<details><summary>How to read this data: matches</summary>
 <ul class="tight small">
 <li>Match = the cheapest other-vendor config passing at least as often.</li>
 <li>{{equiv_fastest}}</li>

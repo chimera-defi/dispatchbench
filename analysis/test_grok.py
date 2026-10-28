@@ -403,8 +403,9 @@ OLD_GROK_CLAIMS = (
 # facts are separately compared with main 3561692 in test_pareto_explorer.py.
 # S1-S4: theme, topbar, explorer fixes
 # S5: inline tokens/topbar CSS
+# P4: P4a_prose - Winner copy and section chrome only; Grok section bytes unchanged.
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': '98a50c33d91a148387ac6d572f86e8442ccaa03709d01b76288aae99b8c8172b',
+    'results/report/page.html': '45f85c4e1256f383eb58cd74a585c007466a722c883c990965b13884f2d1d360',
     'docs/REPORT.md': 'd3e3893c66e2f4ec06f26e2adcfbf82a9bac634293b2e555f252666000a1142e',
 }
 
