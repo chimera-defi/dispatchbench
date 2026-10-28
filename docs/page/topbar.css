@@ -1,0 +1,21 @@
+/* Source: chimera-defi/chimericlabs-llc design-system/components/patterns.css
+ * Commit: c56032fca7ccb5a9661c247f0d6160a576c4b637
+ * The upstream .ds-topbar rules below are copied verbatim.
+ */
+/* ---- top bar: slim "back to the site" strip, first element of every page built on the system ---- */
+.ds-topbar { background: var(--color-surface); border-bottom: 1px solid var(--color-neutral-800); }
+.ds-topbar > div { max-width: var(--ds-max); margin: 0 auto; padding-inline: var(--ds-pad); }
+.ds-topbar a { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; font-size: 13px; color: var(--color-neutral-300); text-decoration: none; }
+.ds-topbar a:hover { color: var(--color-accent-300); }
+.ds-topbar a:focus-visible { outline-offset: -2px; }
+
+/* Scoped integration: upstream layout defaults and semantic theme fallbacks. */
+.ds-topbar {
+  --ds-max: 1200px;
+  --ds-pad: clamp(20px, 5vw, 72px);
+  background: var(--color-surface, var(--panel));
+  border-bottom-color: var(--color-divider, var(--line));
+}
+.ds-topbar a { color: var(--color-text, var(--fg)); }
+.ds-topbar a:hover { color: var(--color-accent, var(--accent)); }
+.ds-topbar a:focus-visible { outline: 2px solid var(--color-text, var(--fg)); }
