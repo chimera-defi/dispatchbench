@@ -37,6 +37,12 @@ The [interactive report](results/report/page.html) contains every config, uncert
 The [full report](docs/REPORT.md) explains pipelines, additional experiments, and grading.
 [PLAN.md](PLAN.md) records the original plan and deviations.
 
+## Setup and raw runs
+
+[Setup](docs/SETUP.md) describes the models, tasks, grading and rerun commands.
+[Raw run index](docs/RAW_RUNS.md) lists run rows and file hashes.
+Browse [results/](results/), [cache/](cache/) and the [Answers](results/solutions/README.md).
+
 ## Reproduce
 
 These commands rebuild committed data, without model calls or model credentials.
