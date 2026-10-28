@@ -111,3 +111,16 @@ def test_rescue_set_is_derived_and_matches_baselines(ds):
     # every result row is in exactly one non-derived set: set counts are unique per (source, config)
     ks = [(r["source"], r["config"], r["set"]) for r in ds["rows"] if not r["derived"]]
     assert len(ks) == len(set(ks))
+
+
+def test_repo_task_two_pass_rules_pinned_from_data(ds):
+    """luna-low is the one config short of task complete: 11/12 in the original run, 7/12 in the clean-home rerun; hidden tests 12/12 in both."""
+    from analysis import summarize
+    c = summarize.agentic_counts()
+    assert c["original run"]["configs"]["luna-low"]["task_complete"] == 11 and c["original run"]["configs"]["luna-low"]["hidden_pass"] == 12
+    assert c["isolated rerun"]["configs"]["luna-low"]["task_complete"] == 7 and c["isolated rerun"]["configs"]["luna-low"]["n"] == 12
+    assert [r[:2] for r in c["isolated rerun"]["configs"]["luna-low"]["red_visible"]] == [
+        ("t1_discount", 2), ("t2_cache_bugs", 1), ("t2_cache_bugs", 3), ("t3_config_refs", 1), ("t3_config_refs", 2)]
+    for blk in c.values():
+        assert all(v["hidden_pass"] == v["n"] for v in blk["configs"].values())
+        assert all(v["task_complete"] == v["n"] for k, v in blk["configs"].items() if k != "luna-low")

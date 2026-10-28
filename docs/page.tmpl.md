@@ -310,8 +310,8 @@
 <li>The problems ship with this repo, so later models can read them.</li>
 <li>The {{ci_level}} range resamples whole problems, since tries on the same problem are related.</li>
 <li>L7 has {{n_l7}} problems. Perfect score: {{l7_bound}}. That only shows a pass rate of at least {{l7_lo}}.</li>
-<li>Every repo task passed, so they rank cost and speed, not skill.</li>
-<li>Paired gaps of {{nosep_gap}} points or less did not separate; {{sep_gap}}-point gaps did.</li>
+<li>Repo tasks passed our hidden tests on every run. Under task complete (hidden and visible tests both pass), luna-low falls short ({{ag_tc_luna_iso_k}}), so they mostly rank cost and speed.</li>
+<li>Paired gaps of {{nosep_gap}} points or less showed no separation; {{sep_gap}}-point gaps did.</li>
 <li><code>PLAN.md</code> was committed before the main run; a same-day pilot came first.</li>
 <li>{{n_exploratory}} configs were added after seeing the main-run results (†). These include the haiku-high and sol61-high picks:<ul>{{exploratory_items}}</ul></li>
 <li>A Codex call's estimated $ drops up to {{cache_swing}} when the prompt cache hits.</li>
@@ -332,12 +332,13 @@
 <section class="extras" id="extras">
 <h2><span class="num"></span>🔍 More charts</h2>
 <p class="small">{{rung_breaks}}. luna-low-bare breaks at {{bare_rung_break}}; see the grid.</p>
-<p class="small">Repo tasks: {{ag_k}} passed. Costs ranged from {{ag_luna_low_usd}} to {{ag_astra_medium_usd}}.</p>
+<p class="small">Repo tasks, passed our hidden tests: {{ag_k}} for every config. Task complete (hidden and visible tests both pass): {{ag_tc_luna_iso_k}} for luna-low ({{ag_tc_luna_orig_k}} in the original run), every other config complete on every run. Every task prompt told agents to add tests and that all tests must pass. Luna-low's red-suite runs are under audit. Costs ranged from {{ag_luna_low_usd}} to {{ag_astra_medium_usd}}.</p>
+<p class="small"><b>Correction, 2026-10-28.</b> A reader pointed out that "passed every hidden test" hid luna-low's visible-test misses. Both counts are now shown.</p>
 <details><summary>🎛️ Explorer and more charts</summary>
 <p class="small">Explorer plots any pair of measures.</p>
 <div class="chart"><h3>🎛️ Explorer</h3>{{w_explorer}}</div>
 {{chart:pass_by_rung.svg|Pass rate by difficulty rung}}
-{{chart:agentic.svg|Repo tasks: pass rate vs $ per run. {{agentic_fast_caption}}}}
+{{chart:agentic.svg|Repo tasks: both pass rules vs $ per run (filled: passed our hidden tests; ring: task complete). {{agentic_fast_caption}}}}
 </details>
 
 <p class="small"><a href="#notation">See Notation.</a></p>
