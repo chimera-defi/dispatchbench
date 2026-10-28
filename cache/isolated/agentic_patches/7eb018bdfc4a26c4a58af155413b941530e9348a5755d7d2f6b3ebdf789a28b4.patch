@@ -1,0 +1,531 @@
+diff --git a/.pytest_cache/.gitignore b/.pytest_cache/.gitignore
+new file mode 100644
+index 0000000..bc1a1f6
+--- /dev/null
++++ b/.pytest_cache/.gitignore
+@@ -0,0 +1,2 @@
++# Created by pytest automatically.
++*
+diff --git a/.pytest_cache/CACHEDIR.TAG b/.pytest_cache/CACHEDIR.TAG
+new file mode 100644
+index 0000000..fce15ad
+--- /dev/null
++++ b/.pytest_cache/CACHEDIR.TAG
+@@ -0,0 +1,4 @@
++Signature: 8a477f597d28d172789f06886806bc55
++# This file is a cache directory tag created by pytest.
++# For information about cache directory tags, see:
++#	https://bford.info/cachedir/spec.html
+diff --git a/.pytest_cache/README.md b/.pytest_cache/README.md
+new file mode 100644
+index 0000000..b89018c
+--- /dev/null
++++ b/.pytest_cache/README.md
+@@ -0,0 +1,8 @@
++# pytest cache directory #
++
++This directory contains data from the pytest's cache plugin,
++which provides the `--lf` and `--ff` options, as well as the `cache` fixture.
++
++**Do not** commit this to version control.
++
++See [the docs](https://docs.pytest.org/en/stable/how-to/cache.html) for more information.
+diff --git a/.pytest_cache/v/cache/nodeids b/.pytest_cache/v/cache/nodeids
+new file mode 100644
+index 0000000..9296464
+--- /dev/null
++++ b/.pytest_cache/v/cache/nodeids
+@@ -0,0 +1,33 @@
++[
++  "tests/test_parser.py::test_duplicate_key_reports_line",
++  "tests/test_parser.py::test_sections_and_keys",
++  "tests/test_refs.py::test_cycle_chain_and_outermost_line[[a.b]\\nx = ${x}-a.b.x -> a.b.x-2]",
++  "tests/test_refs.py::test_cycle_chain_and_outermost_line[[a]\\nx = ${y}\\ny = ${x}-a.x -> a.y -> a.x-2]",
++  "tests/test_refs.py::test_cycle_chain_and_outermost_line[outer = ${a.x}\\n[a]\\nx = ${y}\\ny = ${x}-a.x -> a.y -> a.x-1]",
++  "tests/test_refs.py::test_cycle_chain_and_outermost_line[x = ${a.y}\\n[a]\\ny = ${.x}-.x -> a.y -> .x-1]",
++  "tests/test_refs.py::test_cycle_chain_and_outermost_line[x = ${x}-.x -> .x-1]",
++  "tests/test_refs.py::test_invalid_dollar_or_unterminated_reference[$$$]",
++  "tests/test_refs.py::test_invalid_dollar_or_unterminated_reference[$]",
++  "tests/test_refs.py::test_invalid_dollar_or_unterminated_reference[$word]",
++  "tests/test_refs.py::test_invalid_dollar_or_unterminated_reference[${]",
++  "tests/test_refs.py::test_invalid_dollar_or_unterminated_reference[${missing]",
++  "tests/test_refs.py::test_invalid_dollar_or_unterminated_reference[end$]",
++  "tests/test_refs.py::test_literal_dollars[$$$$-$$]",
++  "tests/test_refs.py::test_literal_dollars[$$${target}$$-$ok$]",
++  "tests/test_refs.py::test_literal_dollars[$$-$]",
++  "tests/test_refs.py::test_literal_dollars[$${missing}-${missing}]",
++  "tests/test_refs.py::test_literal_dollars[-]",
++  "tests/test_refs.py::test_literal_dollars[plain-plain]",
++  "tests/test_refs.py::test_nested_references_and_plain_text",
++  "tests/test_refs.py::test_parse_still_returns_raw_values",
++  "tests/test_refs.py::test_parsing_finishes_before_resolution",
++  "tests/test_refs.py::test_references_are_visited_left_to_right",
++  "tests/test_refs.py::test_reopened_sections_preserve_file_resolution_order",
++  "tests/test_refs.py::test_section_names_use_last_dot_and_unnamed_section",
++  "tests/test_refs.py::test_unknown_reference_preserves_name[.nope]",
++  "tests/test_refs.py::test_unknown_reference_preserves_name[]",
++  "tests/test_refs.py::test_unknown_reference_preserves_name[a.b.c]",
++  "tests/test_refs.py::test_unknown_reference_preserves_name[absent.key]",
++  "tests/test_refs.py::test_unknown_reference_preserves_name[db.hostt]",
++  "tests/test_refs.py::test_unknown_reference_preserves_name[missing]"
++]
+\ No newline at end of file
+diff --git a/cfg/__pycache__/__init__.cpython-312.pyc b/cfg/__pycache__/__init__.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..b585e2bbc03f540875ef7cfb0fae611ec36918ba
+GIT binary patch
+literal 136
+zcmX@j%ge<81QT@bWr66&AOanHW&w&!XQ*V*Wb|9fP{ah}eFmxdrLJF+TcDp?l%$)O
+zo|;#pTUeZ$V^NrCqMw|Wt{)$tnU`4-AFo$X`HRCQH$SB`C)KWq6{wF9h>JmtkIamW
+Jj77{q764^59u5Ei
+
+literal 0
+HcmV?d00001
+
+diff --git a/cfg/__pycache__/errors.cpython-312.pyc b/cfg/__pycache__/errors.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..c444ab17550996b7ac51bfbac03de092913ba88c
+GIT binary patch
+literal 789
+zcmYjP&ubGw6n?WmvYWIy2tgZ9gCMxlB&ZdnhzR13i#aGL>}9&ynba-2n`CAKO~|2#
+zfa#&oi&Q8=jw!w9f8gCy!GkX1#ebkBilrxKHVHU~@4fH6_q}=Zm@ma*0p!_V{kc^}
+z0KXJj9CPkWuS(|tG<XUWhCmU6V||u$QBQMpf1yw|Hz(6I>AaOX1}>uDY81IT%~72h
+z)L<sn`W8Ub7(o+Jb69k9BiKf+^%5K_U3%1to5AK|&Re|y{Dl_?Msc&napZ;4M3VVg
+z1y0y@QpFo#5VH*&2%NlO_*SLiDS-;&xEnPXU&T^fZ^f)yPpyav;cc?iPzC<{CE3(!
+zcEzVpB)mfhkYr&6yZQk3<VFS>w<#KEhd{LfI)o2Kj0Wgf?oJ&f^8+B-i~;n((d&IP
+zo20L;V@FR-(QPxH+JppgkPyPvnjIrG1PhzokR*$wc|!cq6M_(-f*9kSi|e%{YS$v(
+zsL1)_q|%X^d!1md<~KKMOl?b4+dXc}`hMxZ9aa~YsZQdCg!3KvVHbC;6MN+oeSddc
+z8t2B1$(2d|q<s6c_0@j%t+X;S_VQC%3l6F~wwgHhB1TABAS7zhZm9faLONY9oM$XT
+zXv>#jT_il!gE+~CNsIHx_$&+waS&I(PN=0l<VzB{+Ij{mCay_1AHsLz^_iiW<*|MW
+z(oF7rEFG=?RqmMrzPu3C9W5=q^1?35zD(BW2xfWJ{=&XL8~6dgENOPfCFz{%2%+Da
+NiOTyo|9~`^<R4Sr#2Ekp
+
+literal 0
+HcmV?d00001
+
+diff --git a/cfg/__pycache__/loader.cpython-312.pyc b/cfg/__pycache__/loader.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..ab729544983e766b57a33a47d4217acc26f5e6e9
+GIT binary patch
+literal 3423
+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
+V_Xdjy2DTvDpnE#-l6I#0{{bVtCcyvz
+
+literal 0
+HcmV?d00001
+
+diff --git a/cfg/__pycache__/parser.cpython-312.pyc b/cfg/__pycache__/parser.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..06b08c162b998463d179d52348cb062ed91f7b3e
+GIT binary patch
+literal 2308
+zcmaJ?O-vg{6rR~#|9}ln9B><lpACP(X)r;cG$ACYAqYiPNE=$IN{V2^j-4fDZD!XH
+zleL1P9E^$-=Tcl%Rh?6bqN+J^>^&C~Bh{?ZN>wh+%`G{kT-rBln*jY8X=mTQdEc8i
+zZ{GLzSxrqfg7K{Hm+3b)gkG|b%BU&}TXP_+AQ{Oxf@bhFjFHR{PUZ<uIP2j;++naO
+z&w?!67p@6q8{5BIfz}4-GLqQ$d9Z;8N5UR(yu#o(fKAs>R1GQNVM?Ra6m)W1H|><@
+zajH%+i^||ZV9!<)Oe;v=Su@a+vMgg3>lg}f(iu>FBvFlsmqssjX?h|;MCMvlR6Q!*
+z(a4mpMAd%r&MlJY7pXKqF(*ahB$*6WSBo&lN(P!JQ6f%WSEU&;J{c5;Rh=rNtOcle
+zPPA~7XT|xOicYkcG(`XtjjOWA)+Kmb7NVkw8h~RlA_uK4E<_~tmKae~<`2wDlBP>k
+zSJbdLujn_$$<|3L0wt_QDFAl@xIsdo5cQix3@KF8#qx>7aI|#9mX^{kABdF1h@_KJ
+zJc?>zG&s)=1R|4Ek+A%iFs~qs>}C#5#8?U^SSS-#cmYfWSkqX-#qIWPeJ0jDLvM6R
+zVWR3?vl@w<o>ls~r$XUw3rd5rglQ{@tQ;+H9SDo)buDr?W<JTgTCzRsuJ)YJz6E-;
+z=g#e*u<qQ)S#^pPq~IjXNlwN|es>K_GrN7`N%>pmo&cVWi)j2;gg%F_q>!{3wrOC-
+z{!u|C?S`EmH0;xk{T2wxe5K|nUOxUGHo}h0Fj!PLx67Gq+p*{~>@p|Y{pf!q;tgJN
+z>#m9m*<lEklikAxp025^ynP$If+{u`EicMW!#;<pXP1{M!~Qk*4Y%8uTzwxw%$~P?
+zDw6Enoy|(Ftc*I6PQ$S$KG$xahQq)H&loy~_U!LA9Q*e-oE2NcF#rfdFgSxZ93hT<
+zEx!~HtV4$ZuGcIKUM0E&g)NhiqAHBnWiEj(qyX`wR3=me!T=XSgc21vN{JSY#F=r>
+zM3j}sHg4U<*SGQbtG{3@c*#smPwbF{b%1SrZoyA($DlWq=~Slw380-W?kQbXj=k_~
+zv4B5B7+RKr#-a3+?4lTd_Kiv^zr-uhhL?Q;N}%ugc^tr_Kt-F?I|7`^1y7ndrm=uU
+zk+P!Nt{MRLL0I(sLfbzW8ytv4r=*B>KDc9b6hN8}rr*$;MfALWAp1dDS_wZ4uPE#F
+z1Al6ar1$&{c%iD40_bB4wQ@WbQKq1eSZyufG^>ajpCJ@9X0--uy44^kBR42m7t>hZ
+zFr7q|Es3&}z!K5nqNI34heI)3pvvkgCLfK1%JO15%I(a=s>wrlHU*|Pc?iX{S^ZRF
+zM~6mT8df5x6I9kz3xXDeBrl?(6CDezwq!qB94d4kUmPyf9#|ZC;XRVM`0bUiuH+lK
+zR%i3xo<ES+CN9}iIMrM5cpoH|5?|a&37einX?^AH!@F5+<DK^k?z)1@^I&jkFw?u?
+zYR+E#?((C{Pg^(IP8EFqOi$)&dip0{$GWd0@9RvBY##Ez@Ey&yoLa+qUw`gEf5Gi}
+zFuF9Fc|Ut$!+p$hR-2ZW248p^b7KEm-&$v`Y3Rp~^WKr1dt|eIV72ZC|6~8tp|ykg
+zz}b!Zfu-scpZavu;{`zG)@o1Q+m&;76<oFH)^zyciFH>KEM#j}wbgL0iS6p`&$;^x
+z4MzbsvgA&Wtve4FnwnF#R5-1rBF~*iitTXdVh3`2(zaB8PN=7>vy8&s+O3~~R=P1B
+zO3xHzWlE>4g_|}VN&)Ty{-jp2A0rD_szv9(OjM3X$a#7KY+0FWvoIBTjPcK?xoCIb
+zjx=9H@X838v20sbTOG>YeiY0#o?L&oXNxTq>-^Z487d-pWrqubGj%8>r+YJe`t*{T
+pt7=#m8Z&x!c(oPI+WF|p)3IFJ>GkF_IpNIjJlD>>W;iRPzX6b2P6Pk|
+
+literal 0
+HcmV?d00001
+
+diff --git a/cfg/loader.py b/cfg/loader.py
+index acd880f..f38b851 100644
+--- a/cfg/loader.py
++++ b/cfg/loader.py
+@@ -1,9 +1,62 @@
+-from .parser import parse
++from .errors import ConfigError
++from .parser import _parse_with_lines
+ 
+ 
+ def load(text: str) -> dict[str, dict[str, str]]:
+     """Parse config text and return the resolved values."""
+-    return parse(text)
++    config, lines = _parse_with_lines(text)
++    resolved: dict[tuple[str, str], str] = {}
++    active: list[tuple[str, str]] = []
++
++    def resolve(section: str, key: str) -> str:
++        name = (section, key)
++        if name in resolved:
++            return resolved[name]
++        if name in active:
++            cycle = active[active.index(name):] + [name]
++            raise ConfigError("reference cycle: " + " -> ".join(
++                f"{s}.{k}" for s, k in cycle
++            ))
++        active.append(name)
++        value = config[section][key]
++        parts = []
++        pos = 0
++        while pos < len(value):
++            dollar = value.find("$", pos)
++            if dollar == -1:
++                parts.append(value[pos:])
++                break
++            parts.append(value[pos:dollar])
++            if value.startswith("$$", dollar):
++                parts.append("$")
++                pos = dollar + 2
++            elif value.startswith("${", dollar):
++                end = value.find("}", dollar + 2)
++                if end == -1:
++                    raise ConfigError("unterminated reference")
++                reference = value[dollar + 2:end]
++                if "." in reference:
++                    target_section, _, target_key = reference.rpartition(".")
++                else:
++                    target_section, target_key = section, reference
++                if (target_section not in config
++                        or target_key not in config[target_section]):
++                    raise ConfigError(f"unknown reference: {reference}")
++                parts.append(resolve(target_section, target_key))
++                pos = end + 1
++            else:
++                raise ConfigError("invalid dollar sign")
++        active.pop()
++        resolved[name] = "".join(parts)
++        return resolved[name]
++
++    for (section, key), line in lines.items():
++        try:
++            config[section][key] = resolve(section, key)
++        except ConfigError as error:
++            error.line = line
++            raise
++    return config
+ 
+ 
+ def get(config: dict[str, dict[str, str]], dotted: str) -> str:
+diff --git a/cfg/parser.py b/cfg/parser.py
+index d024ec6..032f7a3 100644
+--- a/cfg/parser.py
++++ b/cfg/parser.py
+@@ -8,7 +8,15 @@ def parse(text: str) -> dict[str, dict[str, str]]:
+     Blank lines and lines starting with `#` are ignored. Entries before the first section go into "".
+     A repeated key in the same section is an error.
+     """
++    return _parse_with_lines(text)[0]
++
++
++def _parse_with_lines(text: str) -> tuple[
++    dict[str, dict[str, str]], dict[tuple[str, str], int]
++]:
++    """Retain definition lines in file order for reference resolution."""
+     out: dict[str, dict[str, str]] = {"": {}}
++    lines: dict[tuple[str, str], int] = {}
+     section = ""
+     for n, raw in enumerate(text.splitlines(), 1):
+         line = raw.strip()
+@@ -28,4 +36,5 @@ def parse(text: str) -> dict[str, dict[str, str]]:
+         if key in out[section]:
+             raise ConfigError(f"duplicate key {key!r}", n)
+         out[section][key] = value
+-    return out
++        lines[section, key] = n
++    return out, lines
+diff --git a/tests/__pycache__/test_parser.cpython-312-pytest-9.1.1.pyc b/tests/__pycache__/test_parser.cpython-312-pytest-9.1.1.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..ff688a9466562f866b038fa11aa445bc4570d149
+GIT binary patch
+literal 5031
+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
+M27RO}^cYwFFY|~U=>Px#
+
+literal 0
+HcmV?d00001
+
+diff --git a/tests/__pycache__/test_refs.cpython-312-pytest-9.1.1.pyc b/tests/__pycache__/test_refs.cpython-312-pytest-9.1.1.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..6c8987b0ad256faed5097afef10d912f09a7d86b
+GIT binary patch
+literal 16063
+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
+ZDdO(c4&YXhdjw>sM^<B^cuu4@{(rF}KzRTF
+
+literal 0
+HcmV?d00001
+
+diff --git a/tests/test_refs.py b/tests/test_refs.py
+new file mode 100644
+index 0000000..e88f43e
+--- /dev/null
++++ b/tests/test_refs.py
+@@ -0,0 +1,86 @@
++import pytest
++
++from cfg.errors import ConfigError
++from cfg.loader import load
++from cfg.parser import parse
++
++
++def test_nested_references_and_plain_text():
++    config = load("[app]\na = before ${b}/${c}/${b} after\nb = ${c}\nc = done")
++    assert config["app"] == {
++        "a": "before done/done/done after", "b": "done", "c": "done"
++    }
++
++
++def test_section_names_use_last_dot_and_unnamed_section():
++    config = load(
++        "root = home\nalias = ${root}\n[app]\n"
++        "path = ${.alias}/${a.b.c}/${db.host}\n"
++        "[a.b]\nc = data\n[db]\nhost = localhost"
++    )
++    assert config["app"]["path"] == "home/data/localhost"
++
++
++@pytest.mark.parametrize("raw, expected", [
++    ("", ""), ("plain", "plain"), ("$$", "$"),
++    ("$$$$", "$$"), ("$${missing}", "${missing}"),
++    ("$$${target}$$", "$ok$"),
++])
++def test_literal_dollars(raw, expected):
++    config = load(f"value = {raw}\ncopy = ${{value}}\ntarget = ok")
++    assert config[""]["value"] == expected
++    assert config[""]["copy"] == expected
++
++
++@pytest.mark.parametrize("reference", ["missing", "db.hostt", "absent.key", ".nope", "a.b.c", ""])
++def test_unknown_reference_preserves_name(reference):
++    with pytest.raises(ConfigError) as exc:
++        load(f"[app]\nouter = ${{inner}}\ninner = ${{{reference}}}\n[db]\nhost = ok")
++    assert str(exc.value) == f"unknown reference: {reference}"
++    assert exc.value.line == 2
++
++
++@pytest.mark.parametrize("value", ["$", "$word", "end$", "${", "${missing", "$$$"])
++def test_invalid_dollar_or_unterminated_reference(value):
++    with pytest.raises(ConfigError) as exc:
++        load(f"# header\nouter = ${{inner}}\ninner = {value}")
++    assert exc.value.line == 2
++
++
++@pytest.mark.parametrize("text, chain, line", [
++    ("[a]\nx = ${y}\ny = ${x}", "a.x -> a.y -> a.x", 2),
++    ("x = ${x}", ".x -> .x", 1),
++    ("outer = ${a.x}\n[a]\nx = ${y}\ny = ${x}", "a.x -> a.y -> a.x", 1),
++    ("x = ${a.y}\n[a]\ny = ${.x}", ".x -> a.y -> .x", 1),
++    ("[a.b]\nx = ${x}", "a.b.x -> a.b.x", 2),
++])
++def test_cycle_chain_and_outermost_line(text, chain, line):
++    with pytest.raises(ConfigError) as exc:
++        load(text)
++    assert str(exc.value) == f"reference cycle: {chain}"
++    assert exc.value.line == line
++
++
++def test_references_are_visited_left_to_right():
++    with pytest.raises(ConfigError) as exc:
++        load("[a]\nouter = ${right}${left}\nleft = ${left}\nright = ${right}")
++    assert str(exc.value) == "reference cycle: a.right -> a.right"
++    assert exc.value.line == 2
++
++
++def test_reopened_sections_preserve_file_resolution_order():
++    with pytest.raises(ConfigError) as exc:
++        load("[a]\nok = fine\n[b]\nx = ${x}\n[a]\ny = ${y}")
++    assert str(exc.value) == "reference cycle: b.x -> b.x"
++    assert exc.value.line == 4
++
++
++def test_parsing_finishes_before_resolution():
++    with pytest.raises(ConfigError) as exc:
++        load("x = ${missing}\nx = duplicate")
++    assert str(exc.value) == "line 2: duplicate key 'x'"
++    assert exc.value.line == 2
++
++
++def test_parse_still_returns_raw_values():
++    assert parse("x = ${missing}\ny = $") == {"": {"x": "${missing}", "y": "$"}}

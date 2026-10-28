@@ -1,0 +1,219 @@
+diff --git a/.pytest_cache/.gitignore b/.pytest_cache/.gitignore
+new file mode 100644
+index 0000000..bc1a1f6
+--- /dev/null
++++ b/.pytest_cache/.gitignore
+@@ -0,0 +1,2 @@
++# Created by pytest automatically.
++*
+diff --git a/.pytest_cache/CACHEDIR.TAG b/.pytest_cache/CACHEDIR.TAG
+new file mode 100644
+index 0000000..fce15ad
+--- /dev/null
++++ b/.pytest_cache/CACHEDIR.TAG
+@@ -0,0 +1,4 @@
++Signature: 8a477f597d28d172789f06886806bc55
++# This file is a cache directory tag created by pytest.
++# For information about cache directory tags, see:
++#	https://bford.info/cachedir/spec.html
+diff --git a/.pytest_cache/README.md b/.pytest_cache/README.md
+new file mode 100644
+index 0000000..b89018c
+--- /dev/null
++++ b/.pytest_cache/README.md
+@@ -0,0 +1,8 @@
++# pytest cache directory #
++
++This directory contains data from the pytest's cache plugin,
++which provides the `--lf` and `--ff` options, as well as the `cache` fixture.
++
++**Do not** commit this to version control.
++
++See [the docs](https://docs.pytest.org/en/stable/how-to/cache.html) for more information.
+diff --git a/.pytest_cache/v/cache/nodeids b/.pytest_cache/v/cache/nodeids
+new file mode 100644
+index 0000000..054feb8
+--- /dev/null
++++ b/.pytest_cache/v/cache/nodeids
+@@ -0,0 +1,12 @@
++[
++  "tests/test_cache.py::test_basic_get_put",
++  "tests/test_cache.py::test_lru_eviction",
++  "tests/test_regressions.py::test_expired_lookup_is_a_miss_and_expires_only_once[10]",
++  "tests/test_regressions.py::test_expired_lookup_is_a_miss_and_expires_only_once[11]",
++  "tests/test_regressions.py::test_len_counts_only_live_entries_and_expires_each_once",
++  "tests/test_regressions.py::test_lookup_just_before_expiration_is_a_hit",
++  "tests/test_regressions.py::test_overwrite_marks_key_most_recently_used",
++  "tests/test_regressions.py::test_overwrite_refreshes_expiration",
++  "tests/test_regressions.py::test_overwriting_expired_key_counts_expiration",
++  "tests/test_regressions.py::test_put_removes_expired_entries_even_when_recently_used"
++]
+\ No newline at end of file
+diff --git a/kvcache/cache.py b/kvcache/cache.py
+index be3061f..6a7a5e3 100644
+--- a/kvcache/cache.py
++++ b/kvcache/cache.py
+@@ -18,24 +18,35 @@ class TTLCache:
+         self._data: OrderedDict = OrderedDict()  # key -> (value, expires_at); last item is most recently used
+         self.stats = Stats()
+ 
++    def _expire(self, now) -> None:
++        expired_keys = [key for key, (_, expires_at) in self._data.items() if now >= expires_at]
++        for key in expired_keys:
++            del self._data[key]
++            self.stats.expirations += 1
++
+     def get(self, key, default=None):
+         if key not in self._data:
+             self.stats.misses += 1
+             return default
+         value, expires_at = self._data[key]
+-        self.stats.hits += 1
+-        if self.clock() > expires_at:
++        if self.clock() >= expires_at:
+             del self._data[key]
++            self.stats.misses += 1
+             self.stats.expirations += 1
+             return default
++        self.stats.hits += 1
+         self._data.move_to_end(key)
+         return value
+ 
+     def put(self, key, value) -> None:
+-        self._data[key] = (value, self.clock() + self.ttl)
++        now = self.clock()
++        self._expire(now)
++        self._data[key] = (value, now + self.ttl)
++        self._data.move_to_end(key)
+         if len(self._data) > self.capacity:
+             self._data.popitem(last=False)
+             self.stats.evictions += 1
+ 
+     def __len__(self) -> int:
++        self._expire(self.clock())
+         return len(self._data)
+diff --git a/tests/test_regressions.py b/tests/test_regressions.py
+new file mode 100644
+index 0000000..c2a7ec4
+--- /dev/null
++++ b/tests/test_regressions.py
+@@ -0,0 +1,119 @@
++import pytest
++
++from kvcache.cache import TTLCache
++from kvcache.clock import FakeClock
++
++
++@pytest.mark.parametrize("elapsed", [10, 11])
++def test_expired_lookup_is_a_miss_and_expires_only_once(elapsed):
++    clock = FakeClock()
++    cache = TTLCache(2, 10, clock)
++    cache.put("key", "value")
++    clock.advance(elapsed)
++    default = object()
++
++    assert cache.get("key", default) is default
++    assert cache.stats.hits == 0
++    assert cache.stats.misses == 1
++    assert cache.stats.expirations == 1
++    assert cache.stats.evictions == 0
++    assert cache.stats.hit_rate() == 0.0
++
++    assert cache.get("key", default) is default
++    assert cache.stats.misses == 2
++    assert cache.stats.expirations == 1
++
++
++def test_lookup_just_before_expiration_is_a_hit():
++    clock = FakeClock()
++    cache = TTLCache(2, 10, clock)
++    cache.put("key", "value")
++    clock.advance(9)
++
++    assert cache.get("key") == "value"
++    assert cache.stats.hits == 1
++    assert cache.stats.misses == 0
++    assert cache.stats.expirations == 0
++
++
++def test_overwrite_marks_key_most_recently_used():
++    cache = TTLCache(2, 10, FakeClock())
++    cache.put("a", 1)
++    cache.put("b", 2)
++    cache.put("a", 3)
++    cache.put("c", 4)
++
++    assert cache.get("b") is None
++    assert cache.get("a") == 3
++    assert cache.get("c") == 4
++    assert cache.stats.evictions == 1
++    assert cache.stats.expirations == 0
++
++
++def test_overwrite_refreshes_expiration():
++    clock = FakeClock()
++    cache = TTLCache(2, 10, clock)
++    cache.put("key", "old")
++    clock.advance(5)
++    cache.put("key", "new")
++    clock.advance(5)
++
++    assert cache.get("key") == "new"
++    clock.advance(5)
++    assert cache.get("key") is None
++    assert cache.stats.expirations == 1
++
++
++def test_put_removes_expired_entries_even_when_recently_used():
++    clock = FakeClock()
++    cache = TTLCache(2, 10, clock)
++    cache.put("expired", 1)
++    clock.advance(1)
++    cache.put("live", 2)
++    assert cache.get("expired") == 1
++    clock.advance(9)
++
++    cache.put("new", 3)
++
++    assert cache.stats.evictions == 0
++    assert cache.stats.expirations == 1
++    assert len(cache) == 2
++    assert cache.get("live") == 2
++    assert cache.get("new") == 3
++    assert cache.get("expired") is None
++    assert cache.stats.expirations == 1
++
++
++def test_len_counts_only_live_entries_and_expires_each_once():
++    clock = FakeClock()
++    cache = TTLCache(3, 10, clock)
++    cache.put("a", 1)
++    cache.put("b", 2)
++    clock.advance(1)
++    cache.put("c", 3)
++    clock.advance(9)
++
++    assert len(cache) == 1
++    assert len(cache) == 1
++    assert cache.stats.expirations == 2
++    assert cache.stats.hits == cache.stats.misses == cache.stats.evictions == 0
++
++    clock.advance(1)
++    assert len(cache) == 0
++    assert cache.stats.expirations == 3
++    assert cache.get("a") is None
++    assert cache.stats.expirations == 3
++
++
++def test_overwriting_expired_key_counts_expiration():
++    clock = FakeClock()
++    cache = TTLCache(1, 10, clock)
++    cache.put("key", "old")
++    clock.advance(10)
++
++    cache.put("key", "new")
++
++    assert cache.stats.expirations == 1
++    assert cache.stats.evictions == 0
++    assert cache.get("key") == "new"
++    assert len(cache) == 1

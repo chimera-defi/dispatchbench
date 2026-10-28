@@ -1,0 +1,237 @@
+diff --git a/.pytest_cache/.gitignore b/.pytest_cache/.gitignore
+new file mode 100644
+index 0000000..bc1a1f6
+--- /dev/null
++++ b/.pytest_cache/.gitignore
+@@ -0,0 +1,2 @@
++# Created by pytest automatically.
++*
+diff --git a/.pytest_cache/CACHEDIR.TAG b/.pytest_cache/CACHEDIR.TAG
+new file mode 100644
+index 0000000..fce15ad
+--- /dev/null
++++ b/.pytest_cache/CACHEDIR.TAG
+@@ -0,0 +1,4 @@
++Signature: 8a477f597d28d172789f06886806bc55
++# This file is a cache directory tag created by pytest.
++# For information about cache directory tags, see:
++#	https://bford.info/cachedir/spec.html
+diff --git a/.pytest_cache/README.md b/.pytest_cache/README.md
+new file mode 100644
+index 0000000..b89018c
+--- /dev/null
++++ b/.pytest_cache/README.md
+@@ -0,0 +1,8 @@
++# pytest cache directory #
++
++This directory contains data from the pytest's cache plugin,
++which provides the `--lf` and `--ff` options, as well as the `cache` fixture.
++
++**Do not** commit this to version control.
++
++See [the docs](https://docs.pytest.org/en/stable/how-to/cache.html) for more information.
+diff --git a/.pytest_cache/v/cache/nodeids b/.pytest_cache/v/cache/nodeids
+new file mode 100644
+index 0000000..73f1ff7
+--- /dev/null
++++ b/.pytest_cache/v/cache/nodeids
+@@ -0,0 +1,31 @@
++[
++  "tests/test_discount.py::test_apply_percent[-1005-10--905]",
++  "tests/test_discount.py::test_apply_percent[0-25-0]",
++  "tests/test_discount.py::test_apply_percent[1-50-1]",
++  "tests/test_discount.py::test_apply_percent[100000000000000000005-10-90000000000000000005]",
++  "tests/test_discount.py::test_apply_percent[1004-10-904]",
++  "tests/test_discount.py::test_apply_percent[1005-0-1005]",
++  "tests/test_discount.py::test_apply_percent[1005-10-905]",
++  "tests/test_discount.py::test_apply_percent[1005-100-0]",
++  "tests/test_discount.py::test_apply_percent[1006-10-905]",
++  "tests/test_discount.py::test_cli_discount",
++  "tests/test_discount.py::test_cli_unknown_code_preserves_case",
++  "tests/test_discount.py::test_discount_applies_to_whole_total",
++  "tests/test_discount.py::test_discount_code_is_case_insensitive",
++  "tests/test_discount.py::test_duplicate_code[SAVE]",
++  "tests/test_discount.py::test_duplicate_code[Save]",
++  "tests/test_discount.py::test_duplicate_code[save]",
++  "tests/test_discount.py::test_empty_store_discount",
++  "tests/test_discount.py::test_invalid_percent[-1]",
++  "tests/test_discount.py::test_invalid_percent[10.0]",
++  "tests/test_discount.py::test_invalid_percent[101]",
++  "tests/test_discount.py::test_invalid_percent[10]",
++  "tests/test_discount.py::test_invalid_percent[False]",
++  "tests/test_discount.py::test_invalid_percent[None]",
++  "tests/test_discount.py::test_invalid_percent[True]",
++  "tests/test_discount.py::test_store_discount_endpoints[0-1005]",
++  "tests/test_discount.py::test_store_discount_endpoints[100-0]",
++  "tests/test_discount.py::test_unknown_code",
++  "tests/test_store.py::test_format",
++  "tests/test_store.py::test_total"
++]
+\ No newline at end of file
+diff --git a/inv/cli.py b/inv/cli.py
+index bb91b18..87e2d9f 100644
+--- a/inv/cli.py
++++ b/inv/cli.py
+@@ -8,6 +8,12 @@ def main(argv: list[str], store: Store) -> str:
+         return "usage: total | list"
+     cmd = argv[0]
+     if cmd == "total":
++        if len(argv) == 3 and argv[1] == "--code":
++            code = argv[2]
++            try:
++                return format_cents(store.total_cents(code))
++            except KeyError:
++                return f"unknown code: {code}"
+         return format_cents(store.total_cents())
+     if cmd == "list":
+         return "\n".join(f"{i.name} x{i.qty} {format_cents(i.line_total())}" for i in store.items.values())
+diff --git a/inv/money.py b/inv/money.py
+index caa7f2f..519efa7 100644
+--- a/inv/money.py
++++ b/inv/money.py
+@@ -1,3 +1,12 @@
++def apply_percent(cents: int, pct: int) -> int:
++    """Reduce cents by pct percent, rounding half up to a whole cent."""
++    if not isinstance(pct, int) or isinstance(pct, bool) or not 0 <= pct <= 100:
++        raise ValueError("pct must be an int from 0 to 100")
++    numerator = cents * (100 - pct)
++    rounded = (abs(numerator) + 50) // 100
++    return -rounded if numerator < 0 else rounded
++
++
+ def format_cents(cents: int) -> str:
+     """1234 -> '$12.34'; negative values get a leading '-'."""
+     sign = "-" if cents < 0 else ""
+diff --git a/inv/store.py b/inv/store.py
+index c8a5bb8..93960c7 100644
+--- a/inv/store.py
++++ b/inv/store.py
+@@ -1,9 +1,18 @@
+ from .models import Item
++from .money import apply_percent
+ 
+ 
+ class Store:
+     def __init__(self):
+         self.items: dict[str, Item] = {}
++        self.codes: dict[str, int] = {}
++
++    def add_code(self, code: str, pct: int) -> None:
++        apply_percent(0, pct)
++        key = code.casefold()
++        if key in self.codes:
++            raise ValueError(f"code already exists: {code}")
++        self.codes[key] = pct
+ 
+     def add_item(self, name: str, price_cents: int, qty: int = 1) -> None:
+         if name in self.items:
+@@ -14,5 +23,8 @@ class Store:
+     def remove_item(self, name: str) -> None:
+         del self.items[name]
+ 
+-    def total_cents(self) -> int:
+-        return sum(i.line_total() for i in self.items.values())
++    def total_cents(self, code: str | None = None) -> int:
++        total = sum(i.line_total() for i in self.items.values())
++        if code is not None:
++            return apply_percent(total, self.codes[code.casefold()])
++        return total
+diff --git a/tests/test_discount.py b/tests/test_discount.py
+new file mode 100644
+index 0000000..293eefb
+--- /dev/null
++++ b/tests/test_discount.py
+@@ -0,0 +1,93 @@
++import pytest
++
++from inv.cli import main
++from inv.money import apply_percent
++from inv.store import Store
++
++
++@pytest.mark.parametrize(
++    "cents,pct,expected",
++    [
++        (1005, 10, 905),
++        (1004, 10, 904),
++        (1006, 10, 905),
++        (1, 50, 1),
++        (1005, 0, 1005),
++        (1005, 100, 0),
++        (0, 25, 0),
++        (-1005, 10, -905),
++        (10**20 + 5, 10, 9 * 10**19 + 5),
++    ],
++)
++def test_apply_percent(cents, pct, expected):
++    assert apply_percent(cents, pct) == expected
++
++
++@pytest.mark.parametrize("pct", [-1, 101, 10.0, "10", None, True, False])
++def test_invalid_percent(pct):
++    with pytest.raises(ValueError):
++        apply_percent(1005, pct)
++    store = Store()
++    with pytest.raises(ValueError):
++        store.add_code("SAVE", pct)
++    with pytest.raises(KeyError):
++        store.total_cents("SAVE")
++
++
++def test_discount_code_is_case_insensitive():
++    store = Store()
++    store.add_item("pen", 1005)
++    store.add_code("Save", 10)
++    assert store.total_cents("SAVE") == 905
++    assert store.total_cents("save") == 905
++    assert store.total_cents() == 1005
++    assert store.total_cents(None) == 1005
++
++
++@pytest.mark.parametrize("code", ["Save", "SAVE", "save"])
++def test_duplicate_code(code):
++    store = Store()
++    store.add_item("pen", 1005)
++    store.add_code("Save", 10)
++    with pytest.raises(ValueError):
++        store.add_code(code, 20)
++    assert store.total_cents("Save") == 905
++
++
++def test_discount_applies_to_whole_total():
++    store = Store()
++    store.add_item("pen", 1, 2)
++    store.add_item("pad", 1)
++    store.add_code("HALF", 50)
++    assert store.total_cents("HALF") == 2
++
++
++@pytest.mark.parametrize("pct,expected", [(0, 1005), (100, 0)])
++def test_store_discount_endpoints(pct, expected):
++    store = Store()
++    store.add_item("pen", 1005)
++    store.add_code("SAVE", pct)
++    assert store.total_cents("SAVE") == expected
++
++
++def test_empty_store_discount():
++    store = Store()
++    store.add_code("SAVE", 10)
++    assert store.total_cents("SAVE") == 0
++
++
++def test_unknown_code():
++    with pytest.raises(KeyError):
++        Store().total_cents("missing")
++
++
++def test_cli_discount():
++    store = Store()
++    store.add_item("pen", 1005)
++    store.add_code("SAVE", 10)
++    assert main(["total", "--code", "sAvE"], store) == "$9.05"
++    assert main(["total"], store) == "$10.05"
++
++
++def test_cli_unknown_code_preserves_case():
++    assert main(["total", "--code", "MiSsInG"], Store()) == "unknown code: MiSsInG"
