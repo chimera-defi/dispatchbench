@@ -1,4 +1,4 @@
-// Click a column header to sort its table; click again to reverse. Numbers sort as numbers ("95% (57/60)" sorts by 95,
+// Activate a column header button to sort its table; activate again to reverse. Numbers sort as numbers ("95% (57/60)" sorts by 95,
 // "$0.00112" by 0.00112, "1,569" by 1569); a column whose cells are not numbers sorts as text; "–" goes last either way.
 // Each tbody sorts on its own, under its "grp" heading row, so the all-problems and hard-set groups never mix.
 (function(){
@@ -7,8 +7,11 @@ var TIE=JSON.parse(document.getElementById("data").textContent).explorer.tie;
 function key(td){var t=td.textContent.replace(/,/g,"").replace(/−/g,"-").trim();var m=t.match(/^[≥≤~]?\$?([+-]?\d+(\.\d+)?)/);return m?parseFloat(m[1]):null}
 document.querySelectorAll("table.sortable").forEach(function(tb){
  var ths=tb.tHead.rows[0].cells;
- Array.prototype.forEach.call(ths,function(th,i){th.title="Sort by this column";th.onclick=function(){
-  var desc=th.getAttribute("aria-sort")==="ascending";Array.prototype.forEach.call(ths,function(h){h.removeAttribute("aria-sort")});
+ Array.prototype.forEach.call(ths,function(th,i){
+  var button=document.createElement("button");button.type="button";button.className="sort-btn";button.title="Sort by this column";
+  while(th.firstChild)button.appendChild(th.firstChild);
+  th.appendChild(button);th.setAttribute("aria-sort","none");button.onclick=function(){
+  var desc=th.getAttribute("aria-sort")==="ascending";Array.prototype.forEach.call(ths,function(h){h.setAttribute("aria-sort","none")});
   th.setAttribute("aria-sort",desc?"descending":"ascending");
   Array.prototype.forEach.call(tb.tBodies,function(body){
   var rows=Array.prototype.filter.call(body.rows,function(r){return !r.classList.contains("grp")});
