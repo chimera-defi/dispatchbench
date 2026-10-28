@@ -8,6 +8,7 @@ Path | what | produced by | read by. Cache (`cache/`, 15 MB) holds raw call tran
 - `2026-10-25-isolated-agentic.jsonl` clean-home rerun of the repo tasks (the headline repo-task rows; patches in `cache/isolated/agentic_patches/`) | bench runner | summarize, dataset
 - `2026-10-26-grok-function.jsonl`, `2026-10-28-grok-spectrum-function.jsonl` Grok function track (first run, then the full spectrum) | bench runner | summarize, dataset, grok
 - `2026-10-27-grok-agentic.jsonl` Grok repo tasks (patches in `cache/agentic_patches/`) | bench runner | dataset, grok
+- `2026-10-28-t1-hidden-v2-regrade.jsonl` every stored t1_discount patch regraded against the stricter hidden suite (grader_version 3; no model calls; the 10-22 main run stored no patches) | bench.regrade_t1 | dataset (facts t1v2_*, table t1_regrade)
 - `2026-10-28-terra-function.jsonl` gpt-5.6-terra function track | bench runner | summarize, dataset
 - `2026-10-28-devin-function.jsonl` Devin function track (one repeat, free tier, no dollars) | devin runner | summarize, dataset
 - `2026-10-22b-trim.jsonl` Codex harness trim probe | bench.trim_probe | summarize, dataset

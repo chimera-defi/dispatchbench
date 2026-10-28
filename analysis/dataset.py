@@ -348,6 +348,14 @@ def fairness_facts():
     return facts
 
 
+REGRADE = os.path.join(RES, "2026-10-28-t1-hidden-v2-regrade.jsonl")
+
+
+def t1_regrade():
+    """Rows of the t1_discount regrade under the stricter hidden suite (bench/regrade_t1.py), no model calls."""
+    return [json.loads(l) for l in open(REGRADE)] if os.path.exists(REGRADE) else []
+
+
 def _facts(s, arms):
     F = Facts(); cfg, ex, ag, hard = s["configs"], s["exploratory"], s["agentic"], s["hard"]
     rows = summarize.function_rows(); agent = summarize.agentic_rows(); main_rows = [r for r in rows if r["phase"] == "main"]
@@ -514,6 +522,19 @@ def _facts(s, arms):
                        f"The audit reads {F['audit_wrong_tests']} of the {F['audit_red_total']} red runs (clean-home and original) as wrong tests (the cache tests insert both entries at the same time, so both expire; the config tests expect behaviour the task does not ask for) "
                        f"and {F['audit_wrong_code']} as wrong code that the hidden suite missed (t1_discount accepts a boolean percentage; see the stricter-suite regrade below). "
                        "The classification is still under audit until results/annotations.json carries the labels.")
+    rg = t1_regrade(); done = [r for r in rg if r["status"] == "regraded"]; flips = [r for r in done if r["old_hidden_pass"] != r["new_hidden_pass"]]
+    need(rg and all(r["replay_v1_hidden_pass"] == r["old_hidden_pass"] for r in done), "the regrade replay reproduces every stored hidden_pass")
+    need(all(r["task_complete"] == (r["new_hidden_pass"] and r["replay_visible_pass"]) for r in done), "task complete under v2 is v2-hidden and visible")
+    F["t1v2_graded"] = str(len(done)); F["t1v2_nopatch"] = str(sum(r["status"] == "no patch stored" for r in rg))
+    F["t1v2_flip_n"] = str(len(flips)); F["t1v2_table_n"] = str(sum(r["config"] not in configs.GROK_CONFIGS for r in done)); F["t1v2_other_n"] = str(len(done) - int(F["t1v2_table_n"]))
+    need(not any(r["config"] in configs.GROK_CONFIGS for r in flips), "no Grok run flips, so the Grok runs stay out of the table")
+    F["t1v2_flips"] = ", ".join(f"{r['config']} repeat {r['repeat']} ({'clean-home rerun' if 'isolated' in r['file'] else 'original run'})" for r in flips)
+    lowiso = [r for r in flips if r["config"] == "luna-low" and "isolated" in r["file"]]
+    F["t1v2_luna_hidden_k"] = f"{iso['luna-low']['hidden_pass'] - len(lowiso)}/{iso['luna-low']['n']}"
+    F["t1v2_line"] = (f"Stricter hidden suite (t1_discount now rejects a boolean percentage): {F['t1v2_graded']} stored t1 patches regraded with no model calls ({F['t1v2_table_n']} in the table; the other {F['t1v2_other_n']} are in results/2026-10-28-t1-hidden-v2-regrade.jsonl and none flips); "
+                      f"{F['t1v2_flip_n']} run flips from hidden pass to fail: {F['t1v2_flips']}, which leaves luna-low at {F['t1v2_luna_hidden_k']} hidden in the clean-home rerun. "
+                      f"The {F['t1v2_nopatch']} t1 runs of the 10-22 main run stored no patch and cannot be regraded. Headline counts stay on the suite each run was graded with. "
+                      "The task text says \"pct: int\", which does not say whether a boolean counts; the reference rejects it, so the gap was in our hidden suite.")
     for c, v in ag.items():
         k = c.replace("-", "_"); F[f"ag_{k}_usd"] = usd(v['usd_per_run']) if v["usd_per_run"] is not None and v["usd_per_run"] < 0.01 else usd(v['usd_per_run'])
         F[f"ag_{k}_med"] = f"{v['latency_s']['median']:.0f}"
@@ -949,6 +970,13 @@ def _tables(s, arms):
                               (lambda rr: "no transcripts" if not rr else str(sum(r["test_functions_added"] for r in rr)) if all(r["test_functions_added"] is not None for r in rr)
                                else f"≥{sum(r['test_functions_lower_bound'] for r in rr)}")([r for r in at if r["config"] == c]),
                               f"{v['latency_s']['median']:.1f}", f"{usd(v['usd_per_run'])}", usd(v["usd_per_pass"]), v["cost_kind"]] for c, v in sorted(ag.items(), key=lambda kv: (kv[1]["usd_per_run"] is None, kv[1]["usd_per_run"] or 0))])
+    rg = t1_regrade(); byc = defaultdict(list)
+    for r in rg:
+        if r["status"] == "regraded" and r["config"] not in configs.GROK_CONFIGS: byc[(r["file"], r["config"])].append(r)  # Grok configs are named only in the Grok section
+    T["t1_regrade"] = md_table(["config", "run set", "t1 runs regraded", "hidden as graded", "hidden under stricter suite", "task complete under stricter suite"],
+                               [[c, "clean-home rerun", str(len(v)), f"{sum(r['old_hidden_pass'] for r in v)}/{len(v)}",
+                                 f"{sum(r['new_hidden_pass'] for r in v)}/{len(v)}", f"{sum(r['task_complete'] for r in v)}/{len(v)}"]
+                                for (f, c), v in sorted(byc.items())])
     a = arms
     T["rescue"] = md_table(["config", "passed", "$ per pass", "median s"], [[v["label"], f"{v['passes']}/{v['n']}", f"{usd(v['usd_per_pass'])}", f"{v['median_s']:.1f}"] for v in a.values()])
     pr = s["trim"]["pair"]; lab = {"haiku": "haiku-low, tools off", "luna/base": "luna-low, stock harness", "luna/nofeat": "luna-low, tool features off", "luna/noshell": "luna-low, stripped"}
@@ -1578,7 +1606,7 @@ def view(ds):
 # Where a fact comes from, by key prefix: the jsonl files (or the design table) its number is computed from. Coarse on purpose:
 # every fact is built by analysis.dataset from the rows below, and the prefix names the run files those rows come from.
 FACT_SOURCES = (
-    ("d_", None), ("audit_", "audit session forensics (stage2b/FORENSICS.md), pending results/annotations.json"),
+    ("d_", None), ("t1v2_", "results/2026-10-28-t1-hidden-v2-regrade.jsonl (bench/regrade_t1.py)"), ("audit_", "audit session forensics (stage2b/FORENSICS.md), pending results/annotations.json"),
     ("grok_cli_", "results/*grok*.jsonl, CLI-reported cost"), ("ag_", "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"),
     ("grok_", "results/2026-10-26-grok-function.jsonl + results/2026-10-28-grok-spectrum-function.jsonl + results/2026-10-27-grok-agentic.jsonl"),
     ("devin_", "results/2026-10-28-devin-function.jsonl"), ("fm_", "rows main/*-fast and their default-tier twins (results/2026-10-22b-function.jsonl)"),

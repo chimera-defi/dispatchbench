@@ -364,6 +364,15 @@ Medians are over each config's passing L1–L6 solutions, so a config that fails
 
 Red-suite runs (task_complete false) that the audit session has not labelled show 'under audit' beside their cells. Counts are raw: no run is dropped or reclassified until the audit labels it in results/annotations.json.
 
+Stricter hidden suite (t1_discount now rejects a boolean percentage): 16 stored t1 patches regraded with no model calls (12 in the table; the other 4 are in results/2026-10-28-t1-hidden-v2-regrade.jsonl and none flips); 1 run flips from hidden pass to fail: luna-low repeat 2 (clean-home rerun), which leaves luna-low at 11/12 hidden in the clean-home rerun. The 21 t1 runs of the 10-22 main run stored no patch and cannot be regraded. Headline counts stay on the suite each run was graded with. The task text says "pct: int", which does not say whether a boolean counts; the reference rejects it, so the gap was in our hidden suite.
+
+| config | run set | t1 runs regraded | hidden as graded | hidden under stricter suite | task complete under stricter suite |
+|---|---|---|---|---|---|
+| astra-medium | clean-home rerun | 3 | 3/3 | 3/3 | 3/3 |
+| luna-low | clean-home rerun | 3 | 3/3 | 2/3 | 2/3 |
+| sol61-high | clean-home rerun | 3 | 3/3 | 3/3 | 3/3 |
+| sol61-medium | clean-home rerun | 3 | 3/3 | 3/3 | 3/3 |
+
 ![Repo tasks: task complete against dollars per run. Filled mark: task complete (hidden and the run's own visible suite both green); ring: hidden suite only.](../results/report/charts/agentic.svg)
 
 ## Harder rung (L7), added after the main run

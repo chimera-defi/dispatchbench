@@ -16,7 +16,7 @@ TASKS = os.path.join(ROOT, "bench", "agentic", "tasks")
 CACHE = os.path.join(ROOT, "cache", "agentic")
 RAW = os.path.join(ROOT, "cache", "raw")
 PATCHES = os.path.join(ROOT, "cache", "agentic_patches")
-GRADER_VERSION = 2
+GRADER_VERSION = 3  # 3: t1_discount hidden suite rejects a bool percentage (commit G)
 OUT = os.path.join(ROOT, "results", "2026-10-22b-agentic.jsonl")
 TASK_IDS = sorted(d for d in os.listdir(TASKS) if d.startswith("t"))
 

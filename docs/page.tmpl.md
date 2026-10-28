@@ -335,6 +335,8 @@
 <h2><span class="num"></span>🔍 More charts</h2>
 <p class="small">{{rung_breaks}}. luna-low-bare breaks at {{bare_rung_break}}; see the grid.</p>
 <p class="small">Repo tasks, task complete (hidden in brackets): luna-low {{ag_mark_luna_iso}} in the clean-home rerun ({{ag_mark_luna_orig}} in the original run); every other config completed every run. Every task prompt told agents to add tests and that all tests must pass. {{ag_why_red}} Costs ranged from {{ag_luna_low_usd}} to {{ag_astra_medium_usd}} per run; per complete task luna-low costs {{ag_luna_low_upp}} against haiku-low's {{ag_haiku_low_upp}}.</p>
+<p class="small">{{t1v2_line}}</p>
+{{table:t1_regrade}}
 <p class="small"><b>Correction, 2026-10-28.</b> A reader pointed out that "passed every hidden test" hid luna-low's visible-test misses. The headline is now task complete, with the hidden-suite count beside it.</p>
 <details><summary>🎛️ Explorer and more charts</summary>
 <p class="small">Explorer plots any pair of measures.</p>
