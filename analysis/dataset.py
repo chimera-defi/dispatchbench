@@ -49,8 +49,9 @@ ALL_RUN_SETS = ("main ladder", "partial ladder", "extra repeats", "L7 set", "cal
 
 
 def _mult(r):
-    """Fast-mode multiplier: summarize.cost already applies it to the fast configs; pilot rows carry their tier."""
-    if str(r.get("service_tier", "")).startswith("priority") and r.get("phase") == "pilot":
+    """Fast-mode multiplier: summarize.cost already applies it to the fast configs; pilot rows carry their tier, and every
+    priority-tier Codex pilot row is priced at the published multiplier (the pilot itself used 1.5x), as summarize.pilot_block does."""
+    if str(r.get("service_tier", "")).startswith("priority") and str(r.get("cli", "")).startswith("codex"):
         return json.load(open(os.path.join(RES, "prices.json")))["fast_mode_multiplier"]
     return 1
 
@@ -64,7 +65,7 @@ def _usd(r, source):
             p = PRICES[r["builder"]]; c = ((r["builder_in"] - r["builder_cached"]) * p["input"] + r["builder_cached"] * p["cached_input"] + r["builder_out"] * p["output"]) / 1e6
         return c + ((r.get("review") or {}).get("cost_usd") or 0)
     if "cli" not in r: return r.get("cost_usd")
-    return scale(cost(r), _mult(r))
+    return scale(cost(r), _mult(r) if source == "pilot" else 1)
 
 
 def _claude(r, source, usd):
@@ -81,8 +82,8 @@ def _harness_rows():
 def _rows():
     """[(source, name, set, row dict with _usd/_claude/_pass/_sec/_group)] from every results file."""
     out = []
-    def add(src, name, st, r, ok, sec, group, usd, tin, tout, tc=None):
-        out.append((src, name, st, {"ok": bool(ok), "sec": sec, "group": group, "usd": usd, "claude": _claude(r, src, usd), "in": tin, "out": tout, "cached": r.get("cached_tok") or r.get("builder_cached") or 0, "reasoning": r.get("reasoning_tok") or 0, "cli": r.get("cli", r.get("builder_kind", "")), "rung": r.get("rung"), "file": r.get("_file"), "tc": tc, "key": r.get("key"), "run_id": f"{r.get('_file', '')}#{r.get('key', '')[:12]}" if r.get("key") else None}))
+    def add(src, name, st, r, ok, sec, group, usd, tin, tout, tc=None, hid=None):
+        out.append((src, name, st, {"ok": bool(ok), "sec": sec, "group": group, "usd": usd, "claude": _claude(r, src, usd), "in": tin, "out": tout, "cached": r.get("cached_tok") or r.get("builder_cached") or 0, "reasoning": r.get("reasoning_tok") or 0, "cli": r.get("cli", r.get("builder_kind", "")), "rung": r.get("rung"), "file": r.get("_file"), "tc": tc, "hid": hid, "key": r.get("key"), "run_id": f"{r.get('_file', '')}#{r.get('key', '')[:12]}" if r.get("key") else None}))
     func = [r for r in summarize.function_rows() if r["phase"] != "warmup"]
     cover = defaultdict(set)
     for r in func:
@@ -97,7 +98,8 @@ def _rows():
         if c not in configs.GROK_CONFIGS and r["problem"] in PIDS and r["phase"] in ("main", "exploratory", "fastmode") and r["repeat"] <= REPEATS:  # the same rows again, as the rescue-set baseline
             add("main", c, "rescue set", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
     for r in summarize.agentic_rows():
-        add("agentic", r["config"], "repo tasks", r, r["hidden_pass"], r["wall_s"], r["task"], _usd(r, "agentic"), r["in_tok"], r["out_tok"], tc=bool(r.get("task_complete", r["visible_pass"] and r["hidden_pass"])))
+        done = bool(r.get("task_complete", r["visible_pass"] and r["hidden_pass"]))  # the headline repo-task rule: hidden and the run's own visible suite both green
+        add("agentic", r["config"], "repo tasks", r, done, r["wall_s"], r["task"], _usd(r, "agentic"), r["in_tok"], r["out_tok"], tc=done, hid=bool(r["hidden_pass"]))
     for r in load(os.path.join(RES, configs.SOURCES["trim"][0])):
         add("trim", r["config"], "trim probe", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "trim"), r["in_tok"], r["out_tok"])
     for r in load(os.path.join(RES, configs.SOURCES["pilot"][0])):
@@ -122,12 +124,12 @@ RULES = (RULE_FUNCTION, RULE_HIDDEN, RULE_COMPLETE)
 
 
 def _rule_fields(src, rr):
-    """Every pass count names the rule that decided it. Repo-task rows count hidden tests in passes/pass_rate and carry the
-    task_complete count (hidden and visible tests both pass) beside it; runs where it is false are listed so annotations can label them."""
+    """Every pass count names the rule that decided it. Repo-task rows count task complete (hidden and the run's own visible suite both green)
+    in passes/pass_rate and carry the hidden-suite count beside it; runs where task complete is false are listed so annotations can label them."""
     if src == "pilot-agentic": return {"rule": RULE_HIDDEN}  # pilot pipelines: their hidden suite is the only repo-task check recorded
     if rr[0]["tc"] is None: return {"rule": RULE_FUNCTION}
     red = sorted(x["run_id"] for x in rr if not x["tc"] and x["run_id"])
-    return {"rule": RULE_HIDDEN, "task_complete": sum(x["tc"] for x in rr), "task_complete_rule": RULE_COMPLETE, "red_runs": red}
+    return {"rule": RULE_COMPLETE, "hidden_pass": sum(x["hid"] for x in rr), "hidden_rule": RULE_HIDDEN, "task_complete": sum(x["tc"] for x in rr), "red_runs": red}
 
 
 def _row(src, name, st, rr):
@@ -431,8 +433,6 @@ def _facts(s, arms):
     F["rung_attempts"] = str(cfg["haiku-low"]["by_rung"]["L1"]["n"])
     sp = s["spend"]
     F["claude_usd"] = usd(sp['claude_measured_usd']); F["codex_usd"] = usd(sp['codex_proxy_usd'])
-    # Round the estimated total to the nearest five dollars for the front page.
-    F["codex_usd_rounded"] = f"${round(sp['codex_proxy_usd']):.0f}"
     F["agentic_fast_caption"] = ("⚡ configs are included" if any(c.endswith("-fast") for c in ag) else "No ⚡ repo-task data")
     for c, v in every.items():
         k = c.replace("-", "_")
@@ -473,8 +473,8 @@ def _facts(s, arms):
     tr = s["trim"]["floor"]
     # finding 4: agentic
     need(all(v["hidden_pass"] == v["n"] for v in ag.values()), "every agentic run passed our hidden tests")
-    F["ag_k"] = f"{ag['luna-low']['hidden_pass']}/{ag['luna-low']['n']}"; F["ag_runs"] = str(sum(v["n"] for v in ag.values()))
-    # Two pass rules: "passed our hidden tests" and "task complete" (hidden and visible tests both pass). Per file, from the raw rows.
+    mark = lambda v: f"{v['task_complete']}/{v['n']} complete ({v['hidden_pass']}/{v['n']} hidden)"  # the one repo-task marker: headline rule first, hidden suite in brackets
+    F["ag_k"] = mark(ag["luna-low"]); F["ag_runs"] = str(sum(v["n"] for v in ag.values()))
     ac = s["agentic_counts"]; orig, iso, grk = (ac[k]["configs"] for k in ("original run", "isolated rerun", "Grok repo tasks"))
     kk = lambda v, f: f"{v[f]}/{v['n']}"
     short = lambda blk: sorted(c for c, v in blk.items() if v["task_complete"] < v["n"])
@@ -484,14 +484,36 @@ def _facts(s, arms):
          "every selected repo-task config except luna-low is task complete on every run")
     need(not ag["luna-low"]["tests_tampered_runs"] and not ag["luna-low"]["errors"] and all(f for _, _, f in iso["luna-low"]["red_visible"]),
          "luna-low's red-suite runs are untampered, error-free, with failed visible tests")
-    F["ag_hidden_rule"] = "passed our hidden tests"; F["ag_complete_rule"] = "task complete: hidden and visible tests both pass"
+    F["ag_hidden_rule"] = "hidden = our hidden suite only"; F["ag_complete_rule"] = "complete = hidden and the run's own visible suite both green"
+    F["repo_legend"] = f"{F['ag_complete_rule']}; {F['ag_hidden_rule']}"
     F["ag_tc_luna_orig_k"] = kk(orig["luna-low"], "task_complete"); F["ag_tc_luna_iso_k"] = kk(iso["luna-low"], "task_complete")
+    F["ag_hidden_luna_iso_k"] = kk(iso["luna-low"], "hidden_pass")
+    F["ag_mark_luna_orig"] = mark(orig["luna-low"]); F["ag_mark_luna_iso"] = mark(iso["luna-low"])
     F["ag_tc_luna_miss_orig"] = str(orig["luna-low"]["n"] - orig["luna-low"]["task_complete"]); F["ag_tc_luna_miss_iso"] = str(iso["luna-low"]["n"] - iso["luna-low"]["task_complete"])
     fails = [f for _, _, f in iso["luna-low"]["red_visible"]]; F["ag_red_lo"], F["ag_red_hi"] = str(min(fails)), str(max(fails))
     F["ag_red_runs"] = str(len(fails))
+    F["ag_red_runs_all"] = str(len(fails) + orig["luna-low"]["n"] - orig["luna-low"]["task_complete"])
+    F["ag_red_cases_iso"] = str(sum(fails))
     F["ag_tc_all_k"] = f"{ag['sol61-high']['task_complete']}/{ag['sol61-high']['n']}"
-    F["ag_tc_line"] = (f"{F['ag_complete_rule']}: luna-low {F['ag_tc_luna_orig_k']} in the original run and {F['ag_tc_luna_iso_k']} in the clean-home rerun the page uses; "
+    F["ag_tc_line"] = (f"{F['ag_complete_rule']}: luna-low {F['ag_mark_luna_orig']} in the original run and {F['ag_mark_luna_iso']} in the clean-home rerun the page uses; "
                        f"every other config completes every run")
+    # Why luna's visible suites are red. From the rows: every failing test id of the clean-home red runs sits in a test file the run added.
+    shipped = {os.path.basename(f) for task in os.listdir(os.path.join(ROOT, "bench", "agentic", "tasks"))
+               for f in os.listdir(os.path.join(ROOT, "bench", "agentic", "tasks", task, "repo", "tests"))}
+    red_ids = [rep["id"] for r in agent if r["config"] == "luna-low" and r.get("visible_pass") is False and r.get("visible", {}).get("reports")
+               for rep in r["visible"]["reports"] if rep["outcome"] == "failed"]
+    need(len(red_ids) == int(F["ag_red_cases_iso"]) and not any(i.split("::")[0].split("/")[-1] in shipped for i in red_ids),
+         "every failing visible test in luna-low's clean-home red runs is in a file the run added, none in a shipped test file")
+    F["ag_red_added_cases"] = str(len(red_ids))
+    F["ag_tampered_runs"] = str(sum(v["tests_tampered_runs"] for v in ag.values()))
+    # The classification below is the audit session's reading of those runs (stage2b/FORENSICS.md), not computed from the rows: pending results/annotations.json.
+    F["audit_wrong_tests"] = "5"; F["audit_wrong_code"] = "1"; F["audit_red_total"] = "6"
+    need(F["audit_red_total"] == F["ag_red_runs_all"] and int(F["audit_wrong_tests"]) + int(F["audit_wrong_code"]) == int(F["audit_red_total"]),
+         "the audit's 6 red runs are the 6 red runs in the data")
+    F["ag_why_red"] = (f"All {F['ag_red_added_cases']} failing tests in the {F['ag_red_runs']} clean-home red runs are tests luna-low itself added, none a shipped test, and {F['ag_tampered_runs']} runs edited the shipped tests. "
+                       f"The audit reads {F['audit_wrong_tests']} of the {F['audit_red_total']} red runs (clean-home and original) as wrong tests (the cache tests insert both entries at the same time, so both expire; the config tests expect behaviour the task does not ask for) "
+                       f"and {F['audit_wrong_code']} as wrong code that the hidden suite missed (t1_discount accepts a boolean percentage; see the stricter-suite regrade below). "
+                       "The classification is still under audit until results/annotations.json carries the labels.")
     for c, v in ag.items():
         k = c.replace("-", "_"); F[f"ag_{k}_usd"] = usd(v['usd_per_run']) if v["usd_per_run"] is not None and v["usd_per_run"] < 0.01 else usd(v['usd_per_run'])
         F[f"ag_{k}_med"] = f"{v['latency_s']['median']:.0f}"
@@ -540,7 +562,7 @@ def _facts(s, arms):
     worst = max(s["failures"], key=lambda p: sum(v["passed"] < v["n"] for v in s["failures"][p]["cells"].values()))
     misses = sum(v["passed"] < v["n"] for v in s["failures"][worst]["cells"].values())
     need(misses > 0 and worst in s["problems"], "the worst failure problem belongs to the main ladder")
-    F["worst_failure"] = f"{plabel(worst)} has misses in {misses} of {len(every)} configs"
+    F["worst_failure"] = f"{plabel(worst)} has misses in {misses} of {len(every)} full-ladder Claude and Codex configs"
     F["hl_main_timeouts"] = str(sum(r["outcome"] == "timeout" for r in hl_all if r["phase"] == "main"))
     F["hl_main_misses"] = str(hl["n"] - hl["passes"])
     F["hl_main_crashes"] = str(sum(r["outcome"] == "crash" for r in hl_all if r["phase"] == "main"))
@@ -688,7 +710,29 @@ def _facts(s, arms):
     nr = [r for r in rows if r["config"] in NEW_CODEX and r["phase"] != "fastmode"]; F["new_date"] = min(r["ts"] for r in nr)[:10]; F["n_new_codex"] = str(len(NEW_CODEX))
     nu = sum(map(cost, nr + [r for r in agent if r["config"] in NEW_CODEX]))  # function and repo-task runs alike
     ffu = sum(map(cost, [r for r in rows if r["config"] in FAST_CONFIGS and r["phase"] != "fastmode"]))  # fast-mode runs on the main ladder and L7 (2026-10-24)
-    F["codex_new_usd"] = usd(nu); F["codex_old_usd"] = usd(sp['codex_proxy_usd'] - nu - sp['codex_fastmode_usd'] - ffu); F["ff_usd"] = usd(ffu); F["fx_usd"] = usd(sp['codex_fastmode_usd'] + ffu)
+    F["codex_new_usd"] = usd(nu); F["ff_usd"] = usd(ffu); F["fx_usd"] = usd(sp['codex_fastmode_usd'] + ffu)
+    # The rest of the Codex bill, bucketed by run date and kind so the buckets sum to codex_usd: the 2026-10-22 main run, the clean-home
+    # repo-task rerun of the original configs, and the gpt-5.6-terra runs (2026-10-27 and 2026-10-28).
+    taken = {id(r) for r in nr} | {id(r) for r in agent if r["config"] in NEW_CODEX} | {id(r) for r in rows if r["config"] in FAST_CONFIGS or r["phase"] == "fastmode"}
+    rest = [r for r in rows + agent if r["cli"] == "codex" and id(r) not in taken]
+    terra_rows = [r for r in rest if r["config"].startswith("terra")]
+    orig_rows = [r for r in rest if not r["config"].startswith("terra") and r["ts"][:10] == "2026-10-22"]
+    rerun_rows = [r for r in rest if not r["config"].startswith("terra") and r["ts"][:10] != "2026-10-22"]
+    F["codex_orig_usd"] = usd(sum(map(cost, orig_rows))); F["codex_rerun_usd"] = usd(sum(map(cost, rerun_rows))); F["codex_terra_usd"] = usd(sum(map(cost, terra_rows)))
+    F["codex_rerun_date"] = max(r["ts"] for r in rerun_rows)[:10] if rerun_rows else ""
+    F["terra_dates"] = " and ".join(sorted({r["ts"][:10] for r in terra_rows}))
+    need(abs(sum(map(cost, orig_rows)) + sum(map(cost, rerun_rows)) + sum(map(cost, terra_rows)) + nu + ffu + sp['codex_fastmode_usd'] - sp['codex_proxy_usd']) < 1e-3, "the Codex spend buckets sum to the Codex total")
+    F["date_last"] = max(r["ts"] for r in rows + agent)[:10]
+    import glob as _glob
+    gk = [r for f in sorted(_glob.glob(os.path.join(RES, "*grok*.jsonl"))) for r in load(f) if r.get("cli") == "grok"]
+    F["grok_cli_usd"] = usd(sum(map(cost, gk)))
+    aux = defaultdict(float); out_rows = _rows()
+    for src_, _n, _st, r_ in out_rows:
+        if src_ in ("pilot", "pilot-agentic", "rescue", "harness-bias", "trim"): aux[src_] += r_["claude"] or 0
+    F["claude_pilot_usd"] = usd(aux["pilot"] + aux["pilot-agentic"]); F["claude_appendix_usd"] = usd(aux["rescue"] + aux["harness-bias"] + aux["trim"])
+    F["claude_aux_usd"] = usd(sum(aux.values()))
+    pr_ = s["pilot_reprice"]; F["pilot_mult_used"] = "{:g}×".format(float(re.search(r"x([\d.]+) priority", next(r["cost_kind"] for r in load(os.path.join(RES, "2026-10-22-pilot.jsonl")) if "x1" in str(r.get("cost_kind")))).group(1))); F["pilot_usd_15x"] = usd(pr_["usd_at_1_5x"]); F["pilot_usd_2x"] = usd(pr_["usd_at_2x"]); F["pilot_reprice_rows"] = str(pr_["rows"])
+    F["pilot_total_usd"] = usd(sum(r_["usd"] or 0 for src_, _n, _st, r_ in out_rows if src_ == "pilot"))
     for c in NEW_CODEX:
         k = "x_" + c.replace("-", "_"); e, h = ex[c], hard[c]
         F[k + "_k"] = f"{e['passes']}/{e['n']}"; F[k + "_upp"] = usd(e["usd_per_pass"]); F[k + "_med"] = f"{e['latency_s']['median']:.1f}"
@@ -726,7 +770,7 @@ def _facts(s, arms):
     F["x_astra_vs_s61h"] = x(ah["usd_per_pass"], sh["usd_per_pass"])
     need(ah["latency_s"]["median"] < sh["latency_s"]["median"] and ag["astra-medium"]["latency_s"]["median"] < ag["sol61-high"]["latency_s"]["median"], "astra faster than sol61-high")
     F["ag_n"] = str(ag["sol61-high"]["n"]); F["claude_zero"] = usd(0)
-    F["ag_hh_k"] = f"{ag['haiku-high']['hidden_pass']}/{ag['haiku-high']['n']}"; need(ag['haiku-high']['hidden_pass'] == ag['haiku-high']['n'] == ag['haiku-high']['task_complete'], "haiku-high passed every repo task on both rules")
+    F["ag_hh_k"] = mark(ag["haiku-high"]); need(ag['haiku-high']['hidden_pass'] == ag['haiku-high']['n'] == ag['haiku-high']['task_complete'], "haiku-high passed every repo task on both rules")
     F["ag_claude_med"] = f"{statistics.mean(ag[c]['latency_s']['median'] for c in ('haiku-low', 'sonnet-medium')):.0f}"
     ga = arms
     for c in ("sol61-high+haiku-on-fail", "astra-medium+haiku-on-fail"):
@@ -767,7 +811,7 @@ def _facts(s, arms):
         f"Numbers: the {nprob}-problem {configs.set_label('main ladder')}, {hl['n']} tries per config. "
         "Time = median seconds. ~ = estimated from tokens; Claude costs are measured.")
     F['winner_other_routes'] = [
-        f"⚡ = fast mode: same answers, about {F['fm_mult']} list price, faster.",
+        f"⚡ = fast mode: same pass rate, about {F['fm_mult']} list price, faster.",
 ]
     gap = every['haiku-high']['latency_s']['median'] - cfg['sonnet-medium']['latency_s']['median']
     need(gap > 0, "sonnet-medium is faster than the budget pick haiku-high")
@@ -821,11 +865,11 @@ def _facts(s, arms):
     sf, hf = every['sol61-high-fast'], hard['sol61-high-fast']
     need(sf['passes'] == sf['n'] and hf['passes'] == hf['n'], "sol61-high ⚡ passes every main and L7 try")
     F['default_route_scope'] = (f"Tested with plain sol61-high: {F['r_sol61_high_haiku_on_fail_k']} on the "
-                                f"{configs.set_label('rescue set')}. Haiku never ran.")
+                                f"{configs.set_label('rescue set')}, one run; sample tests are a weak gate. Haiku never ran.")
     gain = {m: int(F[f'hb_codex_{m}'].split('/')[0]) - int(F[f'hb_claude_{m}'].split('/')[0]) for m in ('luna_low', 'haiku_low')}
     need(gain['luna_low'] > gain['haiku_low'] > 0, "Codex CLI lifted luna-low more than Claude Code lifted haiku-low")
-    F['hb_conclusion_copy'] = (f"Codex CLI lifted luna-low by {gain['luna_low']} passes. haiku-low gained {gain['haiku_low']}, near its ceiling. "
-                               "No pick changes.")
+    F['hb_conclusion_copy'] = (f"luna-low passed {gain['luna_low']} more on Codex's bench; haiku-low gained {gain['haiku_low']}, near its ceiling. "
+                               "Bench and harness both differ, so the cause is not isolated. No pick changes.")
     F['l7_set_description'] = (f"{configs.set_label('L7 set')}: " + ", ".join(plabel(p) for p in probs)
                                + f"; scored separately. Added after every strong config passed L{max(v['rung'] for v in s['problems'].values())}.")
     return F
@@ -900,11 +944,11 @@ def _tables(s, arms):
     for r in summarize.agentic_rows():
         if not r.get("task_complete", r["visible_pass"] and r["hidden_pass"]): red[r["config"]].append(f"{r['_file']}#{r['key'][:12]}")
     at = [r for r in json.load(open(os.path.join(RES, "agentic_tests.json"))) if r["key"] in selected_keys]
-    T["agentic"] = md_table(["config", "passed our hidden tests", "task complete (hidden and visible pass)", "runs that wrote the requested test file", "test functions added", "median s", "$ per run", "$ kind"],
-                            [[c, f"{v['hidden_pass']}/{v['n']} {RULE_HIDDEN}", f"{v['task_complete']}/{v['n']} {RULE_COMPLETE}{audit_mark(red[c])}", f"{v['own_tests_written']}/{v['n']}",
+    T["agentic"] = md_table(["config", "task complete (hidden alone in brackets)", "runs that wrote the requested test file", "test functions added", "median s", "$ per run", "$ per complete task", "$ kind"],
+                            [[c, f"{v['task_complete']}/{v['n']} complete ({v['hidden_pass']}/{v['n']} hidden){audit_mark(red[c])}", f"{v['own_tests_written']}/{v['n']}",
                               (lambda rr: "no transcripts" if not rr else str(sum(r["test_functions_added"] for r in rr)) if all(r["test_functions_added"] is not None for r in rr)
                                else f"≥{sum(r['test_functions_lower_bound'] for r in rr)}")([r for r in at if r["config"] == c]),
-                              f"{v['latency_s']['median']:.1f}", f"{usd(v['usd_per_run'])}", v["cost_kind"]] for c, v in sorted(ag.items(), key=lambda kv: (kv[1]["usd_per_run"] is None, kv[1]["usd_per_run"] or 0))])
+                              f"{v['latency_s']['median']:.1f}", f"{usd(v['usd_per_run'])}", usd(v["usd_per_pass"]), v["cost_kind"]] for c, v in sorted(ag.items(), key=lambda kv: (kv[1]["usd_per_run"] is None, kv[1]["usd_per_run"] or 0))])
     a = arms
     T["rescue"] = md_table(["config", "passed", "$ per pass", "median s"], [[v["label"], f"{v['passes']}/{v['n']}", f"{usd(v['usd_per_pass'])}", f"{v['median_s']:.1f}"] for v in a.values()])
     pr = s["trim"]["pair"]; lab = {"haiku": "haiku-low, tools off", "luna/base": "luna-low, stock harness", "luna/nofeat": "luna-low, tool features off", "luna/noshell": "luna-low, stripped"}
@@ -1063,7 +1107,7 @@ def _project(ds, summary):
                                       "out_tok": r["tokens_out_mean"], "reasoning_tok": r["tokens_reasoning_mean"]},
                       "by_rung": {g: {"passed": k, "n": n} for g, (k, n) in r["by_rung"].items()}})
             if block == "agentic":
-                v.update(hidden_pass=r["passes"], hidden_pass_rate=r["pass_rate"], usd_per_run=r["usd_per_call"])
+                v.update(hidden_pass=r["hidden_pass"], hidden_pass_rate=round(r["hidden_pass"] / r["n"], 4), usd_per_run=r["usd_per_call"])
             # Additional numeric evidence is retained on the canonical row too.
             r["details"] = {k: v[k] for k in v if k not in ("latency_s", "tokens_mean", "by_rung", "by_group")}
     return summary
@@ -1265,25 +1309,28 @@ def _interesting(ds):
     need(0 < hh["usd_per_pass"] < sh["usd_per_pass"], "haiku-high costs less per pass than sol61-high on the main ladder")
     semi_repo = {c: get(ds, c, "repo tasks", "agentic") for c in
                  ("luna-low", "haiku-low", "haiku-high", "sonnet-medium", "sol61-medium", "sol61-high", "astra-medium")}
-    need(all(semi_repo[c]["passes"] == semi_repo[c]["n"] for c in ("haiku-high", "sol61-high", "luna-low")),
-         "haiku-high, sol61-high and luna-low pass every repo task")
+    need(all(semi_repo[c]["passes"] == semi_repo[c]["n"] for c in semi_repo if c != "luna-low") and semi_repo["luna-low"]["passes"] < semi_repo["luna-low"]["n"],
+         "every repo-task config but luna-low is task complete on every run")
     rh, rs, rl = (semi_repo[c] for c in ("haiku-high", "sol61-high", "luna-low"))
     need(0 < rh["usd_per_pass"] < rs["usd_per_pass"], "haiku-high costs less per pass than sol61-high on repo tasks")
-    need(all(rl["usd_per_pass"] < r["usd_per_pass"] for c, r in semi_repo.items() if c != "luna-low"),
-         "luna-low is the cheapest per pass among all repo-task configs")
+    cheapest = min(semi_repo, key=lambda c: semi_repo[c]["usd_per_pass"])
+    need(cheapest == "haiku-low" and rl["usd_per_call"] < semi_repo["haiku-low"]["usd_per_call"] and rl["usd_per_pass"] > semi_repo["haiku-low"]["usd_per_pass"],
+         "luna-low is cheapest per run but not per complete task; haiku-low is cheapest per complete task")
     main_gap, repo_gap = round(sh["usd_per_pass"] / hh["usd_per_pass"]), round(rs["usd_per_pass"] / rh["usd_per_pass"])
+    F["ag_luna_low_upp"] = usd(rl["usd_per_pass"]); F["ag_haiku_low_upp"] = usd(semi_repo["haiku-low"]["usd_per_pass"])
     F["int_semi"] = (f'<a href="{SEMI_URL}">SemiAnalysis</a>: Anthropic plans give ~5× OpenAI\'s API-priced value at the Opus/Sol tier. '
                      'We price list-rate calls, not plan quotas, so we can’t test that. '
                      f'At list price, haiku-high beats sol61-high ~{main_gap}× per pass; tiers differ. '
                      f'On repo tasks the gap is ~{repo_gap}×. '
-                     'But luna-low was cheapest there and passed every repo task.')
+                     f'luna-low costs least per run, but it completes {rl["passes"]}/{rl["n"]} ({F["ag_hidden_luna_iso_k"]} hidden), '
+                     f'so per complete task haiku-low is cheapest: {F["ag_haiku_low_upp"]} against luna-low\'s {F["ag_luna_low_upp"]}.')
     rp = {c: get(ds, c, "repo tasks", "agentic") for c in ("sol61-high", "astra-medium", "sonnet-medium", "haiku-low")}
     need(all(v["passes"] == v["n"] for v in rp.values()), "all four pass every repo task")
     need(min(rp["sol61-high"]["median_s"], rp["astra-medium"]["median_s"]) > 2 * max(rp["sonnet-medium"]["median_s"], rp["haiku-low"]["median_s"]),
          "both Codex picks take over twice the fast Claude medians on repo tasks")
     F["int_repo"] = (f'On repo edits, sol61-high took {rp["sol61-high"]["median_s"]:.0f} s; astra-medium took {rp["astra-medium"]["median_s"]:.0f} s. '
                      f'sonnet-medium and haiku-low took about {rp["sonnet-medium"]["median_s"]:.0f} s. '
-                     'Both Codex picks took over twice as long. All passed every hidden test.')
+                     'Both Codex picks took over twice as long. All four completed every run.')
     harness_rows = _harness_rows()
     comparisons = {}
     for c in harness_bias.CFGS:
@@ -1424,6 +1471,18 @@ def build(summary=None):
     ds["grok_repository"] = repository_comparison()
     ds["facts"] = _facts(s, arms)
     ds["facts"].update(rule_function=RULE_FUNCTION, rule_hidden=RULE_HIDDEN, rule_complete=RULE_COMPLETE)
+    # Per-config call counts: most configs ran the nominal grid; the exceptions are named from the data, never typed.
+    fr = [r for r in ds["rows"] if r["source"] == "main" and r["set"] in ("main ladder", "partial ladder")]
+    nominal = get(ds, "haiku-low", "main ladder")["n"]
+    odd = [r for r in fr if r["n"] != nominal]
+    ds["facts"]["calls_exceptions"] = "; ".join(f"{r['config']} {r['n']} calls" for r in odd)
+    ds["facts"]["calls_exceptions_why"] = "; ".join(f"{r['config']} {r['n']} calls ({'p01–p06 only' if r['config'] == 'grok47-medium' else 'one repeat' if r['n'] == int(ds['facts']['n_problems']) else 'a partial ladder'})" for r in odd)
+    ds["facts"]["n_configs_all"] = str(len({r["config"] for r in fr if r["config"] not in configs.DEVIN_CONFIGS}))  # model-and-effort configs; the Devin lane runs its default
+    odd_page = [r for r in odd if r["config"] not in configs.GROK_CONFIGS]
+    ds["facts"]["calls_exceptions_page"] = "; ".join(f"{r['config']} {r['n']} calls" for r in odd_page) + ("; the Grok configs are counted in the Grok section" if len(odd_page) != len(odd) else "")
+    hm = [get(ds, "haiku-medium", st) for st in ("main ladder", "L7 set")]
+    ds["facts"]["hm_all_k"] = f"{sum(r['passes'] for r in hm)}/{sum(r['n'] for r in hm)}"
+    ds["facts"]["hm_main_k"] = f"{hm[0]['passes']}/{hm[0]['n']}"
     ds["annotations"] = annotations()
     ds["facts"]["audit_footnote"] = audit_footnote([x for r in ds["rows"] for x in r.get("red_runs", [])] + [x for v in ds["grok_repository"].get("metrics", {}).values() for x in v["red_runs"]])
     assert configs.PASS_FLOORS[-1] == MIN_PASS
@@ -1446,7 +1505,7 @@ def build(summary=None):
         ds["facts"]["grok_scope"] = (
             f"Same-problem comparisons use {probs[0][:3]}–{probs[-1][:3]} ({len(probs)} of {len(s['problems'])} problems), "
             "main + exploratory phases only. Warmup, calibration, fastmode, escalation and hard phases are excluded. "
-            "Grok has small n and was not run past " + f"L{last}, so cleared L{last} is a floor. "
+            "In this first run Grok was run only through " + f"L{last}, so cleared L{last} is a floor here; the full-ladder runs above go to L{max(v['rung'] for v in s['problems'].values())} (only grok47-medium stays on {probs[0][:3]}–{probs[-1][:3]}). "
             "CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier.")
         ds["facts"]["grok_match_rule"] = (
             f"A lane is comparable when it clears the same rungs and first misses at the same rung on the {len(s['problems'])}-problem "
@@ -1519,7 +1578,8 @@ def view(ds):
 # Where a fact comes from, by key prefix: the jsonl files (or the design table) its number is computed from. Coarse on purpose:
 # every fact is built by analysis.dataset from the rows below, and the prefix names the run files those rows come from.
 FACT_SOURCES = (
-    ("d_", None), ("ag_", "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"),
+    ("d_", None), ("audit_", "audit session forensics (stage2b/FORENSICS.md), pending results/annotations.json"),
+    ("grok_cli_", "results/*grok*.jsonl, CLI-reported cost"), ("ag_", "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"),
     ("grok_", "results/2026-10-26-grok-function.jsonl + results/2026-10-28-grok-spectrum-function.jsonl + results/2026-10-27-grok-agentic.jsonl"),
     ("devin_", "results/2026-10-28-devin-function.jsonl"), ("fm_", "rows main/*-fast and their default-tier twins (results/2026-10-22b-function.jsonl)"),
     ("ff_", "rows main/*-fast and their default-tier twins (results/2026-10-22b-function.jsonl)"),

@@ -10122,9 +10122,10 @@
    ],
    "usd_saved_per_pass": 0.0,
    "usd_per_1k_tokens": 7.607831370489835e-05,
-   "rule": "hidden tests",
+   "rule": "task_complete",
+   "hidden_pass": 12,
+   "hidden_rule": "hidden tests",
    "task_complete": 12,
-   "task_complete_rule": "task_complete",
    "red_runs": [],
    "by_rung": {},
    "cost_kind": "measured",
@@ -10271,9 +10272,10 @@
    ],
    "usd_saved_per_pass": 0.0,
    "usd_per_1k_tokens": 6.549405462903165e-05,
-   "rule": "hidden tests",
+   "rule": "task_complete",
+   "hidden_pass": 12,
+   "hidden_rule": "hidden tests",
    "task_complete": 12,
-   "task_complete_rule": "task_complete",
    "red_runs": [],
    "by_rung": {},
    "cost_kind": "measured",
@@ -10420,9 +10422,10 @@
    ],
    "usd_saved_per_pass": 0.0,
    "usd_per_1k_tokens": 0.00165935866909923,
-   "rule": "hidden tests",
+   "rule": "task_complete",
+   "hidden_pass": 12,
+   "hidden_rule": "hidden tests",
    "task_complete": 12,
-   "task_complete_rule": "task_complete",
    "red_runs": [],
    "by_rung": {},
    "cost_kind": "measured",
@@ -10518,14 +10521,17 @@
    "files": [
     "results/2026-10-25-isolated-agentic.jsonl"
    ],
-   "passes": 12,
+   "passes": 7,
    "n": 12,
-   "pass_rate": 1.0,
-   "ci95": null,
+   "pass_rate": 0.5833,
+   "ci95": [
+    0.25,
+    0.9167
+   ],
    "groups": 4,
-   "usd_per_pass": 0.003257,
+   "usd_per_pass": 0.005583,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.003257,
+   "codex_usd_per_pass": 0.005583,
    "usd_per_call": 0.003257,
    "spend": 0.039078,
    "spend_claude": 0.0,
@@ -10546,15 +10552,15 @@
    "max_s": 72.15,
    "by_group": {
     "t1_discount": {
-     "passes": 3,
+     "passes": 2,
      "n": 3
     },
     "t2_cache_bugs": {
-     "passes": 3,
+     "passes": 1,
      "n": 3
     },
     "t3_config_refs": {
-     "passes": 3,
+     "passes": 1,
      "n": 3
     },
     "t4_retry_queue": {
@@ -10562,16 +10568,17 @@
      "n": 3
     }
    },
-   "misses": 0,
+   "misses": 5,
    "ci95_plot": [
-    0.4728708045015879,
-    1.0
+    0.25,
+    0.9167
    ],
-   "usd_saved_per_pass": 0.003257,
+   "usd_saved_per_pass": 0.005583,
    "usd_per_1k_tokens": 2.593090929356783e-05,
-   "rule": "hidden tests",
+   "rule": "task_complete",
+   "hidden_pass": 12,
+   "hidden_rule": "hidden tests",
    "task_complete": 7,
-   "task_complete_rule": "task_complete",
    "red_runs": [
     "results/2026-10-25-isolated-agentic.jsonl#40e6bd7e45b6",
     "results/2026-10-25-isolated-agentic.jsonl#72801917c5d1",
@@ -10590,8 +10597,8 @@
     "hidden_pass": 12,
     "hidden_pass_rate": 1.0,
     "ci95": [
-     1.0,
-     1.0
+     0.25,
+     0.9167
     ],
     "visible_pass": 7,
     "task_complete": 7,
@@ -10645,18 +10652,18 @@
     "usd_total": 0.039078,
     "usd_per_hidden_pass": 0.00326,
     "cost_kind": "proxy",
-    "passes": 12,
-    "pass_at_1": 1.0,
-    "misses": 0,
+    "passes": 7,
+    "pass_at_1": 0.5833,
+    "misses": 5,
     "ci95_plot": [
-     0.4728708045015879,
-     1.0
+     0.25,
+     0.9167
     ],
-    "usd_per_pass": 0.003257,
-    "usd_text": "$0.0033",
+    "usd_per_pass": 0.005583,
+    "usd_text": "$0.0056",
     "usd_per_call": 0.003257,
     "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.003257,
+    "usd_saved_per_pass": 0.005583,
     "usd_per_1k_tokens": 2.593090929356783e-05
    }
   },
@@ -10724,9 +10731,10 @@
    ],
    "usd_saved_per_pass": 0.079403,
    "usd_per_1k_tokens": 0.00038633477514122096,
-   "rule": "hidden tests",
+   "rule": "task_complete",
+   "hidden_pass": 12,
+   "hidden_rule": "hidden tests",
    "task_complete": 12,
-   "task_complete_rule": "task_complete",
    "red_runs": [],
    "by_rung": {},
    "cost_kind": "proxy",
@@ -10873,9 +10881,10 @@
    ],
    "usd_saved_per_pass": 0.097282,
    "usd_per_1k_tokens": 0.0004084921624697143,
-   "rule": "hidden tests",
+   "rule": "task_complete",
+   "hidden_pass": 12,
+   "hidden_rule": "hidden tests",
    "task_complete": 12,
-   "task_complete_rule": "task_complete",
    "red_runs": [],
    "by_rung": {},
    "cost_kind": "proxy",
@@ -11022,9 +11031,10 @@
    ],
    "usd_saved_per_pass": 0.445754,
    "usd_per_1k_tokens": 0.002297890547674035,
-   "rule": "hidden tests",
+   "rule": "task_complete",
+   "hidden_pass": 12,
+   "hidden_rule": "hidden tests",
    "task_complete": 12,
-   "task_complete_rule": "task_complete",
    "red_runs": [],
    "by_rung": {},
    "cost_kind": "proxy",
@@ -11737,13 +11747,13 @@
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 3,
-   "usd_per_pass": 0.037513,
+   "usd_per_pass": 0.068194,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.037513,
-   "usd_per_call": 0.037513,
-   "spend": 0.375133,
+   "codex_usd_per_pass": 0.068194,
+   "usd_per_call": 0.068194,
+   "spend": 0.68194,
    "spend_claude": 0.0,
-   "spend_codex": 0.375133,
+   "spend_codex": 0.68194,
    "unknown_usd": 0,
    "median_s": 4.71,
    "p25_s": 4.33,
@@ -11777,8 +11787,8 @@
     0.3684031498640387,
     1.0
    ],
-   "usd_saved_per_pass": 0.037513,
-   "usd_per_1k_tokens": 0.0013298709585933069,
+   "usd_saved_per_pass": 0.068194,
+   "usd_per_1k_tokens": 0.0024175411230856494,
    "rule": "function tests (reference + brute force)",
    "by_rung": {},
    "cost_kind": "proxy"
@@ -11801,13 +11811,13 @@
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 3,
-   "usd_per_pass": 0.029756,
+   "usd_per_pass": 0.052707,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.029756,
-   "usd_per_call": 0.029756,
-   "spend": 0.297558,
+   "codex_usd_per_pass": 0.052707,
+   "usd_per_call": 0.052707,
+   "spend": 0.527071,
    "spend_claude": 0.0,
-   "spend_codex": 0.297558,
+   "spend_codex": 0.527071,
    "unknown_usd": 0,
    "median_s": 5.36,
    "p25_s": 4.91,
@@ -11841,8 +11851,8 @@
     0.3684031498640387,
     1.0
    ],
-   "usd_saved_per_pass": 0.029756,
-   "usd_per_1k_tokens": 0.001047267096047584,
+   "usd_saved_per_pass": 0.052707,
+   "usd_per_1k_tokens": 0.0018550311477140743,
    "rule": "function tests (reference + brute force)",
    "by_rung": {},
    "cost_kind": "proxy"
@@ -11865,13 +11875,13 @@
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 3,
-   "usd_per_pass": 0.118902,
+   "usd_per_pass": 0.237804,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.118902,
-   "usd_per_call": 0.118902,
-   "spend": 1.070118,
+   "codex_usd_per_pass": 0.237804,
+   "usd_per_call": 0.237804,
+   "spend": 2.140236,
    "spend_claude": 0.0,
-   "spend_codex": 1.070118,
+   "spend_codex": 2.140236,
    "unknown_usd": 0,
    "median_s": 5.62,
    "p25_s": 4.89,
@@ -11905,8 +11915,8 @@
     0.3684031498640387,
     1.0
    ],
-   "usd_saved_per_pass": 0.118902,
-   "usd_per_1k_tokens": 0.004854529865675907,
+   "usd_saved_per_pass": 0.237804,
+   "usd_per_1k_tokens": 0.009709059731351813,
    "rule": "function tests (reference + brute force)",
    "by_rung": {},
    "cost_kind": "proxy"
@@ -11929,13 +11939,13 @@
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 6,
-   "usd_per_pass": 0.001056,
+   "usd_per_pass": 0.002112,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.001056,
-   "usd_per_call": 0.001056,
-   "spend": 0.019012,
+   "codex_usd_per_pass": 0.002112,
+   "usd_per_call": 0.002112,
+   "spend": 0.038023,
    "spend_claude": 0.0,
-   "spend_codex": 0.019012,
+   "spend_codex": 0.038023,
    "unknown_usd": 0,
    "median_s": 4.36,
    "p25_s": 4.13,
@@ -11981,8 +11991,8 @@
     0.6069622310029172,
     1.0
    ],
-   "usd_saved_per_pass": 0.001056,
-   "usd_per_1k_tokens": 4.4202595228128926e-05,
+   "usd_saved_per_pass": 0.002112,
+   "usd_per_1k_tokens": 8.840519045625785e-05,
    "rule": "function tests (reference + brute force)",
    "by_rung": {},
    "cost_kind": "proxy"
@@ -12069,13 +12079,13 @@
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 3,
-   "usd_per_pass": 0.001199,
+   "usd_per_pass": 0.002398,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.001199,
-   "usd_per_call": 0.001199,
-   "spend": 0.010791,
+   "codex_usd_per_pass": 0.002398,
+   "usd_per_call": 0.002398,
+   "spend": 0.021583,
    "spend_claude": 0.0,
-   "spend_codex": 0.010791,
+   "spend_codex": 0.021583,
    "unknown_usd": 0,
    "median_s": 4.76,
    "p25_s": 4.45,
@@ -12109,8 +12119,8 @@
     0.3684031498640387,
     1.0
    ],
-   "usd_saved_per_pass": 0.001199,
-   "usd_per_1k_tokens": 5.0228310502283106e-05,
+   "usd_saved_per_pass": 0.002398,
+   "usd_per_1k_tokens": 0.00010045662100456621,
    "rule": "function tests (reference + brute force)",
    "by_rung": {},
    "cost_kind": "proxy"
@@ -12133,13 +12143,13 @@
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 3,
-   "usd_per_pass": 0.024279,
+   "usd_per_pass": 0.048557,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.024279,
-   "usd_per_call": 0.024279,
-   "spend": 0.218508,
+   "codex_usd_per_pass": 0.048557,
+   "usd_per_call": 0.048557,
+   "spend": 0.437016,
    "spend_claude": 0.0,
-   "spend_codex": 0.218508,
+   "spend_codex": 0.437016,
    "unknown_usd": 0,
    "median_s": 4.76,
    "p25_s": 4.2,
@@ -12173,8 +12183,8 @@
     0.3684031498640387,
     1.0
    ],
-   "usd_saved_per_pass": 0.024279,
-   "usd_per_1k_tokens": 0.0010257721069753685,
+   "usd_saved_per_pass": 0.048557,
+   "usd_per_1k_tokens": 0.00205150196459504,
    "rule": "function tests (reference + brute force)",
    "by_rung": {},
    "cost_kind": "proxy"
@@ -12197,13 +12207,13 @@
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 3,
-   "usd_per_pass": 0.01249,
+   "usd_per_pass": 0.02498,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.01249,
-   "usd_per_call": 0.01249,
-   "spend": 0.112409,
+   "codex_usd_per_pass": 0.02498,
+   "usd_per_call": 0.02498,
+   "spend": 0.224818,
    "spend_claude": 0.0,
-   "spend_codex": 0.112409,
+   "spend_codex": 0.224818,
    "unknown_usd": 0,
    "median_s": 4.78,
    "p25_s": 4.5,
@@ -12237,8 +12247,8 @@
     0.3684031498640387,
     1.0
    ],
-   "usd_saved_per_pass": 0.01249,
-   "usd_per_1k_tokens": 0.0005194643154217268,
+   "usd_saved_per_pass": 0.02498,
+   "usd_per_1k_tokens": 0.0010389286308434536,
    "rule": "function tests (reference + brute force)",
    "by_rung": {},
    "cost_kind": "proxy"
@@ -12261,13 +12271,13 @@
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 3,
-   "usd_per_pass": 0.034518,
+   "usd_per_pass": 0.069036,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.034518,
-   "usd_per_call": 0.034518,
-   "spend": 0.310661,
+   "codex_usd_per_pass": 0.069036,
+   "usd_per_call": 0.069036,
+   "spend": 0.621322,
    "spend_claude": 0.0,
-   "spend_codex": 0.310661,
+   "spend_codex": 0.621322,
    "unknown_usd": 0,
    "median_s": 5.15,
    "p25_s": 4.94,
@@ -12301,8 +12311,8 @@
     0.3684031498640387,
     1.0
    ],
-   "usd_saved_per_pass": 0.034518,
-   "usd_per_1k_tokens": 0.0012149947201689547,
+   "usd_saved_per_pass": 0.069036,
+   "usd_per_1k_tokens": 0.0024299894403379094,
    "rule": "function tests (reference + brute force)",
    "by_rung": {},
    "cost_kind": "proxy"
@@ -13385,13 +13395,13 @@
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 3,
-   "usd_per_pass": 0.01536,
+   "usd_per_pass": 0.03072,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.01536,
-   "usd_per_call": 0.01536,
-   "spend": 0.13824,
+   "codex_usd_per_pass": 0.03072,
+   "usd_per_call": 0.03072,
+   "spend": 0.276481,
    "spend_claude": 0.0,
-   "spend_codex": 0.13824,
+   "spend_codex": 0.276481,
    "unknown_usd": 0,
    "median_s": 5.4,
    "p25_s": 5.11,
@@ -13425,8 +13435,8 @@
     0.3684031498640387,
     1.0
    ],
-   "usd_saved_per_pass": 0.01536,
-   "usd_per_1k_tokens": 0.001048535736227729,
+   "usd_saved_per_pass": 0.03072,
+   "usd_per_1k_tokens": 0.002097071472455458,
    "rule": "function tests (reference + brute force)",
    "by_rung": {},
    "cost_kind": "proxy"
@@ -19248,7 +19258,7 @@
   },
   "pilot": {
    "n_configs": 19,
-   "spend": 3.5981069999999997
+   "spend": 5.875926
   },
   "harness-bias": {
    "n_configs": 5,
@@ -19256,7 +19266,7 @@
   },
   "low context": {
    "n_configs": 17,
-   "spend": 0.820553
+   "spend": 0.958794
   }
  },
  "report": {
@@ -26318,8 +26328,8 @@
     "hidden_pass": 12,
     "hidden_pass_rate": 1.0,
     "ci95": [
-     1.0,
-     1.0
+     0.25,
+     0.9167
     ],
     "visible_pass": 7,
     "task_complete": 7,
@@ -26386,30 +26396,30 @@
     "usd_total": 0.039078,
     "usd_per_hidden_pass": 0.00326,
     "cost_kind": "proxy",
-    "passes": 12,
-    "pass_at_1": 1.0,
-    "misses": 0,
+    "passes": 7,
+    "pass_at_1": 0.5833,
+    "misses": 5,
     "ci95_plot": [
-     0.4728708045015879,
-     1.0
+     0.25,
+     0.9167
     ],
-    "usd_per_pass": 0.003257,
-    "usd_text": "$0.0033",
+    "usd_per_pass": 0.005583,
+    "usd_text": "$0.0056",
     "usd_per_call": 0.003257,
     "claude_usd_per_pass": 0.0,
-    "usd_saved_per_pass": 0.003257,
+    "usd_saved_per_pass": 0.005583,
     "usd_per_1k_tokens": 2.593090929356783e-05,
     "by_group": {
      "t1_discount": {
-      "passes": 3,
+      "passes": 2,
       "n": 3
      },
      "t2_cache_bugs": {
-      "passes": 3,
+      "passes": 1,
       "n": 3
      },
      "t3_config_refs": {
-      "passes": 3,
+      "passes": 1,
       "n": 3
      },
      "t4_retry_queue": {
@@ -28559,12 +28569,6 @@
    "display": "$37.73",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
-  "codex_usd_rounded": {
-   "value": 38,
-   "unit": "usd",
-   "display": "$38",
-   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
-  },
   "agentic_fast_caption": {
    "value": "No ⚡ repo-task data",
    "unit": "text",
@@ -29472,9 +29476,9 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "ag_k": {
-   "value": "12/12",
-   "unit": "k/n",
-   "display": "12/12",
+   "value": "7/12 complete (12/12 hidden)",
+   "unit": "text",
+   "display": "7/12 complete (12/12 hidden)",
    "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
   },
   "ag_runs": {
@@ -29484,16 +29488,22 @@
    "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
   },
   "ag_hidden_rule": {
-   "value": "passed our hidden tests",
+   "value": "hidden = our hidden suite only",
    "unit": "text",
-   "display": "passed our hidden tests",
+   "display": "hidden = our hidden suite only",
    "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
   },
   "ag_complete_rule": {
-   "value": "task complete: hidden and visible tests both pass",
+   "value": "complete = hidden and the run's own visible suite both green",
    "unit": "text",
-   "display": "task complete: hidden and visible tests both pass",
+   "display": "complete = hidden and the run's own visible suite both green",
    "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
+  },
+  "repo_legend": {
+   "value": "complete = hidden and the run's own visible suite both green; hidden = our hidden suite only",
+   "unit": "text",
+   "display": "complete = hidden and the run's own visible suite both green; hidden = our hidden suite only",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "ag_tc_luna_orig_k": {
    "value": "11/12",
@@ -29505,6 +29515,24 @@
    "value": "7/12",
    "unit": "k/n",
    "display": "7/12",
+   "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
+  },
+  "ag_hidden_luna_iso_k": {
+   "value": "12/12",
+   "unit": "k/n",
+   "display": "12/12",
+   "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
+  },
+  "ag_mark_luna_orig": {
+   "value": "11/12 complete (12/12 hidden)",
+   "unit": "text",
+   "display": "11/12 complete (12/12 hidden)",
+   "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
+  },
+  "ag_mark_luna_iso": {
+   "value": "7/12 complete (12/12 hidden)",
+   "unit": "text",
+   "display": "7/12 complete (12/12 hidden)",
    "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
   },
   "ag_tc_luna_miss_orig": {
@@ -29537,6 +29565,18 @@
    "display": "5",
    "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
   },
+  "ag_red_runs_all": {
+   "value": 6,
+   "unit": "count",
+   "display": "6",
+   "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
+  },
+  "ag_red_cases_iso": {
+   "value": 6,
+   "unit": "count",
+   "display": "6",
+   "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
+  },
   "ag_tc_all_k": {
    "value": "12/12",
    "unit": "k/n",
@@ -29544,9 +29584,45 @@
    "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
   },
   "ag_tc_line": {
-   "value": "task complete: hidden and visible tests both pass: luna-low 11/12 in the original run and 7/12 in the clean-home rerun the page uses; every other config completes every run",
+   "value": "complete = hidden and the run's own visible suite both green: luna-low 11/12 complete (12/12 hidden) in the original run and 7/12 complete (12/12 hidden) in the clean-home rerun the page uses; every other config completes every run",
    "unit": "text",
-   "display": "task complete: hidden and visible tests both pass: luna-low 11/12 in the original run and 7/12 in the clean-home rerun the page uses; every other config completes every run",
+   "display": "complete = hidden and the run's own visible suite both green: luna-low 11/12 complete (12/12 hidden) in the original run and 7/12 complete (12/12 hidden) in the clean-home rerun the page uses; every other config completes every run",
+   "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
+  },
+  "ag_red_added_cases": {
+   "value": 6,
+   "unit": "count",
+   "display": "6",
+   "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
+  },
+  "ag_tampered_runs": {
+   "value": 0,
+   "unit": "count",
+   "display": "0",
+   "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
+  },
+  "audit_wrong_tests": {
+   "value": 5,
+   "unit": "count",
+   "display": "5",
+   "source": "audit session forensics (stage2b/FORENSICS.md), pending results/annotations.json"
+  },
+  "audit_wrong_code": {
+   "value": 1,
+   "unit": "count",
+   "display": "1",
+   "source": "audit session forensics (stage2b/FORENSICS.md), pending results/annotations.json"
+  },
+  "audit_red_total": {
+   "value": 6,
+   "unit": "count",
+   "display": "6",
+   "source": "audit session forensics (stage2b/FORENSICS.md), pending results/annotations.json"
+  },
+  "ag_why_red": {
+   "value": "All 6 failing tests in the 5 clean-home red runs are tests luna-low itself added, none a shipped test, and 0 runs edited the shipped tests. The audit reads 5 of the 6 red runs (clean-home and original) as wrong tests (the cache tests insert both entries at the same time, so both expire; the config tests expect behaviour the task does not ask for) and 1 as wrong code that the hidden suite missed (t1_discount accepts a boolean percentage; see the stricter-suite regrade below). The classification is still under audit until results/annotations.json carries the labels.",
+   "unit": "text",
+   "display": "All 6 failing tests in the 5 clean-home red runs are tests luna-low itself added, none a shipped test, and 0 runs edited the shipped tests. The audit reads 5 of the 6 red runs (clean-home and original) as wrong tests (the cache tests insert both entries at the same time, so both expire; the config tests expect behaviour the task does not ask for) and 1 as wrong code that the hidden suite missed (t1_discount accepts a boolean percentage; see the stricter-suite regrade below). The classification is still under audit until results/annotations.json carries the labels.",
    "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
   },
   "ag_astra_medium_usd": {
@@ -29814,9 +29890,9 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "worst_failure": {
-   "value": "p12 sheet (L6) has misses in 9 of 18 configs",
+   "value": "p12 sheet (L6) has misses in 9 of 18 full-ladder Claude and Codex configs",
    "unit": "text",
-   "display": "p12 sheet (L6) has misses in 9 of 18 configs",
+   "display": "p12 sheet (L6) has misses in 9 of 18 full-ladder Claude and Codex configs",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "hl_main_timeouts": {
@@ -31031,12 +31107,6 @@
    "display": "$17.52",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
-  "codex_old_usd": {
-   "value": 3.92,
-   "unit": "usd",
-   "display": "$3.92",
-   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
-  },
   "ff_usd": {
    "value": 12.88,
    "unit": "usd",
@@ -31047,6 +31117,96 @@
    "value": 16.28,
    "unit": "usd",
    "display": "$16.28",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "codex_orig_usd": {
+   "value": 1.46,
+   "unit": "usd",
+   "display": "$1.46",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "codex_rerun_usd": {
+   "value": 0.99,
+   "unit": "usd",
+   "display": "$0.99",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "codex_terra_usd": {
+   "value": 1.46,
+   "unit": "usd",
+   "display": "$1.46",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "codex_rerun_date": {
+   "value": "2026-10-25",
+   "unit": "text",
+   "display": "2026-10-25",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "terra_dates": {
+   "value": "2026-10-27 and 2026-10-28",
+   "unit": "text",
+   "display": "2026-10-27 and 2026-10-28",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "date_last": {
+   "value": "2026-10-28",
+   "unit": "text",
+   "display": "2026-10-28",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "grok_cli_usd": {
+   "value": 28.16,
+   "unit": "usd",
+   "display": "$28.16",
+   "source": "results/*grok*.jsonl, CLI-reported cost"
+  },
+  "claude_pilot_usd": {
+   "value": 0.76,
+   "unit": "usd",
+   "display": "$0.76",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "claude_appendix_usd": {
+   "value": 0.96,
+   "unit": "usd",
+   "display": "$0.96",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "claude_aux_usd": {
+   "value": 1.72,
+   "unit": "usd",
+   "display": "$1.72",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "pilot_mult_used": {
+   "value": 1.5,
+   "unit": "ratio",
+   "display": "1.5×",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "pilot_usd_15x": {
+   "value": 3.52,
+   "unit": "usd",
+   "display": "$3.52",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "pilot_usd_2x": {
+   "value": 4.69,
+   "unit": "usd",
+   "display": "$4.69",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "pilot_reprice_rows": {
+   "value": 83,
+   "unit": "count",
+   "display": "83",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "pilot_total_usd": {
+   "value": 6.1,
+   "unit": "usd",
+   "display": "$6.10",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "x_sol61_high_k": {
@@ -31374,9 +31534,9 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "ag_hh_k": {
-   "value": "12/12",
-   "unit": "k/n",
-   "display": "12/12",
+   "value": "12/12 complete (12/12 hidden)",
+   "unit": "text",
+   "display": "12/12 complete (12/12 hidden)",
    "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
   },
   "ag_claude_med": {
@@ -31477,11 +31637,11 @@
   },
   "winner_other_routes": {
    "value": [
-    "⚡ = fast mode: same answers, about 2× list price, faster."
+    "⚡ = fast mode: same pass rate, about 2× list price, faster."
    ],
    "unit": "list",
    "display": [
-    "⚡ = fast mode: same answers, about 2× list price, faster."
+    "⚡ = fast mode: same pass rate, about 2× list price, faster."
    ],
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
@@ -31600,15 +31760,15 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "default_route_scope": {
-   "value": "Tested with plain sol61-high: 35/35 on the retest set. Haiku never ran.",
+   "value": "Tested with plain sol61-high: 35/35 on the retest set, one run; sample tests are a weak gate. Haiku never ran.",
    "unit": "text",
-   "display": "Tested with plain sol61-high: 35/35 on the retest set. Haiku never ran.",
+   "display": "Tested with plain sol61-high: 35/35 on the retest set, one run; sample tests are a weak gate. Haiku never ran.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "hb_conclusion_copy": {
-   "value": "Codex CLI lifted luna-low by 11 passes. haiku-low gained 3, near its ceiling. No pick changes.",
+   "value": "luna-low passed 11 more on Codex's bench; haiku-low gained 3, near its ceiling. Bench and harness both differ, so the cause is not isolated. No pick changes.",
    "unit": "text",
-   "display": "Codex CLI lifted luna-low by 11 passes. haiku-low gained 3, near its ceiling. No pick changes.",
+   "display": "luna-low passed 11 more on Codex's bench; haiku-low gained 3, near its ceiling. Bench and harness both differ, so the cause is not isolated. No pick changes.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "l7_set_description": {
@@ -31635,11 +31795,47 @@
    "display": "task_complete",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
+  "calls_exceptions": {
+   "value": "terra56-low 12 calls; terra56-high 12 calls; grok47-medium 21 calls; devin16slow-default 12 calls; sol61-xhigh 35 calls",
+   "unit": "text",
+   "display": "terra56-low 12 calls; terra56-high 12 calls; grok47-medium 21 calls; devin16slow-default 12 calls; sol61-xhigh 35 calls",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "calls_exceptions_why": {
+   "value": "terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); sol61-xhigh 35 calls (a partial ladder)",
+   "unit": "text",
+   "display": "terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); sol61-xhigh 35 calls (a partial ladder)",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "n_configs_all": {
+   "value": 25,
+   "unit": "count",
+   "display": "25",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "calls_exceptions_page": {
+   "value": "terra56-low 12 calls; terra56-high 12 calls; devin16slow-default 12 calls; sol61-xhigh 35 calls; the Grok configs are counted in the Grok section",
+   "unit": "text",
+   "display": "terra56-low 12 calls; terra56-high 12 calls; devin16slow-default 12 calls; sol61-xhigh 35 calls; the Grok configs are counted in the Grok section",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "hm_all_k": {
+   "value": "72/75",
+   "unit": "k/n",
+   "display": "72/75",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
+  "hm_main_k": {
+   "value": "59/60",
+   "unit": "k/n",
+   "display": "59/60",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
   "audit_footnote": {
    "value": "Red-suite runs (task_complete false) that the audit session has not labelled show 'under audit' beside their cells. Counts are raw: no run is dropped or reclassified until the audit labels it in results/annotations.json.",
    "unit": "text",
    "display": "Red-suite runs (task_complete false) that the audit session has not labelled show 'under audit' beside their cells. Counts are raw: no run is dropped or reclassified until the audit labels it in results/annotations.json.",
-   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+   "source": "audit session forensics (stage2b/FORENSICS.md), pending results/annotations.json"
   },
   "d_brute_inputs": {
    "value": 2000,
@@ -31738,9 +31934,9 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "grok_summary": {
-   "value": "Grok is accurate but slow and mid-priced. grok47-high passed 18 of 18 but took 41 s per call at the median. Every existing lane at 100% finished in 6.9 to 16.9 s.\n\ngrok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4), so the pre-registered stop rule fired for all three.\n\nCost per pass is $0.054 to $0.111. Claude haiku and the Codex luna lanes are under $0.003. Only the Codex astra lanes cost as much.",
+   "value": "In the first run (p01–p06 only), Grok was accurate but slow and mid-priced. grok47-high passed 18 of 18 but took 41 s per call at the median. Every existing lane at 100% finished in 6.9 to 16.9 s.\n\nIn this first run, grok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4), so the pre-registered stop rule fired for all three; the full run above supersedes it.\n\nIn this first run, cost per pass was $0.054 to $0.111. Claude haiku and the Codex luna lanes are under $0.003. Only the Codex astra lanes cost as much.",
    "unit": "text",
-   "display": "Grok is accurate but slow and mid-priced. grok47-high passed 18 of 18 but took 41 s per call at the median. Every existing lane at 100% finished in 6.9 to 16.9 s.\n\ngrok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4), so the pre-registered stop rule fired for all three.\n\nCost per pass is $0.054 to $0.111. Claude haiku and the Codex luna lanes are under $0.003. Only the Codex astra lanes cost as much.",
+   "display": "In the first run (p01–p06 only), Grok was accurate but slow and mid-priced. grok47-high passed 18 of 18 but took 41 s per call at the median. Every existing lane at 100% finished in 6.9 to 16.9 s.\n\nIn this first run, grok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4), so the pre-registered stop rule fired for all three; the full run above supersedes it.\n\nIn this first run, cost per pass was $0.054 to $0.111. Claude haiku and the Codex luna lanes are under $0.003. Only the Codex astra lanes cost as much.",
    "source": "results/2026-10-26-grok-function.jsonl + results/2026-10-28-grok-spectrum-function.jsonl + results/2026-10-27-grok-agentic.jsonl"
   },
   "grok_verdict": {
@@ -31756,9 +31952,9 @@
    "source": "results/2026-10-26-grok-function.jsonl + results/2026-10-28-grok-spectrum-function.jsonl + results/2026-10-27-grok-agentic.jsonl"
   },
   "grok_scope": {
-   "value": "Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory phases only. Warmup, calibration, fastmode, escalation and hard phases are excluded. Grok has small n and was not run past L3, so cleared L3 is a floor. CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier.",
+   "value": "Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory phases only. Warmup, calibration, fastmode, escalation and hard phases are excluded. In this first run Grok was run only through L3, so cleared L3 is a floor here; the full-ladder runs above go to L6 (only grok47-medium stays on p01–p06). CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier.",
    "unit": "text",
-   "display": "Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory phases only. Warmup, calibration, fastmode, escalation and hard phases are excluded. Grok has small n and was not run past L3, so cleared L3 is a floor. CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier.",
+   "display": "Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory phases only. Warmup, calibration, fastmode, escalation and hard phases are excluded. In this first run Grok was run only through L3, so cleared L3 is a floor here; the full-ladder runs above go to L6 (only grok47-medium stays on p01–p06). CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier.",
    "source": "results/2026-10-26-grok-function.jsonl + results/2026-10-28-grok-spectrum-function.jsonl + results/2026-10-27-grok-agentic.jsonl"
   },
   "grok_match_rule": {
@@ -31929,16 +32125,28 @@
    "display": "luna-low is cheaper per pass than haiku-low: ~$0.00090 to $0.0011. But it passes 77% to 95%.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
+  "ag_luna_low_upp": {
+   "value": 0.0056,
+   "unit": "usd",
+   "display": "$0.0056",
+   "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
+  },
+  "ag_haiku_low_upp": {
+   "value": 0.0051,
+   "unit": "usd",
+   "display": "$0.0051",
+   "source": "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"
+  },
   "int_semi": {
-   "value": "<a href=\"https://newsletter.semianalysis.com/p/anthropic-subscriptions-offer-5x\">SemiAnalysis</a>: Anthropic plans give ~5× OpenAI's API-priced value at the Opus/Sol tier. We price list-rate calls, not plan quotas, so we can’t test that. At list price, haiku-high beats sol61-high ~7× per pass; tiers differ. On repo tasks the gap is ~8×. But luna-low was cheapest there and passed every repo task.",
+   "value": "<a href=\"https://newsletter.semianalysis.com/p/anthropic-subscriptions-offer-5x\">SemiAnalysis</a>: Anthropic plans give ~5× OpenAI's API-priced value at the Opus/Sol tier. We price list-rate calls, not plan quotas, so we can’t test that. At list price, haiku-high beats sol61-high ~7× per pass; tiers differ. On repo tasks the gap is ~8×. luna-low costs least per run, but it completes 7/12 (12/12 hidden), so per complete task haiku-low is cheapest: $0.0051 against luna-low's $0.0056.",
    "unit": "text",
-   "display": "<a href=\"https://newsletter.semianalysis.com/p/anthropic-subscriptions-offer-5x\">SemiAnalysis</a>: Anthropic plans give ~5× OpenAI's API-priced value at the Opus/Sol tier. We price list-rate calls, not plan quotas, so we can’t test that. At list price, haiku-high beats sol61-high ~7× per pass; tiers differ. On repo tasks the gap is ~8×. But luna-low was cheapest there and passed every repo task.",
+   "display": "<a href=\"https://newsletter.semianalysis.com/p/anthropic-subscriptions-offer-5x\">SemiAnalysis</a>: Anthropic plans give ~5× OpenAI's API-priced value at the Opus/Sol tier. We price list-rate calls, not plan quotas, so we can’t test that. At list price, haiku-high beats sol61-high ~7× per pass; tiers differ. On repo tasks the gap is ~8×. luna-low costs least per run, but it completes 7/12 (12/12 hidden), so per complete task haiku-low is cheapest: $0.0051 against luna-low's $0.0056.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "int_repo": {
-   "value": "On repo edits, sol61-high took 118 s; astra-medium took 66 s. sonnet-medium and haiku-low took about 28 s. Both Codex picks took over twice as long. All passed every hidden test.",
+   "value": "On repo edits, sol61-high took 118 s; astra-medium took 66 s. sonnet-medium and haiku-low took about 28 s. Both Codex picks took over twice as long. All four completed every run.",
    "unit": "text",
-   "display": "On repo edits, sol61-high took 118 s; astra-medium took 66 s. sonnet-medium and haiku-low took about 28 s. Both Codex picks took over twice as long. All passed every hidden test.",
+   "display": "On repo edits, sol61-high took 118 s; astra-medium took 66 s. sonnet-medium and haiku-low took about 28 s. Both Codex picks took over twice as long. All four completed every run.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "int_harness": {
@@ -33126,82 +33334,82 @@
   "agentic": {
    "head": [
     "config",
-    "passed our hidden tests",
-    "task complete (hidden and visible pass)",
+    "task complete (hidden alone in brackets)",
     "runs that wrote the requested test file",
     "test functions added",
     "median s",
     "$ per run",
+    "$ per complete task",
     "$ kind"
    ],
    "rows": [
     [
      "luna-low",
-     "12/12 hidden tests",
-     "7/12 task_complete (under audit)",
+     "7/12 complete (12/12 hidden) (under audit)",
      "12/12",
      "no transcripts",
      "24.1",
      "$0.0033",
+     "$0.0056",
      "proxy"
     ],
     [
      "haiku-low",
-     "12/12 hidden tests",
-     "12/12 task_complete",
+     "12/12 complete (12/12 hidden)",
      "12/12",
      "114",
      "28.3",
+     "$0.0051",
      "$0.0051",
      "measured"
     ],
     [
      "haiku-high",
-     "12/12 hidden tests",
-     "12/12 task_complete",
+     "12/12 complete (12/12 hidden)",
      "12/12",
      "no transcripts",
      "58.4",
+     "$0.012",
      "$0.012",
      "measured"
     ],
     [
      "sonnet-medium",
-     "12/12 hidden tests",
-     "12/12 task_complete",
+     "12/12 complete (12/12 hidden)",
      "12/12",
      "77",
      "27.7",
+     "$0.054",
      "$0.054",
      "measured"
     ],
     [
      "sol61-medium",
-     "12/12 hidden tests",
-     "12/12 task_complete",
+     "12/12 complete (12/12 hidden)",
      "12/12",
      "no transcripts",
      "84.5",
+     "$0.079",
      "$0.079",
      "proxy"
     ],
     [
      "sol61-high",
-     "12/12 hidden tests",
-     "12/12 task_complete",
+     "12/12 complete (12/12 hidden)",
      "12/12",
      "no transcripts",
      "117.9",
+     "$0.097",
      "$0.097",
      "proxy"
     ],
     [
      "astra-medium",
-     "12/12 hidden tests",
-     "12/12 task_complete",
+     "12/12 complete (12/12 hidden)",
      "12/12",
      "no transcripts",
      "65.6",
+     "$0.45",
      "$0.45",
      "proxy"
     ]
@@ -33717,8 +33925,8 @@
     ]
    ]
   },
-  "grok_at_glance": "### Key numbers\n\n- grok47-low, grok47-medium and grok47fast-low cleared L1–L2. Each first missed at L3.\n- grok47-high cleared L1–L3. It was not run further.\n- Against the closest lanes, Grok is slower and costs more per pass. The tables below give the multiples.\n- Repo tasks: grok47-high passed 8/8 at 442.1 s median. grok47-low passed 8/8 at 98.9 s median.\n- Repo-task pass rule: task complete (hidden and visible tests both pass); hidden tests alone: grok47-high 8/8, grok47-low 8/8.\n- The repo sample is small and ran on a shared host.\n- Per the routing rule, Claude Haiku stays the first fallback when Codex is out. These runs show Grok is usable after that on small repo tasks.\n\n<details><summary>Ranges across every lane</summary>\n\n**grok47-low, grok47-medium and grok47fast-low (cleared through L2)**\n- Against Claude haiku-medium, Grok takes 1.8–3.1× as long and costs 50.1–103.4× as much per pass.\n- Against Codex luna-high, Grok takes 2.2–3.6× as long and costs 58.7–121.1× as much per pass.\n- Across all Claude 100% lanes, Grok takes 1.6–4.0× as long and costs 5.4–169.3× as much per pass.\n- Across all Codex 100% lanes, Grok takes 1.1–4.7× as long and costs 0.4–9.2× as much per pass.\n\n**grok47-high (cleared through L3)**\n- Against Claude haiku-high, Grok takes 3.5× as long and costs 33.1× as much per pass.\n- Against Codex sol61-high, Grok takes 2.4× as long and costs 4.7× as much per pass.\n- Across all Claude 100% lanes, Grok takes 3.5–5.0× as long and costs 7.2–109.3× as much per pass.\n- Across all Codex 100% lanes, Grok takes 2.4–6.0× as long and costs 0.6–5.9× as much per pass.\n\n**grok47-high on repo tasks**\n- Across all Claude 100% lanes, Grok takes 7.6–15.9× as long and costs 10.0–105.5× as much per pass.\n- Across all Codex 100% lanes, Grok takes 3.7–6.7× as long and costs 1.2–6.7× as much per pass.\n\n**grok47-low on repo tasks**\n- Across all Claude 100% lanes, Grok takes 1.7–3.6× as long and costs 3.5–37.0× as much per pass.\n- Across all Codex 100% lanes, Grok takes 0.8–1.5× as long and costs 0.4–2.4× as much per pass.\n\n</details>",
-  "grok_repository": "### Repository tasks\n\nGrok is a usable fallback for these small repo tasks when Codex is out. Claude is faster and cheaper. grok47-low passed 8/8 at 98.9 s median. Today’s Claude fallback lanes (haiku-high 12/12, haiku-low 12/12, sonnet-medium 12/12) took 27.7–58.4 s median.\n\nPass rules. `task complete k/n` counts runs where the hidden tests and the delivered visible tests both pass. Passed our hidden tests alone: grok47-high 8/8 hidden tests, grok47-low 8/8 hidden tests, astra-medium 12/12 hidden tests, haiku-high 12/12 hidden tests, haiku-low 12/12 hidden tests, luna-low 12/12 hidden tests, sol61-high 12/12 hidden tests, sol61-medium 12/12 hidden tests, sonnet-medium 12/12 hidden tests. Red-suite runs (task_complete false) that the audit session has not labelled show 'under audit' beside their cells. Counts are raw: no run is dropped or reclassified until the audit labels it in results/annotations.json.\n\n| Grok config | family | closest lane | Grok time / lane | Grok $ per pass / lane |\n|---|---|---|---|---|\n| grok47-high | Claude | haiku-high | 7.57× | 44.34× |\n| grok47-high | Codex | sol61-high | 3.75× | 5.50× |\n| grok47-low | Claude | haiku-high | 1.69× | 15.55× |\n| grok47-low | Codex | sol61-medium | 1.17× | 2.36× |\n\nEach family shows the lane with the closest pass rate. Ties use the closest median time, then cost per pass.\n\n<details><summary>All comparable lanes</summary>\n\n| Grok config | existing lane | Grok time / lane | Grok $ per pass / lane |\n|---|---|---|---|\n| grok47-high | astra-medium | 6.74× | 1.20× |\n| grok47-high | haiku-high | 7.57× | 44.34× |\n| grok47-high | haiku-low | 15.63× | 105.53× |\n| grok47-high | luna-low | 18.33× | 95.85× |\n| grok47-high | sol61-high | 3.75× | 5.50× |\n| grok47-high | sol61-medium | 5.23× | 6.74× |\n| grok47-high | sonnet-medium | 15.94× | 9.97× |\n| grok47-low | astra-medium | 1.51× | 0.42× |\n| grok47-low | haiku-high | 1.69× | 15.55× |\n| grok47-low | haiku-low | 3.50× | 37.01× |\n| grok47-low | luna-low | 4.10× | 33.62× |\n| grok47-low | sol61-high | 0.84× | 1.93× |\n| grok47-low | sol61-medium | 1.17× | 2.36× |\n| grok47-low | sonnet-medium | 3.57× | 3.50× |\n\n</details>\n\n<details><summary>Run conditions and measurements</summary>\n\n4 tasks (t1_discount, t2_cache_bugs, t3_config_refs, t4_retry_queue); Grok: 2 repeats per task and config, 4 parallel lanes, tools on, no web or subagents, 1,500 s timeout; all 16 runs retained with no performance stop rule. Existing lanes: 3 repeats per task; clean-home Codex replacements are used where available. A pass requires both visible and hidden tests; hidden tests run after the agent exits.\n\n| config | task complete k/n | median wall s | $ per pass | median turns |\n|---|---|---|---|---|\n| grok47-high | 8/8 task_complete | 442.1 | $0.54 | 9 |\n| grok47-low | 8/8 task_complete | 98.9 | $0.19 | 5 |\n| astra-medium | 12/12 task_complete | 65.6 | $0.45 | 1 |\n| haiku-high | 12/12 task_complete | 58.4 | $0.012 | 10 |\n| haiku-low | 12/12 task_complete | 28.3 | $0.0051 | 5 |\n| luna-low | 7/12 task_complete (under audit) | 24.1 | $0.0056 | 1 |\n| sol61-high | 12/12 task_complete | 117.9 | $0.097 | 1 |\n| sol61-medium | 12/12 task_complete | 84.5 | $0.079 | 1 |\n| sonnet-medium | 12/12 task_complete | 27.7 | $0.054 | 3 |\n\nGrok total measured spend: $5.78 of the $15 budget. Grok and Claude costs are CLI-reported; Codex costs are token-price proxies. Multiples use median wall time and total cost per passing attempt, respectively. Turns use each CLI’s convention and are not directly comparable across CLIs. This is a small exploratory sample on a shared host, not a general repo-work guarantee. Sources: `results/2026-10-22b-agentic.jsonl`, `results/2026-10-25-isolated-agentic.jsonl`, `results/2026-10-27-grok-agentic.jsonl`.\n\n</details>",
+  "grok_at_glance": "### Key numbers\n\n- grok47-low, grok47-medium and grok47fast-low cleared L1–L2. Each first missed at L3.\n- grok47-high cleared L1–L3. It was not run further.\n- Against the closest lanes, Grok is slower and costs more per pass. The tables below give the multiples.\n- Repo tasks: grok47-high 8/8 complete (8/8 hidden) at 442.1 s median. grok47-low 8/8 complete (8/8 hidden) at 98.9 s median.\n- The repo sample is small and ran on a shared host.\n- Per the routing rule, Claude Haiku stays the first fallback when Codex is out. These runs show Grok is usable after that on small repo tasks.\n\n<details><summary>Ranges across every lane</summary>\n\n**grok47-low, grok47-medium and grok47fast-low (cleared through L2)**\n- Against Claude haiku-medium, Grok takes 1.8–2.5× as long and costs 50.1–103.4× as much per pass. grok47-medium (p01–p06 only) is left out of this range.\n- Against Codex luna-high, Grok takes 2.2–2.9× as long and costs 58.7–121.1× as much per pass. grok47-medium (p01–p06 only) is left out of this range.\n- Across all Claude 100% lanes, Grok takes 1.6–4.0× as long and costs 5.4–169.3× as much per pass.\n- Across all Codex 100% lanes, Grok takes 1.1–4.7× as long and costs 0.4–9.2× as much per pass.\n\n**grok47-high (cleared through L3)**\n- Against Claude haiku-high, Grok takes 3.5× as long and costs 33.1× as much per pass.\n- Against Codex sol61-high, Grok takes 2.4× as long and costs 4.7× as much per pass.\n- Across all Claude 100% lanes, Grok takes 3.5–5.0× as long and costs 7.2–109.3× as much per pass.\n- Across all Codex 100% lanes, Grok takes 2.4–6.0× as long and costs 0.6–5.9× as much per pass.\n\n**grok47-high on repo tasks**\n- Across all Claude 100% lanes, Grok takes 7.6–15.9× as long and costs 10.0–105.5× as much per pass.\n- Across all Codex 100% lanes, Grok takes 3.7–6.7× as long and costs 1.2–6.7× as much per pass.\n\n**grok47-low on repo tasks**\n- Across all Claude 100% lanes, Grok takes 1.7–3.6× as long and costs 3.5–37.0× as much per pass.\n- Across all Codex 100% lanes, Grok takes 0.8–1.5× as long and costs 0.4–2.4× as much per pass.\n\n</details>",
+  "grok_repository": "### Repository tasks\n\nGrok is a usable fallback for these small repo tasks when Codex is out. Claude is faster and cheaper. grok47-low 8/8 complete (8/8 hidden) at 98.9 s median. Today’s Claude fallback lanes (haiku-high 12/12 complete (12/12 hidden), haiku-low 12/12 complete (12/12 hidden), sonnet-medium 12/12 complete (12/12 hidden)) took 27.7–58.4 s median.\n\nCounts use the repo-task marker defined under Method (Repo tasks): complete first, our hidden suite alone in brackets. Red-suite runs (task_complete false) that the audit session has not labelled show 'under audit' beside their cells. Counts are raw: no run is dropped or reclassified until the audit labels it in results/annotations.json.\n\n| Grok config | family | closest lane | Grok time / lane | Grok $ per pass / lane |\n|---|---|---|---|---|\n| grok47-high | Claude | haiku-high | 7.57× | 44.34× |\n| grok47-high | Codex | sol61-high | 3.75× | 5.50× |\n| grok47-low | Claude | haiku-high | 1.69× | 15.55× |\n| grok47-low | Codex | sol61-medium | 1.17× | 2.36× |\n\nEach family shows the lane with the closest pass rate. Ties use the closest median time, then cost per pass.\n\n<details><summary>All comparable lanes</summary>\n\n| Grok config | existing lane | Grok time / lane | Grok $ per pass / lane |\n|---|---|---|---|\n| grok47-high | astra-medium | 6.74× | 1.20× |\n| grok47-high | haiku-high | 7.57× | 44.34× |\n| grok47-high | haiku-low | 15.63× | 105.53× |\n| grok47-high | luna-low | 18.33× | 95.85× |\n| grok47-high | sol61-high | 3.75× | 5.50× |\n| grok47-high | sol61-medium | 5.23× | 6.74× |\n| grok47-high | sonnet-medium | 15.94× | 9.97× |\n| grok47-low | astra-medium | 1.51× | 0.42× |\n| grok47-low | haiku-high | 1.69× | 15.55× |\n| grok47-low | haiku-low | 3.50× | 37.01× |\n| grok47-low | luna-low | 4.10× | 33.62× |\n| grok47-low | sol61-high | 0.84× | 1.93× |\n| grok47-low | sol61-medium | 1.17× | 2.36× |\n| grok47-low | sonnet-medium | 3.57× | 3.50× |\n\n</details>\n\n<details><summary>Run conditions and measurements</summary>\n\n4 tasks (t1_discount, t2_cache_bugs, t3_config_refs, t4_retry_queue); Grok: 2 repeats per task and config, 4 parallel lanes, tools on, no web or subagents, 1,500 s timeout; all 16 runs retained with no performance stop rule. Existing lanes: 3 repeats per task; clean-home Codex replacements are used where available. Hidden tests run after the agent exits.\n\n| config | task complete (hidden alone in brackets) | median wall s | $ per complete task | median turns |\n|---|---|---|---|---|\n| grok47-high | 8/8 complete (8/8 hidden) | 442.1 | $0.54 | 9 |\n| grok47-low | 8/8 complete (8/8 hidden) | 98.9 | $0.19 | 5 |\n| astra-medium | 12/12 complete (12/12 hidden) | 65.6 | $0.45 | 1 |\n| haiku-high | 12/12 complete (12/12 hidden) | 58.4 | $0.012 | 10 |\n| haiku-low | 12/12 complete (12/12 hidden) | 28.3 | $0.0051 | 5 |\n| luna-low | 7/12 complete (12/12 hidden) (under audit) | 24.1 | $0.0056 | 1 |\n| sol61-high | 12/12 complete (12/12 hidden) | 117.9 | $0.097 | 1 |\n| sol61-medium | 12/12 complete (12/12 hidden) | 84.5 | $0.079 | 1 |\n| sonnet-medium | 12/12 complete (12/12 hidden) | 27.7 | $0.054 | 3 |\n\nGrok total measured spend: $5.78 of the $15 budget. Grok and Claude costs are CLI-reported; Codex costs are token-price proxies. Multiples use median wall time and total cost per passing attempt, respectively. Turns use each CLI’s convention and are not directly comparable across CLIs. This is a small exploratory sample on a shared host, not a general repo-work guarantee. Sources: `results/2026-10-22b-agentic.jsonl`, `results/2026-10-25-isolated-agentic.jsonl`, `results/2026-10-27-grok-agentic.jsonl`.\n\n</details>",
   "grok_selection_note": "Each family shows the lane with the closest pass rate. Ties use the closest median time, then cost per pass.",
   "grok_reach": {
    "head": [
@@ -34339,7 +34547,7 @@
     ]
    ]
   },
-  "grok_lead": "Grok got through all six rungs, L1–L6. Every config missed somewhere. grok47-high passed 57/60 and missed at L4 and L6. grok47-low passed 53/60 and missed at L3 and L6. grok47fast-low passed 51/60 and missed at L3, L4 and L6. L1, L2 and L5 were clean for all three.\n\nFor grok47-high, the closest lane by pass rate in each family is Claude haiku-low (57/60, 10.0 s, $0.0011 per pass) and Codex luna56-high (56/60, 11.4 s, $0.0030 per pass). grok47-high itself: 57/60, 105.7 s, $0.13 per pass. Against the closest lanes of every config, Grok takes 3.4–10.6× as long and costs 27.4–160.6× as much per pass.",
+  "grok_lead": "Grok got through all six rungs, L1–L6. Every config missed somewhere. grok47-high passed 57/60 and missed at L4 and L6. grok47-low passed 53/60 and missed at L3 and L6. grok47fast-low passed 51/60 and missed at L3, L4 and L6. L1, L2 and L5 were clean for all three.\n\nFor grok47-high, the closest lane by pass rate in each family is Claude haiku-low (57/60, 10.0 s, $0.0011 per pass) and Codex luna56-high (56/60, 11.4 s, $0.0030 per pass). grok47-high itself: 57/60, 105.7 s, $0.13 per pass. Against the closest lane of each full-run Grok config (grok47-high, grok47-low and grok47fast-low), Grok takes 3.4–10.6× as long and costs 27.4–160.6× as much per pass.",
   "grok_better": "Not on these problems. Every Grok config is beaten on pass rate, speed and cost at once: grok47-high by 10 lanes (for example haiku-high, 60/60, 14.7 s, $0.0028 per pass). grok47-low by 11 lanes (for example haiku-high, 60/60, 14.7 s, $0.0028 per pass). grok47fast-low by 12 lanes (for example haiku-high, 60/60, 14.7 s, $0.0028 per pass). Grok passes more than luna-low, luna-low-bare, luna-medium, luna56-high and luna56-low. Every one of those lanes is faster and cheaper per pass. Grok costs less per pass than only astra-medium ⚡. Each of those passes more than the Grok config that undercuts it. Grok is faster than no lane.",
   "devin_reach": {
    "head": [

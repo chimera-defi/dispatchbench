@@ -23,7 +23,8 @@ def test_only_agentic_uses_isolated_rows(monkeypatch):
         expected = [r for r in raw if r["config"] == config]
         selected = [r for src, c, st, r in rows if (src, c, st) == ("agentic", config, "repo tasks")]
         assert len(selected) == len(expected)
-        assert sum(r["ok"] for r in selected) == sum(r["hidden_pass"] for r in expected)
+        assert sum(r["ok"] for r in selected) == sum(bool(r["task_complete"]) for r in expected)  # the headline repo-task rule: task complete
+        assert sum(r["hid"] for r in selected) == sum(r["hidden_pass"] for r in expected)  # the hidden suite alone, kept beside it
         assert sum(r["sec"] for r in selected) == sum(r["wall_s"] for r in expected)
         assert sum(r["usd"] for r in selected) == sum(summarize.cost(r) for r in expected)
 

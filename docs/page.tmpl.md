@@ -85,13 +85,13 @@
 <h4>Pass rate and time</h4>
 <ul class="tight small">
 <li>Pass rate is pass@1: the share of single attempts that pass every hidden test.</li>
-<li>Every pass rate names its rule. Function track: {{rule_function}}. Repo tasks: {{rule_hidden}} (our hidden suite passes) or {{rule_complete}} (hidden and visible tests both pass).</li>
+<li>Every pass rate names its rule. Function track: {{rule_function}}. Repo tasks use one headline rule, task complete: {{repo_legend}}. Counts read like "{{ag_k}}".</li>
 <li>The {{ci_level}} range is the pass-rate uncertainty shown in the table.</li>
 <li>Slow-call time: the time within which {{p90_percent}} of calls finished.</li>
 <li>The lower end of the {{ci_level}} range is shown as ≥N% when all passed.</li>
 </ul>
 <ul class="tight small">
-<li>Each config ran {{n_calls}} calls. † = exploratory, added after seeing the main-run results.</li>
+<li>Most configs ran {{n_calls}} calls ({{calls_exceptions_page}}). † = exploratory, added after seeing the main-run results.</li>
 </ul>
 <h4>Fast mode</h4>
 <ul class="tight small">
@@ -163,14 +163,14 @@
 </details>
 <ul class="tight small">
 <li>Each config tries each problem {{repeats}} times, tools off.</li>
-<li>Total spend: {{claude_usd}} Claude, about {{codex_usd_rounded}} Codex (estimated).</li>
+<li>Total spend, by kind: Claude {{claude_usd}} (CLI-reported), Codex {{codex_usd}} (list-price proxy), Grok {{grok_cli_usd}} (CLI-reported), plus Claude pilot and appendix arms {{claude_aux_usd}}.</li>
 </ul>
 <details><summary>📐 How to read this data: sets, tests, prices, intervals</summary>
 <ul class="tight small">
 <li>Planted wrong answers must fail the hidden tests. Sample tests = the worked examples the model sees.</li>
 <li>Cost totals leave out the pilot, runner (harness) bias, trim and {{set_label}} pipeline runs.</li>
 <li>Sets:<ul>
-<li>{{main_set_label}} has {{n_problems}} problems. Each gets {{repeats}} tries. Total: {{n_calls}} calls.</li>
+<li>{{main_set_label}} has {{n_problems}} problems. Each gets {{repeats}} tries. Total: {{n_calls}} calls per config that ran it in full.</li>
 <li>{{l7_set_label}} has {{n_l7}} problems. Each gets {{repeats}} tries. Total: {{l7_n}} calls.</li>
 <li>{{set_label_title}} covers the {{n_rescue_problems}} main-ladder problems. They are the ones that {{rescue_rule}}. They were chosen after the main run. Each config made {{rescue_n}} calls.</li>
 <li>Repo tasks: {{n_tasks}} edits. Each gets {{agent_repeats}} tries. Total: {{ag_n}} calls.</li>
@@ -312,7 +312,7 @@
 <li>The problems ship with this repo, so later models can read them.</li>
 <li>The {{ci_level}} range resamples whole problems, since tries on the same problem are related.</li>
 <li>L7 has {{n_l7}} problems. Perfect score: {{l7_bound}}. That only shows a pass rate of at least {{l7_lo}}.</li>
-<li>Repo tasks passed our hidden tests on every run. Under task complete (hidden and visible tests both pass), luna-low falls short ({{ag_tc_luna_iso_k}}), so they mostly rank cost and speed.</li>
+<li>Repo tasks: luna-low completes {{ag_mark_luna_iso}} in the clean-home rerun and every other config completes every run. With {{ag_n}} tasks they cannot rule out skill differences.</li>
 <li>Paired gaps of {{nosep_gap}} points or less showed no separation; {{sep_gap}}-point gaps did.</li>
 <li><code>PLAN.md</code> was committed before the main run; a same-day pilot came first.</li>
 <li>{{n_exploratory}} configs were added after seeing the main-run results (†). These include the haiku-high and sol61-high picks:<ul>{{exploratory_items}}</ul></li>
@@ -327,20 +327,20 @@
 <ul class="tight small">
 <li>{{cite}}</li>
 <li>Code, problems and raw results: <a href="https://github.com/chimera-defi/dispatchbench">dispatchbench on GitHub</a>, MIT licence.</li>
-<li>Every number on this page comes from <code>results/dataset.json</code>.</li>
+<li>Numbers come from <code>results/dataset.json</code>, which is built from the <code>results/*.jsonl</code> run files.</li>
 </ul>
 </details>
 </section>
 <section class="extras" id="extras">
 <h2><span class="num"></span>🔍 More charts</h2>
 <p class="small">{{rung_breaks}}. luna-low-bare breaks at {{bare_rung_break}}; see the grid.</p>
-<p class="small">Repo tasks, passed our hidden tests: {{ag_k}} for every config. Task complete (hidden and visible tests both pass): {{ag_tc_luna_iso_k}} for luna-low ({{ag_tc_luna_orig_k}} in the original run), every other config complete on every run. Every task prompt told agents to add tests and that all tests must pass. Luna-low's red-suite runs are under audit. Costs ranged from {{ag_luna_low_usd}} to {{ag_astra_medium_usd}}.</p>
-<p class="small"><b>Correction, 2026-10-28.</b> A reader pointed out that "passed every hidden test" hid luna-low's visible-test misses. Both counts are now shown.</p>
+<p class="small">Repo tasks, task complete (hidden in brackets): luna-low {{ag_mark_luna_iso}} in the clean-home rerun ({{ag_mark_luna_orig}} in the original run); every other config completed every run. Every task prompt told agents to add tests and that all tests must pass. {{ag_why_red}} Costs ranged from {{ag_luna_low_usd}} to {{ag_astra_medium_usd}} per run; per complete task luna-low costs {{ag_luna_low_upp}} against haiku-low's {{ag_haiku_low_upp}}.</p>
+<p class="small"><b>Correction, 2026-10-28.</b> A reader pointed out that "passed every hidden test" hid luna-low's visible-test misses. The headline is now task complete, with the hidden-suite count beside it.</p>
 <details><summary>🎛️ Explorer and more charts</summary>
 <p class="small">Explorer plots any pair of measures.</p>
 <div class="chart"><h3>🎛️ Explorer</h3>{{w_explorer}}</div>
 {{chart:pass_by_rung.svg|Pass rate by difficulty rung}}
-{{chart:agentic.svg|Repo tasks: both pass rules vs $ per run (filled: passed our hidden tests; ring: task complete). {{agentic_fast_caption}}}}
+{{chart:agentic.svg|Repo tasks: task complete vs $ per run (filled: task complete; ring: hidden suite only). {{agentic_fast_caption}}}}
 </details>
 
 <p class="small"><a href="#notation">See Notation.</a></p>
@@ -358,7 +358,7 @@
 <p class="small">On the {{set_label}}, fast mode kept every pass and was {{fm_faster}} faster. Median times: {{fm_fast_s}} s vs {{fm_ctrl_s}} s. Price: {{fm_mult}} list, not a measured bill. xhigh effort (above high): same passes, {{fm_x_cost}} the cost, slower, no better code.</p>
 {{table:fastmode}}
 
-<p class="small">The blind read covered {{bl_n}} solutions. A code-only reviewer would refuse to merge {{bl_blocks}}, all sonnet-medium. It scored {{bl_sonnet_score}}. Other configs scored {{bl_other_scores}} with none blocked.</p>
+<p class="small">The blind read covered {{bl_n}} solutions. A code-only reviewer would refuse to merge {{bl_blocks}}, all sonnet-medium. It scored {{bl_sonnet_score}}. Other configs scored {{bl_other_scores}} with none blocked. One reviewer and one solution per cell: a sign of bad code, not a ranking.</p>
 <p class="small">{{blind_caption}}</p>
 {{table:blind}}
 </details>

@@ -92,7 +92,7 @@ def prose(comparison, lane):
     ceiling = (math.floor(max(cheap) * 1000) + 1) / 1000
     words = {0: "zero", 1: "one", 2: "two", 3: "three", 4: "four"}
     stopped = [c for c in lane if comparison["profiles"][c][1] is not None]
-    summary = ["Grok is accurate but slow and mid-priced. "
+    summary = ["In the first run (p01–p06 only), Grok was accurate but slow and mid-priced. "
                f"grok47-high passed {high['passes']} of {high['n']} but took {high['median_s']:.0f} s per call at the median. "
                f"Every existing lane at {100 * high['pass_rate']:.0f}% finished in {min(perfect):.1f} to {max(perfect):.1f} s."]
     if stopped:
@@ -105,10 +105,10 @@ def prose(comparison, lane):
             names = ", ".join(stopped[:-1]) + " and " + stopped[-1] if len(stopped) > 1 else stopped[0]
             count = words.get(len(stopped), str(len(stopped)))
             missed = next(iter(misses))
-            summary.append(f"{names} each missed {words.get(missed, str(missed))} call at L{rung} ({k}/{n}), "
-                           f"so the pre-registered stop rule fired for all {count}.")
+            summary.append(f"In this first run, {names} each missed {words.get(missed, str(missed))} call at L{rung} ({k}/{n}), "
+                           f"so the pre-registered stop rule fired for all {count}; the full run above supersedes it.")
     dear = {configs.family(c) for c, v in existing.items() if v["usd_per_pass"] >= min(prices)} if prices else set()
-    summary.append(f"Cost per pass is ${min(prices):.3f} to ${max(prices):.3f}. "
+    summary.append(f"In this first run, cost per pass was ${min(prices):.3f} to ${max(prices):.3f}. "
                    f"Claude haiku and the Codex luna lanes are under ${ceiling:.3f}. "
                    + ("Only the Codex astra lanes cost as much." if dear == {"Codex"} and
                       all(c.startswith("astra") for c, v in existing.items() if v["usd_per_pass"] >= min(prices))
@@ -228,6 +228,11 @@ def names(items):
     return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
 
 
+def mark(m):
+    """The one repo-task marker: task complete first (the headline rule), our hidden suite alone in brackets."""
+    return f"{m['passes']}/{m['n']} complete ({m['hidden']}/{m['n']} hidden)"
+
+
 def at_a_glance(comparison, lane, repository):
     """Short visible bullets, then every range in a collapsed list. All numbers come from the same measurements as the tables."""
     m, profiles = comparison["metrics"], comparison["profiles"]
@@ -243,21 +248,22 @@ def at_a_glance(comparison, lane, repository):
         choices = tuple(closest_lanes(m, group[0], comparison["matches"][group[0]]))
         ranges.append(f"**{names(shown)} (cleared through L{cleared})**")
         for other in choices:
-            times = [m[c]["median_s"] / m[other]["median_s"] for c in group]
-            prices = [m[c]["usd_per_pass"] / m[other]["usd_per_pass"] for c in group
+            core = [c for c in group if c not in configs.GROK_PARTIAL] or group  # grok47-medium (p01-p06 only) is not a like-for-like member of a range
+            times = [m[c]["median_s"] / m[other]["median_s"] for c in core]
+            prices = [m[c]["usd_per_pass"] / m[other]["usd_per_pass"] for c in core
                       if m[c]["usd_per_pass"] is not None and m[other]["usd_per_pass"]]
             slower &= min(times) > 1 and (not prices or min(prices) > 1)
+            left_out = [configs.display(c) for c in group if c not in core]
             ranges.append(f"- Against {configs.family(other)} {configs.display(other)}, Grok takes {multiple(times)} as long "
-                          f"and costs {multiple(prices) if prices else 'unavailable'} as much per pass.")
+                          f"and costs {multiple(prices) if prices else 'unavailable'} as much per pass."
+                          + (f" {names(left_out)} (p01–p06 only) is left out of this range." if left_out else ""))
         ranges += ["- " + sentence for sentence in perfect_ranges(m, group, [c for c in m if c not in lane])]
     if slower:
         bullets.append("Against the closest lanes, Grok is slower and costs more per pass. The tables below give the multiples.")
     if repository:
         rm = repository["metrics"]
         bullets.append("Repo tasks: " + " ".join(
-            f"{configs.display(c)} passed {rm[c]['passes']}/{rm[c]['n']} at {rm[c]['median_s']:.1f} s median." for c in repository["grok"]))
-        bullets.append("Repo-task pass rule: task complete (hidden and visible tests both pass); hidden tests alone: " + ", ".join(
-            f"{configs.display(c)} {rm[c]['hidden']}/{rm[c]['n']}" for c in repository["grok"]) + ".")
+            f"{configs.display(c)} {mark(rm[c])} at {rm[c]['median_s']:.1f} s median." for c in repository["grok"]))
         bullets.append("The repo sample is small and ran on a shared host.")
         for c in repository["grok"]:
             ranges += [f"**{configs.display(c)} on repo tasks**"] + ["- " + sentence for sentence in
@@ -347,7 +353,7 @@ def full_lead(comparison, lane, money):
     rows = [(c, o) for c in full for o in closest_lanes(m, c, cands)]
     times = [m[c]["median_s"] / m[o]["median_s"] for c, o in rows]
     prices = [m[c]["usd_per_pass"] / m[o]["usd_per_pass"] for c, o in rows if m[c]["usd_per_pass"] is not None and m[o]["usd_per_pass"]]
-    second.append(f"Against the closest lanes of every config, Grok takes {multiple(times)} as long and costs {multiple(prices) if prices else 'unavailable'} as much per pass.")
+    second.append(f"Against the closest lane of each full-run Grok config ({names(full)}), Grok takes {multiple(times)} as long and costs {multiple(prices) if prices else 'unavailable'} as much per pass.")
     cost = lambda e: m[e]["usd_per_pass"]
     rate = lambda e: m[e]["pass_rate"]
     beaten = {c: [o for o in cands if rate(o) >= rate(c) and m[o]["median_s"] < m[c]["median_s"]
@@ -444,12 +450,11 @@ def repository_section(money):
     def table(head, rows):
         return "\n".join(["| " + " | ".join(head) + " |", "|" + "---|" * len(head)] +
                          ["| " + " | ".join(map(str, row)) + " |" for row in rows])
-    metrics = table(["config", "task complete k/n", "median wall s", "$ per pass", "median turns"],
-                    [[configs.display(c), f'{m[c]["passes"]}/{m[c]["n"]} {m[c]["rule"]}{dataset.audit_mark(m[c]["red_runs"])}', f'{m[c]["median_s"]:.1f}',
+    metrics = table(["config", "task complete (hidden alone in brackets)", "median wall s", "$ per complete task", "median turns"],
+                    [[configs.display(c), f'{mark(m[c])}{dataset.audit_mark(m[c]["red_runs"])}', f'{m[c]["median_s"]:.1f}',
                       money(m[c]["usd_per_pass"]), f'{m[c]["median_turns"]:g}' if m[c]["median_turns"] is not None else "–"]
                      for c in grok + others])
-    rules = ("Pass rules. `task complete k/n` counts runs where the hidden tests and the delivered visible tests both pass. "
-             "Passed our hidden tests alone: " + ", ".join(f'{configs.display(c)} {m[c]["hidden"]}/{m[c]["n"]} {m[c]["hidden_rule"]}' for c in grok + others) + ". "
+    rules = ("Counts use the repo-task marker defined under Method (Repo tasks): complete first, our hidden suite alone in brackets. "
              + dataset.audit_footnote([x for c in grok + others for x in m[c]["red_runs"]]))
     def ratio(c, other, key):
         a, b = m[c][key], m[other][key]
@@ -462,7 +467,7 @@ def repository_section(money):
                      for c in grok for other in closest_lanes(m, c, others)])
     best = max(grok, key=lambda c: (m[c]["passes"] / m[c]["n"], -m[c]["median_s"]))
     claude = [c for c in others if configs.family(c) == "Claude"]
-    claude_counts = ", ".join(f'{configs.display(c)} {m[c]["passes"]}/{m[c]["n"]}' for c in claude)  # task complete
+    claude_counts = ", ".join(f'{configs.display(c)} {mark(m[c])}' for c in claude)
     claude_time = "–" if not claude else f'{min(m[c]["median_s"] for c in claude):.1f}–{max(m[c]["median_s"] for c in claude):.1f}'
     usable = m[best]["passes"] == m[best]["n"]
     tradeoff = " Claude is faster and cheaper." if claude and all(
@@ -471,7 +476,7 @@ def repository_section(money):
         for c in claude) else ""
     verdict = (f'Grok is {"a usable fallback" if usable else "a less reliable fallback"} for these small repo tasks when Codex is out.'
                f'{tradeoff} '
-               f'{configs.display(best)} passed {m[best]["passes"]}/{m[best]["n"]} at {m[best]["median_s"]:.1f} s median. '
+               f'{configs.display(best)} {mark(m[best])} at {m[best]["median_s"]:.1f} s median. '
                f'Today’s Claude fallback lanes ({claude_counts}) took {claude_time} s median.')
     sources = ", ".join(f"`{s}`" for s in data["sources"])
     return ("### Repository tasks\n\n" + verdict + "\n\n" + rules + "\n\n" + closest + "\n\n" + SELECTION_NOTE +
@@ -480,7 +485,7 @@ def repository_section(money):
             f'{len(data["tasks"])} tasks ({", ".join(data["tasks"])}); Grok: 2 repeats per task and config, '
             "4 parallel lanes, tools on, no web or subagents, 1,500 s timeout; all 16 runs retained with no performance stop rule. "
             "Existing lanes: 3 repeats per task; clean-home Codex replacements are used where available. "
-            "A pass requires both visible and hidden tests; hidden tests run after the agent exits.\n\n"
+            "Hidden tests run after the agent exits.\n\n"
             + metrics + "\n\n"
             f'Grok total measured spend: {money(data["total_usd"])} of the $15 budget. '
             "Grok and Claude costs are CLI-reported; Codex costs are token-price proxies. "

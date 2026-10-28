@@ -347,19 +347,19 @@ Every problem on which at least one config failed at least once, over all phases
 | p14 bounce_board (L7) | 5/5 | 4/5 (1c) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 2/5 (3c) | 2/5 (3c) | 3/5 (2c) | 5/5 | 5/5 | – | – | – | – |
 | p15 paint_erase (L7) | 2/5 (3t) | 4/5 (1t) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 3/5 (2w) | 3/5 (2w) | 5/5 | 5/5 | 5/5 | – | – | – | – |
 
-## Agentic track (two pass rules)
+## Agentic track (headline: task complete)
 
-Passed our hidden tests = our hidden suite passes against the delivered code. Task complete = hidden and visible tests both pass (the delivered `tests/` directory, including tests the agent added). Both counts are shown.
+Task complete (the headline rule) = our hidden suite and the delivered `tests/` directory (including tests the agent added) both pass. Passed our hidden tests = our hidden suite alone, the secondary count.
 
-| config | passed our hidden tests | 95% CI | visible suite, incl. agent's own tests | task complete (hidden and visible pass) | median s | input floor | $/run | $ kind |
+| config | task complete (headline) | passed our hidden tests | 95% CI (hidden) | visible suite, incl. agent's own tests | median s | input floor | $/run | $ kind |
 |---|---|---|---|---|---|---|---|---|
-| astra-medium | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 65.6 | 130168 | $0.45 | proxy |
-| haiku-high | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 58.4 | 61331 | $0.012 | measured |
-| haiku-low | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 28.3 | 31760 | $0.0051 | measured |
-| luna-low | 12/12 | ≥47% (all passed) | 7/12 | 7/12 | 24.1 | 71903 | $0.0033 | proxy |
-| sol61-high | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 117.9 | 137915 | $0.097 | proxy |
-| sol61-medium | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 84.5 | 149886 | $0.079 | proxy |
-| sonnet-medium | 12/12 | ≥47% (all passed) | 12/12 | 12/12 | 27.7 | 27425 | $0.054 | measured |
+| astra-medium | 12/12 | 12/12 | ≥47% (all passed) | 12/12 | 65.6 | 130168 | $0.45 | proxy |
+| haiku-high | 12/12 | 12/12 | ≥47% (all passed) | 12/12 | 58.4 | 61331 | $0.012 | measured |
+| haiku-low | 12/12 | 12/12 | ≥47% (all passed) | 12/12 | 28.3 | 31760 | $0.0051 | measured |
+| luna-low | 7/12 | 12/12 | ≥47% (all passed) | 7/12 | 24.1 | 71903 | $0.0033 | proxy |
+| sol61-high | 12/12 | 12/12 | ≥47% (all passed) | 12/12 | 117.9 | 137915 | $0.097 | proxy |
+| sol61-medium | 12/12 | 12/12 | ≥47% (all passed) | 12/12 | 84.5 | 149886 | $0.079 | proxy |
+| sonnet-medium | 12/12 | 12/12 | ≥47% (all passed) | 12/12 | 27.7 | 27425 | $0.054 | measured |
 
 original run (`results/2026-10-22b-agentic.jsonl`):
 

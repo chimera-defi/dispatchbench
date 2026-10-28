@@ -216,8 +216,9 @@ def test_first_half_rows_render_without_changing_full_ladder(monkeypatch):
     assert all({"grok", "fail"} <= set(counts) <= {"grok", "fail", "pareto"} for counts in scope.counts.values())
     assert "pareto" in scope.counts["grok47-low"]
     assert "pareto" not in scope.counts["grok47-high"]
-    assert "Grok" not in readme  # README currently shows only the Winner table.
-    assert "Grok" not in full.split("## Grok\n")[0]
+    assert "Grok" not in "\n".join(l for l in readme.splitlines() if not l.startswith("Total spend, by kind"))  # README shows only the Winner table and the by-kind spend line
+    spend = lambda s: "\n".join(l for l in s.splitlines() if "Grok $" not in l)  # the by-kind spend line names Grok's CLI-reported spend
+    assert "Grok" not in spend(full.split("## Grok\n")[0])
     assert "Grok" not in full.split("## Can luna")[1]
 
 
@@ -249,7 +250,7 @@ def test_repository_metrics_keep_failures_costs_and_same_task_scope(tmp_path, mo
     rendered = grok.repository_section(lambda v: f"${v:.3f}" if v is not None else "–")
     assert "### Repository tasks" in rendered
     assert "7/8" in rendered and "6.00×" in rendered
-    assert "a usable fallback" in rendered and "grok47-high passed 8/8" in rendered
+    assert "a usable fallback" in rendered and "grok47-high 8/8 complete (8/8 hidden)" in rendered
     assert "Claude is faster and cheaper." in rendered
     assert "haiku-low 12/12" in rendered
     assert "not directly comparable" in rendered
@@ -309,15 +310,15 @@ OLD_GROK_ROWS = """
 | grok47-high | Claude | sonnet-medium | L6 | none | 30/30 | 9.5 | $0.010 | 4.3× | 7.2× |
 | grok47fast-low | Claude | haiku-medium | L2 | L3 | 29/30 | 10.6 | $0.0011 | 1.8× | 103.4× |
 | grok47fast-low | Codex | luna-high | L2 | L3 | 24/25 | 9.0 | $0.00092 | 2.2× | 121.1× |
-| grok47-high | 8/8 task_complete | 442.1 | $0.54 | 9 |
-| grok47-low | 8/8 task_complete | 98.9 | $0.19 | 5 |
-| astra-medium | 12/12 task_complete | 65.6 | $0.45 | 1 |
-| haiku-high | 12/12 task_complete | 58.4 | $0.012 | 10 |
-| haiku-low | 12/12 task_complete | 28.3 | $0.0051 | 5 |
-| luna-low | 7/12 task_complete (under audit) | 24.1 | $0.0056 | 1 |
-| sol61-high | 12/12 task_complete | 117.9 | $0.097 | 1 |
-| sol61-medium | 12/12 task_complete | 84.5 | $0.079 | 1 |
-| sonnet-medium | 12/12 task_complete | 27.7 | $0.054 | 3 |
+| grok47-high | 8/8 complete (8/8 hidden) | 442.1 | $0.54 | 9 |
+| grok47-low | 8/8 complete (8/8 hidden) | 98.9 | $0.19 | 5 |
+| astra-medium | 12/12 complete (12/12 hidden) | 65.6 | $0.45 | 1 |
+| haiku-high | 12/12 complete (12/12 hidden) | 58.4 | $0.012 | 10 |
+| haiku-low | 12/12 complete (12/12 hidden) | 28.3 | $0.0051 | 5 |
+| luna-low | 7/12 complete (12/12 hidden) (under audit) | 24.1 | $0.0056 | 1 |
+| sol61-high | 12/12 complete (12/12 hidden) | 117.9 | $0.097 | 1 |
+| sol61-medium | 12/12 complete (12/12 hidden) | 84.5 | $0.079 | 1 |
+| sonnet-medium | 12/12 complete (12/12 hidden) | 27.7 | $0.054 | 3 |
 | grok47-high | astra-medium | 6.74× | 1.20× |
 | grok47-high | haiku-high | 7.57× | 44.34× |
 | grok47-high | haiku-low | 15.63× | 105.53× |
@@ -336,11 +337,12 @@ OLD_GROK_ROWS = """
 
 # Every original prose claim, including scope, caveats and source names.
 OLD_GROK_CLAIMS = (
-    ('Grok is accurate but slow and mid-priced. grok47-high passed 18 of 18 but took 41 s per call at the '
+    # Scoped to the first run by the claims audit (F14): the old text read as the verdict.
+    ('In the first run (p01–p06 only), Grok was accurate but slow and mid-priced. grok47-high passed 18 of 18 but took 41 s per call at the '
      'median. Every existing lane at 100% finished in 6.9 to 16.9 s.'),
-    ('grok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4), so the '
-     'pre-registered stop rule fired for all three.'),
-    ('Cost per pass is $0.054 to $0.111. Claude haiku and the Codex luna lanes are under $0.003. Only the '
+    ('In this first run, grok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4), so the '
+     'pre-registered stop rule fired for all three; the full run above supersedes it.'),
+    ('In this first run, cost per pass was $0.054 to $0.111. Claude haiku and the Codex luna lanes are under $0.003. Only the '
      'Codex astra lanes cost as much.'),
     ('Totals differ (18, 21, 24) because the run was shortened from 5 to 2 repeats partway through L2 and '
      'extra repeats already run were kept; the earlier full-coverage lanes have 30 = 6 problems × 5 '
@@ -350,8 +352,9 @@ OLD_GROK_CLAIMS = (
      '12-problem main ladder. If a Grok config never missed through L3, every lane that clears through L3 '
      'counts, with its later results shown.'),
     ('Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory phases only. Warmup, '
-     'calibration, fastmode, escalation and hard phases are excluded. Grok has small n and was not run '
-     'past L3, so cleared L3 is a floor. CLI-reported cost; list price not used for Grok. Codex dollars '
+     'calibration, fastmode, escalation and hard phases are excluded. In this first run Grok was run only '
+     'through L3, so cleared L3 is a floor here; the full-ladder runs above go to L6 (only grok47-medium '
+     'stays on p01–p06). CLI-reported cost; list price not used for Grok. Codex dollars '
      'use tokens × list price with the fast-mode multiplier.'),
     ('grok47-high is cheaper per pass than astra-medium ⚡ (fast mode, 2× list price) on functions (0.55×). '
      'grok47-low is cheaper per pass than plain astra-medium on repo tasks (0.42×) while 1.5× slower. '
@@ -361,11 +364,10 @@ OLD_GROK_CLAIMS = (
     ('4 tasks (t1_discount, t2_cache_bugs, t3_config_refs, t4_retry_queue); Grok: 2 repeats per task and '
      'config, 4 parallel lanes, tools on, no web or subagents, 1,500 s timeout; all 16 runs retained with '
      'no performance stop rule. Existing lanes: 3 repeats per task; clean-home Codex replacements are used '
-     'where available. A pass requires both visible and hidden tests; hidden tests run after the agent '
-     'exits.'),
+     'where available. Hidden tests run after the agent exits.'),
     ('Grok is a usable fallback for these small repo tasks when Codex is out, though Claude is faster and '
-     'cheaper: grok47-low passed 8/8 at 98.9 s median, compared with today’s Claude fallback lanes '
-     '(haiku-high 12/12, haiku-low 12/12, sonnet-medium 12/12) at 27.7–58.4 s median.'),
+     'cheaper: grok47-low 8/8 complete (8/8 hidden) at 98.9 s median, compared with today’s Claude fallback lanes '
+     '(haiku-high 12/12 complete (12/12 hidden), haiku-low 12/12 complete (12/12 hidden), sonnet-medium 12/12 complete (12/12 hidden)) at 27.7–58.4 s median.'),
     ('Grok total measured spend: $5.78 of the $15 budget. Grok and Claude costs are CLI-reported; Codex '
      'costs are token-price proxies. Multiples use median wall time and total cost per passing attempt, '
      'respectively. Turns use each CLI’s convention and are not directly comparable across CLIs. This is a '
@@ -381,9 +383,10 @@ OLD_GROK_CLAIMS = (
 # Re-pinned 2026-10-28 for Commit A: Devin rows (tables, fail grid, rung chart, heatmap, catalog), the share-card meta tags in
 # the page head, and the relabelled pareto chart labels. The Grok repository-tasks subsection is unchanged.
 # E: the page digest also covers the embedded data block, the rule labels and the rule note; REPORT.md carries the rule labels, the rule note, the audit footnote and tokenised figures.
+# F: re-pinned for the claims fixes (one repo-task rule, spend by kind, pilot repricing, bucket labels, CI bars, wording rows).
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': 'b493880912a7c5d5c6234c39cfa7eaa477602796fa1dc73094b7ec39882c78e3',
-    'docs/REPORT.md': '0e97f6ffade91ee802061828abdecb08179d265bdfcd898bf5f1c62c2a9ff0e7',
+    'results/report/page.html': '8689c5c21c2c2ca3b49fdf14d6cfa3e4bffa1f071fa42291f5509a38e549cd8b',
+    'docs/REPORT.md': '0fcd8bc588f3a920102fc3c32d9291e6131f6f4b444da8b6bb910435717f751f',
 }
 
 

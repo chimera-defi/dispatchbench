@@ -151,7 +151,7 @@ def test_speed_axis_is_trimmed_with_one_second_gridlines(summary):
 @pytest.mark.parametrize("render", [page.pass_cost, page.speed_cost])
 def test_chart_set_toggle_and_grouped_keys(summary, render):
     output, _ = render(summary)
-    assert 'Codex is free (subscription quota)</label>' in output
+    assert 'Codex at $0 on the Claude bill (spends Codex quota)</label>' in output
     assert 'Main ladder' in output and '> Retest set + pipelines</label>' in output
     for cat in ("main", "fast", "pipelines", "exploratory"):
         assert f'data-cat="{cat}" checked' in output
@@ -751,7 +751,7 @@ def test_every_repo_task_summary_names_a_pass_rule():
     """Each sentence about repo-task passes on the README, report and page must say which rule it counts."""
     from analysis import report
     readme, full, page_html = report.render()
-    rule = re.compile(r"hidden[- ]test|hidden and visible|task[- ]complete|both (?:pass )?rules|hidden tests alone|on both rules", re.I)
+    rule = re.compile(r"hidden[- ]test|hidden and visible|task[-_ ]complete|both (?:pass )?rules|hidden tests alone|on both rules|complete \(\d+/\d+ hidden\)", re.I)
     for name, text in (("README", readme), ("report", full), ("page", re.sub(r"<[^>]+>", " ", unescape(page_html)))):
         for m in re.finditer(r"[^.\n]*(?:repo[- ]tasks?|repo-task runs)[^.\n]*(?:passed|pass(?:es)?\b|12/12|8/8|complete)[^.\n]*", text, re.I):
             if "function calls" in m.group(0): continue  # the clean-home note counts function-track calls, not repo-task runs
