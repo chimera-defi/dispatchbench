@@ -1,0 +1,1 @@
+{"outcome": "crash", "detail": "small case 0: UnboundLocalError: cannot access local variable 'i' where it is not associated with a value", "case": 0}
