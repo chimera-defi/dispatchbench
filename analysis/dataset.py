@@ -949,13 +949,13 @@ def _tables(s, arms):
         T["grok"] = md_table(["config", "coverage", "passed", "$ per pass", "total $ (CLI-measured)", "median s"],
             [[DISP(c), f'{len(v["by_problem"])} of {nprob} problems', f'{pct(v["pass_at_1"])} ({v["passes"]}/{v["n"]})',
               usd(v["usd_per_pass"]), usd(v["usd_total"]), f'{v["latency_s"]["median"]:.1f}'] for c, v in s["grok"].items()])
-    T["result"] = md_table(["config", "pass rate", "95% CI", "median s", "slow-call time s", "$ per pass", f"total $ ({cfg['haiku-low']['n']} calls)", "$ kind"],
+    T["result"] = md_table(["config", "pass rate", "95% CI", "median s", "slow-call time s", "$ per pass", "total $ (all calls)", "$ kind"],
                            [[DISP(c) + (" †" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], nprob),
                              f"{v['latency_s']['median']:.1f}", f"{v['latency_s']['p90']:.1f}", f"{usd(v['usd_per_pass'])}", f"{usd(v['usd_total'])}", v["cost_kind"]]
                             for c, v in {**cfg, **ex}.items()])
-    T["result_detail"] = md_table(["config", "pass rate 95% CI", "slow-call time s", f"total $ ({cfg['haiku-low']['n']} calls)"],
+    T["result_detail"] = md_table(["config", "pass rate 95% CI", "slow-call time s", "total $ (all calls)"],
                                   [[DISP(c) + (" †" if c in ex else ""), ci_text(v["passes"], v["n"], v["ci95"], nprob),
-                                    f"{v['latency_s']['p90']:.1f}", ("~" if v["cost_kind"] == "proxy" else "") + usd(v["usd_total"])]
+                                    f"{v['latency_s']['p90']:.1f}", "unmetered" if v["cost_kind"] == "unmetered" else ("~" if v["cost_kind"] == "proxy" else "") + usd(v["usd_total"])]
                                    for c, v in sorted({**cfg, **ex}.items(), key=lambda pair: configs.low_context(pair[0]))])
     T["tokens"] = md_table(["config", "mean input", "of which cached", "mean output", "of which reasoning", "$ per 1k tokens"],
                            [[DISP(c) + (" †" if c in ex else "")] + (["–"] * 5 if v["cost_kind"] == "unmetered" else [n(v["tokens_mean"]["in_tok"]), n(v["tokens_mean"]["cached_tok"]), n(v["tokens_mean"]["out_tok"]),
