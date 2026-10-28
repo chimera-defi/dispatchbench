@@ -5,6 +5,7 @@
   "claude 2.1.308",
   "codex 0.163.0",
   "codex 0.164.0",
+  "devin 3000.11.228",
   "grok 1.0.70"
  ],
  "configs": {
@@ -132,6 +133,11 @@
    "cli": "grok",
    "model": "grok-4.7-build-fast",
    "effort": "low"
+  },
+  "devin16slow-default": {
+   "cli": "devin",
+   "model": "swe-1-6-slow",
+   "effort": "default"
   }
  },
  "flags": {
@@ -194,11 +200,11 @@
   4
  ],
  "first_call_utc": "2026-10-22T08:32:54+00:00",
- "last_call_utc": "2026-10-28T01:12:20+00:00",
+ "last_call_utc": "2026-10-28T01:28:23+00:00",
  "rows_by_phase": {
   "calibration": 30,
   "escalation": 15,
-  "exploratory": 694,
+  "exploratory": 706,
   "fastmode": 105,
   "hard": 195,
   "main": 561,
@@ -213,7 +219,7 @@
   "codex_proxy_usd": 37.7254,
   "codex_fastmode_usd": 3.4069,
   "calls": {
-   "function": 1606,
+   "function": 1618,
    "agentic": 84
   },
   "grok_measured_usd": 22.3741
@@ -231,6 +237,7 @@
   "results/2026-10-22b-function.jsonl",
   "results/2026-10-25-isolated-agentic.jsonl",
   "results/2026-10-26-grok-function.jsonl",
+  "results/2026-10-28-devin-function.jsonl",
   "results/2026-10-28-grok-spectrum-function.jsonl",
   "results/2026-10-28-terra-function.jsonl"
  ],
@@ -424,7 +431,8 @@
   "gpt-6.1-sol",
   "gpt-6.1-terra",
   "grok-4.7",
-  "grok-4.7-build-fast"
+  "grok-4.7-build-fast",
+  "swe-1-6-slow"
  ],
- "git_sha": "6c11823b58bbfe2e552acde8304721e5432a68f6"
+ "git_sha": "953e1006e0fa3a2e1ed53cb0c84b59e6cf3c635c"
 }

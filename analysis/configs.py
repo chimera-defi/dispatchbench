@@ -44,7 +44,7 @@ NOTATION = {
 
 SOURCES = {  # source id -> files under results/ that hold its rows
     "main": ["2026-10-22b-function.jsonl", "2026-10-26-grok-function.jsonl", "2026-10-28-grok-spectrum-function.jsonl",
-             "2026-10-28-terra-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
+             "2026-10-28-terra-function.jsonl", "2026-10-28-devin-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
     "rescue": ["appendix/luna_rescue.jsonl"], "pilot": ["2026-10-22-pilot.jsonl"], "pilot-agentic": ["2026-10-22-pilot-agentic.jsonl"],
     "harness-bias": ["appendix/harness_bias.jsonl", "appendix/codex_harness.jsonl"]}  # the last two land with the codex-own-harness branch
 CATEGORIES = ["main ladder", "exploratory", "fast mode and xhigh", "rescue pipeline", "repo tasks", "trim", "pilot", "harness-bias", "low context"]
@@ -76,6 +76,15 @@ add("main", "exploratory", *((c,
     "grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; "
     + ("function track p01–p06 (L1–L3) only, not extended (PLAN.md deviation 23); 6 of 12 problems" if c == "grok47-medium" else
        "function track p01–p12 (L1–L6), 2026-10-28 full spectrum: 5 repeats per problem (L2–L3 had been shortened to 2 repeats on 2026-10-26)")) for c in GROK_CONFIGS))
+DEVIN_CONFIGS = ("devin16slow-default",)  # free tier, 1 repeat, no token data: never on a $ chart, never in the Winner or frontier
+add("main", "exploratory", ("devin16slow-default",
+    "Devin swe-1-6-slow (the only model the free tier allows), default effort; devin CLI, no token or cost data; exploratory, added 2026-10-28 at operator request; "
+    "function track p01–p12, 1 repeat (PLAN.md deviation 24)"))
+CHART_HIDDEN = CHART_HIDDEN + DEVIN_CONFIGS
+DEVIN_NOTE = "1 repeat, free tier, no token data"
+DEVIN_GROUP = "Devin (free tier, 1 repeat)"  # legend group, table group heading and grid column title
+DEVIN_UPGRADE_ERROR = "Error: Upgrade to Pro to access this model (https://devin.ai/pricing)"  # verbatim from PLAN.md deviation 24
+DEVIN_STAGE2_MIN = 9  # PLAN.md deviation 24: stage 2 (repeats 2-5) runs only if stage 1 passes at least 9 of 12
 add("main", "fast mode and xhigh",
     ("sol61-high-fast", "sol61-high on Codex priority tier (fast mode). Same model and effort, about twice the price."),
     ("astra-medium-fast", "astra-medium on the Codex priority tier (fast mode)"), ("sol61-xhigh", "gpt-6.1-sol at xhigh effort"))
@@ -172,6 +181,7 @@ def low_context(config, source="main"):
 
 def family(name):
     if name.startswith("grok"): return "Grok"
+    if name.startswith("devin"): return "Devin"
     return "Claude" if name.split("-")[0] in ("haiku", "sonnet") or name.startswith("pipeline C") else "Codex"
 
 

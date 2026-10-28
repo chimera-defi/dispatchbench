@@ -7,6 +7,7 @@
   "results/2026-10-22b-trim.jsonl",
   "results/2026-10-25-isolated-agentic.jsonl",
   "results/2026-10-26-grok-function.jsonl",
+  "results/2026-10-28-devin-function.jsonl",
   "results/2026-10-28-grok-spectrum-function.jsonl",
   "results/2026-10-28-terra-function.jsonl",
   "results/appendix/codex_harness.jsonl",
@@ -6525,6 +6526,228 @@
    }
   },
   {
+   "id": "main/devin16slow-default",
+   "source": "main",
+   "config": "devin16slow-default",
+   "display": "devin16slow-default",
+   "family": "Devin",
+   "category": "exploratory",
+   "what": "Devin swe-1-6-slow (the only model the free tier allows), default effort; devin CLI, no token or cost data; exploratory, added 2026-10-28 at operator request; function track p01–p12, 1 repeat (PLAN.md deviation 24)",
+   "set": "partial ladder",
+   "derived": false,
+   "files": [
+    "results/2026-10-28-devin-function.jsonl"
+   ],
+   "passes": 6,
+   "n": 12,
+   "pass_rate": 0.5,
+   "ci95": [
+    0.25,
+    0.75
+   ],
+   "groups": 12,
+   "usd_per_pass": null,
+   "claude_usd_per_pass": null,
+   "codex_usd_per_pass": null,
+   "usd_per_call": null,
+   "spend": 0,
+   "spend_claude": 0,
+   "spend_codex": 0,
+   "unknown_usd": 12,
+   "median_s": 10.49,
+   "p25_s": 8.5,
+   "p75_s": 13.25,
+   "tokens_in_mean": 0,
+   "tokens_out_mean": 0,
+   "tokens_cached_mean": 0,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    0,
+    0
+   ],
+   "p90_s": 15.78,
+   "max_s": 26.5,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 1,
+     "n": 1
+    },
+    "p02_squash": {
+     "passes": 1,
+     "n": 1
+    },
+    "p03_ledger": {
+     "passes": 1,
+     "n": 1
+    },
+    "p04_taller_within": {
+     "passes": 0,
+     "n": 1
+    },
+    "p05_pass_route": {
+     "passes": 1,
+     "n": 1
+    },
+    "p06_calc": {
+     "passes": 0,
+     "n": 1
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 0,
+     "n": 1
+    },
+    "p08_recur": {
+     "passes": 1,
+     "n": 1
+    },
+    "p09_k_machine_schedule": {
+     "passes": 0,
+     "n": 1
+    },
+    "p10_avoid_count": {
+     "passes": 1,
+     "n": 1
+    },
+    "p11_best_average": {
+     "passes": 0,
+     "n": 1
+    },
+    "p12_sheet": {
+     "passes": 0,
+     "n": 1
+    }
+   },
+   "misses": 6,
+   "ci95_plot": [
+    0.25,
+    0.75
+   ],
+   "usd_saved_per_pass": null,
+   "usd_per_1k_tokens": null,
+   "by_rung": {
+    "L1": [
+     2,
+     2
+    ],
+    "L2": [
+     1,
+     2
+    ],
+    "L3": [
+     1,
+     2
+    ],
+    "L4": [
+     1,
+     2
+    ],
+    "L5": [
+     1,
+     2
+    ],
+    "L6": [
+     0,
+     2
+    ]
+   },
+   "cost_kind": "unmetered",
+   "cli": "devin",
+   "model": "swe-1-6-slow",
+   "effort": "default",
+   "outcomes": {
+    "pass": 6,
+    "timeout": 2,
+    "wrong": 3,
+    "crash": 1
+   },
+   "breaking_point": "L6",
+   "details": {
+    "cli": "devin",
+    "model": "swe-1-6-slow",
+    "effort": "default",
+    "n": 12,
+    "passes": 6,
+    "pass_at_1": 0.5,
+    "ci95": [
+     0.25,
+     0.75
+    ],
+    "breaking_point": "L6",
+    "outcomes": {
+     "pass": 6,
+     "timeout": 2,
+     "wrong": 3,
+     "crash": 1
+    },
+    "input_floor": [
+     0,
+     0
+    ],
+    "usd_per_call": null,
+    "usd_total": null,
+    "usd_per_pass": null,
+    "usd_per_pass_L1_L2": null,
+    "pass_L1_L2": [
+     3,
+     4
+    ],
+    "cost_kind": "unmetered",
+    "vs": [
+     {
+      "b": "luna-low",
+      "diff": -0.2667,
+      "ci95": [
+       -0.5167,
+       -0.05
+      ],
+      "problems": 12
+     },
+     {
+      "b": "haiku-low",
+      "diff": -0.45,
+      "ci95": [
+       -0.7167,
+       -0.2
+      ],
+      "problems": 12
+     },
+     {
+      "b": "luna-medium",
+      "diff": -0.2833,
+      "ci95": [
+       -0.55,
+       -0.05
+      ],
+      "problems": 12
+     }
+    ],
+    "usd_per_pass_uncached": null,
+    "by_problem": {
+     "p01_overlap_minutes": 1,
+     "p02_squash": 1,
+     "p03_ledger": 1,
+     "p04_taller_within": 0,
+     "p05_pass_route": 1,
+     "p06_calc": 0,
+     "p07_weighted_distance_sums": 0,
+     "p08_recur": 1,
+     "p09_k_machine_schedule": 0,
+     "p10_avoid_count": 1,
+     "p11_best_average": 0,
+     "p12_sheet": 0
+    },
+    "misses": 6,
+    "ci95_plot": [
+     0.25,
+     0.75
+    ],
+    "usd_text": "–",
+    "claude_usd_per_pass": null,
+    "usd_saved_per_pass": null,
+    "usd_per_1k_tokens": null
+   }
+  },
+  {
    "id": "main/haiku-high",
    "source": "main",
    "config": "haiku-high",
@@ -7578,6 +7801,105 @@
     ]
    },
    "cost_kind": "proxy"
+  },
+  {
+   "id": "main/devin16slow-default",
+   "source": "main",
+   "config": "devin16slow-default",
+   "display": "devin16slow-default",
+   "family": "Devin",
+   "category": "exploratory",
+   "what": "Devin swe-1-6-slow (the only model the free tier allows), default effort; devin CLI, no token or cost data; exploratory, added 2026-10-28 at operator request; function track p01–p12, 1 repeat (PLAN.md deviation 24)",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-10-28-devin-function.jsonl"
+   ],
+   "passes": 3,
+   "n": 7,
+   "pass_rate": 0.4286,
+   "ci95": [
+    0.1429,
+    0.8571
+   ],
+   "groups": 7,
+   "usd_per_pass": null,
+   "claude_usd_per_pass": null,
+   "codex_usd_per_pass": null,
+   "usd_per_call": null,
+   "spend": 0,
+   "spend_claude": 0,
+   "spend_codex": 0,
+   "unknown_usd": 7,
+   "median_s": 11.39,
+   "p25_s": 10.34,
+   "p75_s": 13.28,
+   "tokens_in_mean": 0,
+   "tokens_out_mean": 0,
+   "tokens_cached_mean": 0,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    0,
+    0
+   ],
+   "p90_s": 14.39,
+   "max_s": 16.06,
+   "by_group": {
+    "p03_ledger": {
+     "passes": 1,
+     "n": 1
+    },
+    "p04_taller_within": {
+     "passes": 0,
+     "n": 1
+    },
+    "p08_recur": {
+     "passes": 1,
+     "n": 1
+    },
+    "p09_k_machine_schedule": {
+     "passes": 0,
+     "n": 1
+    },
+    "p10_avoid_count": {
+     "passes": 1,
+     "n": 1
+    },
+    "p11_best_average": {
+     "passes": 0,
+     "n": 1
+    },
+    "p12_sheet": {
+     "passes": 0,
+     "n": 1
+    }
+   },
+   "misses": 4,
+   "ci95_plot": [
+    0.1429,
+    0.8571
+   ],
+   "usd_saved_per_pass": null,
+   "usd_per_1k_tokens": null,
+   "by_rung": {
+    "L2": [
+     1,
+     2
+    ],
+    "L4": [
+     1,
+     1
+    ],
+    "L5": [
+     1,
+     2
+    ],
+    "L6": [
+     0,
+     2
+    ]
+   },
+   "cost_kind": "unmetered"
   },
   {
    "id": "main/sol61-high-fast",
@@ -16530,6 +16852,133 @@
    "cost_kind": "measured"
   },
   {
+   "id": "main/devin16slow-default",
+   "source": "main",
+   "config": "devin16slow-default",
+   "display": "devin16slow-default",
+   "family": "Devin",
+   "category": "exploratory",
+   "what": "Devin swe-1-6-slow (the only model the free tier allows), default effort; devin CLI, no token or cost data; exploratory, added 2026-10-28 at operator request; function track p01–p12, 1 repeat (PLAN.md deviation 24)",
+   "set": "all runs",
+   "derived": false,
+   "files": [
+    "results/2026-10-28-devin-function.jsonl"
+   ],
+   "passes": 6,
+   "n": 12,
+   "pass_rate": 0.5,
+   "ci95": [
+    0.25,
+    0.75
+   ],
+   "groups": 12,
+   "usd_per_pass": null,
+   "claude_usd_per_pass": null,
+   "codex_usd_per_pass": null,
+   "usd_per_call": null,
+   "spend": 0,
+   "spend_claude": 0,
+   "spend_codex": 0,
+   "unknown_usd": 12,
+   "median_s": 10.49,
+   "p25_s": 8.5,
+   "p75_s": 13.25,
+   "tokens_in_mean": 0,
+   "tokens_out_mean": 0,
+   "tokens_cached_mean": 0,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    0,
+    0
+   ],
+   "p90_s": 15.78,
+   "max_s": 26.5,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 1,
+     "n": 1
+    },
+    "p02_squash": {
+     "passes": 1,
+     "n": 1
+    },
+    "p03_ledger": {
+     "passes": 1,
+     "n": 1
+    },
+    "p04_taller_within": {
+     "passes": 0,
+     "n": 1
+    },
+    "p05_pass_route": {
+     "passes": 1,
+     "n": 1
+    },
+    "p06_calc": {
+     "passes": 0,
+     "n": 1
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 0,
+     "n": 1
+    },
+    "p08_recur": {
+     "passes": 1,
+     "n": 1
+    },
+    "p09_k_machine_schedule": {
+     "passes": 0,
+     "n": 1
+    },
+    "p10_avoid_count": {
+     "passes": 1,
+     "n": 1
+    },
+    "p11_best_average": {
+     "passes": 0,
+     "n": 1
+    },
+    "p12_sheet": {
+     "passes": 0,
+     "n": 1
+    }
+   },
+   "misses": 6,
+   "ci95_plot": [
+    0.25,
+    0.75
+   ],
+   "usd_saved_per_pass": null,
+   "usd_per_1k_tokens": null,
+   "by_rung": {
+    "L1": [
+     2,
+     2
+    ],
+    "L2": [
+     1,
+     2
+    ],
+    "L3": [
+     1,
+     2
+    ],
+    "L4": [
+     1,
+     2
+    ],
+    "L5": [
+     1,
+     2
+    ],
+    "L6": [
+     0,
+     2
+    ]
+   },
+   "cost_kind": "unmetered"
+  },
+  {
    "id": "main/sol61-high-fast",
    "source": "main",
    "config": "sol61-high-fast",
@@ -18289,7 +18738,7 @@
    "spend": 2.718465
   },
   "exploratory": {
-   "n_configs": 15,
+   "n_configs": 16,
    "spend": 35.8863
   },
   "fast mode and xhigh": {
@@ -18327,6 +18776,7 @@
    "results/2026-10-22b-function.jsonl",
    "results/2026-10-25-isolated-agentic.jsonl",
    "results/2026-10-26-grok-function.jsonl",
+   "results/2026-10-28-devin-function.jsonl",
    "results/2026-10-28-grok-spectrum-function.jsonl",
    "results/2026-10-28-terra-function.jsonl"
   ],
@@ -19107,7 +19557,7 @@
   "phases": {
    "calibration": 30,
    "escalation": 15,
-   "exploratory": 694,
+   "exploratory": 706,
    "fastmode": 105,
    "hard": 195,
    "main": 561,
@@ -20438,6 +20888,180 @@
      "p12_sheet": {
       "passes": 5,
       "n": 5
+     }
+    }
+   },
+   "devin16slow-default": {
+    "cli": "devin",
+    "model": "swe-1-6-slow",
+    "effort": "default",
+    "n": 12,
+    "passes": 6,
+    "pass_at_1": 0.5,
+    "ci95": [
+     0.25,
+     0.75
+    ],
+    "by_rung": {
+     "L1": {
+      "passed": 2,
+      "n": 2
+     },
+     "L2": {
+      "passed": 1,
+      "n": 2
+     },
+     "L3": {
+      "passed": 1,
+      "n": 2
+     },
+     "L4": {
+      "passed": 1,
+      "n": 2
+     },
+     "L5": {
+      "passed": 1,
+      "n": 2
+     },
+     "L6": {
+      "passed": 0,
+      "n": 2
+     }
+    },
+    "breaking_point": "L6",
+    "outcomes": {
+     "pass": 6,
+     "timeout": 2,
+     "wrong": 3,
+     "crash": 1
+    },
+    "latency_s": {
+     "median": 10.49,
+     "p25": 8.5,
+     "p75": 13.25,
+     "p90": 15.78,
+     "max": 26.5
+    },
+    "tokens_mean": {
+     "in_tok": 0,
+     "cached_tok": 0,
+     "out_tok": 0,
+     "reasoning_tok": 0
+    },
+    "input_floor": [
+     0,
+     0
+    ],
+    "usd_per_call": null,
+    "usd_total": null,
+    "usd_per_pass": null,
+    "usd_per_pass_L1_L2": null,
+    "pass_L1_L2": [
+     3,
+     4
+    ],
+    "cost_kind": "unmetered",
+    "vs": [
+     {
+      "b": "luna-low",
+      "diff": -0.2667,
+      "ci95": [
+       -0.5167,
+       -0.05
+      ],
+      "problems": 12
+     },
+     {
+      "b": "haiku-low",
+      "diff": -0.45,
+      "ci95": [
+       -0.7167,
+       -0.2
+      ],
+      "problems": 12
+     },
+     {
+      "b": "luna-medium",
+      "diff": -0.2833,
+      "ci95": [
+       -0.55,
+       -0.05
+      ],
+      "problems": 12
+     }
+    ],
+    "usd_per_pass_uncached": null,
+    "by_problem": {
+     "p01_overlap_minutes": 1,
+     "p02_squash": 1,
+     "p03_ledger": 1,
+     "p04_taller_within": 0,
+     "p05_pass_route": 1,
+     "p06_calc": 0,
+     "p07_weighted_distance_sums": 0,
+     "p08_recur": 1,
+     "p09_k_machine_schedule": 0,
+     "p10_avoid_count": 1,
+     "p11_best_average": 0,
+     "p12_sheet": 0
+    },
+    "misses": 6,
+    "ci95_plot": [
+     0.25,
+     0.75
+    ],
+    "usd_text": "–",
+    "claude_usd_per_pass": null,
+    "usd_saved_per_pass": null,
+    "usd_per_1k_tokens": null,
+    "by_group": {
+     "p01_overlap_minutes": {
+      "passes": 1,
+      "n": 1
+     },
+     "p02_squash": {
+      "passes": 1,
+      "n": 1
+     },
+     "p03_ledger": {
+      "passes": 1,
+      "n": 1
+     },
+     "p04_taller_within": {
+      "passes": 0,
+      "n": 1
+     },
+     "p05_pass_route": {
+      "passes": 1,
+      "n": 1
+     },
+     "p06_calc": {
+      "passes": 0,
+      "n": 1
+     },
+     "p07_weighted_distance_sums": {
+      "passes": 0,
+      "n": 1
+     },
+     "p08_recur": {
+      "passes": 1,
+      "n": 1
+     },
+     "p09_k_machine_schedule": {
+      "passes": 0,
+      "n": 1
+     },
+     "p10_avoid_count": {
+      "passes": 1,
+      "n": 1
+     },
+     "p11_best_average": {
+      "passes": 0,
+      "n": 1
+     },
+     "p12_sheet": {
+      "passes": 0,
+      "n": 1
      }
     }
    },
@@ -26138,7 +26762,7 @@
    "codex_proxy_usd": 37.7254,
    "codex_fastmode_usd": 3.4069,
    "calls": {
-    "function": 1606,
+    "function": 1618,
     "agentic": 84
    },
    "grok_measured_usd": 22.3741
@@ -26706,7 +27330,7 @@
   "older_generation": "5.6",
   "quality_fast_note": "sol61-high ⚡ and astra-medium ⚡: main-ladder solutions not scored. sol61-high ⚡'s 35-attempt retest run is scored below; astra-medium ⚡ has no retest scores.",
   "quality_fast_items": "<li>sol61-high ⚡ and astra-medium ⚡: main-ladder solutions not scored.</li><li>sol61-high ⚡'s 35-attempt retest run is scored below; astra-medium ⚡ has no retest scores.</li>",
-  "exploratory_items": "<li>astra-medium</li><li>astra-medium ⚡</li><li>haiku-high</li><li>luna-high</li><li>luna-low-bare</li><li>luna56-high</li><li>luna56-low</li><li>sol56-high</li><li>sol61-high</li><li>sol61-high ⚡</li><li>terra56-high</li><li>terra56-low</li><li>terra61-high</li><li>terra61-low</li>",
+  "exploratory_items": "<li>astra-medium</li><li>astra-medium ⚡</li><li>devin16slow-default</li><li>haiku-high</li><li>luna-high</li><li>luna-low-bare</li><li>luna56-high</li><li>luna56-low</li><li>sol56-high</li><li>sol61-high</li><li>sol61-high ⚡</li><li>terra56-high</li><li>terra56-low</li><li>terra61-high</li><li>terra61-low</li>",
   "l7_problem_items": "<li>p13 xor_ring (L7)</li><li>p14 bounce_board (L7)</li><li>p15 paint_erase (L7)</li>",
   "p90_percent": "90%",
   "host_agents_md": "1.3k",
@@ -27183,7 +27807,7 @@
   "l7_sm_k": "15/15",
   "ci_level": "95%",
   "r_luna_high_bare_miss": "4",
-  "n_exploratory": "14",
+  "n_exploratory": "15",
   "badge_disagreement_items": "<li>p01 overlap_minutes (L1) is Medium.</li><li>p06 calc (L3) is Hard.</li><li>p08 recur (L4) is Medium.</li>",
   "frontier_caption": "luna-low is not a best trade-off: luna-medium costs the same, $0.0009 per pass. It passes 47/60 to luna-low's 46/60. Main ladder only; every point counts. Grok: black hexagons, all 12 problems, outside the best-trade-off line. grok47-medium (p01–p06 only) is not plotted.",
   "grok_chart_note": "Grok: black hexagons, all 12 problems, outside the best-trade-off line. grok47-medium (p01–p06 only) is not plotted.",
@@ -27222,6 +27846,18 @@
   "grok_key": "A lane is an existing config: one model at one effort. Rungs L1–L6 get harder step by step. Cleared through L2 means every call passed on L1 and L2.",
   "grok_full_note": "Each full-run config ran 12 problems × 5 repeats (main + exploratory phases, repeats 1–5). 87 of the 201 Grok calls come from the first run. grok47-medium ran p01–p06 only, as before; it was not extended, so it is not in the closest-lane comparison. 1 call hit the time limit and counts as a miss: grok47-high on p12 repeat 5. A killed call has no bill, so that config's $ per pass is a floor. luna-high and sol61-high-fast did not run every problem in the main and exploratory phases, so they are left out of the comparison. CLI-reported cost; list price not used for Grok. Codex dollars use tokens × list price with the fast-mode multiplier. Closest lane = nearest pass rate among the full-ladder lanes, then nearest median time, then cost per pass.",
   "grok_not_run": "grok47-medium covers p01–p06 only, so its cells for the other problems are dashes. A dash means no attempt, not a failure.",
+  "devin_group": "Devin (free tier, 1 repeat)",
+  "devin_k": "6",
+  "devin_n": "12",
+  "devin_median_s": "10.5",
+  "devin_model": "swe-1-6-slow",
+  "devin_error": "Error: Upgrade to Pro to access this model (https://devin.ai/pricing)",
+  "devin_stage2_min": "9",
+  "devin_lead": "Devin ran each of the 12 main-ladder problems once on swe-1-6-slow. It passed 6/12 (pass rate 50%), with a median 10.5 s per call. Timeouts: p04 taller_within, p11 best_average. Wrong answers: p06 calc, p07 weighted_distance_sums, p09 k_machine_schedule. Crashes: p12 sheet. It reports no tokens and no cost, so it has no $ per pass and appears on no $ chart, in no Winner pick and on no best-trade-offs line.",
+  "devin_why": "Only swe-1-6-slow ran. The account is on the free tier, and every other Devin-native model (adaptive, swe-2-medium, swe-2-high, swe-2-max and the -lightning variants) returned exactly: Error: Upgrade to Pro to access this model (https://devin.ai/pricing)",
+  "devin_bypass": "The rows bypass devin-delegate, which has no model passthrough, wraps the prompt in an envelope, falls back to Codex on failure, injects auto-context and caches results. The bench called the devin CLI directly in an empty directory, in auto permission mode, one repeat.",
+  "devin_stage2": "Stage 2 (repeats 2 to 5) needed at least 9 of 12 on stage 1. It got 6, so it did not run.",
+  "devin_verdict": "Verdict: not a delegate on the free tier.",
   "equiv_fastest": "Fastest Codex at 100%: astra-medium ⚡, 10 s. It costs $0.15 per pass.",
   "equiv_near": "At haiku-low's price, the best Codex is luna-high: 92% to 95%.",
   "winner_claude_to_codex": "Cheapest main-ladder pass-rate matches, Claude → Codex: haiku-low → terra61-high. haiku-medium, haiku-high and sonnet-medium → terra61-low.",
@@ -27383,6 +28019,16 @@
      "$0.15",
      "$9.12",
      "proxy"
+    ],
+    [
+     "devin16slow-default †",
+     "50% (6/12)",
+     "25%–75%",
+     "10.5",
+     "15.8",
+     "–",
+     "–",
+     "unmetered"
     ],
     [
      "haiku-high †",
@@ -27563,6 +28209,12 @@
      "~$9.12"
     ],
     [
+     "devin16slow-default †",
+     "25%–75%",
+     "15.8",
+     "–"
+    ],
+    [
      "haiku-high †",
      "≥78% (all passed)",
      "37.6",
@@ -27709,6 +28361,14 @@
      "646",
      "136",
      "$0.0095"
+    ],
+    [
+     "devin16slow-default †",
+     "–",
+     "–",
+     "–",
+     "–",
+     "–"
     ],
     [
      "haiku-high †",
@@ -29555,6 +30215,45 @@
   },
   "grok_lead": "Grok got through all six rungs, L1–L6. Every config missed somewhere. grok47-high passed 57/60 and missed at L4 and L6. grok47-low passed 53/60 and missed at L3 and L6. grok47fast-low passed 51/60 and missed at L3, L4 and L6. L1, L2 and L5 were clean for all three.\n\nFor grok47-high, the closest lane by pass rate in each family is Claude haiku-low (57/60, 10.0 s, $0.0011 per pass) and Codex luna56-high (56/60, 11.4 s, $0.0030 per pass). grok47-high itself: 57/60, 105.7 s, $0.13 per pass. Against the closest lanes of every config, Grok takes 3.4–10.6× as long and costs 27.4–160.6× as much per pass.",
   "grok_better": "Not on these problems. Every Grok config is beaten on pass rate, speed and cost at once: grok47-high by 10 lanes (for example haiku-high, 60/60, 14.7 s, $0.0028 per pass). grok47-low by 11 lanes (for example haiku-high, 60/60, 14.7 s, $0.0028 per pass). grok47fast-low by 12 lanes (for example haiku-high, 60/60, 14.7 s, $0.0028 per pass). Grok passes more than luna-low, luna-low-bare, luna-medium, luna56-high and luna56-low. Every one of those lanes is faster and cheaper per pass. Grok costs less per pass than only astra-medium ⚡. Each of those passes more than the Grok config that undercuts it. Grok is faster than no lane.",
+  "devin_reach": {
+   "head": [
+    "rung",
+    "passed",
+    "what happened"
+   ],
+   "rows": [
+    [
+     "L1",
+     "2/2",
+     "all passed"
+    ],
+    [
+     "L2",
+     "1/2",
+     "p04 taller_within timeout"
+    ],
+    [
+     "L3",
+     "1/2",
+     "p06 calc wrong"
+    ],
+    [
+     "L4",
+     "1/2",
+     "p07 weighted_distance_sums wrong"
+    ],
+    [
+     "L5",
+     "1/2",
+     "p09 k_machine_schedule wrong"
+    ],
+    [
+     "L6",
+     "0/2",
+     "p11 best_average timeout, p12 sheet crash"
+    ]
+   ]
+  },
   "equiv": {
    "head": [
     "Claude → Codex match",

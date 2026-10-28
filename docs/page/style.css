@@ -2,15 +2,15 @@
    token bars, what to do, then collapsed notes. Colours are CSS variables, redefined for dark mode. */
 :root{
   --bg:#f6f7f4; --panel:#ffffff; --fg:#1d2321; --muted:#5d6763; --line:#dde2de;
-  --accent:#0f7a5c; --claude:#b4572e; --sonnet:#2f8f7d; --frontier:#7b3fe4; --codex:#3a5bb8; --codex56:#688acf; --grok:#000; --good:#1c7c3c; --warn:#a86b00; --bad:#b3261e;
+  --accent:#0f7a5c; --claude:#b4572e; --sonnet:#2f8f7d; --frontier:#7b3fe4; --codex:#3a5bb8; --codex56:#688acf; --grok:#000; --devin:#c2257f; --good:#1c7c3c; --warn:#a86b00; --bad:#b3261e;
   --display:"Fraunces",Georgia,serif; --body:"Atkinson Hyperlegible",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141917; --panel:#1b2220; --fg:#e6ece9; --muted:#9aa6a1; --line:#2c3633;
-  --accent:#4cc79d; --claude:#e08a62; --sonnet:#5cc7b2; --frontier:#b48cff; --codex:#7f9cf0; --codex56:#d4bd68; --grok:#111; --good:#5fcf83; --warn:#e3b04b; --bad:#ff7a6e; color-scheme:dark}}
+  --accent:#4cc79d; --claude:#e08a62; --sonnet:#5cc7b2; --frontier:#b48cff; --codex:#7f9cf0; --codex56:#d4bd68; --grok:#111; --devin:#f07fbf; --good:#5fcf83; --warn:#e3b04b; --bad:#ff7a6e; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141917; --panel:#1b2220; --fg:#e6ece9; --muted:#9aa6a1; --line:#2c3633;
-  --accent:#4cc79d; --claude:#e08a62; --sonnet:#5cc7b2; --frontier:#b48cff; --codex:#7f9cf0; --codex56:#d4bd68; --grok:#111; --good:#5fcf83; --warn:#e3b04b; --bad:#ff7a6e; color-scheme:dark}
+  --accent:#4cc79d; --claude:#e08a62; --sonnet:#5cc7b2; --frontier:#b48cff; --codex:#7f9cf0; --codex56:#d4bd68; --grok:#111; --devin:#f07fbf; --good:#5fcf83; --warn:#e3b04b; --bad:#ff7a6e; color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--body)}
 main{max-width:920px;margin:0 auto;padding-block:32px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
@@ -168,6 +168,7 @@ tr.grp th::after{content:none}
 .prow .pn{overflow-wrap:anywhere}.prow .like{font-size:12px;color:var(--muted)}.prow .pd{min-width:0}
 @media (max-width:640px){.method li.round>ul>li.prow{grid-template-columns:1fr}.prow .pd{grid-column:1/-1;padding-left:2px;color:var(--muted)}}
 .grid .h.fast{color:var(--frontier,#7b3fe4)}
+.grid .h.devin{color:var(--devin)}
 .grid .m{overflow-wrap:anywhere}
 
 /* Tables wrap their headings. */

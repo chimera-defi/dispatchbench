@@ -3,7 +3,7 @@
 All numeric facts and table cells are prepared by analysis.dataset; this module only formats markup.
 """
 import html, json, os, re
-from analysis import charts, configs, dataset, page as pagew
+from analysis import charts, configs, dataset, og, page as pagew
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RES = os.path.join(ROOT, "results")
@@ -164,7 +164,7 @@ def render(used_facts=None):
     body = pagew.notation_tooltips(body, ds)
     shell = open(os.path.join(PAGE_DIR, "shell.html")).read()
     script = open(os.path.join(PAGE_DIR, "sort.js")).read().strip().replace("__RESCUE_SET_LABEL__", json.dumps(configs.set_label("rescue set")))
-    page = shell.replace("__CSS__", open(os.path.join(PAGE_DIR, "style.css")).read().strip()).replace("__BODY__", body).replace("__JS__", script)
+    page = shell.replace("__CSS__", open(os.path.join(PAGE_DIR, "style.css")).read().strip()).replace("__OG_DESC__", html.escape(og.takeaway(ds["facts"]))).replace("__BODY__", body).replace("__JS__", script)
     return readme, report, page
 
 

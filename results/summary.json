@@ -4,6 +4,7 @@
   "results/2026-10-22b-function.jsonl",
   "results/2026-10-25-isolated-agentic.jsonl",
   "results/2026-10-26-grok-function.jsonl",
+  "results/2026-10-28-devin-function.jsonl",
   "results/2026-10-28-grok-spectrum-function.jsonl",
   "results/2026-10-28-terra-function.jsonl"
  ],
@@ -430,7 +431,7 @@
  "phases": {
   "calibration": 30,
   "escalation": 15,
-  "exploratory": 694,
+  "exploratory": 706,
   "fastmode": 105,
   "hard": 195,
   "main": 561,
@@ -1432,6 +1433,121 @@
     "p10_avoid_count": 5,
     "p11_best_average": 5,
     "p12_sheet": 5
+   }
+  },
+  "devin16slow-default": {
+   "cli": "devin",
+   "model": "swe-1-6-slow",
+   "effort": "default",
+   "n": 12,
+   "passes": 6,
+   "pass_at_1": 0.5,
+   "ci95": [
+    0.25,
+    0.75
+   ],
+   "by_rung": {
+    "L1": {
+     "passed": 2,
+     "n": 2
+    },
+    "L2": {
+     "passed": 1,
+     "n": 2
+    },
+    "L3": {
+     "passed": 1,
+     "n": 2
+    },
+    "L4": {
+     "passed": 1,
+     "n": 2
+    },
+    "L5": {
+     "passed": 1,
+     "n": 2
+    },
+    "L6": {
+     "passed": 0,
+     "n": 2
+    }
+   },
+   "breaking_point": "L6",
+   "outcomes": {
+    "pass": 6,
+    "timeout": 2,
+    "wrong": 3,
+    "crash": 1
+   },
+   "latency_s": {
+    "median": 10.49,
+    "p25": 8.5,
+    "p75": 13.25,
+    "p90": 15.78,
+    "max": 26.5
+   },
+   "tokens_mean": {
+    "in_tok": 0,
+    "cached_tok": 0,
+    "out_tok": 0,
+    "reasoning_tok": 0
+   },
+   "input_floor": [
+    null,
+    null
+   ],
+   "usd_per_call": null,
+   "usd_total": null,
+   "usd_per_pass": null,
+   "usd_per_pass_L1_L2": null,
+   "pass_L1_L2": [
+    3,
+    4
+   ],
+   "cost_kind": "proxy",
+   "vs": [
+    {
+     "b": "luna-low",
+     "diff": -0.2667,
+     "ci95": [
+      -0.5167,
+      -0.05
+     ],
+     "problems": 12
+    },
+    {
+     "b": "haiku-low",
+     "diff": -0.45,
+     "ci95": [
+      -0.7167,
+      -0.2
+     ],
+     "problems": 12
+    },
+    {
+     "b": "luna-medium",
+     "diff": -0.2833,
+     "ci95": [
+      -0.55,
+      -0.05
+     ],
+     "problems": 12
+    }
+   ],
+   "usd_per_pass_uncached": null,
+   "by_problem": {
+    "p01_overlap_minutes": 1,
+    "p02_squash": 1,
+    "p03_ledger": 1,
+    "p04_taller_within": 0,
+    "p05_pass_route": 1,
+    "p06_calc": 0,
+    "p07_weighted_distance_sums": 0,
+    "p08_recur": 1,
+    "p09_k_machine_schedule": 0,
+    "p10_avoid_count": 1,
+    "p11_best_average": 0,
+    "p12_sheet": 0
    }
   },
   "haiku-high": {
@@ -5872,7 +5988,7 @@
   "codex_proxy_usd": 37.7254,
   "codex_fastmode_usd": 3.4069,
   "calls": {
-   "function": 1606,
+   "function": 1618,
    "agentic": 84
   },
   "grok_measured_usd": 22.3741

@@ -8,7 +8,7 @@ from collections import defaultdict
 
 from analysis.stats import hier_boot, paired_boot, p90
 from analysis.labels import DISP, plabel, pshort
-from analysis.configs import GROK_CONFIGS, GROK_PARTIAL, ONE_REPEAT, FIRST_GROK_FILE, SOURCES
+from analysis.configs import DEVIN_CONFIGS, GROK_CONFIGS, GROK_PARTIAL, ONE_REPEAT, FIRST_GROK_FILE, SOURCES
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RES = os.path.join(ROOT, "results")
@@ -88,7 +88,7 @@ def list_cost(r):
         got = r.get("cost_usd") if r.get("cost_usd") is not None else r.get("total_cost_usd")
         # A Grok call killed at the 20-minute limit returns no bill. It counts as a failed attempt at $0, so Grok $ per pass is a floor by those calls.
         return 0.0 if got is None and r["cli"] == "grok" and r.get("is_error") else got
-    if r.get("is_error"): return None
+    if r.get("is_error") or r["cli"] == "devin": return None  # Devin free tier reports no tokens or cost
     p = PRICES[r["model"]]
     return ((r["in_tok"] - r["cached_tok"]) * p["input"] + r["cached_tok"] * p["cached_input"] + r["out_tok"] * p["output"]) / 1e6
 
@@ -101,7 +101,7 @@ def cost_uncached(r):
 def _uncached(r):
     if measured(r):
         return list_cost(r)
-    if r.get("is_error"): return None
+    if r.get("is_error") or r["cli"] == "devin": return None
     p = PRICES[r["model"]]
     return (r["in_tok"] * p["input"] + r["out_tok"] * p["output"]) / 1e6
 
@@ -366,7 +366,7 @@ def build():
         rr = [r for r in hr if r["config"] == c]; blk = config_block(rr)
         blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}
         s["hard"][c] = blk
-    s["failures"] = failures([r for r in rows if r["config"] not in GROK_CONFIGS and
+    s["failures"] = failures([r for r in rows if r["config"] not in GROK_CONFIGS and r["config"] not in DEVIN_CONFIGS and
                               (r["phase"] in ("main", "exploratory", "escalation", "hard")
                                or (r["phase"] == "fastmode" and r["config"] == "sol61-high-fast"))])  # full-ladder configs only
     cfg = s["configs"]
