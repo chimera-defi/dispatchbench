@@ -433,6 +433,5 @@
   "grok-4.7",
   "grok-4.7-build-fast",
   "swe-1-6-slow"
- ],
- "git_sha": "3561692cff961b0611e64aabd67800c01fbca364"
+ ]
 }

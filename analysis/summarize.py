@@ -442,19 +442,9 @@ def manifest(rows, agent, s):
             "rows_by_phase": s["phases"], "agentic_runs": len(agent), "claude_budget_cap_usd": R.CLAUDE_BUDGET_USD, "spend": s["spend"],
             "errors": errs, "prices": "results/prices.json", "generated_from": s["generated_from"], "exploratory": exploratory_manifest()}
     out["models_ran"] = sorted({r["model"] for r in allr if r.get("model")})
-    sha = git_sha()
     for c, v in s.get("grok", {}).items():
         out["configs"][c] = {k: v[k] for k in ("cli", "model", "effort")}
-    if sha: out["git_sha"] = sha
     return out
-
-
-def git_sha():
-    import subprocess
-    try:
-        return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, stderr=subprocess.DEVNULL, text=True).strip()
-    except (OSError, subprocess.CalledProcessError):
-        return None
 
 
 def exploratory_manifest():
