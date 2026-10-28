@@ -125,6 +125,20 @@ By rung: L1 10/10, L2 10/10, L3 10/10, L4 10/10, L5 10/10, L6 10/10
 | astra-medium ⚡ | haiku-low | +5.0 pts | +0.0 to +15.0 |
 | astra-medium ⚡ | luna-medium | +21.7 pts | +3.3 to +45.0 |
 
+## Exploratory, not pre-registered: devin16slow-default (stock harness, full ladder)
+
+By rung: L1 2/2, L2 1/2, L3 1/2, L4 1/2, L5 1/2, L6 0/2
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| devin16slow-default | 50% (6/12) | 25%–75% | L6 | 10.49 | 15.78 | 0 | – | – | – | proxy |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| devin16slow-default | luna-low | -26.7 pts | -51.7 to -5.0 |
+| devin16slow-default | haiku-low | -45.0 pts | -71.7 to -20.0 |
+| devin16slow-default | luna-medium | -28.3 pts | -55.0 to -5.0 |
+
 ## Exploratory, not pre-registered: haiku-high (stock harness, full ladder)
 
 By rung: L1 10/10, L2 10/10, L3 10/10, L4 10/10, L5 10/10, L6 10/10

@@ -43,6 +43,8 @@ def build(ds, summary, key="grok", first=False):
     grouped = defaultdict(list)
     for r in summarize.function_rows():
         if r["phase"] in ("main", "exploratory") and r["problem"] in problems:
+            if r["config"] in configs.DEVIN_CONFIGS:  # Devin is its own 1-repeat free-tier lane with no $ (not an equivalent for Grok)
+                continue
             grok_row = r["config"] in configs.GROK_CONFIGS
             if first and (r["config"].startswith("terra") or (grok_row and r.get("_file", configs.FIRST_GROK_FILE) != configs.FIRST_GROK_FILE)):
                 continue

@@ -11,15 +11,23 @@ from analysis.labels import TESTS, DISP, pshort, plabel, plabel_html
 # Plot order and family colour (a CSS variable of the page). luna-high is the exploratory full-ladder run.
 ORDER = ["haiku-low", "haiku-medium", "haiku-high", "sonnet-medium", "sol61-medium", "luna-high", "luna-medium", "luna-low", "luna-low-bare",
          "astra-medium", "astra-medium-fast", "sol61-high", "sol61-high-fast", "sol56-high", "luna56-high", "luna56-low", "terra61-high", "terra61-low"]
-# ORDER compares all 12 problems; Grok has its own table order and series.
+# ORDER compares all 12 problems on every $ chart; Grok has its own table order and series. Devin has no $, so it joins ORDER only
+# where $ is not needed (results table, fail grid, rung chart); ORDER_ALL is that wider list.
+ORDER_ALL = ORDER + list(configs.DEVIN_CONFIGS)
 GROK_ORDER = configs.GROK_CONFIGS
 WINNER_PICKS = {"sol61-high-fast": "default", "haiku-high": "budget", "sonnet-medium": "speed"}
-FAM = lambda c: "var(--grok,#000)" if c.startswith("grok") else "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex56)" if c.startswith(("sol56", "luna56")) else "var(--codex)"
+FAM = lambda c: "var(--grok,#000)" if c.startswith("grok") else "var(--devin)" if c.startswith("devin") else "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex56)" if c.startswith(("sol56", "luna56")) else "var(--codex)"
 NS = 'xmlns="http://www.w3.org/2000/svg"'
 
 
 def every(s):
-    return {**s["configs"], **s["exploratory"]}
+    """Every config the $ charts and tables may plot. The Devin free tier reports no tokens or cost, so it is left out (see devin(s))."""
+    return {**s["configs"], **{c: v for c, v in s["exploratory"].items() if c not in configs.DEVIN_CONFIGS}}
+
+
+def devin(s):
+    """{config: block} for the Devin free-tier lane: 1 repeat on p01-p12, no token or $ data. Never on a $ chart."""
+    return {c: v for c, v in s["exploratory"].items() if c in configs.DEVIN_CONFIGS}
 
 
 def front(pts, better):
@@ -41,6 +49,7 @@ def esc(t):
 # Marker shape by model (colour stays the vendor): read the chart without a label on every point.
 def SHAPE(c):
     if c.startswith("grok"): return "hexagon"
+    if c.startswith("devin"): return "plus"
     if c.startswith("terra"): return "pentagon"
     if "luna" in c:
         return "triangle-down" if "high" in c else "triangle-right" if "medium" in c else "triangle"
@@ -79,6 +88,7 @@ def marker(kind, x, y, fill, stroke, dash=False, k=1.0, width=2.5):
     elif kind == "triangle-down": v = [(0, 8.5), (7.5, -5.5), (-7.5, -5.5)]
     elif kind == "triangle-right": v = [(8.5, 0), (-5.5, 7.5), (-5.5, -7.5)]
     elif kind == "diamond": v = [(0, -8.5), (8.5, 0), (0, 8.5), (-8.5, 0)]
+    elif kind == "plus": v = [(-3, -9), (3, -9), (3, -3), (9, -3), (9, 3), (3, 3), (3, 9), (-3, 9), (-3, 3), (-9, 3), (-9, -3), (-3, -3)]
     elif kind == "pentagon": v = [(8 * math.sin(math.radians(72 * i)), -8 * math.cos(math.radians(72 * i))) for i in range(5)]
     else: v = [(r * math.sin(math.radians(36 * i)), -r * math.cos(math.radians(36 * i))) for i, r in enumerate([9.5, 4] * 5)]
     return f'<polygon points="{" ".join(f"{x + dx * k:.1f},{y + dy * k:.1f}" for dx, dy in v)}"{a}/>'
@@ -543,8 +553,8 @@ def hard_speed_cost(arms=None):
 def grid(s, grok=None):
     """Problems (rows, by rung) × configs (columns); each cell is passes out of the attempts at that problem.
     grok maps each Grok config to {problem: [passes, attempts]}; a config that skipped a problem shows a dash there."""
-    grok = grok or {}; cols = ORDER + [c for c in GROK_ORDER if c in grok]
-    E = every(s); probs = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
+    grok = grok or {}; cols = ORDER + [c for c in GROK_ORDER if c in grok] + [c for c in ORDER_ALL if c in configs.DEVIN_CONFIGS]
+    E = {**every(s), **devin(s)}; probs = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
     main = set(probs)
     hard = sorted({p for v in s["hard"].values() for p in v["by_problem"]})
     def cell(p, c):
@@ -554,7 +564,8 @@ def grid(s, grok=None):
         cell = v["by_group"].get(p) if v else None
         return (cell["passes"], cell["n"]) if cell else (None, None)
     out = [f'<div class="grid" style="--n:{len(cols)};grid-template-columns:minmax(150px,auto) repeat({len(cols)},minmax(40px,1fr))">', '<div class="h m">problem</div>']
-    out += [f'<div class="h{" fast" if c.endswith("-fast") else ""}">{esc(DISP(c))}</div>' for c in cols]
+    out += [f'<div class="h{" fast" if c.endswith("-fast") else " devin" if c in configs.DEVIN_CONFIGS else ""}"'
+            + (f' title="{esc(s["facts"]["devin_group"])}"' if c in configs.DEVIN_CONFIGS else "") + f'>{esc(DISP(c))}</div>' for c in cols]
     for p in probs + hard:
         if p == hard[0]: out.append(f'<div class="set-separator" style="grid-column:1 / -1">L7 set</div>')
         rung = s["problems"][p]["rung"] if p in main else 7
@@ -635,7 +646,8 @@ def explorer(s):
     data = [{"c": c, "d": DISP(c), "exp": e, "col": FAM(c), "fast": "-fast" in c,
              "mark": config_marker(c, 0, 0), "kind": v["cost_kind"], "pass": v["pass_at_1"], "usd": v["usd_per_pass"], "usd_text": v["usd_text"],
              "med": v["latency_s"]["median"], "inp": v["tokens_mean"]["in_tok"], "rsn": v["tokens_mean"]["reasoning_tok"]}
-            for e, group in ((False, s["configs"]), (True, s["exploratory"])) for c, v in group.items()]
+            for e, group in ((False, s["configs"]), (True, every(s))) for c, v in group.items()
+            if e == (c not in s["configs"])]  # Devin has no $, so it stays out of the any-two-measures plot
     src = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "page", "explorer.html")
     body = open(src).read().replace("__DATA__", json.dumps(data, separators=(",", ":"))).replace("__USD_TICKS__", json.dumps(s["design"]["usd_ticks"], separators=(",", ":")))
     body = body.replace("frontier over", "best trade-offs over")
@@ -736,10 +748,14 @@ def short_table(s, need):
     hard = [(c, row(SHORT(name), "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], 0.0 if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
                 a[c]["median_s"], hv(c), CODEX(c), a[c].get("derived_note", ""), rate=a[c]["pass_rate"], key=s["facts"]["verdict_key"],
                 set_name=configs.set_label("rescue set") if configs.low_context(c, "rescue") else "")) for c, name in HARD if c not in duplicates]
+    dv = devin(s)
+    dv_rows = [(c, row(DISP(c), FAM(c), v["passes"], v["n"], None, None, v["latency_s"]["median"], "not a delegate (free tier)",
+                       rate=v["pass_at_1"], key=s["facts"]["verdict_key"])) for c, v in dv.items()]
+    devin_rows = ('<tr class="grp"><th colspan="6">' + esc("Devin: " + configs.DEVIN_NOTE) + '</th></tr>' if dv_rows else "") + "".join(b for _, b in dv_rows)
     problems = sorted(s["problems"])
-    def group(label, rows, source):
+    def group(label, rows, source, extra=""):
         regular = "".join(body for c, body in rows if not configs.low_context(c, source))
-        return f'<tbody><tr class="grp"><th colspan="6">{esc(label)}</th></tr>{regular}</tbody>'
+        return f'<tbody><tr class="grp"><th colspan="6">{esc(label)}</th></tr>{regular}{extra}</tbody>'
     low = ([f"{DISP(c)} passed {E[c]['passes']}/{E[c]['n']} on the {configs.set_label('main ladder')}." for c in ORDER if configs.low_context(c)]
            + [f"{SHORT(name)} passed {a[c]['passes']}/{a[c]['n']} on the {configs.set_label('rescue set')}." for c, name in HARD
               if c not in duplicates and configs.low_context(c, "rescue")])
@@ -750,7 +766,7 @@ def short_table(s, need):
     subset_label = f'{configs.set_label("rescue set", capital=True)}: {len(s["design"]["rescue_problems"])} problems × {repeats} tries = {a[HARD[0][0]]["n"]} attempts'
     return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>$ per pass</th>'
             '<th>Claude $</th><th>median s</th><th>verdict</th></tr></thead>'
-            + group(ladder_label, top, "main") + group(subset_label, hard, "rescue") + low_group + '</table></div>')
+            + group(ladder_label, top, "main") + group(subset_label, hard, "rescue", extra=devin_rows) + low_group + '</table></div>')
 
 
 def result_notes(s):
@@ -862,6 +878,9 @@ def method(s):
             base = ["service_tier=" + "|".join(tiers) if f.startswith("service_tier=") else f for f in base]
             command = f"codex exec -m {model} -c model_reasoning_effort={efforts} {flag(base)}"
         cmds.append(f'<li>{esc(names)} → <code>{command}</code></li>')
+    from bench.run import CONFIGS
+    for c in configs.DEVIN_CONFIGS:
+        cmds.append(f'<li>{esc(DISP(c))} → <code>devin --model {CONFIGS[c][1]} --permission-mode auto -p …</code> (empty working directory, one repeat)</li>')
     cmds.append('<li><code>python3 -m bench.gated_repair</code>: answer, then run the sample tests. haiku-low repairs failures.</li>')
     return "".join(li), "".join(cmds)
 
