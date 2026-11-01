@@ -1,7 +1,6 @@
 <header class="head">
-<p class="headlinks"><a href="https://github.com/chimera-defi/dispatchbench">Source on GitHub</a></p>
 <h1>DispatchBench: which model should a coding task go to?</h1>
-<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#pareto">Cost vs accuracy</a><a href="#results">Results</a><a href="#grok">Grok and Devin</a><a href="#method">How it was run</a><a href="#fail">Where they fail</a><a href="#tokens">Baseline input tokens</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#limits">Limitations</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#interesting">Interesting</a><a href="#equiv">Codex vs Claude</a></nav>
+<nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#pareto">Cost vs accuracy</a><a href="#results">Results</a><a href="#problems">Problems</a><a href="#grok">Grok and Devin</a><a href="#method">How it was run</a><a href="#fail">Where they fail</a><a href="#tokens">Baseline input tokens</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#conclusion">Conclusion</a><a href="#limits">Limitations</a><a href="#extras">More charts</a><a href="#notes">Notes</a><a href="#interesting">Interesting</a><a href="#equiv">Codex vs Claude</a></nav>
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>WINNER</h2>
@@ -11,11 +10,11 @@
 <li>{{winner_speed}}</li>
 <li>{{winner_checks}}</li>
 </ul>
+<p class="small muted">{{winner_claude_to_codex}}</p>
+<p class="small muted">{{winner_codex_to_claude}}</p>
 <details class="small"><summary>Picks and model names</summary>
 <p>{{winner_intro}}</p>
 <p>{{winner_price}}</p>
-<p>{{winner_claude_to_codex}}</p>
-<p>{{winner_codex_to_claude}}</p>
 <p class="small">Against haiku-high, sol61-high takes {{s61h_hh_t}} the time and ~{{s61h_hh_c}} the $ per pass. ⚡ makes that {{s61f_hh_t}} the time at ~{{s61f_hh_c}} the $.</p>
 {{w_winner}}
 <details class="small names"><summary>Model names</summary>
@@ -33,9 +32,9 @@
 <section id="pareto">
 <h2><span class="ex-kicker">Cost vs accuracy</span><span class="num"></span>One chart, three trade-offs</h2>
 {{w_explorer}}
+<div class="chart"><h3>Speed vs $ per pass</h3><p class="sub">Best trade-offs, pass rate at least {{min_pass}}.</p>{{w_speed_cost}}</div>
 <details class="earlier-charts"><summary>Earlier charts</summary>
 <div class="chart"><h3>🎯 Pass rate vs $ per pass</h3>{{w_pass_cost}}</div>
-<details open><summary>Speed vs $ per pass</summary><div class="chart"><p class="sub">Best trade-offs, pass rate at least {{min_pass}}.</p>{{w_speed_cost}}</div></details>
 <div class="legend"><span><span class="dot" style="background:var(--claude)"></span>Haiku</span><span><span class="dot" style="background:var(--sonnet)"></span>Sonnet</span><span><span class="dot" style="background:var(--codex)"></span>Codex</span><span><span class="dot" style="background:var(--grok);box-shadow:0 0 0 1.5px var(--panel)"></span>Grok</span><span><span class="ring"></span>Best trade-off (ringed, numbered)</span></div>
 <details class="small"><summary>How to read this data</summary>
 <ul class="tight small">
@@ -110,6 +109,17 @@
 </ul>
 </details>
 </section>
+<section id="problems">
+<h2><span class="num"></span>Problems: try them yourself</h2>
+<ul class="tight small">
+<li>We wrote these problems for this bench.</li>
+<li>Each LeetCode link is the closest analogue I found by hand.</li>
+<li>Pilot links say "source": those problems come from LeetCode.</li>
+<li>Rungs L1–L6 follow this bench's own difficulty order.</li>
+<li>Rung and LeetCode difficulty can disagree:<ul>{{badge_disagreement_items}}</ul></li>
+{{w_problems}}
+</ul>
+</section>
 <section id="grok">
 <h2><span class="num"></span>Grok and Devin</h2>
 {{table:grok_lead}}
@@ -155,16 +165,7 @@
 <section class="method" id="method">
 <h2><span class="num"></span>How it was run</h2>
 <p class="small">Every config (model + effort) got the same new problems and hidden tests. Tools were off: no code runs, file reads or search. Logs confirm it for {{codex_tool_free}} Codex calls. {{terra_tool_note}}</p>
-<details><summary>Problems by rung (Easy/Medium/Hard)</summary>
-<ul class="tight small">
-<li>We wrote these problems for this bench.</li>
-<li>Each LeetCode link is the closest analogue I found by hand.</li>
-<li>Pilot links say "source": those problems come from LeetCode.</li>
-<li>Rungs L1–L6 follow this bench's own difficulty order.</li>
-<li>Rung and LeetCode difficulty can disagree:<ul>{{badge_disagreement_items}}</ul></li>
-{{w_problems}}
-</ul>
-</details>
+<p class="small">See <a href="#problems">Problems: try them yourself</a> for the ladder, LeetCode analogues and statements.</p>
 <ul class="tight small">
 <li>Each config tries each problem {{repeats}} times, tools off.</li>
 <li>Total spend, by kind: Claude {{claude_total_usd}} (CLI-reported), Codex {{codex_total_usd}} (list-price proxy), Grok {{grok_cli_usd}} (CLI-reported). Includes pilot and appendix arms: Claude {{claude_aux_usd}}, Codex {{codex_aux_usd}} ({{codex_pilot_usd}} pilot, {{codex_appendix_usd}} appendix and trim).</li>
@@ -346,6 +347,7 @@
 <details><summary>Explorer and more charts</summary>
 <p class="small">Explorer plots any pair of measures.</p>
 <p class="small">The interactive explorer is in <a href="#pareto">Cost vs accuracy</a>.</p>
+{{w_any_pair}}
 {{chart:pass_by_rung.svg|Pass rate by difficulty rung}}
 {{chart:agentic.svg|Repo tasks: task complete vs $ per run (filled: task complete; ring: hidden suite only). {{agentic_fast_caption}}}}
 </details>

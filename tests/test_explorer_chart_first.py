@@ -95,85 +95,42 @@ def test_prerendered_colour_key_matches_js_rebuilds_at_phone_and_desktop_widths(
         assert sample['legend'] == legend
 
 
-def test_phone_labels_are_frontier_only_even_after_selection_or_zoom(ds, phone):
-    exp = ds['explorer']
-    st = next(s for s in exp['sets'] if s['id'] == exp['default_set'])
-    frontier = {key for key, m in st['views']['list']['front']['membership'].items() if m['on_frontier']}
-    for sample in phone:
-        tree = ET.fromstring(sample['chart'])
-        keys = {key for e in tree.findall('.//s:text[@class="ex-label"]', NS)
-                for key in json.loads(e.get('data-keys'))}
-        if sample['width'] <= 480:
-            assert keys == frontier
-        else:
-            assert frontier < keys
-        if sample['focused']:
-            assert 'sonnet-medium' in sample['inspect']
-    tree = ET.fromstring(charts.explorer_svg(exp, width=390))
-    assert {e.get('data-key') for e in tree.findall('.//s:text[@class="ex-label"]', NS)} == frontier
-    assert tree.get('style') == 'min-width:0'
-
-
-def segments(path):
-    # All leader paths use deterministic orthogonal M/L coordinates.
-    points = [tuple(map(float, p.split())) for p in re.split('[ML]', path) if p]
-    return list(zip(points, points[1:]))
-
-
 def assert_clear(tree):
+    assert not tree.findall('.//s:path[@class="ex-leader"]', NS)
+    assert not tree.findall('.//s:clipPath[@id="ex-label-clip"]', NS)
     points = [(float(e.get('data-x')), float(e.get('data-y')))
               for e in tree.findall('.//s:g[@data-x]', NS)]
-    if not points:
-        # The static SVG's rings/markers carry their plotted centres.
-        for e in tree.findall('.//s:g[@class="ex-point"]', NS):
-            marker = next(c for c in e if c.tag.endswith(('circle', 'path')) and c.get('class') != 'ex-ring')
-            if marker.tag.endswith('circle'):
-                points.append((float(marker.get('cx')), float(marker.get('cy'))))
-            else:
-                x,y = map(float,re.match(r'M([\d.-]+) ([\d.-]+)',marker.get('d')).groups())
-                points.append((x,y+6))
-    bars = []
-    for bar in tree.findall('.//s:path[@class="ex-ci"]', NS):
-        nums = list(map(float, re.findall(r'-?\d+(?:\.\d+)?(?:e[+-]?\d+)?', bar.get('d'))))
-        x,y = nums[:2]
-        xx,yy = nums[2:] if len(nums) == 4 else (x,nums[2])
-        bars.append((min(x,xx)-1,min(y,yy)-1,max(x,xx)+1,max(y,yy)+1))
-    leaders = tree.findall('.//s:path[@class="ex-leader"]', NS)
-    assert leaders
-    for leader in leaders:
-        assert leader.get('d'), leader.attrib
-        for (x,y),(xx,yy) in segments(leader.get('d')):
-            assert x == xx or y == yy
-            left,right,top,bottom = min(x,xx),max(x,xx),min(y,yy),max(y,yy)
-            for px,py in points:
-                assert not (left-10 <= px <= right+10 and top-10 <= py <= bottom+10), leader.attrib
-            for l,t,r,b in bars:
-                assert not (left <= r and l <= right and top <= b and t <= bottom), leader.attrib
+    labels = tree.findall('.//s:text[@class="ex-label"]', NS)
+    assert len(labels) <= 3
+    for label in labels + tree.findall('.//s:text[@class="ex-number"]', NS):
+        x, y = float(label.get('x')), float(label.get('y'))
+        w = float(label.get('data-width'))
+        left = x - (w if label.get('text-anchor') == 'end' else w/2 if label.get('text-anchor') == 'middle' else 0)
+        for px, py in points:
+            assert not (left < px+12 and px-12 < left+w and y-12 < py+12 and py-12 < y+3), label.attrib
 
 
-def test_default_leaders_clear_points_and_confidence_intervals(ds, phone):
-    for width in (390,760):
-        svg = charts.explorer_svg(ds['explorer'],width=width)
-        assert svg == charts.explorer_svg(ds['explorer'],width=width)
-        assert_clear(ET.fromstring(svg))
+def test_numbered_frontier_and_local_pick_labels_at_every_width(ds, phone):
+    exp = ds['explorer']
+    st = next(s for s in exp['sets'] if s['id'] == exp['default_set'])
+    rows = {r['key']: r for r in exp['rows']}
+    frontier = sorted((k for k, m in st['views']['list']['front']['membership'].items() if m['on_frontier']),
+                      key=lambda k: (rows[k]['usd_per_pass'], k))
+    trees = [(sample['width'], ET.fromstring(sample['chart'])) for sample in phone]
+    trees += [(width, ET.fromstring(charts.explorer_svg(exp, width=width))) for width in (390, 760)]
+    for width, tree in trees:
+        numbered = tree.findall('.//s:text[@class="ex-number"]', NS)
+        assert [e.get('data-key') for e in numbered] == frontier
+        assert [e.text for e in numbered] == list(map(str, range(1, len(frontier)+1)))
+        labels = tree.findall('.//s:text[@class="ex-label"]', NS)
+        if width <= 480: assert not labels
+        assert all(rows[e.get('data-key')]['winner_pick'] for e in labels)
+        assert_clear(tree)
     for sample in phone:
-        if not sample['focused']:
-            assert_clear(ET.fromstring(sample['chart']))
-
-
-def test_phone_leaders_do_not_overlap_each_other(ds, phone):
-    trees = [ET.fromstring(charts.explorer_svg(ds['explorer'], width=390))]
-    trees.extend(ET.fromstring(sample['chart']) for sample in phone
-                 if sample['width'] == 390 and not sample['focused'])
-    for tree in trees:
-        routes = [segments(e.get('d')) for e in tree.findall('.//s:path[@class="ex-leader"]', NS)]
-        for i, route in enumerate(routes):
-            assert route
-            for (x,y),(xx,yy) in route:
-                for other in routes[:i]:
-                    for (ox,oy),(oxx,oyy) in other:
-                        assert not (max(min(x,xx),min(ox,oxx)) <= min(max(x,xx),max(ox,oxx))
-                                    and max(min(y,yy),min(oy,oyy)) <= min(max(y,yy),max(oy,oyy)))
+        if sample['focused']: assert 'sonnet-medium' in sample['inspect']
+    rendered = page.explorer(dataset.view(ds))
+    chips = re.search(r'<ol id="ex-chips">(.*?)</ol>', rendered, re.S)[1]
+    assert re.findall(r'data-key="([^"]+)"', chips) == frontier
 
 
 def test_caption_uses_dataset_fact_and_changes_with_measurements(ds):

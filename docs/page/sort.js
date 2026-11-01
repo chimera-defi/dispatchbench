@@ -130,9 +130,10 @@ document.querySelectorAll("main > section").forEach(function(section,i){
  button.type="button";button.className="sec-toggle";
  body.className="sec-body";body.id=uniqueId(section.id+"-body");
  button.setAttribute("aria-controls",body.id);
- while(heading.firstChild)button.appendChild(heading.firstChild);
+ var permalink=heading.querySelector(".hlink");
+ Array.prototype.slice.call(heading.childNodes).forEach(function(node){if(node!==permalink)button.appendChild(node)});
  chevron.className="sec-chevron";chevron.setAttribute("aria-hidden","true");button.appendChild(chevron);
- heading.appendChild(button);
+ heading.insertBefore(button,permalink);
  if(heading.parentNode!==section)section.insertBefore(heading,section.firstChild);
  Array.prototype.slice.call(section.childNodes).forEach(function(node){if(node!==heading)body.appendChild(node)});
  section.appendChild(body);section.classList.add("collapsible");
@@ -161,10 +162,30 @@ function revealHash(hash){
  var target=document.getElementById(id);if(!target)return;
  sections.forEach(function(item){if(item.section.contains(target))setOpen(item,true)});
  for(var d=target;d;d=d.parentElement)if(d.tagName==="DETAILS")d.open=true;
- updateAll();persist();target.scrollIntoView()
+ var row=target.closest(".prow");if(row){var statement=row.querySelector(".problem-try");if(statement)statement.open=true}
+ updateAll();persist();target.scrollIntoView({block:"start"})
 }
+function anchorOffset(){
+ var bar=document.querySelector(".ds-topbar");
+ document.documentElement.style.setProperty("--anchor-offset",((bar?bar.getBoundingClientRect().height:0)+16)+"px")
+}
+anchorOffset();window.addEventListener("resize",anchorOffset);
 updateAll();revealHash(location.hash);
 window.addEventListener("hashchange",function(){revealHash(location.hash)})
+window.addEventListener("load",function(){revealHash(location.hash)});
+// Preserve native navigation (including keyboard activation). Copying is optional.
+var status=document.querySelector(".link-status"),statusTimer;
+document.addEventListener("click",function(ev){
+ var link=ev.target.closest("a.hlink");
+ if(!link||ev.defaultPrevented||ev.button!==0||ev.ctrlKey||ev.metaKey||ev.shiftKey||ev.altKey)return;
+ revealHash(link.hash);
+ if(!navigator.clipboard||!navigator.clipboard.writeText)return;
+ try{Promise.resolve(navigator.clipboard.writeText(link.href)).then(function(){
+  if(!status)return;
+  clearTimeout(statusTimer);status.textContent="Link copied";
+  statusTimer=setTimeout(function(){status.textContent=""},1800)
+ }).catch(function(){})}catch(e){}
+});
 })();
 // Wide tables scroll inside their box; fade the edge that hides columns, so a narrow screen shows there is more.
 (function(){

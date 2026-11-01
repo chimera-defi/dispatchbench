@@ -411,8 +411,11 @@ OLD_GROK_CLAIMS = (
 # Grok HTML changes only one catalog cell: <td>39.5</td> -> <td>39.4</td>.
 # P4h: re-pinned for the chart-adjacent colour key and finding-first explorer caption; Grok section bytes unchanged.
 # P4i: re-pinned for keyboard sorting buttons and shared table styles; Grok section bytes unchanged.
+# R: R1-R5 fonts, compact title, numbered hero, visible charts/problems/matches and restored any-pair widget; Grok bytes unchanged.
+# R: R6 generated permalinks, short problem anchors, keyboard links and hash reveal; Grok prose/data unchanged.
+# R: R7 sparse speed-chart tick labels; Grok section bytes unchanged.
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': '394cb458eec878c79da903ac936f4b954e8878ec7c4a55fbfbcd734ad7cbba8f',
+    'results/report/page.html': 'c63be0cbf89f5b766c1558b8711818b47471328f87542e9c7e1b2448ebe972be',
     'docs/REPORT.md': 'de2e362eb61a9240b1cd23e4bc03a83f38001ff5d54353e941315f4effd97507',
 }
 
