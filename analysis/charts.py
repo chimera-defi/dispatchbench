@@ -566,16 +566,29 @@ def explorer_annotations(rows, frontier, positions, bounds, width):
         l,t,r,b = box
         return not any(l < rr and ll < r and t < bb and tt < b for ll,tt,rr,bb in obstacles)
     out = []
+    coincident = {}
     for i,r in enumerate(frontier, 1):
         x,y = positions[r['config']]
-        # Include off-domain badges in the clipped SVG to preserve identity on zoom.
-        candidates = [(x+math.cos(a*math.pi/4)*radius,y+math.sin(a*math.pi/4)*radius)
-                      for radius in range(28, 337, 14) for a in (-1,0,-2,1,-3,2,3,4)]
-        bx,by = next((q for q in candidates if clear((q[0]-11,q[1]-11,q[0]+11,q[1]+11))
-                      and left+11 <= q[0] <= right-11 and top+11 <= q[1] <= bottom-11),
-                     next(q for q in candidates if clear((q[0]-11,q[1]-11,q[0]+11,q[1]+11))))
-        obstacles.append((bx-11,by-11,bx+11,by+11))
+        # Give coincident frontier members separate, deterministic badge positions.
+        turn = coincident.get((x,y), 0)
+        coincident[x,y] = turn + 1
         number = str(i)
+        half = max(11, len(number)*7.2/2)
+        candidates = [(x+math.cos((a+turn)*math.pi/4)*radius,y+math.sin((a+turn)*math.pi/4)*radius)
+                      for radius in range(28, 337, 14) for a in (-1,0,-2,1,-3,2,3,4)]
+        def free(q):
+            return (left+half <= q[0] <= right-half and top+11 <= q[1] <= bottom-11
+                    and clear((q[0]-half,q[1]-11,q[0]+half,q[1]+11)))
+        spot = next((q for q in candidates if free(q)), None)
+        if spot is None:
+            gaps = ((left+half+xx,top+11+yy)
+                    for yy in range(0, math.floor(bottom-top-22)+1, 2)
+                    for xx in range(0, math.floor(right-left-2*half)+1, 2))
+            spot = min((q for q in gaps if free(q)), key=lambda q: math.hypot(q[0]-x,q[1]-y), default=None)
+        if spot is None:
+            raise ValueError('No in-bounds frontier badge placement')
+        bx,by = spot
+        obstacles.append((bx-half,by-11,bx+half,by+11))
         out.append(f'<circle class="ex-number-ring" cx="{bx:.2f}" cy="{by:.2f}" r="10"/>'
                    f'<text x="{bx:.2f}" y="{by+4:.2f}" text-anchor="middle" class="ex-number" data-key="{escape(r["key"])}" data-width="{len(number)*7.2}">{number}</text>')
     if width > 480:

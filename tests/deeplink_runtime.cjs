@@ -25,7 +25,57 @@ const {chromium}=require('playwright');
     assert(!result.hidden&&!result.closed,`${width}/${id} hidden: ${JSON.stringify(result)}`);
     assert(result.top>=result.barBottom&&result.top<900,`${width}/${id} under bar or outside viewport`);
    };
-   await page.goto(base+'#p07');await visibleTarget('p07');
+   // R8: navigate from a new document, rather than a previously selected card.
+   for(const [id,set] of [['config-sonnet-medium','main'],['config-sonnet-low','pilot']]){
+    await page.goto(base+'?fresh='+id+'#'+id);await visibleTarget(id);
+    assert.equal(await page.locator('#ex-set').inputValue(),set);
+    assert.equal(await page.locator('#ex-detail h3').getAttribute('id'),id);
+   }
+   await page.evaluate(()=>{location.hash='config-sonnet-medium'});await visibleTarget('config-sonnet-medium');
+   assert.equal(await page.locator('#ex-set').inputValue(),'main');
+   await page.evaluate(()=>{location.hash='config-sonnet-low'});await visibleTarget('config-sonnet-low');
+   assert.equal(await page.locator('#ex-set').inputValue(),'pilot');
+   await page.locator('#ex-chart .ex-point').first().focus();
+   await page.evaluate(()=>{location.hash='config-sonnet-medium'});await visibleTarget('config-sonnet-medium');
+   assert.equal(await page.locator('#ex-detail h3').getAttribute('id'),'config-sonnet-medium','old point focus must yield to explicit hash selection');
+   await page.evaluate(()=>{location.hash='config-sonnet-low'});await visibleTarget('config-sonnet-low');
+   // R8: universal live-DOM coverage includes the byte-preserved Grok section.
+   const headingSnapshot=async()=>page.locator('main h2,main h3').evaluateAll(headings=>headings.map(h=>({
+    id:h.id,text:h.textContent,links:Array.from(h.querySelectorAll('a.hlink'),a=>({href:a.getAttribute('href'),label:a.getAttribute('aria-label'),text:a.textContent,tab:a.getAttribute('tabindex')}))
+   })));
+   const headings=await headingSnapshot();assert(headings.length>0);
+   for(const h of headings){
+    assert(/^[a-z][a-z0-9_-]*$/.test(h.id),`${width} heading lacks a valid id: ${h.text}`);
+    assert.equal(h.links.length,1,`${width}/${h.id} missing/duplicate permalink`);
+    assert.equal(h.links[0].href,'#'+h.id);assert.equal(h.links[0].text,'#');
+    assert(h.links[0].label.startsWith('Link to this section: '));assert.notEqual(h.links[0].tab,'-1');
+   }
+   const grokIds=await page.locator('#grok h2,#grok h3').evaluateAll(hs=>hs.map(h=>h.id));
+   assert.equal(grokIds.length,11);
+   const ids=await page.locator('[id]').evaluateAll(els=>els.map(el=>el.id));assert.equal(new Set(ids).size,ids.length,'live ids must not collide');
+   assert(await page.locator('[aria-live="polite"]').count()>0);
+   await page.reload();await visibleTarget('config-sonnet-low');
+   assert.deepEqual(await headingSnapshot(),headings,'live heading slugs and controls are deterministic');
+   await page.goto(base+'#'+grokIds[1]);await visibleTarget(grokIds[1]);
+   // Exercise the actual generated point groups and event handlers, not a DOM stub.
+   await page.goto(base+'#xfig');await visibleTarget('xfig');
+   await page.waitForFunction(()=>document.querySelectorAll('#xplot .explorer-point').length>0);
+   const point=page.locator('#xplot .explorer-point').first(),tip=page.locator('#pair-tip');
+   assert.equal(await point.getAttribute('tabindex'),'0');assert.equal(await point.getAttribute('role'),'button');
+   const name=await point.locator('title').textContent();
+   const actionLabel=await point.getAttribute('aria-label');assert(actionLabel.includes(name)&&/inspect/i.test(actionLabel));
+   await page.locator('#pair-cf input').last().focus();await page.keyboard.press('Tab');
+   assert(await point.evaluate(el=>el===document.activeElement),'Tab reaches the first plotted point');
+   assert(await tip.isVisible(),'focus opens inspector');
+   for(const key of ['Enter','Space']){
+    await point.press('Escape');assert.equal(await tip.isVisible(),false,'Escape dismisses inspector');
+    const before=await page.evaluate(()=>scrollY);
+    await point.press(key);assert(await tip.isVisible(),`${key} opens inspector`);
+    assert.equal(await page.evaluate(()=>scrollY),before,`${key} must not scroll`);
+    const text=await tip.textContent();assert(text.includes(name)&&text.includes('input tokens per call')&&text.includes('reasoning tokens per call'));
+   }
+   await point.press('Escape');assert.equal(await tip.isVisible(),false);
+   await page.goto(base+'?fresh=problem#p07');await visibleTarget('p07');
    assert(await page.locator('#p07-try').evaluate(el=>el.open),'row hash opens Try it');
    assert.equal(await page.locator('#p08-try').evaluate(el=>el.open),false,'other statements stay closed');
    await page.goto(base+'#method-models-and-versions');await visibleTarget('method-models-and-versions');
@@ -59,6 +109,6 @@ const {chromium}=require('playwright');
   const page=await touch.newPage();await page.goto(base+'#problems');
   assert.equal(await page.locator('a.hlink[href="#p07"]').evaluate(el=>getComputedStyle(el).opacity),'1','touch links always visible');
   await touch.close();
-  console.log('deep links: p07, method disclosure, existing nested hash, keyboard focus, clipboard success/failure/unavailable, touch and 390px overflow pass');
+  console.log('deep links: fresh config and cross-set hashes, all headings including Grok, any-pair keyboard, p07, method disclosure, existing nested hash, keyboard focus, clipboard success/failure/unavailable, touch and 390px overflow pass');
  }finally{await browser.close()}
 })().catch(error=>{console.error(error);process.exitCode=1});
