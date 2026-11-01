@@ -1,16 +1,27 @@
 """Grade every cached completion serially and write results/<run>-function.jsonl. No model calls.
 
 Grades are cached in cache/grades by (problem file hash, code hash), so a rebuild only grades what changed."""
-import hashlib, json, os, re, sys
+import hashlib, json, os, re, subprocess, sys, tempfile
 
 from bench import problems
-from bench.grade import grade_text
 from bench.run import CALLS, ROOT
 
 GRADES = os.path.join(ROOT, "cache", "grades")
 OUT = os.path.join(ROOT, "results", "2026-10-22b-function.jsonl")
 FIELDS = ["ts", "phase", "config", "cli", "cli_version", "model", "effort", "problem", "repeat", "lanes", "wall_s", "api_duration_ms",
           "in_tok", "cached_tok", "cache_write_tok", "out_tok", "reasoning_tok", "cost_usd", "cost_kind", "tool_items", "is_error", "error", "key", "prompt_sha", "codex_home"]
+
+
+def grade_text(pid, code):
+    # Keep the hash-pinned grader sources unchanged. Its sandbox inherits this
+    # child's environment, so remove credentials before launching the grader.
+    env = {k: v for k, v in os.environ.items() if not k.upper().endswith(("_API_KEY", "TOKEN"))}
+    with tempfile.TemporaryDirectory(prefix="grade-input-") as d:
+        src = os.path.join(d, "candidate.py")
+        with open(src, "w") as f: f.write(code)
+        result = subprocess.run([sys.executable, "-m", "bench.grade", pid, src], cwd=ROOT, env=env,
+                                stdin=subprocess.DEVNULL, capture_output=True, text=True, check=True)
+    return json.loads(result.stdout)
 
 
 def extract(text):
