@@ -38,6 +38,8 @@ function scale(vals,log,a,b,few){var lo=Math.min.apply(0,vals),hi=Math.max.apply
  return {f:f,t:ticks(lo,hi,log,few)}}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function draw(){try{localStorage.setItem("dispatchbench-any-pair",JSON.stringify(st))}catch(e){}
+ // A resize redraw replaces the points; keep keyboard focus and the open inspector on the same config.
+ var ae=document.activeElement,fi=document.getElementById("xplot").contains(ae)&&ae.getAttribute("data-i"),open=fi!=null&&fi!==false&&!document.getElementById("pair-tip").hidden,quiet=false;
  document.getElementById("pair-tip").hidden=true;
  var box=document.getElementById("xplot"),W=Math.max(300,box.clientWidth),H=Math.round(Math.min(460,Math.max(300,W*.62)));
  var small=W<500,L=small?62:84,R=small?14:24,T=16,B=small?52:58;
@@ -68,7 +70,8 @@ function draw(){try{localStorage.setItem("dispatchbench-any-pair",JSON.stringify
    t.innerHTML='<b>'+esc(d.d)+'</b>'+(d.exp?' <span class="tag">exploratory</span>':'')+'<br>'+Object.keys(M).map(function(k){return M[k].l+': '+(k=="usd"?d.usd_text:M[k].f(d[k]))}).join("<br>")+'<br>$ kind: '+d.kind;
    t.hidden=false;var bx=box.getBoundingClientRect(),cx=+c.getAttribute("cx"),cy=+c.getAttribute("cy");
    t.style.left=Math.min(cx+12,bx.width-t.offsetWidth-4)+"px";t.style.top=Math.max(0,cy-t.offsetHeight-10)+"px"}
-  c.onmouseenter=show;c.onclick=show;c.onfocus=show;c.onblur=hide;c.onmouseleave=function(){if(document.activeElement!==c)hide()};
-  c.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();show()}else if(e.key==="Escape"){e.preventDefault();hide()}}})}
+  c.onmouseenter=show;c.onclick=show;c.onfocus=function(){if(!quiet)show()};c.onblur=hide;c.onmouseleave=function(){if(document.activeElement!==c)hide()};
+  c.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();show()}else if(e.key==="Escape"){e.preventDefault();hide()}}})
+ var f=fi!=null&&fi!==false&&box.querySelector('[data-i="'+fi+'"]');if(f){quiet=true;f.focus({preventScroll:true});quiet=false;if(open)f.onclick()}}
 var rt,lw=0,bx=document.getElementById("xplot");function re(){var w=bx.clientWidth;if(w!==lw){lw=w;clearTimeout(rt);rt=setTimeout(draw,60)}}if(window.ResizeObserver)new ResizeObserver(re).observe(bx);window.addEventListener("resize",re);draw()})();
 </script>

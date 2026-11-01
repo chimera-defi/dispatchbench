@@ -3,7 +3,7 @@ const fs=require('fs'),vm=require('vm'),assert=require('assert');
 const payload=JSON.parse(fs.readFileSync(0,'utf8'));
 class Element {
  constructor(){this.innerHTML='';this.clientWidth=760;this.options=[];this.firstChild={};}
- add(option){this.options.push(option)} appendChild(){} querySelectorAll(){return []}
+ add(option){this.options.push(option)} appendChild(){} contains(){return false} querySelector(){return null} querySelectorAll(){return []}
 }
 const elements=new Map();const el=id=>{if(!elements.has(id))elements.set(id,new Element());return elements.get(id)};
 const document={getElementById:id=>id==='data'?{textContent:JSON.stringify({any_pair:payload.data})}:el(id),
