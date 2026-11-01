@@ -3,7 +3,7 @@ const fs=require('fs'),vm=require('vm'),assert=require('assert');
 const payload=JSON.parse(fs.readFileSync(0,'utf8'));
 class Element {
  constructor(){this.innerHTML='';this.clientWidth=760;this.options=[];this.firstChild={};}
- add(option){this.options.push(option)} appendChild(){} querySelectorAll(){return []}
+ add(option){this.options.push(option)} appendChild(){} contains(){return false} querySelector(){return null} querySelectorAll(){return []}
 }
 const elements=new Map();const el=id=>{if(!elements.has(id))elements.set(id,new Element());return elements.get(id)};
 const document={getElementById:id=>id==='data'?{textContent:JSON.stringify({any_pair:payload.data})}:el(id),
@@ -22,6 +22,12 @@ for(const width of [390,1280])for(const x of Object.keys(h.M))for(const y of Obj
  assert(html.includes('role="img"'));assert(!/NaN|undefined|Infinity/.test(html),`${width}/${x}/${y}/${log}`);
  assert(html.includes(h.M[x].l)&&html.includes(h.M[y].l));
  assert((html.match(/class="explorer-point"/g)||[]).length>0);
+ for(const group of html.matchAll(/<g class="explorer-point"([^>]*)>/g)){
+  const attrs=Object.fromEntries(Array.from(group[1].matchAll(/([\w-]+)="([^"]*)"/g),m=>[m[1],m[2]]));
+  assert.equal(attrs.tabindex,'0');assert.equal(attrs.role,'button');
+  assert(/inspect/i.test(attrs['aria-label']));
+  assert(attrs['aria-label'].includes(h.D[+attrs['data-i']].d.replaceAll('&','&amp;').replaceAll('"','&quot;')));
+ }
 }
 h.D.forEach(row=>h.st.off[row.c]=true);h.draw();assert(el('xplot').innerHTML.includes('No configs selected.'));
 assert(!Object.keys(context).some(key=>['X','D','st','draw'].includes(key)),'legacy variables must remain local');

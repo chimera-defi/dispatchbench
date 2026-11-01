@@ -70,11 +70,26 @@ def deep_links(body):
         def __init__(self):
             super().__init__()
             self.ids = set()
+            self.sections, self.titles = [], {}
+            self.lines = [0] + [m.end() for m in re.finditer("\n", body)]
 
         def handle_starttag(self, tag, attrs):
             identifier = dict(attrs).get("id")
             if identifier:
                 self.ids.add(identifier)
+            if tag == "section":
+                self.sections.append([identifier, False])
+            elif tag in {"h1", "h2", "h3", "h4", "h5", "h6"} and self.sections:
+                section = self.sections[-1]
+                if not section[1]:
+                    section[1] = True
+                    if section[0]:
+                        line, column = self.getpos()
+                        self.titles[self.lines[line - 1] + column] = section[0]
+
+        def handle_endtag(self, tag):
+            if tag == "section" and self.sections:
+                self.sections.pop()
 
     inventory = Inventory()
     inventory.feed(body)
@@ -88,25 +103,24 @@ def deep_links(body):
         return identifier
 
     def heading(match):
-        if match[1] is None:  # Raw script/style text is not page markup.
+        if match[1] is None:  # Preserve raw script/style text and the Grok section.
             return match[0]
         tag, attrs, content = match.groups()
+        section = inventory.titles.get(match.start())
+        if not section and tag not in {"h2", "h3"}:
+            return match[0]
         if re.search(r'class=[\"\'][^\"\']*\bhlink\b', content):
             return match[0]
-        text = " ".join(html.unescape(re.sub(r"<[^>]*>", "", content)).split())
+        text = " ".join(html.unescape(re.sub(r"<[^>]*>", " ", content)).split())
         existing = re.search(r'\bid=[\"\']([^\"\']+)[\"\']', attrs)
-        identifier = html.unescape(existing[1]) if existing else unique(anchor_slug(text))
-        if not existing:
+        identifier = section or (html.unescape(existing[1]) if existing else unique(anchor_slug(text)))
+        if not section and not existing:
             attrs += f' id="{esc(identifier)}"'
         return f'<{tag}{attrs}>{content}{heading_link(identifier, text)}</{tag}>'
 
-    # The Grok section stays byte-identical to its claims-audit copy; it is linkable by its own ids.
-    grok = re.search(r'<section id="grok">.*?</section>', body, flags=re.S)
-    keep = "\0GROK\0"
-    if grok: body = body.replace(grok[0], keep, 1)
-    body = re.sub(r"<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>|<(h[23])\b([^>]*)>(.*?)</\1>",
+    # Grok stays byte-identical to its claims-audit copy; sort.js adds live heading links.
+    body = re.sub(r'<section id="grok">.*?</section>|<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>|<(h[1-6])\b([^>]*)>(.*?)</\1>',
                   heading, body, flags=re.S)
-    if grok: body = body.replace(keep, grok[0], 1)
 
     # Reading-guide disclosures have summaries rather than h3s. Give their
     # summaries addressable targets inside the closed details as well.
@@ -115,7 +129,7 @@ def deep_links(body):
             attrs, content = m.groups()
             if re.search(r"\bid=", attrs):
                 return m[0]
-            text = html.unescape(re.sub(r"<[^>]*>", "", content))
+            text = html.unescape(re.sub(r"<[^>]*>", " ", content))
             identifier = unique("method-" + anchor_slug(text))
             return f'<summary{attrs} id="{identifier}">{content}</summary>'
         return re.sub(r"<summary\b([^>]*)>(.*?)</summary>", summary, match[0], flags=re.S)
@@ -753,7 +767,7 @@ def any_pair(s):
  var placed=[],dots=pts.map(function(p){return [sx.f(p[st.x]),sy.f(p[st.y])]}),fontSize=small?11:12;
  var measure=document.createElement('canvas').getContext('2d');measure.font=fontSize+'px '+getComputedStyle(document.body).fontFamily;
  pts.forEach(function(p){var x=sx.f(p[st.x]),y=sy.f(p[st.y]),onf=fr.indexOf(p)>=0;
-  g.push('<g class="explorer-point" data-i="'+D.indexOf(p)+'" data-x="'+x+'" data-y="'+y+'" transform="translate('+x+' '+y+')" style="cursor:pointer">'+
+  g.push('<g class="explorer-point" tabindex="0" role="button" aria-label="'+esc('Inspect measurements for '+p.d)+'" aria-controls="pair-tip" aria-expanded="false" data-i="'+D.indexOf(p)+'" data-x="'+x+'" data-y="'+y+'" transform="translate('+x+' '+y+')" style="cursor:pointer">'+
    '<title>'+esc(p.d)+'</title>'+(onf?'<circle r="12" fill="none" stroke="var(--frontier)" stroke-width="3"/>':'')+p.mark+'<circle r="14" fill="transparent"/></g>')});
  function overlap(a,b){return Math.max(0,Math.min(a[2],b[2])-Math.max(a[0],b[0]))*Math.max(0,Math.min(a[3],b[3])-Math.max(a[1],b[1]))}
  pts.filter(function(p){return !small||fr.indexOf(p)>=0}).sort(function(a,b){return (fr.indexOf(b)>=0)-(fr.indexOf(a)>=0)||sy.f(a[st.y])-sy.f(b[st.y])}).forEach(function(p){
@@ -794,13 +808,14 @@ def explorer_data(s):
                 views[pricing][name] = {"panels": {panel: {"extents": stat["extents"]}
                     for panel, stat in v["panels"].items()}}
         sets.append(dict(st, views=views))
-    keep = {"key", "config", "display", "family", "generation", "model_short",
+    keep = {"key", "set", "config", "display", "family", "generation", "model_short",
             "effort", "mode", "prereg", "provenance", "fast_twin", "passes", "n",
             "pass_rate", "ci95_plot", "usd_per_pass", "quota_usd_per_pass",
             "cost_kind", "median_s", "winner_pick", "panel", "complete_marker",
             "coverage_note", "rule", "derived", "derived_note"}
     return dict(exp, sets=sets, empty_heading=explorer_heading(),
-                rows=[dict({k: v for k, v in r.items() if k in keep}, heading_html=explorer_heading(r)) for r in exp["rows"]])
+                rows=[dict({k: v for k, v in r.items() if k in keep},
+                           heading_id="config-" + anchor_slug(r["display"]), heading_html=explorer_heading(r)) for r in exp["rows"]])
 
 
 def explorer(s):

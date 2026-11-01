@@ -104,6 +104,25 @@ document.querySelectorAll(".cwrap").forEach(function(w){
  document.addEventListener("keydown",function(ev){if(ev.key==="Escape"){clear();if(document.activeElement&&w.contains(document.activeElement))document.activeElement.blur()}});
 });})();
 
+// R8: annotate the byte-preserved Grok headings only in the live DOM. Match
+// analysis.page.anchor_slug and reserve every existing id before generating any.
+(function(){
+var used=new Set(Array.from(document.querySelectorAll('[id]'),function(el){return el.id}));
+var grok=document.getElementById('grok'),title=grok&&grok.querySelector('h1,h2,h3,h4,h5,h6');
+document.querySelectorAll('#grok h2,#grok h3').forEach(function(heading){
+ if(heading.querySelector('.hlink'))return;
+ var text=heading.textContent.replace(/\s+/g,' ').trim(),id=heading.id;
+ if(heading===title)id=grok.id;
+ else if(!id){
+  var base=text.normalize('NFKD').replace(/[^\x00-\x7F]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'heading';
+  id=base;var suffix=2;while(used.has(id))id=base+'-'+suffix++;
+  heading.id=id;used.add(id)
+ }
+ var link=document.createElement('a');link.className='hlink';link.href='#'+id;
+ link.setAttribute('aria-label','Link to this section: '+text);link.textContent='#';heading.appendChild(link)
+});
+})();
+
 // Progressive section disclosure; stored choices yield to an explicit hash target.
 (function(){
 var storageKey="bench-report-collapsed-sections",collapsed=[],sections=[];
@@ -159,6 +178,8 @@ if(toc){
 function revealHash(hash){
  if(!hash||hash==="#")return;
  var id=hash.slice(1);try{id=decodeURIComponent(id)}catch(e){}
+ var explorer=document.getElementById('pareto-explorer');
+ if(id.indexOf('config-')===0&&explorer&&explorer.resolveConfigHash)explorer.resolveConfigHash(id);
  var target=document.getElementById(id);if(!target)return;
  sections.forEach(function(item){if(item.section.contains(target))setOpen(item,true)});
  for(var d=target;d;d=d.parentElement)if(d.tagName==="DETAILS")d.open=true;

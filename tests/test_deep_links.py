@@ -57,9 +57,9 @@ def document():
     return Document((ROOT / 'results/report/page.html').read_text())
 
 
-def assert_link(node):
+def assert_link(node, identifier=None):
     links = [n for n in node.descendants() if 'hlink' in n.attrs.get('class', '').split()]
-    matching = [n for n in links if n.attrs.get('href') == '#' + node.attrs['id']]
+    matching = [n for n in links if n.attrs.get('href') == '#' + (identifier or node.attrs['id'])]
     assert len(matching) == 1, node.attrs
     assert matching[0].tag == 'a' and matching[0].text == '#'
     assert matching[0].attrs['aria-label'].startswith('Link to this section: ')
@@ -86,20 +86,6 @@ def test_sections_and_problem_ids_are_unique_and_pinned():
         assert any(n.attrs.get('id', '').startswith(entry.attrs['id'] + '_') for n in entry.descendants())
 
 
-def test_all_body_headings_expose_a_permalink():
-    doc = document()
-    def in_grok(n):  # #grok is kept byte-identical; its section id is the link
-        while n:
-            if n.attrs.get('id') == 'grok': return True
-            n = n.parent
-        return False
-    for heading in (n for n in doc.nodes if n.tag in {'h2', 'h3'} and not in_grok(n)):
-        assert heading.attrs.get('id'), heading.text
-        assert re.fullmatch(r'[a-z][a-z0-9_-]*', heading.attrs['id'])
-        assert_link(heading)
-    assert any(n.attrs.get('aria-live') == 'polite' for n in doc.nodes)
-
-
 def test_generated_heading_ids_are_ascii_unique_and_deterministic():
     source = ('<section id="cafe"><h2>Café &amp; tea!</h2><h3>Café &amp; tea!</h3>'
               '<h3 id="existing">Kept</h3><h3>existing</h3><h3>🧪</h3></section>')
@@ -107,9 +93,38 @@ def test_generated_heading_ids_are_ascii_unique_and_deterministic():
     assert linked == page.deep_links(source)
     assert linked == page.deep_links(linked)
     headings = [n for n in Document(linked).nodes if n.tag in {'h2', 'h3'}]
-    assert [n.attrs['id'] for n in headings] == ['cafe-tea', 'cafe-tea-2', 'existing', 'existing-2', 'heading']
-    for heading in headings:
+    assert 'id' not in headings[0].attrs
+    assert_link(headings[0], 'cafe')
+    assert [n.attrs['id'] for n in headings[1:]] == ['cafe-tea', 'existing', 'existing-2', 'heading']
+    for heading in headings[1:]:
         assert_link(heading)
+
+
+def test_section_titles_target_the_section_without_generated_ids():
+    for section in (n for n in document().nodes if n.tag == 'section'):
+        if section.attrs['id'] == 'grok':  # Raw bytes stay pinned; checked in the live DOM.
+            continue
+        heading = next(n for n in section.descendants() if n.tag in {'h1', 'h2', 'h3', 'h4', 'h5', 'h6'})
+        assert 'id' not in heading.attrs
+        assert not re.search(r'-\d+$', heading.attrs.get('id', ''))
+        assert_link(heading, section.attrs['id'])
+    assert 'accuracyone' not in (ROOT / 'results/report/page.html').read_text()
+
+
+def test_wrapped_section_titles_and_slug_words_stay_separate():
+    source = ('<section id="pareto"><header><h2><span>Cost vs accuracy</span>'
+              '<span>One chart</span></h2></header>'
+              '<h3><span>Cost vs accuracy</span><span>One chart</span></h3></section>'
+              '<section id="other"><header><h4 id="pinned">Other</h4></header></section>')
+    linked = page.deep_links(source)
+    assert linked == page.deep_links(linked)
+    headings = [n for n in Document(linked).nodes if n.tag in {'h2', 'h3', 'h4'}]
+    assert 'id' not in headings[0].attrs
+    assert_link(headings[0], 'pareto')
+    assert headings[1].attrs['id'] == 'cost-vs-accuracy-one-chart'
+    assert_link(headings[1])
+    assert headings[2].attrs['id'] == 'pinned'
+    assert_link(headings[2], 'other')
 
 
 def test_heading_annotation_preserves_script_templates():
@@ -133,6 +148,35 @@ def test_explorer_detail_headings_keep_generated_links_after_interaction():
     assert_link(heading)
 
 
+def test_config_hash_resolves_embedded_rows_before_rebuilding_detail():
+    from analysis import dataset
+    import json
+    import subprocess
+
+    source = (ROOT / 'tests/pareto_runtime.cjs').read_text().split('const h=context.harness,exp=payload.explorer', 1)[0]
+    source = source.replace('window:{addEventListener(){}},console',
+                            "window:{location:{hash:'#config-sonnet-low'},addEventListener(){}},console")
+    source += """
+const h=context.harness;
+assert.equal(h.st.set,'pilot');assert(element('ex-detail').innerHTML.includes('id="config-sonnet-low"'));
+for(const [id,set] of [['config-sonnet-medium','main'],['config-sonnet-low','pilot'],['config-sonnet-medium','main']]){
+ assert(root.resolveConfigHash(id));assert.equal(h.st.set,set);
+ assert(element('ex-detail').innerHTML.includes('id="'+id+'"'));
+ assert.equal(element('ex-set').value,set);
+}
+h.st.off.add(h.st.sel);h.st.facets.add('family:Claude');h.st.prereg=true;h.st.minPass=1;
+assert(root.resolveConfigHash('config-sonnet-low'));
+assert(element('ex-chart').innerHTML.includes(h.st.sel));
+assert(element('ex-detail').innerHTML.includes('id="config-sonnet-low"'));
+const before=element('ex-detail').innerHTML;
+assert.equal(root.resolveConfigHash('config-does-not-exist'),false);
+assert.equal(element('ex-detail').innerHTML,before);
+"""
+    result = subprocess.run(['node', '-e', source], input=json.dumps({'explorer': page.explorer_data(dataset.view(dataset.read()))}),
+                            capture_output=True, text=True, cwd=ROOT)
+    assert result.returncode == 0, result.stderr
+
+
 def test_grok_section_bytes_unchanged():
     # deep_links() skips #grok: raw bytes equal the pre-R6 section (and HEAD before R).
     import hashlib
@@ -142,7 +186,7 @@ def test_grok_section_bytes_unchanged():
     assert hashlib.sha256(section.encode()).hexdigest() == 'f33bea01f967bd26db464a3b796632976e797bd802cfad2a0f0341d461f04be4'
 
 
-def test_deep_links_in_chrome():
+def test_all_body_headings_and_deep_links_in_chrome():
     # The browser harness is not optional: a sandbox without Chrome must fail here, not skip.
     import subprocess
     result = subprocess.run(['node', 'tests/deeplink_runtime.cjs'], text=True, capture_output=True, cwd=ROOT, timeout=300)
