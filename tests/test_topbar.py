@@ -1,4 +1,4 @@
-"""The shared site topbar stays first, linked and free of local colour values."""
+"""R1: the shared topbar stays first with its source link and token colours."""
 from html.parser import HTMLParser
 from pathlib import Path
 import re
@@ -9,7 +9,7 @@ from analysis import report
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MARKUP = '<div class="ds-topbar"><div><a href="https://chimericlabs.xyz/">← Chimeric Labs</a></div></div>'
+MARKUP = '<div class="ds-topbar"><div><a href="https://chimericlabs.xyz/">← Chimeric Labs</a><a href="https://github.com/chimera-defi/dispatchbench">Source on GitHub</a></div></div>'
 
 
 def test_topbar_has_the_pinned_site_touch_target():
@@ -42,6 +42,7 @@ def test_topbar_is_first_and_uses_the_exact_site_markup(rendered):
         ("div", {}),
         ("a", {"href": "https://chimericlabs.xyz/"}),
     ]
+    assert parser.elements[3] == ("a", {"href": "https://github.com/chimera-defi/dispatchbench"})
     assert html.count(MARKUP) == 1
     assert '<link rel="stylesheet" href="../../docs/page/topbar.css">' not in html
     if rendered:

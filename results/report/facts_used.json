@@ -212,6 +212,7 @@
 "versions_claude",
 "versions_codex",
 "versions_extra",
+"w_any_pair",
 "w_everything",
 "w_explorer",
 "w_fast",

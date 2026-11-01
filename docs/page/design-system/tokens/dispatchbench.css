@@ -1,6 +1,6 @@
 /* DispatchBench compatibility aliases and light mode. Site dark values are vendored unchanged. */
 :root{
- --font-mono:ui-monospace,monospace;--body:var(--font-body);--display:var(--font-heading);--mono:var(--font-mono);
+ --font-mono:"JetBrains Mono",ui-monospace,monospace;--body:var(--font-body);--display:var(--font-heading);--mono:var(--font-mono);
  --bg:var(--color-bg);--panel:var(--color-surface);--fg:var(--color-text);--line:var(--color-divider);
  --muted:var(--color-neutral-300);--accent:var(--color-accent);--accent-text:var(--color-accent-300);--frontier:var(--data-frontier);
  --color-kicker:var(--color-accent-300);--color-link:var(--color-accent-300);--color-link-hover:var(--color-accent-200);--color-muted:var(--color-neutral-300);--color-subtle:var(--color-neutral-400);
