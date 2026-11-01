@@ -88,7 +88,12 @@ def test_sections_and_problem_ids_are_unique_and_pinned():
 
 def test_all_body_headings_expose_a_permalink():
     doc = document()
-    for heading in (n for n in doc.nodes if n.tag in {'h2', 'h3'}):
+    def in_grok(n):  # #grok is kept byte-identical; its section id is the link
+        while n:
+            if n.attrs.get('id') == 'grok': return True
+            n = n.parent
+        return False
+    for heading in (n for n in doc.nodes if n.tag in {'h2', 'h3'} and not in_grok(n)):
         assert heading.attrs.get('id'), heading.text
         assert re.fullmatch(r'[a-z][a-z0-9_-]*', heading.attrs['id'])
         assert_link(heading)
@@ -128,15 +133,12 @@ def test_explorer_detail_headings_keep_generated_links_after_interaction():
     assert_link(heading)
 
 
-def test_shared_heading_links_preserve_all_other_grok_bytes():
-    # R6 adds the same title affordance everywhere. Strip only those additions
-    # before comparing with the exact pre-R6 Grok section (R1-R5 working tree).
+def test_grok_section_bytes_unchanged():
+    # deep_links() skips #grok: raw bytes equal the pre-R6 section (and HEAD before R).
     import hashlib
     from analysis.test_grok import grok_section
 
     section, _ = grok_section((ROOT / 'results/report/page.html').read_text(), html=True)
-    section = re.sub(r'<a class="hlink"[^>]*>#</a>', '', section)
-    section = re.sub(r'(<h[23]\b[^>]*?) id="(?!key-numbers"|repository-tasks"|devin")[^"]+"', r'\1', section)
     assert hashlib.sha256(section.encode()).hexdigest() == 'f33bea01f967bd26db464a3b796632976e797bd802cfad2a0f0341d461f04be4'
 
 

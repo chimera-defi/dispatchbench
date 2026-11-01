@@ -100,8 +100,13 @@ def deep_links(body):
             attrs += f' id="{esc(identifier)}"'
         return f'<{tag}{attrs}>{content}{heading_link(identifier, text)}</{tag}>'
 
+    # The Grok section stays byte-identical to its claims-audit copy; it is linkable by its own ids.
+    grok = re.search(r'<section id="grok">.*?</section>', body, flags=re.S)
+    keep = "\0GROK\0"
+    if grok: body = body.replace(grok[0], keep, 1)
     body = re.sub(r"<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>|<(h[23])\b([^>]*)>(.*?)</\1>",
                   heading, body, flags=re.S)
+    if grok: body = body.replace(keep, grok[0], 1)
 
     # Reading-guide disclosures have summaries rather than h3s. Give their
     # summaries addressable targets inside the closed details as well.
