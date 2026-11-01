@@ -102,10 +102,22 @@ def assert_clear(tree):
               for e in tree.findall('.//s:g[@data-x]', NS)]
     labels = tree.findall('.//s:text[@class="ex-label"]', NS)
     assert len(labels) <= 3
+    clip = tree.find('.//s:clipPath/s:rect', NS)
+    l, t, clip_w, h = (float(clip.get(k)) for k in ('x', 'y', 'width', 'height'))
+    def inside(box):
+        assert box[0] >= l - .01 and box[1] >= t - .01 and box[2] <= l+clip_w+.01 and box[3] <= t+h+.01, box
+    badges = []
+    for ring in tree.findall('.//s:circle[@class="ex-number-ring"]', NS):
+        x, y, r = (float(ring.get(k)) for k in ('cx', 'cy', 'r'))
+        box = (x-r-1, y-r-1, x+r+1, y+r+1)
+        inside(box)
+        assert not any(box[0] < rr and ll < box[2] and box[1] < bb and tt < box[3] for ll, tt, rr, bb in badges)
+        badges.append(box)
     for label in labels + tree.findall('.//s:text[@class="ex-number"]', NS):
         x, y = float(label.get('x')), float(label.get('y'))
         w = float(label.get('data-width'))
         left = x - (w if label.get('text-anchor') == 'end' else w/2 if label.get('text-anchor') == 'middle' else 0)
+        if label.get('class') == 'ex-number': inside((left, y-12, left+w, y+3))
         for px, py in points:
             assert not (left < px+12 and px-12 < left+w and y-12 < py+12 and py-12 < y+3), label.attrib
 
@@ -131,6 +143,17 @@ def test_numbered_frontier_and_local_pick_labels_at_every_width(ds, phone):
     rendered = page.explorer(dataset.view(ds))
     chips = re.search(r'<ol id="ex-chips">(.*?)</ol>', rendered, re.S)[1]
     assert re.findall(r'data-key="([^"]+)"', chips) == frontier
+
+
+def test_prerendered_coincident_frontier_badges_stay_inside_clip(ds):
+    exp = ds['explorer']
+    rows = [r for r in exp['rows'] if r['config'] in {'terra56-high', 'terra61-low', 'haiku-high'}][:3]
+    positions = {r['config']: (96, 60) for r in rows}
+    svg = ('<svg xmlns="http://www.w3.org/2000/svg"><defs><clipPath><rect x="96" y="46" width="196" height="366"/></clipPath></defs>'
+           + charts.explorer_annotations(rows, rows, positions, (96, 46, 292, 412), 320) + '</svg>')
+    tree = ET.fromstring(svg)
+    assert len(tree.findall('.//s:circle[@class="ex-number-ring"]', NS)) == len(rows)
+    assert_clear(tree)
 
 
 def test_caption_uses_dataset_fact_and_changes_with_measurements(ds):
