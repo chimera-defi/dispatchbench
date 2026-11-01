@@ -230,28 +230,26 @@ def where(e, rest, chart_bodies):
     return "only here"
 
 
-def section(rest, ds, root, chart_bodies=None, grok_only=False):
-    """The collapsible "Everything we tried" block, one row per registry entry from the dataset catalog. rest = the page HTML without
-    this block, used for the 'where it appears' column."""
+def section(rest, ds, root, chart_bodies=None, grok_only=False, entries=None):
+    """Render selected catalog entries; rest supplies the 'where it appears' column."""
     from analysis.dataset import catalog_rows, median_seconds, usd as money
     chart_bodies = chart_bodies or {}
     by = {}
     grok_categories = set()
-    for r in catalog_rows(ds):
+    for r in (catalog_rows(ds) if entries is None else entries):
         if r["config"] in GROK_CONFIGS: grok_categories.add(r["category"])
-        if (r["config"] in GROK_CONFIGS) != grok_only: continue
+        if grok_only is not None and (r["config"] in GROK_CONFIGS) != grok_only: continue
         by.setdefault(r["category"], []).append(r)
-    out = ["<details><summary>Everything we tried</summary>", "<ul class=\"tight small\"><li>Every config with rows in results/, grouped by kind.</li>"
-           "<li>Each row pools all of a config's runs. Pass, $ and seconds can differ from Results.</li>"
-           "<li>Codex dollars are list-price estimates. Dash means the full cost is unavailable.</li>"
-           "<li>Hover over a name for its source file.</li><li>Pilot repo pipelines: dollars include builder and review; time is builder-only.</li></ul>"]
+    out = ["<details><summary>Evidence by config</summary>",
+           '<p>Rows pool recorded runs; scores can differ from the main ladder.</p>',
+           '<p>Archived runs: <a href="https://github.com/chimera-defi/dispatchbench/blob/main/docs/RAW_RUNS.md">raw results and provenance</a>.</p>']
     for cat in CATEGORIES:
-        if not grok_only and cat in grok_categories:
+        if grok_only is False and cat in grok_categories:
             out.append('<p>Grok: <a href="#grok">see the Grok section</a></p>')
         es = by.pop(cat, [])
         if not es: continue
         complete = all(e["rule"] == "task_complete" for e in es)
-        head = "".join(f"<th>{h}</th>" for h in ("name", "what it was", "task complete (hidden in brackets)" if complete else "pass",
+        head = "".join(f"<th>{h}</th>" for h in ("name", "task complete (hidden in brackets)" if complete else "pass",
                                                "$ per complete task" if complete else "$ per pass", "median s", "spend", "where it appears"))
         label = "Low context (prompt or tool text trimmed)" if cat == "low context" else set_label(cat)
         totals = {"n_configs": len(es), "spend": sum(e["spend"] for e in es)}
@@ -261,7 +259,7 @@ def section(rest, ds, root, chart_bodies=None, grok_only=False):
             proxy = "~" if e["cost_kind"] == "proxy" else ""
             mark = (f"{e['task_complete']}/{e['n']} complete ({e['hidden_pass']}/{e['n']} hidden)"
                     if e["rule"] == "task_complete" else f"{e['passes']}/{e['n']}")
-            out.append(f"<tr><td title=\"{html.escape(', '.join(e['files']))}\">{html.escape(e['display'])}</td><td>{html.escape(e['what'])}</td><td>{mark}</td>"
+            out.append(f"<tr><td title=\"{html.escape(', '.join(e['files']))}\">{html.escape(e['display'])}</td><td>{mark}</td>"
                        f"<td>{cell_markup((proxy if e['usd_per_pass'] is not None else '') + money(e['usd_per_pass']))}</td><td>{median_seconds(e):.1f}</td><td>{cell_markup((proxy if spend is not None else '') + money(spend))}</td><td>{where(e, rest, chart_bodies)}</td></tr>")
         out.append("</tbody></table></div></details>")
     out += [f"<details><summary>unregistered</summary><p>{html.escape(r['display'])} ({r['source']})</p></details>" for es in by.values() for r in es]

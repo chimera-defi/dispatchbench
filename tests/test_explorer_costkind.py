@@ -40,8 +40,7 @@ for(const kind of ['measured','proxy','unmetered']){
    const titles=Array.from(chart.matchAll(/<(?:g|path) class="[^"]*ex-point[^>]*>\s*<title>(.*?)<\/title>/gs),m=>m[1]);
    samples.push({kind,quota,view,tooltip:titles,
     detail:element('ex-detail').innerHTML,
-    chips:element('ex-best').innerHTML,
-    radar:element('ex-radar-grid').innerHTML});
+    chips:element('ex-chips').innerHTML});
   }
  }
 }
@@ -62,7 +61,7 @@ console.log(JSON.stringify(samples));
     return samples
 
 
-@pytest.mark.parametrize("surface", ["tooltip", "detail", "chips", "radar"])
+@pytest.mark.parametrize("surface", ["tooltip", "detail", "chips"])
 def test_every_explorer_cost_surface_labels_cost_kind(cost_surfaces, surface):
     labels = {
         "measured": r"\bmeasured\b",

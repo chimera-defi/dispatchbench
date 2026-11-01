@@ -120,7 +120,7 @@ def placeholder_cells(html):
     return sorted(set(out))
 
 
-def page_integrity(base="fast-mode-main"):
+def page_integrity(base="origin/main"):
     """Dropped facts: rendered on base, no longer rendered here (a fact lost in a rewrite)."""
     from analysis import report
     used = set()
@@ -132,25 +132,36 @@ def page_integrity(base="fast-mode-main"):
     return dropped, placeholder_cells(built), built == rendered
 
 
-def page_findings(base="fast-mode-main"):
+def allowed_reasons(allow, kind):
+    """Expand exact finding lists sharing one reason; legacy flat entries still work."""
+    reasons = dict(allow.get(kind, {}))
+    for group in allow.get("groups", {}).values():
+        reason = group.get("reason")
+        if isinstance(reason, str) and reason.strip():
+            for item in group.get(kind, []):
+                reasons[item] = reason
+    return reasons
+
+
+def page_findings(base="origin/main"):
     dropped, cells, current = page_integrity(base)
     allow = json.loads(Path(ALLOW).read_text())
     items = [] if current else ["page differs from current render; rebuild before landcheck"]
     if dropped is None:  # first landing with this guard: say so rather than report a silent zero
         print(f"landcheck: dropped-facts check SKIPPED: {base} has no {USED}"); dropped = []
     for kind, found in (("dropped_facts", dropped), ("placeholder_cells", cells)):
-        reasons = allow.get(kind, {})
+        reasons = allowed_reasons(allow, kind)
         items += [f"{kind}: {key}" for key in found if not isinstance(reasons.get(key), str) or not reasons[key].strip()]
     return items
 
 
 def removal_findings(items):
-    reasons = json.loads(Path(ALLOW).read_text()).get("removals", {})
+    reasons = allowed_reasons(json.loads(Path(ALLOW).read_text()), "removals")
     return [item for item in items if not isinstance(reasons.get(item), str) or not reasons[item].strip()]
 
 
 def main():
-    a = argparse.ArgumentParser(); a.add_argument("--base", default="fast-mode-main"); a.add_argument("--ack", action="store_true")
+    a = argparse.ArgumentParser(); a.add_argument("--base", default="origin/main"); a.add_argument("--ack", action="store_true")
     o = a.parse_args()
     integrity = page_findings(o.base)
     items = page_removals(o.base) + merge_drops(o.base)

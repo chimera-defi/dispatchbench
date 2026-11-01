@@ -29,7 +29,6 @@ for(const width of [760,350]){element('ex-chart').clientWidth=width;
     assert(!/NaN|Infinity|undefined/.test(html),`${set.id}/${quota}/${view} invalid geometry`);
     const projected=rr.filter(r=>!exp.views[view].objectives.some(([k])=>k==='cost')||r.cost_kind!=='unmetered'&&(quota?r.quota_usd_per_pass:r.usd_per_pass)!=null);
     assert.equal((html.match(/class="(?:ex-par )?ex-point/g)||[]).length,projected.length,`${set.id}/${view} missing points`);
-    assert.equal((element('ex-radar-grid').innerHTML.match(/class="card ex-radar"/g)||[]).length,rr.length);
     assert(!html.includes('ex-leader')&&!html.includes('ex-label-clip'),'no name column or leaders');
     const frontier=projected.filter(r=>m.get(r.key).on_frontier).sort((a,b)=>{
      const k=exp.views[view].objectives[0][0],v=r=>k==='cost'?(quota?r.quota_usd_per_pass:r.usd_per_pass):r[k];
@@ -39,7 +38,6 @@ for(const width of [760,350]){element('ex-chart').clientWidth=width;
     assert.deepEqual(keys(html),frontier.map(r=>r.key));
     const chipKeys=source=>Array.from(source.matchAll(/data-key="([^"]+)"/g),m=>m[1].replaceAll('&amp;','&'));
     assert.deepEqual(chipKeys(element('ex-chips').innerHTML),frontier.map(r=>r.key));
-    assert.deepEqual(chipKeys(element('ex-best').innerHTML),frontier.map(r=>r.key));
     const points=Array.from(html.matchAll(/data-x="([^"]+)" data-y="([^"]+)"/g),m=>[+m[1],+m[2]]);
     // R8: existence in the SVG is insufficient when the annotation clip hides a badge.
     const clip=html.match(/<clipPath id="ex-clip"><rect x="([^"]+)" y="([^"]+)" width="([^"]+)" height="([^"]+)"/).slice(1).map(Number);
@@ -69,10 +67,8 @@ for(const width of [760,350]){element('ex-chart').clientWidth=width;
 h.st.set=exp.default_set;h.st.view='front';h.st.quota=true;h.st.minPass=1;h.render();
 const rr=exp.sets.find(s=>s.id===h.st.set).rows.map(k=>rm.get(k));
 const exact=rr.filter(r=>r.pass_rate===1&&r.quota_usd_per_pass===0&&r.cost_kind!=='unmetered');
-assert(exact.length>1);const chips=element('ex-best').innerHTML;assert.equal((chips.match(/<li>/g)||[]).length,h.members(rr).size ? rr.filter(r=>h.members(rr).get(r.key).on_frontier).length : 0);for(const r of exact)assert(chips.includes(r.display.replaceAll('&','&amp;')));
 h.st.off=new Set(rr.map(r=>r.key));h.render();assert(element('ex-chart').innerHTML.includes('No configs match'));
 h.st.off.clear();h.st.quota=false;h.st.minPass=0;h.st.view='side';h.render();assert(element('ex-chart').innerHTML.includes('devin16slow-default'));
-assert(element('ex-model-grid').innerHTML.includes('<h4>devin</h4>'));
 h.st.prereg=true;h.render();assert(!element('ex-chart').innerHTML.includes('devin16slow-default'));
 h.st.prereg=false;h.st.facets.add('family:Codex');h.render();assert(!element('ex-chart').innerHTML.includes('main/terra61-low@'));
 // Drive the shipped wheel handler around haiku-high across the label threshold.
@@ -113,4 +109,4 @@ for(const width of [760,390]){
  }
 }
 root.querySelector=originalQuery;
-console.log(`${scenarios} set/view/pricing/width scenarios; ${zoomScenarios} wheel zoom scenarios; frontier parity, ties, points, radars and filters pass`);
+console.log(`${scenarios} set/view/pricing/width scenarios; ${zoomScenarios} wheel zoom scenarios; frontier parity, ties, points and filters pass`);

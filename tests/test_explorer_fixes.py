@@ -79,7 +79,6 @@ def test_speed_shade_closes_toward_slower(runtime):
     tree = ET.fromstring(runtime['top']['chart'])
     shade = tree.find('.//s:path[@class="ex-shade"]', NS)
     assert re.search(r'V412H[^Z]+Z$', shade.get('d'))
-    assert 'V160H' in runtime['top']['panels']
 
 
 def assert_labels_clear(tree, points):

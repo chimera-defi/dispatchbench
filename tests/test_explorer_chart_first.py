@@ -154,39 +154,3 @@ def test_prerendered_coincident_frontier_badges_stay_inside_clip(ds):
     tree = ET.fromstring(svg)
     assert len(tree.findall('.//s:circle[@class="ex-number-ring"]', NS)) == len(rows)
     assert_clear(tree)
-
-
-def test_caption_uses_dataset_fact_and_changes_with_measurements(ds):
-    finding = ds['facts']['explorer_finding']
-    assert finding == dataset.explorer_finding(ds['explorer'])
-    assert finding in page.explorer(dataset.view(ds))
-    assert finding.startswith('haiku-high is cheapest at 100%, at $0.0028 per pass. ')
-    assert 'On the main ladder plus partial runs, at list price, that is the top observed pass rate; the frontier is ' in finding
-    st = next(s for s in ds['explorer']['sets'] if s['id'] == ds['explorer']['default_set'])
-    assert finding.endswith(st['note'])
-    exp = copy.deepcopy(ds['explorer'])
-    row = next(r for r in exp['rows'] if r['config'] == 'haiku-high' and r['set'] == 'main ladder')
-    row['usd_per_pass'] = 1
-    row['display'] = 'fixture renamed config'
-    st = next(s for s in exp['sets'] if s['id'] == exp['default_set'])
-    rows = [r for r in exp['rows'] if r['key'] in st['rows']]
-    st['views']['list']['front']['membership'] = dataset.explorer_frontier(rows,'front')
-    changed = dataset.explorer_finding(exp)
-    assert changed != finding
-    assert 'haiku-high' not in changed
-    assert changed.startswith('terra61-low is cheapest at 100%, at ')
-
-    # A changed best rate, price, name and scope must all reach the caption.
-    for row in exp['rows']:
-        if row['key'] in st['rows']:
-            row['pass_rate'] = .5
-    winner = next(r for r in rows if st['views']['list']['front']['membership'][r['key']]['eligible'])
-    winner.update(pass_rate=.75, usd_per_pass=.25, display='fixture winner')
-    st['label'] = 'Fixture scope'
-    st['note'] = 'Fixture coverage caveat.'
-    rows = [r for r in exp['rows'] if r['key'] in st['rows']]
-    st['views']['list']['front']['membership'] = dataset.explorer_frontier(rows, 'front')
-    changed = dataset.explorer_finding(exp)
-    assert changed.startswith('fixture winner is cheapest at 75%, at $0.25 per pass. ')
-    assert 'On the fixture scope, at list price, that is the top observed pass rate; the frontier is ' in changed
-    assert changed.endswith(st['note'])

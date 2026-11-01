@@ -123,22 +123,12 @@ def earlier_counts(html):
     p=EarlierCharts();p.feed(html);return p.charts
 
 
-def test_earlier_points_and_labels_match_main_3561692():
-    before=earlier_counts(subprocess.check_output(['git','show','3561692:results/report/page.html'],text=True))
-    after=earlier_counts((ROOT/'results/report/page.html').read_text())
-    assert len(before)==len(after)==8
-    assert before.keys()==after.keys()
-    for key in before:
-        for field in ('points','labels','key_labels'):
-            assert Counter(before[key][field])==Counter(after[key][field]), (key,field)
 
-
-def test_explorer_is_prerendered_and_earlier_charts_remain_in_pareto(ds):
+def test_explorer_is_prerendered_in_pareto(ds):
     html=(ROOT/'results/report/page.html').read_text()
     section=html.split('<section id="pareto">',1)[1].split('</section>',1)[0]
-    assert section.index('id="pareto-explorer"')<section.index('<summary>Earlier charts</summary>')
     assert 'class="ex-svg"' in section and 'class="ex-point"' in section
-    assert all(label in section for label in ('Parallel coordinates','Radar per config','By model','Configs in this set','Best trade-offs'))
+    assert all(label in section for label in ('Parallel coordinates','Configs in this set','Best trade-offs'))
     assert 'const MAIN' not in html and 'const RETEST' not in html and 'const PICKS' not in html
     assert '7/12 complete (12/12 hidden)' in html
     for s in ds['explorer']['sets']:

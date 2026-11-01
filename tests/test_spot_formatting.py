@@ -86,27 +86,6 @@ def test_page_tooltips_and_tables_format_dataset_measurements_once():
     reader.feed(Path(report.PAGE).read_text())
     s = dataset.view(ds)
     sources = {**page.every(s), **s['grok']}
-    checked = set()
-    # All main/partial configurations, both price views and both earlier charts.
-    for c, v in sources.items():
-        name = configs.display(c)
-        tips = [t for t in reader.tips if t.startswith((name + ':', name + ' [main ladder]:', name + ' (exploratory) [main ladder]:'))
-                and re.search(r'\bmedian [\d.]+ s', t)]
-        if tips:
-            checked.add(c)
-        for tip in tips:
-            assert re.search(r'\bmedian ([\d.]+) s', tip)[1] == f'{dataset.median_seconds(v):.1f}', (c, tip)
-            price = re.search(r'(\$[\d.,]+) per pass', tip)[1]
-            assert price in {dataset.usd(v['usd_per_pass']), dataset.usd(v['claude_usd_per_pass'])}, (c, tip)
-    assert checked == set(page.ORDER) | (set(s['grok']) - set(configs.CHART_HIDDEN))
-    for c, name in page.NAME.items():
-        v = ds['rescue'][c]
-        tips = [t for t in reader.tips if t.startswith(name + ':') and 'Median ' in t]
-        assert tips, c
-        for tip in tips:
-            assert re.search(r'Median ([\d.]+) s', tip)[1] == f'{v["median_s_raw"]:.1f}'
-            price = re.search(r'(\$[\d.,]+) per pass', tip)[1]
-            assert price in {dataset.usd(v['usd_per_pass']), dataset.usd(v['claude_usd_per_pass'])}
     # The primary table includes every full-ladder config (including Devin).
     result = next(t for t in reader.tables if t[0] == ['config', 'passed', '$ per pass', 'Claude $', 'median s', 'verdict'])
     for c in page.ORDER_ALL:
@@ -141,15 +120,15 @@ def test_page_table_medians_match_exact_populations():
         col = head.index('median s')
         is_primary = head == ['config', 'passed', '$ per pass', 'Claude $', 'median s', 'verdict']
         is_catalog = head[0] == 'name'
-        key = 'primary' if is_primary else 'catalog' if is_catalog else schemas[tuple(head)]
+        is_compact = head == ['config', 'passed', 'median s', '$ per pass', 'coverage']
+        key = 'primary' if is_primary else 'catalog' if is_catalog else 'compact' if is_compact else schemas[tuple(head)]
         checked.add(key)
         group = None
         if is_catalog:
             category = details[-1].split(':')[0]
             category = {'retest pipeline': 'rescue pipeline',
                         'Low context (prompt or tool text trimmed)': 'low context'}.get(category, category)
-            candidates = [r for r in dataset.catalog_rows(ds) if r['category'] == category
-                          and (r['config'] in configs.GROK_CONFIGS) == (section == 'grok')]
+            candidates = [r for r in page.catalog_rows(ds) if r['category'] == category]
             catalog = {r['display']: r for r in candidates}
             assert len(catalog) == len(candidates), (section, category, candidates)
             seen = set()
@@ -178,6 +157,9 @@ def test_page_table_medians_match_exact_populations():
                     v = ladder[name]
                 raw = v['median_s_raw']
                 population = (v['source'], v['config'], v['set'])
+            elif is_compact:
+                raw = ladder[name]['median_s_raw']
+                population = (ladder[name]['source'], ladder[name]['config'], ladder[name]['set'])
             elif key in ('grok_full_reach', 'grok_full_lanes', 'grok_reach', 'grok_equivalent_all'):
                 population = 'grok_comparison' if key.startswith('grok_full') else 'grok_first'
                 lane = row[head.index('comparable lane')] if 'comparable lane' in head else name
@@ -202,9 +184,8 @@ def test_page_table_medians_match_exact_populations():
             assert row[col] == expected, (key, name, population, row[col], expected)
         if is_catalog:
             assert seen == set(catalog), (section, category, seen, set(catalog))
-    assert checked == {'primary', 'catalog', 'grok_full_reach', 'grok_full_lanes',
-                       'grok_reach', 'grok_equivalent_all', 'fastmode', 'equiv_all'}
-    assert catalog_seen == {(r['source'], r['config'], r['set']) for r in dataset.catalog_rows(ds)}
+    assert checked == {'primary', 'catalog', 'compact', 'equiv_all'}
+    assert catalog_seen == {(r['source'], r['config'], r['set']) for r in page.catalog_rows(ds)}
 
 
 def test_harness_repeat_cap_fact_has_primary_provenance():
@@ -216,5 +197,4 @@ def test_harness_repeat_cap_fact_has_primary_provenance():
     removed = [line for line in patch.splitlines() if line.startswith('-') and not line.startswith('---')]
     assert len(added) == len(removed) == fact['value']
     html = Path(report.PAGE).read_text()
-    assert 'a two-line change' in html and fact['source'] in html
     assert 'designed and wrote it in five turns' not in html

@@ -462,3 +462,22 @@ main [id]{scroll-margin-top:var(--anchor-offset,calc(var(--space-4)*5))}
 main [id]:target{outline:1px solid var(--line);outline-offset:var(--space-1);border-radius:var(--radius-sm);background-color:var(--panel)}
 .link-status{position:fixed;inset-block-end:var(--space-4);inset-inline-start:50%;transform:translateX(-50%);padding:var(--space-2) var(--space-3);border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--panel);color:var(--fg);font:500 13px var(--font-body);z-index:100;pointer-events:none}
 .link-status:empty{opacity:0}
+
+/* Compact report rhythm overrides the synced theme's presentation spacing. */
+main{gap:16px;padding-block:24px 32px}
+main>section.collapsible:not(.verdict){padding-top:12px}
+h2{margin:0 0 8px;font-size:22px;line-height:1.2;color:var(--fg)}
+h3{margin:12px 0 6px;font-size:18px;line-height:1.3}
+p{margin:6px 0 10px}
+figure{margin:8px 0 12px}
+.chart{margin:8px 0;padding:10px 12px}
+.chart h3{margin:0 0 6px}
+.ex-layout{gap:16px;align-items:start}
+.ex-aside{gap:8px}
+.ex-chart{margin:0}
+.verdict p:last-child,section>:last-child{margin-bottom:0}
+@media(max-width:600px){
+ main{gap:16px;padding-inline:16px}
+ h2{font-size:20px}
+ .chart{padding:8px 4px}
+}
