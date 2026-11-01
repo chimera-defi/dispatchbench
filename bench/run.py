@@ -6,8 +6,11 @@ python3 -m bench.run --phase fastmode --configs sol61-high-fast,sol61-xhigh --pr
 
 Cache entry: cache/calls/<sha256>.json with the completion text, token usage, wall time and CLI metadata.
 Grading is a separate step (bench.grade_all), so lanes never compete with timed test runs."""
-import argparse, datetime, hashlib, json, os, re, shutil, subprocess, sys, tempfile, threading, time
+import argparse, datetime, hashlib, json, os, re, shlex, shutil, subprocess, sys, tempfile, threading, time
+import urllib.error
+import urllib.request
 from concurrent.futures import ThreadPoolExecutor
+from http.client import HTTPException
 
 from bench import problems
 from bench.codex_env import isolated_codex_env
@@ -19,6 +22,7 @@ CLAUDE = os.environ.get("CLAUDE_BIN", "claude")
 CODEX = os.environ.get("CODEX_BIN", "codex")
 GROK = os.environ.get("GROK_BIN", "grok")
 DEVIN = os.environ.get("DEVIN_BIN", "devin")
+HETZNER_BASE_URL = "https://inference.hetzner.com/api/v1"
 CLAUDE_BUDGET_USD = 8.00
 GROK_BUDGET_USD = 60.00  # raised 2026-10-28 for the full-spectrum Grok run.
 
@@ -53,6 +57,8 @@ CONFIGS.update({"terra61-low": ("codex", "gpt-6.1-terra", "low"), "terra61-high"
 CONFIGS.update({f"grok47-{e}": ("grok", "grok-4.7", e) for e in ("low", "medium", "high")})
 CONFIGS["grok47fast-low"] = ("grok", "grok-4.7-build-fast", "low")
 CONFIGS["devin16slow-default"] = ("devin", "swe-1-6-slow", "default")  # free tier: the only accessible Devin-native model
+CONFIGS["hetzner-qwen36"] = ("hetzner", "Qwen/Qwen3.6-35B-A3B-FP8", "default")
+CONFIGS["hetzner-qwen38"] = ("hetzner", "Qwen/Qwen3.8-27B", "default")
 
 
 def codex_flags(config, portable=False):
@@ -91,6 +97,7 @@ _versions = {}
 
 
 def cli_version(cli):
+    if cli == "hetzner": return "chat/completions-v1"
     if cli not in _versions:
         exe = {"claude": CLAUDE, "codex": CODEX, "grok": GROK, "devin": DEVIN}[cli]
         if cli == "codex":
@@ -111,7 +118,8 @@ def prompt_for(pid):
 
 def key_for(config, pid, rep, prompt):
     cli, mid, eff = CONFIGS[config]
-    flags = CLAUDE_FLAGS if cli == "claude" else GROK_FLAGS if cli == "grok" else codex_flags(config, portable=True)
+    flags = (["--base-url", HETZNER_BASE_URL, "--model", mid] if cli == "hetzner" else
+             CLAUDE_FLAGS if cli == "claude" else GROK_FLAGS if cli == "grok" else codex_flags(config, portable=True))
     identity = {"config": config, "model": mid, "effort": eff, "cli": cli, "cli_version": cli_version(cli),
                 "flags": flags, "prompt": prompt, "problem": pid, "repeat": rep}
     if cli == "codex": identity["codex_home"] = "isolated"
@@ -164,6 +172,7 @@ def check_grok_budget():
 
 
 def error_kind(row):
+    if row.get("cli") == "hetzner" and row.get("error_type") == "infrastructure": return "infrastructure"
     msg = (row.get("error") or "").lower()
     if row.get("quota_error") or re.search(r"quota|rate[ _-]?limit|too many requests|\b429\b|usage limit", msg): return "limit"
     if row.get("error_type") == "infrastructure" or row.get("outcome") in ("timeout", "harness_error") or re.search(r"infrastructure|temporary|overloaded|connection|econn|timed? ?out|timeout|\b50[0234]\b", msg): return "infrastructure"
@@ -280,6 +289,69 @@ def call_devin(mid, eff, prompt, cwd=None):
     return dict(base, text=r.stdout, is_error=False, error=None), r.stdout
 
 
+def _hetzner_key():
+    """Read credentials at call time, without sourcing shell code."""
+    key = os.environ.get("HETZNER_INFERENCE_API_KEY")
+    if key: return key
+    try:
+        with open(os.path.expanduser("~/.config/hetzner/inference.env")) as src:
+            for line in src:
+                match = re.match(r"^\s*(?:export\s+)?HETZNER_INFERENCE_API_KEY\s*=\s*(.*)$", line)
+                if match:
+                    parts = shlex.split(match[1], comments=True)
+                    if len(parts) != 1: raise ValueError("Invalid Hetzner credential assignment")
+                    return parts[0]
+    except FileNotFoundError:
+        pass
+    return ""
+
+
+def call_hetzner(mid, eff, prompt, cwd):
+    """Free experimental API; only the benchmark prompt is sent, with no tools."""
+    t = time.monotonic()
+    key = ""
+    raw = ""
+    res = dict(text="", is_error=False, error=None, in_tok=0, out_tok=0, cached_tok=0,
+               cache_write_tok=0, reasoning_tok=0, cost_usd=0.0,
+               cost_kind="free-tier (Hetzner experimental, no list price)")
+
+    def scrub(text):
+        # Normalize JSON escapes as well, in case a server echoes the credential.
+        try: text = json.dumps(json.loads(text), ensure_ascii=False)
+        except ValueError: pass
+        if key:
+            text = text.replace(key, "[REDACTED]").replace(json.dumps(key)[1:-1], "[REDACTED]")
+        return text
+
+    try:
+        key = _hetzner_key()
+        if not key: raise ValueError("Missing Hetzner inference credential")
+        body = json.dumps({"model": mid, "messages": [{"role": "user", "content": prompt}]}).encode()
+        request = urllib.request.Request(HETZNER_BASE_URL + "/chat/completions", data=body,
+                                         headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"},
+                                         method="POST")
+        try:
+            with urllib.request.urlopen(request, timeout=600) as response:
+                raw = scrub(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            with exc:
+                raw = scrub(exc.read().decode("utf-8", errors="replace"))
+            res.update(is_error=True, error=scrub(f"HTTP {exc.code}: {raw or exc.reason}")[-1000:],
+                       error_type="infrastructure" if exc.code == 429 or 500 <= exc.code < 600 else "model")
+        else:
+            d = json.loads(raw)
+            text = d["choices"][0]["message"].get("content") or ""
+            if not isinstance(text, str): raise ValueError("Expected Hetzner message content to be text")
+            u = d.get("usage") or {}
+            res.update(text=text, in_tok=u.get("prompt_tokens", 0), out_tok=u.get("completion_tokens", 0),
+                       cached_tok=(u.get("prompt_tokens_details") or {}).get("cached_tokens", 0),
+                       reasoning_tok=(u.get("completion_tokens_details") or {}).get("reasoning_tokens", 0))
+    except (OSError, HTTPException, ValueError, TypeError, KeyError, IndexError, AttributeError) as exc:
+        res.update(text="", is_error=True, error=scrub(str(exc))[-1000:], error_type="infrastructure")
+    res["wall_s"] = time.monotonic() - t
+    return res, raw
+
+
 def call_codex(mid, eff, prompt, cwd, flags=CODEX_FLAGS):
     cmd = [CODEX, "exec", "-m", mid, "-c", f"model_reasoning_effort={eff}"] + flags + ["-C", cwd, prompt]
     t = time.monotonic()
@@ -304,6 +376,7 @@ def one(config, pid, rep, phase, lanes):
         if cli == "claude": res, raw = call_claude(mid, eff, prompt, cwd)
         elif cli == "grok": res, raw = call_grok(mid, eff, prompt, cwd)
         elif cli == "devin": res, raw = call_devin(mid, eff, prompt)
+        elif cli == "hetzner": res, raw = call_hetzner(mid, eff, prompt, cwd)
         else: res, raw = call_codex(mid, eff, prompt, cwd, codex_flags(config))
     except SpendLimit as exc:
         return str(exc)
