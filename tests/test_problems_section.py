@@ -22,7 +22,5 @@ def test_problems_are_visible_and_have_original_statements():
         assert unescape(statement) == module.STATEMENT
         assert unescape(re.search(r'<pre class="problem-signature"><code>(.*?)</code></pre>', problem, re.S)[1]) == module.SIGNATURE
         assert 'reference solution (spoiler)' in problem
-    pilot = sec.split('<b>Pilot</b>', 1)[1].split('<li class="round">', 1)[0]
-    assert pilot.count('https://leetcode.com/problems/') == 6
     # Every problem name and analogue remains outside its Try it disclosure.
     assert sec.index('<li class="prow"') < sec.index('<summary>Try it</summary>')

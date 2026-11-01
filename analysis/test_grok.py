@@ -1,64 +1,12 @@
 """Exercise the pending Grok lane without changing any graded results files."""
 import copy
-import hashlib
 import json
 import re
-from collections import Counter, defaultdict
-from html.parser import HTMLParser
 from pathlib import Path
 
 import pytest
 
 from analysis import charts, configs, dataset, grok, page, report, summarize
-
-
-class GrokScope(HTMLParser):
-    """Count every config occurrence, including attributes and embedded chart/script data."""
-    VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
-
-    def __init__(self):
-        super().__init__()
-        self.elements = []
-        self.counts = defaultdict(Counter)
-
-    def check(self, text):
-        for config in re.findall(r"grok47[a-z-]*", text):
-            section = next((attrs.get("id") for tag, attrs in reversed(self.elements) if tag == "section"), None)
-            assert section in {"grok", "fail", "pareto"}, (config, section)
-            self.counts[config][section] += 1
-
-    def handle_starttag(self, tag, attrs):
-        if tag not in self.VOID: self.elements.append((tag, dict(attrs)))
-        self.check(self.get_starttag_text())
-
-    def handle_startendtag(self, tag, attrs):
-        self.handle_starttag(tag, attrs)
-        self.handle_endtag(tag)
-
-    def handle_endtag(self, tag):
-        for i in range(len(self.elements) - 1, -1, -1):
-            if self.elements[i][0] == tag:
-                del self.elements[i:]
-                break
-
-    def handle_data(self, text):
-        self.check(text)
-
-    def handle_comment(self, text):
-        self.check(text)
-
-
-@pytest.mark.parametrize("section", ["grok", "fail", "pareto"])
-@pytest.mark.parametrize("row", [
-    '<tr><td>grok47-low</td></tr>',
-    '<tr data-config="grok47-high"><td>Grok</td></tr>',
-])
-def test_grok_scope_rejects_rows_after_allowed_section(section, row):
-    allowed = f'<section id="{section}"><div><table>{row}</table></div></section>'
-    GrokScope().feed(allowed)
-    for outside in (f'<table>{row}</table>', f'<section id="notes"><table>{row}</table></section>'):
-        with pytest.raises(AssertionError):
-            GrokScope().feed(allowed + outside)
 
 
 def test_grok_scope_report_svgs():
@@ -79,25 +27,6 @@ def test_grok_scope_report_svgs():
             assert 'class="ex-point"' in text and 'default cost versus pass view' in text
         else:
             assert not found, path.name
-
-
-def test_grok_scope_generated_page():
-    html = Path(report.PAGE).read_text()
-    scope = GrokScope()
-    scope.feed(html)
-    scope.close()
-    assert not scope.elements
-    assert set(scope.counts) == set(configs.GROK_CONFIGS)
-    assert all(set(counts) == {"grok", "fail", "pareto"} for counts in scope.counts.values())
-    inventory = html.split('<summary>Everything we tried</summary>')[-1]
-    assert 'Grok: <a href="#grok">see the Grok section</a>' in inventory
-    assert not any(c in inventory for c in configs.GROK_CONFIGS)
-    # Recreate the leaked inventory group on the actual page, after #grok and #fail.
-    leaked = ('<details><summary>exploratory: 4 configs</summary><table>'
-              '<tr><td>grok47-low</td></tr></table></details>')
-    with pytest.raises(AssertionError, match="grok47-low"):
-        GrokScope().feed(html.replace('<section class="notes" id="notes">',
-                                      '<section class="notes" id="notes">' + leaked))
 
 
 def test_grok_reach_counts_and_note_follow_source_rows():
@@ -216,17 +145,9 @@ def test_first_half_rows_render_without_changing_full_ladder(monkeypatch):
     monkeypatch.setattr(dataset, "read", lambda: ds)
     readme, full, html = report.render()
     assert "## Grok\n" in full and "6 of 12 problems" in full
-    assert '<section id="grok">' in html and "6 of 12 problems" in html
-    assert "A dash means no attempt, not a failure." in html and "CLI-reported cost; list price not used" in html
+    assert '<section id="grok">' in html and "6 problems" in html
+    assert "dashes mean untested" in html
     assert all(c in html for c in configs.GROK_CONFIGS)
-    scope = GrokScope()
-    scope.feed(html)
-    assert set(scope.counts) == set(configs.GROK_CONFIGS)
-    assert all({"grok", "fail"} <= set(counts) <= {"grok", "fail", "pareto"} for counts in scope.counts.values())
-    assert "pareto" in scope.counts["grok47-low"]
-    # I: even a config with no passing call appears in the set toggles and
-    # unavailable-cost explanation; it must still stay off the dollar plot.
-    assert "pareto" in scope.counts["grok47-high"]
     explorer_plot = html.split('id="ex-chart"', 1)[1].split('</div>', 1)[0]
     assert "grok47-high" not in explorer_plot
     assert "Grok" not in "\n".join(l for l in readme.splitlines() if not l.startswith("Total spend, by kind"))  # README shows only the Winner table and the by-kind spend line
@@ -303,199 +224,6 @@ def test_comparison_filters_phases_and_prices_codex_fast_tokens(monkeypatch):
 
 # Fact inventory frozen from main 33afeca, before the readability pass.
 # Every original table row retains its config, numbers and profile together.
-OLD_GROK_ROWS = """
-| grok47-low | L2 | 10/10 | 10/10 | 3/4 | 23/24 | 26.5 | $0.054 | 6 problems | $1.24 |
-| grok47-medium | L2 | 10/10 | 7/7 | 3/4 | 20/21 | 32.6 | $0.066 | 6 problems | $1.33 |
-| grok47-high | L3 (not run further) | 10/10 | 4/4 | 4/4 | 18/18 | 41.0 | $0.072 | 6 problems | $1.29 |
-| grok47fast-low | L2 | 10/10 | 10/10 | 3/4 | 23/24 | 19.4 | $0.11 | 6 problems | $2.56 |
-| grok47-low | Claude | haiku-medium | L2 | L3 | 29/30 | 10.6 | $0.0011 | 2.5× | 50.1× |
-| grok47-low | Codex | luna-high | L2 | L3 | 24/25 | 9.0 | $0.00092 | 2.9× | 58.7× |
-| grok47-medium | Claude | haiku-medium | L2 | L3 | 29/30 | 10.6 | $0.0011 | 3.1× | 61.8× |
-| grok47-medium | Codex | luna-high | L2 | L3 | 24/25 | 9.0 | $0.00092 | 3.6× | 72.3× |
-| grok47-high | Codex | astra-medium | L6 | none | 30/30 | 12.7 | $0.064 | 3.2× | 1.1× |
-| grok47-high | Codex | astra-medium ⚡ | L6 | none | 30/30 | 6.9 | $0.13 | 6.0× | 0.6× |
-| grok47-high | Claude | haiku-high | L6 | none | 30/30 | 11.8 | $0.0022 | 3.5× | 33.1× |
-| grok47-high | Claude | haiku-low | L4 | L5 | 30/30 | 8.2 | $0.00066 | 5.0× | 109.3× |
-| grok47-high | Codex | sol56-high | L6 | none | 30/30 | 10.0 | $0.032 | 4.1× | 2.3× |
-| grok47-high | Codex | sol61-high | L6 | none | 30/30 | 16.9 | $0.015 | 2.4× | 4.7× |
-| grok47-high | Codex | sol61-high ⚡ | L6 | none | 20/20 | 9.8 | $0.026 | 4.2× | 2.8× |
-| grok47-high | Codex | sol61-medium | L5 | L6 | 30/30 | 15.4 | $0.012 | 2.7× | 5.9× |
-| grok47-high | Claude | sonnet-medium | L6 | none | 30/30 | 9.5 | $0.010 | 4.3× | 7.2× |
-| grok47fast-low | Claude | haiku-medium | L2 | L3 | 29/30 | 10.6 | $0.0011 | 1.8× | 103.4× |
-| grok47fast-low | Codex | luna-high | L2 | L3 | 24/25 | 9.0 | $0.00092 | 2.2× | 121.1× |
-| grok47-high | 8/8 complete (8/8 hidden) | 442.1 | $0.54 | 9 |
-| grok47-low | 8/8 complete (8/8 hidden) | 98.9 | $0.19 | 5 |
-| astra-medium | 12/12 complete (12/12 hidden) | 65.6 | $0.45 | 1 |
-| haiku-high | 12/12 complete (12/12 hidden) | 58.4 | $0.012 | 10 |
-| haiku-low | 12/12 complete (12/12 hidden) | 28.3 | $0.0051 | 5 |
-| luna-low | 7/12 complete (12/12 hidden) (under audit) | 24.1 | $0.0056 | 1 |
-| sol61-high | 12/12 complete (12/12 hidden) | 117.9 | $0.097 | 1 |
-| sol61-medium | 12/12 complete (12/12 hidden) | 84.5 | $0.079 | 1 |
-| sonnet-medium | 12/12 complete (12/12 hidden) | 27.7 | $0.054 | 3 |
-| grok47-high | astra-medium | 6.74× | 1.20× |
-| grok47-high | haiku-high | 7.57× | 44.34× |
-| grok47-high | haiku-low | 15.63× | 105.53× |
-| grok47-high | luna-low | 18.33× | 95.85× |
-| grok47-high | sol61-high | 3.75× | 5.50× |
-| grok47-high | sol61-medium | 5.23× | 6.74× |
-| grok47-high | sonnet-medium | 15.94× | 9.97× |
-| grok47-low | astra-medium | 1.51× | 0.42× |
-| grok47-low | haiku-high | 1.69× | 15.55× |
-| grok47-low | haiku-low | 3.50× | 37.01× |
-| grok47-low | luna-low | 4.10× | 33.62× |
-| grok47-low | sol61-high | 0.84× | 1.93× |
-| grok47-low | sol61-medium | 1.17× | 2.36× |
-| grok47-low | sonnet-medium | 3.57× | 3.50× |
-""".strip().splitlines()
-
-# Every original prose claim, including scope, caveats and source names.
-OLD_GROK_CLAIMS = (
-    # Scoped to the first run by the claims audit (F14): the old text read as the verdict.
-    ('In the first run (p01–p06 only), Grok was accurate but slow and mid-priced. grok47-high passed 18 of 18 but took 41 s per call at the '
-     'median. Every existing lane at 100% finished in 6.9 to 16.9 s.'),
-    ('In this first run, grok47-low, grok47-medium and grok47fast-low each missed one call at L3 (3/4), so the '
-     'pre-registered stop rule fired for all three; the full run above supersedes it.'),
-    ('In this first run, cost per pass was $0.054 to $0.111. Claude haiku and the Codex luna lanes are under $0.003. Only the '
-     'Codex astra lanes cost as much.'),
-    ('Totals differ (18, 21, 24) because the run was shortened from 5 to 2 repeats partway through L2 and '
-     'extra repeats already run were kept; the earlier full-coverage lanes have 30 = 6 problems × 5 '
-     'repeats; read the rung reached, not the total.'),
-    # Reworded in plain language; same rule: match on rungs cleared and the first rung with a miss.
-    ('A lane is comparable when it clears the same rungs and first misses at the same rung on the '
-     '12-problem main ladder. If a Grok config never missed through L3, every lane that clears through L3 '
-     'counts, with its later results shown.'),
-    ('Same-problem comparisons use p01–p06 (6 of 12 problems), main + exploratory phases only. Warmup, '
-     'calibration, fastmode, escalation and hard phases are excluded. In this first run Grok was run only '
-     'through L3, so cleared L3 is a floor here; the full-ladder runs above go to L6 (only grok47-medium '
-     'stays on p01–p06). CLI-reported cost; list price not used for Grok. Codex dollars '
-     'use tokens × list price with the fast-mode multiplier.'),
-    ('grok47-high is cheaper per pass than astra-medium ⚡ (fast mode, 2× list price) on functions (0.55×). '
-     'grok47-low is cheaper per pass than plain astra-medium on repo tasks (0.42×) while 1.5× slower. '
-     'grok47-low takes 0.84× as long as sol61-high on repo tasks. '
-     'No Grok config beats a comparable function lane on pass rate. '
-     'No Grok config beats a comparable function lane on time.'),
-    ('4 tasks (t1_discount, t2_cache_bugs, t3_config_refs, t4_retry_queue); Grok: 2 repeats per task and '
-     'config, 4 parallel lanes, tools on, no web or subagents, 1,500 s timeout; all 16 runs retained with '
-     'no performance stop rule. Existing lanes: 3 repeats per task; clean-home Codex replacements are used '
-     'where available. Hidden tests run after the agent exits.'),
-    ('Grok is a usable fallback for these small repo tasks when Codex is out, though Claude is faster and '
-     'cheaper: grok47-low 8/8 complete (8/8 hidden) at 98.9 s median, compared with today’s Claude fallback lanes '
-     '(haiku-high 12/12 complete (12/12 hidden), haiku-low 12/12 complete (12/12 hidden), sonnet-medium 12/12 complete (12/12 hidden)) at 27.7–58.4 s median.'),
-    ('Grok total measured spend: $5.78 of the $15 budget. Grok and Claude costs are CLI-reported; Codex '
-     'costs are token-price proxies. Multiples use median wall time and total cost per passing attempt, '
-     'respectively. Turns use each CLI’s convention and are not directly comparable across CLIs. This is a '
-     'small exploratory sample on a shared host, not a general repo-work guarantee. Sources: '
-     '`results/2026-10-22b-agentic.jsonl`, `results/2026-10-25-isolated-agentic.jsonl`, '
-     '`results/2026-10-27-grok-agentic.jsonl`.'),
-)
-
-
-# Digests include every byte outside Grok. Re-pinned 2026-10-28 after Grok-only changes outside the section: the shared
-# #results/#grok table CSS, the Grok marker shape, the speed chart axis and Grok columns in the fail grid.
-# Re-pinned 2026-10-28: everything outside the Grok section changed with the Terra rows (tables, charts, Interesting, equivalents).
-# Re-pinned 2026-10-28 for Commit A: Devin rows (tables, fail grid, rung chart, heatmap, catalog), the share-card meta tags in
-# the page head, and the relabelled pareto chart labels. The Grok repository-tasks subsection is unchanged.
-# E: the page digest also covers the embedded data block, the rule labels and the rule note; REPORT.md carries the rule labels, the rule note, the audit footnote and tokenised figures.
-# F: re-pinned for the claims fixes (one repo-task rule, spend by kind, pilot repricing, bucket labels, CI bars, wording rows).
-# G: re-pinned for the t1 regrade line and table (repo-task section, outside the Grok section).
-# F2: re-pinned after reviewing auxiliary spend, task/run wording, catalog pass rules and the repricing counts; Grok bytes unchanged.
-# I: re-pinned for the v6 explorer and Fable theme; old plot data and visible
-# facts are separately compared with main 3561692 in test_pareto_explorer.py.
-# S1-S4: theme, topbar, explorer fixes
-# S5: inline tokens/topbar CSS
-# P4: P4a_prose - Winner copy and section chrome only; Grok section bytes unchanged.
-# P4: P4b_chart — chart-first explorer, phone frontier labels and dataset finding; Grok bytes unchanged.
-# P4: P4c_ds + P4d integration
-# P4: P4e zoom fix
-# P4: P4f spot-check - raw-median presentation and harness-build provenance.
-# Grok HTML changes only one catalog cell: <td>39.5</td> -> <td>39.4</td>.
-# P4h: re-pinned for the chart-adjacent colour key and finding-first explorer caption; Grok section bytes unchanged.
-# P4i: re-pinned for keyboard sorting buttons and shared table styles; Grok section bytes unchanged.
-# R: R1-R5 fonts, compact title, numbered hero, visible charts/problems/matches and restored any-pair widget; Grok bytes unchanged.
-# R: R6 generated permalinks, short problem anchors, keyboard links and hash reveal; Grok prose/data unchanged.
-# R: R7 sparse speed-chart tick labels; Grok section bytes unchanged.
-# R: R8 bounded frontier badges, config hash restoration, live Grok links and keyboard any-pair inspection; raw Grok bytes unchanged.
-# R: R9 section-title permalinks reuse section ids; slug words stay separate; any-pair redraw keeps keyboard focus; Grok raw bytes unchanged.
-OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': 'd590a7a248ed8d242e2c119a3d54666e48d0da06fb7d98026015e78e86df10ad',
-    'docs/REPORT.md': 'de2e362eb61a9240b1cd23e4bc03a83f38001ff5d54353e941315f4effd97507',
-}
-
-
-def grok_section(text, html=False):
-    start, end = ('<section id="grok">', '</section>') if html else ('## Grok\n', '\n## Can luna')
-    before, rest = text.split(start, 1)
-    section, after = rest.split(end, 1)
-    return section, before + after
-
-
-class GrokText(HTMLParser):
-    """Read actual cell text through inline markup and retain row associations."""
-    def __init__(self):
-        super().__init__()
-        self.text, self.rows = [], []
-        self.row, self.cell = None, None
-
-    def handle_starttag(self, tag, attrs):
-        if tag == "tr": self.row = []
-        if tag == "td": self.cell = []
-
-    def handle_endtag(self, tag):
-        if tag == "td":
-            self.row.append("".join(self.cell).strip())
-            self.cell = None
-        if tag == "tr" and self.row:
-            self.rows.append(tuple(self.row))
-            self.row = None
-        if tag in {"p", "li", "h3", "td", "tr", "summary"}: self.text.append(" ")
-
-    def handle_data(self, text):
-        self.text.append(text)
-        if self.cell is not None: self.cell.append(text)
-
-
-def test_grok_fact_retention():
-    """All old numbers/configs stay attached to their rows; every claim survives."""
-    full, html = (Path(p).read_text() for p in (report.REPORT, report.PAGE))
-    md_section, _ = grok_section(full)
-    html_section, _ = grok_section(html, html=True)
-    parsed = GrokText()
-    parsed.feed(html_section)
-    md_rows = {tuple(cell.strip() for cell in line.strip('|').split('|'))
-               for line in md_section.splitlines() if line.startswith('|')}
-    for old_row in OLD_GROK_ROWS:
-        cells = tuple(cell.strip() for cell in old_row.strip('|').split('|'))
-        assert cells in md_rows, f"Missing original Markdown fact row: {old_row}"
-        assert cells in parsed.rows, f"Missing original HTML fact row: {old_row}"
-
-    # Punctuation may split a sentence. Each underlying claim must still occur.
-    normalize = lambda text: re.sub(r"[^\w$%×/–.-]+", " ", re.sub(r"(?m)^- ", "", text).lower()).strip(' .')
-    texts = [normalize(md_section.replace('`', '')), normalize(''.join(parsed.text))]
-    claims = list(OLD_GROK_CLAIMS)
-    claims.append('The function misses were on p06_calc.')
-    fallback = claims.pop(8)
-    fallback_claim, comparison = fallback.split(': ', 1)
-    grok_result, claude_result = comparison.split(', compared with ', 1)
-    claims.extend([*fallback_claim.split(', though '), grok_result,
-                   claude_result.replace(' at ', ' took ', 1)])
-    for claim in claims:
-        for text in texts:
-            assert normalize(claim.replace('`', '')) in text, f"Missing original claim: {claim}"
-
-    # The three operator paragraphs stay verbatim, immediately after the bullets.
-    operator_words = '\n\n'.join(OLD_GROK_CLAIMS[:3])
-    assert dataset.read()['facts']['grok_summary'].split('\n\n') == list(OLD_GROK_CLAIMS[:3])
-    assert md_section.index(operator_words) < md_section.index('\n- ')  # the summary comes before the bullets
-    assert report.to_html(operator_words) in html_section
-    assert html_section.index(report.to_html(operator_words)) < html_section.index('<ul>')
-
-
-def test_grok_readability_scope_is_local():
-    for filename, digest in OLD_NON_GROK_DIGESTS.items():
-        _, outside = grok_section(Path(report.ROOT, filename).read_text(), html=filename.endswith('.html'))
-        assert hashlib.sha256(outside.encode()).hexdigest() == digest, filename
-
-
 def test_grok_closest_tables_keep_one_lane_per_family_and_expand_all():
     ds = dataset.read()
     expected = {(c, family, other)
@@ -518,13 +246,6 @@ def test_grok_closest_tables_keep_one_lane_per_family_and_expand_all():
     assert '| grok47-low | Codex | sol61-medium |' in compact
     assert len([line for line in expanded.split('</details>', 1)[0].splitlines()
                 if line.startswith('| grok')]) == 14
-    page_section, _ = grok_section(Path(report.PAGE).read_text(), html=True)
-    assert page_section.count('<summary>All comparable lanes</summary>') == 2
-    parsed = GrokText()
-    parsed.feed(page_section)
-    assert ''.join(parsed.text).count(grok.SELECTION_NOTE) == 2
-    assert '/ equivalent' not in page_section
-    assert not re.search(r'<details\b[^>]*\bopen\b', page_section)
 
 
 def test_grok_summary_cost_wins_follow_measurements(monkeypatch):

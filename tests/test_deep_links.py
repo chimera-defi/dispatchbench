@@ -8,10 +8,8 @@ from analysis import page
 
 ROOT = Path(__file__).resolve().parents[1]
 SECTIONS = ['winner', 'pareto', 'results', 'problems', 'grok', 'method', 'fail',
-            'tokens', 'pipes', 'fair', 'conclusion', 'limits', 'extras', 'notes',
-            'interesting', 'equiv']
-PILOTS = ['pilot-fizz-buzz', 'pilot-course-schedule-ii', 'pilot-candy',
-          'pilot-reconstruct-itinerary', 'pilot-minimum-window-substring', 'pilot-wildcard-matching']
+            'tokens', 'pipes', 'fair', 'limits', 'extras', 'notes',
+            'equiv']
 
 
 class Node:
@@ -74,7 +72,7 @@ def test_sections_and_problem_ids_are_unique_and_pinned():
     problems = next(n for n in doc.nodes if n.attrs.get('id') == 'problems')
     entries = [n for n in problems.descendants() if n.tag == 'li' and
                (n.attrs.get('class') == 'prow' or n.attrs.get('id', '').startswith('pilot-'))]
-    assert [n.attrs['id'] for n in entries] == PILOTS + [f'p{i:02}' for i in range(1, 16)]
+    assert [n.attrs['id'] for n in entries] == [f'p{i:02}' for i in range(1, 16)]
     for entry in entries:
         assert_link(entry)
         if entry.attrs['id'].startswith('pilot-'):
@@ -102,10 +100,8 @@ def test_generated_heading_ids_are_ascii_unique_and_deterministic():
 
 def test_section_titles_target_the_section_without_generated_ids():
     for section in (n for n in document().nodes if n.tag == 'section'):
-        if section.attrs['id'] == 'grok':  # Raw bytes stay pinned; checked in the live DOM.
-            continue
         heading = next(n for n in section.descendants() if n.tag in {'h1', 'h2', 'h3', 'h4', 'h5', 'h6'})
-        assert 'id' not in heading.attrs
+        assert heading.attrs.get('id') == ('grok-and-devin' if section.attrs['id'] == 'grok' else None)
         assert not re.search(r'-\d+$', heading.attrs.get('id', ''))
         assert_link(heading, section.attrs['id'])
     assert 'accuracyone' not in (ROOT / 'results/report/page.html').read_text()
@@ -176,14 +172,6 @@ assert.equal(element('ex-detail').innerHTML,before);
                             capture_output=True, text=True, cwd=ROOT)
     assert result.returncode == 0, result.stderr
 
-
-def test_grok_section_bytes_unchanged():
-    # deep_links() skips #grok: raw bytes equal the pre-R6 section (and HEAD before R).
-    import hashlib
-    from analysis.test_grok import grok_section
-
-    section, _ = grok_section((ROOT / 'results/report/page.html').read_text(), html=True)
-    assert hashlib.sha256(section.encode()).hexdigest() == 'f33bea01f967bd26db464a3b796632976e797bd802cfad2a0f0341d461f04be4'
 
 
 def test_all_body_headings_and_deep_links_in_chrome():

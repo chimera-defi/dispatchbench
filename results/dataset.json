@@ -35001,12 +35001,6 @@
    "display": "On Codex's bench, both families gained. luna-low rose from 36 to 47 passes. It cost ~3× per pass and took ~3× the median time. haiku-low rose from 57 to 60 passes. It cost ~1.1× per pass, with the same median time.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
-  "int_build": {
-   "value": "Codex's bench dry runs missed 2 sandbox bugs; a live call found them. Its \"plan and reorient\" nudge changed no code.",
-   "unit": "text",
-   "display": "Codex's bench dry runs missed 2 sandbox bugs; a live call found them. Its \"plan and reorient\" nudge changed no code.",
-   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
-  },
   "int_l7": {
    "value": "On L7, luna-high passed 15/15; sol56-high missed. luna-high cost ~$0.0015 per pass versus sol56-high's ~$0.069.",
    "unit": "text",

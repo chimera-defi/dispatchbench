@@ -12,7 +12,7 @@
 """
 import html, json, os, re, sys
 
-from analysis import charts, configs, dataset, luna_rescue, raw_runs, report, summarize
+from analysis import charts, configs, dataset, luna_rescue, page as pagew, raw_runs, report, summarize
 from analysis.summarize import ROOT, RES
 
 ALLOW = os.path.join(ROOT, "docs", "audit_allow.json")
@@ -132,11 +132,13 @@ def main():
     fails += configs.check_registry(dataset.keys(ds))  # every config with rows is registered, and every entry has rows
     # Tooltip wrappers preserve the original catalog cell text and values.
     catalog_page = re.sub(r'<(abbr|tspan) class="notation-use"[^>]*>(.*?)</\1>', r'\2', page)
-    for e in dataset.catalog_rows(ds):  # ... and the page shows every registry entry with its dataset numbers
+    for e in pagew.catalog_rows(ds):  # The short page retains current evidence; raw_runs audits the archive.
         mark = (f"{e['task_complete']}/{e['n']} complete ({e['hidden_pass']}/{e['n']} hidden)"
                 if e["rule"] == dataset.RULE_COMPLETE else f"{e['passes']}/{e['n']}")
-        cell = f">{html.escape(e['display'])}</td><td>{html.escape(e['what'])}</td><td>{mark}</td>"
-        if cell not in catalog_page: fails.append(f"page: {e['id']} is missing from the page's Everything we tried section, or its pass count differs from the dataset")
+        cell = f">{html.escape(e['display'])}</td><td>{mark}</td>"
+        if cell not in catalog_page: fails.append(f"page: {e['id']} is missing from the page's evidence catalog, or its pass count differs from the dataset")
+    if "https://github.com/chimera-defi/dispatchbench/blob/main/docs/RAW_RUNS.md" not in page:
+        fails.append("page: archived evidence needs its raw-results link")
     checked += 1
 
     allow = json.load(open(ALLOW))

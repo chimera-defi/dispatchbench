@@ -103,7 +103,7 @@ def deep_links(body):
         return identifier
 
     def heading(match):
-        if match[1] is None:  # Preserve raw script/style text and the Grok section.
+        if match[1] is None:  # Preserve raw script/style text.
             return match[0]
         tag, attrs, content = match.groups()
         section = inventory.titles.get(match.start())
@@ -118,8 +118,7 @@ def deep_links(body):
             attrs += f' id="{esc(identifier)}"'
         return f'<{tag}{attrs}>{content}{heading_link(identifier, text)}</{tag}>'
 
-    # Grok stays byte-identical to its claims-audit copy; sort.js adds live heading links.
-    body = re.sub(r'<section id="grok">.*?</section>|<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>|<(h[1-6])\b([^>]*)>(.*?)</\1>',
+    body = re.sub(r'<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>|<(h[1-6])\b([^>]*)>(.*?)</\1>',
                   heading, body, flags=re.S)
 
     # Reading-guide disclosures have summaries rather than h3s. Give their
@@ -795,27 +794,25 @@ def any_pair(s):
 def explorer_data(s):
     """The browser sees only the canonical dataset's explorer projection."""
     exp = s["explorer"]
-    # Per-subset comparisons are interactive. Keep the full evidence graph in
-    # dataset.json; shipping its repeated beaten-by lists bloats the page and
-    # duplicates what the controls compute from the embedded measurements.
-    sets = []
-    for st in exp["sets"]:
-        views = {}
-        for pricing, group in st["views"].items():
-            views[pricing] = {"extents": group["extents"]}
-            for name in exp["views"]:
-                v = group[name]
-                views[pricing][name] = {"panels": {panel: {"extents": stat["extents"]}
-                    for panel, stat in v["panels"].items()}}
-        sets.append(dict(st, views=views))
+    # The browser computes subset membership. Only axis extents are needed
+    # from the stored comparisons; model panels and repeated view graphs aren't.
+    sets = [dict(st, views={price: {"extents": group["extents"]}
+                            for price, group in st["views"].items()}) for st in exp["sets"]]
     keep = {"key", "set", "config", "display", "family", "generation", "model_short",
             "effort", "mode", "prereg", "provenance", "fast_twin", "passes", "n",
             "pass_rate", "ci95_plot", "usd_per_pass", "quota_usd_per_pass",
             "cost_kind", "median_s", "winner_pick", "panel", "complete_marker",
             "coverage_note", "rule", "derived", "derived_note"}
-    return dict(exp, sets=sets, empty_heading=explorer_heading(),
+    def rounded(value):
+        if isinstance(value, float): return float(f"{value:.8g}")
+        if isinstance(value, list): return [rounded(v) for v in value]
+        if isinstance(value, dict): return {k: rounded(v) for k, v in value.items()}
+        return value
+    return dict({k: v for k, v in exp.items() if k not in {"rows", "sets", "winner_picks", "winner_pricing", "legacy_rule", "rule", "floors", "tie"}},
+                sets=rounded(sets), empty_heading=explorer_heading(),
                 rows=[dict({k: v for k, v in r.items() if k in keep},
-                           heading_id="config-" + anchor_slug(r["display"]), heading_html=explorer_heading(r)) for r in exp["rows"]])
+                           ci95_plot=rounded(r["ci95_plot"]),
+                           heading_id="config-" + anchor_slug(r["display"])) for r in exp["rows"]])
 
 
 def explorer(s):
@@ -837,15 +834,12 @@ def explorer(s):
         "__VIEW_BUTTONS__": "".join(f'<button class="btn" data-view="{v}" aria-pressed="{str(v == exp["default_view"]).lower()}">{esc(spec["label"])}</button>' for v, spec in exp["views"].items()),
         "__SET_OPTIONS__": "".join(f'<option value="{esc(t["id"])}">{esc(t["label"])}</option>' for t in exp["sets"]),
         "__FLOOR_OPTIONS__": "".join(f'<option value="{v}">{"Any" if not v else "≥ " + str(round(v*100)) + "%"}</option>' for v in exp["floors"]),
-        "__SET_NOTE__": esc(st["note"]), "__STRICT_RULE__": esc(exp["rule"]), "__LEGACY_RULE__": esc(exp["legacy_rule"]),
-        "__EXPLORER_FINDING__": esc(s["facts"]["explorer_finding"]),
+        "__SET_NOTE__": esc(st["note"]),
         "__LEGEND__": " · ".join(f'<span style="border-left:8px solid {colour};padding-left:6px;">{esc(label)}</span>' for label, colour in legend.items()),
-        "__WINNER_PRICING__": esc(exp["winner_pricing"]), "__EXPLORER_SVG__": charts.explorer_svg(exp, width=320),
-        "__EXCLUDED__": " ".join(esc(r["display"] + ": " + r["coverage_note"] + "; cost unavailable — use Speed × Pass.") for r in rows if r not in plotted),
+        "__EXPLORER_SVG__": charts.explorer_svg(exp, width=320),
+        "__EXCLUDED__": " ".join(esc(r["display"] + ": cost unavailable. Use Speed × Pass.") for r in rows if r not in plotted),
         "__CHIPS__": "".join(f'<li><b>{i}</b>'+button(r)+"</li>" for i,r in enumerate(fr,1)),
-        "__DETAIL__": detail, "__BEST__": "".join("<li>"+button(r)+"</li>" for r in fr),
-        "__PICKS__": "".join(f'<p>{esc(pick)}: '+button(r)+"</p>" for c,pick in exp["winner_picks"].items() for r in rows if r["config"] == c),
-        "__PANELS__": charts.explorer_panels(exp), "__RADARS__": charts.explorer_radars(exp),
+        "__DETAIL__": detail,
         "__CONFIG_BUTTONS__": "".join(f'<button class="btn" data-config="{esc(r["key"])}" aria-pressed="true">{esc(r["display"])} · {charts.explorer_cost_label(r)}</button>' for r in rows),
         "__FACET_BUTTONS__": "".join(f'<button class="btn" data-facet="{esc(k)}" aria-pressed="true">{esc(label)}</button>'
                                    for k,label in [("family:"+f,f) for f in sorted({r["family"] for r in exp["rows"]})]
@@ -1022,18 +1016,10 @@ def method(s):
                 f'<pre class="problem-signature"><code>{esc(module.SIGNATURE)}</code></pre>'
                 f'<pre class="problem-statement"><code>{esc(module.STATEMENT)}</code></pre>'
                 f'<p><a href="{REPO}{p}.py">reference solution (spoiler)</a></p></details></li>')
-    main, hard, per, _ = set_definitions(s)
-    rungs = sorted({s["problems"][p]["rung"] for p in main})
-    li = [f'<li class="round"><b>Pilot</b>: well-known LeetCode problems. Every config passed. It ranked nothing, so we exclude its scores.<ul>'
-          + "".join(f'<li class="pilot-problem" id="pilot-{slug}">{lvl(d)} <a href="https://leetcode.com/problems/{slug}/">{esc(n)}</a>{heading_link("pilot-" + slug, n)} <span class="like">source</span></li>' for n, slug, d in PILOT) + "</ul></li>",
-          f'<li class="round"><b>{configs.set_label("main ladder", capital=True)}</b>: {len(main)} new problems.'
-          f'<ul><li>Problem numbers: {main[0].split("_")[0]}–{main[-1].split("_")[0]}.</li>'
-          f'<li>Rungs: L{rungs[0]}–L{rungs[-1]}, easiest first.</li><li>Each rung has {per} problems.</li>'
-          f'<li>Most configs ran it; the exceptions: {esc(s["facts"]["calls_exceptions_page"])}.</li></ul><ul>'
+    main, hard, _, _ = set_definitions(s)
+    li = [f'<li class="round"><b>{configs.set_label("main ladder", capital=True)}</b>: {len(main)} new problems.<ul>'
           + "".join(item(p, s["problems"][p]["rung"]) for p in main) + "</ul></li>",
-          f'<li class="round"><b>{configs.set_label("L7 set")}</b>: extra-hard problems.'
-          f'<ul><li>Problem numbers: {hard[0].split("_")[0]}–{hard[-1].split("_")[0]}.</li>'
-          f'<li>{l7_reason(s)}</li></ul><ul>'
+          f'<li class="round"><b>{configs.set_label("L7 set")}</b>: extra-hard problems, scored separately.<ul>'
           + "".join(item(p, 7) for p in hard) + "</ul></li>"]
     flag = lambda fl: esc(" ".join(f if f else '""' for f in fl))
     group = {}
@@ -1233,6 +1219,49 @@ def winner_table(ds, need):
             + '</ul><p class="small">Caveat: sonnet-medium\'s code read worst in a blind review (see Notes).</p>')
 
 
+def catalog_rows(ds):
+    """Current evidence on the short page; superseded runs stay in raw sources."""
+    return [r for r in dataset.catalog_rows(ds) if r["source"] not in {"pilot", "pilot-agentic"}
+            and r["config"] != "luna-low+haiku-low-repair"]
+
+
+def grok_summary(s, ds):
+    lane = s.get("grok") or {}
+    rows = []
+    measurements = {r["config"]: r for r in ds["rows"]
+                    if r["source"] == "main" and r["set"] in {"main ladder", "partial ladder"}}
+    for c in lane:
+        r = measurements[c]
+        rows.append([DISP(c), f"{r['passes']}/{r['n']}",
+                     f"{dataset.median_seconds(r):.1f}", dataset.usd(r["usd_per_pass"]),
+                     "full ladder" if r["groups"] == len(s["problems"]) else f"{r['groups']} problems"])
+    for c in devin(s):
+        r = measurements[c]
+        rows.append([DISP(c), f"{r['passes']}/{r['n']}",
+                     f"{dataset.median_seconds(r):.1f}", "unmetered", "one try/problem"])
+    from analysis import report
+    table = report.to_html(report.md_table(["config", "passed", "median s", "$ per pass", "coverage"], rows), dots=True)
+    repo = [r for r in ds["explorer"]["rows"] if r["source"] == "grok-repo" and r["set"] == "repo tasks"]
+    full = [c for c, v in lane.items() if v["n"] == s["configs"]["haiku-low"]["n"]]
+    dataset.need(all(lane[c]["passes"] < lane[c]["n"] for c in full), "full-ladder Grok configs missed")
+    comparison = ds["grok_comparison"]
+    m = comparison["metrics"]
+    dataset.need(all(any(m[o]["pass_rate"] >= m[c]["pass_rate"]
+                         and m[o]["median_s"] < m[c]["median_s"]
+                         and m[o]["usd_per_pass"] < m[c]["usd_per_pass"]
+                         for o in comparison["lanes"]) for c in full),
+                 "comparable lanes beat every full-ladder Grok config on all three measures")
+    bullets = ["Every full-ladder Grok config missed somewhere.",
+               "Comparable Claude and Codex configs beat Grok on accuracy, speed, and cost."]
+    bullets += [f"Repo tasks: {DISP(r['config'])} completed {r['task_complete']}/{r['n']} with all hidden tests passing."
+                for r in repo]
+    bullets += ["Grok's repository results allow tools; function results disable them.",
+                "One killed Grok call was unbilled; high-effort cost is a lower bound.",
+                "Devin used the free tier; it reports no tokens or cost.",
+                "Devin has one attempt per problem, so its coverage differs."]
+    return table + '<ul class="tight small">' + ''.join(f'<li>{esc(t)}</li>' for t in bullets) + '</ul>'
+
+
 def widgets(s, need, ds=None, names=None):
     arms = rescue_arms(ds or s)
     if names is None or names & {"pass_cost", "front_pass"}: a, fa = pass_cost(s)
@@ -1245,7 +1274,7 @@ def widgets(s, need, ds=None, names=None):
             "sets": lambda: sets_box(s), "grid": lambda: grid(s, (ds or dataset.read()).get("grok_comparison", {}).get("by_problem")), "floor": lambda: floor(s), "pipes": lambda: pipes(arms),
             "fast": lambda: fast(s), "any_pair": lambda: any_pair(s), "explorer": lambda: explorer(s), "short_table": lambda: short_table(s, need),
             "full_table": lambda: full_table(ds or dataset.read()), "result_notes": lambda: result_notes(s),
-            "grok_catalog": lambda: "",
+            "grok_summary": lambda: grok_summary(s, ds or dataset.read()),
             "front_pass": lambda: ", ".join(map(DISP, fa)),
             "front_speed": lambda: speed_frontier_text(s, fb), "winner": lambda: winner_table(ds or dataset.read(), need),
             "hb_qa": lambda: "".join(f'<li>{esc(line)}</li>' for line in s["facts"]["hb_qa"]),

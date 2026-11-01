@@ -141,16 +141,18 @@ def to_html(md, dots=False):
 
 
 def data_block(ds, s, used, T, page_tmpl, chart_bodies, W):
-    """The page's embedded data: a projection of dataset.json holding every fact, row, table cell and chart label the page shows,
-    plus the explorer's points. The script reads numbers from here; the page's visible numbers must all be found in it (audit)."""
+    """Embed interactive measurements and unique numeric witnesses from dataset-derived renderers."""
     tables = sorted(set(re.findall(r"\{\{table:([^}]+)\}\}", page_tmpl)))
-    keep = ("id", "config", "set", "rule", "passes", "n", "pass_rate", "ci95", "usd_per_pass", "median_s", "task_complete")
-    block = {"facts": {k: ds["facts"].get(k) if hasattr(ds["facts"], "get") else ds["facts"][k] for k in sorted(used) if k in ds["facts"]},
-             "rows": [{k: r[k] for k in keep if k in r} for r in ds["rows"]],
-             "tables": {k: T[k] for k in tables if k in T},
-             "charts": {name: [html.unescape(x) for x in re.findall(r"<text[^>]*>([^<]*)</text>", body)] for name, body in sorted(chart_bodies.items()) if name in re.findall(r"\{\{chart:([^|]+)\|", page_tmpl)},
-             "widgets": {k: nodes for k, v in sorted(W.items()) if (nodes := [html.unescape(x).strip() for x in re.findall(r">([^<>]+)<", v) if re.search(r"\d", x)])},
-             "explorer": pagew.explorer_data(s), "any_pair": pagew.any_pair_data(s)}
+    # Witnesses come from dataset-derived renderers, never parsed from the page.
+    # Keep each numeric token once instead of copying SVG labels and table prose.
+    from analysis.audit import NUM
+    sources = [v for v in W.values()] + [T[k] for k in tables if k in T]
+    visible = lambda source: html.unescape(re.sub(r"<[^>]*>", " ", re.sub(
+        r"<(script|style)\b[^>]*>.*?</\1>", " ", source, flags=re.S)))
+    numbers = sorted({m[1] for source in sources for m in NUM.finditer(visible(source))})
+    block = {"facts": {k: ds["facts"][k] for k in sorted(used) if k in ds["facts"]},
+             "numbers": numbers, "explorer": pagew.explorer_data(s),
+             "any_pair": pagew.any_pair_data(s)}
     return json.dumps(block, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
 
 
@@ -173,8 +175,7 @@ def render(used_facts=None):
     widget_names = {k[2:] for k in PLACE.findall(page_tmpl) if k.startswith("w_")}
     W = pagew.widgets(s, need, ds, names=widget_names)
     body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}, "w_everything": ""}, used=used_facts), T, "page", chart_bodies)  # first pass: the page without the section
-    W["everything"] = configs.section(body, ds, ROOT, chart_bodies)  # every registered config, with 'where it appears' read from that first pass
-    W["grok_catalog"] = configs.section(body, ds, ROOT, chart_bodies, grok_only=True)
+    W["everything"] = configs.section(body, ds, ROOT, chart_bodies, grok_only=None, entries=pagew.catalog_rows(ds))  # current evidence, with locations read from the first pass
     body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}}, used=used_facts), T, "page", chart_bodies)
     body = pagew.notation_tooltips(body, ds)
     body = pagew.deep_links(body)

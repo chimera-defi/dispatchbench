@@ -2,7 +2,6 @@
 // "$0.00112" by 0.00112, "1,569" by 1569); a column whose cells are not numbers sorts as text; "–" goes last either way.
 // Each tbody sorts on its own, under its "grp" heading row, so the all-problems and hard-set groups never mix.
 (function(){
-var TIE=JSON.parse(document.getElementById("data").textContent).explorer.tie;
 // A cell is numeric only when it starts with a number (after ≥, ~, $ or a sign), so "sol61-medium" sorts as text.
 function key(td){var t=td.textContent.replace(/,/g,"").replace(/−/g,"-").trim();var m=t.match(/^[≥≤~]?\$?([+-]?\d+(\.\d+)?)/);return m?parseFloat(m[1]):null}
 document.querySelectorAll("table.sortable").forEach(function(tb){
@@ -21,108 +20,6 @@ document.querySelectorAll("table.sortable").forEach(function(tb){
    if(x===null||y===null){var s=ta.localeCompare(tb2);return desc?-s:s}
    return desc?y-x:x-y});
   rows.forEach(function(r){body.appendChild(r)})})}})})})();
-// Chart hover: a point and its key row share data-c. Hover or focus either one to highlight both and dim the rest; data-tip
-// shows in .ctip. Tap works the same on touch; Escape or a tap outside clears it.
-(function(){
-document.querySelectorAll(".cwrap").forEach(function(w){
- var tip=w.querySelector(".ctip"),SEL=".pt,.ckey li,.picks li",all=function(){return w.querySelectorAll(SEL)};
- function clear(){w.classList.remove("hov");all().forEach(function(e){e.classList.remove("hi","dim")});tip.hidden=true}
- function updateCategories(set){
-  w.querySelectorAll('.category-filter input').forEach(function(input){
-   var empty=!w.querySelector('.s-'+set+' .key-group[data-cat="'+input.getAttribute("data-cat")+'"]'),label=input.parentNode;
-   input.disabled=empty;label.classList.toggle("disabled",empty);
-   if(empty)label.title=set==="main"?"only on the "+__RESCUE_SET_LABEL__:"only on the main ladder";
-   else label.removeAttribute("title")
-  })
- }
- w.querySelectorAll('.set-filter input').forEach(function(input){
-  input.checked=input.value==="main";
-  input.addEventListener("change",function(){if(input.checked){clear();w.classList.toggle("rescue",input.value==="rescue");updateCategories(input.value)}})
- });
- var toggle=w.querySelector('.cost-toggle input');
- if(toggle){toggle.checked=false;toggle.addEventListener("change",function(){clear();w.classList.toggle("free",toggle.checked)})}
- w.querySelectorAll('.category-filter input').forEach(function(input){
-  input.checked=true;input.addEventListener("change",function(){clear();w.classList.toggle("hide-"+input.getAttribute("data-cat"),!input.checked);w.querySelectorAll("svg").forEach(refront)})
- });
- // Same rules as analysis/page.py front() and speed_dominates(), over the points still shown.
- function refront(svg){
-  var path=svg.querySelector("path[data-front]");if(!path||!path.getAttribute("data-front"))return;
-  var speed=path.getAttribute("data-front")==="speed",hidden=function(c){return w.classList.contains("hide-"+c)};
-  var pts=[].map.call(svg.querySelectorAll(".pt"),function(g){var v=g.getAttribute("data-v").split(" ").map(Number),f=g.getAttribute("data-f").split(" ").map(Number);
-   return {g:g,x:v[0],y:v[1],fx:f[0],fy:f[1]}}).filter(function(p){return !hidden(p.g.getAttribute("data-cat"))&&!p.g.hasAttribute("data-out")});
-  function better(a,b){if(!speed)return a.x<=b.x&&a.y>=b.y;var t=Math.min(TIE.abs_s,TIE.rel*b.x);return a.y<b.y&&a.x<=b.x+t||a.y===b.y&&a.x<=b.x-t}
-  var fr=pts.filter(function(p){return !pts.some(function(q){return q!==p&&better(q,p)&&(q.x!==p.x||q.y!==p.y)})}).sort(function(a,b){return a.x-b.x});
-  var end=" H"+path.getAttribute("data-end"),d="";
-  if(fr.length&&!speed)d="M"+fr[0].fx+" "+path.getAttribute("data-b")+" V"+fr[0].fy;
-  else if(fr.length)d="M"+fr[0].fx+" "+fr[0].fy;
-  if(d){fr.slice(1).forEach(function(p){d+=" H"+p.fx+" V"+p.fy});d+=end}
-  path.setAttribute("d",d);
-  var zone=svg.querySelector("path.zone");
-  if(zone)zone.setAttribute("d",d?d+(speed?" V"+path.getAttribute("data-t")+" H"+fr[0].fx:" V"+path.getAttribute("data-b"))+" Z":"");
-  svg.querySelectorAll(".ring").forEach(function(r){r.remove()});
-  var on={};fr.forEach(function(p){on[p.g.getAttribute("data-c")]=1;
-   var m=p.g.querySelector("circle:last-child"),r=document.createElementNS(svg.namespaceURI,"circle");
-   [["class","ring"],["cx",m.getAttribute("cx")],["cy",m.getAttribute("cy")],["r",13],["fill","none"],["stroke","var(--frontier)"],["stroke-width",3]].forEach(function(a){r.setAttribute(a[0],a[1])});
-   p.g.insertBefore(r,p.g.children[p.g.querySelector("line")?1:0])});
-  var ranks=svg.querySelector(".ranks"),list=svg.parentNode.querySelector(".picks ol");
-  if(ranks){ranks.textContent="";if(list)list.textContent="";
-   fr.forEach(function(p,i){var m=p.g.querySelector("circle:last-child"),x=Math.min(+m.getAttribute("cx")+13,+path.getAttribute("data-end")-11),y=Math.max(+m.getAttribute("cy")-13,+path.getAttribute("data-t")+11),NS=svg.namespaceURI;
-    var g=document.createElementNS(NS,"g"),c=document.createElementNS(NS,"circle"),t=document.createElementNS(NS,"text");
-    g.setAttribute("class","rk");g.setAttribute("data-c",p.g.getAttribute("data-c"));
-    [["cx",x],["cy",y],["r",10.5],["fill","var(--frontier)"],["stroke","var(--panel)"],["stroke-width",1.5]].forEach(function(a){c.setAttribute(a[0],a[1])});
-    [["x",x],["y",y+4.5],["text-anchor","middle"],["class","rk-n"]].forEach(function(a){t.setAttribute(a[0],a[1])});
-    t.textContent=i+1;g.appendChild(c);g.appendChild(t);ranks.appendChild(g);
-    if(list){var key=svg.closest(".cvariant").querySelector('.ckey li[data-c="'+p.g.getAttribute("data-c")+'"][data-set="'+p.g.getAttribute("data-set")+'"]'),li=document.createElement("li");
-     ["data-c","data-cat","data-set","data-tip"].forEach(function(a){li.setAttribute(a,p.g.getAttribute(a))});li.setAttribute("tabindex","0");
-     var ic=key&&key.querySelector("svg");if(ic)li.appendChild(ic.cloneNode(true));
-     var b=document.createElement("b");b.textContent=i+1;li.appendChild(b);
-     var n=document.createElement("span");n.textContent=key?key.querySelector(".n").textContent:p.g.getAttribute("data-c");li.appendChild(n);list.appendChild(li);bind(li)}
-   })}
-  svg.querySelectorAll(".pt").forEach(function(g){if(on[g.getAttribute("data-c")])g.setAttribute("data-best","");else g.removeAttribute("data-best")});
-  var v=svg.closest(".cvariant");if(v)v.querySelectorAll(".ckey li").forEach(function(li){li.classList.toggle("on",!!on[li.getAttribute("data-c")])})
- }
- updateCategories("main");
- function show(el,x,y){
-  w.classList.add("hov");all().forEach(function(e){var m=e.getAttribute("data-c")===el.getAttribute("data-c")&&e.getAttribute("data-set")===el.getAttribute("data-set");e.classList.toggle("hi",m);e.classList.toggle("dim",!m)});
-  tip.textContent=el.getAttribute("data-tip")||"";tip.hidden=false;
-  var wr=w.getBoundingClientRect(),tw=tip.offsetWidth,th=tip.offsetHeight;
-  var l=Math.max(0,Math.min(x-wr.left+12,wr.width-tw)),t=y-wr.top+14;
-  if(t+th>wr.height)t=Math.max(0,y-wr.top-th-10);
-  tip.style.left=l+"px";tip.style.top=t+"px"}
- function at(el,ev){if(ev&&ev.clientX!=null&&(ev.clientX||ev.clientY))show(el,ev.clientX,ev.clientY);else{var r=el.getBoundingClientRect();show(el,r.left+r.width/2,r.bottom)}}
- function bind(el){
-  if(el.tagName==="g"){el.setAttribute("tabindex","0")}
-  el.addEventListener("mouseenter",function(ev){at(el,ev)});
-  el.addEventListener("mousemove",function(ev){at(el,ev)});
-  el.addEventListener("mouseleave",clear);
-  el.addEventListener("focus",function(){at(el,null)});
-  el.addEventListener("blur",clear);
-  el.addEventListener("click",function(ev){ev.stopPropagation();at(el,ev)});
- }
- all().forEach(bind);
- document.addEventListener("click",function(ev){if(!w.contains(ev.target)||ev.target===w)clear()});
- document.addEventListener("keydown",function(ev){if(ev.key==="Escape"){clear();if(document.activeElement&&w.contains(document.activeElement))document.activeElement.blur()}});
-});})();
-
-// R8: annotate the byte-preserved Grok headings only in the live DOM. Match
-// analysis.page.anchor_slug and reserve every existing id before generating any.
-(function(){
-var used=new Set(Array.from(document.querySelectorAll('[id]'),function(el){return el.id}));
-var grok=document.getElementById('grok'),title=grok&&grok.querySelector('h1,h2,h3,h4,h5,h6');
-document.querySelectorAll('#grok h2,#grok h3').forEach(function(heading){
- if(heading.querySelector('.hlink'))return;
- var text=heading.textContent.replace(/\s+/g,' ').trim(),id=heading.id;
- if(heading===title)id=grok.id;
- else if(!id){
-  var base=text.normalize('NFKD').replace(/[^\x00-\x7F]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'heading';
-  id=base;var suffix=2;while(used.has(id))id=base+'-'+suffix++;
-  heading.id=id;used.add(id)
- }
- var link=document.createElement('a');link.className='hlink';link.href='#'+id;
- link.setAttribute('aria-label','Link to this section: '+text);link.textContent='#';heading.appendChild(link)
-});
-})();
-
 // Progressive section disclosure; stored choices yield to an explicit hash target.
 (function(){
 var storageKey="bench-report-collapsed-sections",collapsed=[],sections=[];

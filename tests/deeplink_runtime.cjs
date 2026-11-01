@@ -39,7 +39,7 @@ const {chromium}=require('playwright');
    await page.evaluate(()=>{location.hash='config-sonnet-medium'});await visibleTarget('config-sonnet-medium');
    assert.equal(await page.locator('#ex-detail h3').getAttribute('id'),'config-sonnet-medium','old point focus must yield to explicit hash selection');
    await page.evaluate(()=>{location.hash='config-sonnet-low'});await visibleTarget('config-sonnet-low');
-   // R8: universal live-DOM coverage includes the byte-preserved Grok section.
+   // Every retained heading has a stable permalink.
    const headingSnapshot=async()=>page.locator('main h2,main h3').evaluateAll(headings=>headings.map(h=>({
     id:h.id,text:h.textContent,section:h.closest('section')?.querySelector('h1,h2,h3,h4,h5,h6')===h?h.closest('section').id:null,
     links:Array.from(h.querySelectorAll('a.hlink'),a=>({href:a.getAttribute('href'),label:a.getAttribute('aria-label'),text:a.textContent,tab:a.getAttribute('tabindex')}))
@@ -47,7 +47,7 @@ const {chromium}=require('playwright');
    const headings=await headingSnapshot();assert(headings.length>0);
    for(const h of headings){
     if(h.section){
-     assert.equal(h.id,'',`${width}/${h.section} title must use the section target`);
+     assert.equal(h.id,h.section==='grok'?'grok-and-devin':'',`${width}/${h.section} title must use the section target`);
      assert(!/-\d+$/.test(h.id));
     }else assert(/^[a-z][a-z0-9_-]*$/.test(h.id),`${width} heading lacks a valid id: ${h.text}`);
     assert.equal(h.links.length,1,`${width}/${h.id} missing/duplicate permalink`);
@@ -55,7 +55,7 @@ const {chromium}=require('playwright');
     assert(h.links[0].label.startsWith('Link to this section: '));assert.notEqual(h.links[0].tab,'-1');
    }
    const grokIds=await page.locator('#grok h2,#grok h3').evaluateAll(hs=>hs.map(h=>h.id));
-   assert.equal(grokIds.length,11);
+   assert.deepEqual(grokIds,['grok-and-devin']);
    const ids=await page.locator('[id]').evaluateAll(els=>els.map(el=>el.id));assert.equal(new Set(ids).size,ids.length,'live ids must not collide');
    assert(!ids.some(id=>id.includes('accuracyone')),'heading words must not glue together');
    for(const id of ['results','pareto','grok']){
@@ -67,7 +67,7 @@ const {chromium}=require('playwright');
    assert(await page.locator('[aria-live="polite"]').count()>0);
    await page.reload();await visibleTarget('config-sonnet-low');
    assert.deepEqual(await headingSnapshot(),headings,'live heading slugs and controls are deterministic');
-   await page.goto(base+'#'+grokIds[1]);await visibleTarget(grokIds[1]);
+   await page.goto(base+'#'+grokIds[0]);await visibleTarget(grokIds[0]);
    // Exercise the actual generated point groups and event handlers, not a DOM stub.
    await page.goto(base+'#xfig');await visibleTarget('xfig');
    await page.waitForFunction(()=>document.querySelectorAll('#xplot .explorer-point').length>0);
@@ -101,7 +101,6 @@ const {chromium}=require('playwright');
    assert(await page.locator('#p07-try').evaluate(el=>el.open),'row hash opens Try it');
    assert.equal(await page.locator('#p08-try').evaluate(el=>el.open),false,'other statements stay closed');
    await page.goto(base+'#method-models-and-versions');await visibleTarget('method-models-and-versions');
-   await page.goto(base+'#key-numbers');await visibleTarget('key-numbers');
    // Reach a hidden permalink by keyboard; Tab must reveal its focus indicator.
    await page.goto(base+'#problems');
    const link=page.locator('#problems > h2 > a.hlink[href="#problems"]');

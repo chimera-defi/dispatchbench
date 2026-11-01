@@ -104,11 +104,14 @@ def test_spend_by_kind_includes_all_auxiliary_sets():
     assert pilot > 5 and codex > pilot
     assert facts["codex_pilot_usd"] == dataset.usd(pilot)
     assert facts["codex_appendix_usd"] == dataset.usd(codex - pilot)
-    for text in (Path(report.README).read_text(), Path(report.PAGE).read_text()):
+    for text in (Path(report.README).read_text(),):
         line = next(l for l in text.splitlines() if "Total spend, by kind:" in l)
         assert f'Claude {facts["claude_total_usd"]}' in line
         assert f'Codex {facts["codex_total_usd"]}' in line
         assert f'({facts["codex_pilot_usd"]} pilot, {facts["codex_appendix_usd"]} appendix and trim)' in line
+    page_text = Path(report.PAGE).read_text()
+    assert f'Claude: {facts["claude_total_usd"]}' in page_text
+    assert f'Codex: {facts["codex_total_usd"]}' in page_text
 
 
 def test_every_fact_is_value_unit_display_source(ds):
@@ -221,7 +224,7 @@ def test_page_embeds_its_data_block_and_every_visible_number_is_in_it():
     block = audit.DATA_BLOCK.search(page)
     assert block, "the page must embed <script type=application/json id=data>"
     data = json.loads(block.group(1))
-    assert {"facts", "rows", "tables", "charts", "widgets", "explorer"} <= set(data)
+    assert {"facts", "numbers", "explorer", "any_pair"} <= set(data)
     allow = json.loads((ROOT / "docs" / "audit_allow.json").read_text())
     assert audit.page_numbers_missing(page, allow) == []
     assert audit.page_numbers_missing(page.replace("<main>", "<main><p>It took 98765 s</p>", 1), allow) == ["page: number 98765 is visible but not in the embedded data block"]
