@@ -65,12 +65,19 @@ function pointNode(r,q,m,panel=false){const focused=(st.hover||st.sel)===r.key,s
 function frontierRows(rows,mem){return rows.filter(r=>mem.get(r.key).on_frontier).sort((a,b)=>val(a,objs()[0][0])-val(b,objs()[0][0])||a.key.localeCompare(b.key))}
 function annotations(rows,fr,positions,bounds,width){
  const [L,T,R,B]=bounds,obstacles=Array.from(positions.values(),q=>[q[0]-14,q[1]-14,q[0]+14,q[1]+14]);
- const clear=([l,t,r,b])=>!obstacles.some(([ll,tt,rr,bb])=>l<rr&&ll<r&&t<bb&&tt<b);let out=[];
+ const clear=([l,t,r,b])=>!obstacles.some(([ll,tt,rr,bb])=>l<rr&&ll<r&&t<bb&&tt<b);let out=[];const coincident=new Map();
  fr.forEach((r,i)=>{const [x,y]=positions.get(r.key),candidates=[];
-  for(let radius=28;radius<337;radius+=14)for(const a of [-1,0,-2,1,-3,2,3,4])candidates.push([x+Math.cos(a*Math.PI/4)*radius,y+Math.sin(a*Math.PI/4)*radius]);
-  const free=q=>clear([q[0]-11,q[1]-11,q[0]+11,q[1]+11]);
-  const [bx,by]=candidates.find(q=>free(q)&&q[0]>=L+11&&q[0]<=R-11&&q[1]>=T+11&&q[1]<=B-11)||candidates.find(free);
-  obstacles.push([bx-11,by-11,bx+11,by+11]);const number=String(i+1);
+  // Coincident points keep separate identities: try a different direction for each.
+  const key=x+','+y,turn=coincident.get(key)||0;coincident.set(key,turn+1);
+  for(let radius=28;radius<337;radius+=14)for(const angle of [-1,0,-2,1,-3,2,3,4]){const a=(angle+turn)*Math.PI/4;candidates.push([x+Math.cos(a)*radius,y+Math.sin(a)*radius])}
+  const number=String(i+1),half=Math.max(11,number.length*7.2/2);
+  const free=q=>q[0]>=L+half&&q[0]<=R-half&&q[1]>=T+11&&q[1]<=B-11&&clear([q[0]-half,q[1]-11,q[0]+half,q[1]+11]);
+  let spot=candidates.find(free);
+  // The radial samples can miss an in-bounds gap near the edge of a dense plot.
+  if(!spot){const gaps=[];for(let yy=T+11;yy<=B-11;yy+=2)for(let xx=L+half;xx<=R-half;xx+=2)if(free([xx,yy]))gaps.push([xx,yy]);gaps.sort((a,b)=>Math.hypot(a[0]-x,a[1]-y)-Math.hypot(b[0]-x,b[1]-y));spot=gaps[0]}
+  if(!spot)throw new Error('No in-bounds frontier badge placement');
+  const [bx,by]=spot;
+  obstacles.push([bx-half,by-11,bx+half,by+11]);
   out.push(`<circle class="ex-number-ring" cx="${bx}" cy="${by}" r="10"/>`+txt(bx,by+4,number,'middle','ex-number').replace('<text ',`<text data-width="${number.length*7.2}" `).replace('class="ex-number"',`class="ex-number" data-key="${esc(r.key)}"`));
  });
  if(width>480)rows.filter(r=>r.winner_pick).slice(0,3).forEach(r=>{const [x,y]=positions.get(r.key),w=r.display.length*7.2;
@@ -120,7 +127,7 @@ function bindPoints(container){container.querySelectorAll('[data-key]').forEach(
 let currentRows=[],currentMem;
 function updateDetail(){const r=currentRows.find(r=>r.key===(st.hover||st.sel))||currentRows[0];$('#ex-detail').innerHTML=detail(r,currentMem);const inspected=currentRows.find(r=>r.key===(st.hover||st.sel));$('#ex-inspect').hidden=!inspected;$('#ex-inspect').textContent=inspected?inspected.display+': '+inspected.passes+'/'+inspected.n+' passed · '+money(cost(inspected))+' per pass ('+costLabel(inspected)+') · '+inspected.median_s+' s median':'';$$('.ex-point').forEach(el=>el.classList.toggle('ex-focused',el.dataset.key===(st.hover||st.sel)));const svg=$('#ex-chart svg');if(svg){const old=svg.querySelector('.ex-focus-lines');if(old)old.remove();const points=Array.from(svg.querySelectorAll('.ex-point[data-x]')),a=points.find(e=>e.dataset.key===r?.key);if(a){let lines='';currentMem.get(r.key).beaten_by.forEach(b=>{const q=points.find(e=>e.dataset.key===b.key);if(q)lines+=line([a.dataset.x,a.dataset.y],[q.dataset.x,q.dataset.y],'ex-beat')});svg.insertAdjacentHTML('beforeend','<g class="ex-focus-lines" clip-path="url(#ex-clip)" pointer-events="none">'+lines+'</g>')}}}
 function focus(k,hover){if(hover)st.hover=k;else {st.sel=k;st.hover=null}updateDetail();if(!hover)render(false)}
-function render(rebuild=true){const active=document.activeElement,focusAttr=active?.dataset?.config?'config':active?.dataset?.key?'key':null,focusKey=focusAttr?active.dataset[focusAttr]:null,focusTag=active?.tagName;const set=X.sets.find(s=>s.id===st.set),all=set.rows.map(k=>rowMap.get(k));const rr=all.filter(r=>!st.off.has(r.key)&&!st.facets.has('family:'+r.family)&&!st.facets.has('mode:'+r.mode)&&!st.facets.has('generation:'+r.generation)&&(!st.prereg||r.prereg));const rows=rr.filter(r=>!objs().some(([k])=>k==='cost')||cost(r)!=null&&r.cost_kind!=='unmetered');const mem=members(rows);currentRows=rows;currentMem=mem;const price=st.quota?'quota':'list',ext=set.views[price].extents;
+function render(rebuild=true,restoreFocus=true){const active=restoreFocus?document.activeElement:null,focusAttr=active?.dataset?.config?'config':active?.dataset?.key?'key':null,focusKey=focusAttr?active.dataset[focusAttr]:null,focusTag=active?.tagName;const set=X.sets.find(s=>s.id===st.set),all=set.rows.map(k=>rowMap.get(k));const rr=all.filter(r=>!st.off.has(r.key)&&!st.facets.has('family:'+r.family)&&!st.facets.has('mode:'+r.mode)&&!st.facets.has('generation:'+r.generation)&&(!st.prereg||r.prereg));const rows=rr.filter(r=>!objs().some(([k])=>k==='cost')||cost(r)!=null&&r.cost_kind!=='unmetered');const mem=members(rows);currentRows=rows;currentMem=mem;const price=st.quota?'quota':'list',ext=set.views[price].extents;
  $('#ex-set-note').textContent=set.note||'';
  $('#ex-chart').innerHTML=rows.length?chart(rows,mem,ext,Math.max(320,Math.min(760,$('#ex-chart').clientWidth))):'<p class="ex-empty">'+esc(set.empty_reason||'No configs match these filters or have the required measurements.')+'</p>';
  $('#ex-excluded').textContent=rr.filter(r=>!rows.includes(r)).map(r=>r.display+': '+r.coverage_note+'; cost unavailable — use Speed × Pass.').join(' ');
@@ -151,6 +158,22 @@ $$('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));$$('[data-pr
 $('#ex-set').onchange=e=>{st.set=e.target.value;st.sel=st.hover=null;st.off.clear();reset();render()};$('#ex-floor').onchange=e=>{st.minPass=Number(e.target.value);render()};$('#ex-colour').onchange=e=>{st.colorBy=e.target.value;render()};$('#ex-reset').onclick=()=>{reset();render()};$('#ex-all').onclick=()=>{st.off.clear();render()};$('#ex-none').onclick=()=>{const set=X.sets.find(s=>s.id===st.set);set.rows.forEach(k=>st.off.add(k));render()};
 $$('[data-facet]').forEach(b=>b.onclick=()=>{const k=b.dataset.facet;if(k==='prereg')st.prereg=!st.prereg;else st.facets.has(k)?st.facets.delete(k):st.facets.add(k);b.setAttribute('aria-pressed',String(k==='prereg'?st.prereg:!st.facets.has(k)));render()});
 $$('.ex-controls[hidden],.ex-filters[hidden],.ex-configs[hidden]').forEach(e=>e.hidden=false);
+// R8: resolve before sort.js reveals the hash target. Shared config headings
+// prefer the default set, then the row's own source set over a pooled comparison.
+root.resolveConfigHash=function(id){
+ if(!id)return false;try{id=decodeURIComponent(id.replace(/^#/,''))}catch(e){}
+ const matches=X.rows.filter(r=>r.heading_id===id);if(!matches.length)return false;
+ const defaultSet=X.sets.find(s=>s.id===X.default_set);
+ const r=matches.find(r=>defaultSet.rows.includes(r.key))||matches.find(r=>X.sets.some(s=>s.id===r.set&&s.rows.includes(r.key)))||matches[0];
+ const set=defaultSet.rows.includes(r.key)?defaultSet:X.sets.find(s=>s.id===r.set&&s.rows.includes(r.key))||X.sets.find(s=>s.rows.includes(r.key));
+ if(animation)cancelAnimationFrame(animation);
+ st.set=set.id;st.sel=r.key;st.hover=null;st.off.clear();st.facets.clear();st.prereg=false;st.minPass=X.default_floor;
+ if(objs().some(([k])=>k==='cost')&&(cost(r)==null||r.cost_kind==='unmetered'))st.view='side';
+ reset();$('#ex-set').value=set.id;$('#ex-floor').value=String(st.minPass);
+ $$('[data-facet]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.facet!=='prereg')));
+ render(true,false);return true;
+};
+root.resolveConfigHash(window.location?.hash);
 render();root.dataset.ready='true';
 });
 </script>

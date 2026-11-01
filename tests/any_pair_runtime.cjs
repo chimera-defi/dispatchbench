@@ -22,6 +22,12 @@ for(const width of [390,1280])for(const x of Object.keys(h.M))for(const y of Obj
  assert(html.includes('role="img"'));assert(!/NaN|undefined|Infinity/.test(html),`${width}/${x}/${y}/${log}`);
  assert(html.includes(h.M[x].l)&&html.includes(h.M[y].l));
  assert((html.match(/class="explorer-point"/g)||[]).length>0);
+ for(const group of html.matchAll(/<g class="explorer-point"([^>]*)>/g)){
+  const attrs=Object.fromEntries(Array.from(group[1].matchAll(/([\w-]+)="([^"]*)"/g),m=>[m[1],m[2]]));
+  assert.equal(attrs.tabindex,'0');assert.equal(attrs.role,'button');
+  assert(/inspect/i.test(attrs['aria-label']));
+  assert(attrs['aria-label'].includes(h.D[+attrs['data-i']].d.replaceAll('&','&amp;').replaceAll('"','&quot;')));
+ }
 }
 h.D.forEach(row=>h.st.off[row.c]=true);h.draw();assert(el('xplot').innerHTML.includes('No configs selected.'));
 assert(!Object.keys(context).some(key=>['X','D','st','draw'].includes(key)),'legacy variables must remain local');

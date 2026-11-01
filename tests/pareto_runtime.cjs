@@ -41,11 +41,24 @@ for(const width of [760,350]){element('ex-chart').clientWidth=width;
     assert.deepEqual(chipKeys(element('ex-chips').innerHTML),frontier.map(r=>r.key));
     assert.deepEqual(chipKeys(element('ex-best').innerHTML),frontier.map(r=>r.key));
     const points=Array.from(html.matchAll(/data-x="([^"]+)" data-y="([^"]+)"/g),m=>[+m[1],+m[2]]);
+    // R8: existence in the SVG is insufficient when the annotation clip hides a badge.
+    const clip=html.match(/<clipPath id="ex-clip"><rect x="([^"]+)" y="([^"]+)" width="([^"]+)" height="([^"]+)"/).slice(1).map(Number);
+    const within=([l,t,r,b])=>l>=clip[0]-1e-8&&t>=clip[1]-1e-8&&r<=clip[0]+clip[2]+1e-8&&b<=clip[1]+clip[3]+1e-8;
+    const rings=Array.from(html.matchAll(/<circle class="ex-number-ring" cx="([^"]+)" cy="([^"]+)" r="([^"]+)"/g),m=>m.slice(1).map(Number));
+    assert.equal(rings.length,frontier.length);
+    const badgeBoxes=[];
+    rings.forEach(([x,y,r],i)=>{
+     const box=[x-r-1,y-r-1,x+r+1,y+r+1];
+     assert(within(box),`${width}/${set.id}/${quota}/${view}/${frontier[i].key} clipped badge: ${box}`);
+     for(const [l,t,rr,b] of badgeBoxes)assert(!(box[0]<rr&&l<box[2]&&box[1]<b&&t<box[3]),'badges overlap, including coincident frontier points');
+     badgeBoxes.push(box);
+    });
     const labels=Array.from(html.matchAll(/<text ([^>]*class="ex-label"[^>]*)>/g));
     assert(labels.length<=3);if(width<=480)assert.equal(labels.length,0);
     for(const match of html.matchAll(/<text ([^>]*class="ex-(?:label|number)"[^>]*)>/g)){
      const a=Object.fromEntries(Array.from(match[1].matchAll(/([\w-]+)="([^"]*)"/g),m=>[m[1],m[2]]));
      const w=+a['data-width'],x=+a.x,y=+a.y,left=x-(a['text-anchor']==='end'?w:a['text-anchor']==='middle'?w/2:0);
+     if(a.class==='ex-number')assert(within([left,y-12,left+w,y+3]),`${width}/${set.id}/${quota}/${view} clipped number text`);
      for(const [px,py] of points)assert(!(left<px+12&&px-12<left+w&&y-12<py+12&&py-12<y+3),`${set.id}/${view} label overlaps mark`);
     }
 
