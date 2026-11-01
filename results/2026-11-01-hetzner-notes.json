@@ -1,0 +1,11 @@
+{
+  "source": "Operator-supplied run observation, 2026-11-01; not a reconstructed measurement",
+  "endpoint": "https://inference.hetzner.com/api/v1",
+  "first_attempt_calls": 23,
+  "gateway_failures": 21,
+  "gateway_timeout_s": 300,
+  "gateway_status": 504,
+  "first_attempt_rows_cached": false,
+  "observation": "Non-streaming calls hit the gateway timeout; streaming fixed it. First-attempt rows are not in the repo cache.",
+  "service_note": "OpenAI-compatible, free experimental tier, no published list price, no guarantees, may collect telemetry"
+}

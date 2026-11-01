@@ -44,7 +44,7 @@ NOTATION = {
 
 SOURCES = {  # source id -> files under results/ that hold its rows
     "main": ["2026-10-22b-function.jsonl", "2026-10-26-grok-function.jsonl", "2026-10-28-grok-spectrum-function.jsonl",
-             "2026-10-28-terra-function.jsonl", "2026-10-28-devin-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
+             "2026-10-28-terra-function.jsonl", "2026-10-28-devin-function.jsonl", "2026-11-01-hetzner-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
     "rescue": ["appendix/luna_rescue.jsonl"], "pilot": ["2026-10-22-pilot.jsonl"], "pilot-agentic": ["2026-10-22-pilot-agentic.jsonl"],
     "harness-bias": ["appendix/harness_bias.jsonl", "appendix/codex_harness.jsonl"]}  # the last two land with the codex-own-harness branch
 CATEGORIES = ["main ladder", "exploratory", "fast mode and xhigh", "rescue pipeline", "repo tasks", "trim", "pilot", "harness-bias", "low context"]
@@ -80,7 +80,14 @@ DEVIN_CONFIGS = ("devin16slow-default",)  # free tier, 1 repeat, no token data: 
 add("main", "exploratory", ("devin16slow-default",
     "Devin swe-1-6-slow (the only model the free tier allows), default effort; devin CLI, no token or cost data; exploratory, added 2026-10-28 at operator request; "
     "function track p01–p12, 1 repeat (PLAN.md deviation 24)"))
-CHART_HIDDEN = CHART_HIDDEN + DEVIN_CONFIGS
+HETZNER_CONFIGS = ("hetzner-qwen36", "hetzner-qwen38")
+add("main", "exploratory", *((c,
+    "Hetzner " + model + "; OpenAI-compatible streaming API, measured input/output tokens; free experimental tier, no published list price; "
+    "exploratory calibration, function track p01–p12, 1 repeat (2026-11-01)")
+    for c, model in zip(HETZNER_CONFIGS, ("Qwen/Qwen3.6-35B-A3B-FP8", "Qwen/Qwen3.8-27B"))))
+FREE_TIER_CONFIGS = DEVIN_CONFIGS + HETZNER_CONFIGS  # no published $ comparison: off all $ charts, Winner and frontier
+CHART_HIDDEN = CHART_HIDDEN + FREE_TIER_CONFIGS
+HETZNER_NOTE = "exploratory calibration, 1 repeat, free tier, measured tokens"
 DEVIN_NOTE = "1 repeat, free tier, no token data"
 DEVIN_GROUP = "Devin (free tier, 1 repeat)"  # legend group, table group heading and grid column title
 DEVIN_UPGRADE_ERROR = "Error: Upgrade to Pro to access this model (https://devin.ai/pricing)"  # verbatim from PLAN.md deviation 24
@@ -182,6 +189,7 @@ def low_context(config, source="main"):
 def family(name):
     if name.startswith("grok"): return "Grok"
     if name.startswith("devin"): return "Devin"
+    if name.startswith("hetzner"): return "Hetzner"
     return "Claude" if name.split("-")[0] in ("haiku", "sonnet") or name.startswith("pipeline C") else "Codex"
 
 
@@ -232,7 +240,7 @@ def where(e, rest, chart_bodies):
 
 def section(rest, ds, root, chart_bodies=None, grok_only=False, entries=None):
     """Render selected catalog entries; rest supplies the 'where it appears' column."""
-    from analysis.dataset import catalog_rows, median_seconds, usd as money
+    from analysis.dataset import catalog_rows, median_seconds, usd as money, price_text
     chart_bodies = chart_bodies or {}
     by = {}
     grok_categories = set()
@@ -260,7 +268,7 @@ def section(rest, ds, root, chart_bodies=None, grok_only=False, entries=None):
             mark = (f"{e['task_complete']}/{e['n']} complete ({e['hidden_pass']}/{e['n']} hidden)"
                     if e["rule"] == "task_complete" else f"{e['passes']}/{e['n']}")
             out.append(f"<tr><td title=\"{html.escape(', '.join(e['files']))}\">{html.escape(e['display'])}</td><td>{mark}</td>"
-                       f"<td>{cell_markup((proxy if e['usd_per_pass'] is not None else '') + money(e['usd_per_pass']))}</td><td>{median_seconds(e):.1f}</td><td>{cell_markup((proxy if spend is not None else '') + money(spend))}</td><td>{where(e, rest, chart_bodies)}</td></tr>")
+                       f"<td>{cell_markup((proxy if e['usd_per_pass'] is not None else '') + price_text(e, e['usd_per_pass']))}</td><td>{median_seconds(e):.1f}</td><td>{cell_markup((proxy if spend is not None else '') + price_text(e, spend))}</td><td>{where(e, rest, chart_bodies)}</td></tr>")
         out.append("</tbody></table></div></details>")
     out += [f"<details><summary>unregistered</summary><p>{html.escape(r['display'])} ({r['source']})</p></details>" for es in by.values() for r in es]
     if not grok_only:

@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SUPPORTING = (
     "results/manifest.json", "results/prices.json", "results/agentic_tests.json",
     "results/quality.jsonl", "results/quality_meta.json",
+    "results/2026-11-01-hetzner-notes.json",
 )
 def sha256(path):
     with path.open("rb") as source:

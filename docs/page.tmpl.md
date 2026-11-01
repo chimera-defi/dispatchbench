@@ -65,6 +65,9 @@
 <h2 id="grok-and-devin"><span class="num"></span>Grok and Devin</h2>
 {{w_grok_summary}}
 </section>
+<h3 id="hetzner">Hetzner free tier</h3>
+<p class="small"><a href="{{hetzner_endpoint}}">{{hetzner_endpoint}}</a> (OpenAI-compatible). {{hetzner_lead}} {{hetzner_gateway_note}} {{hetzner_scope}} {{hetzner_verdict}}</p>
+{{table:hetzner_summary}}
 <section class="method" id="method">
 <h2><span class="num"></span>How it was run</h2>
 <ul class="tight small">
@@ -152,7 +155,7 @@
 <p class="small">luna-low failed tests it added itself. Failure classification remains under audit.</p>
 <p class="small">A stricter discount test caught boolean input acceptance. Earlier hidden tests missed that bug.</p>
 {{chart:agentic.svg|Repo tasks: filled markers count task completion; rings count hidden tests only}}
-<details><summary>Explore tokens, reasoning, and latency</summary>
+<details open><summary>Explore tokens, reasoning, and latency</summary>
 {{w_any_pair}}
 </details>
 </section>

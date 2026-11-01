@@ -8,7 +8,7 @@ from collections import defaultdict
 
 from analysis.stats import hier_boot, paired_boot, p90
 from analysis.labels import DISP, plabel, pshort
-from analysis.configs import DEVIN_CONFIGS, GROK_CONFIGS, GROK_PARTIAL, ONE_REPEAT, FIRST_GROK_FILE, SOURCES
+from analysis.configs import DEVIN_CONFIGS, HETZNER_CONFIGS, GROK_CONFIGS, GROK_PARTIAL, ONE_REPEAT, FIRST_GROK_FILE, SOURCES
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RES = os.path.join(ROOT, "results")
@@ -111,7 +111,7 @@ def list_cost(r):
         got = r.get("cost_usd") if r.get("cost_usd") is not None else r.get("total_cost_usd")
         # A Grok call killed at the 20-minute limit returns no bill. It counts as a failed attempt at $0, so Grok $ per pass is a floor by those calls.
         return 0.0 if got is None and r["cli"] == "grok" and r.get("is_error") else got
-    if r.get("is_error") or r["cli"] == "devin": return None  # Devin free tier reports no tokens or cost
+    if r.get("is_error") or r["cli"] in ("devin", "hetzner"): return None  # free tiers have no published list price
     p = PRICES[r["model"]]
     return ((r["in_tok"] - r["cached_tok"]) * p["input"] + r["cached_tok"] * p["cached_input"] + r["out_tok"] * p["output"]) / 1e6
 
@@ -124,7 +124,7 @@ def cost_uncached(r):
 def _uncached(r):
     if measured(r):
         return list_cost(r)
-    if r.get("is_error") or r["cli"] == "devin": return None
+    if r.get("is_error") or r["cli"] in ("devin", "hetzner"): return None
     p = PRICES[r["model"]]
     return (r["in_tok"] * p["input"] + r["out_tok"] * p["output"]) / 1e6
 
@@ -189,7 +189,7 @@ def config_block(rows):
         "usd_per_pass": usd(dollars, passes),
         "usd_per_pass_L1_L2": usd(map(cost, l12), sum(r["passed"] for r in l12)) if l12 and any(r["passed"] for r in l12) else None,
         "pass_L1_L2": [sum(r["passed"] for r in l12), len(l12)],
-        "cost_kind": "measured" if measured(rows[0]) else "proxy",
+        "cost_kind": "free-tier" if rows[0]["cli"] == "hetzner" else "measured" if measured(rows[0]) else "proxy",
     }
 
 
@@ -375,11 +375,14 @@ def build():
                 blk = config_block(rr)
                 blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}
                 s["grok_first"][c] = blk
-    xr = [r for r in rows if r["phase"] == "exploratory" and r["config"] not in GROK_CONFIGS]
+    xr = [r for r in rows if (r["phase"] == "exploratory" and r["config"] not in GROK_CONFIGS)
+          or (r["phase"] == "calibration" and r["config"] in HETZNER_CONFIGS)]
     s["exploratory"] = {}
+    s["hetzner"] = {}
     for c in sorted({r["config"] for r in xr}):
         # an exploratory config that the escalation step already ran on some problems reuses those cached calls
-        rr = [r for r in rows if r["config"] == c and (r["phase"] in ("exploratory", "escalation") or (r["phase"] == "fastmode" and c == "sol61-high-fast"))]; blk = config_block(rr); blk["vs"] = []
+        rr = [r for r in rows if r["config"] == c and (r["phase"] in ("exploratory", "escalation") or (r["phase"] == "fastmode" and c == "sol61-high-fast")
+              or (r["phase"] == "calibration" and c in HETZNER_CONFIGS))]; blk = config_block(rr); blk["vs"] = []
         for base in ("luna-low", "haiku-low", "luna-medium"):
             cb = cells([r for r in main_rows if r["config"] == base])
             if cb:
@@ -388,7 +391,7 @@ def build():
         er = [r for r in rr if r["passed"]]
         blk["usd_per_pass_uncached"] = usd(map(cost_uncached, rr), len(er))
         blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}  # heatmap columns
-        s["exploratory"][c] = blk
+        (s["hetzner"] if c in HETZNER_CONFIGS else s["exploratory"])[c] = blk
     hr = [r for r in rows if r["phase"] == "hard"]
     s["hard"] = {}
     for c in sorted({r["config"] for r in hr}, key=lambda c: (-sum(r["passed"] for r in hr if r["config"] == c), c)):
@@ -582,14 +585,14 @@ def tables(s):
         for e in s["escalation"]:
             L.append(f"| {e['config']} | {e['vs']} | {', '.join(pshort(q) for q in e['problems'])} | {e['passes']}/{e['n']} | {e['base_passes']}/{e['base_n']} | "
                      f"{100 * e['diff']:+.0f} pts |")
-    for c, v in s.get("exploratory", {}).items():
+    for c, v in {**s.get("exploratory", {}), **s.get("hetzner", {})}.items():
         from bench.run import TRIM_LEVEL
         what = f"Codex trim level {TRIM_LEVEL[c]}" if c in TRIM_LEVEL else "stock harness"
-        L += ["", f"## Exploratory, not pre-registered: {DISP(c)} ({what}, {'one repeat on the full ladder' if c in ONE_REPEAT else 'full ladder'})", "",
+        L += ["", f"## Exploratory, not pre-registered: {DISP(c)} ({what}, {'one repeat on the full ladder' if c in ONE_REPEAT + HETZNER_CONFIGS else 'full ladder'})", "",
               "By rung: " + ", ".join(f"{g} {b['passed']}/{b['n']}" for g, b in v["by_rung"].items()), "",
               "| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |", "|---|---|---|---|---|---|---|---|---|---|---|",
               f"| {DISP(c)} | {pct(v['pass_at_1'])} ({v['passes']}/{v['n']}) | {ci_text(v['passes'], v['n'], v['ci95'], len(s['problems']))} | {v['breaking_point'] or 'none ≤ L6'} | "
-              f"{v['latency_s']['median']} | {v['latency_s']['p90']} | {v['tokens_mean']['in_tok']} | {money(v['usd_per_call'])} | {money(v['usd_per_pass'])} | {money(v['usd_per_pass_uncached'])} | {v['cost_kind']} |", "",
+              f"{v['latency_s']['median']} | {v['latency_s']['p90']} | {v['tokens_mean']['in_tok']} | {'free tier' if c in HETZNER_CONFIGS else money(v['usd_per_call'])} | {'free tier' if c in HETZNER_CONFIGS else money(v['usd_per_pass'])} | {'free tier' if c in HETZNER_CONFIGS else money(v['usd_per_pass_uncached'])} | {v['cost_kind']} |", "",
               "| a | b | diff | 95% CI |", "|---|---|---|---|"]
         for d in v["vs"]:
             L.append(f"| {DISP(c)} | {d['b']} | {100 * d['diff']:+.1f} pts | {100 * d['ci95'][0]:+.1f} to {100 * d['ci95'][1]:+.1f} |")

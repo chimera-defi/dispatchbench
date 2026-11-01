@@ -10,7 +10,7 @@ FONT = "font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, 
 INK, MUTED, GRID, PLATE = "var(--fg)", "var(--muted)", "var(--line)", "var(--panel)"
 HOST_AGENTS_MD = dataset.HOST_AGENTS_MD
 BADC, WARNC = "var(--bad)", "var(--warn)"
-FAMILY = lambda c: "var(--grok)" if c.startswith("grok") else "var(--devin)" if c.startswith("devin") else "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex)"
+FAMILY = lambda c: "var(--hetzner)" if c.startswith("hetzner") else "var(--grok)" if c.startswith("grok") else "var(--devin)" if c.startswith("devin") else "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex)"
 
 
 # Per-label vertical offsets so neighbouring points' labels do not collide.
@@ -264,8 +264,8 @@ def rung_rows(s, ds=None):
     keep = list(s["configs"]) + [c for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex]  # fast mode beside its default tier
     by = {r["config"]: r["by_rung"] for r in ds["rows"] if r["source"] == "main" and r["set"] == "main ladder"}
     rows = {c: {g: tuple(v) for g, v in by[c].items()} for c in keep}
-    for r in ds["rows"]:  # Devin free tier: 1 repeat, so a partial ladder; shown here for pass rates, never for $
-        if r["source"] == "main" and r["set"] == "partial ladder" and r["config"] in configs.DEVIN_CONFIGS:
+    for r in ds["rows"]:  # free-tier exploratory lanes: one repeat, shown for pass rates, never for $
+        if r["source"] == "main" and r["set"] in ("partial ladder", "calibration") and r["config"] in configs.FREE_TIER_CONFIGS:
             rows[r["config"]] = {g: tuple(v) for g, v in r["by_rung"].items()}
     return rows, sorted({g for r in rows.values() for g in r}, key=lambda g: int(g[1:]))
 
@@ -310,16 +310,16 @@ def rung_chart(s, ds=None):
 def heatmap(s):
     """Main-run configs first, then exploratory ones (muted headers, after a gap); a dash where a config did not run a problem."""
     ex = {c: v for c, v in (s.get("exploratory") or {}).items() if c not in configs.CHART_HIDDEN}
-    dv = {c: v for c, v in (s.get("exploratory") or {}).items() if c in configs.DEVIN_CONFIGS}  # 1 repeat: cells are 0 or 1 of 1
+    dv = {c: v for c, v in {**s.get("exploratory", {}), **s.get("hetzner", {})}.items() if c in configs.FREE_TIER_CONFIGS}  # 1 repeat: cells are 0 or 1 of 1
     cols = [(c, {p: v[c] for p, v in s["problems"].items()}, False) for c in s["configs"]] + [(c, v["by_problem"], True) for c, v in ex.items()] \
         + [(c, v["by_problem"], True) for c, v in dv.items()]
     probs = sorted(s["problems"], key=lambda q: (s["problems"][q]["rung"], q)); cw, ch, L, T, gap = 50, 24, 250, 130, 14
     X = lambda j: L + j * cw + (gap if cols[j][2] else 0)
     W, H = X(len(cols) - 1) + cw + 20, T + ch * len(probs) + 40
     b = [text(12, 24, "Passes out of 5 per problem and config", 14, weight="600"),
-         text(12, 42, "Main ladder, p01–p12, rungs L1–L6 (2 per rung). Left: main run. Right, muted: exploratory configs; ⚡ = fast mode. Last column: Devin, 1 try per problem (0 or 1).", 11, fill=MUTED)]
+         text(12, 42, "Main ladder, p01–p12, rungs L1–L6 (2 per rung). Left: main run. Right, muted: exploratory configs; ⚡ = fast mode. Last columns: Devin and Hetzner, exploratory, 1 try per problem (0 or 1).", 11, fill=MUTED)]
     for j, (c, _, x) in enumerate(cols):  # rotated headers so every config fits
-        b.append(text(X(j) + cw / 2 + 4, T - 8, DISP(c), 11, "start", MUTED if x else INK, rotate=-55))
+        b.append(text(X(j) + cw / 2 + 4, T - 8, DISP(c), 11, "start", FAMILY(c) if c in configs.HETZNER_CONFIGS else MUTED if x else INK, rotate=-55))
     for i, p in enumerate(probs):
         y = T + i * ch
         b.append(f"<g><title>{escape(TESTS.get(p, ''))}</title>" + text(L - 10, y + ch / 2 + 4, plabel(p, s["problems"][p]["rung"]), 11, "end", INK) + "</g>")
@@ -533,7 +533,7 @@ def main():
 
 
 def explorer_cost_label(r):
-    return {"measured": "measured", "proxy": "token-estimate", "unmetered": "unmetered"}[r["cost_kind"]]
+    return {"measured": "measured", "proxy": "token-estimate", "unmetered": "unmetered", "free-tier": "free tier"}[r["cost_kind"]]
 
 
 def explorer_colour(r, facet="vendor"):

@@ -11,6 +11,8 @@ Path | what | produced by | read by. Cache (`cache/`, 15 MB) holds raw call tran
 - `2026-10-28-t1-hidden-v2-regrade.jsonl` every stored t1_discount patch regraded against the stricter hidden suite (grader_version 3; no model calls; the 10-22 main run stored no patches) | bench.regrade_t1 | dataset (facts t1v2_*, table t1_regrade)
 - `2026-10-28-terra-function.jsonl` gpt-5.6-terra function track | bench runner | summarize, dataset
 - `2026-10-28-devin-function.jsonl` Devin function track (one repeat, free tier, no dollars) | devin runner | summarize, dataset
+- `2026-11-01-hetzner-function.jsonl` Hetzner streaming calibration (24 graded rows: two configs, one repeat on 12 problems; measured input/output tokens, free experimental tier with no published list price) | bench runner | summarize, dataset
+- `2026-11-01-hetzner-notes.json` operator-supplied gateway observation and service note; the first non-streaming attempt is not in the repo cache | operator run note | dataset (sourced prose; separate from measured streaming rows)
 - `2026-10-22b-trim.jsonl` Codex harness trim probe | bench.trim_probe | summarize, dataset
 - `2026-10-22-pilot.jsonl`, `2026-10-22-pilot-agentic.jsonl` early pilot | bench runner | dataset, report appendix
 - `quality.jsonl`, `quality_meta.json` readability grades | quality step | report.quality_table

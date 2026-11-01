@@ -70,10 +70,22 @@ def check(css):
 
 
 def main():
-    results = list(check((ROOT / 'docs/page/tokens.css').read_text()))
+    css = (ROOT / 'docs/page/tokens.css').read_text()
+    results = list(check(css)) + list(check_hetzner(css))
     for name, ratio, minimum in results:
         print(f'{"ok" if ratio >= minimum else "FAIL"} {ratio:.2f}:1 (min {minimum}) {name}')
     return any(ratio < minimum for _, ratio, minimum in results)
+
+
+def check_hetzner(css):
+    """Hetzner labels and marks must be legible in explicit and system themes."""
+    for mode in ('dark', 'light'):
+        for automatic in (False, True):
+            values = theme_values(css, mode, automatic=automatic)
+            for ground in ('--bg', '--panel'):
+                back = rgb(ground, values, None)
+                ratio = contrast(rgb('--hetzner', values, back), back)
+                yield f'{mode}/{"system" if automatic else "explicit"} Hetzner on {ground}', ratio, 4.5
 
 
 if __name__ == '__main__':

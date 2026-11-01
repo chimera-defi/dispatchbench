@@ -307,6 +307,34 @@ By rung: L1 10/10, L2 10/10, L3 10/10, L4 10/10, L5 10/10, L6 10/10
 | terra61-low | haiku-low | +5.0 pts | +0.0 to +15.0 |
 | terra61-low | luna-medium | +21.7 pts | +3.3 to +45.0 |
 
+## Exploratory, not pre-registered: hetzner-qwen36 (stock harness, one repeat on the full ladder)
+
+By rung: L1 2/2, L2 2/2, L3 1/2, L4 2/2, L5 2/2, L6 1/2
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| hetzner-qwen36 | 83% (10/12) | 58%–100% | none ≤ L6 | 341.48 | 736.83 | 489 | free tier | free tier | free tier | free-tier |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| hetzner-qwen36 | luna-low | +6.7 pts | -18.3 to +30.0 |
+| hetzner-qwen36 | haiku-low | -11.7 pts | -35.0 to +6.7 |
+| hetzner-qwen36 | luna-medium | +5.0 pts | -20.0 to +28.3 |
+
+## Exploratory, not pre-registered: hetzner-qwen38 (stock harness, one repeat on the full ladder)
+
+By rung: L1 2/2, L2 2/2, L3 2/2, L4 1/2, L5 2/2, L6 0/2
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| hetzner-qwen38 | 75% (9/12) | 50%–100% | L6 | 820.58 | 1768.89 | 409 | free tier | free tier | free tier | free-tier |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| hetzner-qwen38 | luna-low | -1.7 pts | -26.7 to +23.3 |
+| hetzner-qwen38 | haiku-low | -20.0 pts | -46.7 to +3.3 |
+| hetzner-qwen38 | luna-medium | -3.3 pts | -26.7 to +18.3 |
+
 ## L7, added after the main run (3 problems × 5 attempts)
 
 Not pre-registered (PLAN.md, deviation 16), so it is reported apart from L1–L6 and does not change any number above.
