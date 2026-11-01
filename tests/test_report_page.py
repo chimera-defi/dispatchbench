@@ -153,12 +153,21 @@ def test_free_pass_frontier_is_codex_and_pipelines(summary):
 def test_speed_axis_is_trimmed_with_one_second_gridlines(summary):
     output, _ = page.speed_cost(summary, free=False)
     svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
-    ticks = [t.text for t in svg.findall("s:text", NS) if "x-tick" in t.get("class", "").split()]
+    ticks = [t for t in svg.findall("s:text", NS) if "x-tick" in t.get("class", "").split()]
     medians = [v["latency_s"]["median"] for c, v in page.every(summary).items() if c in page.ORDER]
     medians += [v["latency_s"]["median"] for v in (summary.get("grok") or {}).values() if v.get("usd_per_pass")]
-    first, last = (int(t.split()[0]) for t in (ticks[0], ticks[-1]))
+    # R7: the final gridline need not carry a label. Measure the grid's extent
+    # using the labelled scale, and still require every one-second gridline.
+    values = [int(t.text.split()[0]) for t in ticks]
+    origin = float(ticks[0].get("x"))
+    scale = (float(ticks[1].get("x")) - origin) / (values[1] - values[0])
+    xs = sorted(float(line.get("x1")) for line in svg.findall("s:line[@stroke='var(--line)']", NS)
+                if line.get("x1") == line.get("x2"))
+    first, last = (round(values[0] + (x - origin) / scale) for x in (xs[0], xs[-1]))
     assert first > 0 and first <= min(medians) - 1 and last >= max(medians) + 1 and last - max(medians) < 6
-    assert len(svg.findall("s:line[@stroke-opacity='.45']", NS)) == (last - first) - (last - first) // 5
+    assert xs == pytest.approx([xs[0] + (v - first) / (last - first) * (xs[-1] - xs[0])
+                                for v in range(first, last + 1)], abs=0.051)
+    assert len(svg.findall("s:line[@stroke-opacity='.45']", NS)) == last - first + 1 - len(ticks)
 
 
 @pytest.mark.parametrize("render", [page.pass_cost, page.speed_cost])
@@ -298,7 +307,7 @@ def test_every_toc_target_has_a_direct_toggle_heading():
     template = (ROOT / "docs/page.tmpl.md").read_text()
     toc = re.search(r'<nav class="toc"[^>]*>(.*?)</nav>', template, re.S)[1]
     targets = re.findall(r'<a href="#([^\"]+)">', toc)
-    assert len(targets) == 15  # includes the Grok section
+    assert len(targets) == 16  # R4: Problems joins the existing sections
     for target in targets:
         assert re.search(r'<section\b[^>]*\bid="' + target + r'"[^>]*>\s*<h2\b', template)
 
@@ -447,7 +456,9 @@ def test_winner_and_conclusion_agree_and_sets_are_collapsed(summary):
     assert 'L7 has' not in page.sets_box(summary)
     problems = page.method(summary)[0]
     assert 'p01 overlap_minutes (L1)' in problems
-    first = problems.split('<li class="prow">', 1)[1].split('</li>', 1)[0]
+    # R6: short public row anchor; the descriptive R4 anchor remains an alias.
+    first = problems.split('<li class="prow" id="p01">', 1)[1].split('</li>', 1)[0]
+    assert 'id="p01_overlap_minutes"' in first
     assert first.index('p01 overlap_minutes (L1)') < first.index('class="lc medium"')
 
 
@@ -459,13 +470,14 @@ def test_winner_has_one_decision_and_three_short_bullets():
     assert len(decisions) == 1
     plain = lambda text: unescape(re.sub(r'<[^>]+>', '', text))
     assert plain(decisions[0]) == dataset.read()['facts']['winner_default']
-    assert visible.count('<p') == 1
+    assert visible.count('<p') == 3
     bullets = re.findall(r'<li>(.*?)</li>', visible, re.S)
     assert len(bullets) == 3
     assert all(len(plain(bullet).split()) <= 12 for bullet in bullets)
-    assert '→' not in plain(visible)
-    for key in ('winner_intro', 'winner_claude_to_codex', 'winner_codex_to_claude'):
-        assert dataset.read()['facts'][key] in plain(picks)
+    for key in ('winner_claude_to_codex', 'winner_codex_to_claude'):
+        assert dataset.read()['facts'][key] in plain(visible)
+        assert dataset.read()['facts'][key] not in plain(picks)
+    assert dataset.read()['facts']['winner_intro'] in plain(picks)
     assert 'Repo tasks counted as task complete: hidden and visible tests both pass.' in plain(picks)
 
 

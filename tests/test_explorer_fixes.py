@@ -83,15 +83,20 @@ def test_speed_shade_closes_toward_slower(runtime):
 
 
 def assert_labels_clear(tree, points):
-    labels = [(e.text, float(e.get('x')), float(e.get('y')))
-              for e in tree.findall('.//s:text[@class="ex-label"]', NS)]
-    assert {'haiku-low', 'sonnet-medium'} <= {text for text, _, _ in labels}
-    assert len(tree.findall('.//s:path[@class="ex-leader"]', NS)) == len(labels)
-    for i, (text, x, y) in enumerate(labels):
-        assert not any(x-8 <= px <= x+len(text)*7+8 and y-21 <= py <= y+9
-                       for px, py in points), text
-        for other, ox, oy in labels[:i]:
-            assert not (abs(y-oy) < 18 and x < ox+len(other)*7+5 and ox < x+len(text)*7+5), (text, other)
+    # R2: only Winner picks may carry a nearby name. A crowded pick has none.
+    labels = tree.findall('.//s:text[@class="ex-label"]', NS)
+    assert len(labels) <= 3
+    assert {e.text for e in labels} <= {'haiku-high', 'sonnet-medium', 'sol61-high ⚡'}
+    assert not tree.findall('.//s:path[@class="ex-leader"]', NS)
+    boxes = []
+    for e in labels:
+        x,y,w = float(e.get('x')),float(e.get('y')),float(e.get('data-width'))
+        left = x-(w if e.get('text-anchor') == 'end' else w/2 if e.get('text-anchor') == 'middle' else 0)
+        box = (left,y-12,left+w,y+3)
+        assert not any(box[0] < px+12 and px-12 < box[2] and box[1] < py+12 and py-12 < box[3]
+                       for px,py in points), e.text
+        assert not any(box[0] < r and l < box[2] and box[1] < b and t < box[3] for l,t,r,b in boxes)
+        boxes.append(box)
 
 
 def test_default_and_focused_labels_clear_points_and_each_other(exp, runtime):

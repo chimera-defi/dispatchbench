@@ -95,8 +95,8 @@ main{counter-reset:sec toc}
 .ctl select{font:inherit;max-width:100%;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:2px 4px}.ctl label{white-space:nowrap}
 .ctl i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
 #xfig{position:relative;margin:0}#xplot{width:100%;overflow:hidden}#xplot svg{width:100%;height:auto}
-#tip{position:absolute;background:var(--panel);color:var(--fg);border:1px solid var(--line);font:500 12px/18px var(--mono);padding:8px 10px;border-radius:4px;pointer-events:none;max-width:260px;z-index:2}
-#tip .tag{color:var(--muted)}
+#pair-tip{position:absolute;background:var(--panel);color:var(--fg);border:1px solid var(--line);font:500 12px/18px var(--mono);padding:8px 10px;border-radius:4px;pointer-events:none;max-width:260px;z-index:2}
+#pair-tip .tag{color:var(--muted)}
 .extras figure{margin:0 0 24px}.extras figure svg{width:100%;height:auto;border-radius:6px}
 .extras figure figcaption{font-size:13px;color:var(--muted);margin-top:6px}
 tr.grp th{text-align:left;cursor:default;background:var(--bg);color:var(--muted);font-size:12px;font-weight:600;letter-spacing:.02em}
@@ -154,10 +154,10 @@ tr.grp th::after{content:none}
 
 .pl{border-bottom:1px dotted var(--muted);cursor:help}
 .sets{border:1px solid var(--line);border-radius:6px;padding:8px 12px;margin:8px 0 12px;background:var(--panel)}
-.method li.round>ul>li.prow{display:grid;grid-template-columns:minmax(0,22rem) 1fr;column-gap:8px;align-items:baseline}
+#problems li.round>ul>li.prow{display:grid;grid-template-columns:minmax(0,22rem) 1fr;column-gap:8px;align-items:baseline}
 .prow .lc{margin-right:0;justify-self:start}.prow .rung{color:var(--muted);font:600 11px var(--mono)}
 .prow .pn{overflow-wrap:anywhere}.prow .like{font-size:12px;color:var(--muted)}.prow .pd{min-width:0}
-@media (max-width:640px){.method li.round>ul>li.prow{grid-template-columns:1fr}.prow .pd{grid-column:1/-1;padding-left:2px;color:var(--muted)}}
+@media (max-width:640px){#problems li.round>ul>li.prow{grid-template-columns:1fr}.prow .pd{grid-column:1/-1;padding-left:2px;color:var(--muted)}}
 .grid .h.fast{color:var(--frontier)}
 .grid .h.devin{color:var(--devin)}
 .grid .m{overflow-wrap:anywhere}
@@ -437,3 +437,28 @@ details>summary{cursor:pointer;color:var(--color-muted)}
  section.collapsible>h2>.sec-toggle{display:grid;grid-template-columns:auto minmax(0,1fr) auto}
  section.collapsible>h2>.sec-toggle>.ex-kicker{grid-column:1/-1;margin-bottom:0}
 }
+
+/* R1: page-local type and compact source navigation after the synced rules. */
+:root{--page-title-size:clamp(28px,3.125vw,40px);--page-title-leading:1.1;--page-title-weight:500}
+.ds-page .head>h1{font-family:var(--font-heading);font-size:var(--page-title-size);line-height:var(--page-title-leading);font-weight:var(--page-title-weight)}
+.ds-page .ds-topbar>div{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-4)}
+/* R2: numbered trade-offs stay close to the cloud; names live in the chip row. */
+.ex-chart .ex-number{font-family:var(--font-mono);font-weight:700;fill:var(--panel);stroke:none}
+.ex-number-ring{fill:var(--frontier);stroke:var(--panel);stroke-width:1.5}
+.ex-chips{margin:var(--space-2) 0}.ex-chips .btn{font:inherit;padding:0;border:0;background:transparent;color:inherit;text-align:left}
+.ex-chips .pk-h{flex-basis:100%}
+/* R4: source statements wrap inside the page at phone widths. */
+.problem-try{grid-column:1/-1;min-width:0}
+.problem-try pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-width:100%;font-family:var(--font-mono)}
+
+/* R6: focusable permalinks use the Fable palette and reserve their space. */
+.hlink{display:inline-block;margin-inline-start:var(--space-2);padding-inline:var(--space-1);font:500 13px var(--font-mono);color:var(--muted);text-decoration:none;opacity:0;flex-shrink:0}
+h2:hover>.hlink,h3:hover>.hlink,.prow:hover .hlink,.pilot-problem:hover>.hlink,.hlink:focus-visible{opacity:1}
+.hlink:hover,.hlink:focus-visible{color:var(--accent)}
+@media(hover:none){.hlink{opacity:1}}
+section.collapsible>h2{display:flex;align-items:baseline;min-width:0}
+section.collapsible>h2>.sec-toggle{width:auto;flex:1;min-width:0}
+main [id]{scroll-margin-top:var(--anchor-offset,calc(var(--space-4)*5))}
+main [id]:target{outline:1px solid var(--line);outline-offset:var(--space-1);border-radius:var(--radius-sm);background-color:var(--panel)}
+.link-status{position:fixed;inset-block-end:var(--space-4);inset-inline-start:50%;transform:translateX(-50%);padding:var(--space-2) var(--space-3);border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--panel);color:var(--fg);font:500 13px var(--font-body);z-index:100;pointer-events:none}
+.link-status:empty{opacity:0}

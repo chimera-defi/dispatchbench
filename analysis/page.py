@@ -2,6 +2,7 @@
 problem × config grid, the token-floor bars and the short result table. Inline SVG and HTML that take their colours
 from the page's CSS variables, so both themes work. Standard library only."""
 import html, json, math, os, re
+import unicodedata
 
 from analysis import charts, configs, dataset
 from html.parser import HTMLParser
@@ -39,6 +40,87 @@ def devin(s):
 
 def esc(t):
     return html.escape(str(t))
+
+
+def anchor_slug(text):
+    """Deterministic ASCII anchors, independent of typography and markup."""
+    text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]+", "-", text).strip("-") or "heading"
+
+
+def heading_link(identifier, text):
+    return (f'<a class="hlink" href="#{esc(identifier)}" '
+            f'aria-label="Link to this section: {esc(text)}">#</a>')
+
+
+def explorer_heading(row=None):
+    """The detail card is rebuilt in JS; ship its Python-generated title markup."""
+    text = row["display"] if row else "No config selected"
+    identifier = "config-" + anchor_slug(text)
+    return f'<h3 id="{identifier}">{esc(text)}{heading_link(identifier, text)}</h3>'
+
+
+def deep_links(body):
+    """Add title affordances without reserializing prose or existing markup.
+
+    Reserve all existing ids first, including headings later in the document,
+    so generated slugs never steal a public anchor. Existing section ids stay put.
+    """
+    class Inventory(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.ids = set()
+
+        def handle_starttag(self, tag, attrs):
+            identifier = dict(attrs).get("id")
+            if identifier:
+                self.ids.add(identifier)
+
+    inventory = Inventory()
+    inventory.feed(body)
+
+    def unique(base):
+        identifier, suffix = base, 2
+        while identifier in inventory.ids:
+            identifier = f"{base}-{suffix}"
+            suffix += 1
+        inventory.ids.add(identifier)
+        return identifier
+
+    def heading(match):
+        if match[1] is None:  # Raw script/style text is not page markup.
+            return match[0]
+        tag, attrs, content = match.groups()
+        if re.search(r'class=[\"\'][^\"\']*\bhlink\b', content):
+            return match[0]
+        text = " ".join(html.unescape(re.sub(r"<[^>]*>", "", content)).split())
+        existing = re.search(r'\bid=[\"\']([^\"\']+)[\"\']', attrs)
+        identifier = html.unescape(existing[1]) if existing else unique(anchor_slug(text))
+        if not existing:
+            attrs += f' id="{esc(identifier)}"'
+        return f'<{tag}{attrs}>{content}{heading_link(identifier, text)}</{tag}>'
+
+    # The Grok section stays byte-identical to its claims-audit copy; it is linkable by its own ids.
+    grok = re.search(r'<section id="grok">.*?</section>', body, flags=re.S)
+    keep = "\0GROK\0"
+    if grok: body = body.replace(grok[0], keep, 1)
+    body = re.sub(r"<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>|<(h[23])\b([^>]*)>(.*?)</\1>",
+                  heading, body, flags=re.S)
+    if grok: body = body.replace(keep, grok[0], 1)
+
+    # Reading-guide disclosures have summaries rather than h3s. Give their
+    # summaries addressable targets inside the closed details as well.
+    def method_targets(match):
+        def summary(m):
+            attrs, content = m.groups()
+            if re.search(r"\bid=", attrs):
+                return m[0]
+            text = html.unescape(re.sub(r"<[^>]*>", "", content))
+            identifier = unique("method-" + anchor_slug(text))
+            return f'<summary{attrs} id="{identifier}">{content}</summary>'
+        return re.sub(r"<summary\b([^>]*)>(.*?)</summary>", summary, match[0], flags=re.S)
+
+    return re.sub(r'<section\b[^>]*\bid="method"[^>]*>.*?</section>', method_targets, body, flags=re.S)
 
 
 # Marker shape by model (colour stays the vendor): read the chart without a label on every point.
@@ -508,7 +590,11 @@ def speed_cost(s, free=None, problem_set="main"):
         p["on"] = p in fr
         p["quiet"] = p["y"] == 0 and not p["on"] and not pick(p["c"])
     d = (f"M{X(fr[0]['x']):.1f} {Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}") if fr else ""
-    xt = [(v, f"{v} s") for v in range(xmin, xmax + 1, 5)]
+    step = next(v for v in (5, 10, 20, 25, 50) if len(range(xmin, xmax + 1, v)) <= 8)
+    xt = [(v, f"{v} s") for v in range(xmin, xmax + 1, step)]
+    # Keep unlabelled 5 s gridlines alongside the existing 1 s minor grid.
+    minor = sorted(({v for v in range(xmin + 1, xmax) if v % 5}
+                    | set(range(xmin, xmax + 1, 5))) - {v for v, _ in xt})
     yt = [(v, dataset.usd(v)) for v in (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1) if v >= lo] + [(0, "$0")] * lane
     zero = f'<line x1="{L}" x2="{W - R}" y1="{B - 44}" y2="{B - 44}" stroke="var(--muted)" stroke-dasharray="2 4"/>' if lane else ""
     lab = {"luna-low": (0, -14, "middle"), "luna-medium": (14, 10, "start"), "haiku-low": (0, -20, "middle"), "luna-high": (14, -10, "start"),
@@ -521,7 +607,7 @@ def speed_cost(s, free=None, problem_set="main"):
     g = scatter(pts, d, X, Y, xt, yt, xlab, "$ per pass (log)", "", lab,
                 H=H, B=B, extra=zero + fast_pairs(pts, X, Y), stat="speed", variant="free" if free else "normal",
                 badges=True, picks_note=PICKS_NOTE["speed"],
-                minor=[v for v in range(xmin + 1, xmax) if v % 5],
+                minor=minor,
                 key_labels={"grok": legend} if legend else None)
     return g.replace("</svg>", f'<text x="{W - R - 6}" y="{T + 18}" text-anchor="end" class="better">↙ better</text></svg>', 1), [p["c"] for p in fr]
 
@@ -636,6 +722,62 @@ def fast(s):
     return '<div class="compact-bars">' + hatch_phone(charts.bars("Normal and fast mode", rows, str, "", values=values, responsive=True)) + '</div>'
 
 
+def any_pair_data(s):
+    """The explorer's numbers: a projection of the dataset, embedded in the page's data block. The script reads them from there."""
+    points = [{"c": c, "d": DISP(c), "exp": e, "col": FAM(c), "fast": "-fast" in c,
+               "mark": config_marker(c, 0, 0), "kind": v["cost_kind"], "pass": v["pass_at_1"], "usd": v["usd_per_pass"], "usd_text": v["usd_text"],
+               "med": v["latency_s"]["median"], "inp": v["tokens_mean"]["in_tok"], "rsn": v["tokens_mean"]["reasoning_tok"]}
+              for e, group in ((False, s["configs"]), (True, every(s))) for c, v in group.items()
+              if e == (c not in s["configs"])]  # Devin has no $, so it stays out of the any-two-measures plot
+    d = s["design"]["explorer"]
+    return {"points": points, "usd_ticks": s["design"]["usd_ticks"], "floors": d["floors"], "default_floor": d["default_floor"], "tie": d["tie"]}
+
+
+def any_pair(s):
+    """Render interactive geometry around the embedded measurements and dollar labels."""
+    src = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "page", "any_pair.html")
+    options = '<option value="0">all shown</option>' + "".join(f'<option value="{f}">pass rate ≥ {round(100 * f)}%</option>' for f in s["design"]["explorer"]["floors"])
+    body = open(src).read().replace("__FLOOR_OPTIONS__", options)
+    body = body.replace("frontier over", "best trade-offs over")
+    older = s["exploratory"]["sol56-high"]["model"].split("-")[1]
+    body = body.replace("Hollow = exploratory config. Codex $ is a proxy.",
+                        f"Solid = normal speed. Hollow = fast mode. Dashed edge = bare prompt. Alternate Codex colour = {older} generation. Shapes match the charts above. Labels connect to their own points. Codex $ is a list-price estimate.")
+    # Match the static speed chart: differences below both the absolute and the relative tolerance (design.explorer.tie) are ties.
+    body = body.replace('return M[k].up?a>=b:a<=b', 'return k=="med"?a<=b+Math.min(X.tie.abs_s,X.tie.rel*b):M[k].up?a>=b:a<=b')
+    body = body.replace('return M[k].up?a>b:a<b', 'return k=="med"?a<=b-Math.min(X.tie.abs_s,X.tie.rel*b):M[k].up?a>b:a<b')
+    body = body.replace('sx.t.forEach(function(v){', 'var tickEnd=-Infinity; sx.t.forEach(function(v){')
+    body = body.replace('if(x<L-1||x>W-R+1)return;',
+                        'if(x<L-1||x>W-R+1)return;var tw=tf(st.x,v).length*(small?6:7);if(x-tw/2<tickEnd+10)return;tickEnd=x+tw/2;')
+    start, end = body.index(' var placed=[];'), body.index(" box.innerHTML='<svg")
+    body = body[:start] + r"""
+ var placed=[],dots=pts.map(function(p){return [sx.f(p[st.x]),sy.f(p[st.y])]}),fontSize=small?11:12;
+ var measure=document.createElement('canvas').getContext('2d');measure.font=fontSize+'px '+getComputedStyle(document.body).fontFamily;
+ pts.forEach(function(p){var x=sx.f(p[st.x]),y=sy.f(p[st.y]),onf=fr.indexOf(p)>=0;
+  g.push('<g class="explorer-point" data-i="'+D.indexOf(p)+'" data-x="'+x+'" data-y="'+y+'" transform="translate('+x+' '+y+')" style="cursor:pointer">'+
+   '<title>'+esc(p.d)+'</title>'+(onf?'<circle r="12" fill="none" stroke="var(--frontier)" stroke-width="3"/>':'')+p.mark+'<circle r="14" fill="transparent"/></g>')});
+ function overlap(a,b){return Math.max(0,Math.min(a[2],b[2])-Math.max(a[0],b[0]))*Math.max(0,Math.min(a[3],b[3])-Math.max(a[1],b[1]))}
+ pts.filter(function(p){return !small||fr.indexOf(p)>=0}).sort(function(a,b){return (fr.indexOf(b)>=0)-(fr.indexOf(a)>=0)||sy.f(a[st.y])-sy.f(b[st.y])}).forEach(function(p){
+  var x=sx.f(p[st.x]),y=sy.f(p[st.y]),w=measure.measureText(p.d).width+6,h=fontSize+5,candidates=[];
+  [20,45,75,110,150].forEach(function(r){for(var angle=0;angle<360;angle+=30){var a=angle*Math.PI/180,dx=Math.cos(a)*r,dy=Math.sin(a)*r;
+    candidates.push([x+dx-(dx<0?w:0),y+dy])}});
+  for(var yy=T+h;yy<H-B;yy+=h+3)for(var xx=L;xx+w<W-R;xx+=24)candidates.push([xx,yy]);
+  var best=null;
+  candidates.forEach(function(c){var lx=c[0],ly=c[1],r=[lx,ly-h,lx+w,ly+3];
+   var outside=Math.max(0,L-r[0])+Math.max(0,r[2]-(W-R))+Math.max(0,T-r[1])+Math.max(0,r[3]-(H-B));
+   var collision=placed.reduce(function(s,q){return s+overlap(r,q)},0)+dots.reduce(function(s,q){return s+overlap(r,[q[0]-15,q[1]-15,q[0]+15,q[1]+15])},0);
+   var score=outside*10000+collision*1000+Math.hypot(lx+w/2-x,ly-h/2-y);
+   if(!best||score<best.score)best={score:score,r:r,lx:lx,ly:ly};
+  });
+  var r=best.r,qx=Math.max(r[0],Math.min(x,r[2])),qy=Math.max(r[1],Math.min(y,r[3])),dist=Math.hypot(qx-x,qy-y)||1;
+  placed.push(r);g.push('<line class="explorer-leader" x1="'+(x+(qx-x)*14/dist)+'" y1="'+(y+(qy-y)*14/dist)+'" x2="'+qx+'" y2="'+qy+'" stroke="var(--muted)" stroke-width="1"/>');
+  g.push('<text class="explorer-label" x="'+(best.lx+3)+'" y="'+best.ly+'" style="fill:var(--fg)" pointer-events="none">'+esc(p.d)+'</text>');
+ });
+""" + body[end:]
+    body = body.replace('box.querySelectorAll("circle")', 'box.querySelectorAll(".explorer-point")')
+    body = body.replace('c.getAttribute("cx")', 'c.getAttribute("data-x")').replace('c.getAttribute("cy")', 'c.getAttribute("data-y")')
+    return body
+
+
 def explorer_data(s):
     """The browser sees only the canonical dataset's explorer projection."""
     exp = s["explorer"]
@@ -657,7 +799,8 @@ def explorer_data(s):
             "pass_rate", "ci95_plot", "usd_per_pass", "quota_usd_per_pass",
             "cost_kind", "median_s", "winner_pick", "panel", "complete_marker",
             "coverage_note", "rule", "derived", "derived_note"}
-    return dict(exp, sets=sets, rows=[{k: v for k, v in r.items() if k in keep} for r in exp["rows"]])
+    return dict(exp, sets=sets, empty_heading=explorer_heading(),
+                rows=[dict({k: v for k, v in r.items() if k in keep}, heading_html=explorer_heading(r)) for r in exp["rows"]])
 
 
 def explorer(s):
@@ -668,12 +811,12 @@ def explorer(s):
     plotted = [r for r in rows if r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None]
     legend = {r["family"] + " " + r["generation"] if charts.explorer_colour(r) == "var(--data-codex-old)" else r["family"]:
               charts.explorer_colour(r) for r in plotted}
-    fr = [r for r in plotted if membership[r["key"]]["on_frontier"]]
+    fr = sorted([r for r in plotted if membership[r["key"]]["on_frontier"]], key=lambda r:(r["usd_per_pass"], r["key"]))
     button = lambda r: f'<button class="btn" data-key="{esc(r["key"])}">{esc(r["display"])} · {charts.explorer_cost_label(r)}</button>'
     detail = ""
     if plotted:
         r = plotted[0]
-        detail = (f'<h3>{esc(r["display"])}</h3><p>{r["passes"]}/{r["n"]} passed · {dataset.usd(r["usd_per_pass"])} per pass · {r["median_s"]:g} s median</p>'
+        detail = (explorer_heading(r) + f'<p>{r["passes"]}/{r["n"]} passed · {dataset.usd(r["usd_per_pass"])} per pass · {r["median_s"]:g} s median</p>'
                   f'<p class="ex-meta">CI {100*r["ci95_plot"][0]:.1f}%–{100*r["ci95_plot"][1]:.1f}% · {esc(charts.explorer_cost_label(r))} · {esc(r["provenance"])} · {esc(r["rule"])}</p>')
     tokens = {
         "__VIEW_BUTTONS__": "".join(f'<button class="btn" data-view="{v}" aria-pressed="{str(v == exp["default_view"]).lower()}">{esc(spec["label"])}</button>' for v, spec in exp["views"].items()),
@@ -684,6 +827,7 @@ def explorer(s):
         "__LEGEND__": " · ".join(f'<span style="border-left:8px solid {colour};padding-left:6px;">{esc(label)}</span>' for label, colour in legend.items()),
         "__WINNER_PRICING__": esc(exp["winner_pricing"]), "__EXPLORER_SVG__": charts.explorer_svg(exp, width=320),
         "__EXCLUDED__": " ".join(esc(r["display"] + ": " + r["coverage_note"] + "; cost unavailable — use Speed × Pass.") for r in rows if r not in plotted),
+        "__CHIPS__": "".join(f'<li><b>{i}</b>'+button(r)+"</li>" for i,r in enumerate(fr,1)),
         "__DETAIL__": detail, "__BEST__": "".join("<li>"+button(r)+"</li>" for r in fr),
         "__PICKS__": "".join(f'<p>{esc(pick)}: '+button(r)+"</p>" for c,pick in exp["winner_picks"].items() for r in rows if r["config"] == c),
         "__PANELS__": charts.explorer_panels(exp), "__RADARS__": charts.explorer_radars(exp),
@@ -853,12 +997,20 @@ def method(s):
                       if ANALOGUE.get(p) else '<br><span class="like">no close LeetCode analogue</span>')
     # Problem name includes its rung; the difficulty badge trails the name.
     description = lambda p: TESTS[p].replace("for huge t", f"for t ≤ {s['design']['xor_time_bound']}")
-    item = lambda p, r: (f'<li class="prow"><span class="pn"><a href="{REPO}{p}.py"><code>{esc(plabel(p, r))}</code></a> {lvl(LC[p])}{like(p)}</span>'
-                         f'<span class="pd">{esc(description(p))}</span></li>')
+    def item(p, r):
+        from bench.problems import load
+        module = load(p)
+        identifier = p.split("_", 1)[0]
+        return (f'<li class="prow" id="{identifier}"><span class="pn" id="{esc(p)}"><code>{esc(plabel(p, r))}</code>{heading_link(identifier, plabel(p, r))} {lvl(LC[p])}{like(p)}</span>'
+                f'<span class="pd">{esc(description(p))}</span>'
+                f'<details class="problem-try" id="{identifier}-try"><summary>Try it</summary>'
+                f'<pre class="problem-signature"><code>{esc(module.SIGNATURE)}</code></pre>'
+                f'<pre class="problem-statement"><code>{esc(module.STATEMENT)}</code></pre>'
+                f'<p><a href="{REPO}{p}.py">reference solution (spoiler)</a></p></details></li>')
     main, hard, per, _ = set_definitions(s)
     rungs = sorted({s["problems"][p]["rung"] for p in main})
     li = [f'<li class="round"><b>Pilot</b>: well-known LeetCode problems. Every config passed. It ranked nothing, so we exclude its scores.<ul>'
-          + "".join(f'<li>{lvl(d)} <a href="https://leetcode.com/problems/{slug}/">{esc(n)}</a> <span class="like">source</span></li>' for n, slug, d in PILOT) + "</ul></li>",
+          + "".join(f'<li class="pilot-problem" id="pilot-{slug}">{lvl(d)} <a href="https://leetcode.com/problems/{slug}/">{esc(n)}</a>{heading_link("pilot-" + slug, n)} <span class="like">source</span></li>' for n, slug, d in PILOT) + "</ul></li>",
           f'<li class="round"><b>{configs.set_label("main ladder", capital=True)}</b>: {len(main)} new problems.'
           f'<ul><li>Problem numbers: {main[0].split("_")[0]}–{main[-1].split("_")[0]}.</li>'
           f'<li>Rungs: L{rungs[0]}–L{rungs[-1]}, easiest first.</li><li>Each rung has {per} problems.</li>'
@@ -994,7 +1146,7 @@ def notation_tooltips(body, ds):
             self.out.append(f"</{tag}>")
 
         def handle_data(self, data):
-            if any(tag in ("script", "style", "title", "option", "textarea") or attrs.get("id") == "notation"
+            if any(tag in ("script", "style", "title", "option", "textarea") or attrs.get("id") == "notation" or "problem-try" in attrs.get("class", "").split()
                    for tag, attrs in self.stack):
                 self.out.append(data)
                 return
@@ -1076,7 +1228,7 @@ def widgets(s, need, ds=None, names=None):
     renderers = {"pass_cost": lambda: a, "speed_cost": lambda: b, "hard_pass_cost": lambda: ha, "hard_speed_cost": lambda: hb,
             "hard_front_pass": lambda: ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": lambda: ", ".join(SHORT(nm[c]) for c in hfb),
             "sets": lambda: sets_box(s), "grid": lambda: grid(s, (ds or dataset.read()).get("grok_comparison", {}).get("by_problem")), "floor": lambda: floor(s), "pipes": lambda: pipes(arms),
-            "fast": lambda: fast(s), "explorer": lambda: explorer(s), "short_table": lambda: short_table(s, need),
+            "fast": lambda: fast(s), "any_pair": lambda: any_pair(s), "explorer": lambda: explorer(s), "short_table": lambda: short_table(s, need),
             "full_table": lambda: full_table(ds or dataset.read()), "result_notes": lambda: result_notes(s),
             "grok_catalog": lambda: "",
             "front_pass": lambda: ", ".join(map(DISP, fa)),
