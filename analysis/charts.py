@@ -554,47 +554,43 @@ def explorer_marker(r, x, y, radius=6):
     return f'<circle cx="{x:.2f}" cy="{y:.2f}" r="{radius}" {attrs}/>'
 
 
-def explorer_leader(q, target, obstacles, width, height, label_end=None):
-    """Stable orthogonal routing through free cells, ending outside the point ring.
+def explorer_annotations(rows, frontier, positions, bounds, width):
+    """Number each frontier member, then name only collision-free Winner picks.
 
-    Points, confidence intervals, label text and prior routes reserve space.
-    An inaccessible point keeps its label without a leader.
+    Small badges occupy the first free spot near their own point. Names never
+    route into a column: an obstructed pick is left to the chips and inspector.
     """
-    from collections import deque
-    step = 2
-    cols, rows = math.floor(width/step), math.floor(height/step)
-    blocked = set()
-    for left, top, right, bottom in obstacles:
-        for y in range(max(1, math.ceil(top/step)), min(rows-1, math.floor(bottom/step))+1):
-            for x in range(max(1, math.ceil(left/step)), min(cols-1, math.floor(right/step))+1):
-                blocked.add((x, y))
-    origin = (min(cols-1, max(1, round(target[0]/step))), min(rows-1, max(1, round(target[1]/step))))
-    if origin in blocked: return ""
-    queue, parent = deque([origin]), {origin: None}
-    found = None
-    while queue:
-        node = queue.popleft(); x, y = node
-        if 14 <= math.hypot(x*step-q[0], y*step-q[1]) <= 20:
-            found = node; break
-        for nxt in ((x,y+1), (x-1,y), (x+1,y), (x,y-1)):
-            nx, ny = nxt
-            if not (1 <= nx < cols and 1 <= ny < rows) or nxt in parent or nxt in blocked: continue
-            # Padding by a cell prevents a segment jumping a thin whisker.
-            parent[nxt] = node; queue.append(nxt)
-    if found is None: return ""
-    points = []
-    while found is not None:
-        points.append((found[0]*step, found[1]*step)); found = parent[found]
-    if label_end is not None:
-        x,y = points[-1]
-        points.extend((xx,y) for xx in range(x-step, round(label_end[0]/step)*step-1, -step))
-    obstacles.extend((x,y,x,y) for x,y in points)
-    compact = points[:1]
-    for i in range(1, len(points)-1):
-        a,b,c = points[i-1:i+2]
-        if (b[0]-a[0])*(c[1]-b[1]) != (b[1]-a[1])*(c[0]-b[0]): compact.append(b)
-    compact += points[-1:]
-    return "M" + "L".join(f"{x} {y}" for x,y in compact)
+    left, top, right, bottom = bounds
+    obstacles = [(x-14,y-14,x+14,y+14) for x,y in positions.values()]
+    def clear(box):
+        l,t,r,b = box
+        return not any(l < rr and ll < r and t < bb and tt < b for ll,tt,rr,bb in obstacles)
+    out = []
+    for i,r in enumerate(frontier, 1):
+        x,y = positions[r['config']]
+        # Include off-domain badges in the clipped SVG to preserve identity on zoom.
+        candidates = [(x+math.cos(a*math.pi/4)*radius,y+math.sin(a*math.pi/4)*radius)
+                      for radius in range(28, 337, 14) for a in (-1,0,-2,1,-3,2,3,4)]
+        bx,by = next((q for q in candidates if clear((q[0]-11,q[1]-11,q[0]+11,q[1]+11))
+                      and left+11 <= q[0] <= right-11 and top+11 <= q[1] <= bottom-11),
+                     next(q for q in candidates if clear((q[0]-11,q[1]-11,q[0]+11,q[1]+11))))
+        obstacles.append((bx-11,by-11,bx+11,by+11))
+        number = str(i)
+        out.append(f'<circle class="ex-number-ring" cx="{bx:.2f}" cy="{by:.2f}" r="10"/>'
+                   f'<text x="{bx:.2f}" y="{by+4:.2f}" text-anchor="middle" class="ex-number" data-key="{escape(r["key"])}" data-width="{len(number)*7.2}">{number}</text>')
+    if width > 480:
+        for r in rows:
+            if not r['winner_pick']: continue
+            x,y = positions[r['config']]; label = r['display']; w = len(label)*7.2
+            for dx,dy,anchor in ((18,4,'start'),(-18,4,'end'),(0,-20,'middle'),(0,30,'middle')):
+                lx,ly = x+dx,y+dy
+                l = lx-(w if anchor == 'end' else w/2 if anchor == 'middle' else 0)
+                box = (l,ly-13,l+w,ly+4)
+                if l < left or l+w > right or ly-13 < top or ly+4 > bottom or not clear(box): continue
+                out.append(f'<text x="{lx:.2f}" y="{ly:.2f}" text-anchor="{anchor}" class="ex-label" data-key="{escape(r["key"])}" data-width="{w}">{escape(label)}</text>')
+                obstacles.append(box)
+                break
+    return ''.join(out)
 
 
 def explorer_svg(exp, standalone=False, width=760):
@@ -602,8 +598,7 @@ def explorer_svg(exp, standalone=False, width=760):
     st = next(s for s in exp["sets"] if s["id"] == exp["default_set"])
     rows = [r for r in exp["rows"] if r["key"] in st["rows"] and r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None]
     ext = st["views"]["list"]["extents"]; membership = st["views"]["list"]["front"]["membership"]
-    label_rows = [r for r in rows if membership[r['key']]['on_frontier'] or width > 480 and r['winner_pick']]
-    W,H,L,R,T,B = width,480,90,30,190,410
+    W,H,L,R,T,B = width,480,90,30,46,410
     lo,hi = ext["cost"]; p0,p1 = ext["pass_rate"]
     X = lambda v: L + math.log(v/lo)/math.log(hi/lo)*(W-L-R)
     Y = lambda v: B - (v-p0)/(p1-p0)*(B-T)
@@ -614,7 +609,7 @@ def explorer_svg(exp, standalone=False, width=760):
     for i in range(math.ceil(p0*10),11):
         v=i/10
         b += [f'<path class="ex-grid" d="M{L} {Y(v):.2f}H{W-R}"/>',text(L-10,Y(v)+4,f'{100*v:.0f}%',12,"end",MUTED)]
-    frontier = sorted([r for r in rows if membership[r['key']]['on_frontier']],key=lambda r:r['usd_per_pass'])
+    frontier = sorted([r for r in rows if membership[r['key']]['on_frontier']],key=lambda r:(r['usd_per_pass'],r['key']))
     if frontier:
         d='M'+f'{X(frontier[0]["usd_per_pass"]):.2f} {B}'
         for r in frontier: d+=f'H{X(r["usd_per_pass"]):.2f}V{Y(r["pass_rate"]):.2f}'
@@ -629,35 +624,15 @@ def explorer_svg(exp, standalone=False, width=760):
         ci=r['ci95_plot']
         b.append(f'<path class="ex-ci" stroke="{col}" d="M{x:.2f} {Y(ci[0]):.2f}V{Y(ci[1]):.2f}"/>')
         title=f'{r["display"]}: {r["passes"]}/{r["n"]}, {dataset.usd(r["usd_per_pass"])} per pass ({explorer_cost_label(r)}), {r["median_s"]:g} s; {r["coverage_note"]}'
-        b.append(f'<g class="ex-point" data-key="{escape(r["key"])}" tabindex="0" role="button" aria-label="{escape(title)}"><title>{escape(title)}</title>')
+        b.append(f'<g class="ex-point" data-key="{escape(r["key"])}" data-x="{x:.2f}" data-y="{y:.2f}" tabindex="0" role="button" aria-label="{escape(title)}"><title>{escape(title)}</title>')
         if membership[r['key']]['on_frontier']: b.append(f'<circle class="ex-ring" cx="{x:.2f}" cy="{y:.2f}" r="11"/>')
         b += [explorer_marker(r,x,y),'</g>']
-    # Labels live above the cloud, with routes that clear every mark and whisker.
-    obstacles = []
-    for r in rows:
-        x,y = positions[r['config']]
-        obstacles.extend(((x-12,y-12,x+12,y+12),
-                          (x-5,Y(r['ci95_plot'][1])-4,x+5,Y(r['ci95_plot'][0])+4)))
-    labels = []
-    label_rows.sort(key=lambda r: (positions[r['config']][1], positions[r['config']][0], r['key']))
-    for i,r in enumerate(label_rows):
-        q = positions[r['config']]; label = r['display']
-        x,y,w = 12,18+i*18,min(len(label)*7,W-36)
-        labels.append((r,q,label,x,y,w))
-        obstacles.append((x-4,y-15,x+w+4,y+4))
-    lane = max((w for r,q,label,x,y,w in labels), default=0) + 24
-    for i in reversed(range(len(labels))):
-        r,q,label,x,y,w = labels[i]
-        route = explorer_leader(q,(lane+(len(labels)-1-i)*8,y-4),obstacles,W,H,(x+w+12,y-4))
-        b.append(f'<path class="ex-leader" data-key="{escape(r["key"])}" d="{route}"/>')
-    b.append(f'<defs><clipPath id="ex-static-label-clip"><rect x="8" y="0" width="{W-16}" height="{T-24}"/></clipPath></defs><g clip-path="url(#ex-static-label-clip)">')
-    for r,q,label,x,y,w in labels:
-        b.append(text(x,y,label,12).replace('<text ', f'<text class="ex-label" data-key="{escape(r["key"])}" ', 1))
-    b.append('</g>')
+    b.append(f'<defs><clipPath id="ex-static-annotations"><rect x="{L}" y="{T}" width="{W-L-R}" height="{B-T}"/></clipPath></defs>'
+             '<g clip-path="url(#ex-static-annotations)">'+explorer_annotations(rows, frontier, positions, (L,T,W-R,B), width)+'</g>')
     b += [text((L+W-R)/2,H-18,'$ per pass (log) · left is cheaper',12,'middle',MUTED),text(22,(T+B)/2,'Pass rate · up is better',12,'middle',MUTED,rotate=-90)]
     if standalone:
         tokens = token_style()
-        paint = ".ex-grid{fill:none;stroke:var(--data-grid)}.ex-front{fill:none;stroke:var(--frontier);stroke-dasharray:5 4}.ex-shade{fill:var(--data-beaten)}.ex-ci{fill:none;stroke-width:1.5;opacity:.35}.ex-ring{fill:none;stroke:var(--frontier);stroke-width:2}.ex-trail{fill:none;opacity:.5}.ex-leader{fill:none;stroke:var(--muted);stroke-width:1}.ex-svg{background:var(--panel)}"
+        paint = ".ex-grid{fill:none;stroke:var(--data-grid)}.ex-front{fill:none;stroke:var(--frontier);stroke-dasharray:5 4}.ex-shade{fill:var(--data-beaten)}.ex-ci{fill:none;stroke-width:1.5;opacity:.35}.ex-ring{fill:none;stroke:var(--frontier);stroke-width:2}.ex-trail{fill:none;opacity:.5}.ex-number-ring{fill:var(--frontier);stroke:var(--panel)}.ex-number{fill:var(--panel);font-weight:700;stroke:none}.ex-svg{background:var(--panel)}"
         b.insert(0,tokens+"<style>"+paint+"</style>")
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" class="ex-svg" style="min-width:0">'+''.join(b)+'</svg>')
 

@@ -150,7 +150,7 @@ def data_block(ds, s, used, T, page_tmpl, chart_bodies, W):
              "tables": {k: T[k] for k in tables if k in T},
              "charts": {name: [html.unescape(x) for x in re.findall(r"<text[^>]*>([^<]*)</text>", body)] for name, body in sorted(chart_bodies.items()) if name in re.findall(r"\{\{chart:([^|]+)\|", page_tmpl)},
              "widgets": {k: nodes for k, v in sorted(W.items()) if (nodes := [html.unescape(x).strip() for x in re.findall(r">([^<>]+)<", v) if re.search(r"\d", x)])},
-             "explorer": pagew.explorer_data(s)}
+             "explorer": pagew.explorer_data(s), "any_pair": pagew.any_pair_data(s)}
     return json.dumps(block, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
 
 
@@ -177,6 +177,7 @@ def render(used_facts=None):
     W["grok_catalog"] = configs.section(body, ds, ROOT, chart_bodies, grok_only=True)
     body = fill(page_tmpl, Facts({**F, **{"w_" + k: v for k, v in W.items()}}, used=used_facts), T, "page", chart_bodies)
     body = pagew.notation_tooltips(body, ds)
+    body = pagew.deep_links(body)
     shell = open(os.path.join(PAGE_DIR, "shell.html")).read()
     script = open(os.path.join(PAGE_DIR, "sort.js")).read().strip().replace("__RESCUE_SET_LABEL__", json.dumps(configs.set_label("rescue set")))
     block = data_block(ds, s, used_facts, T, page_tmpl, chart_bodies, W)
