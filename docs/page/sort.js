@@ -108,10 +108,12 @@ document.querySelectorAll(".cwrap").forEach(function(w){
 // analysis.page.anchor_slug and reserve every existing id before generating any.
 (function(){
 var used=new Set(Array.from(document.querySelectorAll('[id]'),function(el){return el.id}));
+var grok=document.getElementById('grok'),title=grok&&grok.querySelector('h1,h2,h3,h4,h5,h6');
 document.querySelectorAll('#grok h2,#grok h3').forEach(function(heading){
  if(heading.querySelector('.hlink'))return;
  var text=heading.textContent.replace(/\s+/g,' ').trim(),id=heading.id;
- if(!id){
+ if(heading===title)id=grok.id;
+ else if(!id){
   var base=text.normalize('NFKD').replace(/[^\x00-\x7F]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'heading';
   id=base;var suffix=2;while(used.has(id))id=base+'-'+suffix++;
   heading.id=id;used.add(id)

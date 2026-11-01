@@ -70,11 +70,26 @@ def deep_links(body):
         def __init__(self):
             super().__init__()
             self.ids = set()
+            self.sections, self.titles = [], {}
+            self.lines = [0] + [m.end() for m in re.finditer("\n", body)]
 
         def handle_starttag(self, tag, attrs):
             identifier = dict(attrs).get("id")
             if identifier:
                 self.ids.add(identifier)
+            if tag == "section":
+                self.sections.append([identifier, False])
+            elif tag in {"h1", "h2", "h3", "h4", "h5", "h6"} and self.sections:
+                section = self.sections[-1]
+                if not section[1]:
+                    section[1] = True
+                    if section[0]:
+                        line, column = self.getpos()
+                        self.titles[self.lines[line - 1] + column] = section[0]
+
+        def handle_endtag(self, tag):
+            if tag == "section" and self.sections:
+                self.sections.pop()
 
     inventory = Inventory()
     inventory.feed(body)
@@ -88,25 +103,24 @@ def deep_links(body):
         return identifier
 
     def heading(match):
-        if match[1] is None:  # Raw script/style text is not page markup.
+        if match[1] is None:  # Preserve raw script/style text and the Grok section.
             return match[0]
         tag, attrs, content = match.groups()
+        section = inventory.titles.get(match.start())
+        if not section and tag not in {"h2", "h3"}:
+            return match[0]
         if re.search(r'class=[\"\'][^\"\']*\bhlink\b', content):
             return match[0]
-        text = " ".join(html.unescape(re.sub(r"<[^>]*>", "", content)).split())
+        text = " ".join(html.unescape(re.sub(r"<[^>]*>", " ", content)).split())
         existing = re.search(r'\bid=[\"\']([^\"\']+)[\"\']', attrs)
-        identifier = html.unescape(existing[1]) if existing else unique(anchor_slug(text))
-        if not existing:
+        identifier = section or (html.unescape(existing[1]) if existing else unique(anchor_slug(text)))
+        if not section and not existing:
             attrs += f' id="{esc(identifier)}"'
         return f'<{tag}{attrs}>{content}{heading_link(identifier, text)}</{tag}>'
 
     # Grok stays byte-identical to its claims-audit copy; sort.js adds live heading links.
-    grok = re.search(r'<section id="grok">.*?</section>', body, flags=re.S)
-    keep = "\0GROK\0"
-    if grok: body = body.replace(grok[0], keep, 1)
-    body = re.sub(r"<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>|<(h[23])\b([^>]*)>(.*?)</\1>",
+    body = re.sub(r'<section id="grok">.*?</section>|<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>|<(h[1-6])\b([^>]*)>(.*?)</\1>',
                   heading, body, flags=re.S)
-    if grok: body = body.replace(keep, grok[0], 1)
 
     # Reading-guide disclosures have summaries rather than h3s. Give their
     # summaries addressable targets inside the closed details as well.
@@ -115,7 +129,7 @@ def deep_links(body):
             attrs, content = m.groups()
             if re.search(r"\bid=", attrs):
                 return m[0]
-            text = html.unescape(re.sub(r"<[^>]*>", "", content))
+            text = html.unescape(re.sub(r"<[^>]*>", " ", content))
             identifier = unique("method-" + anchor_slug(text))
             return f'<summary{attrs} id="{identifier}">{content}</summary>'
         return re.sub(r"<summary\b([^>]*)>(.*?)</summary>", summary, match[0], flags=re.S)

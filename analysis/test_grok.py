@@ -415,8 +415,9 @@ OLD_GROK_CLAIMS = (
 # R: R6 generated permalinks, short problem anchors, keyboard links and hash reveal; Grok prose/data unchanged.
 # R: R7 sparse speed-chart tick labels; Grok section bytes unchanged.
 # R: R8 bounded frontier badges, config hash restoration, live Grok links and keyboard any-pair inspection; raw Grok bytes unchanged.
+# R: R9 section-title permalinks reuse section ids; slug words stay separate; any-pair redraw keeps keyboard focus; Grok raw bytes unchanged.
 OLD_NON_GROK_DIGESTS = {
-    'results/report/page.html': 'd80d4e1f16b12c206c88b9ae436657df38b76a57143adb5edf7ab4fb252466fb',
+    'results/report/page.html': 'd590a7a248ed8d242e2c119a3d54666e48d0da06fb7d98026015e78e86df10ad',
     'docs/REPORT.md': 'de2e362eb61a9240b1cd23e4bc03a83f38001ff5d54353e941315f4effd97507',
 }
 

@@ -57,9 +57,9 @@ def document():
     return Document((ROOT / 'results/report/page.html').read_text())
 
 
-def assert_link(node):
+def assert_link(node, identifier=None):
     links = [n for n in node.descendants() if 'hlink' in n.attrs.get('class', '').split()]
-    matching = [n for n in links if n.attrs.get('href') == '#' + node.attrs['id']]
+    matching = [n for n in links if n.attrs.get('href') == '#' + (identifier or node.attrs['id'])]
     assert len(matching) == 1, node.attrs
     assert matching[0].tag == 'a' and matching[0].text == '#'
     assert matching[0].attrs['aria-label'].startswith('Link to this section: ')
@@ -93,9 +93,38 @@ def test_generated_heading_ids_are_ascii_unique_and_deterministic():
     assert linked == page.deep_links(source)
     assert linked == page.deep_links(linked)
     headings = [n for n in Document(linked).nodes if n.tag in {'h2', 'h3'}]
-    assert [n.attrs['id'] for n in headings] == ['cafe-tea', 'cafe-tea-2', 'existing', 'existing-2', 'heading']
-    for heading in headings:
+    assert 'id' not in headings[0].attrs
+    assert_link(headings[0], 'cafe')
+    assert [n.attrs['id'] for n in headings[1:]] == ['cafe-tea', 'existing', 'existing-2', 'heading']
+    for heading in headings[1:]:
         assert_link(heading)
+
+
+def test_section_titles_target_the_section_without_generated_ids():
+    for section in (n for n in document().nodes if n.tag == 'section'):
+        if section.attrs['id'] == 'grok':  # Raw bytes stay pinned; checked in the live DOM.
+            continue
+        heading = next(n for n in section.descendants() if n.tag in {'h1', 'h2', 'h3', 'h4', 'h5', 'h6'})
+        assert 'id' not in heading.attrs
+        assert not re.search(r'-\d+$', heading.attrs.get('id', ''))
+        assert_link(heading, section.attrs['id'])
+    assert 'accuracyone' not in (ROOT / 'results/report/page.html').read_text()
+
+
+def test_wrapped_section_titles_and_slug_words_stay_separate():
+    source = ('<section id="pareto"><header><h2><span>Cost vs accuracy</span>'
+              '<span>One chart</span></h2></header>'
+              '<h3><span>Cost vs accuracy</span><span>One chart</span></h3></section>'
+              '<section id="other"><header><h4 id="pinned">Other</h4></header></section>')
+    linked = page.deep_links(source)
+    assert linked == page.deep_links(linked)
+    headings = [n for n in Document(linked).nodes if n.tag in {'h2', 'h3', 'h4'}]
+    assert 'id' not in headings[0].attrs
+    assert_link(headings[0], 'pareto')
+    assert headings[1].attrs['id'] == 'cost-vs-accuracy-one-chart'
+    assert_link(headings[1])
+    assert headings[2].attrs['id'] == 'pinned'
+    assert_link(headings[2], 'other')
 
 
 def test_heading_annotation_preserves_script_templates():
