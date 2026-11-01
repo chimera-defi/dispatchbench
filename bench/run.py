@@ -9,6 +9,7 @@ Grading is a separate step (bench.grade_all), so lanes never compete with timed 
 import argparse, datetime, hashlib, json, os, re, shlex, shutil, subprocess, sys, tempfile, threading, time
 import urllib.error
 import urllib.request
+import socket
 from concurrent.futures import ThreadPoolExecutor
 from http.client import HTTPException
 
@@ -118,7 +119,7 @@ def prompt_for(pid):
 
 def key_for(config, pid, rep, prompt):
     cli, mid, eff = CONFIGS[config]
-    flags = (["--base-url", HETZNER_BASE_URL, "--model", mid] if cli == "hetzner" else
+    flags = (["--base-url", HETZNER_BASE_URL, "--model", mid, "--stream", "--include-usage"] if cli == "hetzner" else
              CLAUDE_FLAGS if cli == "claude" else GROK_FLAGS if cli == "grok" else codex_flags(config, portable=True))
     identity = {"config": config, "model": mid, "effort": eff, "cli": cli, "cli_version": cli_version(cli),
                 "flags": flags, "prompt": prompt, "problem": pid, "repeat": rep}
@@ -311,14 +312,18 @@ def call_hetzner(mid, eff, prompt, cwd):
     t = time.monotonic()
     key = ""
     raw = ""
+    message = {"content": "", "reasoning_content": "", "reasoning": ""}
+    usage = {}
+    saw_choice = False
     res = dict(text="", is_error=False, error=None, in_tok=0, out_tok=0, cached_tok=0,
                cache_write_tok=0, reasoning_tok=0, cost_usd=0.0,
                cost_kind="free-tier (Hetzner experimental, no list price)")
 
-    def scrub(text):
+    def scrub(text, normalize=True):
         # Normalize JSON escapes as well, in case a server echoes the credential.
-        try: text = json.dumps(json.loads(text), ensure_ascii=False)
-        except ValueError: pass
+        if normalize:
+            try: text = json.dumps(json.loads(text), ensure_ascii=False)
+            except ValueError: pass
         if key:
             text = text.replace(key, "[REDACTED]").replace(json.dumps(key)[1:-1], "[REDACTED]")
         return text
@@ -326,28 +331,65 @@ def call_hetzner(mid, eff, prompt, cwd):
     try:
         key = _hetzner_key()
         if not key: raise ValueError("Missing Hetzner inference credential")
-        body = json.dumps({"model": mid, "messages": [{"role": "user", "content": prompt}]}).encode()
+        body = json.dumps({"model": mid, "messages": [{"role": "user", "content": prompt}],
+                           "stream": True, "stream_options": {"include_usage": True}}).encode()
         request = urllib.request.Request(HETZNER_BASE_URL + "/chat/completions", data=body,
                                          headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"},
                                          method="POST")
         try:
-            with urllib.request.urlopen(request, timeout=600) as response:
-                raw = scrub(response.read().decode("utf-8"))
+            with urllib.request.urlopen(request, timeout=120) as response:
+                def abort_stream():
+                    # Closing a buffered reader can block on its read lock. Shutdown
+                    # the underlying urllib socket to interrupt even a trickling read.
+                    try: response.fp.raw._sock.shutdown(socket.SHUT_RDWR)
+                    except (AttributeError, OSError): pass
+
+                remaining = 1800 - (time.monotonic() - t)
+                if remaining <= 0: raise TimeoutError("Hetzner stream exceeded 1800s wall cap")
+                deadline = threading.Timer(remaining, abort_stream)
+                deadline.daemon = True
+                deadline.start()
+                try:
+                    while True:
+                        if time.monotonic() - t >= 1800:
+                            raise TimeoutError("Hetzner stream exceeded 1800s wall cap")
+                        line = response.readline()
+                        if time.monotonic() - t >= 1800:
+                            raise TimeoutError("Hetzner stream exceeded 1800s wall cap")
+                        if not line: raise ValueError("Hetzner stream ended before [DONE]")
+                        if not line.startswith(b"data:"): continue
+                        data = line[5:].strip()
+                        if data == b"[DONE]":
+                            if not saw_choice: raise ValueError("Hetzner stream contained no choices")
+                            break
+                        chunk = json.loads(data)
+                        if chunk.get("error"): raise ValueError("Hetzner stream returned an error")
+                        choices = chunk["choices"]
+                        if not isinstance(choices, list): raise ValueError("Invalid Hetzner choices")
+                        if choices:
+                            delta = choices[0]["delta"]
+                            for field in message:
+                                part = delta.get(field) or ""
+                                if not isinstance(part, str): raise ValueError("Expected Hetzner delta text")
+                                message[field] += part
+                            saw_choice = True
+                        usage = chunk.get("usage") or {}
+                finally:
+                    deadline.cancel()
         except urllib.error.HTTPError as exc:
+            # Do not persist an untrusted proxy HTML body (or echo credentials).
             with exc:
-                raw = scrub(exc.read().decode("utf-8", errors="replace"))
-            res.update(is_error=True, error=scrub(f"HTTP {exc.code}: {raw or exc.reason}")[-1000:],
-                       error_type="infrastructure" if exc.code == 429 or 500 <= exc.code < 600 else "model")
+                error = scrub(f"HTTP {exc.code}: {exc.reason}")[:300]
+            res.update(is_error=True, error=error, error_type="infrastructure")
         else:
-            d = json.loads(raw)
-            text = d["choices"][0]["message"].get("content") or ""
-            if not isinstance(text, str): raise ValueError("Expected Hetzner message content to be text")
-            u = d.get("usage") or {}
-            res.update(text=text, in_tok=u.get("prompt_tokens", 0), out_tok=u.get("completion_tokens", 0),
-                       cached_tok=(u.get("prompt_tokens_details") or {}).get("cached_tokens", 0),
-                       reasoning_tok=(u.get("completion_tokens_details") or {}).get("reasoning_tokens", 0))
+            res.update(text=scrub(message["content"], normalize=False), in_tok=usage.get("prompt_tokens", 0),
+                       out_tok=usage.get("completion_tokens", 0),
+                       cached_tok=(usage.get("prompt_tokens_details") or {}).get("cached_tokens", 0),
+                       reasoning_tok=(usage.get("completion_tokens_details") or {}).get("reasoning_tokens", 0))
     except (OSError, HTTPException, ValueError, TypeError, KeyError, IndexError, AttributeError) as exc:
-        res.update(text="", is_error=True, error=scrub(str(exc))[-1000:], error_type="infrastructure")
+        res.update(text="", is_error=True, error=scrub(str(exc))[:300], error_type="infrastructure")
+    if saw_choice:
+        raw = scrub(json.dumps({"choices": [{"message": message}], "usage": usage}))
     res["wall_s"] = time.monotonic() - t
     return res, raw
 
