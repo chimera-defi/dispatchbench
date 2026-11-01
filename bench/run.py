@@ -307,6 +307,16 @@ def _hetzner_key():
     return ""
 
 
+class _HetznerNoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        raise urllib.error.HTTPError(req.full_url, code, msg, headers, fp)
+
+
+def _hetzner_tokens(value):
+    try: return int(value)
+    except (ValueError, TypeError, OverflowError): return None
+
+
 def call_hetzner(mid, eff, prompt, cwd):
     """Free experimental API; only the benchmark prompt is sent, with no tools."""
     t = time.monotonic()
@@ -328,6 +338,11 @@ def call_hetzner(mid, eff, prompt, cwd):
             text = text.replace(key, "[REDACTED]").replace(json.dumps(key)[1:-1], "[REDACTED]")
         return text
 
+    def remaining_time():
+        remaining = 1800 - (time.monotonic() - t)
+        if remaining <= 0: raise TimeoutError("Hetzner stream exceeded 1800s wall cap")
+        return remaining
+
     try:
         key = _hetzner_key()
         if not key: raise ValueError("Missing Hetzner inference credential")
@@ -337,25 +352,25 @@ def call_hetzner(mid, eff, prompt, cwd):
                                          headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"},
                                          method="POST")
         try:
-            with urllib.request.urlopen(request, timeout=120) as response:
+            opener = urllib.request.build_opener(_HetznerNoRedirect())
+            with opener.open(request, timeout=min(120, remaining_time())) as response:
                 def abort_stream():
                     # Closing a buffered reader can block on its read lock. Shutdown
                     # the underlying urllib socket to interrupt even a trickling read.
                     try: response.fp.raw._sock.shutdown(socket.SHUT_RDWR)
                     except (AttributeError, OSError): pass
 
-                remaining = 1800 - (time.monotonic() - t)
-                if remaining <= 0: raise TimeoutError("Hetzner stream exceeded 1800s wall cap")
+                remaining = remaining_time()
                 deadline = threading.Timer(remaining, abort_stream)
                 deadline.daemon = True
                 deadline.start()
                 try:
                     while True:
-                        if time.monotonic() - t >= 1800:
-                            raise TimeoutError("Hetzner stream exceeded 1800s wall cap")
+                        read_timeout = min(120, remaining_time())
+                        try: response.fp.raw._sock.settimeout(read_timeout)
+                        except AttributeError: pass
                         line = response.readline()
-                        if time.monotonic() - t >= 1800:
-                            raise TimeoutError("Hetzner stream exceeded 1800s wall cap")
+                        remaining_time()
                         if not line: raise ValueError("Hetzner stream ended before [DONE]")
                         if not line.startswith(b"data:"): continue
                         data = line[5:].strip()
@@ -382,10 +397,10 @@ def call_hetzner(mid, eff, prompt, cwd):
                 error = scrub(f"HTTP {exc.code}: {exc.reason}")[:300]
             res.update(is_error=True, error=error, error_type="infrastructure")
         else:
-            res.update(text=scrub(message["content"], normalize=False), in_tok=usage.get("prompt_tokens", 0),
-                       out_tok=usage.get("completion_tokens", 0),
-                       cached_tok=(usage.get("prompt_tokens_details") or {}).get("cached_tokens", 0),
-                       reasoning_tok=(usage.get("completion_tokens_details") or {}).get("reasoning_tokens", 0))
+            res.update(text=scrub(message["content"], normalize=False), in_tok=_hetzner_tokens(usage.get("prompt_tokens", 0)),
+                       out_tok=_hetzner_tokens(usage.get("completion_tokens", 0)),
+                       cached_tok=_hetzner_tokens((usage.get("prompt_tokens_details") or {}).get("cached_tokens", 0)),
+                       reasoning_tok=_hetzner_tokens((usage.get("completion_tokens_details") or {}).get("reasoning_tokens", 0)))
     except (OSError, HTTPException, ValueError, TypeError, KeyError, IndexError, AttributeError) as exc:
         res.update(text="", is_error=True, error=scrub(str(exc))[:300], error_type="infrastructure")
     if saw_choice:

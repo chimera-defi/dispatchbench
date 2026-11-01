@@ -3,8 +3,11 @@ import io
 import json
 import urllib.error
 import uuid
+from email.message import Message
 from http.client import IncompleteRead
 from unittest.mock import MagicMock, patch
+from urllib.request import build_opener
+from urllib.response import addinfourl
 
 import pytest
 
@@ -30,7 +33,8 @@ def api(monkeypatch, tmp_path):
     key = "test-" + uuid.uuid4().hex
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setenv("HETZNER_INFERENCE_API_KEY", key)
-    with patch.object(R.urllib.request, "urlopen") as call:
+    with patch.object(R.urllib.request, "build_opener") as opener:
+        call = opener.return_value.open
         set_stream(call, delta("```python\n"), delta(reasoning_content="thinking", reasoning="more thinking"),
                    delta("def f(): pass\n```"), {"choices": [{"delta": {}, "finish_reason": "stop"}]}, {
             "choices": [],
@@ -267,3 +271,149 @@ def test_stored_rows_raw_and_logs_never_contain_key(api, monkeypatch, tmp_path, 
         assert not row["is_error"] and row["retry_count"] == 1
         assert row["previous_attempt"]["is_error"]
     assert R.one("hetzner-qwen36", "p", 1, "mock", 1) == "cached"
+
+
+@pytest.mark.parametrize("status", [300, 301, 302, 303, 304, 305, 306, 307, 308, 399])
+@pytest.mark.parametrize("location", [R.HETZNER_BASE_URL + "/redirected", "https://elsewhere.invalid/completions"])
+def test_redirects_are_errors_without_a_second_request(api, status, location):
+    headers = Message()
+    headers["Location"] = location
+    response = addinfourl(io.BytesIO(b"redirect body"), headers,
+                          R.HETZNER_BASE_URL + "/chat/completions", status)
+    response.msg = "redirect"
+    transport = R.urllib.request.HTTPSHandler()
+    transport.https_open = MagicMock(return_value=response)
+    # Exercise urllib's real response/redirect dispatch with a mocked transport.
+    with patch.object(R.urllib.request, "build_opener",
+                      side_effect=lambda *handlers: build_opener(*handlers, transport)):
+        row, raw = invoke()
+    assert row["is_error"] and row["error_type"] == "infrastructure"
+    assert f"HTTP {status}" in row["error"] and row["text"] == ""
+    assert "redirect body" not in raw
+    transport.https_open.assert_called_once()
+
+
+@pytest.mark.parametrize("value, expected", [("42", 42), (17, 17), (None, None), ("invalid", None),
+                                            ("3.5", None), ({}, None), ([], None), (float("inf"), None)])
+def test_usage_tokens_are_int_or_none_in_rows_and_status(api, monkeypatch, tmp_path, value, expected):
+    call, _ = api
+    set_stream(call, delta("ok"), {"choices": [], "usage": {
+        "prompt_tokens": value, "completion_tokens": value,
+        "prompt_tokens_details": {"cached_tokens": value},
+        "completion_tokens_details": {"reasoning_tokens": value},
+    }})
+    monkeypatch.setattr(R, "CALLS", str(tmp_path / "calls"))
+    monkeypatch.setattr(R, "RAW", str(tmp_path / "raw"))
+    monkeypatch.setattr(R, "prompt_for", lambda pid: "bench prompt")
+    status = R.one("hetzner-qwen36", "p", 1, "mock", 1)
+    row = json.loads(next((tmp_path / "calls").iterdir()).read_text())
+    assert not row["is_error"]
+    for field in ("in_tok", "out_tok", "cached_tok", "reasoning_tok", "cache_write_tok"):
+        assert row[field] is None or type(row[field]) is int
+        assert row[field] == (0 if field == "cache_write_tok" else expected)
+    assert status.endswith(f"out={expected}")
+
+
+def test_grader_child_environment_excludes_credentials(api, monkeypatch):
+    from bench import grade_all as G
+    names = ("HETZNER_INFERENCE_API_KEY", "OTHER_API_KEY", "GITHUB_TOKEN", "TOKEN", "SomeToken", "lower_api_key")
+    for name in names: monkeypatch.setenv(name, "synthetic-secret")
+    monkeypatch.setenv("BENCH_KEEP", "preserved")
+    with patch.object(G.subprocess, "run") as child:
+        child.return_value.stdout = '{"outcome": "pass"}'
+        assert G.grade_text("p", "def f(): pass") == {"outcome": "pass"}
+    env = child.call_args.kwargs["env"]
+    assert all(name not in env for name in names)
+    assert not any(name.upper().endswith(("_API_KEY", "TOKEN")) for name in env)
+    assert env["BENCH_KEEP"] == "preserved"
+    assert child.call_args.args[0][1:3] == ["-m", "bench.grade"]
+    assert child.call_args.kwargs["cwd"] == R.ROOT
+    assert all(R.os.environ[name] == "synthetic-secret" for name in names)
+
+
+def test_scrubbed_grader_environment_reaches_sandbox(api, monkeypatch, tmp_path):
+    from bench import grade_all as G
+    # Use the real grader and sandbox; mock only the grader result so a small
+    # synthetic candidate can report what the sandbox actually inherits.
+    monkeypatch.setenv("OTHER_API_KEY", "synthetic-secret")
+    monkeypatch.setenv("ACCESS_TOKEN", "synthetic-secret")
+    monkeypatch.setenv("BENCH_KEEP", "preserved")
+    real_run = G.subprocess.run
+    observed = []
+    def launch(cmd, **kwargs):
+        probe = tmp_path / "probe.py"
+        probe.write_text("import os\ndef probe():\n    return {'names': list(os.environ), 'kept': os.environ.get('BENCH_KEEP')}\n")
+        driver = (
+            "import json; from bench.grade import run_sandbox; "
+            "print(json.dumps(run_sandbox(" + repr(str(probe)) + ", 'probe', [[]], 10)))"
+        )
+        result = real_run([cmd[0], "-c", driver], **kwargs)
+        observed.append(json.loads(result.stdout))
+        result.stdout = '{"outcome": "pass"}'
+        return result
+    with patch.object(G.subprocess, "run", side_effect=launch):
+        G.grade_text("p", "def f(): pass")
+    results, status = observed[0]
+    assert status == "ok"
+    env = results[0]["out"]
+    assert env["kept"] == "preserved"
+    assert not any(name.upper().endswith(("_API_KEY", "TOKEN")) for name in env["names"])
+    # Also verify the unchanged grader's CLI works through the new call site.
+    assert G.grade_text(R.problems.MAIN[0], "pass")["outcome"] == "no_code"
+    for filename, expected in G.GRADER_SHA.items():
+        with open(R.os.path.join(R.ROOT, "bench", filename), "rb") as source:
+            assert R.hashlib.sha256(source.read()).hexdigest() == expected
+
+
+@pytest.mark.parametrize("elapsed", [1790, 1800, 1801])
+def test_wall_cap_applies_before_open(api, monkeypatch, elapsed):
+    call, _ = api
+    clock = [0]
+    monkeypatch.setattr(R.time, "monotonic", lambda: clock[0])
+    def key():
+        clock[0] = elapsed
+        return "synthetic-key"
+    monkeypatch.setattr(R, "_hetzner_key", key)
+    set_stream(call, delta("ok"))
+    with patch.object(R.threading, "Timer"):
+        row, _ = invoke()
+    if elapsed < 1800:
+        assert not row["is_error"]
+        assert call.call_args.kwargs["timeout"] == 1800 - elapsed
+    else:
+        assert row["is_error"] and "1800s wall cap" in row["error"]
+        call.assert_not_called()
+
+
+def test_wall_cap_rechecked_after_connection(api, monkeypatch):
+    call, _ = api
+    clock = [0]
+    monkeypatch.setattr(R.time, "monotonic", lambda: clock[0])
+    response = MagicMock()
+    def connect(*args, **kwargs):
+        clock[0] = 1801
+        return MagicMock(__enter__=MagicMock(return_value=response))
+    call.side_effect = connect
+    row, _ = invoke()
+    assert row["is_error"] and "1800s wall cap" in row["error"]
+    response.readline.assert_not_called()
+
+
+def test_socket_timeout_tracks_remaining_wall_time(api, monkeypatch):
+    call, _ = api
+    clock = [0]
+    monkeypatch.setattr(R.time, "monotonic", lambda: clock[0])
+    response = MagicMock()
+    call.return_value.__enter__.return_value = response
+    def read():
+        if clock[0] == 0:
+            clock[0] = 1790
+            return b"data: " + json.dumps(delta("ok")).encode() + b"\n"
+        clock[0] = 1801
+        return b"data: [DONE]\n"
+    response.readline.side_effect = read
+    with patch.object(R.threading, "Timer") as timer:
+        row, _ = invoke()
+    assert row["is_error"] and "1800s wall cap" in row["error"]
+    assert [c.args[0] for c in response.fp.raw._sock.settimeout.call_args_list] == [120, 10]
+    timer.return_value.cancel.assert_called_once()
