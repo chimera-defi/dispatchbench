@@ -159,6 +159,7 @@ tr.grp th::after{content:none}
 .prow .pn{overflow-wrap:anywhere}.prow .like{font-size:12px;color:var(--muted)}.prow .pd{min-width:0}
 @media (max-width:640px){#problems li.round>ul>li.prow{grid-template-columns:1fr}.prow .pd{grid-column:1/-1;padding-left:2px;color:var(--muted)}}
 .grid .h.fast{color:var(--frontier)}
+.grid .h.hetzner{color:var(--hetzner)}
 .grid .h.devin{color:var(--devin)}
 .grid .m{overflow-wrap:anywhere}
 

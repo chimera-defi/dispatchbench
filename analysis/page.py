@@ -12,12 +12,12 @@ from analysis.labels import TESTS, DISP, pshort, plabel, plabel_html
 # Plot order and family colour (a CSS variable of the page). luna-high is the exploratory full-ladder run.
 ORDER = ["haiku-low", "haiku-medium", "haiku-high", "sonnet-medium", "sol61-medium", "luna-high", "luna-medium", "luna-low", "luna-low-bare",
          "astra-medium", "astra-medium-fast", "sol61-high", "sol61-high-fast", "sol56-high", "luna56-high", "luna56-low", "terra61-high", "terra61-low"]
-# ORDER compares all 12 problems on every $ chart; Grok has its own table order and series. Devin has no $, so it joins ORDER only
-# where $ is not needed (results table, fail grid, rung chart); ORDER_ALL is that wider list.
+# Full-ladder comparison order plus the historical Devin probe.
+# API calibration rows have their own hetzner(s) projection and join non-price widgets explicitly.
 ORDER_ALL = ORDER + list(configs.DEVIN_CONFIGS)
 GROK_ORDER = configs.GROK_CONFIGS
 from analysis.dataset import WINNER_PICKS, front, speed_dominates
-FAM = lambda c: "var(--grok)" if c.startswith("grok") else "var(--devin)" if c.startswith("devin") else "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex56)" if c.startswith(("sol56", "luna56")) else "var(--codex)"
+FAM = lambda c: "var(--hetzner)" if c.startswith("hetzner") else "var(--grok)" if c.startswith("grok") else "var(--devin)" if c.startswith("devin") else "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex56)" if c.startswith(("sol56", "luna56")) else "var(--codex)"
 NS = 'xmlns="http://www.w3.org/2000/svg"'
 
 
@@ -29,13 +29,18 @@ def styles():
 
 
 def every(s):
-    """Every config the $ charts and tables may plot. The Devin free tier reports no tokens or cost, so it is left out (see devin(s))."""
-    return {**s["configs"], **{c: v for c, v in s["exploratory"].items() if c not in configs.DEVIN_CONFIGS}}
+    """Every config the $ charts and tables may plot. Free experimental tiers have no published dollar comparison and are left out."""
+    return {**s["configs"], **{c: v for c, v in s["exploratory"].items() if c not in configs.FREE_TIER_CONFIGS}}
 
 
 def devin(s):
     """{config: block} for the Devin free-tier lane: 1 repeat on p01-p12, no token or $ data. Never on a $ chart."""
     return {c: v for c, v in s["exploratory"].items() if c in configs.DEVIN_CONFIGS}
+
+
+def hetzner(s):
+    """Measured tokens, free experimental access, one repeat; no dollar comparison."""
+    return s.get("hetzner", {})
 
 
 def esc(t):
@@ -140,6 +145,7 @@ def deep_links(body):
 def SHAPE(c):
     if c.startswith("grok"): return "hexagon"
     if c.startswith("devin"): return "plus"
+    if c.startswith("hetzner"): return "pentagon"
     if c.startswith("terra"): return "pentagon"
     if "luna" in c:
         return "triangle-down" if "high" in c else "triangle-right" if "medium" in c else "triangle"
@@ -647,8 +653,8 @@ def hard_speed_cost(arms=None):
 def grid(s, grok=None):
     """Problems (rows, by rung) × configs (columns); each cell is passes out of the attempts at that problem.
     grok maps each Grok config to {problem: [passes, attempts]}; a config that skipped a problem shows a dash there."""
-    grok = grok or {}; cols = ORDER + [c for c in GROK_ORDER if c in grok] + [c for c in ORDER_ALL if c in configs.DEVIN_CONFIGS]
-    E = {**every(s), **devin(s)}; probs = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
+    grok = grok or {}; cols = ORDER + [c for c in GROK_ORDER if c in grok] + [c for c in ORDER_ALL if c in configs.DEVIN_CONFIGS] + list(hetzner(s))
+    E = {**every(s), **devin(s), **hetzner(s)}; probs = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
     main = set(probs)
     hard = sorted({p for v in s["hard"].values() for p in v["by_problem"]})
     def cell(p, c):
@@ -658,8 +664,8 @@ def grid(s, grok=None):
         cell = v["by_group"].get(p) if v else None
         return (cell["passes"], cell["n"]) if cell else (None, None)
     out = [f'<div class="grid" style="--n:{len(cols)};grid-template-columns:minmax(150px,auto) repeat({len(cols)},minmax(40px,1fr))">', '<div class="h m">problem</div>']
-    out += [f'<div class="h{" fast" if c.endswith("-fast") else " devin" if c in configs.DEVIN_CONFIGS else ""}"'
-            + (f' title="{esc(s["facts"]["devin_group"])}"' if c in configs.DEVIN_CONFIGS else "") + f'>{esc(DISP(c))}</div>' for c in cols]
+    out += [f'<div class="h{" fast" if c.endswith("-fast") else " devin" if c in configs.DEVIN_CONFIGS else " hetzner" if c in configs.HETZNER_CONFIGS else ""}"'
+            + (f' title="{esc(s["facts"]["devin_group"])}"' if c in configs.DEVIN_CONFIGS else f' title="{esc(configs.HETZNER_NOTE)}"' if c in configs.HETZNER_CONFIGS else "") + f'>{esc(DISP(c))}</div>' for c in cols]
     for p in probs + hard:
         if p == hard[0]: out.append(f'<div class="set-separator" style="grid-column:1 / -1">L7 set</div>')
         rung = s["problems"][p]["rung"] if p in main else 7
@@ -883,12 +889,12 @@ def dot(col, grok=False):
     return f'<span class="dot" style="background:{col}{";box-shadow:0 0 0 1.5px var(--panel)" if grok else ""}"></span>'
 
 
-def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, rate, key="", set_name=""):
+def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, rate, key="", set_name="", cost_label=None):
     r = rate; cls = "good" if r >= 0.95 else "warn" if r >= MIN_PASS else "bad"
     attr = f' title="{esc(derived)}"' if derived else ""
     suffix = f'<span class="muted"> · {esc(set_name)}</span>' if set_name else ""
     return (f'<tr{attr}><td>{dot(col)}{esc(name)}{suffix}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
-            f'<td>{configs.cell_markup(("~" if proxy else "") + dataset.usd(usd))}</td><td>{dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell" title="{esc(key)}">{verdict}</td></tr>')
+            f'<td>{configs.cell_markup(("~" if proxy else "") + (cost_label or dataset.usd(usd)))}</td><td>{dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell" title="{esc(key)}">{verdict}</td></tr>')
 
 
 CODEX = lambda c: any(x in c for x in ("luna", "sol", "astra"))
@@ -913,6 +919,10 @@ def short_table(s, need):
     dv_rows = [(c, row(DISP(c), FAM(c), v["passes"], v["n"], None, None, dataset.median_seconds(v), "not a delegate (free tier)",
                        rate=v["pass_at_1"], key=s["facts"]["verdict_key"])) for c, v in dv.items()]
     devin_rows = ('<tr class="grp"><th colspan="6">' + esc("Devin: " + configs.DEVIN_NOTE) + '</th></tr>' if dv_rows else "") + "".join(b for _, b in dv_rows)
+    hz = hetzner(s)
+    hetzner_rows = [(c, row(DISP(c) + " †", FAM(c), v["passes"], v["n"], None, None, dataset.median_seconds(v),
+                    "usable but slow; not recommended", derived=configs.HETZNER_NOTE,
+                    rate=v["pass_at_1"], key=s["facts"]["verdict_key"], cost_label="free tier")) for c, v in hz.items()]
     problems = sorted(s["problems"])
     def group(label, rows, source, extra=""):
         regular = "".join(body for c, body in rows if not configs.low_context(c, source))
@@ -927,7 +937,10 @@ def short_table(s, need):
     subset_label = f'{configs.set_label("rescue set", capital=True)}: {len(s["design"]["rescue_problems"])} problems × {repeats} tries = {a[HARD[0][0]]["n"]} attempts'
     return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>$ per pass</th>'
             '<th>Claude $</th><th>median s</th><th>verdict</th></tr></thead>'
-            + group(ladder_label, top, "main") + group(subset_label, hard, "rescue", extra=devin_rows) + low_group + '</table></div>')
+            + group(ladder_label, top, "main", extra=(
+                '<tr class="grp"><th colspan="6">' + esc("Main ladder: Hetzner " + configs.HETZNER_NOTE)
+                + '</th></tr>' + "".join(body for _, body in hetzner_rows)))
+            + group(subset_label, hard, "rescue", extra=devin_rows) + low_group + '</table></div>')
 
 
 def result_notes(s):

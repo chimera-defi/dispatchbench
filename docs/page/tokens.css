@@ -119,7 +119,7 @@
  --color-card-meta:color-mix(in srgb,var(--color-text) 60%,transparent);--color-primary-text:var(--color-accent-400);
  --color-input-ink:var(--color-text);--color-input-border:color-mix(in srgb,var(--color-input-ink) 45%,transparent);
  --data-terra:var(--data-codex-old);--data-other:var(--muted);--data-effort-xhigh:var(--color-neutral-200);--data-effort-default:var(--muted);
- --data-normal:var(--muted);--data-fast:var(--data-claude);--data-bare:var(--data-grok);--devin:#8d3c95;--data-devin:var(--devin);
+ --data-normal:var(--muted);--data-fast:var(--data-claude);--data-bare:var(--data-grok);--hetzner:#766000;--data-hetzner:var(--hetzner);--devin:#8d3c95;--data-devin:var(--devin);
  --claude:var(--data-claude);--sonnet:var(--data-sonnet);--codex:var(--data-codex);--codex56:var(--data-codex-old);--grok:var(--data-grok);
  --good:var(--data-grok);--warn:var(--data-claude);--bad:var(--color-accent-400);--mask-opaque:#000;
  --cell-all:var(--color-neutral-800);--cell-all-text:var(--color-text);--cell-most:var(--color-accent-900);--cell-most-text:var(--color-accent-200);--cell-half:var(--color-accent-700);--cell-half-text:var(--color-accent-100);
@@ -161,7 +161,7 @@
  --cell-all:var(--color-neutral-200);--cell-all-text:var(--color-neutral-900);--cell-most:var(--color-accent-200);--cell-most-text:var(--color-accent-900);--cell-half:var(--color-accent-700);--cell-half-text:var(--color-accent-100);
  color-scheme:light;
 }
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--devin:#d79be8;}}
-:root[data-theme="dark"]{--devin:#d79be8;color-scheme:dark}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--hetzner:#d9c46a;--devin:#d79be8;}}
+:root[data-theme="dark"]{--hetzner:#d9c46a;--devin:#d79be8;color-scheme:dark}
 
 /* FABLE TOKENS END */

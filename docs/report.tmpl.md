@@ -125,6 +125,18 @@ Each trim level adds Codex CLI 0.163.0 config knobs to the one before. The probe
 
 gpt-5.6-terra at the smallest prompt costs {{terra_call}} per call on the pilot problems, about {{terra_x}} haiku-low, so it was not run on the full ladder.
 
+## Hetzner free tier (exploratory calibration)
+
+Endpoint: {{hetzner_endpoint}} (OpenAI-compatible). {{hetzner_lead}}
+
+{{table:hetzner_summary}}
+
+{{hetzner_gateway_note}} Source: results/2026-11-01-hetzner-notes.json (operator observation).
+
+{{hetzner_scope}}
+
+{{hetzner_verdict}}
+
 ## Code quality
 
 Pass/fail stays the headline. These columns describe the passing solutions only, measured by `make quality` with no model calls; every solution is on disk under [results/solutions/](results/solutions/README.md) ({{n_solutions}} files, one table per problem with links), so each number can be checked by hand. The factors and how they are measured are in PLAN.md (deviation 17). None of them is folded into a single score.

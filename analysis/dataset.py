@@ -7,7 +7,7 @@ Sets (mutually exclusive; every row lands in exactly one, or this module raises)
   partial ladder  the same rows for a config that does not cover them all (for example sol61-xhigh, run on the rescue problems only)
   extra repeats   repeats 6-10 (the default-tier control for the fast-mode comparison)
   L7 set          phase hard
-  calibration     phase calibration; warmup rows are dropped
+  calibration     phase calibration (one-repeat Hetzner API probes use partial ladder); warmup rows are dropped
   repo tasks      the agentic track
   rescue arms     appendix/luna_rescue.jsonl (35 attempts per arm on the rescue problems)
   pilot, pilot repo task, trim probe, harness bias   one set per file
@@ -91,7 +91,7 @@ def _rows(include_grok_repo=False):
     for r in func:
         c = r["config"]
         if r["phase"] == "hard": st = "L7 set"
-        elif r["phase"] == "calibration": st = "calibration"
+        elif r["phase"] == "calibration": st = "partial ladder" if c in configs.HETZNER_CONFIGS else "calibration"
         elif r["repeat"] > REPEATS: st = "extra repeats"
         else: st = "main ladder" if c not in configs.GROK_CONFIGS and len(cover[c]) == REPORT_PROBLEMS * REPEATS else "partial ladder"
         add("main", c, st, r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
@@ -175,14 +175,14 @@ def _row(src, name, st, rr):
             "usd_saved_per_pass": round((spend - sc - sg) / k, 6) if k and complete else None,
             "usd_per_1k_tokens": (1000 * round(spend / n, 6) / (round(statistics.mean(x["in"] or 0 for x in rr)) + round(statistics.mean(x["out"] or 0 for x in rr)))) if complete and any((x["in"] or 0) + (x["out"] or 0) for x in rr) else None,
             **_rule_fields(src, rr),
-            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "unmetered" if rr[0]["cli"] == "devin" else "measured" if summarize.measured(rr[0]) else "proxy"}
+            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "free-tier" if rr[0]["cli"] == "hetzner" else "unmetered" if rr[0]["cli"] == "devin" else "measured" if summarize.measured(rr[0]) else "proxy"}
 
 
 def _base():
     groups = defaultdict(list)
     for src, name, st, x in _rows(): groups[(src, name, st)].append(x)
     rows = [_row(src, name, st, rr) for (src, name, st), rr in groups.items()]
-    need(all(not r["unknown_usd"] or r["config"] in configs.DEVIN_CONFIGS for r in rows), "every table row (except the Devin free tier, which reports no tokens or cost) has complete measured or proxy costs")
+    need(all(not r["unknown_usd"] or r["config"] in configs.FREE_TIER_CONFIGS for r in rows), "every priced table row has complete measured or proxy costs; free tiers have no published price")
     allr = defaultdict(list)
     for (src, name, st), rr in groups.items():
         if src == "main" and st in ALL_RUN_SETS: allr[(src, name)] += rr
@@ -244,6 +244,11 @@ def median_seconds(v):
         latency = v["latency_s"]
         return latency.get("median_raw", latency["median"])
     return v.get("median_s_raw", v["median_s"])
+
+
+def price_text(row, value):
+    """Free experimental access is a label, never a published zero-dollar price."""
+    return "free tier" if row["cost_kind"] == "free-tier" else usd(value)
 
 
 def p1(d):
@@ -379,9 +384,9 @@ def t1_regrade():
 
 
 def _facts(s, arms):
-    F = Facts(); cfg, ex, ag, hard = s["configs"], s["exploratory"], s["agentic"], s["hard"]
+    F = Facts(); cfg, ex, ag, hard = s["configs"], {**s["exploratory"], **s.get("hetzner", {})}, s["agentic"], s["hard"]
     rows = summarize.function_rows(); agent = summarize.agentic_rows(); main_rows = [r for r in rows if r["phase"] == "main"]
-    every = {**cfg, **{c: v for c, v in ex.items() if c not in configs.ONE_REPEAT + configs.DEVIN_CONFIGS}}  # one-repeat extras are tables-only; Devin has 1 repeat and no $
+    every = {**cfg, **{c: v for c, v in ex.items() if c not in configs.ONE_REPEAT + configs.FREE_TIER_CONFIGS}}  # full-repeat comparison only; free-tier lanes have no published dollar price
     nprob = len(s["problems"]); ntask = len(next(iter(ag.values()))["by_task"])
     F.update(n_ladder_configs=str(len(every)), n_problems=str(nprob), n_tasks=str(ntask), n_configs=str(len(cfg)), n_l7=str(len({p for v in hard.values() for p in v["by_problem"]})),
              repeats=str(cfg["haiku-low"]["n"] // nprob), n_calls=str(cfg["haiku-low"]["n"]), n_all_problems=str(nprob + len({p for v in hard.values() for p in v["by_problem"]})),
@@ -391,7 +396,7 @@ def _facts(s, arms):
     # Models and versions: one CLI version per vendor across the function track.
     by_cli = defaultdict(set)
     for r in rows:
-        if r["config"] not in configs.GROK_CONFIGS and not r["config"].startswith("terra") and r["cli"] != "devin": by_cli[r["cli"], r["cli_version"]].add(r["model"])
+        if r["config"] not in configs.GROK_CONFIGS and not r["config"].startswith("terra") and r["cli"] not in ("devin", "hetzner"): by_cli[r["cli"], r["cli_version"]].add(r["model"])
     need(len({cli for cli, _ in by_cli}) == len(by_cli) == 2, "one CLI version per vendor")
     vers = dict(by_cli)
     F["versions_claude"] = next(f"Main bench, Claude Code {v}: {', '.join(sorted(m))}." for (c, v), m in vers.items() if c == "claude")
@@ -957,22 +962,22 @@ def audit_footnote(ds_rows_red):
 
 
 def _tables(s, arms):
-    T = {}; cfg, ex = s["configs"], s["exploratory"]; nprob = len(s["problems"])
+    T = {}; cfg, ex = s["configs"], {**s["exploratory"], **s.get("hetzner", {})}; nprob = len(s["problems"])
     if s.get("grok"):
         T["grok"] = md_table(["config", "coverage", "passed", "$ per pass", "total $ (CLI-measured)", "median s"],
             [[DISP(c), f'{len(v["by_problem"])} of {nprob} problems', f'{pct(v["pass_at_1"])} ({v["passes"]}/{v["n"]})',
               usd(v["usd_per_pass"]), usd(v["usd_total"]), f'{median_seconds(v):.1f}'] for c, v in s["grok"].items()])
     T["result"] = md_table(["config", "pass rate", "95% CI", "median s", "slow-call time s", "$ per pass", "total $ (all calls)", "$ kind"],
                            [[DISP(c) + (" †" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], nprob),
-                             f"{median_seconds(v):.1f}", f"{v['latency_s']['p90']:.1f}", f"{usd(v['usd_per_pass'])}", f"{usd(v['usd_total'])}", v["cost_kind"]]
+                             f"{median_seconds(v):.1f}", f"{v['latency_s']['p90']:.1f}", price_text(v, v["usd_per_pass"]), price_text(v, v["usd_total"]), v["cost_kind"]]
                             for c, v in {**cfg, **ex}.items()])
     T["result_detail"] = md_table(["config", "pass rate 95% CI", "slow-call time s", "total $ (all calls)"],
                                   [[DISP(c) + (" †" if c in ex else ""), ci_text(v["passes"], v["n"], v["ci95"], nprob),
-                                    f"{v['latency_s']['p90']:.1f}", "unmetered" if v["cost_kind"] == "unmetered" else ("~" if v["cost_kind"] == "proxy" else "") + usd(v["usd_total"])]
+                                    f"{v['latency_s']['p90']:.1f}", "unmetered" if v["cost_kind"] == "unmetered" else ("~" if v["cost_kind"] == "proxy" else "") + price_text(v, v["usd_total"])]
                                    for c, v in sorted({**cfg, **ex}.items(), key=lambda pair: configs.low_context(pair[0]))])
     T["tokens"] = md_table(["config", "mean input", "of which cached", "mean output", "of which reasoning", "$ per 1k tokens"],
                            [[DISP(c) + (" †" if c in ex else "")] + (["–"] * 5 if v["cost_kind"] == "unmetered" else [n(v["tokens_mean"]["in_tok"]), n(v["tokens_mean"]["cached_tok"]), n(v["tokens_mean"]["out_tok"]),
-                             n(v["tokens_mean"]["reasoning_tok"]), usd(v["usd_per_1k_tokens"])])
+                             n(v["tokens_mean"]["reasoning_tok"]), price_text(v, v["usd_per_1k_tokens"])])
                             for c, v in {**cfg, **ex}.items()])
     from bench.trim_probe import LEVELS
     fl = s["trim"]["floor"]; names = {"base": "stock harness", "nodoc": "+ no project docs", "noctx": "+ no env/permission context", "nofeat": "+ tool features off",
@@ -1153,13 +1158,13 @@ def _project(ds, summary):
     """
     summary = copy.deepcopy(summary)
     for block, source, set_ in (("configs", "main", "main ladder"), ("exploratory", "main", "main ladder"),
-                                ("hard", "main", "L7 set"), ("agentic", "agentic", "repo tasks"), ("grok", "main", "partial ladder")):
+                                ("hetzner", "main", "partial ladder"), ("hard", "main", "L7 set"), ("agentic", "agentic", "repo tasks"), ("grok", "main", "partial ladder")):
         for c, v in summary.get(block, {}).items():
             r = get(ds, c, "partial ladder" if block == "exploratory" and c in configs.ONE_REPEAT + configs.DEVIN_CONFIGS else set_, source)
             r.update({k: v[k] for k in ("cli", "model", "effort", "outcomes", "breaking_point") if k in v})
             v.update({"n": r["n"], "passes": r["passes"], "pass_at_1": r["pass_rate"], "misses": r["misses"],
                       "ci95": r["ci95"] or [r["pass_rate"], r["pass_rate"]], "ci95_plot": r["ci95_plot"],
-                      "usd_per_pass": r["usd_per_pass"], "usd_text": usd(r["usd_per_pass"]), "usd_per_call": r["usd_per_call"], "usd_total": None if r["cost_kind"] == "unmetered" else r["spend"],
+                      "usd_per_pass": r["usd_per_pass"], "usd_text": price_text(r, r["usd_per_pass"]), "usd_per_call": r["usd_per_call"], "usd_total": None if r["cost_kind"] in ("unmetered", "free-tier") else r["spend"],
                       "claude_usd_per_pass": r["claude_usd_per_pass"], "usd_saved_per_pass": r["usd_saved_per_pass"],
                       "usd_per_1k_tokens": r["usd_per_1k_tokens"], "by_group": r["by_group"],
                       "input_floor": r["input_floor"], "cost_kind": r["cost_kind"],
@@ -1552,7 +1557,7 @@ def explorer_facets(r):
     mode = ("pipeline" if pipeline else "bare" if any(t in c for t in ("bare", "noshell", "nofeat", "mininst", "noctx", "nodoc", "lean"))
             else "fast" if "-fast" in c or "47fast" in c or c.endswith("-prio") or str(r.get("service_tier") or "").startswith("priority") else "normal")
     model_id = r.get("model") or ""
-    model = next((m for m in ("haiku", "sonnet", "luna", "sol", "astra", "terra", "grok", "devin") if m in (model_id + " " + base)), "other")
+    model = next((m for m in ("haiku", "sonnet", "luna", "sol", "astra", "terra", "grok", "devin", "hetzner") if m in (model_id + " " + base)), "other")
     if base.startswith("codex"): model = "sol"
     generation = ("5.6" if "56" in base or "5.6" in model_id else "6.1" if "61" in base or "6.1" in model_id
                   else "6.x" if model in ("luna", "sol", "astra", "terra") else model_id or model)
@@ -1574,7 +1579,7 @@ def explorer_facets(r):
             "prereg": explorer_provenance(r) == "pre-registered", "provenance": explorer_provenance(r),
             "quota_usd_per_pass": quota, "winner_pick": WINNER_PICKS.get(c), "winner_pricing": "list price" if c in WINNER_PICKS else None,
             "panel": "pipeline: " + gate if pipeline else model + (" · " + generation if r["family"] == "Codex" else ""),
-            "gate": gate, "coverage_note": ("Devin probe: " + configs.DEVIN_NOTE if r["cost_kind"] == "unmetered" else
+            "gate": gate, "coverage_note": (configs.HETZNER_NOTE if r["config"] in configs.HETZNER_CONFIGS else "Devin probe: " + configs.DEVIN_NOTE if r["cost_kind"] == "unmetered" else
                 f"{r['groups']} problem/task groups; {r['n']} attempts"),
             "complete_marker": f"{r['task_complete']}/{r['n']} complete ({r['hidden_pass']}/{r['n']} hidden)" if "task_complete" in r else None}
 
@@ -1583,6 +1588,7 @@ def explorer_frontier(rows, view, quota=False, floor=0):
     spec = EXPLORER_VIEWS[view]; objectives = spec["objectives"]
     eligible = [dict(r, cost=r["quota_usd_per_pass"] if quota else r["usd_per_pass"]) for r in rows
                 if r["pass_rate"] >= max(floor, spec.get("min_pass", 0))
+                and r["config"] not in configs.HETZNER_CONFIGS
                 and (not any(k == "cost" for k, _ in objectives) or r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None)]
     beaten = {r["key"]: [a["key"] for a in eligible if strict_dominates(a, r, objectives)] for r in eligible}
     return {r["key"]: {"eligible": r["key"] in beaten, "on_frontier": r["key"] in beaten and not beaten[r["key"]],
@@ -1712,7 +1718,7 @@ def build(summary=None):
     odd = [r for r in fr if r["n"] != nominal]
     ds["facts"]["calls_exceptions"] = "; ".join(f"{r['config']} {r['n']} calls" for r in odd)
     ds["facts"]["calls_exceptions_why"] = "; ".join(f"{r['config']} {r['n']} calls ({'p01–p06 only' if r['config'] == 'grok47-medium' else 'one repeat' if r['n'] == int(ds['facts']['n_problems']) else 'a partial ladder'})" for r in odd)
-    ds["facts"]["n_configs_all"] = str(len({r["config"] for r in fr if r["config"] not in configs.DEVIN_CONFIGS}))  # model-and-effort configs; the Devin lane runs its default
+    ds["facts"]["n_configs_all"] = str(len({r["config"] for r in fr if r["config"] not in configs.FREE_TIER_CONFIGS}))  # model-and-effort configs; the Devin lane runs its default
     odd_page = [r for r in odd if r["config"] not in configs.GROK_CONFIGS]
     ds["facts"]["calls_exceptions_page"] = "; ".join(f"{r['config']} {r['n']} calls" for r in odd_page) + ("; the Grok configs are counted in the Grok section" if len(odd_page) != len(odd) else "")
     hm = [get(ds, "haiku-medium", st) for st in ("main ladder", "L7 set")]
@@ -1762,6 +1768,7 @@ def build(summary=None):
             (f"{', '.join(short)} covers {sorted(s['grok'][short[0]]['by_problem'])[0][:3]}–{sorted(s['grok'][short[0]]['by_problem'])[-1][:3]} only, "
              "so its cells for the other problems are dashes. ") if short else "") + "A dash means no attempt, not a failure."
     _devin(ds, s)
+    _hetzner(ds, s)
     _equivalents(ds)
     _interesting(ds)
     method_appendix(ds)
@@ -1807,6 +1814,72 @@ def _devin(ds, s):
          for g, r in v["by_rung"].items()])
 
 
+def _hetzner(ds, s):
+    """Exploratory streaming calibration; keep measured usage and sourced gateway observations apart."""
+    from bench.run import HETZNER_BASE_URL
+    F = ds["facts"]
+    note = json.load(open(os.path.join(RES, "2026-11-01-hetzner-notes.json")))
+    need(note["endpoint"] == HETZNER_BASE_URL and not note["first_attempt_rows_cached"],
+         "the operator gateway note names the runner endpoint and declares the missing first-attempt cache")
+    need((note["gateway_timeout_s"], note["gateway_status"], note["gateway_failures"], note["first_attempt_calls"]) == (300, 504, 21, 23),
+         "the uncached first-attempt observation is pinned to the operator-supplied note")
+    F["hetzner_endpoint"] = note["endpoint"]
+    F["hetzner_gateway_note"] = (
+        f"Operator note (results/2026-11-01-hetzner-notes.json): the first non-streaming attempt hit the gateway's {note['gateway_timeout_s']} s "
+        f"HTTP {note['gateway_status']} on {note['gateway_failures']} of {note['first_attempt_calls']} calls. "
+        "The first-attempt rows are not in the repo cache. Streaming fixed it.")
+    table, lanes = [], []
+    for c, expected_passes, expected_median, expected_output in zip(configs.HETZNER_CONFIGS, (10, 9), (341.5, 820.6), (330518, 210746)):
+        r = get(ds, c, "partial ladder")
+        raw = [x for x in summarize.function_rows() if x["config"] == c]
+        need(len(raw) == r["n"] == len(s["problems"]) == REPORT_PROBLEMS
+             and {x["problem"] for x in raw} == set(s["problems"])
+             and all(x["phase"] == "calibration" and x["repeat"] == 1 for x in raw),
+             f"{c} covers the same main-ladder problems exactly once in calibration")
+        need(r["passes"] == expected_passes and r["cost_kind"] == "free-tier" and r["usd_per_pass"] is None
+             and all(x["cli"] == "hetzner" and "no list price" in x["cost_kind"] for x in raw),
+             f"{c} pass count is pinned and free-tier access has no published dollar price")
+        need(all(isinstance(x["in_tok"], int) and isinstance(x["out_tok"], int) for x in raw)
+             and sum(x["in_tok"] for x in raw) > 0 and sum(x["out_tok"] for x in raw) > 0,
+             f"{c} has measured input and output usage")
+        need(round(median_seconds(r), 1) == expected_median and sum(x["out_tok"] for x in raw) == expected_output,
+             f"{c} median wall time and reported output total match the stored calibration")
+        short = c.rsplit("-", 1)[1]
+        F[f"hetzner_{short}_pass"] = f"{r['passes']}/{r['n']}"
+        F[f"hetzner_{short}_median_s"] = f"{median_seconds(r):.1f}"
+        F[f"hetzner_{short}_output_tokens"] = n(sum(x["out_tok"] for x in raw))
+        F[f"hetzner_{short}_input_tokens"] = n(sum(x["in_tok"] for x in raw))
+        table.append([DISP(c), r["model"], F[f"hetzner_{short}_pass"], F[f"hetzner_{short}_median_s"],
+                      F[f"hetzner_{short}_output_tokens"]])
+        lanes.append(r)
+    slow = [x for x in summarize.function_rows() if x["config"] == configs.HETZNER_CONFIGS[1] and not x["passed"]]
+    timeouts = [x for x in slow if x["is_error"] and "wall cap" in (x["error"] or "")]
+    need(len(slow) == 3 and len(timeouts) == 2 and all(1800 <= x["wall_s"] < 1801 for x in timeouts),
+         "two of Qwen3.8's three misses are 1800-second wall-cap failures (raw outcome: harness_error)")
+    main = [get(ds, c, "main ladder") for c in s["configs"]]
+    low, high = min(map(median_seconds, main)), max(map(median_seconds, main))
+    need(all(median_seconds(r) > high for r in lanes), "both Hetzner lanes are slower than every main-grid config")
+    F["hetzner_lead"] = (
+        "Free experimental tier: no published list price or guarantees; may collect telemetry. "
+        f"Measured input totals: Qwen3.6 {F['hetzner_qwen36_input_tokens']}, Qwen3.8 {F['hetzner_qwen38_input_tokens']}. "
+        "Output totals include reasoning; wall-cap calls report no usage, so totals are lower bounds.")
+    F["hetzner_scope"] = (
+        f"Exploratory calibration: one repeat only (n={lanes[0]['n']}, not {main[0]['n']} in the {REPEATS}-repeat main grid), a thin comparison. "
+        f"Not extended: medians are {median_seconds(lanes[0]):.1f} s (Qwen3.6) and "
+        f"{median_seconds(lanes[1]):.1f} s (Qwen3.8) per call, versus {low:.1f}–{high:.1f} s in the main grid. "
+        f"Qwen3.8 had {len(timeouts)} of its {len(slow)} misses hit the {round(min(x['wall_s'] for x in timeouts))} s wall cap.")
+    mid = [get(ds, c, "main ladder") for c in ("haiku-medium", "sonnet-medium", "sol61-medium")]
+    luna = get(ds, "luna-low", "main ladder")
+    need(all(r["pass_rate"] < min(x["pass_rate"] for x in mid) for r in lanes)
+         and min(main, key=lambda r: abs(r["pass_rate"] - lanes[1]["pass_rate"]))["config"] == "luna-low",
+         "Hetzner trails the Claude and sol61 middle tiers; luna-low is nearest to Qwen3.8 by observed pass rate")
+    F["hetzner_verdict"] = (
+        "Verdict: usable but slow, below the Claude and Codex sol61 middle tiers. "
+        f"Qwen3.8's nearest main-grid pass-rate comparison is luna-low ({pct(luna['pass_rate'])}). "
+        "Not recommended for the dispatch route. Off dollar charts, the Winner and the frontier.")
+    ds["tables"]["hetzner_summary"] = md_table(["config", "model", f"pass n/{len(s['problems'])}", "median wall s", "output tokens (total)"], table)
+
+
 def view(ds):
     """Cached report-shaped projections of the canonical config/set rows."""
     return {**ds["report"], "rescue": ds["rescue"], "facts": ds["facts"], "explorer": ds["explorer"]}
@@ -1819,6 +1892,8 @@ FACT_SOURCES = (
     ("d_", None), ("t1v2_", "results/2026-10-28-t1-hidden-v2-regrade.jsonl (bench/regrade_t1.py)"), ("audit_", "audit session forensics (stage2b/FORENSICS.md), pending results/annotations.json"),
     ("grok_cli_", "results/*grok*.jsonl, CLI-reported cost"), ("ag_", "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"),
     ("grok_", "results/2026-10-26-grok-function.jsonl + results/2026-10-28-grok-spectrum-function.jsonl + results/2026-10-27-grok-agentic.jsonl"),
+    ("hetzner_gateway_", "results/2026-11-01-hetzner-notes.json (operator observation; first-attempt rows not cached)"),
+    ("hetzner_", "results/2026-11-01-hetzner-function.jsonl + results/2026-11-01-hetzner-notes.json; main-grid comparisons: results/2026-10-22b-function.jsonl"),
     ("devin_", "results/2026-10-28-devin-function.jsonl"), ("fm_", "rows main/*-fast and their default-tier twins (results/2026-10-22b-function.jsonl)"),
     ("ff_", "rows main/*-fast and their default-tier twins (results/2026-10-22b-function.jsonl)"),
     ("l7_", "rows set L7 set (results/2026-10-22b-function.jsonl, phase hard)"), ("x_", "rows main/* exploratory configs (results/2026-10-22b-function.jsonl)"),

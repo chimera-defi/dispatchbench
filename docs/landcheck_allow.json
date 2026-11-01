@@ -3,7 +3,9 @@
   "notes | name / pass / $ per pass / median s / spend / where it appears | devin16slow-default | $ per pass: '–'": "Devin reports no token usage or cost on the free tier; its unavailable dollar cells remain explicit rather than inventing a price.",
   "notes | name / pass / $ per pass / median s / spend / where it appears | devin16slow-default | spend: '–'": "Devin reports no token usage or cost on the free tier; its unavailable dollar cells remain explicit rather than inventing a price.",
   "results | config / passed / $ per pass / Claude $ / median s / verdict | devin16slow-default | $ per pass: '–'": "Devin reports no token usage or cost on the free tier; its unavailable dollar cells remain explicit rather than inventing a price.",
-  "results | config / passed / $ per pass / Claude $ / median s / verdict | devin16slow-default | Claude $: '–'": "Devin reports no token usage or cost on the free tier; its unavailable dollar cells remain explicit rather than inventing a price."
+  "results | config / passed / $ per pass / Claude $ / median s / verdict | devin16slow-default | Claude $: '–'": "Devin reports no token usage or cost on the free tier; its unavailable dollar cells remain explicit rather than inventing a price.",
+  "results | config / passed / $ per pass / Claude $ / median s / verdict | hetzner-qwen36 † | Claude $: '–'": "Hetzner uses no Claude step and has no published list price. Its own cost is labelled free tier; the Claude-cost dash follows the Devin free-tier row and does not invent a dollar figure.",
+  "results | config / passed / $ per pass / Claude $ / median s / verdict | hetzner-qwen38 † | Claude $: '–'": "Hetzner uses no Claude step and has no published list price. Its own cost is labelled free tier; the Claude-cost dash follows the Devin free-tier row and does not invent a dollar figure."
  },
  "groups": {
   "Grok and Devin summary": {

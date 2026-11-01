@@ -6,7 +6,8 @@
   "codex 0.163.0",
   "codex 0.164.0",
   "devin 3000.11.228",
-  "grok 1.0.70"
+  "grok 1.0.70",
+  "hetzner chat/completions-v1"
  ],
  "configs": {
   "haiku-low": {
@@ -138,6 +139,16 @@
    "cli": "devin",
    "model": "swe-1-6-slow",
    "effort": "default"
+  },
+  "hetzner-qwen36": {
+   "cli": "hetzner",
+   "model": "Qwen/Qwen3.6-35B-A3B-FP8",
+   "effort": "default"
+  },
+  "hetzner-qwen38": {
+   "cli": "hetzner",
+   "model": "Qwen/Qwen3.8-27B",
+   "effort": "default"
   }
  },
  "flags": {
@@ -200,9 +211,9 @@
   4
  ],
  "first_call_utc": "2026-10-22T08:32:54+00:00",
- "last_call_utc": "2026-10-28T01:28:23+00:00",
+ "last_call_utc": "2026-11-01T22:47:24+00:00",
  "rows_by_phase": {
-  "calibration": 30,
+  "calibration": 54,
   "escalation": 15,
   "exploratory": 706,
   "fastmode": 105,
@@ -219,7 +230,7 @@
   "codex_proxy_usd": 37.7254,
   "codex_fastmode_usd": 3.4069,
   "calls": {
-   "function": 1618,
+   "function": 1642,
    "agentic": 84
   },
   "grok_measured_usd": 22.3741
@@ -229,6 +240,16 @@
    "key": "b4894229e41f",
    "config": "grok47-high",
    "error": "-reasoning-effort', 'high', '--output-format', 'json', '--tools', 'read_file', '--disallowed-tools', 'read_file,search_tool,use_tool', '--no-subagents', '--disable-web-search', '--max-turns', '1', '--no-plan', '--verbatim', '--permission-mode', 'dontAsk', '--no-leader']' timed out after 1200 seconds"
+  },
+  {
+   "key": "6975e57c240d",
+   "config": "hetzner-qwen38",
+   "error": "Hetzner stream exceeded 1800s wall cap"
+  },
+  {
+   "key": "860b4baf3ce7",
+   "config": "hetzner-qwen38",
+   "error": "Hetzner stream exceeded 1800s wall cap"
   }
  ],
  "prices": "results/prices.json",
@@ -239,7 +260,8 @@
   "results/2026-10-26-grok-function.jsonl",
   "results/2026-10-28-devin-function.jsonl",
   "results/2026-10-28-grok-spectrum-function.jsonl",
-  "results/2026-10-28-terra-function.jsonl"
+  "results/2026-10-28-terra-function.jsonl",
+  "results/2026-11-01-hetzner-function.jsonl"
  ],
  "exploratory": {
   "results/2026-10-22b-trim.jsonl": {
@@ -421,6 +443,8 @@
   }
  },
  "models_ran": [
+  "Qwen/Qwen3.6-35B-A3B-FP8",
+  "Qwen/Qwen3.8-27B",
   "claude-haiku-5-5",
   "claude-sonnet-5-5",
   "gpt-5.6-luna",
