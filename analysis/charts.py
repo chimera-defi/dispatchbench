@@ -6,7 +6,7 @@ from xml.sax.saxutils import escape
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "results", "report", "charts")
-FONT = "font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, sans-serif'"
+FONT = "font-family='var(--font-body)'"
 INK, MUTED, GRID, PLATE = "var(--fg)", "var(--muted)", "var(--line)", "var(--panel)"
 HOST_AGENTS_MD = dataset.HOST_AGENTS_MD
 BADC, WARNC = "var(--bad)", "var(--warn)"

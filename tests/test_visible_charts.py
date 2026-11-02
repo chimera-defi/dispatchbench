@@ -31,8 +31,9 @@ def test_visible_charts_and_any_pair_explorer():
     assert p.charts == 1
     assert p.any_pair
     html = (ROOT / 'results/report/page.html').read_text()
-    assert '<button type="button" id="pair-speed-preset" aria-pressed="false" aria-controls="pair-speed">Speed vs $ per pass</button>' in html
-    assert '<div id="pair-speed" class="chart" hidden>' in html
+    assert '<button type="button" id="pair-speed-preset" aria-pressed="true" aria-controls="pair-speed">Speed vs $ per pass</button>' in html
+    assert '<div id="pair-speed" class="chart">' in html
+    assert '<div id="pair-custom" hidden>' in html
     # Native navigation to an already-selected hash must target the whole control row,
     # even when the link itself wraps onto another line on phones.
     assert '<p id="speed-vs-per-pass" class="ctl pair-presets"' in html

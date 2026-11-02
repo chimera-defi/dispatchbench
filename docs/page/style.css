@@ -453,7 +453,7 @@ details>summary{cursor:pointer;color:var(--color-muted)}
 .problem-try pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-width:100%;font-family:var(--font-mono)}
 
 /* R6: focusable permalinks use the Fable palette and reserve their space. */
-.hlink{display:inline-block;margin-inline-start:var(--space-2);padding-inline:var(--space-1);font:500 13px var(--font-mono);color:var(--muted);text-decoration:none;opacity:0;flex-shrink:0}
+.hlink{display:inline-block;margin-inline-start:var(--space-2);padding-inline:var(--space-1);font:500 13px var(--font-mono);color:var(--muted);text-decoration:none;opacity:1;flex-shrink:0}
 h2:hover>.hlink,h3:hover>.hlink,.prow:hover .hlink,.pilot-problem:hover>.hlink,.hlink:focus-visible{opacity:1}
 .hlink:hover,.hlink:focus-visible{color:var(--accent)}
 @media(hover:none){.hlink{opacity:1}}

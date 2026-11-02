@@ -34,6 +34,10 @@ from analysis.labels import pshort, plabel, DISP
 from analysis.summarize import FAST_CONFIGS, FUNC, AGENT, ci_text, cost_uncached, pct
 
 HOST_AGENTS_MD = "1.3k"  # host AGENTS.md, measured once by hand (bytes / 4)
+BENCH_BUILD_HISTORY = {
+    "sandbox_bugs": 2,
+    "source": "71884b6:docs/page.tmpl.md#fair (recorded bench-build history, not graded rows)",
+}
 MIN_PASS = 0.90
 QUALITY = os.path.join(RES, "quality.jsonl")
 NEW_CODEX = ("sol61-high", "sol56-high", "astra-medium", "luna56-high", "luna56-low")
@@ -1421,7 +1425,7 @@ def _interesting(ds):
                         f"It cost ~{hc:.1f}× per pass, with the same median time.")
     # Recorded history from 71884b6:docs/page.tmpl.md#fair, not graded rows.
     # Keep the Interesting fact independent of the now-cut build-history prose.
-    F["int_build"] = ('Codex\'s bench dry runs missed 2 sandbox bugs; a live call found them. '
+    F["int_build"] = (f'Codex\'s bench dry runs missed {BENCH_BUILD_HISTORY["sandbox_bugs"]} sandbox bugs; a live call found them. '
                       'Its "plan and reorient" nudge changed no code.')
     cheap, dear = (get(ds, c, "L7 set") for c in ("luna-high", "sol56-high"))
     need(cheap["passes"] == cheap["n"] == dear["n"] > dear["passes"]
@@ -1894,6 +1898,7 @@ def view(ds):
 # Where a fact comes from, by key prefix: the jsonl files (or the design table) its number is computed from. Coarse on purpose:
 # every fact is built by analysis.dataset from the rows below, and the prefix names the run files those rows come from.
 FACT_SOURCES = (
+    ("int_build", BENCH_BUILD_HISTORY["source"]),
     ("hb_repeat_cap_", "c6528128a7a66fdc0ecd4031a9228ce8b53f5a98"),
     ("d_", None), ("t1v2_", "results/2026-10-28-t1-hidden-v2-regrade.jsonl (bench/regrade_t1.py)"), ("audit_", "audit session forensics (stage2b/FORENSICS.md), pending results/annotations.json"),
     ("grok_cli_", "results/*grok*.jsonl, CLI-reported cost"), ("ag_", "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"),

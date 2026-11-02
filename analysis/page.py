@@ -1022,7 +1022,7 @@ ANALOGUE = {"p01_overlap_minutes": ("My Calendar III", "my-calendar-iii"),
             "p10_avoid_count": ("Find All Good Strings", "find-all-good-strings"),
             "p11_best_average": ("Maximum Average Subarray II", "maximum-average-subarray-ii"),
             "p12_sheet": ("Design Excel Sum Formula", "design-excel-sum-formula"),
-            "p13_xor_ring": None,
+            "p13_xor_ring": ("Prison Cells After N Days", "prison-cells-after-n-days"),
             "p14_bounce_board": ("Snakes and Ladders", "snakes-and-ladders"),
             "p15_paint_erase": ("Range Module", "range-module")}
 # The pilot's well-known LeetCode problems, in the order the pilot ran them (round 1, then the harder round 2).
