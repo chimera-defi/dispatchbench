@@ -1,6 +1,7 @@
 <header class="head">
 <h1>DispatchBench: which model should a coding task go to?</h1>
 <nav class="toc" aria-label="Contents"><a href="#winner">Winner</a><a href="#pareto">Cost vs accuracy</a><a href="#results">Results</a><a href="#problems">Problems</a><a href="#grok">Grok and Devin</a><a href="#method">Method</a><a href="#fail">Failures</a><a href="#tokens">Input tokens</a><a href="#pipes">Pipelines</a><a href="#fair">Whose bench?</a><a href="#limits">Limitations</a><a href="#extras">Other measures</a><a href="#notes">Notes</a><a href="#equiv">Codex vs Claude</a></nav>
+<p class="small"><a href="#conclusion">Conclusion</a> · <a href="#interesting">Interesting findings</a></p>
 </header>
 <section class="verdict" id="winner">
 <h2 class="eyebrow"><span class="num"></span>WINNER</h2>
@@ -27,6 +28,9 @@
 </details>
 </details>
 <p class="small">LeetCode-style problems, written fresh for this bench. {{run_dates}}</p>
+<ul class="tight small">
+<li>Against haiku-high, sol61-high costs more and runs slower, even with fast mode.</li>
+</ul>
 </section>
 <section id="pareto">
 <h2><span class="num"></span>Cost vs accuracy</h2>
@@ -54,16 +58,41 @@
 </ul>
 {{w_result_notes}}
 </details>
+<ul class="tight small">
+<li>Retest single-model rows reuse earlier attempts on problems cheap luna configs missed.</li>
+<li>Fast mode preserves model, effort, and perfect main-ladder and harder-set scores.</li>
+</ul>
 </section>
 <section id="problems">
 <h2><span class="num"></span>Problems: try them yourself</h2>
 <p class="small">Fresh problems, ordered by this bench's difficulty rungs.</p>
 <p class="small">LeetCode links show analogues; E/M/H badges show our difficulty guesses.</p>
 <ul class="tight small">{{w_problems}}</ul>
+<ul class="tight small">
+<li>Difficulty badges are estimates and can disagree with LeetCode's labels.</li>
+</ul>
 </section>
 <section id="grok">
 <h2 id="grok-and-devin"><span class="num"></span>Grok and Devin</h2>
 {{w_grok_summary}}
+<details class="small"><summary>Grok comparisons and methods</summary>
+<h3>Closest lanes by pass rate</h3>
+<ul class="tight small">
+<li>Grok's closest matches, haiku-low and older Luna configs, run faster and cost less.</li>
+<li>Grok's catalog covers low, medium, high, and fast-low efforts; medium has partial coverage.</li>
+</ul>
+<h3>Repository tasks</h3>
+<ul class="tight small">
+<li>On repo tasks, grok47-low undercuts astra-medium and outruns sol61-high; Claude remains faster and cheaper.</li>
+</ul>
+</details>
+<h3 id="devin">Devin on the free tier</h3>
+<ul class="tight small">
+<li>Devin passed {{devin_k}} of {{devin_n}} problems, with timeouts, wrong answers, and a crash.</li>
+<li>Only {{devin_model}} runs free; other Devin-native models require Pro.</li>
+<li>Isolated Devin CLI calls bypassed wrapper context, caching, fallback, and fixed model selection.</li>
+<li>Devin missed the {{devin_stage2_min}}-pass continuation threshold, so additional repeats stopped.</li>
+</ul>
 </section>
 <h3 id="hetzner">Hetzner free tier</h3>
 <p class="small"><a href="{{hetzner_endpoint}}">{{hetzner_endpoint}}</a> (OpenAI-compatible). {{hetzner_lead}} {{hetzner_gateway_note}} {{hetzner_scope}} {{hetzner_verdict}}</p>
@@ -87,6 +116,14 @@
 <ul class="tight small"><li>{{versions_claude}}</li><li>{{versions_codex}}</li><li>{{versions_extra}}</li></ul>
 </details>
 {{w_legend}}
+<ul class="tight small">
+<li>Logs confirmed {{codex_tool_free}} tool-free Codex calls; Terra's item types remain uncertain.</li>
+<li>Auxiliary spend: Claude {{claude_aux_usd}}, Codex {{codex_aux_usd}}, covering pilot, appendix, and trim runs.</li>
+<li>Hidden tests reject planted wrong answers; sample tests are the examples shown to models.</li>
+<li>Retest configs made {{rescue_n}} calls each, using problems selected after cheap luna misses.</li>
+<li>Intervals use {{n_boot}} bootstrap resamples to estimate rerun variation.</li>
+<li>Wren, a {{orchestrator}} orchestrator, ran the benchmark.</li>
+</ul>
 </section>
 <section id="fail">
 <h2><span class="num"></span>Where they fail</h2>
@@ -98,6 +135,9 @@
 <li>haiku-low never gave a wrong answer.</li>
 <li>Main-ladder misses: {{hl_main_timeouts}} timeouts and {{hl_main_crashes}} crash.</li>
 <li>Its {{l7_hl_fail}} L7 misses were timeouts.</li>
+</ul>
+<ul class="tight small">
+<li>On taller_within, luna-low, luna-medium, and luna-low-bare each passed {{p04_passes}} of {{repeats}} attempts.</li>
 </ul>
 </section>
 <section id="tokens">
@@ -118,6 +158,10 @@
 <li>The router passed {{router_k}} on held-out repeats.</li>
 <li>Its cost was ~{{router_share}} of haiku-high's cost per pass.</li>
 </ul>
+<ul class="tight small">
+<li>Fast-mode pipelines matched their builders because every sample check passed without Haiku repairs.</li>
+<li>Router choices used early repeats; later repeats independently measured their passes and cost.</li>
+</ul>
 </section>
 <section id="fair">
 <h2><span class="num"></span>Whose bench?</h2>
@@ -129,6 +173,30 @@
 <li>haiku-low went {{hb_haiku_low_change}}.</li>
 <li>haiku-low led on both benches; routing picks stay unchanged.</li>
 <li>The gap moved {{hb_diff_points}} points, below the {{hb_bar_points}}-point bias threshold.</li>
+</ul>
+<ul class="tight small">
+<li>{{bench_authorship}}</li>
+<li>Each vendor's cheapest model ran through its own agent CLI.</li>
+<li>sol61-high was excluded from the harness comparison because it already passed every attempt.</li>
+<li>With code execution, luna-low produced fewer wrong answers and crashes.</li>
+<li>Codex's bench increased luna-low's cost and time per pass; Haiku's changes were smaller.</li>
+<li>Harness-gap interval: {{hb_range_points}} points; movement remained below the bias threshold.</li>
+<li>Edge-case-first prompts helped luna-low; adding detailed reasoning hurt, despite removing shell context in both.</li>
+<li>Time per pass divides summed call seconds by passing attempts.</li>
+</ul>
+</section>
+<section class="verdict conclusion" id="conclusion">
+<h2 class="eyebrow"><span class="num"></span>CONCLUSION</h2>
+<b>{{winner_line}}</b>
+<ol class="tight">
+<li>With Codex quota left, send each task to sol61-high ⚡.</li>
+<li>Then run the sample tests. If one fails, haiku-low fixes it. {{default_route_scope}}</li>
+<li>With Codex quota gone, use haiku-high. It is the cheapest config with no misses.</li>
+</ol>
+<ul class="tight">
+<li>If speed matters most, use sonnet-medium. It takes {{sonnet_medium_med}} s to haiku-high's {{haiku_high_med}} s. sonnet-medium costs {{sm_vs_hh_x}} as much per pass.</li>
+<li>Don't use luna-low or luna-medium alone: they miss about {{cheap_miss_words}}.</li>
+<li>{{hb_conclusion_copy}}</li>
 </ul>
 </section>
 <section id="limits">
@@ -145,6 +213,13 @@
 <li>Hosted models change. This measures one run in time.</li>
 </ul>
 <p class="small">Sources: <a href="https://github.com/chimera-defi/dispatchbench">code, problems, raw results, and full report</a>.</p>
+<ul class="tight small">
+<li>Published repository problems can enter later models' training data.</li>
+<li>Paired gaps through {{nosep_gap}} points showed no separation; {{sep_gap}}-point gaps did.</li>
+<li>{{cite}}</li>
+<li>Code, problems, and raw results are MIT-licensed on GitHub.</li>
+<li>The dataset builds report numbers from stored JSONL runs.</li>
+</ul>
 </section>
 <section class="extras" id="extras">
 <h2><span class="num"></span>Other measures</h2>
@@ -158,6 +233,10 @@
 <details open><summary>Explore tokens, reasoning, and latency</summary>
 {{w_any_pair}}
 </details>
+<ul class="tight small">
+<li>{{rung_breaks}}; luna-low-bare breaks at {{bare_rung_break}}.</li>
+<li>Stricter discount regrading reduced only luna-low's hidden passes; headline counts retain their original suite.</li>
+</ul>
 </section>
 <section class="notes" id="notes">
 <h2><span class="num"></span>Code quality and evidence</h2>
@@ -168,10 +247,53 @@
 {{table:blind}}
 </details>
 {{w_everything}}
+<ul class="tight small">
+<li>Fast mode accelerates unchanged passes; xhigh costs more, runs slower, and improves no code.</li>
+<li>Blind review blocked only sonnet-medium solutions, scoring them below every other config.</li>
+<li>Blind review shuffled passing solutions anonymously and scored readability and maintainability.</li>
+<li>Radon measures complexity, ruff measures lint; reference ratios below {{ref_unit}} improve; growth-exponent tolerance: {{growth_margin}}.</li>
+<li>Quality scoring covers {{q_rows}} passing main-ladder solutions.</li>
+<li>All {{n_solutions}} solutions are available in results/solutions.</li>
+<li>On {{q_worst_problem}}, {{q_slow_cfgs}} configs exceed reference runtime, reaching {{q_worst_x}}.</li>
+<li>Fast-mode control used a separate {{fm_n}}-attempt default-tier run, distinct from the Results row.</li>
+</ul>
+<details id="appendix"><summary>Appendix</summary>
+<ul class="tight small">
+<li>Codex's main CLI ignored personal settings and disabled tools.</li>
+<li>Repo tasks used a clean Codex home.</li>
+<li>Too slow means exceeding the grader's per-case time limit.</li>
+<li>The harder set contains xor_ring, bounce_board, and paint_erase.</li>
+<li>Harder-set passes: haiku-low {{l7_hl_k}}; sonnet-medium passed all, at higher cost per pass.</li>
+<li>Escalation retested taller_within, best_average, and sheet.</li>
+<li>luna-high passed {{esc_k}} on escalation problems, improving substantially over luna-medium.</li>
+<li>Matched pass rates cost {{r_luna_high_bare_haiku_on_fail_upp}} with conditional Haiku repair versus {{r_luna_high_bare_retry_on_fail_upp}} with same-model retries.</li>
+<li>Sample checks caught {{g_hi_fixed}} bad answers, all repaired by Haiku, but missed {{g_hi_missed}}.</li>
+<li>The unchecked luna-high-bare run produced {{r_luna_high_bare_miss}} bad answers.</li>
+<li>Haiku planning costs more than checking answers afterward.</li>
+<li>Haiku plans improved luna-low's passes but left luna-high-bare unchanged.</li>
+</ul>
+</details>
+</section>
+<section id="interesting">
+<h2><span class="num"></span>Interesting findings</h2>
+<ul class="tight">
+<li>{{int_sol}}</li>
+<li>{{int_terra}}</li>
+<li>{{int_luna}}</li>
+<li>{{int_semi}}</li>
+<li>{{int_harness}}</li>
+<li>{{int_build}}</li>
+<li>{{int_l7}}</li>
+<li>{{int_trim}}</li>
+<li>{{int_repo}}</li>
+</ul>
 </section>
 <section id="equiv">
 <h2><span class="num"></span>Codex vs Claude</h2>
 <p class="small">Matches use the cheapest other-vendor config passing at least as often.</p>
 {{table:equiv_all}}
 <p class="small">All rows use the main ladder. Passing equally often doesn't establish equal skill.</p>
+<ul class="tight small">
+<li>Claude usually offers cheaper pass-rate matches; only luna undercuts its match, with more misses.</li>
+</ul>
 </section>

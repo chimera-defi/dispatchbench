@@ -36204,6 +36204,12 @@
    "display": "On Codex's bench, both families gained. luna-low rose from 36 to 47 passes. It cost ~3× per pass and took ~3× the median time. haiku-low rose from 57 to 60 passes. It cost ~1.1× per pass, with the same median time.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
+  "int_build": {
+   "value": "Codex's bench dry runs missed 2 sandbox bugs; a live call found them. Its \"plan and reorient\" nudge changed no code.",
+   "unit": "text",
+   "display": "Codex's bench dry runs missed 2 sandbox bugs; a live call found them. Its \"plan and reorient\" nudge changed no code.",
+   "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
+  },
   "int_l7": {
    "value": "On L7, luna-high passed 15/15; sol56-high missed. luna-high cost ~$0.0015 per pass versus sol56-high's ~$0.069.",
    "unit": "text",
@@ -38690,6 +38696,30 @@
   },
   "grok_lead": "Grok got through all six rungs, L1–L6. Every config missed somewhere. grok47-high passed 57/60 and missed at L4 and L6. grok47-low passed 53/60 and missed at L3 and L6. grok47fast-low passed 51/60 and missed at L3, L4 and L6. L1, L2 and L5 were clean for all three.\n\nFor grok47-high, the closest lane by pass rate in each family is Claude haiku-low (57/60, 10.0 s, $0.0011 per pass) and Codex luna56-high (56/60, 11.4 s, $0.0030 per pass). grok47-high itself: 57/60, 105.7 s, $0.13 per pass. Against the closest lane of each full-run Grok config (grok47-high, grok47-low and grok47fast-low), Grok takes 3.4–10.6× as long and costs 27.4–160.6× as much per pass.",
   "grok_better": "Not on these problems. Every Grok config is beaten on pass rate, speed and cost at once: grok47-high by 10 lanes (for example haiku-high, 60/60, 14.7 s, $0.0028 per pass). grok47-low by 11 lanes (for example haiku-high, 60/60, 14.7 s, $0.0028 per pass). grok47fast-low by 12 lanes (for example haiku-high, 60/60, 14.7 s, $0.0028 per pass). Grok passes more than luna-low, luna-low-bare, luna-medium, luna56-high and luna56-low. Every one of those lanes is faster and cheaper per pass. Grok costs less per pass than only astra-medium ⚡. Each of those passes more than the Grok config that undercuts it. Grok is faster than no lane.",
+  "grok_catalog": {
+   "head": [
+    "name",
+    "what it was"
+   ],
+   "rows": [
+    [
+     "grok47-low",
+     "Grok grok-4.7, low effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p12 (L1–L6), 2026-10-28 full spectrum: 5 repeats per problem (L2–L3 had been shortened to 2 repeats on 2026-10-26)"
+    ],
+    [
+     "grok47-medium",
+     "Grok grok-4.7, medium effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p06 (L1–L3) only, not extended (PLAN.md deviation 23); 6 of 12 problems"
+    ],
+    [
+     "grok47-high",
+     "Grok grok-4.7, high effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p12 (L1–L6), 2026-10-28 full spectrum: 5 repeats per problem (L2–L3 had been shortened to 2 repeats on 2026-10-26)"
+    ],
+    [
+     "grok47fast-low",
+     "Grok grok-4.7-build-fast, low effort; grok CLI, measured total_cost_usd; exploratory, added 2026-10-26 at operator request; function track p01–p12 (L1–L6), 2026-10-28 full spectrum: 5 repeats per problem (L2–L3 had been shortened to 2 repeats on 2026-10-26)"
+    ]
+   ]
+  },
   "devin_reach": {
    "head": [
     "rung",
