@@ -1,4 +1,4 @@
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 760 500' width='760' height='500' font-family='var(--font-body)' font-size='12'><style>/* FABLE TOKENS BEGIN — generated from the pinned site sources. */
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 760 500' width='760' height='500' font-family='var(--font-body, Inter, system-ui, sans-serif)' font-size='12'><style>/* FABLE TOKENS BEGIN — generated from the pinned site sources. */
 /* Source: chimera-defi/chimericlabs-llc design-system/tokens/nocturne-base.css
    Pinned SHA: 2109b3b149e92ca388c4392f57d9b48aa040b4fb */
 

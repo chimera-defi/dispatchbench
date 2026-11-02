@@ -290,6 +290,15 @@
 </section>
 <section id="equiv">
 <h2><span class="num"></span>Codex vs Claude</h2>
+<h3>Terra61 at priority tier (exploratory)</h3>
+<ul class="tight small">
+<li>{{terra_priority_noise}}</li>
+<li>{{terra_priority_speed}}</li>
+<li>{{terra_priority_l7}}</li>
+<li>{{terra_priority_repo}}</li>
+<li>{{terra_priority_p04}}</li>
+<li>{{terra_priority_cost}}</li>
+</ul>
 <p class="small">Matches use the cheapest other-vendor config passing at least as often.</p>
 {{table:equiv_all}}
 <p class="small">All rows use the main ladder. Passing equally often doesn't establish equal skill.</p>

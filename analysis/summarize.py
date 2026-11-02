@@ -59,7 +59,11 @@ def selected_rows(rows, tracks, cell_fields, item_fields):
 
 def function_rows():
     # Clean-home replacements apply only to repo tasks.
-    return [row for name in SOURCES["main"] for row in _sourced(os.path.join(RES, name))]
+    from bench import problems
+    return [row for name in SOURCES["main"] for row in _sourced(os.path.join(RES, name))
+            if name != "2026-11-02-terra-priority-function.jsonl"
+            or (row["config"] in ("terra61-low-fast", "terra61-high-fast")
+                and row["problem"] in problems.MAIN and row["repeat"] in range(1, 6))]
 
 
 def agentic_rows():
@@ -530,7 +534,7 @@ def pct(x):
     return f"{100 * x:.0f}%"
 
 
-FAST_COLS = ('sol61-high', 'sol61-high-fast', 'astra-medium', 'astra-medium-fast')  # default tier beside fast mode
+FAST_COLS = ('sol61-high', 'sol61-high-fast', 'astra-medium', 'astra-medium-fast', 'terra61-low', 'terra61-low-fast', 'terra61-high', 'terra61-high-fast')  # default tier beside fast mode
 
 
 def tables(s):

@@ -59,6 +59,30 @@ def stats(rs):
                 tot=tot, errs=sum(bool(r["is_error"]) for r in rs))
 
 
+def page_summary():
+    """Structured evidence for the main page, separate from its 60-try population."""
+    old = [r for f in EARLIER_FN for r in rows(f)]
+    noise, priority = rows(NOISE_FN), rows(FAST_FN)
+    arms = ("terra61-low", "terra61-high")
+    pooled = {c: stats(main_ladder(old + noise, c, range(1, 16))) for c in arms}
+    standard = {c: stats(main_ladder(old, c, range(1, 6))) for c in arms}
+    fast = {c: stats(main_ladder(priority, c + "-fast", range(1, 6))) for c in arms}
+    a, b = (pooled[c] for c in arms)
+    followup = {}
+    for label, group in followup_sets().items():
+        followup[label] = {}
+        for c, rr in group.items():
+            if label == "repo":
+                rr = [dict(r, passed=bool(r.get("task_complete", r["visible_pass"] and r["hidden_pass"]))) for r in rr]
+            followup[label][c] = stats(rr)
+    p, q = (followup["p04"][c] for c in ("terra61-low", "sol61-high"))
+    return dict(pooled=pooled, standard=standard, fast=fast, followup=followup,
+                noise_interval=newcombe(a["k"], a["n"], b["k"], b["n"]),
+                p04_interval=newcombe(p["k"], p["n"], q["k"], q["n"]),
+                time_cuts=[100 * (1 - fast[c]["med"] / standard[c]["med"]) for c in arms],
+                sol_fast=stats(main_ladder(old, "sol61-high-fast", range(1, 6))))
+
+
 def fn_line(label, s):
     return (f"| {label} | {s['k']}/{s['n']} | {pct(s['k'] / s['n'])} ({pct(s['ci'][0])}–{pct(s['ci'][1])}) | {s['med']:.1f} | {s['p90']:.1f} | "
             f"{usd(s['usd_pass']) if s['usd_pass'] else '–'} | {s['errs']} |")

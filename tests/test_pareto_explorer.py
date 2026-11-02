@@ -58,10 +58,10 @@ def test_strict_frontier_and_legacy_cross_check(ds):
     main = next(st for st in exp['sets'] if st['id'] == 'main')
     front = {by_key[k]['config'] for k,v in main['views']['list']['front']['membership'].items() if v['on_frontier']}
     assert front == {'haiku-low', 'haiku-medium', 'luna-medium', 'haiku-high', 'luna-high', 'luna-low-bare'}
-    assert {by_key[k]['config'] for k,v in main['views']['list']['top']['membership'].items() if v['on_frontier']} == {'haiku-low', 'luna-high', 'astra-medium-fast'}
-    assert {by_key[k]['config'] for k,v in main['views']['quota']['top']['membership'].items() if v['on_frontier']} == {'astra-medium-fast'}
+    assert {by_key[k]['config'] for k,v in main['views']['list']['top']['membership'].items() if v['on_frontier']} == {'haiku-low', 'luna-high', 'terra61-low-fast'}
+    assert {by_key[k]['config'] for k,v in main['views']['quota']['top']['membership'].items() if v['on_frontier']} == {'terra61-low-fast'}
     high = dataset.explorer_frontier([by_key[k] for k in main['rows']], '3d', floor=1)
-    assert {by_key[k]['config'] for k,v in high.items() if v['on_frontier']} == {'sonnet-medium', 'haiku-high', 'terra61-low', 'astra-medium-fast'}
+    assert {by_key[k]['config'] for k,v in high.items() if v['on_frontier']} == {'haiku-high', 'terra61-low', 'terra61-low-fast'}
     for st in exp['sets']:
         rr = [by_key[k] for k in st['rows']]
         for price in ('list', 'quota'):

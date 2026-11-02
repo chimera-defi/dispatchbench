@@ -11,7 +11,7 @@ from analysis.labels import TESTS, DISP, pshort, plabel, plabel_html
 
 # Plot order and family colour (a CSS variable of the page). luna-high is the exploratory full-ladder run.
 ORDER = ["haiku-low", "haiku-medium", "haiku-high", "sonnet-medium", "sol61-medium", "luna-high", "luna-medium", "luna-low", "luna-low-bare",
-         "astra-medium", "astra-medium-fast", "sol61-high", "sol61-high-fast", "sol56-high", "luna56-high", "luna56-low", "terra61-high", "terra61-low"]
+         "astra-medium", "astra-medium-fast", "sol61-high", "sol61-high-fast", "sol56-high", "luna56-high", "luna56-low", "terra61-high", "terra61-high-fast", "terra61-low", "terra61-low-fast"]
 # Full-ladder comparison order plus the historical Devin probe.
 # API calibration rows have their own hetzner(s) projection and join non-price widgets explicitly.
 ORDER_ALL = ORDER + list(configs.DEVIN_CONFIGS)
@@ -408,7 +408,8 @@ def tip(c, v):
             f"median {dataset.median_seconds(v):.1f} s")
 
 
-FAST_PAIRS = [("sol61-high", "sol61-high-fast"), ("astra-medium", "astra-medium-fast")]
+FAST_PAIRS = [("sol61-high", "sol61-high-fast"), ("astra-medium", "astra-medium-fast"),
+              ("terra61-low", "terra61-low-fast"), ("terra61-high", "terra61-high-fast")]
 
 
 def fast_pairs(pts, X, Y):
@@ -733,7 +734,7 @@ def hatch_phone(body):
 
 def fast(s):
     entries = [(label, c, group[c]) for label, group in ((configs.set_label("main ladder"), every(s)),
-               (configs.set_label("L7 set"), s["hard"])) for pair in FAST_PAIRS for c in pair]
+               (configs.set_label("L7 set"), s["hard"])) for pair in FAST_PAIRS for c in pair if c in group]
     rows = [(f"{'L7' if label == configs.set_label('L7 set') else 'ladder'} · {DISP(c)}",
              v["latency_s"]["median"], FAM(c), c.endswith("-fast")) for label, c, v in entries]
     values = [f"{dataset.median_seconds(v):.1f}s · {dataset.usd(v['usd_per_pass'])}" for _, _, v in entries]
@@ -940,8 +941,8 @@ CODEX = lambda c: any(x in c for x in ("luna", "sol", "astra"))
 def short_table(s, need):
     """One table grouped by measured problem coverage; each group sorts separately."""
     E = every(s); a = rescue_arms(s)
-    top = [(c, row(DISP(c), FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], 0.0 if CODEX(c) else E[c]["usd_per_pass"],
-               dataset.median_seconds(E[c]), verdict(c, E[c], need, E, a),
+    top = [(c, row(DISP(c), FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], 0.0 if CODEX(c) or c in ("terra61-low-fast", "terra61-high-fast") else E[c]["usd_per_pass"],
+               dataset.median_seconds(E[c]), verdict(c, E[c], need, E, a) + ("; " + s["facts"]["terra_noise_caveat"] if c in ("terra61-high", "terra61-high-fast") else ""),
                E[c]["cost_kind"] == "proxy", rate=E[c]["pass_at_1"], key=s["facts"]["verdict_key"],
                set_name=configs.set_label("main ladder") if configs.low_context(c) else "")) for c in ORDER]
     clean = [c for c, _ in HARD if a[c]["passes"] == a[c]["n"]]; need(clean, "some rescue-set row never failed")
@@ -1244,12 +1245,14 @@ def winner_table(ds, need):
          "Winner fast-mode premium does not come from more tokens")
     need(pipeline["passes"] == pipeline["n"] and pipeline["spend_claude"] == 0,
          "Winner measured example-check pipeline passed without calling Haiku")
-    astra = ladder("astra-medium-fast")
-    quota = astra["usd_per_pass"] / default["usd_per_pass"]
-    need(astra["passes"] == astra["n"] and astra["median_s"] < default["median_s"] and quota > 2,
-         "astra-medium ⚡ is faster but burns much more Codex quota")
+    F = ds["facts"]
+    faster = next(r for r in clean if r["display"] == F["fastest_nomiss"])
+    need(faster["passes"] == faster["n"] == 60 and faster["median_s"] < default["median_s"]
+         and 3 < default["usd_per_pass"] / faster["usd_per_pass"] < 4,
+         "fastest no-miss main-ladder config is faster and about three times cheaper than Default")
     why = {"default": (f"No misses. $0 on the Claude bill (spends Codex quota). ⚡ saves {plain['median_s'] - default['median_s']:.0f} s. "
-                       f"astra ⚡ is faster but uses {quota:.0f}× the quota"), "budget": ds["facts"]["budget_why"], "speed": ds["facts"]["speed_why"]}
+                       f"{F['fastest_nomiss']} is faster ({F['fastest_nomiss_med']} s) and ~{F['terra_fast_cheaper']} cheaper; {F['terra_low_l7_miss']} L7 miss"),
+           "budget": F["budget_why"], "speed": F["speed_why"]}
     choices = [(use.title(), ladder(c), why[use]) for c, use in WINNER_PICKS.items()]
     head = ("Use case", "Pick", "Pass", "$ per pass", "Time", "Why")
     th = "".join(f'<th scope="col">{esc(name)}</th>' for name in head)
