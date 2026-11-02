@@ -60,7 +60,7 @@
 </details>
 <ul class="tight small">
 <li>Retest single-model rows reuse earlier attempts on problems cheap luna configs missed.</li>
-<li>Fast mode preserves model, effort, and perfect main-ladder and harder-set scores.</li>
+<li>Fast mode keeps model and effort; sol61-high ⚡ and astra-medium ⚡ kept their perfect main-ladder and harder-set scores.</li>
 </ul>
 </section>
 <section id="problems">
