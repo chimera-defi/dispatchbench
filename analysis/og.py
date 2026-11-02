@@ -18,11 +18,12 @@ def takeaway(facts):
 
 def card_html(facts):
     svg = open(HERO).read()
-    return f"""<!doctype html><html data-theme="light"><meta charset="utf-8"><style>
+    return f"""<!doctype html><html data-theme="light"><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@600&amp;display=block"><style>
 *{{box-sizing:border-box}}html,body{{margin:0;width:1200px;height:630px;background:var(--bg);color:var(--fg);
-font-family:'Hanken Grotesk','Atkinson Hyperlegible',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;overflow:hidden}}
+font-family:Inter,system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;overflow:hidden}}
 .card{{display:flex;height:630px;padding:40px 36px 40px 48px;gap:28px;align-items:center}}
-.txt{{width:370px;flex:none}}.kick{{font:600 15px/1 monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}}
+.txt{{width:370px;flex:none}}.kick{{font:600 15px/1 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}}
 h1{{font-size:40px;line-height:1.12;margin:0 0 22px;font-weight:700}}p{{font-size:21px;line-height:1.4;margin:0;color:var(--fg)}}
 .chart{{flex:none;width:720px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px}}.chart svg{{width:100%;height:auto;display:block}}
 </style><div class="card"><div class="txt"><p class="kick">Chimeric Labs</p><h1>{escape(TITLE)}</h1><p>{escape(takeaway(facts))}</p></div>
@@ -37,7 +38,7 @@ def build():
     with tempfile.TemporaryDirectory() as d:
         src, png = os.path.join(d, "card.html"), os.path.join(d, "og.png")
         open(src, "w").write(card_html(facts))
-        r = subprocess.run([chrome, "--headless", "--disable-gpu", "--no-sandbox", "--hide-scrollbars", "--window-size=1200,630",
+        r = subprocess.run([chrome, "--headless", "--disable-gpu", "--no-sandbox", "--hide-scrollbars", "--window-size=1200,630", "--virtual-time-budget=10000",
                             f"--screenshot={png}", "file://" + src], capture_output=True, text=True, timeout=120)
         if r.returncode or not os.path.exists(png):
             print("og.png: Chrome failed; kept the existing file:", r.stderr.strip()[-200:]); return 0
