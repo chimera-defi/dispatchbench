@@ -44,7 +44,7 @@ NOTATION = {
 
 SOURCES = {  # source id -> files under results/ that hold its rows
     "main": ["2026-10-22b-function.jsonl", "2026-10-26-grok-function.jsonl", "2026-10-28-grok-spectrum-function.jsonl",
-             "2026-10-28-terra-function.jsonl", "2026-10-28-devin-function.jsonl", "2026-11-01-hetzner-function.jsonl", "2026-11-02-terra-priority-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
+             "2026-10-28-terra-function.jsonl", "2026-10-28-devin-function.jsonl", "2026-11-01-hetzner-function.jsonl", "2026-11-02-terra-priority-function.jsonl", "2026-11-02-terra-l7-fast-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
     "rescue": ["appendix/luna_rescue.jsonl"], "pilot": ["2026-10-22-pilot.jsonl"], "pilot-agentic": ["2026-10-22-pilot-agentic.jsonl"],
     "harness-bias": ["appendix/harness_bias.jsonl", "appendix/codex_harness.jsonl"]}  # the last two land with the codex-own-harness branch
 CATEGORIES = ["main ladder", "exploratory", "fast mode and xhigh", "rescue pipeline", "repo tasks", "trim", "pilot", "harness-bias", "low context"]
@@ -95,7 +95,7 @@ DEVIN_STAGE2_MIN = 9  # PLAN.md deviation 24: stage 2 (repeats 2-5) runs only if
 add("main", "fast mode and xhigh",
     ("sol61-high-fast", "sol61-high on Codex priority tier (fast mode). Same model and effort, about twice the price."),
     ("astra-medium-fast", "astra-medium on the Codex priority tier (fast mode)"),
-    ("terra61-low-fast", "terra61-low on the Codex priority tier (fast mode); exploratory, main ladder only"),
+    ("terra61-low-fast", "terra61-low on the Codex priority tier (fast mode); exploratory, main ladder and L7"),
     ("terra61-high-fast", "terra61-high on the Codex priority tier (fast mode); exploratory, main ladder only"), ("sol61-xhigh", "gpt-6.1-sol at xhigh effort"))
 add("rescue", "rescue pipeline",
     ("luna-low-noshell-B1", "Arm B1: luna-low without shell, nudged to list edge cases and trace the sample tests first"),
