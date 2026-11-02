@@ -183,7 +183,7 @@ def one(config, task, rep, lanes, regrade=False):
         orig_tests = {f: open(os.path.join(w, "tests", f), "rb").read() for f in os.listdir(os.path.join(w, "tests"))}
         t0 = time.monotonic()
         try:
-            res, raw = ({"claude": run_claude, "codex": lambda *a: run_codex(*a, config=config), "grok": run_grok}[cli])(mid, eff, prompt, w)
+            res, raw = ({"claude": run_claude, "codex": (lambda *a: run_codex(*a, config=config)) if config in TIER else run_codex, "grok": run_grok}[cli])(mid, eff, prompt, w)
         except (subprocess.TimeoutExpired, OSError) as exc:
             res, raw = failure(exc, time.monotonic() - t0)
         wall = time.monotonic() - t0

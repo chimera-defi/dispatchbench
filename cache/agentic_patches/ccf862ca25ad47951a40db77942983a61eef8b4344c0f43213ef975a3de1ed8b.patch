@@ -1,0 +1,239 @@
+diff --git a/cfg/loader.py b/cfg/loader.py
+index acd880f..bf4605a 100644
+--- a/cfg/loader.py
++++ b/cfg/loader.py
+@@ -1,9 +1,65 @@
+-from .parser import parse
++from .errors import ConfigError
++from .parser import _parse_with_locations
+ 
+ 
+ def load(text: str) -> dict[str, dict[str, str]]:
+     """Parse config text and return the resolved values."""
+-    return parse(text)
++    config, locations = _parse_with_locations(text)
++    resolved: dict[tuple[str, str], str] = {}
++    stack: list[tuple[str, str]] = []
++    active: dict[tuple[str, str], int] = {}
++
++    def resolve(section: str, key: str) -> str:
++        name = (section, key)
++        if name in resolved:
++            return resolved[name]
++        if name in active:
++            cycle = stack[active[name]:] + [name]
++            chain = " -> ".join(f"{s}.{k}" for s, k in cycle)
++            raise ConfigError(f"reference cycle: {chain}")
++
++        active[name] = len(stack)
++        stack.append(name)
++        try:
++            value = config[section][key]
++            parts: list[str] = []
++            position = 0
++            while position < len(value):
++                dollar = value.find("$", position)
++                if dollar == -1:
++                    parts.append(value[position:])
++                    break
++                parts.append(value[position:dollar])
++                if value.startswith("$$", dollar):
++                    parts.append("$")
++                    position = dollar + 2
++                elif value.startswith("${", dollar):
++                    end = value.find("}", dollar + 2)
++                    if end == -1:
++                        raise ConfigError("unterminated reference")
++                    reference = value[dollar + 2:end]
++                    target_section, dot, target_key = reference.rpartition(".")
++                    if not dot:
++                        target_section = section
++                    if target_section not in config or target_key not in config[target_section]:
++                        raise ConfigError(f"unknown reference: {reference}")
++                    parts.append(resolve(target_section, target_key))
++                    position = end + 1
++                else:
++                    raise ConfigError("invalid dollar in value")
++            resolved[name] = "".join(parts)
++            return resolved[name]
++        finally:
++            stack.pop()
++            del active[name]
++
++    for (section, key), line in locations.items():
++        try:
++            config[section][key] = resolve(section, key)
++        except ConfigError as error:
++            error.line = line
++            raise
++    return config
+ 
+ 
+ def get(config: dict[str, dict[str, str]], dotted: str) -> str:
+diff --git a/cfg/parser.py b/cfg/parser.py
+index d024ec6..2041f08 100644
+--- a/cfg/parser.py
++++ b/cfg/parser.py
+@@ -8,7 +8,15 @@ def parse(text: str) -> dict[str, dict[str, str]]:
+     Blank lines and lines starting with `#` are ignored. Entries before the first section go into "".
+     A repeated key in the same section is an error.
+     """
++    return _parse_with_locations(text)[0]
++
++
++def _parse_with_locations(
++    text: str,
++) -> tuple[dict[str, dict[str, str]], dict[tuple[str, str], int]]:
++    """Also record definition lines in file order for value resolution."""
+     out: dict[str, dict[str, str]] = {"": {}}
++    locations: dict[tuple[str, str], int] = {}
+     section = ""
+     for n, raw in enumerate(text.splitlines(), 1):
+         line = raw.strip()
+@@ -28,4 +36,5 @@ def parse(text: str) -> dict[str, dict[str, str]]:
+         if key in out[section]:
+             raise ConfigError(f"duplicate key {key!r}", n)
+         out[section][key] = value
+-    return out
++        locations[section, key] = n
++    return out, locations
+diff --git a/tests/test_refs.py b/tests/test_refs.py
+new file mode 100644
+index 0000000..e69bc60
+--- /dev/null
++++ b/tests/test_refs.py
+@@ -0,0 +1,134 @@
++import pytest
++
++from cfg.errors import ConfigError
++from cfg.loader import load
++from cfg.parser import parse
++
++
++def test_same_section_forward_and_nested_references():
++    config = load("[app]\na = before ${b} / ${c} after\nb = ${c}\nc = value\n")
++    assert config["app"] == {
++        "a": "before value / value after",
++        "b": "value",
++        "c": "value",
++    }
++
++
++def test_cross_section_and_unnamed_section_references():
++    config = load(
++        "root = home\ncopy = ${root}\n"
++        "[app]\npath = ${.root}/${db.host}\n"
++        "[db]\nhost = localhost\n"
++    )
++    assert config[""] == {"root": "home", "copy": "home"}
++    assert config["app"]["path"] == "home/localhost"
++
++
++def test_reference_splits_at_last_dot():
++    config = load("[app]\nx = ${a.b.c}\n[a.b]\nc = found\n")
++    assert config["app"]["x"] == "found"
++
++
++@pytest.mark.parametrize(
++    ("raw", "expected"),
++    [
++        ("", ""),
++        ("plain text", "plain text"),
++        ("$$", "$"),
++        ("a$$b$$$$c", "a$b$$c"),
++        ("$${missing}", "${missing}"),
++        ("$$${key}", "$value"),
++        ("${key}${key}", "valuevalue"),
++        ("${empty}text${empty}", "text"),
++    ],
++)
++def test_text_escapes_and_multiple_references(raw, expected):
++    config = load(f"result = {raw}\nkey = value\nempty =\n")
++    assert config[""]["result"] == expected
++
++
++def test_inserted_values_are_not_interpreted_again():
++    config = load("copy = ${literal}\nliteral = $${missing}$$\nagain = ${literal}\n")
++    assert config[""] == {
++        "copy": "${missing}$",
++        "literal": "${missing}$",
++        "again": "${missing}$",
++    }
++
++
++@pytest.mark.parametrize("reference", ["hostt", "db.hostt", "missing.host", ".hostt", "a.b.c"])
++def test_unknown_reference_preserves_written_name(reference):
++    with pytest.raises(ConfigError) as exc:
++        load(f"[app]\nx = ${{{reference}}}\n[db]\nhost = localhost\n")
++    assert str(exc.value) == f"unknown reference: {reference}"
++    assert exc.value.line == 2
++
++
++@pytest.mark.parametrize("value", ["$", "$x", "text $ text", "$$$", "${key}$"])
++def test_invalid_dollar(value):
++    with pytest.raises(ConfigError) as exc:
++        load(f"# comment\nx = {value}\nkey = ok\n")
++    assert exc.value.line == 2
++
++
++@pytest.mark.parametrize("value", ["${", "before ${key", "${key}${"])
++def test_unterminated_reference(value):
++    with pytest.raises(ConfigError) as exc:
++        load(f"x = {value}\nkey = ok\n")
++    assert exc.value.line == 1
++
++
++@pytest.mark.parametrize(
++    ("text", "chain", "line"),
++    [
++        ("x = ${x}\n", ".x -> .x", 1),
++        ("[a]\nx = ${y}\ny = ${x}\n", "a.x -> a.y -> a.x", 2),
++        (
++            "[start]\nroot = ${a.x}\n[a]\nx = ${b.y}\n[b]\ny = ${a.x}\n",
++            "a.x -> b.y -> a.x",
++            2,
++        ),
++        ("x = ${a.y}\n[a]\ny = ${.x}\n", ".x -> a.y -> .x", 1),
++    ],
++)
++def test_cycle_chain_starts_at_first_repeated_key(text, chain, line):
++    with pytest.raises(ConfigError) as exc:
++        load(text)
++    assert str(exc.value) == f"reference cycle: {chain}"
++    assert exc.value.line == line
++
++
++def test_resolution_follows_file_order_when_section_is_reopened():
++    with pytest.raises(ConfigError) as exc:
++        load("[a]\nok = fine\n[b]\nx = ${x}\n[a]\ny = ${y}\n")
++    assert str(exc.value) == "reference cycle: b.x -> b.x"
++    assert exc.value.line == 4
++
++
++def test_references_are_resolved_left_to_right():
++    with pytest.raises(ConfigError) as exc:
++        load("[a]\nroot = ${right}${left}\nleft = ${left}\nright = ${right}\n")
++    assert str(exc.value) == "reference cycle: a.right -> a.right"
++    assert exc.value.line == 2
++
++
++@pytest.mark.parametrize("bad_value", ["${missing.key}", "$bad", "${unfinished"])
++def test_nested_errors_report_outermost_definition_line(bad_value):
++    with pytest.raises(ConfigError) as exc:
++        load(f"# comment\n[a]\nroot = ${{b.middle}}\n[b]\nmiddle = ${{bad}}\nbad = {bad_value}\n")
++    assert exc.value.line == 3
++
++
++def test_parse_keeps_values_raw():
++    assert parse("x = ${missing}\ny = $bad\nz = $$\n")[""] == {
++        "x": "${missing}",
++        "y": "$bad",
++        "z": "$$",
++    }
++
++
++def test_parsing_finishes_before_resolution():
++    with pytest.raises(ConfigError) as exc:
++        load("x = ${missing}\nx = duplicate\n")
++    assert str(exc.value) == "line 2: duplicate key 'x'"
++    assert exc.value.line == 2

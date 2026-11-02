@@ -97,7 +97,7 @@ def harness_rows(rows=None):
 PRICES = json.load(open(os.path.join(RES, "prices.json")))["models"]
 
 
-FAST_CONFIGS = ("sol61-high-fast", "astra-medium-fast")  # Codex priority tier: billed at the published fast-mode multiplier
+FAST_CONFIGS = ("sol61-high-fast", "astra-medium-fast", "terra61-low-fast", "terra61-high-fast")  # Codex priority tier: billed at the published fast-mode multiplier
 
 
 def cost(r):
