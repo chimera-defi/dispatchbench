@@ -862,7 +862,7 @@ def _facts(s, arms):
             if hidden:
                 own = sorted({p for c in hidden for p in s["grok"][c]["by_problem"]})
                 part = f" {', '.join(hidden)} ({own[0][:3]}–{own[-1][:3]} only) is not plotted."
-            F["grok_chart_note"] = f"Grok: black hexagons, {span}, outside the best-trade-off line.{part}"
+            F["grok_chart_note"] = f"Grok: blue hexagons, {span}, outside the best-trade-off line.{part}"
             F["frontier_caption"] += " " + F["grok_chart_note"]
     F['winner_caption'] = (
         f"Numbers: the {nprob}-problem {configs.set_label('main ladder')}, {hl['n']} tries per config. "

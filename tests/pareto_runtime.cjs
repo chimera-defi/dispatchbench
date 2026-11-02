@@ -15,9 +15,17 @@ const elements=new Map();function element(id){if(!elements.has(id))elements.set(
 const root=element('pareto-explorer');root.querySelector=s=>s.includes(' svg')?null:element(s.slice(1));
 const doc={addEventListener:(e,f)=>f(),getElementById:id=>id==='data'?{textContent:JSON.stringify({explorer:payload.explorer})}:root};
 let code=fs.readFileSync('docs/page/explorer.html','utf8').split('<script>')[1].split('</script>')[0];
-code=code.replace("render();root.dataset.ready='true';","render();root.dataset.ready='true';globalThis.harness={st,render,members,eligible,dominates,geometry};");
+code=code.replace("render();root.dataset.ready='true';","render();root.dataset.ready='true';globalThis.harness={st,render,members,eligible,dominates,geometry,colour};");
 const context={document:doc,window:{addEventListener(){}},console};vm.createContext(context);vm.runInContext(code,context);
 const h=context.harness,exp=payload.explorer,canonical=payload.expected||exp,rm=new Map(exp.rows.map(r=>[r.key,r]));let scenarios=0;
+for(const [config,token] of [
+ ['haiku-low','claude'],['sonnet-medium','sonnet'],['sol61-high','codex'],
+ ['sol56-high','codex-old'],['terra56-low','codex-old'],['terra/base','codex-old'],['grok47-low','grok'],
+ ['devin16slow-default','devin'],['hetzner-qwen36','hetzner'],['sol61-high+haiku-on-fail','pipeline']
+]){
+ const rows=exp.rows.filter(r=>r.config===config);assert(rows.length,config);
+ for(const r of rows)for(const facet of ['vendor','model'])assert.equal(h.colour(r,facet),`var(--data-${token})`,`${config}/${facet}`);
+}
 for(const width of [760,350]){element('ex-chart').clientWidth=width;
  for(const set of exp.sets){h.st.set=set.id;h.st.off.clear();
   for(const quota of [false,true]){h.st.quota=quota;

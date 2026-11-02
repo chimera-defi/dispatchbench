@@ -10,7 +10,14 @@ FONT = "font-family='Hanken Grotesk, -apple-system, Segoe UI, Helvetica, Arial, 
 INK, MUTED, GRID, PLATE = "var(--fg)", "var(--muted)", "var(--line)", "var(--panel)"
 HOST_AGENTS_MD = dataset.HOST_AGENTS_MD
 BADC, WARNC = "var(--bad)", "var(--warn)"
-FAMILY = lambda c: "var(--hetzner)" if c.startswith("hetzner") else "var(--grok)" if c.startswith("grok") else "var(--devin)" if c.startswith("devin") else "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex)"
+def FAMILY(c):
+    """One family token shared by charts, grids, chips and table swatches."""
+    if "+" in c or c.startswith("pipeline "): return "var(--pipeline)"
+    for prefix, token in (("hetzner", "hetzner"), ("grok", "grok"), ("devin", "devin"),
+                          ("haiku", "claude"), ("sonnet", "sonnet"),
+                          (("sol56", "luna56", "terra56", "terra/"), "codex56")):
+        if c.startswith(prefix): return f"var(--{token})"
+    return "var(--codex)"
 
 
 # Per-label vertical offsets so neighbouring points' labels do not collide.
@@ -308,7 +315,7 @@ def rung_chart(s, ds=None):
 
 
 def heatmap(s):
-    """Main-run configs first, then exploratory ones (muted headers, after a gap); a dash where a config did not run a problem."""
+    """Main-run configs first, then exploratory ones after a gap; family-coloured headers and dashes for unrun problems."""
     ex = {c: v for c, v in (s.get("exploratory") or {}).items() if c not in configs.CHART_HIDDEN}
     dv = {c: v for c, v in {**s.get("exploratory", {}), **s.get("hetzner", {})}.items() if c in configs.FREE_TIER_CONFIGS}  # 1 repeat: cells are 0 or 1 of 1
     cols = [(c, {p: v[c] for p, v in s["problems"].items()}, False) for c in s["configs"]] + [(c, v["by_problem"], True) for c, v in ex.items()] \
@@ -317,9 +324,9 @@ def heatmap(s):
     X = lambda j: L + j * cw + (gap if cols[j][2] else 0)
     W, H = X(len(cols) - 1) + cw + 20, T + ch * len(probs) + 40
     b = [text(12, 24, "Passes out of 5 per problem and config", 14, weight="600"),
-         text(12, 42, "Main ladder, p01–p12, rungs L1–L6 (2 per rung). Left: main run. Right, muted: exploratory configs; ⚡ = fast mode. Last columns: Devin and Hetzner, exploratory, 1 try per problem (0 or 1).", 11, fill=MUTED)]
+         text(12, 42, "Main ladder, p01–p12, rungs L1–L6 (2 per rung). Left: main run. Right, family colours: exploratory configs; ⚡ = fast mode. Last columns: Devin and Hetzner, exploratory, 1 try per problem (0 or 1).", 11, fill=MUTED)]
     for j, (c, _, x) in enumerate(cols):  # rotated headers so every config fits
-        b.append(text(X(j) + cw / 2 + 4, T - 8, DISP(c), 11, "start", FAMILY(c) if c in configs.HETZNER_CONFIGS else MUTED if x else INK, rotate=-55))
+        b.append(text(X(j) + cw / 2 + 4, T - 8, DISP(c), 11, "start", FAMILY(c), rotate=-55))
     for i, p in enumerate(probs):
         y = T + i * ch
         b.append(f"<g><title>{escape(TESTS.get(p, ''))}</title>" + text(L - 10, y + ch / 2 + 4, plabel(p, s["problems"][p]["rung"]), 11, "end", INK) + "</g>")
@@ -537,10 +544,18 @@ def explorer_cost_label(r):
 
 
 def explorer_colour(r, facet="vendor"):
-    key = (r["model_short"] if facet == "model" else r["effort"] if facet == "effort" else r["mode"] if facet == "mode" else
-           "codex-old" if r["family"] == "Codex" and r["generation"] == "5.6" else r["family"].lower())
-    if facet == "effort": key = "effort-" + key
+    if facet == "effort": key = "effort-" + r["effort"]
+    elif facet == "mode": key = r["mode"]
+    else:
+        key = ("pipeline" if r["mode"] == "pipeline" else
+               "sonnet" if r["model_short"] == "sonnet" else
+               "codex-old" if r["family"] == "Codex" and r["generation"] == "5.6" else r["family"].lower())
     return f"var(--data-{key})"
+
+
+def explorer_family_label(r):
+    return ("pipeline" if r["mode"] == "pipeline" else "Sonnet" if r["model_short"] == "sonnet" else
+            "Codex 5.6" if r["family"] == "Codex" and r["generation"] == "5.6" else r["family"])
 
 
 def explorer_marker(r, x, y, radius=6):

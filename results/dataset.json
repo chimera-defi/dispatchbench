@@ -35583,15 +35583,15 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "frontier_caption": {
-   "value": "luna-low is not a best trade-off: luna-medium costs the same, $0.0009 per pass. It passes 47/60 to luna-low's 46/60. Main ladder only; every point counts. Grok: black hexagons, all 12 problems, outside the best-trade-off line. grok47-medium (p01–p06 only) is not plotted.",
+   "value": "luna-low is not a best trade-off: luna-medium costs the same, $0.0009 per pass. It passes 47/60 to luna-low's 46/60. Main ladder only; every point counts. Grok: blue hexagons, all 12 problems, outside the best-trade-off line. grok47-medium (p01–p06 only) is not plotted.",
    "unit": "text",
-   "display": "luna-low is not a best trade-off: luna-medium costs the same, $0.0009 per pass. It passes 47/60 to luna-low's 46/60. Main ladder only; every point counts. Grok: black hexagons, all 12 problems, outside the best-trade-off line. grok47-medium (p01–p06 only) is not plotted.",
+   "display": "luna-low is not a best trade-off: luna-medium costs the same, $0.0009 per pass. It passes 47/60 to luna-low's 46/60. Main ladder only; every point counts. Grok: blue hexagons, all 12 problems, outside the best-trade-off line. grok47-medium (p01–p06 only) is not plotted.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "grok_chart_note": {
-   "value": "Grok: black hexagons, all 12 problems, outside the best-trade-off line. grok47-medium (p01–p06 only) is not plotted.",
+   "value": "Grok: blue hexagons, all 12 problems, outside the best-trade-off line. grok47-medium (p01–p06 only) is not plotted.",
    "unit": "text",
-   "display": "Grok: black hexagons, all 12 problems, outside the best-trade-off line. grok47-medium (p01–p06 only) is not plotted.",
+   "display": "Grok: blue hexagons, all 12 problems, outside the best-trade-off line. grok47-medium (p01–p06 only) is not plotted.",
    "source": "results/2026-10-26-grok-function.jsonl + results/2026-10-28-grok-spectrum-function.jsonl + results/2026-10-27-grok-agentic.jsonl"
   },
   "winner_caption": {
