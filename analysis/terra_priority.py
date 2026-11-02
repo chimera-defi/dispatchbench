@@ -9,6 +9,7 @@ RES = os.path.join(ROOT, "results")
 FAST_FN = "2026-11-02-terra-priority-function.jsonl"   # terra61-{low,high}-fast, repeats 1-5
 NOISE_FN = "2026-11-02-terra-noise-function.jsonl"     # terra61-{low,high} default tier, repeats 6-15
 FAST_AG = "2026-11-02-terra-priority-repo.jsonl"    # repo track: terra61-{low,high}-fast, sol61-high-fast
+L7_FAST_FN = "2026-11-02-terra-l7-fast-function.jsonl"
 FOLLOWUP_FN = "2026-11-02-terra-followup-function.jsonl"
 FOLLOWUP_AG = "2026-11-02-terra-followup-repo.jsonl"
 EARLIER_FN = ["2026-10-28-terra-function.jsonl", "2026-10-22b-function.jsonl"]
@@ -77,6 +78,7 @@ def page_summary():
             followup[label][c] = stats(rr)
     p, q = (followup["p04"][c] for c in ("terra61-low", "sol61-high"))
     return dict(pooled=pooled, standard=standard, fast=fast, followup=followup,
+                l7_fast=stats(rows(L7_FAST_FN)),
                 noise_interval=newcombe(a["k"], a["n"], b["k"], b["n"]),
                 p04_interval=newcombe(p["k"], p["n"], q["k"], q["n"]),
                 time_cuts=[100 * (1 - fast[c]["med"] / standard[c]["med"]) for c in arms],
@@ -180,6 +182,9 @@ def followup_tables():
            "|---|---|---|---|---|---|---|"]
     for c, rr in sets["L7"].items():
         out.append(fn_line(c, stats(rr)))
+    out += ["", "## Follow-up: L7 at priority tier (deviation 27)", "",
+            "| config | passes | pass rate (95% Wilson) | median s | slow-call s | $ per pass (list, ⚡ ×2) | infra errors |",
+            "|---|---|---|---|---|---|---|", fn_line("terra61-low ⚡", stats(rows(L7_FAST_FN)))]
     out += ["", "## 5. Follow-up: repo track, standard tier (exploratory, deviation 26)", "",
             "Terra t1–t4 repeats 1–5 against earlier default-tier sol61-high repeats 1–3. Cached hidden-suite verdicts; task complete requires visible and hidden passes.", "",
             "| config | task complete | hidden pass | median s | $ per complete task (list) | misses (task, repeat) |",

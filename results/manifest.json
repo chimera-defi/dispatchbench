@@ -221,13 +221,13 @@
   4
  ],
  "first_call_utc": "2026-10-22T08:32:54+00:00",
- "last_call_utc": "2026-11-02T00:35:15+00:00",
+ "last_call_utc": "2026-11-02T06:23:55+00:00",
  "rows_by_phase": {
   "calibration": 54,
   "escalation": 15,
   "exploratory": 826,
   "fastmode": 105,
-  "hard": 195,
+  "hard": 210,
   "main": 561,
   "warmup": 6
  },
@@ -237,10 +237,10 @@
   "claude_measured_usd": 2.4624,
   "claude_function_usd": 1.6128,
   "claude_agentic_usd": 0.8496,
-  "codex_proxy_usd": 39.0875,
+  "codex_proxy_usd": 39.2963,
   "codex_fastmode_usd": 3.4069,
   "calls": {
-   "function": 1762,
+   "function": 1777,
    "agentic": 84
   },
   "grok_measured_usd": 22.3741
@@ -272,6 +272,7 @@
   "results/2026-10-28-grok-spectrum-function.jsonl",
   "results/2026-10-28-terra-function.jsonl",
   "results/2026-11-01-hetzner-function.jsonl",
+  "results/2026-11-02-terra-l7-fast-function.jsonl",
   "results/2026-11-02-terra-priority-function.jsonl"
  ],
  "exploratory": {
