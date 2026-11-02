@@ -37,7 +37,8 @@ const money=v=>v==null?'unavailable':v===0?'$0':'$'+Number(v.toPrecision(2)).toL
 const pc=v=>(100*v).toFixed(1).replace(/\.0$/,'')+'%';
 const cost=r=>st.quota?r.quota_usd_per_pass:r.usd_per_pass;
 const costLabel=r=>({measured:'measured',proxy:'token-estimate',unmetered:'unmetered','free-tier':'free tier'})[r.cost_kind];
-function colour(r,facet=st.colorBy){let k=facet==='vendor'?(r.family==='Codex'&&r.generation==='5.6'?'codex-old':r.family.toLowerCase()):facet==='model'?r.model_short:facet==='effort'?'effort-'+r.effort:r.mode;return 'var(--data-'+k+')'}
+function familyLabel(r){return r.mode==='pipeline'?'pipeline':r.model_short==='sonnet'?'Sonnet':r.family==='Codex'&&r.generation==='5.6'?'Codex 5.6':r.family}
+function colour(r,facet=st.colorBy){const k=facet==='effort'?'effort-'+r.effort:facet==='mode'?r.mode:r.mode==='pipeline'?'pipeline':r.model_short==='sonnet'?'sonnet':r.family==='Codex'&&r.generation==='5.6'?'codex-old':r.family.toLowerCase();return 'var(--data-'+k+')'}
 const objs=()=>X.views[st.view].objectives;
 const val=(r,k)=>k==='cost'?cost(r):r[k];
 function eligible(r,view=st.view){return r.family!=='Hetzner'&&r.pass_rate>=Math.max(st.minPass,X.views[view].min_pass||0)&&X.views[view].objectives.every(([k])=>val(r,k)!=null&&(k!=='cost'||r.cost_kind!=='unmetered'))}
@@ -129,7 +130,7 @@ function render(rebuild=true,restoreFocus=true){const active=restoreFocus?docume
  const front=frontierRows(rows,mem);
  const chip=r=>'<button class="btn" data-key="'+esc(r.key)+'">'+esc(r.display)+' · '+costLabel(r)+'</button>';
  $('#ex-chips').innerHTML=front.map((r,i)=>'<li><b>'+(i+1)+'</b>'+chip(r)+'</li>').join('')||'<li>No eligible trade-offs. '+(rows.length?'Displayed costs: '+Array.from(new Set(rows.map(costLabel))).join(', ')+'.':'')+'</li>';
- const legend=new Map();rows.forEach(r=>{const label=st.colorBy==='vendor'?(r.family==='Codex'&&r.generation==='5.6'?'Codex 5.6':r.family):st.colorBy==='model'?r.model_short:r[st.colorBy];legend.set(label,colour(r))});
+ const legend=new Map();rows.forEach(r=>{const label=st.colorBy==='vendor'?familyLabel(r):st.colorBy==='model'?r.model_short+(r.mode==='pipeline'?' pipeline':r.family==='Codex'&&r.generation==='5.6'?' 5.6':''):r[st.colorBy];legend.set(label,colour(r))});
  $('#ex-legend').innerHTML=Array.from(legend,([label,c])=>'<span style="border-left:8px solid '+c+';padding-left:6px;">'+esc(label)+'</span>').join(' · ')+' · ring = best trade-off · solid = normal · hollow = fast · dashed edge = bare';
  if(rebuild)$('#ex-config-list').innerHTML=all.map(r=>'<button class="btn" data-config="'+esc(r.key)+'" aria-pressed="'+!st.off.has(r.key)+'">'+esc(r.display)+' · '+costLabel(r)+'</button>').join('');
  $$('[data-config]').forEach(b=>b.onclick=()=>{st.off.has(b.dataset.config)?st.off.delete(b.dataset.config):st.off.add(b.dataset.config);render()});

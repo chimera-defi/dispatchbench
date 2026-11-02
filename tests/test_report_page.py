@@ -86,6 +86,46 @@ def summary():
     return dataset.view(dataset.read())
 
 
+def test_composite_results_include_grok_with_actual_coverage_and_measurements(summary):
+    from analysis.landcheck import Tables
+    parser = Tables()
+    parser.feed(page.short_table(summary, dataset.need))
+    current = None
+    found = {}
+    for cells in parser.tables[0]['rows']:
+        if len(cells) == 1:
+            current = cells[0]['text']
+        elif cells[0]['text'] in configs.GROK_CONFIGS:
+            found[cells[0]['text']] = (current, [c['text'] for c in cells])
+    assert set(found) == set(configs.GROK_CONFIGS)
+    for config, (group, cells) in found.items():
+        value = summary['grok'][config]
+        assert len(cells) == 6
+        assert f"{value['passes']}/{value['n']}" in cells[1]
+        assert dataset.usd(value['usd_per_pass']) in cells[2]
+        assert cells[3] == dataset.usd(value['claude_usd_per_pass'])
+        assert cells[4] == f"{dataset.median_seconds(value):.1f}"
+        assert f"missed {value['n'] - value['passes']}" in cells[5]
+        if config == 'grok47-medium':
+            assert 'partial ladder (p01–p06)' in group and '2–5 repeats' in group
+        else:
+            assert 'main ladder (p01–p12)' in group and '5 repeats' in group
+            assert 'beaten' in cells[5]
+    assert '≥' in found['grok47-high'][1][2]
+
+
+def test_grok_results_do_not_invent_missing_cost_or_time(summary):
+    import copy
+    summary = copy.deepcopy(summary)
+    value = summary['grok']['grok47-low']
+    value['usd_per_pass'] = value['claude_usd_per_pass'] = None
+    value['latency_s']['median_raw'] = value['latency_s']['median'] = None
+    output = page.short_table(summary, dataset.need)
+    row = next(r for r in output.split('</tr>') if '>grok47-low</td>' in r)
+    assert row.count('no data') == 2 and 'not measured' in row
+    assert '$0' not in row
+
+
 def test_speed_whiskers_fit_axis_even_with_a_slower_config(summary, monkeypatch):
     summary = json.loads(json.dumps(summary))
     summary["exploratory"]["sol61-high"]["latency_s"]["p75"] *= 2
@@ -247,7 +287,7 @@ def test_rescue_labels_and_markers_are_clean(summary, render, free):
         assert bool(marker.get("stroke-dasharray")) == ("bare" in name)
         assert (marker.get("fill") == "var(--panel)") == ("-fast" in name)
         if point.get("data-cat") == "pipelines":
-            assert marker.get("stroke") == "var(--frontier)"
+            assert marker.get("stroke") == "var(--pipeline)"
         elif "-fast" not in name:
             assert marker.get("fill") == marker.get("stroke")
 
@@ -679,7 +719,9 @@ def test_winner_cells_have_one_content_element():
 def test_low_context_has_one_final_group_and_a_set_column(summary):
     body = page.short_table(summary, dataset.need)
     groups = re.findall(r'<tbody[^>]*>(.*?)</tbody>', body.split('</table>', 1)[0], re.S)
-    assert len(groups) == 3
+    assert len(groups) == 5
+    assert 'Grok · main ladder' in groups[1]
+    assert 'Grok · partial ladder' in groups[2]
     assert body.count('Low context (trimmed prompt):') == 1
     assert groups[-1].count('<tr') == 1  # one line, not one row per config
     assert 'luna-low-bare' in groups[-1] and 'luna-high-bare' in groups[-1]

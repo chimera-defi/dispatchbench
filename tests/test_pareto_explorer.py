@@ -142,7 +142,7 @@ def test_css_colours_live_only_in_swappable_token_block():
     rest=css.split('/* FABLE TOKENS END */',1)[1]+(ROOT/'docs/page/style.css').read_text()
     assert not re.search(r'#[0-9a-fA-F]{3,8}\b|\brgba?\(',rest)
     assert '--color-accent-300:#fec2c5' in css
-    assert '--data-grok:#8fc7c0' in css
+    assert '--data-grok:#1da1f2' in css and '--data-grok:#0074b0' in css
     assert ':root[data-theme="dark"]' in css and 'color-scheme:light dark' in css
 
 
