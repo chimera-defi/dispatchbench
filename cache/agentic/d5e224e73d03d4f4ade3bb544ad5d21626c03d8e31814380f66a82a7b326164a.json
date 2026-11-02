@@ -1,0 +1,1083 @@
+{
+ "key": "d5e224e73d03d4f4ade3bb544ad5d21626c03d8e31814380f66a82a7b326164a",
+ "ts": "2026-11-02T01:07:49+00:00",
+ "track": "agentic",
+ "grader_version": 2,
+ "config": "sol61-high-fast",
+ "cli": "codex",
+ "cli_version": "0.164.0",
+ "model": "gpt-6.1-sol",
+ "effort": "high",
+ "task": "t3_config_refs",
+ "repeat": 3,
+ "lanes": 4,
+ "wall_s": 54.05764843604993,
+ "in_tok": 159152,
+ "cached_tok": 150912,
+ "cache_write_tok": 0,
+ "out_tok": 4331,
+ "reasoning_tok": 842,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)",
+ "turns": 1,
+ "tool_calls": {
+  "command_execution": 10,
+  "file_change": 1
+ },
+ "is_error": false,
+ "error": null,
+ "error_type": null,
+ "delegate_calls": 0,
+ "visible_pass": true,
+ "visible": {
+  "ok": true,
+  "passed": 45,
+  "failed": 0,
+  "tail": "45 passed in 1.18s",
+  "collected_ids": [
+   "tests/test_parser.py::test_sections_and_keys",
+   "tests/test_parser.py::test_duplicate_key_reports_line",
+   "tests/test_refs.py::test_same_section_forward_and_nested_references",
+   "tests/test_refs.py::test_cross_section_references_use_target_section_for_nested_references",
+   "tests/test_refs.py::test_last_dot_separates_section_and_key",
+   "tests/test_refs.py::test_unnamed_section_references",
+   "tests/test_refs.py::test_value_scanning[-]",
+   "tests/test_refs.py::test_value_scanning[plain text-plain text]",
+   "tests/test_refs.py::test_value_scanning[$$-$]",
+   "tests/test_refs.py::test_value_scanning[$$$$-$$]",
+   "tests/test_refs.py::test_value_scanning[$${missing}-${missing}]",
+   "tests/test_refs.py::test_value_scanning[$$${key}$$-$value$]",
+   "tests/test_refs.py::test_value_scanning[before ${empty} after-before  after]",
+   "tests/test_refs.py::test_value_scanning[${key}${key}-valuevalue]",
+   "tests/test_refs.py::test_resolved_dollars_are_not_interpreted_again",
+   "tests/test_refs.py::test_unknown_reference_preserves_name[hostt]",
+   "tests/test_refs.py::test_unknown_reference_preserves_name[db.hostt]",
+   "tests/test_refs.py::test_unknown_reference_preserves_name[missing.host]",
+   "tests/test_refs.py::test_unknown_reference_preserves_name[a.b.c]",
+   "tests/test_refs.py::test_unknown_reference_preserves_name[.missing]",
+   "tests/test_refs.py::test_unknown_reference_preserves_name[]",
+   "tests/test_refs.py::test_unknown_reference_preserves_name[ db.host ]",
+   "tests/test_refs.py::test_invalid_reference_syntax[$]",
+   "tests/test_refs.py::test_invalid_reference_syntax[$x]",
+   "tests/test_refs.py::test_invalid_reference_syntax[price $5]",
+   "tests/test_refs.py::test_invalid_reference_syntax[$$$]",
+   "tests/test_refs.py::test_invalid_reference_syntax[${]",
+   "tests/test_refs.py::test_invalid_reference_syntax[text ${key]",
+   "tests/test_refs.py::test_invalid_reference_syntax[${key}$]",
+   "tests/test_refs.py::test_nested_errors_report_outermost_definition_line[${missing}]",
+   "tests/test_refs.py::test_nested_errors_report_outermost_definition_line[$bad]",
+   "tests/test_refs.py::test_nested_errors_report_outermost_definition_line[${unterminated]",
+   "tests/test_refs.py::test_cycles[[a]\\nx = ${x}\\n-a.x -> a.x-2]",
+   "tests/test_refs.py::test_cycles[[a]\\nx = ${y}\\ny = ${x}\\n-a.x -> a.y -> a.x-2]",
+   "tests/test_refs.py::test_cycles[x = ${y}\\ny = ${x}\\n-.x -> .y -> .x-1]",
+   "tests/test_refs.py::test_cycles[[a]\\nouter = ${b.x}\\n[b]\\nx = ${y}\\ny = ${x}\\n-b.x -> b.y -> b.x-2]",
+   "tests/test_refs.py::test_cycles[[a]\\nx = ${b.y}\\n[b]\\ny = ${a.x}\\n-a.x -> b.y -> a.x-2]",
+   "tests/test_refs.py::test_cycles[x = ${a.b.y}\\n[a.b]\\ny = ${.x}\\n-.x -> a.b.y -> .x-1]",
+   "tests/test_refs.py::test_resolution_follows_file_order_across_reopened_sections",
+   "tests/test_refs.py::test_resolution_follows_file_order_across_unnamed_section",
+   "tests/test_refs.py::test_references_are_resolved_from_left_to_right",
+   "tests/test_refs.py::test_left_reference_error_precedes_later_syntax_error",
+   "tests/test_refs.py::test_parse_keeps_raw_values",
+   "tests/test_refs.py::test_parse_errors_precede_resolution_errors",
+   "tests/test_refs.py::test_empty_sections_and_values_are_preserved"
+  ],
+  "reports": [
+   {
+    "id": "tests/test_parser.py::test_sections_and_keys",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_parser.py::test_sections_and_keys",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_parser.py::test_sections_and_keys",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_parser.py::test_duplicate_key_reports_line",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_parser.py::test_duplicate_key_reports_line",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_parser.py::test_duplicate_key_reports_line",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_same_section_forward_and_nested_references",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_same_section_forward_and_nested_references",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_same_section_forward_and_nested_references",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cross_section_references_use_target_section_for_nested_references",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cross_section_references_use_target_section_for_nested_references",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cross_section_references_use_target_section_for_nested_references",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_last_dot_separates_section_and_key",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_last_dot_separates_section_and_key",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_last_dot_separates_section_and_key",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unnamed_section_references",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unnamed_section_references",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unnamed_section_references",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[-]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[-]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[-]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[plain text-plain text]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[plain text-plain text]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[plain text-plain text]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[$$-$]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[$$-$]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[$$-$]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[$$$$-$$]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[$$$$-$$]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[$$$$-$$]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[$${missing}-${missing}]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[$${missing}-${missing}]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[$${missing}-${missing}]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[$$${key}$$-$value$]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[$$${key}$$-$value$]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[$$${key}$$-$value$]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[before ${empty} after-before  after]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[before ${empty} after-before  after]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[before ${empty} after-before  after]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[${key}${key}-valuevalue]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[${key}${key}-valuevalue]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_value_scanning[${key}${key}-valuevalue]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_resolved_dollars_are_not_interpreted_again",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_resolved_dollars_are_not_interpreted_again",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_resolved_dollars_are_not_interpreted_again",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[hostt]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[hostt]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[hostt]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[db.hostt]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[db.hostt]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[db.hostt]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[missing.host]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[missing.host]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[missing.host]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[a.b.c]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[a.b.c]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[a.b.c]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[.missing]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[.missing]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[.missing]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[ db.host ]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[ db.host ]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_unknown_reference_preserves_name[ db.host ]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[$]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[$]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[$]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[$x]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[$x]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[$x]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[price $5]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[price $5]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[price $5]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[$$$]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[$$$]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[$$$]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[${]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[${]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[${]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[text ${key]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[text ${key]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[text ${key]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[${key}$]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[${key}$]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_invalid_reference_syntax[${key}$]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_nested_errors_report_outermost_definition_line[${missing}]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_nested_errors_report_outermost_definition_line[${missing}]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_nested_errors_report_outermost_definition_line[${missing}]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_nested_errors_report_outermost_definition_line[$bad]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_nested_errors_report_outermost_definition_line[$bad]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_nested_errors_report_outermost_definition_line[$bad]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_nested_errors_report_outermost_definition_line[${unterminated]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_nested_errors_report_outermost_definition_line[${unterminated]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_nested_errors_report_outermost_definition_line[${unterminated]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[[a]\\nx = ${x}\\n-a.x -> a.x-2]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[[a]\\nx = ${x}\\n-a.x -> a.x-2]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[[a]\\nx = ${x}\\n-a.x -> a.x-2]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[[a]\\nx = ${y}\\ny = ${x}\\n-a.x -> a.y -> a.x-2]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[[a]\\nx = ${y}\\ny = ${x}\\n-a.x -> a.y -> a.x-2]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[[a]\\nx = ${y}\\ny = ${x}\\n-a.x -> a.y -> a.x-2]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[x = ${y}\\ny = ${x}\\n-.x -> .y -> .x-1]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[x = ${y}\\ny = ${x}\\n-.x -> .y -> .x-1]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[x = ${y}\\ny = ${x}\\n-.x -> .y -> .x-1]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[[a]\\nouter = ${b.x}\\n[b]\\nx = ${y}\\ny = ${x}\\n-b.x -> b.y -> b.x-2]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[[a]\\nouter = ${b.x}\\n[b]\\nx = ${y}\\ny = ${x}\\n-b.x -> b.y -> b.x-2]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[[a]\\nouter = ${b.x}\\n[b]\\nx = ${y}\\ny = ${x}\\n-b.x -> b.y -> b.x-2]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[[a]\\nx = ${b.y}\\n[b]\\ny = ${a.x}\\n-a.x -> b.y -> a.x-2]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[[a]\\nx = ${b.y}\\n[b]\\ny = ${a.x}\\n-a.x -> b.y -> a.x-2]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[[a]\\nx = ${b.y}\\n[b]\\ny = ${a.x}\\n-a.x -> b.y -> a.x-2]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[x = ${a.b.y}\\n[a.b]\\ny = ${.x}\\n-.x -> a.b.y -> .x-1]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[x = ${a.b.y}\\n[a.b]\\ny = ${.x}\\n-.x -> a.b.y -> .x-1]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_cycles[x = ${a.b.y}\\n[a.b]\\ny = ${.x}\\n-.x -> a.b.y -> .x-1]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_resolution_follows_file_order_across_reopened_sections",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_resolution_follows_file_order_across_reopened_sections",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_resolution_follows_file_order_across_reopened_sections",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_resolution_follows_file_order_across_unnamed_section",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_resolution_follows_file_order_across_unnamed_section",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_resolution_follows_file_order_across_unnamed_section",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_references_are_resolved_from_left_to_right",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_references_are_resolved_from_left_to_right",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_references_are_resolved_from_left_to_right",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_left_reference_error_precedes_later_syntax_error",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_left_reference_error_precedes_later_syntax_error",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_left_reference_error_precedes_later_syntax_error",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_parse_keeps_raw_values",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_parse_keeps_raw_values",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_parse_keeps_raw_values",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_parse_errors_precede_resolution_errors",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_parse_errors_precede_resolution_errors",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_parse_errors_precede_resolution_errors",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_empty_sections_and_values_are_preserved",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_empty_sections_and_values_are_preserved",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_refs.py::test_empty_sections_and_values_are_preserved",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   }
+  ],
+  "deselected": []
+ },
+ "hidden_pass": true,
+ "hidden": {
+  "ok": true,
+  "passed": 8,
+  "failed": 0,
+  "tail": "8 passed in 1.07s",
+  "collected_ids": [
+   "test_hidden.py::test_resolution",
+   "test_hidden.py::test_unknown_reference_message_and_line",
+   "test_hidden.py::test_cycle_message_exact",
+   "test_hidden.py::test_self_cycle_and_unnamed_section",
+   "test_hidden.py::test_bad_dollar[x = a$b\\n]",
+   "test_hidden.py::test_bad_dollar[x = ${y\\ny = 1\\n]",
+   "test_hidden.py::test_bad_dollar[x = $\\n]",
+   "test_hidden.py::test_parser_unchanged"
+  ],
+  "reports": [
+   {
+    "id": "test_hidden.py::test_resolution",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_resolution",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_resolution",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_unknown_reference_message_and_line",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_unknown_reference_message_and_line",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_unknown_reference_message_and_line",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_cycle_message_exact",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_cycle_message_exact",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_cycle_message_exact",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_self_cycle_and_unnamed_section",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_self_cycle_and_unnamed_section",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_self_cycle_and_unnamed_section",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_dollar[x = a$b\\n]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_dollar[x = a$b\\n]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_dollar[x = a$b\\n]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_dollar[x = ${y\\ny = 1\\n]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_dollar[x = ${y\\ny = 1\\n]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_dollar[x = ${y\\ny = 1\\n]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_dollar[x = $\\n]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_dollar[x = $\\n]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bad_dollar[x = $\\n]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_parser_unchanged",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_parser_unchanged",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_parser_unchanged",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   }
+  ],
+  "deselected": [],
+  "expected_ids": [
+   "test_hidden.py::test_resolution",
+   "test_hidden.py::test_unknown_reference_message_and_line",
+   "test_hidden.py::test_cycle_message_exact",
+   "test_hidden.py::test_self_cycle_and_unnamed_section",
+   "test_hidden.py::test_bad_dollar[x = a$b\\n]",
+   "test_hidden.py::test_bad_dollar[x = ${y\\ny = 1\\n]",
+   "test_hidden.py::test_bad_dollar[x = $\\n]",
+   "test_hidden.py::test_parser_unchanged"
+  ],
+  "expected_collection": {
+   "ok": true,
+   "tail": "8 tests collected in 1.07s"
+  }
+ },
+ "task_complete": true,
+ "own_tests": true,
+ "tests_tampered": [],
+ "diff_stat": " 13 files changed, 265 insertions(+), 3 deletions(-)",
+ "patch": "cache/agentic_patches/d5e224e73d03d4f4ade3bb544ad5d21626c03d8e31814380f66a82a7b326164a.patch",
+ "retry_count": 0,
+ "codex_home": "isolated"
+}

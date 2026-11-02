@@ -47,3 +47,4 @@ Path | what | produced by | read by. Cache (`cache/`, 15 MB) holds raw call tran
 Each move needs its readers rewritten, then `make report`, `python3 -m analysis.audit`, `python3 -m pytest -q tests`.
 
 summary.json is gone: the summary is computed in memory and folded into dataset.json. Add a config to `analysis/configs.py` when a new run lands; audit enforces it.
+- `2026-11-02-terra-priority-function.jsonl`, `2026-11-02-terra-noise-function.jsonl`, `2026-11-02-terra-priority-repo.jsonl` gpt-6.1-terra priority tier, noise check, repo track (PLAN.md deviation 25) | bench runners | analysis/terra_priority.py (appendix only; not in the page)

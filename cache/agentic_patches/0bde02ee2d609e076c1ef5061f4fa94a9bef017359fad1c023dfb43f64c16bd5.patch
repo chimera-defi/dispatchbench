@@ -1,0 +1,217 @@
+diff --git a/.pytest_cache/.gitignore b/.pytest_cache/.gitignore
+new file mode 100644
+index 0000000..bc1a1f6
+--- /dev/null
++++ b/.pytest_cache/.gitignore
+@@ -0,0 +1,2 @@
++# Created by pytest automatically.
++*
+diff --git a/.pytest_cache/CACHEDIR.TAG b/.pytest_cache/CACHEDIR.TAG
+new file mode 100644
+index 0000000..fce15ad
+--- /dev/null
++++ b/.pytest_cache/CACHEDIR.TAG
+@@ -0,0 +1,4 @@
++Signature: 8a477f597d28d172789f06886806bc55
++# This file is a cache directory tag created by pytest.
++# For information about cache directory tags, see:
++#	https://bford.info/cachedir/spec.html
+diff --git a/.pytest_cache/README.md b/.pytest_cache/README.md
+new file mode 100644
+index 0000000..b89018c
+--- /dev/null
++++ b/.pytest_cache/README.md
+@@ -0,0 +1,8 @@
++# pytest cache directory #
++
++This directory contains data from the pytest's cache plugin,
++which provides the `--lf` and `--ff` options, as well as the `cache` fixture.
++
++**Do not** commit this to version control.
++
++See [the docs](https://docs.pytest.org/en/stable/how-to/cache.html) for more information.
+diff --git a/.pytest_cache/v/cache/nodeids b/.pytest_cache/v/cache/nodeids
+new file mode 100644
+index 0000000..b84db35
+--- /dev/null
++++ b/.pytest_cache/v/cache/nodeids
+@@ -0,0 +1,15 @@
++[
++  "tests/test_parser.py::test_duplicate_key_reports_line",
++  "tests/test_parser.py::test_sections_and_keys",
++  "tests/test_refs.py::test_cycle_chain_starts_at_first_repeated_key",
++  "tests/test_refs.py::test_cycle_selection_uses_file_order_and_reference_order",
++  "tests/test_refs.py::test_invalid_reference_syntax_has_outer_line[$x]",
++  "tests/test_refs.py::test_invalid_reference_syntax_has_outer_line[${unfinished]",
++  "tests/test_refs.py::test_invalid_reference_syntax_has_outer_line[end$]",
++  "tests/test_refs.py::test_missing_reference_preserves_name_and_outer_line[.absent]",
++  "tests/test_refs.py::test_missing_reference_preserves_name_and_outer_line[a.b.c]",
++  "tests/test_refs.py::test_missing_reference_preserves_name_and_outer_line[db.hostt]",
++  "tests/test_refs.py::test_missing_reference_preserves_name_and_outer_line[missing]",
++  "tests/test_refs.py::test_references_escapes_and_nested_values",
++  "tests/test_refs.py::test_unnamed_section_cycle"
++]
+\ No newline at end of file
+diff --git a/cfg/loader.py b/cfg/loader.py
+index acd880f..dbe8ae7 100644
+--- a/cfg/loader.py
++++ b/cfg/loader.py
+@@ -1,9 +1,64 @@
+-from .parser import parse
++from .errors import ConfigError
++from .parser import _parse
+ 
+ 
+ def load(text: str) -> dict[str, dict[str, str]]:
+     """Parse config text and return the resolved values."""
+-    return parse(text)
++    config, lines, order = _parse(text)
++    resolved: dict[tuple[str, str], str] = {}
++    active: list[tuple[str, str]] = []
++    positions: dict[tuple[str, str], int] = {}
++
++    def resolve(name: tuple[str, str]) -> str:
++        if name in resolved:
++            return resolved[name]
++        if name in positions:
++            cycle = active[positions[name]:] + [name]
++            chain = " -> ".join(f"{section}.{key}" for section, key in cycle)
++            raise ConfigError(f"reference cycle: {chain}")
++
++        positions[name] = len(active)
++        active.append(name)
++        section, key = name
++        value = config[section][key]
++        parts: list[str] = []
++        i = 0
++        while i < len(value):
++            if value[i] != "$":
++                parts.append(value[i])
++                i += 1
++            elif value.startswith("$$", i):
++                parts.append("$")
++                i += 2
++            elif value.startswith("${", i):
++                end = value.find("}", i + 2)
++                if end == -1:
++                    raise ConfigError("unterminated reference")
++                reference = value[i + 2:end]
++                if "." in reference:
++                    target_section, _, target_key = reference.rpartition(".")
++                else:
++                    target_section, target_key = section, reference
++                if target_section not in config or target_key not in config[target_section]:
++                    raise ConfigError(f"unknown reference: {reference}")
++                parts.append(resolve((target_section, target_key)))
++                i = end + 1
++            else:
++                raise ConfigError("invalid dollar sign")
++        active.pop()
++        del positions[name]
++        resolved[name] = "".join(parts)
++        return resolved[name]
++
++    for name in order:
++        try:
++            resolve(name)
++        except ConfigError as error:
++            error.line = lines[name]
++            raise
++    for (section, key), value in resolved.items():
++        config[section][key] = value
++    return config
+ 
+ 
+ def get(config: dict[str, dict[str, str]], dotted: str) -> str:
+diff --git a/cfg/parser.py b/cfg/parser.py
+index d024ec6..51a28ee 100644
+--- a/cfg/parser.py
++++ b/cfg/parser.py
+@@ -8,7 +8,15 @@ def parse(text: str) -> dict[str, dict[str, str]]:
+     Blank lines and lines starting with `#` are ignored. Entries before the first section go into "".
+     A repeated key in the same section is an error.
+     """
++    out, _, _ = _parse(text)
++    return out
++
++
++def _parse(text: str):
++    """Parse values along with their definition lines and file order."""
+     out: dict[str, dict[str, str]] = {"": {}}
++    lines: dict[tuple[str, str], int] = {}
++    order: list[tuple[str, str]] = []
+     section = ""
+     for n, raw in enumerate(text.splitlines(), 1):
+         line = raw.strip()
+@@ -28,4 +36,6 @@ def parse(text: str) -> dict[str, dict[str, str]]:
+         if key in out[section]:
+             raise ConfigError(f"duplicate key {key!r}", n)
+         out[section][key] = value
+-    return out
++        lines[section, key] = n
++        order.append((section, key))
++    return out, lines, order
+diff --git a/tests/test_refs.py b/tests/test_refs.py
+new file mode 100644
+index 0000000..a4832d1
+--- /dev/null
++++ b/tests/test_refs.py
+@@ -0,0 +1,58 @@
++import pytest
++
++from cfg.errors import ConfigError
++from cfg.loader import load
++from cfg.parser import parse
++
++
++def test_references_escapes_and_nested_values():
++    text = """root = world
++[a.b]
++name = ${.root}
++greeting = Hello ${name}! $$${other} $${name}
++other = ${last}
++last = done
++[a]
++value = ${a.b.greeting}
++"""
++    config = load(text)
++    assert config['a']['value'] == 'Hello world! $done ${name}'
++    assert parse(text)['a.b']['name'] == '${.root}'
++
++
++@pytest.mark.parametrize('reference', ['missing', 'db.hostt', '.absent', 'a.b.c'])
++def test_missing_reference_preserves_name_and_outer_line(reference):
++    text = '[a]\nfirst = ${second}\nsecond = ${' + reference + '}\n'
++    with pytest.raises(ConfigError) as exc:
++        load(text)
++    assert f'unknown reference: {reference}' in str(exc.value)
++    assert exc.value.line == 2
++
++
++@pytest.mark.parametrize('value', ['${unfinished', '$x', 'end$'])
++def test_invalid_reference_syntax_has_outer_line(value):
++    with pytest.raises(ConfigError) as exc:
++        load('first = ${second}\nsecond = ' + value + '\n')
++    assert exc.value.line == 1
++
++
++def test_cycle_chain_starts_at_first_repeated_key():
++    with pytest.raises(ConfigError) as exc:
++        load('[a]\nstart = ${x}\nx = ${y}\ny = ${x}\n')
++    assert str(exc.value) == 'reference cycle: a.x -> a.y -> a.x'
++    assert exc.value.line == 2
++
++
++def test_cycle_selection_uses_file_order_and_reference_order():
++    text = '[a]\none = ok\n[b]\nfirst = ${second} ${first}\nsecond = ${first}\n[a]\nlater = ${later}\n'
++    with pytest.raises(ConfigError) as exc:
++        load(text)
++    assert str(exc.value) == 'reference cycle: b.first -> b.second -> b.first'
++    assert exc.value.line == 4
++
++
++def test_unnamed_section_cycle():
++    with pytest.raises(ConfigError) as exc:
++        load('x = ${y}\ny = ${.x}\n')
++    assert str(exc.value) == 'reference cycle: .x -> .y -> .x'
++    assert exc.value.line == 1

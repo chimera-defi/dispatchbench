@@ -1,0 +1,159 @@
+diff --git a/cfg/loader.py b/cfg/loader.py
+index acd880f..c40b3de 100644
+--- a/cfg/loader.py
++++ b/cfg/loader.py
+@@ -1,9 +1,61 @@
+-from .parser import parse
++from .errors import ConfigError
++from .parser import _parse_with_locations
+ 
+ 
+ def load(text: str) -> dict[str, dict[str, str]]:
+     """Parse config text and return the resolved values."""
+-    return parse(text)
++    config, locations, order = _parse_with_locations(text)
++    resolved: dict[tuple[str, str], str] = {}
++    stack: list[tuple[str, str]] = []
++    active: dict[tuple[str, str], int] = {}
++
++    def resolve(name: tuple[str, str]) -> str:
++        if name in resolved:
++            return resolved[name]
++        if name in active:
++            cycle = stack[active[name]:] + [name]
++            raise ConfigError("reference cycle: " + " -> ".join(f"{s}.{k}" for s, k in cycle))
++        active[name] = len(stack)
++        stack.append(name)
++        section, key = name
++        value = config[section][key]
++        parts = []
++        i = 0
++        while i < len(value):
++            if value[i] != "$":
++                parts.append(value[i])
++                i += 1
++            elif value.startswith("$$", i):
++                parts.append("$")
++                i += 2
++            elif value.startswith("${", i):
++                end = value.find("}", i + 2)
++                if end == -1:
++                    raise ConfigError("unterminated reference")
++                ref = value[i + 2:end]
++                if "." in ref:
++                    ref_section, _, ref_key = ref.rpartition(".")
++                else:
++                    ref_section, ref_key = section, ref
++                if ref_section not in config or ref_key not in config[ref_section]:
++                    raise ConfigError(f"unknown reference: {ref}")
++                parts.append(resolve((ref_section, ref_key)))
++                i = end + 1
++            else:
++                raise ConfigError("invalid dollar sign")
++        stack.pop()
++        del active[name]
++        resolved[name] = "".join(parts)
++        return resolved[name]
++
++    for name in order:
++        try:
++            resolve(name)
++        except ConfigError as exc:
++            exc.line = locations[name]
++            raise
++    return {section: {key: resolved[(section, key)] for key in values}
++            for section, values in config.items()}
+ 
+ 
+ def get(config: dict[str, dict[str, str]], dotted: str) -> str:
+diff --git a/cfg/parser.py b/cfg/parser.py
+index d024ec6..fe57e2d 100644
+--- a/cfg/parser.py
++++ b/cfg/parser.py
+@@ -8,7 +8,13 @@ def parse(text: str) -> dict[str, dict[str, str]]:
+     Blank lines and lines starting with `#` are ignored. Entries before the first section go into "".
+     A repeated key in the same section is an error.
+     """
++    return _parse_with_locations(text)[0]
++
++
++def _parse_with_locations(text: str):
+     out: dict[str, dict[str, str]] = {"": {}}
++    locations = {}
++    order = []
+     section = ""
+     for n, raw in enumerate(text.splitlines(), 1):
+         line = raw.strip()
+@@ -28,4 +34,6 @@ def parse(text: str) -> dict[str, dict[str, str]]:
+         if key in out[section]:
+             raise ConfigError(f"duplicate key {key!r}", n)
+         out[section][key] = value
+-    return out
++        locations[(section, key)] = n
++        order.append((section, key))
++    return out, locations, order
+diff --git a/tests/test_refs.py b/tests/test_refs.py
+new file mode 100644
+index 0000000..0afc35c
+--- /dev/null
++++ b/tests/test_refs.py
+@@ -0,0 +1,59 @@
++import pytest
++
++from cfg.errors import ConfigError
++from cfg.loader import load
++from cfg.parser import parse
++
++
++def test_references_and_escaping():
++    text = """root = world
++[a.b]
++x = ${y}, ${.root}! $$${y} $${y}
++y = ${z}
++z = hello
++[other]
++v = ${a.b.x}
++"""
++    config = load(text)
++    assert config["a.b"]["x"] == "hello, world! $hello ${y}"
++    assert config["other"]["v"] == config["a.b"]["x"]
++    assert parse(text)["a.b"]["y"] == "${z}"
++
++
++@pytest.mark.parametrize("reference", ["missing", "db.hostt", ".missing"])
++def test_missing_reference_reports_original_name_and_outer_line(reference):
++    text = f"[a]\nfirst = ${{second}}\nsecond = ${{{reference}}}\n"
++    with pytest.raises(ConfigError) as exc:
++        load(text)
++    assert str(exc.value) == f"unknown reference: {reference}"
++    assert exc.value.line == 2
++
++
++def test_cycle_reports_first_repeated_key_and_outer_line():
++    text = "[a]\nouter = ${x}\nx = ${y}\ny = ${x}\n"
++    with pytest.raises(ConfigError) as exc:
++        load(text)
++    assert str(exc.value) == "reference cycle: a.x -> a.y -> a.x"
++    assert exc.value.line == 2
++
++
++def test_file_order_and_left_to_right_choose_first_cycle():
++    text = "[a]\nfirst = ${z}${x}\nx = ${x}\nz = ${z}\n"
++    with pytest.raises(ConfigError) as exc:
++        load(text)
++    assert str(exc.value) == "reference cycle: a.z -> a.z"
++    assert exc.value.line == 2
++
++
++@pytest.mark.parametrize("value", ["$", "$x", "${missing"])
++def test_invalid_dollar_and_unterminated_reference(value):
++    with pytest.raises(ConfigError) as exc:
++        load(f"[a]\nx = ${{y}}\ny = {value}\n")
++    assert exc.value.line == 2
++
++
++def test_unnamed_section_cycle():
++    with pytest.raises(ConfigError) as exc:
++        load("x = ${y}\ny = ${.x}\n")
++    assert str(exc.value) == "reference cycle: .x -> .y -> .x"
++    assert exc.value.line == 1

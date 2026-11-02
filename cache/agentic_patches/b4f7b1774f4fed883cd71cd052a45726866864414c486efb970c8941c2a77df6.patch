@@ -1,0 +1,212 @@
+diff --git a/kvcache/__pycache__/__init__.cpython-312.pyc b/kvcache/__pycache__/__init__.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..a48732f2651901242350fa32513d4c52bb8eab50
+GIT binary patch
+literal 140
+zcmX@j%ge<81Q%~S&jQhpK?FMZ%mNgd&QQsq$>_I|p@<2{`wUX^OIyDrw?IF)C`mUl
+zJvFaH*TC4KD!wW{TR*!jIWajSRX;vHGcU6wK3=b&@)w6qZhlH>PO4oID^M>Z5Ep|O
+NADI~$8H<>KEC6q@AZh>r
+
+literal 0
+HcmV?d00001
+
+diff --git a/kvcache/__pycache__/cache.cpython-312.pyc b/kvcache/__pycache__/cache.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..8562c3253aceeeecc1d56b8a847c5c1937c86cc2
+GIT binary patch
+literal 3541
+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
+Sf1nrs-IL<Ze1)K6X8!}<8omht
+
+literal 0
+HcmV?d00001
+
+diff --git a/kvcache/__pycache__/clock.cpython-312.pyc b/kvcache/__pycache__/clock.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..3332ad225284ed1dd0c64c2f56d22fd331f8a5df
+GIT binary patch
+literal 948
+zcmZvbF>ljA6vyA$PV9!3&{l!~9W1esp-CkcgesOw?L-%tvYd?XLenI6d*`%Glz|~b
+zL4vZSBWuJ*Vd_@AG9b1<kdQj@-o;G|;v~QOzk7b~e)rD)ys%IJ9B1d>c1sN4D>;|L
+z$;70DVh9#&fq(%B_Q{$?YS6XHc6j+d&9j^*=nO$ZjR~k(g4Jv>CoJjIEnyFGwVZH_
+z&JCPeUgV`C9O2d-;i2z#-EtwF+YFj=qZNnE-ukm3>IAJ;*AK)&5QS3sAqD(;to%gk
+zL|6P5jkfd~+HXYu;ZEF=zLsGe30+C;C_W4`VuMQB#%Ho*82hXb+yuyUVZ^paOwmEg
+zR_bWksvAdBn(tpctS0TfYFoWr4PMD8SzUYdxW{|ES#2JKLAWEU2CcH!O+C&VQ6u5J
+zw=_FT<#LVc>p3*9;e7e_vGdNGpaW@M$)uyA5HDjkNE_gLD2C97-C5{LJO`CWPq}Ey
+zOnEqIO7s=&LNFn=@L!ne8s+F4Xb`5jd~)>W=(woJPu;AI+kbVCU<^<N1pytg{~`5R
+zZvh~*u6Oquq-7vg5o=`4ouazgE%z3$+LkTR$Et6kK~Qi0#Cz*~*gEs>zxNDnnSI9)
+zls!6a6tpGhX@T>0EIKXH^PKPFca%k3&P5#JvfYRhMU~Y}GK*+NU<w)@MJF|e+Nsyj
+z4B(5i`NLtkJEt2Hz-gRkxzgza(k0R>r+SQf<zw=TrfD&%vyE3{>d`-Swa10GKBauB
+X?qa}fM12|CjIrNVfvx-mG$!E>BlpNy
+
+literal 0
+HcmV?d00001
+
+diff --git a/kvcache/__pycache__/stats.cpython-312.pyc b/kvcache/__pycache__/stats.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..6b016b92aac0e9316eb4649a8b7cb9ce0ff177a4
+GIT binary patch
+literal 851
+zcmZ{i!D|yi6vp4o?xwqqZKBn--da?2g*IXpJQOb$MT!+HUiLDq*=d`0v#B%FVnT&L
+zE5ws}N<Dd1`looY^b!XI!Gm~<L=bxN&1RdPoWr-@Z{Ey%^JeGs$jC6@IPCmfFA#tq
+z22O^Pncgg#HbfAS7^);71URAa03x~vk##`(>khKz0j=A<^UIJ=v=@acEXSdg<t(0l
+ztPFZj(6oU=Kq3g}Q>+nK+~!V1=P`nmOUcS;C?z{1Hzg;f9QRgeG_+?2!*$p9w6m;2
+zC51Vhw%003>Rh!VC70Uc+m*7a)Do%l{KaNPgnh^fuC_!{#(NkHv)!Dv7ofCZ2i6Cn
+zQ-ibF9h}YqG!R~r9U=<<*+m+8fMx7)8GO35da~E2B8OfKq4-qWlE*9BQ8g9D(v+E+
+zI=)s?)y+~>Jevtud7@@+%-w0Q2HPlYY?s6G8ZSxH`|M_2yVyCy26<yNy^q-w#?m0K
+zqcovYJm2=-dHV|=7T+%(7O%FPub2IndQ*R0-@koWnEK-0{3ua+xEhxHymlE&!YXG>
+z4>MM+MO(4)XBd0F6~_HY+Jd$!iP8ne!X&}tr?<>l+L&-Lm+(-uvl7=rB?{<2fhd~!
+zQ6uL0rDCIzw@_Ze_u|>+LhI7*qt3ap=Ka>a-N&5^<IRUHd1Q}wCMKJUZ^w@8$*xVE
+zx&14D06+bNCfAa0>HOd|aw*Jz?N^yFZczEyo$ohwS6sw^c@A<KrE3vFzQJ@i2Q>ee
+Qx@4{kC_M}Dx4|^UKR!^v6aWAK
+
+literal 0
+HcmV?d00001
+
+diff --git a/kvcache/cache.py b/kvcache/cache.py
+index be3061f..a095dc2 100644
+--- a/kvcache/cache.py
++++ b/kvcache/cache.py
+@@ -23,19 +23,30 @@ class TTLCache:
+             self.stats.misses += 1
+             return default
+         value, expires_at = self._data[key]
+-        self.stats.hits += 1
+-        if self.clock() > expires_at:
++        if self.clock() >= expires_at:
+             del self._data[key]
+             self.stats.expirations += 1
++            self.stats.misses += 1
+             return default
++        self.stats.hits += 1
+         self._data.move_to_end(key)
+         return value
+ 
+     def put(self, key, value) -> None:
+-        self._data[key] = (value, self.clock() + self.ttl)
++        now = self.clock()
++        self._expire(now)
++        self._data[key] = (value, now + self.ttl)
++        self._data.move_to_end(key)
+         if len(self._data) > self.capacity:
+             self._data.popitem(last=False)
+             self.stats.evictions += 1
+ 
++    def _expire(self, now) -> None:
++        expired = [key for key, (_, expires_at) in self._data.items() if now >= expires_at]
++        for key in expired:
++            del self._data[key]
++        self.stats.expirations += len(expired)
++
+     def __len__(self) -> int:
++        self._expire(self.clock())
+         return len(self._data)
+diff --git a/tests/test_regressions.py b/tests/test_regressions.py
+new file mode 100644
+index 0000000..c4e3469
+--- /dev/null
++++ b/tests/test_regressions.py
+@@ -0,0 +1,67 @@
++from kvcache.cache import TTLCache
++from kvcache.clock import FakeClock
++
++
++def test_expiration_boundary_is_a_miss():
++    clock = FakeClock()
++    cache = TTLCache(2, 10, clock)
++    cache.put("a", 1)
++    clock.advance(9)
++    assert cache.get("a") == 1
++    clock.advance(1)
++    assert cache.get("a", "missing") == "missing"
++    assert (cache.stats.hits, cache.stats.misses, cache.stats.expirations) == (1, 1, 1)
++    assert cache.get("a") is None
++    assert (cache.stats.misses, cache.stats.expirations) == (2, 1)
++
++
++def test_overwrite_updates_recency():
++    cache = TTLCache(2, 10, FakeClock())
++    cache.put("a", 1)
++    cache.put("b", 2)
++    cache.put("a", 3)
++    cache.put("c", 4)
++    assert cache.get("a") == 3
++    assert cache.get("b") is None
++    assert cache.get("c") == 4
++    assert cache.stats.evictions == 1
++
++
++def test_expired_most_recent_entry_does_not_evict_live_entry():
++    clock = FakeClock()
++    cache = TTLCache(2, 10, clock)
++    cache.put("old", 1)
++    clock.advance(5)
++    cache.put("live", 2)
++    assert cache.get("old") == 1  # Expired entry will be most recently used.
++    clock.advance(5)
++    cache.put("new", 3)
++    assert cache.get("live") == 2
++    assert cache.get("new") == 3
++    assert cache.stats.expirations == 1
++    assert cache.stats.evictions == 0
++
++
++def test_len_removes_only_expired_entries_and_counts_them_once():
++    clock = FakeClock()
++    cache = TTLCache(3, 10, clock)
++    cache.put("old", 1)
++    clock.advance(5)
++    cache.put("live", 2)
++    clock.advance(5)
++    assert len(cache) == 1
++    assert len(cache) == 1
++    assert cache.stats.expirations == 1
++    assert cache.stats.evictions == 0
++    assert cache.get("live") == 2
++
++
++def test_overwriting_expired_entry_counts_expiration():
++    clock = FakeClock()
++    cache = TTLCache(1, 10, clock)
++    cache.put("a", 1)
++    clock.advance(10)
++    cache.put("a", 2)
++    assert cache.get("a") == 2
++    assert cache.stats.expirations == 1
++    assert cache.stats.evictions == 0
