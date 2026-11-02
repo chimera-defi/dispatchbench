@@ -455,6 +455,7 @@
 <li>sol61-low fell from {{fast_sol_def}} s to {{fast_sol_fast}} s.</li>
 <li>luna-low {{fast_luna_change}}.</li>
 <li>This pilot supplies the only fast-mode data at low effort.</li>
+<li>Since then, terra61-low ⚡ (main ladder and L7) also gives low-effort fast-mode data; see Terra61 at priority tier.</li>
 </ul></li>
 <li><b>Original repair run: we lost its prompt but reran committed code.</b><ul>
 <li>The original luna-low → Haiku-fixes-all run passed {{r_luna_low_haiku_low_repair_k}}.</li>

@@ -1250,7 +1250,12 @@ def winner_table(ds, need):
     need(faster["passes"] == faster["n"] == 60 and faster["median_s"] < default["median_s"]
          and 3 < default["usd_per_pass"] / faster["usd_per_pass"] < 4,
          "fastest no-miss main-ladder config is faster and about three times cheaper than Default")
+    astra = ladder("astra-medium-fast")
+    quota = astra["usd_per_pass"] / default["usd_per_pass"]
+    need(astra["passes"] == astra["n"] and astra["median_s"] < default["median_s"] and quota > 2,
+         "astra-medium ⚡ is faster but burns much more Codex quota")
     why = {"default": (f"No misses. $0 on the Claude bill (spends Codex quota). ⚡ saves {plain['median_s'] - default['median_s']:.0f} s. "
+                       f"astra ⚡ is faster but uses {quota:.0f}× the quota. "
                        f"{F['fastest_nomiss']} is faster ({F['fastest_nomiss_med']} s) and ~{F['terra_fast_cheaper']} cheaper; {F['terra_low_l7_miss']} L7 miss per tier, {F['terra_low_l7_clause']}"),
            "budget": F["budget_why"], "speed": F["speed_why"]}
     choices = [(use.title(), ladder(c), why[use]) for c, use in WINNER_PICKS.items()]
