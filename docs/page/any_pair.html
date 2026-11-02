@@ -1,12 +1,22 @@
 <p class="sub">Pick any two measures. Ring: nothing beats it on both. Tap a point.</p>
+<figure id="xfig">
+<p id="speed-vs-per-pass" class="ctl pair-presets" role="group" aria-label="Chart preset">
+<button type="button" id="pair-custom-preset" aria-pressed="true" aria-controls="pair-custom">Any two measures</button>
+<button type="button" id="pair-speed-preset" aria-pressed="false" aria-controls="pair-speed">Speed vs $ per pass</button>
+__SPEED_LINK__
+</p>
+<div id="pair-speed" class="chart" hidden>__SPEED_COST__</div>
+<div id="pair-custom">
 <div class="ctl">
 <label>x <select id="pair-ex"></select></label> <label><input type="checkbox" id="pair-lx"> log</label>
 <label>y <select id="pair-ey"></select></label> <label><input type="checkbox" id="pair-ly"> log</label>
 <label>frontier over <select id="pair-fl">__FLOOR_OPTIONS__</select></label>
 </div>
 <div class="ctl" id="pair-cf"></div>
-<figure id="xfig"><div id="xplot"></div><div id="pair-tip" hidden></div>
-<figcaption>Hollow = exploratory config. Codex $ is a proxy.</figcaption></figure>
+<div id="xplot"></div><div id="pair-tip" hidden></div>
+</div>
+<figcaption id="pair-caption">Hollow = exploratory config. Codex $ is a proxy.</figcaption>
+</figure>
 <script>
 (function(){
 var X=JSON.parse(document.getElementById("data").textContent).any_pair,D=X.points;
@@ -73,5 +83,17 @@ function draw(){try{localStorage.setItem("dispatchbench-any-pair",JSON.stringify
   c.onmouseenter=show;c.onclick=show;c.onfocus=function(){if(!quiet)show()};c.onblur=hide;c.onmouseleave=function(){if(document.activeElement!==c)hide()};
   c.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();show()}else if(e.key==="Escape"){e.preventDefault();hide()}}})
  var f=fi!=null&&fi!==false&&box.querySelector('[data-i="'+fi+'"]');if(f){quiet=true;f.focus({preventScroll:true});quiet=false;if(open)f.onclick()}}
+var customPreset=document.getElementById("pair-custom-preset"),speedPreset=document.getElementById("pair-speed-preset");
+function selectPreset(value){
+ var speed=value==="speed";
+ customPreset.setAttribute("aria-pressed",String(!speed));speedPreset.setAttribute("aria-pressed",String(speed));
+ document.getElementById("pair-custom").hidden=speed;
+ document.getElementById("pair-speed").hidden=!speed;
+ document.getElementById("pair-caption").hidden=speed;
+ document.getElementById("pair-tip").hidden=true;
+ if(!speed)draw()
+}
+document.getElementById("xfig").selectPreset=selectPreset;
+customPreset.onclick=function(){selectPreset("custom")};speedPreset.onclick=function(){selectPreset("speed")};
 var rt,lw=0,bx=document.getElementById("xplot");function re(){var w=bx.clientWidth;if(w!==lw){lw=w;clearTimeout(rt);rt=setTimeout(draw,60)}}if(window.ResizeObserver)new ResizeObserver(re).observe(bx);window.addEventListener("resize",re);draw()})();
 </script>

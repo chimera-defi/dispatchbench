@@ -33,3 +33,21 @@ def test_static_pareto_labels_do_not_overlap():
 def test_overlap_detector_catches_a_pileup():
     svg = "<text x='10.0' y='20.0' font-size='11' text-anchor='start' style='fill:x' font-weight='normal'>aaaa (100%)</text>" * 2
     assert overlaps(boxes(svg))
+
+
+def test_interactive_scatter_labels_do_not_overlap_per_chart():
+    """Every interactive scatter in page.html: label boxes (x, y, len * char width) within one svg and one category view."""
+    html = (ROOT / "results/report/page.html").read_text()
+    bad, seen = [], 0
+    for svg in re.findall(r"<svg.*?</svg>", html, re.S):
+        labs = re.findall(r'<text x="([\d.-]+)" y="([\d.-]+)" text-anchor="(\w+)" class="lbl[^"]*" data-cat="(\w+)" data-set="(\w+)">([^<]*)</text>', svg)
+        if not labs: continue
+        seen += 1
+        bs = []
+        for x, y, a, cat, st, txt in labs:
+            w = len(unescape(txt)) * 5.5  # the 11px chart label face; the placer reserves 11px per char
+            left = float(x) - w if a == "end" else float(x) - w / 2 if a == "middle" else float(x)
+            bs.append((f"{cat}:{unescape(txt)}", left, float(y) - 11, left + w, float(y) + 3))
+        bad += overlaps(bs)
+    assert seen >= 4
+    assert bad == []
