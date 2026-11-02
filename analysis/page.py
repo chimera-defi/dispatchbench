@@ -756,6 +756,10 @@ def any_pair(s):
     src = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "page", "any_pair.html")
     options = '<option value="0">all shown</option>' + "".join(f'<option value="{f}">pass rate ≥ {round(100 * f)}%</option>' for f in s["design"]["explorer"]["floors"])
     body = open(src).read().replace("__FLOOR_OPTIONS__", options)
+    # Reuse the historical speed chart, including server-rendered main/rescue and list/free variants.
+    speed, _ = speed_cost(s)
+    link = heading_link("speed-vs-per-pass", "Speed vs $ per pass")
+    body = body.replace("__SPEED_COST__", speed).replace("__SPEED_LINK__", link)
     body = body.replace("frontier over", "best trade-offs over")
     older = s["exploratory"]["sol56-high"]["model"].split("-")[1]
     body = body.replace("Hollow = exploratory config. Codex $ is a proxy.",

@@ -30,6 +30,12 @@ def test_visible_charts_and_any_pair_explorer():
     p = Visibility(); p.feed((ROOT / 'results/report/page.html').read_text())
     assert p.charts == 1
     assert p.any_pair
+    html = (ROOT / 'results/report/page.html').read_text()
+    assert '<button type="button" id="pair-speed-preset" aria-pressed="false" aria-controls="pair-speed">Speed vs $ per pass</button>' in html
+    assert '<div id="pair-speed" class="chart" hidden>' in html
+    # Native navigation to an already-selected hash must target the whole control row,
+    # even when the link itself wraps onto another line on phones.
+    assert '<p id="speed-vs-per-pass" class="ctl pair-presets"' in html
 
 
 
@@ -48,3 +54,17 @@ def test_restored_any_pair_script_and_projection():
         config = page.every(s)[row['c']]
         assert row['inp'] == config['tokens_mean']['in_tok']
         assert row['rsn'] == config['tokens_mean']['reasoning_tok']
+
+
+def test_speed_chart_x_tick_labels_are_sparse():
+    page = (ROOT / 'results/report/page.html').read_text()
+    charts = [ET.fromstring(svg) for svg in re.findall(r'<svg\b.*?</svg>', page, re.S)
+              if 'against median seconds per call' in svg.split('>', 1)[0]]
+    assert len(charts) == 4  # main/rescue sets, each with list/free pricing
+    for chart in charts:
+        ticks = [t for t in chart.findall('{http://www.w3.org/2000/svg}text')
+                 if 'x-tick' in t.get('class', '').split()
+                 and re.fullmatch(r'\d+ s', t.text or '')]
+        assert 2 <= len(ticks) <= 8, [t.text for t in ticks]
+        xs = [float(t.get('x')) for t in ticks]
+        assert all(b - a >= 40 for a, b in zip(xs, xs[1:])), xs

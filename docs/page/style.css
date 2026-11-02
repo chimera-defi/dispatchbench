@@ -482,3 +482,10 @@ figure{margin:8px 0 12px}
  h2{font-size:20px}
  .chart{padding:8px 4px}
 }
+
+/* The historical speed chart is a preset of the same figure. */
+.pair-presets>.hlink{opacity:1}
+.pair-presets button{font:inherit;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:4px 8px;cursor:pointer}
+.pair-presets button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pair-presets button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+#pair-custom[hidden],#pair-speed[hidden],#pair-caption[hidden]{display:none}

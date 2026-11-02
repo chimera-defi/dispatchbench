@@ -3,7 +3,7 @@ const fs=require('fs'),vm=require('vm'),assert=require('assert');
 const payload=JSON.parse(fs.readFileSync(0,'utf8'));
 class Element {
  constructor(){this.innerHTML='';this.clientWidth=760;this.options=[];this.firstChild={};}
- add(option){this.options.push(option)} appendChild(){} contains(){return false} querySelector(){return null} querySelectorAll(){return []}
+ setAttribute(name,value){this[name]=value} add(option){this.options.push(option)} appendChild(){} contains(){return false} querySelector(){return null} querySelectorAll(){return []}
 }
 const elements=new Map();const el=id=>{if(!elements.has(id))elements.set(id,new Element());return elements.get(id)};
 const document={getElementById:id=>id==='data'?{textContent:JSON.stringify({any_pair:payload.data})}:el(id),
@@ -29,6 +29,15 @@ for(const width of [390,1280])for(const x of Object.keys(h.M))for(const y of Obj
   assert(attrs['aria-label'].includes(h.D[+attrs['data-i']].d.replaceAll('&','&amp;').replaceAll('"','&quot;')));
  }
 }
+// Presets share the figure and preserve the custom axes when switched back.
+const customAxes=JSON.stringify(h.st);
+el('xfig').selectPreset('speed');
+assert.equal(el('pair-speed-preset')['aria-pressed'],'true');assert.equal(el('pair-custom-preset')['aria-pressed'],'false');assert.equal(el('pair-speed').hidden,false);
+assert.equal(el('pair-custom').hidden,true);assert.equal(el('pair-caption').hidden,true);
+el('pair-custom-preset').onclick();
+assert.equal(el('pair-speed-preset')['aria-pressed'],'false');assert.equal(el('pair-custom-preset')['aria-pressed'],'true');
+assert.equal(el('pair-speed').hidden,true);assert.equal(el('pair-custom').hidden,false);
+assert.equal(el('pair-caption').hidden,false);assert.equal(JSON.stringify(h.st),customAxes);
 h.D.forEach(row=>h.st.off[row.c]=true);h.draw();assert(el('xplot').innerHTML.includes('No configs selected.'));
 assert(!Object.keys(context).some(key=>['X','D','st','draw'].includes(key)),'legacy variables must remain local');
 console.log(`${scenarios} any-pair axis/width/log scenarios; empty selection and namespace checks pass`);
