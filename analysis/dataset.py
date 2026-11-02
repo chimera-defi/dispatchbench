@@ -401,6 +401,10 @@ def terra_priority_facts():
     miss = l7["terra61-low"]["n"] - l7["terra61-low"]["k"]
     need(miss == 1 and all(l7[c]["k"] == l7[c]["n"] == 15 for c in ("terra61-high", "sol61-high")),
          "Terra low has one L7 miss; high and Sol have none")
+    from analysis.terra_priority import rows, L7_FAST_FN, followup_sets
+    fast_l7 = t["l7_fast"]
+    misses = {r["problem"] for r in rows(L7_FAST_FN) + followup_sets()["L7"]["terra61-low"] if not r["passed"]}
+    need((fast_l7["k"], fast_l7["n"]) == (14, 15) and misses == {"p15_paint_erase"}, "Terra low misses p15 on L7 at both tiers")
     need(all(v["k"] == v["n"] == (12 if c == "sol61-high" else 20) for c, v in repo.items()),
          "both Terra arms and the earlier Sol repo comparison pass every task")
     plo, phi = t["p04_interval"]
@@ -413,10 +417,10 @@ def terra_priority_facts():
     line = lambda group: "; ".join(f"{c} {counts(v)}, {v['med']:.1f} s" for c, v in group.items())
     return dict(
         terra_noise_caveat=f"low/high gap is noise at n={low['n']}",
-        terra_low_l7_miss=str(miss), terra_fast_cheaper=f"{cheaper:.0f}×",
+        terra_low_l7_miss=str(miss), terra_low_l7_clause="both p15", terra_fast_cheaper=f"{cheaper:.0f}×",
         terra_priority_noise=f"Low {counts(low)} vs high {counts(high)}; interval {100 * lo:+.1f} to {100 * hi:+.1f} points: no effort wins on pass rate.",
         terra_priority_speed=f"⚡ leaves observed accuracy unchanged and cuts median function wall time by {cuts}%.",
-        terra_priority_l7="L7, standard tier: " + line(l7) + ". No Terra ⚡ L7 run.",
+        terra_priority_l7="L7, standard tier: " + line(l7) + f". L7, ⚡: terra61-low {counts(fast_l7)}, {fast_l7['med']:.1f} s. Both terra61-low L7 misses (one per tier) are p15.",
         terra_priority_repo="Repo tasks, standard tier: " + line(repo) + ". Times are indicative on a loaded host.",
         terra_priority_p04=f"p04 weak spot not established: low {counts(p04['terra61-low'])} vs Sol {counts(p04['sol61-high'])}; interval {100 * plo:+.1f} to {100 * phi:+.1f} points.",
         terra_priority_cost=f"Low ⚡ cost per pass is about {cheaper:.0f}× lower than sol61-high ⚡ (list price, priority multiplier included).")

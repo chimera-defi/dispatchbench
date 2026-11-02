@@ -60,10 +60,11 @@ def selected_rows(rows, tracks, cell_fields, item_fields):
 def function_rows():
     # Clean-home replacements apply only to repo tasks.
     from bench import problems
-    return [row for name in SOURCES["main"] for row in _sourced(os.path.join(RES, name))
-            if name != "2026-11-02-terra-priority-function.jsonl"
+    return [dict(row, phase="hard") if name == "2026-11-02-terra-l7-fast-function.jsonl" else row
+            for name in SOURCES["main"] for row in _sourced(os.path.join(RES, name))
+            if name not in ("2026-11-02-terra-priority-function.jsonl", "2026-11-02-terra-l7-fast-function.jsonl")
             or (row["config"] in ("terra61-low-fast", "terra61-high-fast")
-                and row["problem"] in problems.MAIN and row["repeat"] in range(1, 6))]
+                and row["problem"] in (problems.HARD if name == "2026-11-02-terra-l7-fast-function.jsonl" else problems.MAIN) and row["repeat"] in range(1, 6))]
 
 
 def agentic_rows():

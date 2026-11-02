@@ -33,6 +33,7 @@ Blank lines, malformed JSON and non-object values are skipped when deriving date
 | 2026-11-01-hetzner-function | 2026-11-01 | hetzner | 24 | `231925ef239ae51a98856c11cc2200e57d3bf1fcf346853775aa09f614de9a1a` | [results/2026-11-01-hetzner-function.jsonl](../results/2026-11-01-hetzner-function.jsonl) |
 | 2026-11-02-terra-followup-function | 2026-11-02 | codex | 90 | `7b8e45d8635afbb7ad4ee2cb5c016d055992bee5511d2169c0a7d763e5c6cf79` | [results/2026-11-02-terra-followup-function.jsonl](../results/2026-11-02-terra-followup-function.jsonl) |
 | 2026-11-02-terra-followup-repo | 2026-11-02 | codex | 40 | `ca0ea05e9453693e7cddf01f4a520324711edfb221a4b3f4c1f7331989742133` | [results/2026-11-02-terra-followup-repo.jsonl](../results/2026-11-02-terra-followup-repo.jsonl) |
+| 2026-11-02-terra-l7-fast-function | 2026-11-02 | codex | 15 | `97f5737568104dab3252736749a4167c5f4803bb28cef0b5792a48c4729eb041` | [results/2026-11-02-terra-l7-fast-function.jsonl](../results/2026-11-02-terra-l7-fast-function.jsonl) |
 | 2026-11-02-terra-noise-function | 2026-11-02 | codex | 240 | `2df1ee779e47f4c92ffb544f32eee22d3217d7c6d718290168b7ef93dea87494` | [results/2026-11-02-terra-noise-function.jsonl](../results/2026-11-02-terra-noise-function.jsonl) |
 | 2026-11-02-terra-priority-function | 2026-11-02 | codex | 120 | `26b34e699143a46c1896037c2c1c1c2f5ecada15bbafa4c978add063969161cf` | [results/2026-11-02-terra-priority-function.jsonl](../results/2026-11-02-terra-priority-function.jsonl) |
 | 2026-11-02-terra-priority-repo | 2026-11-02 | codex | 60 | `d2b14b09f7a9185a3d5e4924339dc3932f06c7b29a3b442e918b5f1ab91cdae0` | [results/2026-11-02-terra-priority-repo.jsonl](../results/2026-11-02-terra-priority-repo.jsonl) |
@@ -75,7 +76,7 @@ Their hashes hold only for the commit you read. Regenerate this index after rebu
 
 | File | SHA-256 |
 |---|---|
-| [results/manifest.json](../results/manifest.json) | `6006fa4adb29a4ec4011f9d5ddc3f82619917d75a57f171e513d42f26442174f` |
+| [results/manifest.json](../results/manifest.json) | `ee19e586c216de779c2188c7c30dcacb304bbf331808c944a97f9a4b4e1ab948` |
 | [results/prices.json](../results/prices.json) | `f215215ae059ffe9eaaa7d907fe844246d72fa2af96ee242793f290d0514992c` |
 | [results/agentic_tests.json](../results/agentic_tests.json) | `bbf0dda405ca67a8da3139325b59fdd780073888359b54382adb739bddada3b5` |
 | [results/quality.jsonl](../results/quality.jsonl) | `67a5f24651a2366f5f37ead0250d9eb59131ab37c76c85e533b5e76eec8ea747` |
@@ -86,9 +87,9 @@ Their hashes hold only for the commit you read. Regenerate this index after rebu
 
 | Folder | Holds | Files | Aggregate SHA-256 |
 |---|---|---:|---|
-| [cache/calls/](../cache/calls/) | Function completions, usage and call metadata | 2218 | `a4c149f641f222b2bdd8b1dedec22df2f950d99976a981eae49e54b4fca99756` |
+| [cache/calls/](../cache/calls/) | Function completions, usage and call metadata | 2233 | `408d596dfe66fa264ad59220fbf443ad0d02a5e432208a23c088080f35d2b86e` |
 | [cache/agentic/](../cache/agentic/) | Repo-task verdicts, usage and test summaries | 200 | `e4ad31fced45248e77300c44f5f08ac4abf52dac9b4edd787534cfab052502db` |
-| [cache/grades/](../cache/grades/) | Function verdicts and timing fractions | 2042 | `4a3bc042a0a052377ad0e72e0eba4952f691bc863e96fc66f2def74634493f18` |
+| [cache/grades/](../cache/grades/) | Function verdicts and timing fractions | 2057 | `70725cd5bfd37b7e84632b0d18d288158444db3093746a7847e34bc1dfe454f4` |
 | [cache/gated_repair/](../cache/gated_repair/) | Builds, visible-test gates and repair completions | 227 | `1d93ce9b6ddcef8778891e78cbc95ea05d64f7f352c4272a53ef4a1de24afa9f` |
 | [cache/plan_first/](../cache/plan_first/) | Planner and builder completions | 105 | `b1a47b100de26699a3b2eafc7bc10f1659f5541d386fdcb363a369b91564f05a` |
 | [cache/trim/](../cache/trim/) | Harness-trim probe completions and usage | 69 | `9e333cf6e3ac1c367167fd8e3ba6d83cf751e1833e488854d6332b270a8a07aa` |
