@@ -24,7 +24,7 @@ Fast-mode $ use the published multiplier (results/prices.json). Main ladder = p0
 | astra-medium | 60/60 | $0.075 | 20.92 | 15/15 | $0.083 | 30.63 |
 | astra-medium ⚡ | 60/60 | $0.15 | 9.9 | 15/15 | $0.16 | 15.44 |
 | terra61-low | 60/60 | $0.010 | 10.34 | not run | – | – |
-| terra61-low ⚡ | 60/60 | $0.011 | 5.97 | not run | – | – |
+| terra61-low ⚡ | 60/60 | $0.011 | 5.97 | 14/15 | $0.015 | 7.1 |
 | terra61-high | 58/60 | $0.0079 | 11.93 | not run | – | – |
 | terra61-high ⚡ | 58/60 | $0.012 | 6.89 | not run | – | – |
 
@@ -385,6 +385,7 @@ Not pre-registered (PLAN.md, deviation 16), so it is reported apart from L1–L6
 | sol61-high ⚡ | 100% (15/15) | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | pass 15 | 29.45 | 36.23 | 1015 | $0.044 | $0.044 | proxy |
 | sol61-medium | 100% (15/15) | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | pass 15 | 35.22 | 48.53 | 482 | $0.017 | $0.017 | proxy |
 | sonnet-medium | 100% (15/15) | ≥37% (all passed) | 5/5 | 5/5 | 5/5 | pass 15 | 14.97 | 22.64 | 806 | $0.018 | $0.018 | measured |
+| terra61-low ⚡ | 93% (14/15) | 73%–100% | 5/5 | 5/5 | 4/5 | pass 14, wrong 1 | 7.1 | 9.07 | 77 | $0.014 | $0.015 | proxy |
 | haiku-medium | 87% (13/15) | 67%–100% | 5/5 | 4/5 | 4/5 | crash 1, pass 13, timeout 1 | 21.24 | 26.44 | 2916 | $0.0026 | $0.0030 | measured |
 | sol56-high | 87% (13/15) | 53%–100% | 5/5 | 3/5 | 5/5 | crash 2, pass 13 | 41.01 | 54.78 | 1435 | $0.059 | $0.069 | proxy |
 | haiku-low | 80% (12/15) | 40%–100% | 5/5 | 5/5 | 2/5 | pass 12, timeout 3 | 16.5 | 20.4 | 2506 | $0.0018 | $0.0023 | measured |
@@ -407,9 +408,9 @@ Every problem on which at least one config failed at least once, over all phases
 | p10 avoid_count (L5) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 4/5 (1w) | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 | 5/5 | 5/5 |
 | p11 best_average (L6) | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 2/5 (3w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 2/5 (1c 2w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 0/1 (1w) | 5/5 | 5/5 | 5/5 | 5/5 |
 | p12 sheet (L6) | 4/5 (1c) | 5/5 | 5/5 | 0/5 (4c 1w) | 0/5 (4c 1w) | 3/5 (2c) | 5/5 | 5/5 | 5/5 | 3/5 (2c) | 0/5 (4c 1w) | 3/5 (2c) | 1/5 (3c 1w) | 5/5 | 5/5 | 5/5 | 1/1 | 0/1 (1t) | 5/5 | 5/5 | 5/5 | 5/5 |
-| p13 xor_ring (L7) | 5/5 | 5/5 | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 4/5 (1c) | 3/5 (2w) | 5/5 | 5/5 | 5/5 | – | – | – | – | – | – |
-| p14 bounce_board (L7) | 5/5 | 4/5 (1c) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 2/5 (3c) | 2/5 (3c) | 3/5 (2c) | 5/5 | 5/5 | – | – | – | – | – | – |
-| p15 paint_erase (L7) | 2/5 (3t) | 4/5 (1t) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 3/5 (2w) | 3/5 (2w) | 5/5 | 5/5 | 5/5 | – | – | – | – | – | – |
+| p13 xor_ring (L7) | 5/5 | 5/5 | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 4/5 (1c) | 3/5 (2w) | 5/5 | 5/5 | 5/5 | – | – | – | – | – | 5/5 |
+| p14 bounce_board (L7) | 5/5 | 4/5 (1c) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 2/5 (3c) | 2/5 (3c) | 3/5 (2c) | 5/5 | 5/5 | – | – | – | – | – | 5/5 |
+| p15 paint_erase (L7) | 2/5 (3t) | 4/5 (1t) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 3/5 (2w) | 3/5 (2w) | 5/5 | 5/5 | 5/5 | – | – | – | – | – | 4/5 (1w) |
 
 ## Agentic track (headline: task complete)
 
@@ -526,5 +527,5 @@ The pilot's Codex ladder records only the levels that were actually tested. Ever
 Auxiliary runs and pilot excluded from the function + agentic totals.
 
 - Claude CLI-reported cost (list basis), function + agentic only: $2.46 (function $1.61, agentic $0.85).
-- Codex token-price estimate, function + agentic only: $39.09.
+- Codex token-price estimate, function + agentic only: $39.30.
 - Pilot repricing: 92 priority rows; 90 newly at 2× (2 already multiplied). Those Codex rows cost $3.73 at the pilot's 1.5× and $4.97 at the published 2×.

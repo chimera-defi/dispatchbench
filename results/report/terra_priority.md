@@ -45,6 +45,12 @@ Terra p13–p15 repeats 1–5 against existing sol61-high L7 repeats 1–5. Func
 | terra61-high | 15/15 | 100.0% (79.6%–100.0%) | 11.7 | 13.5 | $0.0059 | 0 |
 | sol61-high | 15/15 | 100.0% (79.6%–100.0%) | 52.7 | 76.9 | $0.024 | 0 |
 
+## Follow-up: L7 at priority tier (deviation 27)
+
+| config | passes | pass rate (95% Wilson) | median s | slow-call s | $ per pass (list, ⚡ ×2) | infra errors |
+|---|---|---|---|---|---|---|
+| terra61-low ⚡ | 14/15 | 93.3% (70.2%–98.8%) | 7.1 | 8.0 | $0.015 | 0 |
+
 ## 5. Follow-up: repo track, standard tier (exploratory, deviation 26)
 
 Terra t1–t4 repeats 1–5 against earlier default-tier sol61-high repeats 1–3. Cached hidden-suite verdicts; task complete requires visible and hidden passes.
