@@ -1,6 +1,6 @@
-"""Appendix: gpt-6.1-terra at the priority tier, the repo track, and the standard-tier noise check (exploratory, PLAN.md deviation 25).
+"""Appendix: gpt-6.1-terra priority, noise check and follow-up (exploratory, PLAN.md deviations 25–26).
 
-Reads results/2026-11-02-terra-priority-*.jsonl plus the earlier Terra and Sol rows. No model calls.
+Reads results/2026-11-02-terra-*.jsonl plus the earlier Terra and Sol rows. No model calls.
 Prints markdown. Run: python3 -m analysis.terra_priority"""
 import json, math, os, statistics
 from analysis.summarize import cost, ROOT, money as usd, load
@@ -9,6 +9,8 @@ RES = os.path.join(ROOT, "results")
 FAST_FN = "2026-11-02-terra-priority-function.jsonl"   # terra61-{low,high}-fast, repeats 1-5
 NOISE_FN = "2026-11-02-terra-noise-function.jsonl"     # terra61-{low,high} default tier, repeats 6-15
 FAST_AG = "2026-11-02-terra-priority-repo.jsonl"    # repo track: terra61-{low,high}-fast, sol61-high-fast
+FOLLOWUP_FN = "2026-11-02-terra-followup-function.jsonl"
+FOLLOWUP_AG = "2026-11-02-terra-followup-repo.jsonl"
 EARLIER_FN = ["2026-10-28-terra-function.jsonl", "2026-10-22b-function.jsonl"]
 Z = 1.959964
 
@@ -91,7 +93,7 @@ def function_tables():
         out.append(f"| {c} | {s['med']:.1f} | {s['p90']:.1f} | {usd(s['usd_pass'])} |")
     fails = [(r["config"], r["problem"], r["repeat"], r["outcome"]) for r in old + noise + fast
              if r["config"].startswith("terra61") and not r["passed"] and r["problem"][:3] in {f"p{i:02d}" for i in range(1, 13)}]
-    out += ["", "Every terra61 main-ladder miss (config, problem, repeat, outcome): " + ("; ".join(map(str, sorted(fails))) or "none") + "."]
+    out += ["", "Every terra61 main-ladder miss in the deviation-25 comparison sets (config, problem, repeat, outcome): " + ("; ".join(map(str, sorted(fails))) or "none") + "."]
     return out
 
 
@@ -117,5 +119,78 @@ def PR(r):
     return json.load(open(os.path.join(RES, "prices.json")))["models"][r["model"]]
 
 
+def standard_rows(rs, config, field, items):
+    """Pool distinct standard-tier calls, including Sol's phase=fastmode control.
+
+    Phase names do not identify service tier: sol61-high repeats 6–10 are
+    standard-tier controls; sol61-high-fast is the separate priority arm.
+    """
+    return list({r["key"]: r for r in rs if r["config"] == config
+                 and r[field] in items and r.get("service_tier", "default") == "default"}.values())
+
+
+def followup_sets():
+    from bench import problems
+    fn = [r for f in EARLIER_FN + [NOISE_FN, FOLLOWUP_FN] for r in rows(f)]
+    ag = rows("2026-10-22b-agentic.jsonl") + rows(FOLLOWUP_AG)
+    sets = {}
+    for label, source, field, items in (("L7", fn, "problem", problems.HARD),
+                                        ("repo", ag, "task", {"t1_discount", "t2_cache_bugs", "t3_config_refs", "t4_retry_queue"}),
+                                        ("p04", fn, "problem", {"p04_taller_within"})):
+        sets[label] = {}
+        for c in ("terra61-low", "terra61-high", "sol61-high"):
+            rr = standard_rows(source, c, field, items)
+            expected = {"L7": 15, "repo": 12 if c == "sol61-high" else 20,
+                        "p04": 30 if c == "sol61-high" else 35}[label]
+            if len(rr) != expected:
+                raise ValueError(f"deviation 26 {label}/{c}: expected {expected} rows, got {len(rr)}")
+            sets[label][c] = rr
+    return sets
+
+
+def followup_tables():
+    sets = followup_sets()
+    out = ["", "## 4. Follow-up: L7, standard tier (exploratory, deviation 26)", "",
+           "Terra p13–p15 repeats 1–5 against existing sol61-high L7 repeats 1–5. Function-test grading is unchanged.", "",
+           "| config | passes | pass rate (95% Wilson) | median s | slow-call s | $ per pass (list) | infra errors |",
+           "|---|---|---|---|---|---|---|"]
+    for c, rr in sets["L7"].items():
+        out.append(fn_line(c, stats(rr)))
+    out += ["", "## 5. Follow-up: repo track, standard tier (exploratory, deviation 26)", "",
+            "Terra t1–t4 repeats 1–5 against earlier default-tier sol61-high repeats 1–3. Cached hidden-suite verdicts; task complete requires visible and hidden passes.", "",
+            "| config | task complete | hidden pass | median s | $ per complete task (list) | misses (task, repeat) |",
+            "|---|---|---|---|---|---|"]
+    for c, rr in sets["repo"].items():
+        done = [dict(r, passed=bool(r.get("task_complete", r["visible_pass"] and r["hidden_pass"]))) for r in rr]
+        s = stats(done)
+        miss = ", ".join(f"{r['task'][:2]}r{r['repeat']}" for r in done if not r["passed"]) or "none"
+        out.append(f"| {c} | {s['k']}/{s['n']} ({pct(s['k'] / s['n'])}; {pct(s['ci'][0])}–{pct(s['ci'][1])}) | "
+                   f"{sum(bool(r['hidden_pass']) for r in rr)}/{s['n']} | {s['med']:.1f} | {usd(s['usd_pass']) if s['k'] else '–'} | {miss} |")
+    out += ["", "## 6. Follow-up: p04 weak spot, all standard-tier rows (exploratory, deviation 26)", "",
+            "Terra repeats 1–35; Sol repeats 1–30, including standard-tier phase=fastmode control repeats 6–10. Distinct call keys only; priority configs excluded.", "",
+            "| config | passes | pass rate (95% Wilson) | median s | slow-call s | $ per pass (list) | infra errors |",
+            "|---|---|---|---|---|---|---|"]
+    for c, rr in sets["p04"].items():
+        out.append(fn_line(c, stats(rr)))
+    a, b = (stats(sets["p04"][c]) for c in ("terra61-low", "sol61-high"))
+    lo, hi = newcombe(a["k"], a["n"], b["k"], b["n"])
+    verdict = "real" if lo > 0 or hi < 0 else "not established as real"
+    out += ["", f"terra61-low − sol61-high: {100 * (a['k'] / a['n'] - b['k'] / b['n']):+.1f} points; "
+            f"95% Newcombe interval {100 * lo:+.1f} to {100 * hi:+.1f} points. "
+            f"Per the fixed reading rule, the p04 weak spot is **{verdict}** "
+            f"(the interval {'excludes' if lo > 0 or hi < 0 else 'contains'} 0)."]
+    fn, ag = rows(FOLLOWUP_FN), rows(FOLLOWUP_AG)
+    spend = {"L7": sum(cost(r) for r in fn if r["rung"] == 7),
+             "repo": sum(cost(r) for r in ag),
+             "p04": sum(cost(r) for r in fn if r["problem"] == "p04_taller_within")}
+    total = sum(spend.values())
+    out += ["", "## 7. Deviation-26 spend (list price)", "",
+            f"90 new function calls + 40 repo runs: L7 ${spend['L7']:.6f}, repo ${spend['repo']:.6f}, "
+            f"p04 ${spend['p04']:.6f}; total **${total:.6f}** against the $6 cap "
+            f"(${6 - total:.6f} remaining). Earlier comparison rows are excluded. "
+            "Token prices come from results/prices.json, with cached-input discounts; every new row is default tier."]
+    return out
+
+
 if __name__ == "__main__":
-    print("\n".join(function_tables() + repo_tables()))
+    print("\n".join(function_tables() + repo_tables() + followup_tables()))

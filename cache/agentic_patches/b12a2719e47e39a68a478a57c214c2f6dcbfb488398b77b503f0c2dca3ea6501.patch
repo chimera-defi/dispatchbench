@@ -1,0 +1,504 @@
+diff --git a/.pytest_cache/.gitignore b/.pytest_cache/.gitignore
+new file mode 100644
+index 0000000..bc1a1f6
+--- /dev/null
++++ b/.pytest_cache/.gitignore
+@@ -0,0 +1,2 @@
++# Created by pytest automatically.
++*
+diff --git a/.pytest_cache/CACHEDIR.TAG b/.pytest_cache/CACHEDIR.TAG
+new file mode 100644
+index 0000000..fce15ad
+--- /dev/null
++++ b/.pytest_cache/CACHEDIR.TAG
+@@ -0,0 +1,4 @@
++Signature: 8a477f597d28d172789f06886806bc55
++# This file is a cache directory tag created by pytest.
++# For information about cache directory tags, see:
++#	https://bford.info/cachedir/spec.html
+diff --git a/.pytest_cache/README.md b/.pytest_cache/README.md
+new file mode 100644
+index 0000000..b89018c
+--- /dev/null
++++ b/.pytest_cache/README.md
+@@ -0,0 +1,8 @@
++# pytest cache directory #
++
++This directory contains data from the pytest's cache plugin,
++which provides the `--lf` and `--ff` options, as well as the `cache` fixture.
++
++**Do not** commit this to version control.
++
++See [the docs](https://docs.pytest.org/en/stable/how-to/cache.html) for more information.
+diff --git a/.pytest_cache/v/cache/nodeids b/.pytest_cache/v/cache/nodeids
+new file mode 100644
+index 0000000..9532b12
+--- /dev/null
++++ b/.pytest_cache/v/cache/nodeids
+@@ -0,0 +1,10 @@
++[
++  "tests/test_retry.py::test_attempt_time_and_snapshot",
++  "tests/test_retry.py::test_backoff_dead_and_stats",
++  "tests/test_retry.py::test_base_exception_propagates_and_other_jobs_remain",
++  "tests/test_retry.py::test_invalid_configuration[kwargs0]",
++  "tests/test_retry.py::test_invalid_configuration[kwargs1]",
++  "tests/test_retry.py::test_invalid_configuration[kwargs2]",
++  "tests/test_retry.py::test_retry_success_and_sequence_order",
++  "tests/test_worker.py::test_runs_in_time_order"
++]
+\ No newline at end of file
+diff --git a/jobq/__pycache__/__init__.cpython-312.pyc b/jobq/__pycache__/__init__.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..eea48f969ffcbedc9dd3df4b77d06f14b0032ce6
+GIT binary patch
+literal 137
+zcmX@j%ge<81gw9bXMyO)AOanHW&w&!XQ*V*Wb|9fP{ah}eFmxdrJ-MvTcDp?l%$)O
+zo|;#pn^j_%ZfIUush^dfRHz>xpP83g5+AQuQ2C3)CO1E&G$+-rh!v=j5r~UHjE~HW
+KjEqIhKo$V1YaXWn
+
+literal 0
+HcmV?d00001
+
+diff --git a/jobq/__pycache__/job.cpython-312.pyc b/jobq/__pycache__/job.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..10a4762b3110fe556484cf34c094edcf7133ba85
+GIT binary patch
+literal 718
+zcmYLHOKVd>6h1Tel_zN-wiZ{?BHl#}p^BR-BBDj1E4#UyVUn4Yg!@S5P8M+$s6tla
+zu3fsUr2oWavoNz!a3StmvJeV_GdB-s@y++mcg~q}&z-O3asl*m{{HHGL;ydHST1Kl
+zX3sP^1qKX-5TO7?IKT)naK!M1HP(4%VR!}1eh<tU<N3*WzCmCOT;Ka`l#f-OQAwL2
+zO;hEx+B{@$eWaX3FfN*lglw}HV)jmxQ{WIF1_3?-ZgHETeSMlSY?yAwVb+DcY$kBI
+zr=y(zo_5`3V?mDRwd<|ioObgow~*B>7<W+gOUinkG?Xj)F`-gfDet}19ed3r>Qcd#
+z9n*;WSeQX7Tkx(>xD^XC1O2rg<1N|`<=oCuDS6bD>7id#IYLY-A*w(~l(2qic!`i+
+zpN0#^YR6Jl2%&MDNGjV&oDw3;XhhN6XQfhzvSDu0=<uc#6)nENOe5TE*JRYKMWV4w
+zk9jP2JF<RUf7~0?I!U8v;6ZmFJRO;VshU2~@Bx05DkpEg<x3|A)3sY?e6qGPd@<U-
+zw0EZK8)yCVN0asX@cGESwCmIA*5|wDN0aK_@L<%O*n8skvfiO@tK#Zs^Hf;I$$HQ3
+z+%z(a-qP$Qw?Ci3Q*lR2^Qh8$8m=sa(090h?E)@-s!q_xAMBuqSD;~L0p7eeGOP0s
+Dy&J5e
+
+literal 0
+HcmV?d00001
+
+diff --git a/jobq/__pycache__/queue.cpython-312.pyc b/jobq/__pycache__/queue.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..bce23f9d0be8203cbe235748ace0e4abd367ac11
+GIT binary patch
+literal 2220
+zcmah~%WoS+7@vLFj+5AF;zBXdj!GXmN*q-!LP{S(fP};$r4J$1LfWo96UXj)*O^_@
+z#&SgtIfR$mh=bb`>4}z9q9@e<flEt3gl!H;fKYE~jfB(#;`?UTPEti;4&Qw9J?8QI
+z9`nQCV3NRC`1h~s6OEAHanT)m#B`1U(<Y2C#U_PtRtgGJnP#gst)MAHCGQcYFA!#|
+zsG(OupHp(N$GDh!tN_g^f%d*zEQRWj#-l~&BVgKu6WEm$RHhU(rY?|z&IXvq4W{!L
+zGkAPD#$pRbA;AW5#o|rypH^7{WPPj;BnFF5>nypT7m{ER16@Dx{d4hLDoDWLXBxc0
+zn;)L9)cCk77#Ez;s#~P9D9_W2CEG1sx=1S?wP=$Icia-?MvXf@Em^j06>Uxh_Zz~g
+zIAvOKd|u{)dc5R1%*&Uem&-RH4|tN!S^2V-(jul*ASn}AAtrM8MwhF`y4>cx60zXX
+zjR%<{ca*7|5g78mfnm;Ys~+@Kd@g*~wLMU{4aX03)8n%_HPAh7Pm4a-$-{e5`t0C@
+zU#m~lL~-0I!}G?g{*m&LH)rQ20FBv+5RUp>kTA`PQ}Io+xvPs_zAM7K@%93lCu_U2
+zi~1MIHM$?C^~|g7(@UpUGY1#-FZ()RK?2>eYCJF)x2?G#7GhZHy$3At<r1%NfoT)J
+zhfa%BQU2WMp`tZGvxy*B?}TBr8$>}}iB7$$`v`~}RapbwRXD>=1KTCIYU$nlR)9Z8
+zL;{4lxWG*%!0=Lj#TSFH4h#&-Y>>dI-tcAw9+NXf3XO-+LY;QR2r?Sr?qMEK93qXf
+znAa%QDt<HFgFY0X(mMfUo~);KT|dwsT^jvrY<c&?;X`-z+vmT#aOc8G`hMoVSWUgX
+zsI4akucbasUH99~rRMU{pAv`H(!+~Mu?ses+Lp2ivkbxaz_dwAnI8fWdVv68G`iql
+zg`}=-P5MYLj_)jI>Puiz-5U1DqorKR0w(+XZbKkd1opYH^R6q=4bKs1I9l_qv%Kbh
+z%&FzDs8*>z!zs6fUE!WD%l-0<>p>+q9MkgYiIdcEFON}I&?(p9`6+=<f-qrv$dEz8
+zN>lM7NP@Twr(4gdGLV4=-cebFaf{d8y2+r=4D|vRNiyK?y$fWX{MMgZJia#kLKwWo
+zch>sT*Cs!kym8>`(VL^oXKs%FlFdKN=I_1sWA=^pkv;8`ODC5z-(+uPS4YMk42-R%
+zM`Q#Az(%%35z&=V#B;V5(oT^AMA81a(NZ>(957Xzr#@)-04U{GDxQz653-dOt<oiW
+zx#G{bpe)T;PFXfZ--Ct-4a6yN>NILaF7i`3O+qL3z(HXVgxJa3Z^urc?>6ir$t&RN
+zA%OGbkL@Y_bK<bXqO>(td&xWoE?Z&vza$DPS`9RtJK<dw8D|f7k18{6nxKWQxEbL{
+zLcz!z0s^&}9=?98J-Iab`6mw&d*uytip;I>hym=b*cMGQNSbENWepqo0n?mqSazg=
+zqnKMVO@W&Rn&*o^gO4X{I4^@tP$c`290YQQgn5BYLSQSD1k1`h2V{Z#s$YDnYsR4`
+zNzE9!add;gbUU2xc^zCmNyd!K^3mIwTaz6E?8cC4ypEPIEg$RPw2@GZeK$t_CNPEP
+z;ZaaCSRtYx2_|NEOL+?n!{*JNB~FCzJtf9LfzW!G92=UVD38d%BQo?S$@~+`D*K)i
+HAky<c;*iUg
+
+literal 0
+HcmV?d00001
+
+diff --git a/jobq/__pycache__/worker.cpython-312.pyc b/jobq/__pycache__/worker.cpython-312.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..ebaa87c9bd67a47f29925b98fdba7d9bbd55d738
+GIT binary patch
+literal 3242
+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
+
+literal 0
+HcmV?d00001
+
+diff --git a/jobq/queue.py b/jobq/queue.py
+index 6f9f569..199950c 100644
+--- a/jobq/queue.py
++++ b/jobq/queue.py
+@@ -17,11 +17,17 @@ class JobQueue:
+         heapq.heappush(self._heap, job)
+         return job
+ 
+-    def pop_due(self) -> Job | None:
++    def pop_due(self, now=None) -> Job | None:
+         """Remove and return the earliest job whose run_at <= now, or None."""
+-        if self._heap and self._heap[0].run_at <= self.clock():
++        if now is None:
++            now = self.clock()
++        if self._heap and self._heap[0].run_at <= now:
+             return heapq.heappop(self._heap)
+         return None
+ 
++    def requeue(self, job: Job) -> None:
++        """Put an existing job back without changing its sequence number."""
++        heapq.heappush(self._heap, job)
++
+     def __len__(self) -> int:
+         return len(self._heap)
+diff --git a/jobq/worker.py b/jobq/worker.py
+index c90a7df..61dbdc3 100644
+--- a/jobq/worker.py
++++ b/jobq/worker.py
+@@ -1,16 +1,51 @@
++from collections import deque
++
+ from .queue import JobQueue
+ 
+ 
+ class Worker:
+-    def __init__(self, queue: JobQueue):
++    def __init__(self, queue: JobQueue, max_attempts=3, base_delay=2, max_delay=60):
++        if max_attempts < 1 or base_delay < 1 or max_delay < base_delay:
++            raise ValueError("invalid retry configuration")
+         self.queue = queue
+-        self.done: list[str] = []     # names of jobs that succeeded, in completion order
++        self.max_attempts = max_attempts
++        self.base_delay = base_delay
++        self.max_delay = max_delay
++        self.done: list[str] = []
++        self.dead: list[tuple[str, int, str]] = []
++        self._failed_attempts = 0
+ 
+     def run_due(self) -> int:
+-        """Run every job that is due now, earliest first. Returns how many jobs ran."""
++        """Run the jobs due at the start of this call and return attempts made."""
++        due = deque()
++        cutoff = self.queue.clock()
++        while (job := self.queue.pop_due(cutoff)) is not None:
++            due.append(job)
++
+         ran = 0
+-        while (job := self.queue.pop_due()) is not None:
+-            job.fn()
+-            self.done.append(job.name)
+-            ran += 1
++        try:
++            while due:
++                job = due.popleft()
++                attempted_at = self.queue.clock()
++                job.attempts += 1
++                ran += 1
++                try:
++                    job.fn()
++                except Exception as exc:
++                    self._failed_attempts += 1
++                    if job.attempts >= self.max_attempts:
++                        self.dead.append((job.name, job.attempts, repr(exc)))
++                    else:
++                        delay = min(self.max_delay, self.base_delay * 2 ** (job.attempts - 1))
++                        job.run_at = attempted_at + delay
++                        self.queue.requeue(job)
++                else:
++                    self.done.append(job.name)
++        finally:
++            for job in due:
++                self.queue.requeue(job)
+         return ran
++
++    def stats(self) -> dict[str, int]:
++        return {"succeeded": len(self.done), "failed_attempts": self._failed_attempts,
++                "dead": len(self.dead)}
+diff --git a/tests/__pycache__/test_retry.cpython-312-pytest-9.0.3.pyc b/tests/__pycache__/test_retry.cpython-312-pytest-9.0.3.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..633bc3055762623c1db4d30d3633987600ede6c7
+GIT binary patch
+literal 17798
+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
+Yvv{Zaiu&0%IZUd(H#cXYfW6rM7s>z{yZ`_I
+
+literal 0
+HcmV?d00001
+
+diff --git a/tests/__pycache__/test_worker.cpython-312-pytest-9.0.3.pyc b/tests/__pycache__/test_worker.cpython-312-pytest-9.0.3.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..fb81d1f85cb257abad06a624d018fce3481bd847
+GIT binary patch
+literal 4643
+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
+a9-?P{kG}A?sDw}b6#>{&6?_SE3;zVjx4k+5
+
+literal 0
+HcmV?d00001
+
+diff --git a/tests/test_retry.py b/tests/test_retry.py
+new file mode 100644
+index 0000000..c5ab849
+--- /dev/null
++++ b/tests/test_retry.py
+@@ -0,0 +1,97 @@
++import pytest
++
++from jobq.queue import JobQueue
++from jobq.worker import Worker
++
++
++class Clock:
++    def __init__(self):
++        self.t = 0
++
++    def __call__(self):
++        return self.t
++
++
++@pytest.mark.parametrize("kwargs", [
++    {"max_attempts": 0}, {"base_delay": 0}, {"base_delay": 3, "max_delay": 2},
++])
++def test_invalid_configuration(kwargs):
++    with pytest.raises(ValueError):
++        Worker(JobQueue(Clock()), **kwargs)
++
++
++def test_backoff_dead_and_stats():
++    clock = Clock()
++    queue = JobQueue(clock)
++    worker = Worker(queue, max_attempts=4, base_delay=2, max_delay=3)
++
++    def fail():
++        raise ValueError("bad")
++
++    job = queue.submit("bad", fail)
++    for now, next_time in [(0, 2), (2, 5), (5, 8)]:
++        clock.t = now
++        assert worker.run_due() == 1
++        assert job.run_at == next_time
++        assert worker.run_due() == 0
++    clock.t = 8
++    assert worker.run_due() == 1
++    assert job.attempts == 4
++    assert worker.dead == [("bad", 4, "ValueError('bad')")]
++    assert worker.stats() == {"succeeded": 0, "failed_attempts": 4, "dead": 1}
++
++
++def test_retry_success_and_sequence_order():
++    clock = Clock()
++    queue = JobQueue(clock)
++    worker = Worker(queue)
++    log = []
++
++    def flaky():
++        log.append("first")
++        if len(log) == 1:
++            raise RuntimeError()
++
++    job = queue.submit("first", flaky)
++    assert worker.run_due() == 1
++    queue.submit("second", lambda: log.append("second"), delay=2)
++    clock.t = 2
++    assert worker.run_due() == 2
++    assert log == ["first", "first", "second"]
++    assert job.attempts == 2
++    assert worker.stats() == {"succeeded": 2, "failed_attempts": 1, "dead": 0}
++
++
++def test_attempt_time_and_snapshot():
++    clock = Clock()
++    queue = JobQueue(clock)
++    worker = Worker(queue)
++
++    def fail():
++        clock.t = 100
++        raise RuntimeError()
++
++    job = queue.submit("fail", fail)
++    assert worker.run_due() == 1
++    assert job.run_at == 2
++    assert len(queue) == 1
++
++
++def test_base_exception_propagates_and_other_jobs_remain():
++    clock = Clock()
++    queue = JobQueue(clock)
++    worker = Worker(queue)
++    error = KeyboardInterrupt()
++
++    def interrupt():
++        raise error
++
++    job = queue.submit("interrupt", interrupt)
++    queue.submit("other", lambda: None)
++    with pytest.raises(KeyboardInterrupt) as caught:
++        worker.run_due()
++    assert caught.value is error
++    assert job.attempts == 1
++    assert len(queue) == 1
++    assert worker.run_due() == 1
++    assert worker.stats() == {"succeeded": 1, "failed_attempts": 0, "dead": 0}

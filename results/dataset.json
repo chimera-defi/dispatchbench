@@ -105,6 +105,22 @@
    "used": true
   },
   {
+   "path": "results/2026-11-02-terra-followup-function.jsonl",
+   "sha256": "7b8e45d8635afbb7ad4ee2cb5c016d055992bee5511d2169c0a7d763e5c6cf79",
+   "rows": 90,
+   "date": "2026-11-02",
+   "lanes": "codex",
+   "used": false
+  },
+  {
+   "path": "results/2026-11-02-terra-followup-repo.jsonl",
+   "sha256": "ca0ea05e9453693e7cddf01f4a520324711edfb221a4b3f4c1f7331989742133",
+   "rows": 40,
+   "date": "2026-11-02",
+   "lanes": "codex",
+   "used": false
+  },
+  {
    "path": "results/2026-11-02-terra-noise-function.jsonl",
    "sha256": "2df1ee779e47f4c92ffb544f32eee22d3217d7c6d718290168b7ef93dea87494",
    "rows": 240,
