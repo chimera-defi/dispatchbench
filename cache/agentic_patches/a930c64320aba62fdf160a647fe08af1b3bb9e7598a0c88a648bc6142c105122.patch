@@ -1,0 +1,413 @@
+diff --git a/.pytest_cache/.gitignore b/.pytest_cache/.gitignore
+new file mode 100644
+index 0000000..bc1a1f6
+--- /dev/null
++++ b/.pytest_cache/.gitignore
+@@ -0,0 +1,2 @@
++# Created by pytest automatically.
++*
+diff --git a/.pytest_cache/CACHEDIR.TAG b/.pytest_cache/CACHEDIR.TAG
+new file mode 100644
+index 0000000..fce15ad
+--- /dev/null
++++ b/.pytest_cache/CACHEDIR.TAG
+@@ -0,0 +1,4 @@
++Signature: 8a477f597d28d172789f06886806bc55
++# This file is a cache directory tag created by pytest.
++# For information about cache directory tags, see:
++#	https://bford.info/cachedir/spec.html
+diff --git a/.pytest_cache/README.md b/.pytest_cache/README.md
+new file mode 100644
+index 0000000..b89018c
+--- /dev/null
++++ b/.pytest_cache/README.md
+@@ -0,0 +1,8 @@
++# pytest cache directory #
++
++This directory contains data from the pytest's cache plugin,
++which provides the `--lf` and `--ff` options, as well as the `cache` fixture.
++
++**Do not** commit this to version control.
++
++See [the docs](https://docs.pytest.org/en/stable/how-to/cache.html) for more information.
+diff --git a/.pytest_cache/v/cache/nodeids b/.pytest_cache/v/cache/nodeids
+new file mode 100644
+index 0000000..9ba5f6b
+--- /dev/null
++++ b/.pytest_cache/v/cache/nodeids
+@@ -0,0 +1,17 @@
++[
++  "tests/test_discount.py::test_apply_percent[-1005-10--905]",
++  "tests/test_discount.py::test_apply_percent[100-0-100]",
++  "tests/test_discount.py::test_apply_percent[100-100-0]",
++  "tests/test_discount.py::test_apply_percent[1004-10-904]",
++  "tests/test_discount.py::test_apply_percent[1005-10-905]",
++  "tests/test_discount.py::test_cli_discount_and_unknown_code",
++  "tests/test_discount.py::test_codes_apply_to_whole_total_and_are_case_insensitive",
++  "tests/test_discount.py::test_invalid_percent[-1]",
++  "tests/test_discount.py::test_invalid_percent[1.5]",
++  "tests/test_discount.py::test_invalid_percent[101]",
++  "tests/test_discount.py::test_invalid_percent[10]",
++  "tests/test_discount.py::test_invalid_percent[None]",
++  "tests/test_discount.py::test_invalid_percent[True]",
++  "tests/test_store.py::test_format",
++  "tests/test_store.py::test_total"
++]
+\ No newline at end of file
+diff --git a/inv/__pycache__/__init__.cpython-311.pyc b/inv/__pycache__/__init__.cpython-311.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..2085ec04b357267c5e3e0751e36e632c405d6fa0
+GIT binary patch
+literal 148
+zcmZ3^%ge<81T24_XMyO)AOZ#$p^VRLK*n^26oz01O-8?!3`I;p{%4TnFLnKr+yedF
+zq9onK^whi(U8Abv)S_HdBmK<0GX41Y%)HE!_;|g7%3mBdx%nxjIjMF<tU!GrlZ*L*
+S#0O?ZM#c{eFrtVVC<Xx9IUrO3
+
+literal 0
+HcmV?d00001
+
+diff --git a/inv/__pycache__/cli.cpython-311.pyc b/inv/__pycache__/cli.cpython-311.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..6798bde4c2f40f3f2cc2a7ebb392d1a84675976e
+GIT binary patch
+literal 1690
+zcma)6-%DFp96#s&h%sqQJLzIky33kU@{q(RZflW<wC<tZ%38ZX9izL;J!;JTVb48L
+z6Jn9#gDb-JrqB-ZFgiy!5W0tM3`+ll8wnUL2!k;;-vnQrFxdCp#Apf|JNe%4{eHja
+ze1Cnu=jPi`D1cyn{P!O-n*u_=aph?Fn!<h>gf*lg4eQ9j6Bu(@&;>)B5J47+MC5Zv
+zUPzOOsL4d0^l83jX~L&<jH8%;7sG)Vc27-O)KJ;IEHRl4x;)M-N?b{$Q**9tdy0<|
+zR-k4U3TiE0j0n&ECInhTWn>E)9*4Ik9H(9s%7P~5JwLk4c*^D~qo<%fYgsfYFY_(>
+z5kxpyysznftrIbxuer*&a<ZBuGtb{~oWDIsyEcw4Aa(>P_(u`#0`UCp5gwzjg{*KF
+zjiY(AAl^mu`2SS#6yiN=)%1E^z@)R;)jL|CBDD^l5VYVjD&rXs6K<}YsPy<)d!B2k
+zU4K2VcB(A!eqj8eQvaQtSyZx?VW_62<V;5Bq?#oO<+e9#TVc~gu?lRqz!XLnSfbQj
+zu+=GYMPU|Gb)~H6Ih*bBT3p#P?eg(ZK9!O$9?x1D+4YpJf|)n1c@vUp;O<J?(Zzvm
+zYxv;O3C|!r`(<D^5caOrr|&Le00AtG^%(9s=q*3cF>67DV6SrGiX3^N|AYkqkuzuw
+zzM<9kG!Bhe5|jlOD>q}3E19Z6T=70DQXbe1=sA<z^SX@*u8`<=an9yVD$3#8NoLF@
+z4f=T;P%>G3pkxzj3=Jf6=3FwX=MuBU!_HyYA`7!LU5XfL&P)vJR#w&RbfUHK21K(z
+z1okKVmXOnv=XC4#`skDQopT=mRn%`tL;68~k$O4&^YBmUU((gY^;+V3!`^gixO#ja
+z0;1BH<4Jg9zoNuCTu~=xqr0HjSmU3-_1_@HF-k4!N;6i@bmbf)hVA<1RJ}m#m`FM9
+zl;28M%o>`_@lh0ozR4{TZ;mP;@>BL-z?RUj!SEi!^2K^M>V%{9K-bFs)k{lP>m7lW
+zsfQ1i9_$3WR@fJpS1+&QN9mRHx>iX&ncC>tI-hdRr}hLfG_Vu7P#N2f4sAt;HnkV2
+zAE&C(bS;{$Mn-Cp5$E*C!A^HCqzDZhvw9@8A#L3HzQc*6IGt|No(RVd4i0_~_pXm^
+z_r<sR;?=%ntuI*(_t(Pxj=!JRHTiIHX|W#e{<8R}*aS86NiCypXQsC@)78vOEi(i5
+zYEQlfJe;qE^Nv4X4@TE*Cm7`<MeQ@t{qswsz35f%+0jAq)c^*56Ofk;%Os7P<pD|g
+zKLHH^b48m`55Mma?cr7q>!E+xu(X0s(liPx{|xNUfI%-9*U?)}JJnH-(@uN7E_`u?
+XeRXxUxQ9Tjob_HCgWl_3nODI-4;_%@
+
+literal 0
+HcmV?d00001
+
+diff --git a/inv/__pycache__/models.cpython-311.pyc b/inv/__pycache__/models.cpython-311.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..fb58025382c9d5c4e426756e23a13ec56bd16489
+GIT binary patch
+literal 797
+zcmZ`%&ubGw6n?Wio1}?x)fUl{6%<UR4HUeUUV4x~$ffj>%dlpqlCrx=XC^{}hb`pb
+ze-Muzq$2$n{3BBE5cVW^kls?_sUY}XHi^IR?e6!!_vY<>@6GIoa=8d-{KvPWPw2l=
+zurO~<raMT6AVIPaBGzOK6m#G?NM``jJ#zrg@yYBA-T5MbrX%@2RJ=>dR9Lzq0~@r$
+zz?jyu28lZlrn^XnprFYlzIy=5Ra`RCR~|Blm~@-DS;S|Nr@TW)<_5f(mwD7Gq`YQT
+zl=3);R9folc1wwtimkb1_;%_Z+mke>mF?-cMVW=s2-L`Q9bpKs;Rt<Z$d{FU+!mB!
+zjf$i5xU5$Ya5QdIcxb3>{rYj$M%`+pUu*_1QF(K_Z<LOnZCBgzt7_DdDl}W&le8GN
+zV<l|I24UZ)rni12=vd4hgapR^>SzDKyGQSzT=*NK!p0P{(7-_pLeP*xq(vd{v%Qe`
+z4Iz$uK{#J=jn%0yL=eZQW80nBV2#_3?W}Qq6TkHlw2w}g3Fy>kz>%1JgygsDOR=2P
+zlG<r)e0y!g>Av7=WB*pN_hvPzC-u|%gfs8y+r0^(`!8gAB-N<6X=(XaD5L2JvL@~l
+zTQ+uG*vUrR)%S3LHrgB@OkBp;7#@!PyeBzuN)so?u!(=+igMoxu3W4e-2ba`Ci@e^
+CHn%PS
+
+literal 0
+HcmV?d00001
+
+diff --git a/inv/__pycache__/money.cpython-311.pyc b/inv/__pycache__/money.cpython-311.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..97e9d48505abf6f8161eac2816a67b513a0a7118
+GIT binary patch
+literal 1173
+zcmZuv&1(}u6rb7IB(-hQFG>|Xj8dr)ljft9ic*y(3JP9C4@D^3%ruQnHgR^+nwUZq
+z4=H$vUK$Z$^`I611OJK?Jd}lkAR@gLdMgONnYP-Bvpeto-kUdXe)Hyi3<f(9jC;R+
+zKD=fi^j#ST!@m!9&I4FQ3~|IT$8#n#o}1H#wu$zkIX^SON0{#}3i~}@hTGEd{DRA}
+zurv4|BWRVBz}&eHVinaO<pLmtgux6OGqQ~3q4*m50M_R}o@G?SZxAzKpRWpp0sA$E
+zye#m>e5(j_RLA0p<QR=i(vjhKBAOf<xlC=IwPbFQ(?u&^<_^trNiCY^7R%XLIuaR)
+zZYdfbj(BJn4{tFrc5&1ru>=cak65!#*bs0e@=Pa}wH*a1-5nm4h0<t2%tov%+&Yq|
+zI$RXS6QenMakNmhc_mt^c-?bFQLyBUE{y1bt?Ein8blp^>mO>Jeid$p8_7n}?XRac
+zyL+0xm0K@v)zcfH{&v?m{LOo<%*zLR*iElZy}P}Kl{Ck9AQAFNDI+tA*TGPg*46$3
+zU=<yyEIwLUd1zl5J3S27aK?CSEa=(`Kifx6pN%n+zJnv6?&N5uXIKXQuKxRi%&6fi
+zG+h-kEE_e0nN<j8hI-9qa;P6jjdUR!*9g3*uR3|XRLWQ2#Y$YLB0{k#%Q=~1*_Icm
+z0Hxn?-pbF>a*4_!gf7h&^PH;as8D>xF%Z>rP$XI?JCe?FYS}brOP=KdEV;zFO=I9>
+zG#-m>B_KR(dZw(DxJMw)>%6a;CoM!#h;F^AJ3{mU_WV{svGD?$4QGxCUJ65m)N;^L
+zH<;PyFHV531EynxsG}c&uEx~U%Ja%w(hi)2-;J*k_o{pKJ<K&nN%d`pj<-)tt%p)y
+zL#cL0YBSi|99)@xG2KeK1FtWw2hY}TZ1fDajFl%XXFYVLesg2!RO`{JO0&|q*_dcd
+zxY@QD5xsEaov<keL3_lJLU*L5^a<%zO?kKDN}<Tgc|IvlL8R{3X#m><W4vvc_+pD}
+eBT(+1()f@F`Ej&0u#G^uNv+oQl*a!P`t0B8s2*_u
+
+literal 0
+HcmV?d00001
+
+diff --git a/inv/__pycache__/store.cpython-311.pyc b/inv/__pycache__/store.cpython-311.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..c973f822ea074b02adf6b4d08279468fbd1adea6
+GIT binary patch
+literal 2550
+zcmZ`)O>7%Q6rR~1*Rh?S<_G!{HwIc-mo$MEB-FZT5Qz|_btTgFV1!o2yG1U$wmY+l
+z8q1Xe%E3jE2&j@PAtd(_Ql*E0kU-+Xfitp^C9IWlLI`>@3a3g)yf>TOuG2C*{@%=+
+zx3llxU-$M#2#hQL{(1dJnULRc;|*nJvHdzMYD6bGHHk$tl;T=4B}>l8lt|<)qRY!f
+zSJos#HsI%ujH0V^BpG^0VV|Uq^0sYQKzp;LlDVjr43;wrcFq$=+OxCSz7C5TF-V5$
+zBqQl`nPg;LG8A1lR2}ZU7Scn@N+zWD>0#jZ05`I864s;3YG#k%qokt8Kr*cNi}%&?
+z9s-&g$nOQY9--raqt4kyX5>&+Z=fOI60-d~K#k-{g=pTHyYr=WGDq&ybW(EEJQ&Fx
+zHCNOPjz)9Cyv9*5@#yfRZIvc1_Q8qlhhX`MlVxr&>$Q`U`NF~^$L~*+7M-xB<qLUR
+z)5?89rwMN#f=l=?z!GV{c&w_dMA}D=BB{c&jhZ<Me%6soIok;_!=7h_bPi4M21Znv
+zbQcyiQlWM4q>HY>Zo}u?k}GnBT=$J#AZ*Z9{bR_A3jLCNC9Q$PhA;IAwZYTg(4~sh
+zogI`^q~NU;IR(P#$fTSukDwumtjUb5zL+p>=DE#JCm!N;NyQ20vfQ{<G<Al_>qM?*
+z&3R*%u_9w=VNzjHAgmu@043y)j75$|2^cJftZ-J>HT;U_W^a#I@^=Bi&3%KPS)W?B
+ziz~&d+>Z9G9=>zD5gmoOH8|RcpV_<&0JAxmY7M3uvD8+0WHozts2Ps8!tq8p-aZh=
+z0Ii<7-Cu==^})3a^U6^QS<7&uC6><_8rA`K<Qw*44wdu<`dCD385S5V@RxT+APVu|
+zzC!o=XE*8NXjSBLFCjTe^CN>k4#p4el`8TYd}+hamF}Cp$gnVcA}KR0Q+5CWU+~<$
+z4;iS0IC`49u{MJ4#{FJ+fu{k$-O>KlSMQu|MB^~qv4NHIt9C0k+K44uu|)mNX6&fD
+z1cdp=*bDWU^_MnzbL>oO>`ZkA#hWOOQ@A?k_aeC8FXv}q1KteyvO>>_%yaFd!oH;B
+zCJ|c2@m()*qRg<03x+0)+3S{Qfb}fO4+4Nat_iL}Pt^%aT15C~Sk#E^#|SC`dLHQL
+zbLv4`K-wMMl{!PZ_uUnFORCV1PXwz{RG{MB1>GP})gG7Zy7O_Cb=Nc8E<x=|>8>7%
+z#+`!S_7uQ7gbK&MzwZ{bj5=_h9Nh+7B{fRP%6?4Qo!~eTGhZ+?yJ%-k=(p0u%MQ&4
+z1N5jT1>M!SSz=S=!)|zluv=vlDYKZ%ntW=)mpTYq@Z$h~!LvjfL(?$pH&)-MUHIa{
+z=jl6XmlH&hUCEFm^La~TixXPF9>hie5nYL4r-oYbJCUObH8{G&??TalYUQ0|3b3%o
+z_!WR9vNbT|YOp@@;QVjnXMY_(+Z;dF8b1fz=FoHtaA3MMFkMxlj2h8{Tf@)QkE{<r
+zIIubM{l#xDesk%&OReNgb9lBjJX@V@_YYTNt`$@?B-gtU{P)4mq-jn>)2yOCZ{j+p
+zX*cGxrhCGmpFm6HHgn{B!Dg88Y!u-T!ZCpR#BFuhX&END0L(7_3&4{9bR<bV)*(KG
+zRrS!_xeftR=Yp);g6xJqMNM@G07?T{2WcQb3<>hnWkGgBjH>av+#x{L6+w1GNKr@d
+zt&zH1*Y8Edax*8$|AK2OTA5C&P6(W4m|S#5N41ItW6@0t;f4wHh4>dh*E|ZRTo+HV
+pS73{^&ff#*$duAH+1KcvZIWno&rWDR1%01{zmfOPQx3$({{u6CA({XH
+
+literal 0
+HcmV?d00001
+
+diff --git a/inv/cli.py b/inv/cli.py
+index bb91b18..b36bee6 100644
+--- a/inv/cli.py
++++ b/inv/cli.py
+@@ -8,6 +8,11 @@ def main(argv: list[str], store: Store) -> str:
+         return "usage: total | list"
+     cmd = argv[0]
+     if cmd == "total":
++        if len(argv) >= 3 and argv[1] == "--code":
++            try:
++                return format_cents(store.total_cents(argv[2]))
++            except KeyError:
++                return f"unknown code: {argv[2]}"
+         return format_cents(store.total_cents())
+     if cmd == "list":
+         return "\n".join(f"{i.name} x{i.qty} {format_cents(i.line_total())}" for i in store.items.values())
+diff --git a/inv/money.py b/inv/money.py
+index caa7f2f..b6524f1 100644
+--- a/inv/money.py
++++ b/inv/money.py
+@@ -3,3 +3,12 @@ def format_cents(cents: int) -> str:
+     sign = "-" if cents < 0 else ""
+     cents = abs(cents)
+     return f"{sign}${cents // 100}.{cents % 100:02d}"
++
++
++def apply_percent(cents: int, pct: int) -> int:
++    """Apply a percentage discount, rounding half up to a whole cent."""
++    if type(pct) is not int or not 0 <= pct <= 100:
++        raise ValueError("pct must be an integer between 0 and 100")
++    amount = abs(cents) * (100 - pct)
++    rounded = (amount + 50) // 100
++    return -rounded if cents < 0 else rounded
+diff --git a/inv/store.py b/inv/store.py
+index c8a5bb8..62451e1 100644
+--- a/inv/store.py
++++ b/inv/store.py
+@@ -1,9 +1,18 @@
+ from .models import Item
++from .money import apply_percent
+ 
+ 
+ class Store:
+     def __init__(self):
+         self.items: dict[str, Item] = {}
++        self.codes: dict[str, int] = {}
++
++    def add_code(self, code: str, pct: int) -> None:
++        key = code.casefold()
++        if key in self.codes:
++            raise ValueError(f"code already exists: {code}")
++        apply_percent(0, pct)
++        self.codes[key] = pct
+ 
+     def add_item(self, name: str, price_cents: int, qty: int = 1) -> None:
+         if name in self.items:
+@@ -14,5 +23,8 @@ class Store:
+     def remove_item(self, name: str) -> None:
+         del self.items[name]
+ 
+-    def total_cents(self) -> int:
+-        return sum(i.line_total() for i in self.items.values())
++    def total_cents(self, code: str | None = None) -> int:
++        total = sum(i.line_total() for i in self.items.values())
++        if code is not None:
++            total = apply_percent(total, self.codes[code.casefold()])
++        return total
+diff --git a/tests/__pycache__/test_discount.cpython-311-pytest-9.1.0.pyc b/tests/__pycache__/test_discount.cpython-311-pytest-9.1.0.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..7e2890e8ce82ec6d355da27de18a24086a40a873
+GIT binary patch
+literal 9647
+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
+IYsot4-;GwVEdT%j
+
+literal 0
+HcmV?d00001
+
+diff --git a/tests/__pycache__/test_store.cpython-311-pytest-9.1.0.pyc b/tests/__pycache__/test_store.cpython-311-pytest-9.1.0.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..fd6917f834d82017feb5583d7dcbbb9931b6b2a1
+GIT binary patch
+literal 5252
+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
+ZKUB}x$+%{}MnYsX?PKjVI$N?L{|Bx@n_U0^
+
+literal 0
+HcmV?d00001
+
+diff --git a/tests/test_discount.py b/tests/test_discount.py
+new file mode 100644
+index 0000000..6f390d6
+--- /dev/null
++++ b/tests/test_discount.py
+@@ -0,0 +1,43 @@
++import pytest
++
++from inv.cli import main
++from inv.money import apply_percent
++from inv.store import Store
++
++
++@pytest.mark.parametrize("cents,pct,expected", [
++    (1005, 10, 905), (1004, 10, 904), (100, 0, 100),
++    (100, 100, 0), (-1005, 10, -905),
++])
++def test_apply_percent(cents, pct, expected):
++    assert apply_percent(cents, pct) == expected
++
++
++@pytest.mark.parametrize("pct", [-1, 101, 1.5, "10", None, True])
++def test_invalid_percent(pct):
++    with pytest.raises(ValueError):
++        apply_percent(100, pct)
++    with pytest.raises(ValueError):
++        Store().add_code("test", pct)
++
++
++def test_codes_apply_to_whole_total_and_are_case_insensitive():
++    store = Store()
++    store.add_item("a", 5)
++    store.add_item("b", 5)
++    store.add_code("Save", 10)
++    assert store.total_cents() == 10
++    assert store.total_cents("sAVE") == 9
++    with pytest.raises(ValueError):
++        store.add_code("SAVE", 20)
++    with pytest.raises(KeyError):
++        store.total_cents("missing")
++
++
++def test_cli_discount_and_unknown_code():
++    store = Store()
++    store.add_item("item", 1005)
++    store.add_code("save", 10)
++    assert main(["total"], store) == "$10.05"
++    assert main(["total", "--code", "SAVE"], store) == "$9.05"
++    assert main(["total", "--code", "MiSsInG"], store) == "unknown code: MiSsInG"
