@@ -1419,6 +1419,14 @@ def _interesting(ds):
                         f"It cost ~{lc:.0f}× per pass and took ~{lt:.0f}× the median time. "
                         f"haiku-low rose from {ho['passes']} to {ha['passes']} passes. "
                         f"It cost ~{hc:.1f}× per pass, with the same median time.")
+    # Build history lives in the existing fair-section narrative, not graded rows.
+    template = open(os.path.join(ROOT, "docs", "page.tmpl.md")).read()
+    history = template.split('<summary>How Codex built its bench</summary>', 1)[1].split('</details>', 1)[0]
+    bugs = re.search(r'Its dry runs missed (\w+) sandbox bugs\. A live call found them; Codex fixed both\.', history)
+    need(bugs is not None and bugs[1] == "two" and 'A final "plan and reorient" nudge changed no code.' in history,
+         "the recorded bench-build history reports two dry-run misses found live and a code-neutral nudge")
+    F["int_build"] = (f'Codex\'s bench dry runs missed {dict(two=2)[bugs[1]]} sandbox bugs; a live call found them. '
+                      'Its "plan and reorient" nudge changed no code.')
     cheap, dear = (get(ds, c, "L7 set") for c in ("luna-high", "sol56-high"))
     need(cheap["passes"] == cheap["n"] == dear["n"] > dear["passes"]
          and 0 < cheap["usd_per_pass"] < dear["usd_per_pass"],
@@ -1767,6 +1775,8 @@ def build(summary=None):
         ds["facts"]["grok_not_run"] = (
             (f"{', '.join(short)} covers {sorted(s['grok'][short[0]]['by_problem'])[0][:3]}–{sorted(s['grok'][short[0]]['by_problem'])[-1][:3]} only, "
              "so its cells for the other problems are dashes. ") if short else "") + "A dash means no attempt, not a failure."
+    ds["tables"]["grok_catalog"] = md_table(["name", "what it was"],
+        [[r["display"], r["what"]] for r in catalog_rows(ds) if r["config"] in configs.GROK_CONFIGS])
     _devin(ds, s)
     _hetzner(ds, s)
     _equivalents(ds)

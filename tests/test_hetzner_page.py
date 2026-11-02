@@ -94,11 +94,13 @@ def test_hetzner_colour_contrast_and_distinct_palette():
                 assert mine != contrast.rgb(family, values, bg)
 
 
-def test_grok_section_is_byte_identical_to_rebased_page():
+def test_existing_grok_summary_is_byte_identical_before_restored_findings():
     import hashlib
     html = (ROOT / "results/report/page.html").read_text()
     body = re.search(r'<section id="grok">.*?</section>', html, re.S)[0]
-    assert hashlib.sha256(body.encode()).hexdigest() == "9fcb9868f2abc0cbde44f46607fc6447466c17aa7eabab271d38c049f6558fda"
+    original, restored = body.split('<details class="small"><summary>Grok comparisons and methods</summary>', 1)
+    assert hashlib.sha256((original + '</section>').encode()).hexdigest() == "9fcb9868f2abc0cbde44f46607fc6447466c17aa7eabab271d38c049f6558fda"
+    assert 'id="closest-lanes-by-pass-rate"' in restored and 'id="devin"' in restored
 
 
 def test_any_pair_explorer_is_open_at_load():
