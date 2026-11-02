@@ -8,8 +8,8 @@ from analysis import page
 
 ROOT = Path(__file__).resolve().parents[1]
 SECTIONS = ['winner', 'pareto', 'results', 'problems', 'grok', 'method', 'fail',
-            'tokens', 'pipes', 'fair', 'limits', 'extras', 'notes',
-            'equiv']
+            'tokens', 'pipes', 'fair', 'conclusion', 'limits', 'extras', 'notes',
+            'interesting', 'equiv']
 
 
 class Node:
