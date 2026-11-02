@@ -1223,6 +1223,17 @@
     "isolation_passes_original",
     "pilot_problems"
    ]
+  },
+  "Hetzner calibration additions": {
+   "reason": "Added hetzner-qwen36 and hetzner-qwen38: the vendor filter, config list, unavailable-cost messages and failure grid retain all prior labels and cells, with only the two Hetzner lanes added. Their 24 calls dated 2026-11-01 extend the run-date endpoint from 2026-10-28 to 2026-11-01 and raise the exploratory config count from 16 to 18; the $35.89 spend is unchanged. No existing grid values or other text were lost.",
+   "removals": [
+    "page text: LeetCode-style problems, written fresh for this bench. All calls ran 2026-10-22 to 2026-10-28.",
+    "page text: Min pass Any≥ 90%≥ 100% Colour by VendorModelEffortMode ClaudeCodexDevinGroknormalfastbarepipelinegpt-5.6Pre-registered only",
+    "page text: allnonehaiku-low · measuredhaiku-medium · measuredsonnet-medium · measuredluna-low · token-estimateluna-medium · token-estimatesol61-medium · token-estimatehaiku-high · measuredluna-high · token-estimateluna56-low · token-estimateluna56-high · token-estimatesol56-high · token-estimatesol61-high · token-estimateastra-medium · token-estimateterra61-low · token-estimateterra61-high · token-estimateterra56-low · token-estimateterra56-high · token-estimategrok47-low · measuredgrok47-medium · measuredgrok47-high · measuredgrok47fast-low · measureddevin16slow-default · unmeteredsol61-high ⚡ · token-estimateastra-medium ⚡ · token-estimatesol61-xhigh · token-estimateluna-low-bare · token-estimate",
+    "page text: devin16slow-default: cost unavailable. Use Speed × Pass.",
+    "page text: exploratory: 16 configs, ~$35.89 spent",
+    "page text: problemhaiku-lowhaiku-mediumhaiku-highsonnet-mediumsol61-mediumluna-highluna-mediumluna-lowluna-low-bareastra-mediumastra-medium ⚡sol61-highsol61-high ⚡sol56-highluna56-highluna56-lowterra61-highterra61-lowgrok47-lowgrok47-mediumgrok47-highgrok47fast-lowdevin16slow-defaultp01 overlap_minutes (L1)M5/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/51/1p02 squash (L1)E5/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/51/1p03 ledger (L2)M5/55/55/55/55/55/54/55/53/55/55/55/55/55/55/55/55/55/55/54/45/55/51/1p04 taller_within (L2)M5/55/55/55/55/55/51/51/51/55/55/55/55/55/54/54/53/55/55/53/35/55/50/1p05 pass_route (L3)M5/54/55/55/55/54/55/55/55/55/55/55/55/55/55/55/55/55/55/52/25/55/51/1p06 calc (L3)H5/55/55/55/55/55/55/55/55/55/55/55/55/55/54/51/55/55/52/51/25/51/50/1p07 weighted_distance_sums (L4)H5/55/55/55/55/55/55/55/55/55/55/55/55/55/55/53/55/55/55/50/04/54/50/1p08 recur (L4)M5/55/55/55/55/55/55/54/54/55/55/55/55/55/55/55/55/55/55/50/05/55/51/1p09 k_machine_schedule (L5)H3/55/55/55/55/54/55/52/55/55/55/55/55/55/55/55/55/55/55/50/05/55/50/1p10 avoid_count (L5)H5/55/55/55/55/54/55/55/54/55/55/55/55/55/55/54/55/55/55/50/05/55/51/1p11 best_average (L6)H5/55/55/55/55/55/52/54/52/55/55/55/55/55/55/55/55/55/55/50/05/55/50/1p12 sheet (L6)H4/55/55/55/53/53/50/50/50/55/55/55/55/55/53/51/55/55/51/50/03/51/50/1L7 setp13 xor_ring (L7)H5/55/55/55/55/55/5–––5/55/55/55/55/54/53/5–––––––p14 bounce_board (L7)H5/54/55/55/55/55/5–––5/55/55/55/53/52/52/5–––––––p15 paint_erase (L7)H2/54/55/55/55/55/5–––5/55/55/55/55/53/53/5–––––––"
+   ]
   }
  }
 }
