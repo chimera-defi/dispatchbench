@@ -1,12 +1,12 @@
 <p class="sub">Pick any two measures. Ring: nothing beats it on both. Tap a point.</p>
 <figure id="xfig">
 <p id="speed-vs-per-pass" class="ctl pair-presets" role="group" aria-label="Chart preset">
-<button type="button" id="pair-custom-preset" aria-pressed="true" aria-controls="pair-custom">Any two measures</button>
-<button type="button" id="pair-speed-preset" aria-pressed="false" aria-controls="pair-speed">Speed vs $ per pass</button>
+<button type="button" id="pair-custom-preset" aria-pressed="false" aria-controls="pair-custom">Any two measures</button>
+<button type="button" id="pair-speed-preset" aria-pressed="true" aria-controls="pair-speed">Speed vs $ per pass</button>
 __SPEED_LINK__
 </p>
-<div id="pair-speed" class="chart" hidden>__SPEED_COST__</div>
-<div id="pair-custom">
+<div id="pair-speed" class="chart">__SPEED_COST__</div>
+<div id="pair-custom" hidden>
 <div class="ctl">
 <label>x <select id="pair-ex"></select></label> <label><input type="checkbox" id="pair-lx"> log</label>
 <label>y <select id="pair-ey"></select></label> <label><input type="checkbox" id="pair-ly"> log</label>
@@ -84,6 +84,8 @@ function draw(){try{localStorage.setItem("dispatchbench-any-pair",JSON.stringify
   c.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();show()}else if(e.key==="Escape"){e.preventDefault();hide()}}})
  var f=fi!=null&&fi!==false&&box.querySelector('[data-i="'+fi+'"]');if(f){quiet=true;f.focus({preventScroll:true});quiet=false;if(open)f.onclick()}}
 var customPreset=document.getElementById("pair-custom-preset"),speedPreset=document.getElementById("pair-speed-preset");
+customPreset.setAttribute("aria-pressed","true");speedPreset.setAttribute("aria-pressed","false");
+document.getElementById("pair-custom").hidden=false;document.getElementById("pair-speed").hidden=true;
 function selectPreset(value){
  var speed=value==="speed";
  customPreset.setAttribute("aria-pressed",String(!speed));speedPreset.setAttribute("aria-pressed",String(speed));
