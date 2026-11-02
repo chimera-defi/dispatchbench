@@ -1,0 +1,314 @@
+diff --git a/jobq/job.py b/jobq/job.py
+index 0a9e9fa..43d42d3 100644
+--- a/jobq/job.py
++++ b/jobq/job.py
+@@ -8,3 +8,4 @@ class Job:
+     name: str = field(compare=False)
+     fn: object = field(compare=False, repr=False)  # zero-argument callable
+     attempts: int = field(default=0, compare=False)
++    failures: int = field(default=0, compare=False)
+diff --git a/jobq/queue.py b/jobq/queue.py
+index 6f9f569..1aafe59 100644
+--- a/jobq/queue.py
++++ b/jobq/queue.py
+@@ -17,9 +17,15 @@ class JobQueue:
+         heapq.heappush(self._heap, job)
+         return job
+ 
+-    def pop_due(self) -> Job | None:
+-        """Remove and return the earliest job whose run_at <= now, or None."""
+-        if self._heap and self._heap[0].run_at <= self.clock():
++    def requeue(self, job: Job) -> None:
++        """Put an existing job back on the queue, preserving its sequence number."""
++        heapq.heappush(self._heap, job)
++
++    def pop_due(self, now: int | None = None) -> Job | None:
++        """Remove the earliest job due by now (the clock time by default), or None."""
++        if now is None:
++            now = self.clock()
++        if self._heap and self._heap[0].run_at <= now:
+             return heapq.heappop(self._heap)
+         return None
+ 
+diff --git a/jobq/worker.py b/jobq/worker.py
+index c90a7df..373ae96 100644
+--- a/jobq/worker.py
++++ b/jobq/worker.py
+@@ -1,16 +1,60 @@
++from collections import deque
++
+ from .queue import JobQueue
+ 
+ 
+ class Worker:
+-    def __init__(self, queue: JobQueue):
++    def __init__(self, queue: JobQueue, max_attempts=3, base_delay=2, max_delay=60):
++        if max_attempts < 1:
++            raise ValueError("max_attempts must be at least 1")
++        if base_delay < 1:
++            raise ValueError("base_delay must be at least 1")
++        if max_delay < base_delay:
++            raise ValueError("max_delay must be at least base_delay")
+         self.queue = queue
++        self.max_attempts = max_attempts
++        self.base_delay = base_delay
++        self.max_delay = max_delay
+         self.done: list[str] = []     # names of jobs that succeeded, in completion order
++        self.dead: list[tuple[str, int, str]] = []
++        self._failed_attempts = 0
+ 
+     def run_due(self) -> int:
+-        """Run every job that is due now, earliest first. Returns how many jobs ran."""
++        """Attempt each job due at the start once, returning the number of attempts."""
++        now = self.queue.clock()
++        due = deque()
++        while (job := self.queue.pop_due(now)) is not None:
++            due.append(job)
++
+         ran = 0
+-        while (job := self.queue.pop_due()) is not None:
+-            job.fn()
+-            self.done.append(job.name)
+-            ran += 1
++        try:
++            while due:
++                job = due.popleft()
++                attempted_at = self.queue.clock()
++                job.attempts += 1
++                ran += 1
++                try:
++                    job.fn()
++                except Exception as exc:
++                    job.failures += 1
++                    self._failed_attempts += 1
++                    if job.failures >= self.max_attempts:
++                        self.dead.append((job.name, job.attempts, repr(exc)))
++                    else:
++                        delay = min(self.max_delay, self.base_delay * 2 ** (job.failures - 1))
++                        job.run_at = attempted_at + delay
++                        self.queue.requeue(job)
++                else:
++                    self.done.append(job.name)
++        finally:
++            # If an attempt propagates a BaseException, preserve the unattempted jobs.
++            for job in due:
++                self.queue.requeue(job)
+         return ran
++
++    def stats(self) -> dict[str, int]:
++        return {
++            "succeeded": len(self.done),
++            "failed_attempts": self._failed_attempts,
++            "dead": len(self.dead),
++        }
+diff --git a/tests/test_retry.py b/tests/test_retry.py
+new file mode 100644
+index 0000000..6356ae3
+--- /dev/null
++++ b/tests/test_retry.py
+@@ -0,0 +1,205 @@
++import pytest
++
++from jobq.queue import JobQueue
++from jobq.worker import Worker
++
++
++class Clock:
++    def __init__(self, t=0):
++        self.t = t
++
++    def __call__(self):
++        return self.t
++
++
++def fail():
++    raise RuntimeError("failed")
++
++
++@pytest.mark.parametrize("options", [
++    {"max_attempts": 0},
++    {"max_attempts": -1},
++    {"base_delay": 0},
++    {"base_delay": -1},
++    {"max_delay": 1},
++    {"base_delay": 5, "max_delay": 4},
++])
++def test_invalid_options(options):
++    with pytest.raises(ValueError):
++        Worker(JobQueue(Clock()), **options)
++
++
++def test_default_retries_then_success():
++    clock = Clock()
++    queue = JobQueue(clock)
++    worker = Worker(queue)
++    calls = []
++
++    def flaky():
++        calls.append(clock())
++        if len(calls) < 3:
++            fail()
++
++    job = queue.submit("flaky", flaky)
++    assert worker.stats() == {"succeeded": 0, "failed_attempts": 0, "dead": 0}
++    assert worker.run_due() == 1
++    assert job.attempts == 1 and job.run_at == 2
++    assert worker.done == [] and worker.dead == []
++    clock.t = 1
++    assert worker.run_due() == 0
++    clock.t = 2
++    assert worker.run_due() == 1
++    assert job.attempts == 2 and job.run_at == 6
++    clock.t = 5
++    assert worker.run_due() == 0
++    clock.t = 6
++    assert worker.run_due() == 1
++    assert job.attempts == 3
++    assert calls == [0, 2, 6]
++    assert len(queue) == 0
++    assert worker.done == ["flaky"] and worker.dead == []
++    assert worker.stats() == {"succeeded": 1, "failed_attempts": 2, "dead": 0}
++
++
++def test_backoff_caps_and_uses_attempt_time():
++    clock = Clock(10)
++    queue = JobQueue(clock)
++    worker = Worker(queue, max_attempts=5, base_delay=3, max_delay=7)
++
++    def slow_failure():
++        clock.t += 100
++        fail()
++
++    job = queue.submit("slow", slow_failure)
++    for attempts, delay in enumerate([3, 6, 7, 7], start=1):
++        attempted_at = clock()
++        assert worker.run_due() == 1
++        assert job.attempts == attempts
++        assert job.run_at == attempted_at + delay
++        assert len(queue) == 1
++    assert worker.run_due() == 1
++    assert job.attempts == 5 and len(queue) == 0
++    assert worker.dead == [("slow", 5, "RuntimeError('failed')")]
++    assert worker.stats() == {"succeeded": 0, "failed_attempts": 5, "dead": 1}
++
++
++def test_dead_order_last_exception_and_other_jobs_continue():
++    clock = Clock()
++    queue = JobQueue(clock)
++    worker = Worker(queue, max_attempts=2)
++    calls = 0
++
++    def changing_failure():
++        nonlocal calls
++        calls += 1
++        raise ValueError(f"failure {calls}")
++
++    queue.submit("first", changing_failure)
++    queue.submit("second", fail)
++    queue.submit("success", lambda: None)
++    assert worker.run_due() == 3
++    clock.t = 2
++    assert worker.run_due() == 2
++    assert worker.dead == [
++        ("first", 2, "ValueError('failure 2')"),
++        ("second", 2, "RuntimeError('failed')"),
++    ]
++    assert worker.done == ["success"]
++    assert worker.stats() == {"succeeded": 1, "failed_attempts": 4, "dead": 2}
++
++
++def test_one_attempt_dies_immediately():
++    queue = JobQueue(Clock())
++    worker = Worker(queue, max_attempts=1, base_delay=1, max_delay=1)
++    job = queue.submit("once", fail)
++    assert worker.run_due() == 1
++    assert job.attempts == 1 and len(queue) == 0
++    assert worker.dead == [("once", 1, "RuntimeError('failed')")]
++
++
++@pytest.mark.parametrize("error_type", [KeyboardInterrupt, SystemExit, BaseException])
++def test_base_exception_propagates_and_preserves_unattempted_jobs(error_type):
++    queue = JobQueue(Clock())
++    worker = Worker(queue)
++    error = error_type("stop")
++
++    def interrupt():
++        raise error
++
++    job = queue.submit("interrupt", interrupt)
++    remaining = queue.submit("remaining", lambda: None)
++    with pytest.raises(error_type) as caught:
++        worker.run_due()
++    assert caught.value is error
++    assert job.attempts == 1
++    assert remaining.attempts == 0 and len(queue) == 1
++    assert worker.stats() == {"succeeded": 0, "failed_attempts": 0, "dead": 0}
++    assert worker.run_due() == 1
++    assert worker.done == ["remaining"]
++
++
++def test_retry_keeps_sequence_for_equal_due_times():
++    clock = Clock()
++    queue = JobQueue(clock)
++    worker = Worker(queue)
++    log = []
++
++    def retry_once():
++        log.append("original")
++        if len(log) == 1:
++            fail()
++
++    original = queue.submit("original", retry_once)
++    original_seq = original.seq
++    queue.submit("later", lambda: log.append("later"), delay=2)
++    assert worker.run_due() == 1
++    queue.submit("latest", lambda: log.append("latest"), delay=2)
++    clock.t = 2
++    assert worker.run_due() == 3
++    assert original.seq == original_seq
++    assert log == ["original", "original", "later", "latest"]
++
++
++def test_run_due_uses_initial_jobs_even_when_clock_advances():
++    clock = Clock()
++    queue = JobQueue(clock)
++    worker = Worker(queue)
++
++    def advance_and_submit():
++        clock.t = 10
++        queue.submit("new", lambda: None)
++
++    queue.submit("advance", advance_and_submit)
++    later = queue.submit("later", lambda: None, delay=5)
++    assert worker.run_due() == 1
++    assert later.attempts == 0 and len(queue) == 2
++    assert worker.run_due() == 2
++    assert worker.done == ["advance", "later", "new"]
++
++
++def test_each_retry_uses_its_own_attempt_time():
++    clock = Clock()
++    queue = JobQueue(clock)
++    worker = Worker(queue)
++
++    def advance():
++        clock.t = 10
++
++    queue.submit("advance", advance)
++    job = queue.submit("failure", fail)
++    assert worker.run_due() == 2
++    assert job.run_at == 12
++
++
++def test_retry_rounding_to_now_waits_for_next_call():
++    clock = Clock(1e20)
++    queue = JobQueue(clock)
++    worker = Worker(queue)
++    job = queue.submit("rounded", fail)
++    assert worker.run_due() == 1
++    assert job.run_at == clock()
++    assert job.attempts == 1 and len(queue) == 1
++    assert worker.run_due() == 1
++    assert job.attempts == 2
++    assert worker.run_due() == 1
++    assert worker.dead == [("rounded", 3, "RuntimeError('failed')")]

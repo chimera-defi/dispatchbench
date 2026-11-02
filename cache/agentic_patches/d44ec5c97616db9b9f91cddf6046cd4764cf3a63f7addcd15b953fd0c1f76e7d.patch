@@ -1,0 +1,164 @@
+diff --git a/kvcache/cache.py b/kvcache/cache.py
+index be3061f..c0c71be 100644
+--- a/kvcache/cache.py
++++ b/kvcache/cache.py
+@@ -23,19 +23,30 @@ class TTLCache:
+             self.stats.misses += 1
+             return default
+         value, expires_at = self._data[key]
+-        self.stats.hits += 1
+-        if self.clock() > expires_at:
++        if self.clock() >= expires_at:
+             del self._data[key]
++            self.stats.misses += 1
+             self.stats.expirations += 1
+             return default
++        self.stats.hits += 1
+         self._data.move_to_end(key)
+         return value
+ 
++    def _expire(self, now) -> None:
++        expired = [key for key, (_, expires_at) in self._data.items() if now >= expires_at]
++        for key in expired:
++            del self._data[key]
++            self.stats.expirations += 1
++
+     def put(self, key, value) -> None:
+-        self._data[key] = (value, self.clock() + self.ttl)
++        now = self.clock()
++        self._expire(now)
++        self._data[key] = (value, now + self.ttl)
++        self._data.move_to_end(key)
+         if len(self._data) > self.capacity:
+             self._data.popitem(last=False)
+             self.stats.evictions += 1
+ 
+     def __len__(self) -> int:
++        self._expire(self.clock())
+         return len(self._data)
+diff --git a/tests/test_regressions.py b/tests/test_regressions.py
+new file mode 100644
+index 0000000..9de9802
+--- /dev/null
++++ b/tests/test_regressions.py
+@@ -0,0 +1,120 @@
++import pytest
++
++from kvcache.cache import TTLCache
++from kvcache.clock import FakeClock
++
++
++@pytest.mark.parametrize("elapsed", [10, 11])
++def test_expired_get_counts_as_miss_and_expiration(elapsed):
++    clock = FakeClock(20)
++    cache = TTLCache(2, 10, clock)
++    cache.put("a", 1)
++    clock.advance(9)
++    assert cache.get("a") == 1
++
++    clock.advance(elapsed - 9)
++    assert cache.get("a", "missing") == "missing"
++    assert cache.stats.hits == 1
++    assert cache.stats.misses == 1
++    assert cache.stats.expirations == 1
++    assert cache.stats.evictions == 0
++    assert cache.stats.hit_rate() == 0.5
++
++    assert cache.get("a", "missing") == "missing"
++    assert cache.stats.misses == 2
++    assert cache.stats.expirations == 1
++
++
++def test_overwrite_updates_recency_and_refreshes_ttl():
++    clock = FakeClock()
++    cache = TTLCache(2, 10, clock)
++    cache.put("a", 1)
++    cache.put("b", 2)
++    clock.advance(5)
++    cache.put("a", 3)
++    cache.put("c", 4)
++
++    assert cache.get("b") is None
++    assert cache.get("a") == 3
++    assert cache.get("c") == 4
++    assert cache.stats.evictions == 1
++    assert cache.stats.expirations == 0
++
++    clock.advance(5)
++    assert cache.get("a") == 3
++    clock.advance(5)
++    assert cache.get("a") is None
++
++
++@pytest.mark.parametrize("expired_is_mru", [False, True])
++def test_put_reclaims_expired_entries_before_evicting_live_ones(expired_is_mru):
++    clock = FakeClock()
++    cache = TTLCache(2, 10, clock)
++    cache.put("expired", 1)
++    clock.advance(5)
++    cache.put("live", 2)
++    if expired_is_mru:
++        assert cache.get("expired") == 1
++
++    clock.advance(5)
++    cache.put("new", 3)
++
++    assert cache.get("live") == 2
++    assert cache.get("new") == 3
++    assert cache.get("expired") is None
++    assert len(cache) == 2
++    assert cache.stats.expirations == 1
++    assert cache.stats.evictions == 0
++
++
++def test_overwriting_expired_entry_counts_expiration():
++    clock = FakeClock()
++    cache = TTLCache(1, 10, clock)
++    cache.put("a", 1)
++    clock.advance(10)
++    cache.put("a", 2)
++
++    assert cache.get("a") == 2
++    assert len(cache) == 1
++    assert cache.stats.expirations == 1
++    assert cache.stats.evictions == 0
++    assert cache.stats.misses == 0
++
++
++def test_len_removes_all_expired_entries_without_counting_lookups():
++    clock = FakeClock()
++    cache = TTLCache(3, 10, clock)
++    cache.put("a", 1)
++    cache.put("b", 2)
++    clock.advance(5)
++    cache.put("c", 3)
++    assert cache.get("a") == 1
++    clock.advance(5)
++
++    assert len(cache) == 1
++    assert len(cache) == 1
++    assert cache.stats.expirations == 2
++    assert cache.stats.evictions == 0
++    assert cache.stats.hits == 1
++    assert cache.stats.misses == 0
++    assert cache.get("c") == 3
++
++    clock.advance(5)
++    assert len(cache) == 0
++    assert cache.stats.expirations == 3
++
++
++def test_put_reclaims_multiple_expired_entries():
++    clock = FakeClock()
++    cache = TTLCache(3, 10, clock)
++    for key in ("a", "b", "c"):
++        cache.put(key, key)
++    clock.advance(10)
++    cache.put("new", 4)
++
++    assert cache.stats.expirations == 3
++    assert cache.stats.evictions == 0
++    assert cache.stats.hits == 0
++    assert cache.stats.misses == 0
++    assert len(cache) == 1
++    assert cache.get("new") == 4

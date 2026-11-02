@@ -45,6 +45,7 @@ report:              ## render existing results; grading/export is explicit to p
 	$(PY) -m analysis.dataset
 	$(PY) -m analysis.charts
 	$(PY) -m analysis.luna_rescue > results/report/luna_rescue.md
+	$(PY) -m analysis.terra_priority > results/report/terra_priority.md
 	$(PY) -m analysis.report
 	$(PY) -m analysis.raw_runs
 	$(PY) -m analysis.og
