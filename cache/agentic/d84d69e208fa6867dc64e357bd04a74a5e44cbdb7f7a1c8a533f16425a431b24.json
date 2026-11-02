@@ -1,0 +1,494 @@
+{
+ "key": "d84d69e208fa6867dc64e357bd04a74a5e44cbdb7f7a1c8a533f16425a431b24",
+ "ts": "2026-11-02T03:09:11+00:00",
+ "track": "agentic",
+ "grader_version": 3,
+ "config": "terra61-high",
+ "cli": "codex",
+ "cli_version": "0.164.0",
+ "model": "gpt-6.1-terra",
+ "effort": "high",
+ "task": "t1_discount",
+ "repeat": 3,
+ "lanes": 2,
+ "wall_s": 26.566849141963758,
+ "in_tok": 126208,
+ "cached_tok": 116992,
+ "cache_write_tok": 0,
+ "out_tok": 1811,
+ "reasoning_tok": 105,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)",
+ "turns": 1,
+ "tool_calls": {
+  "command_execution": 13,
+  "file_change": 1
+ },
+ "is_error": false,
+ "error": null,
+ "error_type": null,
+ "delegate_calls": 0,
+ "visible_pass": true,
+ "visible": {
+  "ok": true,
+  "passed": 14,
+  "failed": 0,
+  "tail": "14 passed in 1.14s",
+  "collected_ids": [
+   "tests/test_discount.py::test_apply_percent[1005-10-905]",
+   "tests/test_discount.py::test_apply_percent[1004-10-904]",
+   "tests/test_discount.py::test_apply_percent[100-0-100]",
+   "tests/test_discount.py::test_apply_percent[100-100-0]",
+   "tests/test_discount.py::test_apply_percent[-1005-10--905]",
+   "tests/test_discount.py::test_invalid_percent[-1]",
+   "tests/test_discount.py::test_invalid_percent[101]",
+   "tests/test_discount.py::test_invalid_percent[1.5]",
+   "tests/test_discount.py::test_invalid_percent[10]",
+   "tests/test_discount.py::test_invalid_percent[None]",
+   "tests/test_discount.py::test_invalid_percent[True]",
+   "tests/test_discount.py::test_discount_codes_and_cli",
+   "tests/test_store.py::test_total",
+   "tests/test_store.py::test_format"
+  ],
+  "reports": [
+   {
+    "id": "tests/test_discount.py::test_apply_percent[1005-10-905]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_apply_percent[1005-10-905]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_apply_percent[1005-10-905]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_apply_percent[1004-10-904]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_apply_percent[1004-10-904]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_apply_percent[1004-10-904]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_apply_percent[100-0-100]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_apply_percent[100-0-100]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_apply_percent[100-0-100]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_apply_percent[100-100-0]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_apply_percent[100-100-0]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_apply_percent[100-100-0]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_apply_percent[-1005-10--905]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_apply_percent[-1005-10--905]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_apply_percent[-1005-10--905]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[-1]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[-1]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[-1]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[101]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[101]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[101]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[1.5]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[1.5]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[1.5]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[10]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[10]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[10]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[None]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[None]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[None]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[True]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[True]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_invalid_percent[True]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_discount_codes_and_cli",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_discount_codes_and_cli",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_discount.py::test_discount_codes_and_cli",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_store.py::test_total",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_store.py::test_total",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_store.py::test_total",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_store.py::test_format",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_store.py::test_format",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_store.py::test_format",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   }
+  ],
+  "deselected": []
+ },
+ "hidden_pass": true,
+ "hidden": {
+  "ok": true,
+  "passed": 8,
+  "failed": 0,
+  "tail": "8 passed in 0.76s",
+  "collected_ids": [
+   "test_hidden.py::test_round_half_up",
+   "test_hidden.py::test_pct_bounds[-1]",
+   "test_hidden.py::test_pct_bounds[101]",
+   "test_hidden.py::test_pct_bounds[10.5]",
+   "test_hidden.py::test_pct_bounds[10]",
+   "test_hidden.py::test_bool_pct_rejected",
+   "test_hidden.py::test_codes",
+   "test_hidden.py::test_cli"
+  ],
+  "reports": [
+   {
+    "id": "test_hidden.py::test_round_half_up",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_round_half_up",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_round_half_up",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_pct_bounds[-1]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_pct_bounds[-1]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_pct_bounds[-1]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_pct_bounds[101]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_pct_bounds[101]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_pct_bounds[101]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_pct_bounds[10.5]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_pct_bounds[10.5]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_pct_bounds[10.5]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_pct_bounds[10]",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_pct_bounds[10]",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_pct_bounds[10]",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bool_pct_rejected",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bool_pct_rejected",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_bool_pct_rejected",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_codes",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_codes",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_codes",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_cli",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_cli",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_cli",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   }
+  ],
+  "deselected": [],
+  "expected_ids": [
+   "test_hidden.py::test_round_half_up",
+   "test_hidden.py::test_pct_bounds[-1]",
+   "test_hidden.py::test_pct_bounds[101]",
+   "test_hidden.py::test_pct_bounds[10.5]",
+   "test_hidden.py::test_pct_bounds[10]",
+   "test_hidden.py::test_bool_pct_rejected",
+   "test_hidden.py::test_codes",
+   "test_hidden.py::test_cli"
+  ],
+  "expected_collection": {
+   "ok": true,
+   "tail": "8 tests collected in 0.73s"
+  }
+ },
+ "task_complete": true,
+ "own_tests": true,
+ "tests_tampered": [],
+ "diff_stat": " 15 files changed, 96 insertions(+), 2 deletions(-)",
+ "patch": "cache/agentic_patches/d84d69e208fa6867dc64e357bd04a74a5e44cbdb7f7a1c8a533f16425a431b24.patch",
+ "retry_count": 0,
+ "codex_home": "isolated"
+}
