@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ANALYSIS = ROOT / "analysis"
 # Modules that may open results/*.jsonl: dataset.py and what it imports for computation. export_solutions.py exports code, not numbers.
-LOADERS = {"dataset.py", "summarize.py", "fast_gate.py", "harness_bias.py", "luna_rescue.py", "rawindex.py", "export_solutions.py"}
+LOADERS = {"dataset.py", "summarize.py", "fast_gate.py", "harness_bias.py", "luna_rescue.py", "terra_priority.py", "rawindex.py", "export_solutions.py"}
 RENDERERS = {"page.py", "charts.py", "report.py", "grok.py", "raw_runs.py", "audit.py", "og.py", "labels.py"}
 PATHLIKE = re.compile(r"[\w\-/]\.jsonl\b|summary\.json\b")  # a file name, not the bare word in prose ("without `.jsonl`")
 

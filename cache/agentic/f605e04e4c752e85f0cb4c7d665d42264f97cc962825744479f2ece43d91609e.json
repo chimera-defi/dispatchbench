@@ -1,0 +1,321 @@
+{
+ "key": "f605e04e4c752e85f0cb4c7d665d42264f97cc962825744479f2ece43d91609e",
+ "ts": "2026-11-02T01:01:42+00:00",
+ "track": "agentic",
+ "grader_version": 2,
+ "config": "terra61-low-fast",
+ "cli": "codex",
+ "cli_version": "0.164.0",
+ "model": "gpt-6.1-terra",
+ "effort": "low",
+ "task": "t2_cache_bugs",
+ "repeat": 2,
+ "lanes": 4,
+ "wall_s": 26.089820808032528,
+ "in_tok": 126754,
+ "cached_tok": 120064,
+ "cache_write_tok": 0,
+ "out_tok": 1858,
+ "reasoning_tok": 31,
+ "cost_usd": null,
+ "cost_kind": "proxy (list price x tokens)",
+ "turns": 1,
+ "tool_calls": {
+  "command_execution": 8,
+  "file_change": 2
+ },
+ "is_error": false,
+ "error": null,
+ "error_type": null,
+ "delegate_calls": 0,
+ "visible_pass": true,
+ "visible": {
+  "ok": true,
+  "passed": 7,
+  "failed": 0,
+  "tail": "7 passed in 0.96s",
+  "collected_ids": [
+   "tests/test_cache.py::test_basic_get_put",
+   "tests/test_cache.py::test_lru_eviction",
+   "tests/test_regressions.py::test_expiration_boundary_is_a_miss",
+   "tests/test_regressions.py::test_overwrite_marks_key_as_recently_used",
+   "tests/test_regressions.py::test_put_removes_expired_entries_before_evicting_live_entries",
+   "tests/test_regressions.py::test_len_counts_only_live_entries_and_expires_once",
+   "tests/test_regressions.py::test_overwriting_expired_key_counts_expiration"
+  ],
+  "reports": [
+   {
+    "id": "tests/test_cache.py::test_basic_get_put",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_cache.py::test_basic_get_put",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_cache.py::test_basic_get_put",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_cache.py::test_lru_eviction",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_cache.py::test_lru_eviction",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_cache.py::test_lru_eviction",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_regressions.py::test_expiration_boundary_is_a_miss",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_regressions.py::test_expiration_boundary_is_a_miss",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_regressions.py::test_expiration_boundary_is_a_miss",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_regressions.py::test_overwrite_marks_key_as_recently_used",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_regressions.py::test_overwrite_marks_key_as_recently_used",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_regressions.py::test_overwrite_marks_key_as_recently_used",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_regressions.py::test_put_removes_expired_entries_before_evicting_live_entries",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_regressions.py::test_put_removes_expired_entries_before_evicting_live_entries",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_regressions.py::test_put_removes_expired_entries_before_evicting_live_entries",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_regressions.py::test_len_counts_only_live_entries_and_expires_once",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_regressions.py::test_len_counts_only_live_entries_and_expires_once",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_regressions.py::test_len_counts_only_live_entries_and_expires_once",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_regressions.py::test_overwriting_expired_key_counts_expiration",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_regressions.py::test_overwriting_expired_key_counts_expiration",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "tests/test_regressions.py::test_overwriting_expired_key_counts_expiration",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   }
+  ],
+  "deselected": []
+ },
+ "hidden_pass": true,
+ "hidden": {
+  "ok": true,
+  "passed": 6,
+  "failed": 0,
+  "tail": "6 passed in 1.07s",
+  "collected_ids": [
+   "test_hidden.py::test_expires_at_boundary",
+   "test_hidden.py::test_put_refreshes_recency_and_ttl",
+   "test_hidden.py::test_expired_lookup_is_a_miss",
+   "test_hidden.py::test_expired_entry_never_evicts_live_one",
+   "test_hidden.py::test_lru_victim_is_least_recent_live",
+   "test_hidden.py::test_len_counts_live_only"
+  ],
+  "reports": [
+   {
+    "id": "test_hidden.py::test_expires_at_boundary",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_expires_at_boundary",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_expires_at_boundary",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_put_refreshes_recency_and_ttl",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_put_refreshes_recency_and_ttl",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_put_refreshes_recency_and_ttl",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_expired_lookup_is_a_miss",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_expired_lookup_is_a_miss",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_expired_lookup_is_a_miss",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_expired_entry_never_evicts_live_one",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_expired_entry_never_evicts_live_one",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_expired_entry_never_evicts_live_one",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_lru_victim_is_least_recent_live",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_lru_victim_is_least_recent_live",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_lru_victim_is_least_recent_live",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_len_counts_live_only",
+    "when": "setup",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_len_counts_live_only",
+    "when": "call",
+    "outcome": "passed",
+    "xfail": false
+   },
+   {
+    "id": "test_hidden.py::test_len_counts_live_only",
+    "when": "teardown",
+    "outcome": "passed",
+    "xfail": false
+   }
+  ],
+  "deselected": [],
+  "expected_ids": [
+   "test_hidden.py::test_expires_at_boundary",
+   "test_hidden.py::test_put_refreshes_recency_and_ttl",
+   "test_hidden.py::test_expired_lookup_is_a_miss",
+   "test_hidden.py::test_expired_entry_never_evicts_live_one",
+   "test_hidden.py::test_lru_victim_is_least_recent_live",
+   "test_hidden.py::test_len_counts_live_only"
+  ],
+  "expected_collection": {
+   "ok": true,
+   "tail": "6 tests collected in 0.76s"
+  }
+ },
+ "task_complete": true,
+ "own_tests": true,
+ "tests_tampered": [],
+ "diff_stat": " 6 files changed, 79 insertions(+), 3 deletions(-)",
+ "patch": "cache/agentic_patches/f605e04e4c752e85f0cb4c7d665d42264f97cc962825744479f2ece43d91609e.patch",
+ "retry_count": 0,
+ "codex_home": "isolated"
+}

@@ -105,6 +105,30 @@
    "used": true
   },
   {
+   "path": "results/2026-11-02-terra-noise-function.jsonl",
+   "sha256": "2df1ee779e47f4c92ffb544f32eee22d3217d7c6d718290168b7ef93dea87494",
+   "rows": 240,
+   "date": "2026-11-02",
+   "lanes": "codex",
+   "used": false
+  },
+  {
+   "path": "results/2026-11-02-terra-priority-function.jsonl",
+   "sha256": "26b34e699143a46c1896037c2c1c1c2f5ecada15bbafa4c978add063969161cf",
+   "rows": 120,
+   "date": "2026-11-02",
+   "lanes": "codex",
+   "used": false
+  },
+  {
+   "path": "results/2026-11-02-terra-priority-repo.jsonl",
+   "sha256": "d2b14b09f7a9185a3d5e4924339dc3932f06c7b29a3b442e918b5f1ab91cdae0",
+   "rows": 60,
+   "date": "2026-11-02",
+   "lanes": "codex",
+   "used": false
+  },
+  {
    "path": "results/appendix/codex_harness.jsonl",
    "sha256": "5bf8288a66bf2efa931316c1834e82ec5fb0ffa8019cf49f816bdf75d9b1752e",
    "rows": 138,

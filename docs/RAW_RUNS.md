@@ -31,6 +31,9 @@ Blank lines, malformed JSON and non-object values are skipped when deriving date
 | 2026-10-28-t1-hidden-v2-regrade | 2026-10-28 | claude, codex, grok | 37 | `4b07e11bddb5972ff2ec89f0d27cd777c7032ac238640553c99e0e17ec208631` | [results/2026-10-28-t1-hidden-v2-regrade.jsonl](../results/2026-10-28-t1-hidden-v2-regrade.jsonl) |
 | 2026-10-28-terra-function | 2026-10-28 | codex | 144 | `99900e6c2ee5f7aceced99fa18e052c23a86f280c9116528ba78d947a52f010a` | [results/2026-10-28-terra-function.jsonl](../results/2026-10-28-terra-function.jsonl) |
 | 2026-11-01-hetzner-function | 2026-11-01 | hetzner | 24 | `231925ef239ae51a98856c11cc2200e57d3bf1fcf346853775aa09f614de9a1a` | [results/2026-11-01-hetzner-function.jsonl](../results/2026-11-01-hetzner-function.jsonl) |
+| 2026-11-02-terra-noise-function | 2026-11-02 | codex | 240 | `2df1ee779e47f4c92ffb544f32eee22d3217d7c6d718290168b7ef93dea87494` | [results/2026-11-02-terra-noise-function.jsonl](../results/2026-11-02-terra-noise-function.jsonl) |
+| 2026-11-02-terra-priority-function | 2026-11-02 | codex | 120 | `26b34e699143a46c1896037c2c1c1c2f5ecada15bbafa4c978add063969161cf` | [results/2026-11-02-terra-priority-function.jsonl](../results/2026-11-02-terra-priority-function.jsonl) |
+| 2026-11-02-terra-priority-repo | 2026-11-02 | codex | 60 | `d2b14b09f7a9185a3d5e4924339dc3932f06c7b29a3b442e918b5f1ab91cdae0` | [results/2026-11-02-terra-priority-repo.jsonl](../results/2026-11-02-terra-priority-repo.jsonl) |
 | appendix/codex_harness | 2026-10-24 | claude, codex | 138 | `5bf8288a66bf2efa931316c1834e82ec5fb0ffa8019cf49f816bdf75d9b1752e` | [results/appendix/codex_harness.jsonl](../results/appendix/codex_harness.jsonl) |
 | appendix/harness_bias | 2026-10-24 | claude, codex | 240 | `a61ae36c295a5eb28358163f0f6936591345969aceac52afd3d34bbb6651fcf3` | [results/appendix/harness_bias.jsonl](../results/appendix/harness_bias.jsonl) |
 | appendix/isolation/function | 2026-10-25 | codex | 935 | `57b6721db0d5ef952e314a80f140ae94643e3e7b7dac3371d6603c3f7c134213` | [results/appendix/isolation/function.jsonl](../results/appendix/isolation/function.jsonl) |
@@ -81,9 +84,9 @@ Their hashes hold only for the commit you read. Regenerate this index after rebu
 
 | Folder | Holds | Files | Aggregate SHA-256 |
 |---|---|---:|---|
-| [cache/calls/](../cache/calls/) | Function completions, usage and call metadata | 1768 | `671100352a8f946cff1965b611972e15f0368a1ec594372d559bbd31234a4382` |
-| [cache/agentic/](../cache/agentic/) | Repo-task verdicts, usage and test summaries | 100 | `67a617f8e8cf19f61a165e714eda6983a93c046e4f0818492a7f49ef2b16283d` |
-| [cache/grades/](../cache/grades/) | Function verdicts and timing fractions | 1654 | `9a2ee00a2cd90f289da6ad79f91b69944311589e06c3b69c514c3b3cf5f17f43` |
+| [cache/calls/](../cache/calls/) | Function completions, usage and call metadata | 2128 | `6701823f11925c008eb8c1d1b8fa46bfe8cafae2a985d849fde991a8a20bbc83` |
+| [cache/agentic/](../cache/agentic/) | Repo-task verdicts, usage and test summaries | 160 | `444477912415de38b149c36bb14ef0ece6420ab297334d3f769606bf42357bed` |
+| [cache/grades/](../cache/grades/) | Function verdicts and timing fractions | 1960 | `107a5d282dc17d141caa216129f476409ba3c3c77749faec7df38638f98f51e6` |
 | [cache/gated_repair/](../cache/gated_repair/) | Builds, visible-test gates and repair completions | 227 | `1d93ce9b6ddcef8778891e78cbc95ea05d64f7f352c4272a53ef4a1de24afa9f` |
 | [cache/plan_first/](../cache/plan_first/) | Planner and builder completions | 105 | `b1a47b100de26699a3b2eafc7bc10f1659f5541d386fdcb363a369b91564f05a` |
 | [cache/trim/](../cache/trim/) | Harness-trim probe completions and usage | 69 | `9e333cf6e3ac1c367167fd8e3ba6d83cf751e1833e488854d6332b270a8a07aa` |
