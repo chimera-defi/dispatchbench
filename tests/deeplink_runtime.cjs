@@ -55,13 +55,16 @@ const {chromium}=require('playwright');
     assert(h.links[0].label.startsWith('Link to this section: '));assert.notEqual(h.links[0].tab,'-1');
    }
    const grokIds=await page.locator('#grok h2,#grok h3').evaluateAll(hs=>hs.map(h=>h.id));
-   assert.deepEqual(grokIds,['grok-and-devin']);
+   assert.deepEqual(grokIds,['grok-and-devin','closest-lanes-by-pass-rate','repository-tasks','devin']);
    const ids=await page.locator('[id]').evaluateAll(els=>els.map(el=>el.id));assert.equal(new Set(ids).size,ids.length,'live ids must not collide');
    assert(!ids.some(id=>id.includes('accuracyone')),'heading words must not glue together');
-   for(const id of ['results','pareto','grok']){
+   for(const id of ['results','pareto','grok','conclusion','interesting']){
     await page.goto(base+'?fresh=section-'+id+'#'+id);await visibleTarget(id);
     const position=await page.locator('#'+id+' > h2').evaluate(h=>({top:h.getBoundingClientRect().top,bar:Math.max(0,document.querySelector('.ds-topbar').getBoundingClientRect().bottom)}));
     assert(position.top>=position.bar&&position.top<900,`${width}/${id} heading under bar or outside viewport`);
+   }
+   for(const id of ['closest-lanes-by-pass-rate','repository-tasks','appendix']){
+    await page.goto(base+'?fresh=restored-'+id+'#'+id);await visibleTarget(id);
    }
    await page.goto(base+'#config-sonnet-low');await visibleTarget('config-sonnet-low');
    assert(await page.locator('[aria-live="polite"]').count()>0);

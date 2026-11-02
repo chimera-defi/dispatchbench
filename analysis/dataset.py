@@ -1419,6 +1419,10 @@ def _interesting(ds):
                         f"It cost ~{lc:.0f}× per pass and took ~{lt:.0f}× the median time. "
                         f"haiku-low rose from {ho['passes']} to {ha['passes']} passes. "
                         f"It cost ~{hc:.1f}× per pass, with the same median time.")
+    # Recorded history from 71884b6:docs/page.tmpl.md#fair, not graded rows.
+    # Keep the Interesting fact independent of the now-cut build-history prose.
+    F["int_build"] = ('Codex\'s bench dry runs missed 2 sandbox bugs; a live call found them. '
+                      'Its "plan and reorient" nudge changed no code.')
     cheap, dear = (get(ds, c, "L7 set") for c in ("luna-high", "sol56-high"))
     need(cheap["passes"] == cheap["n"] == dear["n"] > dear["passes"]
          and 0 < cheap["usd_per_pass"] < dear["usd_per_pass"],
@@ -1767,6 +1771,8 @@ def build(summary=None):
         ds["facts"]["grok_not_run"] = (
             (f"{', '.join(short)} covers {sorted(s['grok'][short[0]]['by_problem'])[0][:3]}–{sorted(s['grok'][short[0]]['by_problem'])[-1][:3]} only, "
              "so its cells for the other problems are dashes. ") if short else "") + "A dash means no attempt, not a failure."
+    ds["tables"]["grok_catalog"] = md_table(["name", "what it was"],
+        [[r["display"], r["what"]] for r in catalog_rows(ds) if r["config"] in configs.GROK_CONFIGS])
     _devin(ds, s)
     _hetzner(ds, s)
     _equivalents(ds)
