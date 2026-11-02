@@ -17,7 +17,7 @@ ORDER = ["haiku-low", "haiku-medium", "haiku-high", "sonnet-medium", "sol61-medi
 ORDER_ALL = ORDER + list(configs.DEVIN_CONFIGS)
 GROK_ORDER = configs.GROK_CONFIGS
 from analysis.dataset import WINNER_PICKS, front, speed_dominates
-FAM = lambda c: "var(--hetzner)" if c.startswith("hetzner") else "var(--grok)" if c.startswith("grok") else "var(--devin)" if c.startswith("devin") else "var(--claude)" if c.startswith("haiku") else "var(--sonnet)" if c.startswith("sonnet") else "var(--codex56)" if c.startswith(("sol56", "luna56")) else "var(--codex)"
+FAM = FAMILY
 NS = 'xmlns="http://www.w3.org/2000/svg"'
 
 
@@ -153,7 +153,7 @@ def SHAPE(c):
 
 
 def marker_paint(c, hollow, col):
-    """Grok is black in the light theme. A white outline keeps that mark readable on the dark theme too."""
+    """A surface outline separates Grok's blue mark from neighbouring points."""
     if c.startswith("grok"):
         return ("var(--panel)" if hollow else col, "var(--panel)", 1.5)
     return ("var(--panel)" if hollow else col, col, 2.5)
@@ -470,12 +470,11 @@ def ladder_repairs(free, stat, arms=None):
     pts = []
     for c, name in NAME.items():
         v = (arms if arms is not None else rescue_arms())[c]
-        pipeline = "+" in c
         builder = c.split("+", 1)[-1] if c.startswith("haiku-low-plan+") else c.split("+", 1)[0]
         usd = v["claude_usd_per_pass"] if free else v["usd_per_pass"]
         pts.append({"c": c, "name": name, "set": "rescue", "x": v["median_s"] if stat == "speed" else usd,
                     "y": usd if stat == "speed" else v["pass_rate"], "rate": v["pass_rate"], "hollow": "-fast" in builder, "dash": "bare" in builder,
-                    "col": "var(--frontier)" if pipeline else FAM(c),
+                    "col": FAM(c),
                     "shape": SHAPE(builder), "w": None, "on": False, "free_mode": free,
                     "saved_usd": v["usd_saved_per_pass"], "normal_usd": v["usd_per_pass"], "free_usd": v["claude_usd_per_pass"],
                     "tip": f"{name}: {v['passes']}/{v['n']} passed. {dataset.usd(usd)} per pass. Median {dataset.median_seconds(v):.1f} s. {configs.set_label('rescue set', capital=True)} only. "
@@ -664,7 +663,7 @@ def grid(s, grok=None):
         cell = v["by_group"].get(p) if v else None
         return (cell["passes"], cell["n"]) if cell else (None, None)
     out = [f'<div class="grid" style="--n:{len(cols)};grid-template-columns:minmax(150px,auto) repeat({len(cols)},minmax(40px,1fr))">', '<div class="h m">problem</div>']
-    out += [f'<div class="h{" fast" if c.endswith("-fast") else " devin" if c in configs.DEVIN_CONFIGS else " hetzner" if c in configs.HETZNER_CONFIGS else ""}"'
+    out += [f'<div style="color:{FAM(c)}" class="h{" fast" if c.endswith("-fast") else " devin" if c in configs.DEVIN_CONFIGS else " hetzner" if c in configs.HETZNER_CONFIGS else ""}"'
             + (f' title="{esc(s["facts"]["devin_group"])}"' if c in configs.DEVIN_CONFIGS else f' title="{esc(configs.HETZNER_NOTE)}"' if c in configs.HETZNER_CONFIGS else "") + f'>{esc(DISP(c))}</div>' for c in cols]
     for p in probs + hard:
         if p == hard[0]: out.append(f'<div class="set-separator" style="grid-column:1 / -1">L7 set</div>')
@@ -712,13 +711,13 @@ def pipes(arms=None):
     body = [f'<b class="bar-title">{esc(configs.set_label("rescue set", capital=True))}</b>',
             '<p class="pg-key"><span><i style="--bar-color:var(--claude)"></i>Haiku</span><span><i style="--bar-color:var(--sonnet)"></i>Sonnet</span>'
             '<span><i style="--bar-color:var(--codex)"></i>Codex</span><span><i style="--bar-color:var(--codex56)"></i>older Codex</span>'
-            '<span><i style="--bar-color:var(--frontier)"></i>pipeline</span><span><i class="bar-hollow" style="--bar-color:var(--muted)"></i>⚡ fast mode</span></p>']
+            '<span><i style="--bar-color:var(--pipeline)"></i>pipeline</span><span><i class="bar-hollow" style="--bar-color:var(--muted)"></i>⚡ fast mode</span></p>']
     for heading, test in PIPE_GROUPS:
         rows = []
         for c, name in (e for e in entries if test(e[0])):
             v = a[c]; low = configs.low_context(c, "rescue")
             if low and not any("Low context" in r for r in rows): rows.append('<p class="pg-d">Low context</p>')
-            col = "var(--frontier)" if "+" in c else FAM(c)
+            col = FAM(c)
             fill = f'<span class="bar-fill{" bar-hollow" if "-fast" in c else ""}" style="--bar-color:{col};--bar-width:{100 * v["pass_rate"]:.3f}%"></span>'
             rows.append(f'<div class="pg-row"><span class="bar-name">{esc(name)}</span><span class="bar-track">{fill}</span>'
                         f'<span class="bar-value">{v["passes"]}/{v["n"]} · {esc(dataset.usd(v["usd_per_pass"]))} · {v["median_s"]:.0f}s</span></div>')
@@ -827,7 +826,7 @@ def explorer(s):
     rows = [r for r in exp["rows"] if r["key"] in st["rows"]]
     membership = st["views"]["list"]["front"]["membership"]
     plotted = [r for r in rows if r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None]
-    legend = {r["family"] + " " + r["generation"] if charts.explorer_colour(r) == "var(--data-codex-old)" else r["family"]:
+    legend = {charts.explorer_family_label(r):
               charts.explorer_colour(r) for r in plotted}
     fr = sorted([r for r in plotted if membership[r["key"]]["on_frontier"]], key=lambda r:(r["usd_per_pass"], r["key"]))
     button = lambda r: f'<button class="btn" data-key="{esc(r["key"])}">{esc(r["display"])} · {charts.explorer_cost_label(r)}</button>'
@@ -885,25 +884,57 @@ HARD = list(NAME.items())
 
 
 def dot(col, grok=False):
-    """The family-colour swatch before a config name. Grok is black, so it gets the legend's white ring."""
+    """The family-colour swatch before a config name, with Grok's surface ring."""
     return f'<span class="dot" style="background:{col}{";box-shadow:0 0 0 1.5px var(--panel)" if grok else ""}"></span>'
 
 
-def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, rate, key="", set_name="", cost_label=None):
+def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, rate, key="", set_name="", cost_label=None, missing_label=None):
     r = rate; cls = "good" if r >= 0.95 else "warn" if r >= MIN_PASS else "bad"
     attr = f' title="{esc(derived)}"' if derived else ""
     suffix = f'<span class="muted"> · {esc(set_name)}</span>' if set_name else ""
+    price = lambda value: missing_label if value is None and missing_label else dataset.usd(value)
+    seconds = f"{sec:.1f}" if sec is not None else "not measured"
     return (f'<tr{attr}><td>{dot(col)}{esc(name)}{suffix}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
-            f'<td>{configs.cell_markup(("~" if proxy else "") + (cost_label or dataset.usd(usd)))}</td><td>{dataset.usd(cusd)}</td><td>{sec:.1f}</td><td class="verdict-cell" title="{esc(key)}">{verdict}</td></tr>')
+            f'<td>{configs.cell_markup(("~" if proxy else "") + (cost_label or price(usd)))}</td><td>{price(cusd)}</td><td>{seconds}</td><td class="verdict-cell" title="{esc(key)}">{verdict}</td></tr>')
+
+
+def grok_results(s):
+    """Group Grok by measured problem coverage and repeats, independently of retest rows."""
+    groups = {}
+    for c in GROK_ORDER:
+        v = (s.get("grok") or {}).get(c)
+        if not v: continue
+        problems = tuple(sorted(v["by_group"]))
+        repeats = sorted({g["n"] for g in v["by_group"].values()})
+        full = set(problems) == set(s["problems"])
+        scope = "main ladder" if full else "partial ladder"
+        repeat_label = str(repeats[0]) if len(repeats) == 1 else f"{repeats[0]}–{repeats[-1]}"
+        label = f"Grok · {scope} ({problems[0][:3]}–{problems[-1][:3]}). {repeat_label} repeats per problem."
+        missed = v["n"] - v["passes"]
+        beaten = full and any(
+            o["pass_at_1"] >= v["pass_at_1"]
+            and dataset.median_seconds(v) is not None
+            and dataset.median_seconds(o) < dataset.median_seconds(v)
+            and o["usd_per_pass"] is not None and v["usd_per_pass"] is not None
+            and o["usd_per_pass"] < v["usd_per_pass"] for o in every(s).values())
+        verdict = ("beaten; " if beaten else "partial ladder; " if not full else "") + (
+            f"missed {missed}" if missed else "0 misses")
+        floor = bool(v.get("outcomes", {}).get("timeout")) and v["usd_per_pass"] is not None
+        note = "Unbilled timeout; cost per pass is a lower bound." if floor else ""
+        body = row(DISP(c), FAM(c), v["passes"], v["n"], v["usd_per_pass"], v["claude_usd_per_pass"],
+                   dataset.median_seconds(v), verdict, derived=note, rate=v["pass_at_1"],
+                   key=s["facts"]["verdict_key"],
+                   cost_label="≥" + dataset.usd(v["usd_per_pass"]) if floor else None, missing_label="no data")
+        groups.setdefault(label, []).append(body)
+    return "".join('<tbody><tr class="grp"><th colspan="6">' + esc(label) + '</th></tr>'
+                   + "".join(rows) + '</tbody>' for label, rows in groups.items())
 
 
 CODEX = lambda c: any(x in c for x in ("luna", "sol", "astra"))
 
 
 def short_table(s, need):
-    """One table, two groups that sort separately: every config on all problems, then single models and pipelines on the hard
-    set. Passed reads "95% (57/60)" so it sorts by rate. Hard-set verdicts come from the numbers: never failed, the cheapest of
-    those, or how many attempts missed."""
+    """One table grouped by measured problem coverage; each group sorts separately."""
     E = every(s); a = rescue_arms(s)
     top = [(c, row(DISP(c), FAM(c), E[c]["passes"], E[c]["n"], E[c]["usd_per_pass"], 0.0 if CODEX(c) else E[c]["usd_per_pass"],
                dataset.median_seconds(E[c]), verdict(c, E[c], need, E, a),
@@ -912,7 +943,7 @@ def short_table(s, need):
     clean = [c for c, _ in HARD if a[c]["passes"] == a[c]["n"]]; need(clean, "some rescue-set row never failed")
     hv = lambda c: "0 misses" if c in clean else f"missed {a[c]['misses']}"
     duplicates = set(configs.PLAIN_PIPELINE_DUPLICATES)
-    hard = [(c, row(SHORT(name), "var(--frontier)" if "→" in name else FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], 0.0 if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
+    hard = [(c, row(SHORT(name), FAM(c), a[c]["passes"], a[c]["n"], a[c]["usd_per_pass"], 0.0 if CODEX(c) and "+" not in c else a[c]["claude_usd_per_pass"],
                 dataset.median_seconds(a[c]), hv(c), CODEX(c), a[c].get("derived_note", ""), rate=a[c]["pass_rate"], key=s["facts"]["verdict_key"],
                 set_name=configs.set_label("rescue set") if configs.low_context(c, "rescue") else "")) for c, name in HARD if c not in duplicates]
     dv = devin(s)
@@ -940,7 +971,7 @@ def short_table(s, need):
             + group(ladder_label, top, "main", extra=(
                 '<tr class="grp"><th colspan="6">' + esc("Main ladder: Hetzner " + configs.HETZNER_NOTE)
                 + '</th></tr>' + "".join(body for _, body in hetzner_rows)))
-            + group(subset_label, hard, "rescue", extra=devin_rows) + low_group + '</table></div>')
+            + grok_results(s) + group(subset_label, hard, "rescue", extra=devin_rows) + low_group + '</table></div>')
 
 
 def result_notes(s):

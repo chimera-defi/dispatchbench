@@ -100,16 +100,16 @@
   --data-claude:#e0a872;
   --data-codex:#7fb0e6;
   --data-codex-old:#b9d3f0;
-  --data-grok:#8fc7c0;
+  --data-grok:#1da1f2;
   --data-pipeline:#c7a2ea;
-  --data-haiku:#e0a872; --data-sonnet:#e58a7c; --data-luna:#a9c8ee; --data-sol:#7f9fe8; --data-astra:#c7a2ea;
+  --data-haiku:var(--data-claude); --data-sonnet:#e58a7c; --data-luna:var(--data-codex); --data-sol:var(--data-codex); --data-astra:var(--data-codex);
   --data-effort-low:#75798c; --data-effort-medium:#b2b6ca; --data-effort-high:#f3f5fe;
   --data-frontier:var(--color-accent-400);
   --data-focus:var(--color-text);
   --data-grid:color-mix(in srgb,var(--color-text) 8%,transparent);
   --data-beaten:color-mix(in srgb,var(--color-text) 7%,transparent);
 }
-/* DispatchBench compatibility aliases and light mode. Site dark values are vendored unchanged. */
+/* DispatchBench compatibility aliases and light mode. Family aliases use the DispatchBench palette. */
 :root{
  --font-mono:"JetBrains Mono",ui-monospace,monospace;--body:var(--font-body);--display:var(--font-heading);--mono:var(--font-mono);
  --bg:var(--color-bg);--panel:var(--color-surface);--fg:var(--color-text);--line:var(--color-divider);
@@ -118,21 +118,21 @@
  --color-tag:var(--color-kicker);--color-pressed-text:var(--color-kicker);
  --color-card-meta:color-mix(in srgb,var(--color-text) 60%,transparent);--color-primary-text:var(--color-accent-400);
  --color-input-ink:var(--color-text);--color-input-border:color-mix(in srgb,var(--color-input-ink) 45%,transparent);
- --data-terra:var(--data-codex-old);--data-other:var(--muted);--data-effort-xhigh:var(--color-neutral-200);--data-effort-default:var(--muted);
- --data-normal:var(--muted);--data-fast:var(--data-claude);--data-bare:var(--data-grok);--hetzner:#766000;--data-hetzner:var(--hetzner);--devin:#8d3c95;--data-devin:var(--devin);
- --claude:var(--data-claude);--sonnet:var(--data-sonnet);--codex:var(--data-codex);--codex56:var(--data-codex-old);--grok:var(--data-grok);
- --good:var(--data-grok);--warn:var(--data-claude);--bad:var(--color-accent-400);--mask-opaque:#000;
+ --data-terra:var(--data-codex);--data-other:var(--muted);--data-effort-xhigh:var(--color-neutral-200);--data-effort-default:var(--muted);
+ --data-normal:var(--muted);--data-fast:var(--data-claude);--data-bare:#8fc7c0;--hetzner:#766000;--data-hetzner:var(--hetzner);--devin:#087443;--data-devin:var(--devin);
+ --claude:var(--data-claude);--sonnet:var(--data-sonnet);--codex:var(--data-codex);--codex56:var(--data-codex-old);--grok:var(--data-grok);--pipeline:var(--data-pipeline);
+ --good:#8fc7c0;--warn:var(--data-claude);--bad:var(--color-accent-400);--mask-opaque:#000;
  --cell-all:var(--color-neutral-800);--cell-all-text:var(--color-text);--cell-most:var(--color-accent-900);--cell-most-text:var(--color-accent-200);--cell-half:var(--color-accent-700);--cell-half-text:var(--color-accent-100);
  color-scheme:light dark;
 }
 @media(prefers-color-scheme:light){:root:not([data-theme="dark"]){
  --bg:var(--color-neutral-100);--panel:#fff2f2;--fg:#292b31;--muted:#595d6c;--line:#cfd3e5;
  --accent:#a02e40;--accent-text:var(--color-accent-700);--frontier:var(--accent);
- --data-claude:#865025;--data-codex:#365f91;--data-codex-old:#486d98;--data-grok:#286b65;--data-pipeline:#714496;
- --data-haiku:var(--data-claude);--data-sonnet:#9a4e43;--data-luna:#526694;--data-sol:#3f5c9b;--data-astra:var(--data-pipeline);--data-terra:#536e94;--data-other:var(--muted);
+ --data-claude:#865025;--data-codex:#365f91;--data-codex-old:#486d98;--data-grok:#0074b0;--data-pipeline:#714496;
+ --data-haiku:var(--data-claude);--data-sonnet:#9a4e43;--data-luna:var(--data-codex);--data-sol:var(--data-codex);--data-astra:var(--data-codex);--data-terra:var(--data-codex);--data-other:var(--muted);
  --data-effort-low:#75798c;--data-effort-medium:#595d6c;--data-effort-high:#3f424d;--data-effort-xhigh:#292b31;--data-effort-default:var(--muted);
- --data-normal:var(--muted);--data-fast:var(--data-claude);--data-bare:var(--data-grok);--data-devin:var(--devin);
- --good:var(--data-grok);--warn:var(--data-claude);--bad:var(--color-accent-700);
+ --data-normal:var(--muted);--data-fast:var(--data-claude);--data-bare:#286b65;--data-devin:var(--devin);
+ --good:#286b65;--warn:var(--data-claude);--bad:var(--color-accent-700);
  --data-grid:color-mix(in srgb,var(--fg) 14%,transparent);--data-beaten:color-mix(in srgb,var(--fg) 7%,transparent);--data-frontier:var(--frontier);--data-focus:var(--fg);
  --shadow-sm:0 0 0 1px var(--line);--shadow-md:0 0 0 1px var(--line),0 6px 18px rgba(0,0,0,.18);--mask-opaque:#000;
  --color-bg:var(--color-neutral-100);--color-surface:var(--color-accent-100);--color-text:var(--color-neutral-900);--color-divider:var(--color-neutral-300);--color-accent:var(--color-accent-700);
@@ -146,11 +146,11 @@
 :root[data-theme="light"]{
  --bg:var(--color-neutral-100);--panel:#fff2f2;--fg:#292b31;--muted:#595d6c;--line:#cfd3e5;
  --accent:#a02e40;--accent-text:var(--color-accent-700);--frontier:var(--accent);
- --data-claude:#865025;--data-codex:#365f91;--data-codex-old:#486d98;--data-grok:#286b65;--data-pipeline:#714496;
- --data-haiku:var(--data-claude);--data-sonnet:#9a4e43;--data-luna:#526694;--data-sol:#3f5c9b;--data-astra:var(--data-pipeline);--data-terra:#536e94;--data-other:var(--muted);
+ --data-claude:#865025;--data-codex:#365f91;--data-codex-old:#486d98;--data-grok:#0074b0;--data-pipeline:#714496;
+ --data-haiku:var(--data-claude);--data-sonnet:#9a4e43;--data-luna:var(--data-codex);--data-sol:var(--data-codex);--data-astra:var(--data-codex);--data-terra:var(--data-codex);--data-other:var(--muted);
  --data-effort-low:#75798c;--data-effort-medium:#595d6c;--data-effort-high:#3f424d;--data-effort-xhigh:#292b31;--data-effort-default:var(--muted);
- --data-normal:var(--muted);--data-fast:var(--data-claude);--data-bare:var(--data-grok);--data-devin:var(--devin);
- --good:var(--data-grok);--warn:var(--data-claude);--bad:var(--color-accent-700);
+ --data-normal:var(--muted);--data-fast:var(--data-claude);--data-bare:#286b65;--data-devin:var(--devin);
+ --good:#286b65;--warn:var(--data-claude);--bad:var(--color-accent-700);
  --data-grid:color-mix(in srgb,var(--fg) 14%,transparent);--data-beaten:color-mix(in srgb,var(--fg) 7%,transparent);--data-frontier:var(--frontier);--data-focus:var(--fg);
  --shadow-sm:0 0 0 1px var(--line);--shadow-md:0 0 0 1px var(--line),0 6px 18px rgba(0,0,0,.18);--mask-opaque:#000;
  --color-bg:var(--color-neutral-100);--color-surface:var(--color-accent-100);--color-text:var(--color-neutral-900);--color-divider:var(--color-neutral-300);--color-accent:var(--color-accent-700);
@@ -161,7 +161,7 @@
  --cell-all:var(--color-neutral-200);--cell-all-text:var(--color-neutral-900);--cell-most:var(--color-accent-200);--cell-most-text:var(--color-accent-900);--cell-half:var(--color-accent-700);--cell-half-text:var(--color-accent-100);
  color-scheme:light;
 }
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--hetzner:#d9c46a;--devin:#d79be8;}}
-:root[data-theme="dark"]{--hetzner:#d9c46a;--devin:#d79be8;color-scheme:dark}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--hetzner:#d9c46a;--devin:#61d69c;}}
+:root[data-theme="dark"]{--hetzner:#d9c46a;--devin:#61d69c;color-scheme:dark}
 
 /* FABLE TOKENS END */</style><rect width='760' height='546' fill='var(--panel)'/><text x='12.0' y='24.0' font-size='14' text-anchor='start' style='fill:var(--fg);' font-weight='600'>Minimum input tokens over all calls (the harness floor), cached share shaded</text><text x='12.0' y='62.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='600'>Main ladder</text><rect x='200' y='68' width='12.6' height='20' fill='var(--claude)' opacity='0.35'/><rect x='200' y='68' width='10.9' height='20' fill='var(--claude)'/><text x='192.0' y='82.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>haiku-low</text><text x='218.6' y='82.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>4,221</text><rect x='200' y='96' width='12.6' height='20' fill='var(--claude)' opacity='0.35'/><rect x='200' y='96' width='10.9' height='20' fill='var(--claude)'/><text x='192.0' y='110.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>haiku-medium</text><text x='218.6' y='110.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>4,220</text><rect x='200' y='124' width='10.3' height='20' fill='var(--sonnet)' opacity='0.35'/><rect x='200' y='124' width='8.5' height='20' fill='var(--sonnet)'/><text x='192.0' y='138.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>sonnet-medium</text><text x='216.3' y='138.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>3,444</text><rect x='200' y='152' width='43.3' height='20' fill='var(--codex)' opacity='0.35'/><rect x='200' y='152' width='34.4' height='20' fill='var(--codex)'/><text x='192.0' y='166.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>luna-low</text><text x='249.3' y='166.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>14,494</text><rect x='200' y='180' width='43.3' height='20' fill='var(--codex)' opacity='0.35'/><rect x='200' y='180' width='34.4' height='20' fill='var(--codex)'/><text x='192.0' y='194.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>luna-medium</text><text x='249.3' y='194.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>14,490</text><rect x='200' y='208' width='45.3' height='20' fill='var(--codex)' opacity='0.35'/><rect x='200' y='208' width='36.7' height='20' fill='var(--codex)'/><text x='192.0' y='222.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>sol61-medium</text><text x='251.3' y='222.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>15,182</text><rect x='200' y='236' width='45.1' height='20' fill='var(--codex)' opacity='0.35'/><rect x='200' y='236' width='36.3' height='20' fill='var(--codex)'/><text x='192.0' y='250.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>astra-medium ⚡</text><text x='251.1' y='250.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>15,118</text><rect x='200' y='264' width='45.3' height='20' fill='var(--codex)' opacity='0.35'/><rect x='200' y='264' width='36.7' height='20' fill='var(--codex)'/><text x='192.0' y='278.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>sol61-high ⚡</text><text x='251.3' y='278.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>15,184</text><text x='12.0' y='304.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='600'>Repo tasks: tools on</text><rect x='200' y='310' width='388.7' height='20' fill='var(--codex)' opacity='0.35'/><rect x='200' y='310' width='368.1' height='20' fill='var(--codex)'/><text x='192.0' y='324.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>astra-medium</text><text x='594.7' y='324.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>130,168</text><rect x='200' y='338' width='183.2' height='20' fill='var(--claude)' opacity='0.35'/><rect x='200' y='338' width='151.4' height='20' fill='var(--claude)'/><text x='192.0' y='352.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>haiku-high</text><text x='389.2' y='352.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>61,331</text><rect x='200' y='366' width='94.8' height='20' fill='var(--claude)' opacity='0.35'/><rect x='200' y='366' width='71.7' height='20' fill='var(--claude)'/><text x='192.0' y='380.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>haiku-low</text><text x='300.8' y='380.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>31,760</text><rect x='200' y='394' width='214.7' height='20' fill='var(--codex)' opacity='0.35'/><rect x='200' y='394' width='201.1' height='20' fill='var(--codex)'/><text x='192.0' y='408.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>luna-low</text><text x='420.7' y='408.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>71,903</text><rect x='200' y='422' width='411.9' height='20' fill='var(--codex)' opacity='0.35'/><rect x='200' y='422' width='372.3' height='20' fill='var(--codex)'/><text x='192.0' y='436.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>sol61-high</text><text x='617.9' y='436.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>137,915</text><rect x='200' y='450' width='447.6' height='20' fill='var(--codex)' opacity='0.35'/><rect x='200' y='450' width='412.5' height='20' fill='var(--codex)'/><text x='192.0' y='464.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>sol61-medium</text><text x='653.6' y='464.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>149,886</text><rect x='200' y='478' width='81.9' height='20' fill='var(--sonnet)' opacity='0.35'/><rect x='200' y='478' width='66.0' height='20' fill='var(--sonnet)'/><text x='192.0' y='492.0' font-size='11' text-anchor='end' style='fill:var(--fg);' font-weight='normal'>sonnet-medium</text><text x='287.9' y='492.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>27,425</text><text x='12.0' y='528.0' font-size='11' text-anchor='start' style='fill:var(--muted);' font-weight='normal'>Solid: cached. Pale: uncached. Codex includes ~1.3k host AGENTS.md tokens.</text></svg>
