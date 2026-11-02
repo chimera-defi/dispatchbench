@@ -812,6 +812,26 @@
    "removals": [
     "page text: no close LeetCode analogueXOR cellular automaton on a ring for t ≤ 10^18; doubling"
    ]
+  },
+  "Terra priority replaces stale Astra speed claim": {
+   "reason": "Terra priority function rows now show terra61-low ⚡ as the fastest no-miss main-ladder config. The Default explanation uses computed speed, cost and L7-miss facts instead of the stale Astra-only comparison; Sol priority remains Default.",
+   "removals": [
+    "page text: No misses. $0 on the Claude bill (spends Codex quota). ⚡ saves 10 s. astra ⚡ is faster but uses 4× the quota"
+   ],
+   "dropped_facts": []
+  },
+  "Terra61 priority rows on the page": {
+   "reason": "Adding terra61-low ⚡ and terra61-high ⚡ (deviation 25, main ladder n=60 each) and the 2026-11-02 rows refreshes data-driven text: Codex spend total, the run date range, the fast-mode spend table (3 to 5 configs), config legends and heatmap headers (two new columns), the p12 miss count over 20 rather than 18 configs, and the input-token and normal-vs-fast charts. No fact is dropped; each old value is replaced by its recomputed one.",
+   "removals": [
+    "page text: Codex: $48.84 estimated at list price.",
+    "page text: LeetCode-style problems, written fresh for this bench. All calls ran 2026-10-22 to 2026-11-01.",
+    "page text: Mean input tokens per callhaiku-low4,498sonnet-medium3,719luna-low, Codex'snormal prompt14,688sol61-medium15,380astra-medium ⚡15,316sol61-high ⚡15,380Low contextluna-low, trimmedprompt6,144Solid = cached input. Faded = uncached input. Mean input tokens per callhaiku-low4,498sonnet-medium3,719luna-low, Codex's normal prompt14,688sol61-medium15,380astra-medium ⚡15,316sol61-high ⚡15,380Low contextluna-low, trimmed prompt6,144",
+    "page text: Normal and fast modeladder · sol61-high27.4s · $0.019ladder · sol61-high⚡17.4s · $0.036ladder ·astra-medium20.9s · $0.075ladder ·astra-medium ⚡9.9s · $0.15L7 · sol61-high52.7s · $0.024L7 · sol61-high ⚡29.4s · $0.044L7 · astra-medium30.6s · $0.083L7 · astra-medium ⚡15.4s · $0.16 Normal and fast modeladder · sol61-high27.4s · $0.019ladder · sol61-high ⚡17.4s · $0.036ladder · astra-medium20.9s · $0.075ladder · astra-medium ⚡9.9s · $0.15L7 · sol61-high52.7s · $0.024L7 · sol61-high ⚡29.4s · $0.044L7 · astra-medium30.6s · $0.083L7 · astra-medium ⚡15.4s · $0.16",
+    "page text: allnonehaiku-low · measuredhaiku-medium · measuredsonnet-medium · measuredluna-low · token-estimateluna-medium · token-estimatesol61-medium · token-estimatehaiku-high · measuredluna-high · token-estimateluna56-low · token-estimateluna56-high · token-estimatesol56-high · token-estimatesol61-high · token-estimateastra-medium · token-estimateterra61-low · token-estimateterra61-high · token-estimateterra56-low · token-estimateterra56-high · token-estimategrok47-low · measuredgrok47-medium · measuredgrok47-high · measuredgrok47fast-low · measureddevin16slow-default · unmeteredhetzner-qwen36 · free tierhetzner-qwen38 · free tiersol61-high ⚡ · token-estimateastra-medium ⚡ · token-estimatesol61-xhigh · token-estimateluna-low-bare · token-estimate",
+    "page text: fast mode and xhigh: 3 configs, ~$15.54 spent",
+    "page text: p12 sheet (L6) has misses in 9 of 18 full-ladder Claude and Codex configs.",
+    "page text: problemhaiku-lowhaiku-mediumhaiku-highsonnet-mediumsol61-mediumluna-highluna-mediumluna-lowluna-low-bareastra-mediumastra-medium ⚡sol61-highsol61-high ⚡sol56-highluna56-highluna56-lowterra61-highterra61-lowgrok47-lowgrok47-mediumgrok47-highgrok47fast-lowdevin16slow-defaulthetzner-qwen36hetzner-qwen38p01 overlap_minutes (L1)M5/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/51/11/11/1p02 squash (L1)E5/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/55/51/11/11/1p03 ledger (L2)M5/55/55/55/55/55/54/55/53/55/55/55/55/55/55/55/55/55/55/54/45/55/51/11/11/1p04 taller_within (L2)M5/55/55/55/55/55/51/51/51/55/55/55/55/55/54/54/53/55/55/53/35/55/50/11/11/1p05 pass_route (L3)M5/54/55/55/55/54/55/55/55/55/55/55/55/55/55/55/55/55/55/52/25/55/51/11/11/1p06 calc (L3)H5/55/55/55/55/55/55/55/55/55/55/55/55/55/54/51/55/55/52/51/25/51/50/10/11/1p07 weighted_distance_sums (L4)H5/55/55/55/55/55/55/55/55/55/55/55/55/55/55/53/55/55/55/50/04/54/50/11/11/1p08 recur (L4)M5/55/55/55/55/55/55/54/54/55/55/55/55/55/55/55/55/55/55/50/05/55/51/11/10/1p09 k_machine_schedule (L5)H3/55/55/55/55/54/55/52/55/55/55/55/55/55/55/55/55/55/55/50/05/55/50/11/11/1p10 avoid_count (L5)H5/55/55/55/55/54/55/55/54/55/55/55/55/55/55/54/55/55/55/50/05/55/51/11/11/1p11 best_average (L6)H5/55/55/55/55/55/52/54/52/55/55/55/55/55/55/55/55/55/55/50/05/55/50/11/10/1p12 sheet (L6)H4/55/55/55/53/53/50/50/50/55/55/55/55/55/53/51/55/55/51/50/03/51/50/10/10/1L7 setp13 xor_ring (L7)H5/55/55/55/55/55/5–––5/55/55/55/55/54/53/5–––––––––p14 bounce_board (L7)H5/54/55/55/55/55/5–––5/55/55/55/53/52/52/5–––––––––p15 paint_erase (L7)H2/54/55/55/55/55/5–––5/55/55/55/55/53/53/5–––––––––"
+   ]
   }
  }
 }

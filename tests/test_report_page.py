@@ -203,7 +203,8 @@ def test_speed_axis_is_trimmed_with_one_second_gridlines(summary):
     xs = sorted(float(line.get("x1")) for line in svg.findall("s:line[@stroke='var(--line)']", NS)
                 if line.get("x1") == line.get("x2"))
     first, last = (round(values[0] + (x - origin) / scale) for x in (xs[0], xs[-1]))
-    assert first > 0 and first <= min(medians) - 1 and last >= max(medians) + 1 and last - max(medians) < 6
+    # The 6 s Terra priority median moves the five-second-block origin to zero.
+    assert first == 0 and first <= min(medians) - 1 and last >= max(medians) + 1 and last - max(medians) < 6
     assert xs == pytest.approx([xs[0] + (v - first) / (last - first) * (xs[-1] - xs[0])
                                 for v in range(first, last + 1)], abs=0.051)
     assert len(svg.findall("s:line[@stroke-opacity='.45']", NS)) == last - first + 1 - len(ticks)
@@ -319,7 +320,7 @@ def test_rung_series_have_distinct_keys_past_all_endpoints(summary):
     svg = ET.fromstring(charts.rung_chart(summary))
     words = {e.text for e in svg.findall("s:text", NS)}
     ex = summary.get("exploratory") or {}
-    shown = list(summary["configs"]) + [c for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex]
+    shown = list(summary["configs"]) + [c for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast", "terra61-low", "terra61-low-fast", "terra61-high", "terra61-high-fast") if c in ex]
     assert {page.DISP(c) for c in shown} <= words
     assert {g for c in summary["configs"].values() for g in c["by_rung"]} <= words
 
@@ -411,8 +412,8 @@ def test_speed_frontier_treats_sub_half_second_gap_as_tie(summary):
     assert 'haiku-low' in names
     assert 'astra-medium-fast' not in names
     changed = json.loads(json.dumps(summary))
-    changed['exploratory']['astra-medium-fast']['latency_s']['median'] = 9.0
-    assert 'astra-medium-fast' in page.speed_cost(changed)[1]  # a full second faster: every point is eligible
+    changed['exploratory']['astra-medium-fast']['latency_s']['median'] = 5.0
+    assert 'astra-medium-fast' in page.speed_cost(changed)[1]  # faster than Terra priority too: every point is eligible
     assert page.speed_dominates(dict(x=10, y=1), dict(x=9.9, y=2))
     assert not page.speed_dominates(dict(x=10, y=1), dict(x=9, y=2))
 
@@ -601,23 +602,23 @@ def test_main_markers_follow_config_encoding(summary):
 
 def test_speed_frontier_lines_and_single_point_free_mode(summary):
     output, names = page.speed_cost(summary, free=False)
-    assert names == ['haiku-low', 'luna-high']
+    assert names == ['terra61-low-fast', 'haiku-low', 'luna-high']
     svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
     path = next(p for p in svg.findall('s:path', NS) if p.get('stroke') == 'var(--frontier)')
     assert path.get('d')
     labels = {t.text for t in svg.findall('s:text', NS) if 'lbl' in t.get('class', '')}
     # picks off the frontier keep a name. sonnet-medium and terra61-low (2026-10-28) sit within 14 px, so both are jittered apart and named in the key.
     assert {'sol61-high ⚡', 'haiku-high'} <= labels and 'sonnet-medium' not in labels
-    assert not {'haiku-low', 'luna-high'} & labels  # frontier points are numbered chips named in the list under the plot
-    assert [t.text for t in svg.findall('.//s:text[@class="rk-n"]', NS)] == ['1', '2']
-    assert re.findall(r'<b>(\d)</b><span>([^<]+)</span>', output.split('class="picks"', 1)[1])[:2] == [('1', 'haiku-low'), ('2', 'luna-high')]
+    assert not {'haiku-low', 'luna-high', 'terra61-low ⚡'} & labels  # frontier points are numbered chips named in the list under the plot
+    assert [t.text for t in svg.findall('.//s:text[@class="rk-n"]', NS)] == ['1', '2', '3']
+    assert re.findall(r'<b>(\d)</b><span>([^<]+)</span>', output.split('class="picks"', 1)[1])[:3] == [('1', 'terra61-low ⚡'), ('2', 'haiku-low'), ('3', 'luna-high')]
     assert svg.find('s:path[@class="zone"]', NS).get('d').endswith('Z')
     output, names = page.speed_cost(summary, free=True)
-    # terra61-low (2026-10-28) is 0.44 s behind astra-medium ⚡, inside the 0.5 s tie tolerance, so it joins the $0 frontier.
-    assert names == ['astra-medium-fast', 'terra61-low']
+    # Terra low priority is now the unique fastest qualifying config at $0 on the Claude bill.
+    assert names == ['terra61-low-fast']
     svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
     labels = {t.text for t in svg.findall('s:text', NS) if 'lbl' in t.get('class', '')}
-    assert '<b>1</b><span>astra-medium ⚡</span>' in output
+    assert '<b>1</b><span>terra61-low ⚡</span>' in output
     assert svg.find('s:path[@class="zone"]', NS) is not None  # a single best point still shades what it beats
 
 

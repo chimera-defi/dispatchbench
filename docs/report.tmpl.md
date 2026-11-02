@@ -315,3 +315,14 @@ What we did not borrow: scale. These benchmarks run hundreds of problems, and Li
 @readme PLAN.md           pre-registration and deviations
 @readme ```
 
+
+### Terra61 at priority tier (exploratory)
+
+{{fastest_nomiss}} is the fastest main-ladder config with no misses ({{fastest_nomiss_med}} s).
+
+- {{terra_priority_noise}}
+- {{terra_priority_speed}}
+- {{terra_priority_l7}}
+- {{terra_priority_repo}}
+- {{terra_priority_p04}}
+- {{terra_priority_cost}}

@@ -6,7 +6,7 @@ from xml.sax.saxutils import escape
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "results", "report", "charts")
-FONT = "font-family='var(--font-body)'"
+FONT = "font-family='var(--font-body, Inter, system-ui, sans-serif)'"
 INK, MUTED, GRID, PLATE = "var(--fg)", "var(--muted)", "var(--line)", "var(--panel)"
 HOST_AGENTS_MD = dataset.HOST_AGENTS_MD
 BADC, WARNC = "var(--bad)", "var(--warn)"
@@ -268,7 +268,7 @@ def cost_time_chart(s):
 def rung_rows(s, ds=None):
     """The one place the rung chart reads data: ({config: {rung 'L1': (passed, n)}}, rungs L1..L6 in order). Reads the dataset's main-ladder set."""
     ds = ds or dataset.read(); ex = s.get("exploratory") or {}
-    keep = list(s["configs"]) + [c for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex]  # fast mode beside its default tier
+    keep = list(s["configs"]) + [c for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast", "terra61-low", "terra61-low-fast", "terra61-high", "terra61-high-fast") if c in ex]  # fast mode beside its default tier
     by = {r["config"]: r["by_rung"] for r in ds["rows"] if r["source"] == "main" and r["set"] == "main ladder"}
     rows = {c: {g: tuple(v) for g, v in by[c].items()} for c in keep}
     for r in ds["rows"]:  # free-tier exploratory lanes: one repeat, shown for pass rates, never for $

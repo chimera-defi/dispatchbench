@@ -387,6 +387,41 @@ def t1_regrade():
     return load(REGRADE)
 
 
+def terra_priority_facts():
+    from analysis.terra_priority import page_summary
+    t = page_summary()
+    low, high = (t["pooled"][c] for c in ("terra61-low", "terra61-high"))
+    lo, hi = t["noise_interval"]
+    need((low["k"], low["n"], high["k"], high["n"]) == (179, 180, 177, 180) and lo < 0 < hi,
+         "pooled Terra effort gap is noise; neither effort wins on pass rate")
+    need(all(t["fast"][c]["k"] == t["standard"][c]["k"] and t["fast"][c]["n"] == t["standard"][c]["n"] == 60
+             for c in t["fast"]), "priority tier leaves observed Terra accuracy unchanged on 60 tries per arm")
+    need(all(40 < cut < 60 for cut in t["time_cuts"]), "Terra priority cuts function wall time by about 40–60 percent")
+    l7, repo, p04 = (t["followup"][k] for k in ("L7", "repo", "p04"))
+    miss = l7["terra61-low"]["n"] - l7["terra61-low"]["k"]
+    need(miss == 1 and all(l7[c]["k"] == l7[c]["n"] == 15 for c in ("terra61-high", "sol61-high")),
+         "Terra low has one L7 miss; high and Sol have none")
+    need(all(v["k"] == v["n"] == (12 if c == "sol61-high" else 20) for c, v in repo.items()),
+         "both Terra arms and the earlier Sol repo comparison pass every task")
+    plo, phi = t["p04_interval"]
+    need((p04["terra61-low"]["k"], p04["terra61-low"]["n"], p04["sol61-high"]["k"], p04["sol61-high"]["n"]) == (34, 35, 30, 30) and plo < 0 < phi,
+         "p04 weak spot is not established by the fixed interval rule")
+    cheaper = t["sol_fast"]["usd_pass"] / t["fast"]["terra61-low"]["usd_pass"]
+    need(3 < cheaper < 4, "Terra low priority costs about three times less per pass than Sol priority")
+    cuts = "–".join(sorted({f"{cut:.0f}" for cut in t["time_cuts"]}))
+    counts = lambda v: f"{v['k']}/{v['n']}"
+    line = lambda group: "; ".join(f"{c} {counts(v)}, {v['med']:.1f} s" for c, v in group.items())
+    return dict(
+        terra_noise_caveat=f"low/high gap is noise at n={low['n']}",
+        terra_low_l7_miss=str(miss), terra_fast_cheaper=f"{cheaper:.0f}×",
+        terra_priority_noise=f"Low {counts(low)} vs high {counts(high)}; interval {100 * lo:+.1f} to {100 * hi:+.1f} points: no effort wins on pass rate.",
+        terra_priority_speed=f"⚡ leaves observed accuracy unchanged and cuts median function wall time by {cuts}%.",
+        terra_priority_l7="L7, standard tier: " + line(l7) + ". No Terra ⚡ L7 run.",
+        terra_priority_repo="Repo tasks, standard tier: " + line(repo) + ". Times are indicative on a loaded host.",
+        terra_priority_p04=f"p04 weak spot not established: low {counts(p04['terra61-low'])} vs Sol {counts(p04['sol61-high'])}; interval {100 * plo:+.1f} to {100 * phi:+.1f} points.",
+        terra_priority_cost=f"Low ⚡ cost per pass is about {cheaper:.0f}× lower than sol61-high ⚡ (list price, priority multiplier included).")
+
+
 def _facts(s, arms):
     F = Facts(); cfg, ex, ag, hard = s["configs"], {**s["exploratory"], **s.get("hetzner", {})}, s["agentic"], s["hard"]
     rows = summarize.function_rows(); agent = summarize.agentic_rows(); main_rows = [r for r in rows if r["phase"] == "main"]
@@ -754,8 +789,11 @@ def _facts(s, arms):
         F[f"pf_{k}_n_all"] = str(checked[b1]["main"]["n"] + checked[b1]["hard"]["n"])
         F[f"pf_{k}_status"] = checked[b1]["all"]["status"]
         need(all(F[f"pf_{k}_{field}"] == F[f"ff_{k}_{field}"] for field in ("k", "hk", "upp", "med", "dupp", "dmed")), "pf facts equal ff facts")
-    need(min((c for c, v in every.items() if v["passes"] == v["n"]), key=lambda c: every[c]["latency_s"]["median"]) == "astra-medium-fast",
-         "astra-medium fast is fastest among main-ladder configs with no misses")
+    fastest = min((c for c, v in every.items() if v["passes"] == v["n"]), key=lambda c: every[c]["latency_s"]["median"])
+    F["fastest_nomiss"] = DISP(fastest)
+    F["fastest_nomiss_med"] = f"{every[fastest]['latency_s']['median']:.1f}"
+    need(fastest == "terra61-low-fast", "terra61-low ⚡ is fastest among main-ladder configs with no misses")
+    F.update(terra_priority_facts())
     F["growth_margin"] = str(GROWTH_MARGIN)
     F["n_solutions"] = str(sum(1 for _, _, fs in os.walk(os.path.join(RES, "solutions")) for f in fs if f.endswith(".py")))
     # Codex additions (exploratory, run after the report at the operator's request)
@@ -915,7 +953,7 @@ def _facts(s, arms):
     F['l7_config_count'] = str(len(hard))
     absent = [DISP(c) for c in every if c not in hard]
     F['l7_absent'] = ", ".join(absent[:-1]) + " and " + absent[-1] if len(absent) > 1 else "".join(absent)
-    rung_configs = list(cfg) + [c for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast") if c in ex]
+    rung_configs = list(cfg) + [c for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast", "terra61-low", "terra61-low-fast", "terra61-high", "terra61-high-fast") if c in ex]
     at = {}
     for c in rung_configs:
         if every[c]['breaking_point']: at.setdefault(every[c]['breaking_point'], []).append(DISP(c))
@@ -1360,12 +1398,12 @@ def _interesting(ds):
     F["int_terra"] = " ".join([
         "Sol 6.1 high on fast was slower than Sol 5.6 high — does Terra high match or beat Sol 5.6 high on speed and pass rate?",
         f'It is faster but misses. terra61-high takes {th["median_s"]:.1f} s to sol56-high\'s {s56["median_s"]:.1f} s, '
-        f'and passes {th["passes"]}/{th["n"]} to {s56["passes"]}/{s56["n"]}. '
+        f'and passes {th["passes"]}/{th["n"]} to {s56["passes"]}/{s56["n"]}; {F["terra_noise_caveat"]}. '
         f'The {th["n"] - th["passes"]} misses are on {mplabel} (repeats {", ".join(str(r) for _, r in misses)}).',
         f'terra61-low matches sol56-high at {tl["passes"]}/{tl["n"]} and is faster, {tl["median_s"]:.1f} s.',
         f'Cost per pass, list-price estimates: terra61-low ~{usd(tl["usd_per_pass"])}, terra61-high ~{usd(th["usd_per_pass"])}, '
         f'sol56-high ~{usd(s56["usd_per_pass"])}.',
-        f'Fast mode was not tried. The trigger was a low/high gap of {TERRA_TRIGGER["gap_points"]} points or more, '
+        f'Fast mode was not tried in that run (later priority results below). The trigger was a low/high gap of {TERRA_TRIGGER["gap_points"]} points or more, '
         f'or terra high outside {TERRA_TRIGGER["ratio"][0]:g}–{TERRA_TRIGGER["ratio"][1]:g}× of sol56-high\'s median. '
         f'The gap is {gap:.1f} points and the ratio is {ratio:.2f}×, so it did not fire.',
         f'Extra data, one repeat each: gpt-5.6-terra passed {t56["terra56-high"]["passes"]}/{t56["terra56-high"]["n"]} at high '

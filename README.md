@@ -6,7 +6,7 @@ Which model should a coding task go to?
 
 ## What it measures
 
-We compare 25 model-and-effort configs on fresh Python problems.
+We compare 27 model-and-effort configs on fresh Python problems.
 The main run used 6 of them on 12 problems.
 The set contains 15 problems and 4 small repository tasks.
 Function tasks ask for one answer, with no tool use allowed.
@@ -22,7 +22,7 @@ Repository tasks use agent CLIs, with code execution and retries.
 
 Main ladder: 12 problems, each attempted 5 times per config.
 
-Total spend, by kind: Claude $4.18 (CLI-reported), Codex $48.84 (list-price proxy), Grok $28.16 (CLI-reported). Includes pilot and appendix arms: Claude $1.72, Codex $11.12 ($5.64 pilot, $5.48 appendix and trim).
+Total spend, by kind: Claude $4.18 (CLI-reported), Codex $50.21 (list-price proxy), Grok $28.16 (CLI-reported). Includes pilot and appendix arms: Claude $1.72, Codex $11.12 ($5.64 pilot, $5.48 appendix and trim).
 
 ## How to read it
 
