@@ -29,7 +29,7 @@ function table(){
 }
 const tables=[table(),table()],originalLabels=tables.map(t=>t.tHead.rows[0].cells.map(th=>th.firstChild));
 const document={
- getElementById:id=>id==='data'?{textContent:'{"explorer":{"tie":{}}}'}:null,
+ getElementById:id=>id==='data'?{textContent:'{"any_pair":{"tie":{}}}'}:null,
  createElement:tag=>new Element(tag),
  querySelectorAll:selector=>selector==='table.sortable'?tables:[],
  addEventListener(){}
