@@ -59,6 +59,7 @@ def test_reader_set_labels_and_complete_notation_legend():
                 self.text.append(data)
 
     output = report.render()[2]
+    assert "we can’t test that" in output and "SemiAnalysis" in output
     reader = Reader()
     reader.feed(output)
     assert not re.search(r"rescue[ -]set", "".join(reader.text + reader.titles), re.I)
@@ -367,11 +368,20 @@ def test_fairness_qa_renders_counts_and_runtime_from_appendix():
     codex = [r for r in rows if r['harness'] == 'codex-tool-loop']
     start = min(datetime.fromisoformat(r['ts']).timestamp() for r in codex)
     end = max(datetime.fromisoformat(r['ts']).timestamp() + r['wall_s'] for r in codex)
+    assert f"{sum(r['outcome'] == 'harness_error' for r in codex)} runner errors and no timeouts" in fair
     assert facts['hb_minutes'] == f"{(end - start) / 60:.0f}"
+    assert f"in about {facts['hb_minutes']} minutes." in fair
     comparison = harness_bias.pass_summary(rows)
     lo, hi = comparison['ci']
     assert facts['hb_answer'] in fair
+    assert 'haiku-low led on both benches' in fair
     assert f"The gap moved {100 * comparison['diff']:.0f} points" in fair
+    assert (f"<li>The gap moved {100 * comparison['diff']:.0f} points, "
+            f"below our {facts['hb_bar_points']}-point bias threshold. "
+            f"Confidence level: {facts['ci_level']}. "
+            f"The range is {100 * lo:.0f} to {100 * hi:.0f} points.</li>") in fair
+    wrong = [sum(r['outcome'] == 'wrong' for r in rows if (r['harness'], r['config']) == (h, 'luna-low')) for h in ('claude-one-shot', 'codex-tool-loop')]
+    assert f"wrong outputs from {wrong[0]} to {wrong[1]}" in fair
 
 
 
@@ -588,6 +598,11 @@ def test_rung_dip_labels_clear_series_and_breaking_line(summary):
 
 
 
+def test_cost_accuracy_has_no_old_set_selector():
+    template = (ROOT / 'docs/page.tmpl.md').read_text()
+    assert 'name="pset"' not in template
+
+
 def test_main_markers_follow_config_encoding(summary):
     output, _ = page.pass_cost(summary, free=False)
     svg = ET.fromstring(re.search(r'<svg\b.*?</svg>', output, re.S)[0])
@@ -685,6 +700,18 @@ def test_failure_copy_keeps_main_and_l7_counts_separate():
     assert int(facts['hl_main_timeouts']) + int(facts['l7_hl_fail']) == int(facts['hl_timeouts'])
     assert int(facts['hl_main_crashes']) == int(facts['hl_crashes'])
 
+
+
+def test_conclusion_is_short_and_has_one_route_scope():
+    template = (ROOT / "docs/page.tmpl.md").read_text()
+    section = re.search(r'<section class="verdict conclusion".*?</section>', template, re.S)[0]
+    steps, bullets = re.search(r'<ol.*?</ol>', section, re.S)[0], re.search(r'<ul.*?</ul>', section, re.S)[0]
+    assert steps.count('<li>') == 3
+    assert bullets.count('<li>') <= 5
+    assert '{{default_route_scope}}' in steps
+    assert 'See <a' not in bullets
+    assert bullets.count('{{sonnet_medium_med}}') == 1
+    assert bullets.count('{{sm_vs_hh_x}}') == 1
 
 
 def test_badges_and_thresholds_have_distinct_meanings():
