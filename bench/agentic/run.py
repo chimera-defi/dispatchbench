@@ -8,7 +8,7 @@ task's starting repo and hidden tests, and the repeat number."""
 import argparse, datetime, hashlib, json, os, re, shutil, subprocess, tempfile, threading, time
 from concurrent.futures import ThreadPoolExecutor
 
-from bench.run import CONFIGS, CLAUDE, CODEX, GROK, grok_spend, check_claude_budget, SpendLimit, cache_state, failure, stop_message, cli_version, parse_reps
+from bench.run import CONFIGS, TIER, CLAUDE, CODEX, GROK, grok_spend, check_claude_budget, SpendLimit, cache_state, failure, stop_message, cli_version, parse_reps
 from bench.codex_env import isolated_codex_env
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -48,7 +48,7 @@ def key_for(config, task, rep, legacy=False):
     cli, mid, eff = CONFIGS[config]; t = os.path.join(TASKS, task)
     dirs = [os.path.join(t, "repo"), os.path.join(t, "hidden")] + ([] if legacy else [os.path.join(t, "solution")])
     identity = {"track": "agentic", "config": config, "model": mid, "effort": eff, "cli": cli, "cli_version": cli_version(cli),
-                       "flags": {"claude": CLAUDE_FLAGS, "codex": CODEX_FLAGS, "grok": GROK_FLAGS}[cli], "prompt": open(os.path.join(t, "TASK.md")).read(),
+                       "flags": {"claude": CLAUDE_FLAGS, "codex": codex_flags(config), "grok": GROK_FLAGS}[cli], "prompt": open(os.path.join(t, "TASK.md")).read(),
                        "task": task, "task_tree": tree_hash(*dirs), "repeat": rep}
     if not legacy: identity["grader_version"] = grader_version(task)
     if cli == "codex": identity["codex_home"] = "isolated"
@@ -77,8 +77,13 @@ def run_claude(mid, eff, prompt, w):
                 error_type="infrastructure" if r.returncode or not res else "model", delegate_calls=0), r.stdout
 
 
-def run_codex(mid, eff, prompt, w):
-    cmd = [CODEX, "exec", "-m", mid, "-c", f"model_reasoning_effort={eff}"] + CODEX_FLAGS + ["-C", w, prompt]
+def codex_flags(config):
+    """Priority-tier (fast mode) configs swap the service tier; every other config keeps CODEX_FLAGS, so cached keys do not move."""
+    return [f"service_tier={TIER[config]}" if f == "service_tier=default" else f for f in CODEX_FLAGS] if config in TIER else CODEX_FLAGS
+
+
+def run_codex(mid, eff, prompt, w, config=None):
+    cmd = [CODEX, "exec", "-m", mid, "-c", f"model_reasoning_effort={eff}"] + codex_flags(config) + ["-C", w, prompt]
     with isolated_codex_env() as env:
         r = subprocess.run(cmd, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=1500)
     i = c = o = rs = 0; tools = {}; err = None; turns = 0; deleg = 0
@@ -178,7 +183,7 @@ def one(config, task, rep, lanes, regrade=False):
         orig_tests = {f: open(os.path.join(w, "tests", f), "rb").read() for f in os.listdir(os.path.join(w, "tests"))}
         t0 = time.monotonic()
         try:
-            res, raw = {"claude": run_claude, "codex": run_codex, "grok": run_grok}[cli](mid, eff, prompt, w)
+            res, raw = ({"claude": run_claude, "codex": lambda *a: run_codex(*a, config=config), "grok": run_grok}[cli])(mid, eff, prompt, w)
         except (subprocess.TimeoutExpired, OSError) as exc:
             res, raw = failure(exc, time.monotonic() - t0)
         wall = time.monotonic() - t0
