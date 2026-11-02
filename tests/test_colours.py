@@ -8,7 +8,8 @@ import sys
 
 import pytest
 
-from analysis import report
+from analysis import charts, dataset, page, report
+from tools import check_contrast as contrast_check
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('check_colours', ROOT / 'tools/check_colours.py')
@@ -17,6 +18,47 @@ spec.loader.exec_module(colours)
 sync_spec = importlib.util.spec_from_file_location('sync_design_system', ROOT / 'docs/page/design-system/scripts/sync.py')
 sync = importlib.util.module_from_spec(sync_spec)
 sync_spec.loader.exec_module(sync)
+
+
+@pytest.mark.parametrize('mode', ['light', 'dark'])
+@pytest.mark.parametrize('automatic', [False, True])
+def test_family_tokens_are_pairwise_distinct_in_each_theme(mode, automatic):
+    css = (ROOT / 'docs/page/tokens.css').read_text()
+    values = contrast_check.theme_values(css, mode, automatic=automatic)
+    tokens = ('claude', 'sonnet', 'codex', 'codex56', 'grok', 'devin', 'hetzner', 'pipeline')
+    resolved = [contrast_check.rgb('--' + key, values, None) for key in tokens]
+    assert len(set(resolved)) == len(tokens), dict(zip(tokens, resolved))
+    for role in ('good', 'data-bare'):
+        assert contrast_check.rgb('--' + role, values, None) == (
+            (40, 107, 101) if mode == 'light' else (143, 199, 192))
+
+
+def test_grok_and_devin_text_contrast_is_checked_by_audit():
+    css = (ROOT / 'docs/page/tokens.css').read_text()
+    results = list(contrast_check.check_families(css))
+    assert len(results) == 16
+    assert all(ratio >= minimum == 4.5 for _, ratio, minimum in results)
+    broken = css.replace('--data-grok:#0074b0', '--data-grok:#ffffff')
+    assert any(ratio < minimum for _, ratio, minimum in contrast_check.check_families(broken))
+
+
+@pytest.mark.parametrize('config,token', [
+    ('haiku-low', 'claude'), ('sonnet-medium', 'sonnet'), ('sol61-high', 'codex'),
+    ('sol56-high', 'codex56'), ('terra56-low', 'codex56'), ('terra/base', 'codex56'), ('grok47-low', 'grok'),
+    ('devin16slow-default', 'devin'), ('hetzner-qwen36', 'hetzner'),
+    ('sol61-high+haiku-on-fail', 'pipeline'),
+])
+def test_chart_table_and_explorer_share_family_colour(config, token):
+    assert charts.FAMILY(config) == page.FAM(config) == f'var(--{token})'
+    css = (ROOT / 'docs/page/tokens.css').read_text()
+    rows = [r for r in dataset.read()['explorer']['rows'] if r['config'] == config]
+    assert rows
+    for mode in ('light', 'dark'):
+        values = contrast_check.theme_values(css, mode)
+        expected = contrast_check.rgb('--' + token, values, None)
+        for row in rows:
+            for facet in ('vendor', 'model'):
+                assert contrast_check.rgb(charts.explorer_colour(row, facet), values, None) == expected
 
 
 @pytest.mark.parametrize('value', [

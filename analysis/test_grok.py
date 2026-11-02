@@ -11,7 +11,7 @@ from analysis import charts, configs, dataset, grok, page, report, summarize
 
 def test_grok_scope_report_svgs():
     """Grok config names belong on the two report figures and nowhere else in results/report/charts."""
-    note = "Grok: black hexagons"
+    note = "Grok: blue hexagons"
     for path in Path(charts.OUT).glob("*.svg"):
         text = path.read_text()
         found = set(re.findall(r"grok47[a-z-]*", text))
@@ -122,7 +122,7 @@ def test_first_half_rows_render_without_changing_full_ladder(monkeypatch):
         if name in {"pareto.svg", "cost_time.svg"}:
             assert body != base_charts[name]
             assert "grok47-low" in body and "grok47-high" not in body
-            assert "Grok: black hexagons, 6 of 12 problems" in body and "not a like-for-like" not in body
+            assert "Grok: blue hexagons, 6 of 12 problems" in body and "not a like-for-like" not in body
         elif name == "hero.svg":
             assert body != base_charts[name]
             assert "grok47-low" in body and "grok47-high" not in body

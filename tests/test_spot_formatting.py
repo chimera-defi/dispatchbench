@@ -152,6 +152,9 @@ def test_page_table_medians_match_exact_populations():
                 if group == 'Retest set':
                     evidence = rescue[name]['metrics_from']
                     v = dataset.get(ds, evidence['config'], evidence['set'], evidence['source'])
+                elif group.startswith('Grok · '):
+                    assert name in configs.GROK_CONFIGS
+                    v = dataset.get(ds, name, 'partial ladder', 'main')
                 else:
                     assert group in ('Main ladder', 'Devin'), group
                     v = ladder[name]

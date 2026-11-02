@@ -31,13 +31,14 @@ def contrast(a, b):
     return (hi + .05) / (lo + .05)
 
 
-def test_devin_colour_has_3_to_1_contrast_on_light_and_dark_backgrounds():
+def test_devin_colour_has_text_contrast_on_light_and_dark_backgrounds():
     light = re.search(r"--devin:(#[0-9a-f]{6})", CSS)[1]
     darks = re.findall(r"--devin:(#[0-9a-f]{6})", CSS)[1:]
     assert darks, "dark theme must set its own --devin"
-    for bg in BACKGROUNDS["light"]: assert contrast(light, bg) >= 3, (light, bg)
+    assert light == '#087443' and set(darks) == {'#61d69c'}
+    for bg in BACKGROUNDS["light"]: assert contrast(light, bg) >= 4.5, (light, bg)
     for dark in darks:
-        for bg in BACKGROUNDS["dark"]: assert contrast(dark, bg) >= 3, (dark, bg)
+        for bg in BACKGROUNDS["dark"]: assert contrast(dark, bg) >= 4.5, (dark, bg)
 
 
 def test_devin_colour_is_distinct_from_every_other_family_colour():

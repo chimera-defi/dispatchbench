@@ -88,7 +88,7 @@ def test_prerendered_colour_key_matches_js_rebuilds_at_phone_and_desktop_widths(
     rows = [r for r in exp['rows'] if r['key'] in st['rows'] and r['cost_kind'] != 'unmetered'
             and r['usd_per_pass'] is not None]
     for row in rows:
-        label = row['family'] + ' ' + row['generation'] if charts.explorer_colour(row) == 'var(--data-codex-old)' else row['family']
+        label = charts.explorer_family_label(row)
         assert f'solid {charts.explorer_colour(row)};padding-left:6px;">{label}</span>' in legend
     assert {390, 1280} <= {sample['width'] for sample in phone}
     for sample in phone:
