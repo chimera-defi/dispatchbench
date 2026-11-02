@@ -23,7 +23,7 @@ def test_priority_facts_and_winner_keep_their_distinct_scopes():
     assert F['fastest_nomiss'] == 'terra61-low ⚡' and F['fastest_nomiss_med'] == '6.0'
     assert dataset.WINNER_PICKS['sol61-high-fast'] == 'default'
     html = page.winner_table(ds, dataset.need)
-    assert 'terra61-low ⚡ is faster (6.0 s) and ~3× cheaper; 1 L7 miss' in html
+    assert 'terra61-low ⚡ is faster (6.0 s) and ~3× cheaper; 1 L7 miss at standard tier, no ⚡ L7 run' in html
     assert '179/180 vs high 177/180' in F['terra_priority_noise']
     assert '-1.6 to +4.3' in F['terra_priority_noise']
     assert '-14.5 to +8.7' in F['terra_priority_p04']
