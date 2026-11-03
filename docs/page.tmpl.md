@@ -293,6 +293,7 @@
 <li>With Codex quota gone, use haiku-high. It is the cheapest config with no misses.</li>
 </ol>
 <ul class="tight">
+<li>The host default is terra61-low ⚡: far cheaper and faster per pass, but it has missed tries (see Terra61 at priority tier). Use sol61-high ⚡ when a miss costs more than the price gap.</li>
 <li>If speed matters most, use sonnet-medium. It takes {{sonnet_medium_med}} s to haiku-high's {{haiku_high_med}} s. sonnet-medium costs {{sm_vs_hh_x}} as much per pass.</li>
 <li>Don't use luna-low or luna-medium alone: they miss about {{cheap_miss_words}}.</li>
 <li>{{hb_conclusion_copy}}</li>
