@@ -35102,9 +35102,9 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "model_names": {
-   "value": "luna = gpt-6-luna, sol61 = gpt-6.1-sol, astra = gpt-6-astra. luna56 = gpt-5.6-luna, sol56 = gpt-5.6-sol (older generation)",
+   "value": "luna = gpt-6-luna, sol61 = gpt-6.1-sol, astra = gpt-6-astra. terra61 = gpt-6.1-terra. luna56 = gpt-5.6-luna, sol56 = gpt-5.6-sol (older generation)",
    "unit": "text",
-   "display": "luna = gpt-6-luna, sol61 = gpt-6.1-sol, astra = gpt-6-astra. luna56 = gpt-5.6-luna, sol56 = gpt-5.6-sol (older generation)",
+   "display": "luna = gpt-6-luna, sol61 = gpt-6.1-sol, astra = gpt-6-astra. terra61 = gpt-6.1-terra. luna56 = gpt-5.6-luna, sol56 = gpt-5.6-sol (older generation)",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "ref_unit": {

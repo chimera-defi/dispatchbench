@@ -22,7 +22,7 @@
 <ul class="tight small">
 <li>Config = one model at one effort level, e.g. haiku-low.</li>
 <li>Claude models: haiku and sonnet.</li>
-<li>Codex models: luna, sol and astra (OpenAI).</li>
+<li>Codex models: luna, sol, astra and terra (OpenAI).</li>
 <li>Suffix = effort: low / medium / high / xhigh (a step above high).</li>
 <li>{{model_names}}.</li>
 </ul>
@@ -71,7 +71,7 @@
 <h4>Fast mode</h4>
 <ul class="tight small">
 <li>The model and effort stay the same. The main ladder and L7 each passed every try. This refers to sol61-high ⚡ and astra-medium ⚡; later terra61 priority results include misses.</li>
-<li>Fast mode was not tried. Later priority results did try it; the earlier Terra run did not.</li>
+<li>The earlier Terra run did not try fast mode; the later priority-tier runs did.</li>
 </ul>
 {{w_result_notes}}
 </details>
@@ -344,8 +344,8 @@
 <section class="extras" id="extras">
 <h2><span class="num"></span>Other measures</h2>
 <p class="small">Repo tasks: task complete counts visible and hidden tests together.</p>
-<p class="small">luna-low completed {{ag_hidden_luna_iso_k}} on hidden tests alone.
-</p><p class="small">Its task-complete headline also requires visible tests: {{ag_tc_luna_iso_k}}.</p>
+<p class="small">luna-low completed {{ag_hidden_luna_iso_k}} on hidden tests alone.</p>
+<p class="small">Its task-complete headline also requires visible tests: {{ag_tc_luna_iso_k}}.</p>
 <p class="small">All other configs completed every run.</p>
 <p class="small">luna-low failed tests it added itself. Failure classification remains under audit.</p>
 <p class="small">A stricter discount test caught boolean input acceptance. Earlier hidden tests missed that bug.</p>

@@ -943,7 +943,7 @@ def _facts(s, arms):
     need(all(v['hidden_pass'] == v['n'] for v in ag.values()) and [c for c, v in ag.items() if v['task_complete'] < v['n']] == ['luna-low'],
          "every repo-task run passed our hidden tests; under task complete only luna-low falls short, so repo tasks mostly rank cost and speed")
     F['budget_why'] = f"Cheapest with no misses. haiku-low costs less but misses {hl['n'] - hl['passes']} of {hl['n']}"
-    F['model_names'] += (f". luna56 = {ex['luna56-high']['model']}, "
+    F['model_names'] += (f". terra61 = {ex['terra61-low']['model']}. luna56 = {ex['luna56-high']['model']}, "
                          f"sol56 = {ex['sol56-high']['model']} (older generation)")
     need(a['luna-low-noshell-B1']['passes'] > a['luna-low']['passes'] > a['luna-low-noshell-B2']['passes'], "B1 improves over plain luna-low; B2 passes less often")
     F['noshell_comparison'] = (f"On the {configs.set_label('rescue set')}, B1 passed {a['luna-low-noshell-B1']['passes']}/{a['luna-low']['n']}. "
