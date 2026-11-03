@@ -1391,6 +1391,7 @@ Constraints: `1 &lt;= n &lt;= 10**9`, `1 &lt;= len(ops) &lt;= 10**5`, `1 &lt;= l
 <li>With Codex quota gone, use haiku-high. It is the cheapest config with no misses.</li>
 </ol>
 <ul class="tight">
+<li>The host default is terra61-low ⚡: far cheaper and faster per pass, but it has missed tries (see Terra61 at priority tier). Use sol61-high ⚡ when a miss costs more than the price gap.</li>
 <li>If speed matters most, use sonnet-medium. It takes 10.1 s to haiku-high's 14.7 s. sonnet-medium costs 4.4× as much per pass.</li>
 <li>Don't use luna-low or luna-medium alone: they miss about 1 answer in 4.</li>
 <li>luna-low passed 11 more on Codex's bench; haiku-low gained 3, near its ceiling. Bench and harness both differ, so the cause is not isolated. No pick changes.</li>
