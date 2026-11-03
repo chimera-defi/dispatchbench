@@ -2,6 +2,7 @@
 from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
+import os
 import re
 
 from analysis import page
@@ -174,9 +175,20 @@ assert.equal(element('ex-detail').innerHTML,before);
 
 
 
+
+def _playwright_node_path():
+    """NODE_PATH that resolves `playwright`: the caller's, else a node_modules in the repo, else the newest npx cache."""
+    import glob
+    found = [os.environ.get('NODE_PATH', ''), os.path.join(ROOT, 'node_modules')]
+    found += sorted(glob.glob(os.path.expanduser('~/.npm/_npx/*/node_modules')),
+                    key=lambda d: os.path.getmtime(d), reverse=True)
+    return os.pathsep.join(d for d in found if d and (d == found[0] or os.path.isdir(os.path.join(d, 'playwright'))))
+
+
 def test_all_body_headings_and_deep_links_in_chrome():
     # The browser harness is not optional: a sandbox without Chrome must fail here, not skip.
     import subprocess
-    result = subprocess.run(['node', 'tests/deeplink_runtime.cjs'], text=True, capture_output=True, cwd=ROOT, timeout=300)
+    result = subprocess.run(['node', 'tests/deeplink_runtime.cjs'], text=True, capture_output=True, cwd=ROOT, timeout=300,
+                            env={**os.environ, 'NODE_PATH': _playwright_node_path()})
     assert result.returncode == 0, result.stdout + result.stderr
     assert 'deep links:' in result.stdout
