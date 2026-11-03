@@ -1,0 +1,11 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+  [[rules.allowlists]]
+  condition = "AND"
+  regexTarget = "match"
+  paths = ['''^(cache|results)/''']
+  regexes = ['''^key"\s*:\s*"[0-9a-f]{64}"''']
