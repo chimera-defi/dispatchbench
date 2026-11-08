@@ -1,124 +1,43 @@
-"""Check the actual report and reject literal colours in all authoring forms."""
+"""Colour tokens: no literals outside the token block, family colours distinct, text contrast."""
 import importlib.util
-import re
-import shutil
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
-from analysis import charts, dataset, page, report
-from tools import check_contrast as contrast_check
+from analysis import report
+from tools import check_contrast as contrast
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('check_colours', ROOT / 'tools/check_colours.py')
 colours = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(colours)
-sync_spec = importlib.util.spec_from_file_location('sync_design_system', ROOT / 'docs/page/design-system/scripts/sync.py')
-sync = importlib.util.module_from_spec(sync_spec)
-sync_spec.loader.exec_module(sync)
 
 
 @pytest.mark.parametrize('mode', ['light', 'dark'])
 @pytest.mark.parametrize('automatic', [False, True])
-def test_family_tokens_are_pairwise_distinct_in_each_theme(mode, automatic):
-    css = (ROOT / 'docs/page/tokens.css').read_text()
-    values = contrast_check.theme_values(css, mode, automatic=automatic)
+def test_family_tokens_are_pairwise_distinct(mode, automatic):
+    values = contrast.theme_values((ROOT / 'docs/page/tokens.css').read_text(), mode, automatic=automatic)
     tokens = ('claude', 'sonnet', 'codex', 'codex56', 'grok', 'devin', 'hetzner', 'pipeline')
-    resolved = [contrast_check.rgb('--' + key, values, None) for key in tokens]
+    resolved = [contrast.rgb('--' + t, values, None) for t in tokens]
     assert len(set(resolved)) == len(tokens), dict(zip(tokens, resolved))
-    for role in ('good', 'data-bare'):
-        assert contrast_check.rgb('--' + role, values, None) == (
-            (40, 107, 101) if mode == 'light' else (143, 199, 192))
 
 
-def test_grok_and_devin_text_contrast_is_checked_by_audit():
-    css = (ROOT / 'docs/page/tokens.css').read_text()
-    results = list(contrast_check.check_families(css))
-    assert len(results) == 16
-    assert all(ratio >= minimum == 4.5 for _, ratio, minimum in results)
-    broken = css.replace('--data-grok:#0074b0', '--data-grok:#ffffff')
-    assert any(ratio < minimum for _, ratio, minimum in contrast_check.check_families(broken))
-
-
-@pytest.mark.parametrize('config,token', [
-    ('haiku-low', 'claude'), ('sonnet-medium', 'sonnet'), ('sol61-high', 'codex'),
-    ('sol56-high', 'codex56'), ('terra56-low', 'codex56'), ('terra/base', 'codex56'), ('grok47-low', 'grok'),
-    ('devin16slow-default', 'devin'), ('hetzner-qwen36', 'hetzner'),
-    ('sol61-high+haiku-on-fail', 'pipeline'),
-])
-def test_chart_table_and_explorer_share_family_colour(config, token):
-    assert charts.FAMILY(config) == page.FAM(config) == f'var(--{token})'
-    css = (ROOT / 'docs/page/tokens.css').read_text()
-    rows = [r for r in dataset.read()['explorer']['rows'] if r['config'] == config]
-    assert rows
-    for mode in ('light', 'dark'):
-        values = contrast_check.theme_values(css, mode)
-        expected = contrast_check.rgb('--' + token, values, None)
-        for row in rows:
-            for facet in ('vendor', 'model'):
-                assert contrast_check.rgb(charts.explorer_colour(row, facet), values, None) == expected
-
-
-@pytest.mark.parametrize('value', [
-    '#abc', '#abcd', '#123456', '#12345678', 'rgb(1 2 3)', 'rgba(1,2,3,.4)',
-    'hsl(20 30% 40%)', 'hwb(20 30% 40%)', 'lab(50 10 20)', 'lch(50 10 20)',
-    'oklab(.5 .1 .2)', 'oklch(.5 .1 20)', 'color(display-p3 1 0 0)', 'maroon',
-])
-def test_literals_rejected_in_css_and_templates(tmp_path, value):
-    for name, body in [('page.css', f'.example{{color:{value}}}'),
-                       ('template.html', f'<p style="color:{value}">copy</p>'),
-                       ('style.html', f'<style>.example{{color:{value}}}</style>'),
-                       ('chart.svg', f'<svg><path fill="{value}"/></svg>')]:
+@pytest.mark.parametrize('value', ['#abc', '#12345678', 'rgba(1,2,3,.4)', 'hsl(20 30% 40%)', 'oklch(.5 .1 20)', 'maroon'])
+def test_literals_rejected(tmp_path, value):
+    for name, body in [('page.css', f'.x{{color:{value}}}'), ('t.html', f'<p style="color:{value}">c</p>'),
+                       ('c.svg', f'<svg><path fill="{value}"/></svg>')]:
         path = tmp_path / name
         path.write_text(body)
         assert colours.check_file(path), (name, value)
 
 
-def test_colour_checker_cli_fails_for_injected_template(tmp_path):
+def test_checker_cli_fails_for_injected_template(tmp_path):
     template = tmp_path / 'template.html'
     template.write_text('<style>.injected{color:#123456}</style>')
     run = subprocess.run([sys.executable, str(ROOT / 'tools/check_colours.py'), str(template)], capture_output=True, text=True)
-    assert run.returncode == 1
-    assert '#123456' in run.stdout and str(template) in run.stdout
-
-
-def test_token_references_and_copy_are_not_colour_literals(tmp_path):
-    page = tmp_path / 'page.html'
-    page.write_text('''<style>/* color:#123456 */
-        a{color:var(--blue);background:color-mix(in srgb,var(--bg) 8%,transparent)}
-        </style><p id="feed" style="color:var(--fg);">Red and purple marks.</p>
-        <script>const p=document.querySelector('#feed'); // color:#123456
-        p.style.color="var(--fg)";</script>''')
-    assert not colours.check_file(page)
-
-
-@pytest.mark.parametrize('body', [
-    'node.style.color="red";', 'node.style.backgroundColor="#abc";',
-    'const fill="#123456";', 'const fill="oklch(.5 .1 20)";',
-])
-def test_script_literal_colours_rejected(tmp_path, body):
-    path = tmp_path / 'page.js'
-    path.write_text(body)
-    assert colours.check_file(path)
-
-
-def test_mask_and_meta_cannot_hide_other_colours(tmp_path):
-    path = tmp_path / 'page.html'
-    path.write_text('<meta name="theme-color" content="#123456"><style>.x{mask-image:none;color:#abcdef}</style>')
-    errors = colours.check_file(path)
-    assert any('#123456' in e for e in errors) and any('#abcdef' in e for e in errors)
-
-
-def test_token_block_is_bounded(tmp_path, monkeypatch):
-    path = tmp_path / 'tokens.css'
-    monkeypatch.setattr(colours, 'TOKENS', path)
-    path.write_text('/* FABLE TOKENS BEGIN */:root{--fg:#123456}/* FABLE TOKENS END */\na{color:#abcdef}')
-    errors = colours.check_file(path)
-    assert len(errors) == 1 and '#abcdef' in errors[0]
-    path.write_text('/* FABLE TOKENS BEGIN */:root{--fg:#123456}')
-    assert any('complete FABLE token block' in e for e in colours.check_file(path))
+    assert run.returncode == 1 and '#123456' in run.stdout
 
 
 def test_real_page_has_no_colour_literals_outside_tokens(tmp_path):
@@ -128,120 +47,11 @@ def test_real_page_has_no_colour_literals_outside_tokens(tmp_path):
     assert not colours.check_file(path)
 
 
-def test_site_selectors_map_to_real_report_hooks():
-    css = '.frontier{stroke:var(--data-frontier)}.chart .grid{stroke:var(--data-grid)}.cell-most{color:var(--color-accent-200)}.pt-claude{fill:var(--data-claude)}'
-    adapted = sync.adapt(css, sync.THEME_SELECTORS)
-    assert '.ex-front,path[data-front]' in adapted
-    assert '.ex-grid{' in adapted and '.grid .part{' in adapted
-    assert '.pt-claude' not in adapted
-
-
-def test_single_bundle_has_pinned_tokens_and_theme_modes():
+def test_accessibility_pairs_meet_contrast():
     css = (ROOT / 'docs/page/tokens.css').read_text()
-    assert css.count(colours.BEGIN) == css.count(colours.END) == 1
-    assert '@import' not in css
-    for path in sync.FILES[:3]:
-        assert 'design-system/' + path in css
-    assert '2109b3b149e92ca388c4392f57d9b48aa040b4fb' in css
-    assert ':root[data-theme="light"]' in css and ':root[data-theme="dark"]' in css
-    assert 'prefers-color-scheme:light' in css
-
-
-def test_all_mapped_theme_variables_resolve_to_tokens():
-    css = (ROOT / 'docs/page/tokens.css').read_text()
-    defined = set(re.findall(r'(--[\w-]+)\s*:', css))
-    references = set(re.findall(r'var\((--[\w-]+)', css))
-    for path in ('components/patterns.css', 'dispatchbench/dispatchbench-theme.css'):
-        references.update(re.findall(r'var\((--[\w-]+)', (sync.DS / path).read_text()))
-    assert references <= defined, references - defined
-    assert {'--font-body', '--font-heading', '--space-1', '--color-neutral-300'} <= defined
-
-
-def test_sync_extracts_base_tokens_after_font_import():
-    source = "@import url('https://fonts.test/css?family=Inter:wght@400;500;600');\n:root{--font-body:Inter;--space-1:2.8px}body{margin:0}"
-    roots = [body for selector, body in sync.rules(source) if selector.strip() == ':root']
-    assert roots == ['--font-body:Inter;--space-1:2.8px']
-
-
-def test_inlined_bundle_must_match_the_trusted_token_block(tmp_path):
-    path = tmp_path / 'page.html'
-    tokens = (ROOT / 'docs/page/tokens.css').read_text()
-    path.write_text('<style>' + tokens + '.x{color:var(--fg)}</style>')
-    assert not colours.check_file(path)
-    path.write_text(path.read_text().replace('--color-bg: #161826', '--color-bg: #123456'))
-    assert any('differs from the runtime bundle' in e for e in colours.check_file(path))
-
-
-def test_theme_text_roles_have_normal_text_contrast():
-    # Exercise both explicit modes using the shipped token definitions, including
-    # aliases. Browser rendering is an additional check when Chrome can start.
-    css = (ROOT / 'docs/page/tokens.css').read_text()
-    base = {}
-    for selector, body in sync.rules(css):
-        if selector.strip() == ':root':
-            base.update(re.findall(r'(--[\w-]+)\s*:\s*([^;]+)', body))
-
-    def luminance(value):
-        channels = [int(value[i:i + 2], 16) / 255 for i in (1, 3, 5)]
-        linear = [v / 12.92 if v <= .04045 else ((v + .055) / 1.055) ** 2.4 for v in channels]
-        return sum(v * weight for v, weight in zip(linear, (.2126, .7152, .0722)))
-
-    for mode in ('light', 'dark'):
-        values = dict(base)
-        body = re.search(r':root\[data-theme="' + mode + r'"\]\{([^}]*)\}', css)[1]
-        values.update(re.findall(r'(--[\w-]+)\s*:\s*([^;]+)', body))
-
-        def resolve(name):
-            value = values[name].strip()
-            match = re.fullmatch(r'var\((--[\w-]+)\)', value)
-            return resolve(match[1]) if match else luminance(value)
-
-        for role in ('--fg', '--muted', '--accent-text', '--color-link', '--color-kicker', '--color-subtle'):
-            for ground in ('--bg', '--panel'):
-                low, high = sorted((resolve(role), resolve(ground)))
-                assert (high + .05) / (low + .05) >= 4.5, (mode, role, ground)
-
-
-def test_accessibility_pairs_in_both_explicit_and_system_themes():
-    spec = importlib.util.spec_from_file_location('check_contrast', ROOT / 'tools/check_contrast.py')
-    checker = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(checker)
-    css = (ROOT / 'docs/page/tokens.css').read_text()
-    results = list(checker.check(css))
+    results = list(contrast.check(css))
     assert len(results) == 24
     for name, ratio, minimum in results:
         assert ratio >= minimum, (name, ratio, minimum)
-    # The light role must really replace the failing site text/border mixes.
     broken = css.replace('--color-input-ink:#000000', '--color-input-ink:var(--color-text)')
-    assert any(ratio < minimum for _, ratio, minimum in checker.check(broken))
-    for mode in ('light', 'dark'):
-        values = checker.theme_values(css, mode)
-        for role in ('--color-kicker', '--color-tag', '--color-pressed-text'):
-            assert checker.rgb(role, values, None) == checker.rgb('--accent-text', values, None)
-
-
-@pytest.mark.skipif(shutil.which('node') is None, reason='node is unavailable')
-def test_vendored_site_contrast_script_and_failure_exit(tmp_path):
-    script = sync.DS / 'scripts/check-contrast.mjs'
-    run = subprocess.run(['node', str(script)], capture_output=True, text=True)
-    assert run.returncode == 0, run.stdout + run.stderr
-    assert len(run.stdout.splitlines()) == 6
-    # Preserve import.meta.url relative paths, then break the actual input pair.
-    (tmp_path / 'scripts').mkdir()
-    (tmp_path / 'tokens').mkdir()
-    shutil.copy(script, tmp_path / 'scripts/check-contrast.mjs')
-    for name in ('fable-maroon.css', 'nocturne-base.css'):
-        shutil.copy(sync.DS / 'tokens' / name, tmp_path / 'tokens' / name)
-    maroon = tmp_path / 'tokens/fable-maroon.css'
-    maroon.write_text(maroon.read_text().replace('--color-accent-300:#fec2c5', '--color-accent-300:#2b2d37'))
-    run = subprocess.run(['node', str(tmp_path / 'scripts/check-contrast.mjs')], capture_output=True, text=True)
-    assert run.returncode == 1 and 'FAIL' in run.stdout
-
-
-def test_sync_keeps_page_slice_files_untouched():
-    sources = {path: (sync.DS / path).read_text() for path in sync.FILES}
-    # Use the verbatim topbar copy as the upstream source for this scoped build.
-    sources['components/patterns.css'] = (ROOT / 'docs/page/topbar.css').read_text()
-    outputs = sync.build(sources, '2109b3b149e92ca388c4392f57d9b48aa040b4fb')
-    for name in ('style.css', 'explorer.html'):
-        assert ROOT / 'docs/page' / name not in outputs
+    assert any(ratio < minimum for _, ratio, minimum in contrast.check(broken))

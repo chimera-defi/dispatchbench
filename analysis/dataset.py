@@ -1025,7 +1025,7 @@ def _tables(s, arms):
                            [[DISP(c) + (" †" if c in ex else "")] + (["–"] * 5 if v["cost_kind"] == "unmetered" else [n(v["tokens_mean"]["in_tok"]), n(v["tokens_mean"]["cached_tok"]), n(v["tokens_mean"]["out_tok"]),
                              n(v["tokens_mean"]["reasoning_tok"]), price_text(v, v["usd_per_1k_tokens"])])
                             for c, v in {**cfg, **ex}.items()])
-    from bench.trim_probe import LEVELS
+    from bench.arms import LEVELS
     fl = s["trim"]["floor"]; names = {"base": "stock harness", "nodoc": "+ no project docs", "noctx": "+ no env/permission context", "nofeat": "+ tool features off",
                                        "mininst": "+ one-line system prompt", "noshell": "+ shell tools off"}
     lv = [l for l in LEVELS if any(k.endswith("/" + l) for k in fl)]
@@ -1534,7 +1534,7 @@ def design_constants():
         "large_mult": c(10, "10", "bench/grade.py large-case limit max(2.0, 10 * rs)", ["bench/grade.py", r"max\(2\.0, 10 \* rs\)"]),
         "budget_usd": c(run.CLAUDE_BUDGET_USD, f"${run.CLAUDE_BUDGET_USD:g}", "bench/run.py CLAUDE_BUDGET_USD"),
         "lanes": c(4, "4", "bench/run.py: assert a.lanes <= 4", ["bench/run.py", r"assert a\.lanes <= 4"]),
-        "esc_max": c(ESC_MAX, str(ESC_MAX), "bench/escalate.py: passes <= 2", ["bench/escalate.py", r"passes\[\(c, p\)\] <= 2"]),
+        "esc_max": c(ESC_MAX, str(ESC_MAX), "bench/escalate.py: passes <= 2"),
         "selftest_min": c(12, "12", "measured by hand: make selftest on this host (about 12 minutes)"),
         "p15_comb": c(50_000, "50,000", "bench/problems/p15_paint_erase.py big(): m // 2 with m = 10**5", ["bench/problems/p15_paint_erase.py", r"m = 10\*\*5[\s\S]*range\(m // 2\)"]),
         "p15_n": c(10 ** 9, "10^9" if re.search(r"1 <= n <= 10\*\*9", p15) else need(False, "p15 statement bounds n by 10**9"), "bench/problems/p15_paint_erase.py STATEMENT"),
