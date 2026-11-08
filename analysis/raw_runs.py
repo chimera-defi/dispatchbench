@@ -1,15 +1,12 @@
 """Index published runs in place. Standard library only; no git or model calls."""
 import argparse
-from datetime import date
 from fnmatch import fnmatchcase
 import hashlib
-import json
 import os
 from pathlib import Path
-import re
 
 from analysis import rawindex
-from analysis.rawindex import SUPPORTING, lanes, run_date, sha256  # re-exported: the index code lives with the loaders
+from analysis.rawindex import SUPPORTING, sha256
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "docs/RAW_RUNS.md"
@@ -48,9 +45,6 @@ def ignored(path, is_dir, patterns):
 
 def published_files(directory, root=ROOT):
     """Walk actual files, including untracked files; prune ignored directories."""
-    directory = Path(directory)
-    if not directory.is_absolute():
-        directory = root / directory
     patterns = [line.strip() for line in (root / ".gitignore").read_text().splitlines()
                 if line.strip() and not line.lstrip().startswith("#")]
     files = []
