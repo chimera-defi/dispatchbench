@@ -184,7 +184,7 @@ The [Makefile](../Makefile) is the command reference.
 |---|---|---|
 | `make report` / `make audit` | Rebuild / verify offline analysis | No |
 | `make selftest` | Validate reference checkers and planted bugs; about 12 minutes | No |
-| `make grade` | Grade/export cached completions and repo verdicts | No |
+| `make grade` | Grade/export cached completions and repo verdicts; refuses to change an existing row. For new configs, `python3 -m bench.grade_all --configs NAME --output results/NEW.jsonl` | No |
 | `make run` | Main function configs, five repeats, four lanes | Yes, for uncached calls |
 | `make hard` | Selected L7 configs, five repeats, four lanes | Yes, for uncached calls |
 | `make agentic` | Repo tasks, three repeats, four lanes | Yes, for uncached calls |
