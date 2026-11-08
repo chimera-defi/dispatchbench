@@ -296,13 +296,8 @@ What we did not borrow: scale. These benchmarks run hundreds of problems, and Li
 @readme bench/            problems, prompts, runners, sandboxed grader
 @readme   problems/       {{n_problems_all}} problems ({{n_problems}} on L1-L6, {{n_l7}} on L7): statement, reference, brute force, planted bugs
 @readme   agentic/        {{n_tasks}} repo tasks (visible tests, hidden tests, reference solution) and their runner
-@readme   quality/        code-quality measurements of the graded solutions (no model calls)
 @readme   pilot/          the earlier pilot's prompts and problems, reused by the trim probe
 @readme   run.py          function-track runner (cache-first, {{d_lanes}} lanes max, {{d_budget_usd}} Claude cap)
-@readme   escalate.py     pre-registered escalation step
-@readme   trim_probe.py   Codex harness floor probe (exploratory)
-@readme   plan_first.py   Appendix F plan-first rescue runner
-@readme   gated_repair.py Appendix G gated-repair runner
 @readme analysis/         statistics, tables, SVG charts, this report and its audit (standard library only)
 @readme   luna_rescue.py  appendix result tables
 @readme docs/             README, report and page templates, style and sort code; REPORT.md (generated)
