@@ -530,17 +530,6 @@ PICKS_NOTE = {"pass": "Nothing is both cheaper and more accurate. Shaded: beaten
 ZERO_LANE = {"pass": 110, "speed": 64}  # px kept for $0 points before a log $ axis starts
 
 
-def pack_zero_lane(pts, at, Y):
-    """Ties at $0 sit in a 5-wide grid inside the lane; only the picks keep a text label (all are in the key)."""
-    rows = {}
-    for p in sorted(pts, key=lambda p: (-p["y"], p["c"])):
-        rows.setdefault(round(Y(p["y"]) / 14), []).append(p)
-    for group in rows.values():
-        for i, p in enumerate(group):
-            p.update(plot_x=at + (i % 5 - (min(len(group), 5) - 1) / 2) * 18, plot_y=Y(p["y"]) + i // 5 * 18,
-                     quiet=len(group) > 1 and not pick(p["c"]))
-
-
 def pick(c):
     """A Winner pick, or a pipeline built on one."""
     return c.split("+")[0] in WINNER_PICKS
@@ -549,40 +538,6 @@ def pick(c):
 def zero_lane(log, at):
     """A log $ scale with $0 drawn in its own lane: log(0) has no position."""
     return lambda v: at if v == 0 else log(v)
-
-
-def pass_cost(s, free=None, problem_set="main"):
-    """Pass rate (up is better) against paid $ per pass, log (left is better)."""
-    if free is None: return ladder_toggle(pass_cost, s)
-    L, R, T, B, W = 84, 16, 14, 302 if problem_set == "main" else 214, 560  # the rescue plot is shorter: its list under the plot must not lengthen the page
-    pts = ladder_points(s, free, "pass", problem_set)
-    base = [p for p in pts if not p.get("partial")]  # Grok must not rescale the axes or join the frontier
-    ymin = min(.7, math.floor(min(p["y"] for p in base) * 10) / 10)
-    paid = [p["x"] for p in base if p["x"] > 0]
-    lo = 5e-4 if min(paid) >= 5e-4 else 10 ** math.floor(math.log10(min(paid)))
-    lane = any(p["x"] == 0 for p in base)
-    X = zero_lane(logscale(lo, 3e-1, L + ZERO_LANE["pass"] * lane, W - R), L + 48)
-    Y = lambda v: B - (v - ymin) / (1.1 - ymin) * (B - T)
-    fr = sorted(front(base, lambda a, b: a["x"] <= b["x"] and a["y"] >= b["y"]), key=lambda p: p["x"])
-    pack_zero_lane([p for p in pts if p["x"] == 0], L + 48, Y)
-    for p in pts:
-        p["on"] = p in fr
-        if p["w"]: p["w"] = ("y", max(ymin, p["w"][1]), p["w"][2])
-    d = (f"M{X(fr[0]['x']):.1f} {B} V{Y(fr[0]['y']):.1f}" + "".join(f" H{X(p['x']):.1f} V{Y(p['y']):.1f}" for p in fr[1:]) + f" H{W - R}") if fr else ""
-    # With the $0 lane the log axis is narrower, so only decades get a label.
-    xt = [(v, dataset.usd(v)) for v in ((1e-4, 1e-3, 1e-2, 1e-1) if lane else (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1, 3e-1)) if v >= lo]
-    yt = [(v / 100, f"{v}%") for v in range(round(ymin * 100), 101, 10)]
-    zero = (f'<line x1="{L + 98}" x2="{L + 98}" y1="{T}" y2="{B}" stroke="var(--muted)" stroke-dasharray="2 4"/>'
-            f'<text x="{L + 48}" y="{B + 18}" text-anchor="middle" class="axis">$0</text>') if lane else ""
-    lab = {"luna-low": (12, 16, "start"), "luna-medium": (12, -8, "start"), "luna-high": (12, 14, "start"), "haiku-low": (-14, 16, "end"),
-           "haiku-medium": (14, 22, "start"), "sonnet-medium": (-14, -10, "end"), "sol61-medium": (0, 26, "middle"),
-           "haiku-high": (14, 20, "start"), "luna56-high": (14, 5, "start")}
-    for p in pts:
-        if pick(p["c"]): p["label"] = True
-    legend = grok_group_label(s)
-    return scatter(pts, d, X, Y, xt, yt, "$ per passing answer (log scale)", "pass rate", "↖ better", lab, H=B + 58, B=B,
-                   extra=zero + fast_pairs(pts, X, Y), stat="pass", variant="free" if free else "normal",
-                   badges=True, picks_note=PICKS_NOTE["pass"], key_labels={"grok": legend} if legend else None), [p["c"] for p in fr]
 
 
 def speed_cost(s, free=None, problem_set="main"):
@@ -640,14 +595,6 @@ SHORT = lambda n: n.replace("Haiku plan → ", "plan→").replace(" → Haiku if
 def rescue_arms(ds=None):
     """Cached measured and derived arms, including their validated provenance."""
     return (ds or dataset.read())["rescue"]
-
-
-def hard_pass_cost(arms=None):
-    return pass_cost({"rescue": arms or rescue_arms()}, free=False, problem_set="rescue")
-
-
-def hard_speed_cost(arms=None):
-    return speed_cost({"rescue": arms or rescue_arms()}, free=False, problem_set="rescue")
 
 
 def grid(s, grok=None):
@@ -1040,14 +987,6 @@ def set_definitions(s):
     return main, hard, per, l7
 
 
-def l7_reason(s):
-    main, hard, per, _ = set_definitions(s)
-    last_rung = max(s["problems"][p]["rung"] for p in main)
-    broke = [DISP(c) for c, v in s["configs"].items() if v["breaking_point"] is not None]
-    return (f"Only {' and '.join(broke)} broke by L{last_rung}. We added L7 to find the others' limit. "
-            f"It has {len(hard)} problems instead of the usual {per}. We score it separately.")
-
-
 def method(s):
     from bench.run import CLAUDE_FLAGS, codex_flags
     lvl = lambda d: f'<span class="lc {d.lower()}" title="{d}: my LeetCode difficulty guess">{d[0]}</span>'
@@ -1093,39 +1032,6 @@ def method(s):
         cmds.append(f'<li>{esc(DISP(c))} → <code>devin --model {CONFIGS[c][1]} --permission-mode auto -p …</code> (empty working directory, one repeat)</li>')
     cmds.append('<li><code>python3 -m bench.gated_repair</code>: answer, then run the sample tests. haiku-low repairs failures.</li>')
     return "".join(li), "".join(cmds)
-
-
-def sets_box(s):
-    """Collapsed reading guide below the cost/accuracy charts and their notes."""
-    main, hard, per, l7 = set_definitions(s)
-    rungs = sorted({s["problems"][p]["rung"] for p in main})
-    l7_lines = (f'{s["facts"]["l7_config_count"]} configs ran the {configs.set_label("L7 set")}; '
-                f'{s["facts"]["l7_absent"]} did not.')
-    lab = lambda ps: ", ".join(f'<span class="pl" title="{esc(TESTS[p])}">{esc(plabel(p))}</span>' for p in ps)
-    return ('<details class="sets"><summary>How to read the problems, rungs and sets</summary><ul class="tight small">'
-            '<li>Compare each set separately.</li>'
-            f'<li>Problem labels show number, short name and rung: {lab([main[-1]])}. Hover for a one-line description.</li>'
-            f'<li><b>{configs.set_label("main ladder", capital=True)}</b>: {len(main)} problems. Rungs: L{rungs[0]}–L{rungs[-1]}. Each has {per} problems, easiest first. Most configs ran it; the exceptions: {esc(s["facts"]["calls_exceptions_page"])}.</li>'
-            f'<li>{esc(s["facts"]["l7_set_description"])}</li>'
-            f'<li>{l7_lines}</li>'
-            f'<li><b>{configs.set_label("rescue set", capital=True)}</b>:<ul>'
-            + "".join(f'<li>{lab([p])}.</li>' for p in s["design"]["rescue_problems"]) + '</ul></li>'
-            '<li>Easy/Medium/Hard badges estimate LeetCode difficulty; rungs use this bench\'s own order and may differ.</li>'
-            '</ul></details>')
-
-
-def rescue_subtitle(s=None):
-    s = s or dataset.view(dataset.read())
-    attempts = rescue_arms(s)["sol61-high"]["n"]
-    return (f'{configs.set_label("rescue set", capital=True)}: the {len(s["design"]["rescue_problems"])} problems {s["facts"]["rescue_rule"]}. '
-            f'{attempts} attempts each, no intervals. Purple-filled points are pipelines. '
-            'Numbered points are the best trade-offs.')
-
-
-def speed_frontier_text(s, names):
-    E = every(s)
-    return ", ".join(f"{DISP(c)} ({dataset.median_seconds(E[c]):.1f} s, {dataset.usd(E[c]['usd_per_pass'])} per pass"
-                     + (f", {100 * E[c]['pass_at_1']:.1f}% passed" if E[c]['passes'] < E[c]['n'] else "") + ")" for c in names)
 
 
 def notation_meanings(ds):
@@ -1320,20 +1226,11 @@ def grok_summary(s, ds):
 
 def widgets(s, need, ds=None, names=None):
     arms = rescue_arms(ds or s)
-    if names is None or names & {"pass_cost", "front_pass"}: a, fa = pass_cost(s)
-    if names is None or names & {"speed_cost", "front_speed"}: b, fb = speed_cost(s)
-    if names is None or names & {"hard_pass_cost", "hard_front_pass"}: ha, hfa = hard_pass_cost(arms)
-    if names is None or names & {"hard_speed_cost", "hard_front_speed"}: hb, hfb = hard_speed_cost(arms)
-    nm = {c: DISP(c) for c in arms}
-    renderers = {"pass_cost": lambda: a, "speed_cost": lambda: b, "hard_pass_cost": lambda: ha, "hard_speed_cost": lambda: hb,
-            "hard_front_pass": lambda: ", ".join(SHORT(nm[c]) for c in hfa), "hard_front_speed": lambda: ", ".join(SHORT(nm[c]) for c in hfb),
-            "sets": lambda: sets_box(s), "grid": lambda: grid(s, (ds or dataset.read()).get("grok_comparison", {}).get("by_problem")), "floor": lambda: floor(s), "pipes": lambda: pipes(arms),
+    renderers = {"grid": lambda: grid(s, (ds or dataset.read()).get("grok_comparison", {}).get("by_problem")), "floor": lambda: floor(s), "pipes": lambda: pipes(arms),
             "fast": lambda: fast(s), "any_pair": lambda: any_pair(s), "explorer": lambda: explorer(s), "short_table": lambda: short_table(s, need),
             "full_table": lambda: full_table(ds or dataset.read()), "result_notes": lambda: result_notes(s),
             "grok_summary": lambda: grok_summary(s, ds or dataset.read()),
-            "front_pass": lambda: ", ".join(map(DISP, fa)),
-            "front_speed": lambda: speed_frontier_text(s, fb), "winner": lambda: winner_table(ds or dataset.read(), need),
-            "hb_qa": lambda: "".join(f'<li>{esc(line)}</li>' for line in s["facts"]["hb_qa"]),
-            "legend": lambda: legend(ds or dataset.read()), "rescue_subtitle": lambda: rescue_subtitle(s),
-            "problems": lambda: method(s)[0], "flags": lambda: method(s)[1]}
+            "winner": lambda: winner_table(ds or dataset.read(), need),
+            "legend": lambda: legend(ds or dataset.read()),
+            "problems": lambda: method(s)[0]}
     return {name: draw() for name, draw in renderers.items() if names is None or name in names}
