@@ -31,15 +31,8 @@ So a byte-identical "few hundred lines" generator does not exist unless the sent
 | Whose bench? | 24 + `harness_bias.svg` | looks closed | freeze if the checks pass |
 | Code quality and evidence | 58 + `blind`, `quality`, `everything` | pilot, trim, quality look closed; `everything` open | freeze parts that pass the checks |
 
-## Freeze (narrow, after the advisor's review)
-A section can be frozen only if **its whole input set is closed**. Measured, not guessed: run the old generator on four mutations of open data (a new config in a new results file, one flipped pass, changed tokens, a changed price) and diff `dataset.json` key by key. Only 31 of 736 facts move, but these tables do: `equiv_all`, `equiv_back`, `fail`, `grok_better`, `grok_full_closest`, `grok_full_lanes`, `grok_lead`, `l7`, `rescue`, `result`, `result_detail`, `tokens`.
-
-- **Stays live:** all of the above, so `grok.py` equivalence matching stays. A new config changes Grok's "closest lane" tables, so freezing `grok.py` would make those tables false by omission. This drops the plan's first idea of deleting `grok.py`.
-- **Candidates:** Devin, Hetzner calibration, pilot, trim, quality, blind readability, harness-bias facts, `t1_regrade`, Grok repo comparison, Terra appendix. Each must pass three checks: no key moves under any mutation; live code does not read its facts (tracked through `Facts.__getitem__`); its file reads are closed (tracked through `summarize.load` and `open`).
-- **How:** `results/frozen.json` holds those keys, the fact order, and the sha256 of each input row file. `make audit` fails if one changes, and names 7e946a6 as the generator to re-derive from. This is weaker than "the number equals the data", and the report will say so. `rawindex` globs only `*.jsonl`, so the file does not change `docs/RAW_RUNS.md`.
-- **Byte order is part of the golden.** `dataset.text` does not sort keys, and frozen facts sit between live ones, so they are reinserted by the stored order.
-- **Limit: a new run must still reach the page.** A new config in a new results file must pass `make report && make audit` and appear in the open sections. Freezing everything would pass the gate and leave a page copier, with `make audit` meaning nothing. Out of scope; written up under "left undone" with its line count.
-- **Drop rule:** if the saving is under 400 lines after the machinery, drop the stage and say so.
+## Freeze: dropped, measured
+The first plan froze closed sections into `results/frozen.json`. It is dropped. A scripted prototype in `_facts` removed 196 lines and froze 194 of the 517 facts that did not move under seven mutations. With the rest of the closed-arm code it might reach about 450 lines net of its own machinery (about 6% of the code). In exchange those numbers stop being derived, and `make audit` only checks a hash on them. `README.md` says its commands "rebuild committed data"; that sentence would become partly false, and `README.md` is locked by the golden. So this goes under "left undone". Details in the report.
 
 ## Gates beyond `tools/gate.sh`
 The gate compares the tree to HEAD. A regenerated file committed along with a change would pass it, so it cannot prove outputs unchanged.
@@ -64,16 +57,16 @@ Counter: `git ls-files` for `analysis`, `bench`, `tools`, `Makefile`, excluding 
 | `run.py` | 495 / 27 | 300 / 16 (drop the retired Grok, Devin, Hetzner callers) |
 | `agentic/run.py` | 271 / 17 | 200 / 13 |
 | everything else | about 1,900 | about 1,700 |
-| **Total** | **8,446 / 549** | **about 6,500** |
+| **Total** | **8,446 / 549** | **about 7,500 without the freeze** |
 
-That roughly meets the phase-1 ceiling and misses the operator's bar (a few hundred). Going further needs an output change or a full freeze; neither is planned.
+That misses both the phase-1 ceiling and the operator's bar (a few hundred). Going further needs an output change or a freeze; neither is in scope.
 
 **Docs.** Phase 1's counter (`tools/count.sh`: `*.md` and `docs/*.json` outside `results`, `cache`, design system) reads 3,163 now. `docs/landcheck_allow.json` is 747 of that, and most entries acknowledge removals already landed on main, so they no longer match anything. Trim those and `docs/SETUP.md`. The floor under this counter is about 2,090: generated and byte-locked `REPORT`, `README`, `RAW_RUNS` (865), their templates (949), `PLAN.md` (152, cited), task and pilot markdown (about 97), `audit_allow` (27). **So under 2,000 cannot be met without an output change.** The report gives the counter's number, plus the number without generated files. The counter does not change.
 
 ## Stages (each one PR, gated, reviewed by a Claude model named in the PR)
 1. **Gate and dead code.** Add baseline diff to the gate; delete the never-run functions. About -300.
 2. **Runner.** Drop `call_grok`, `call_devin`, `call_hetzner` and their guards: no `bench.run` call for those lanes in 30 days (transcript grep hits are imports of `CALLS`), and no pending deviation in `PLAN.md`. Keep: `CONFIGS`, all flag lists, `key_for` byte for byte, `CLAUDE_BUDGET_USD` and the Claude guard, `isolated_codex_env`, the `MIN_INST` hash check, raw stdout writing (the analysis imports and the manifest need these). Runner smoke before and after. The optional `make grade` refusal goes here. About -270.
-3. **Freeze closed sections**, by the checks above. `tests/test_data.py` names renderer files, so update it with any deletion. Target about -500.
+3. **Freeze:** dropped, see above.
 4. **Dedupe live code.** Shared helpers, pure refactors, differential mutation per file; fact order preserved. About -500. Stop at the first file that fails twice.
 5. **Docs.**
 6. **Report, lesson, bus post.** Full-freeze option written up as undone, never built.
