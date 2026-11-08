@@ -4,7 +4,7 @@ Grades are cached in cache/grades by (problem file hash, code hash), so a rebuil
 import hashlib, json, os, re, subprocess, sys, tempfile
 
 from bench import problems
-from bench.run import CALLS, ROOT
+from bench.run import CALLS, ROOT, write_rows
 
 GRADES = os.path.join(ROOT, "cache", "grades")
 OUT = os.path.join(ROOT, "results", "2026-10-22b-function.jsonl")
@@ -67,8 +67,7 @@ def main(entries=None, output=None):
         row.update(rung=m.RUNG, outcome=g["outcome"], passed=g["outcome"] == "pass", grade_detail=g.get("detail"), code_lines=code.count("\n"))
         rows.append(row)
     output = output or OUT
-    with open(output, "w") as f:
-        for r in rows: f.write(json.dumps(r) + "\n")
+    write_rows(output, [json.dumps(r) + "\n" for r in rows])
     print(f"graded {len(rows)} calls -> {os.path.relpath(output, ROOT)}")
 
 
