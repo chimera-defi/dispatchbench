@@ -665,51 +665,5 @@ def explorer_svg(exp, standalone=False, width=760):
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" class="ex-svg" style="min-width:0">'+''.join(b)+'</svg>')
 
 
-def explorer_panels(exp):
-    """Static by-model panels; JS follows the selected set and filters."""
-    st = next(s for s in exp["sets"] if s["id"] == exp["default_set"])
-    rows = [r for r in exp["rows"] if r["key"] in st["rows"] and r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None]
-    view = st["views"]["list"]["front"]; out=[]
-    for panel,stat in view["panels"].items():
-        group = [r for r in rows if r["panel"] == panel]
-        if not group: continue
-        ext=stat["extents"]; lo,hi=ext["cost"]; p0,p1=ext["pass_rate"]
-        X=lambda v: 25+math.log(v/lo)/math.log(hi/lo)*190
-        Y=lambda v: 140-(v-p0)/(p1-p0)*115
-        fr=sorted([r for r in rows if view["membership"][r["key"]]["on_frontier"]],key=lambda r:r["usd_per_pass"])
-        d=""
-        for i,r in enumerate(fr): d+=("H" if i else "M")+f'{X(r["usd_per_pass"]):.2f}'+("V" if i else " ")+f'{Y(r["pass_rate"]):.2f}'
-        if d: d+='H240'
-        b=[f'<path class="ex-shade" d="{d}V160H{X(fr[0]["usd_per_pass"]):.2f}Z"/><path class="ex-front" d="{d}"/>'] if d else []
-        for r in rows:
-            if r not in group: b.append(f'<circle class="ex-ghost" cx="{X(r["usd_per_pass"]):.2f}" cy="{Y(r["pass_rate"]):.2f}" r="2"/>')
-        normal=sorted([r for r in group if r['mode']=='normal'],key=lambda r: {'low':0,'medium':1,'high':2,'xhigh':3}.get(r['effort'],4))
-        if len(normal)>1: b.append('<polyline class="ex-trail" fill="none" stroke="'+explorer_colour(normal[0])+'" points="'+' '.join(f'{X(r["usd_per_pass"]):.2f},{Y(r["pass_rate"]):.2f}' for r in normal)+'"/>')
-        for r in group:
-            x,y=X(r['usd_per_pass']),Y(r['pass_rate'])
-            b += [f'<g data-key="{escape(r["key"])}"><title>{escape(r["display"])} · {explorer_cost_label(r)}</title>',explorer_marker(r,x,y),text(min(220,x+10),max(14,y-10),{'low':'L','medium':'M','high':'H','xhigh':'XH'}.get(r['effort'],'D'),12),'</g>']
-        out.append(f'<div class="card"><h4>{escape(panel)}</h4><p class="ex-meta">{stat["on_frontier"]} of {stat["total"]} on frontier · {stat["beaten"]} beaten</p><svg viewBox="0 0 240 160" role="img"><title>{escape(panel)} detail</title>{"".join(b)}</svg></div>')
-    return ''.join(out)
-
-
-def explorer_radars(exp):
-    st=next(s for s in exp['sets'] if s['id']==exp['default_set']); ext=st['views']['list']['extents']
-    rows=[r for r in exp['rows'] if r['key'] in st['rows']]; lo,hi=ext['cost']; p0,p1=ext['pass_rate']; tmax=ext['median_s'][1]; out=[]
-    def point(i,v):
-        a=-math.pi/2+i*2*math.pi/3
-        return f'{100+math.cos(a)*60*v:.2f},{85+math.sin(a)*60*v:.2f}'
-    for r in rows:
-        b=[]
-        for v in (.33,.66,1): b.append(f'<polygon class="ex-grid" fill="none" points="{" ".join(point(i,v) for i in range(3))}"/>')
-        for i,label in enumerate(('pass','cheap','fast')):
-            x,y=map(float,point(i,1.3).split(',')); b.append(text(x,y+4,label,12,'middle'))
-        if r['cost_kind']!='unmetered' and r['usd_per_pass'] is not None:
-            values=[(r['pass_rate']-p0)/(p1-p0),1-math.log(r['usd_per_pass']/lo)/math.log(hi/lo),1-r['median_s']/tmax]
-            b.append(f'<polygon fill="{explorer_colour(r)}" fill-opacity=".16" stroke="{explorer_colour(r)}" points="{" ".join(point(i,max(.02,min(1,v))) for i,v in enumerate(values))}"/>')
-        else: b.append(text(100,88,'cost unavailable',12,'middle'))
-        out.append(f'<div class="card ex-radar" data-key="{escape(r["key"])}"><h4>{escape(r["display"])}</h4><svg viewBox="0 0 200 180" role="img"><title>{escape(r["display"])} normalised radar</title>{"".join(b)}</svg><p class="ex-meta">{r["passes"]}/{r["n"]} · {dataset.usd(r["usd_per_pass"])} ({explorer_cost_label(r)}) · {r["median_s"]:g} s</p></div>')
-    return ''.join(out)
-
-
 if __name__ == "__main__":
     main()
