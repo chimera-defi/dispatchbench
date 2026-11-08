@@ -13,7 +13,6 @@ README = os.path.join(ROOT, "README.md")
 README_TEMPLATE = os.path.join(ROOT, "docs", "readme.tmpl.md")
 REPORT = os.path.join(ROOT, "docs", "REPORT.md")
 PAGE = os.path.join(RES, "report", "page.html")
-CHARTS = os.path.join(RES, "report", "charts")
 PAGE_DIR = os.path.join(ROOT, "docs", "page")
 
 class Facts(dict):
@@ -33,9 +32,6 @@ class Facts(dict):
         raise KeyError(f"template uses unknown fact {{{{{k}}}}}")
 
 need = dataset.need
-
-def facts(ds):
-    return Facts(ds["facts"])
 
 def md_table(head, rows):
     return "\n".join(["| " + " | ".join(head) + " |", "|" + "---|" * len(head)] + ["| " + " | ".join(map(str, r)) + " |" for r in rows])
@@ -80,7 +76,7 @@ def inline(t):
     for p in parts:
         if p.startswith("`") and p.endswith("`") and len(p) > 1:
             out.append(f"<code>{html.escape(p[1:-1])}</code>"); continue
-        if p.startswith("<figure>") or p.startswith("<div") or p.startswith("<h2") or p.startswith("<script") or p.startswith("<p class"):
+        if p.startswith(("<figure>", "<div", "<h2", "<script", "<p class")):
             out.append(p); continue
         p = html.escape(p, quote=False)
         p = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", p)
@@ -146,7 +142,7 @@ def data_block(ds, s, used, T, page_tmpl, chart_bodies, W):
     # Witnesses come from dataset-derived renderers, never parsed from the page.
     # Keep each numeric token once instead of copying SVG labels and table prose.
     from analysis.audit import NUM
-    sources = [v for v in W.values()] + [T[k] for k in tables if k in T]
+    sources = list(W.values()) + [T[k] for k in tables if k in T]
     visible = lambda source: html.unescape(re.sub(r"<[^>]*>", " ", re.sub(
         r"<(script|style)\b[^>]*>.*?</\1>", " ", source, flags=re.S)))
     numbers = sorted({m[1] for source in sources for m in NUM.finditer(visible(source))})
@@ -160,7 +156,7 @@ def render(used_facts=None):
     """(README text, full report text, page HTML), all rendered from the dataset and the templates."""
     ds = dataset.read(); s = dataset.view(ds)
     if used_facts is None: used_facts = set()  # the page always tracks the facts it shows: they go into its data block
-    F = facts(ds); T = tables_md(ds); chart_bodies = charts.build(ds)
+    F = Facts(ds["facts"]); T = tables_md(ds); chart_bodies = charts.build(ds)
     F.update(set_label=configs.set_label("rescue set"), set_label_title=configs.set_label("rescue set", capital=True))
     readme = fill(open(README_TEMPLATE).read(), F, T, "readme", chart_bodies).strip() + "\n"
     up = lambda m: m.group(0) if re.match(r"https?:|#|mailto:", m.group(2)) else f"{m.group(1)}(../{m.group(2)})"

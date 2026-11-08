@@ -69,12 +69,10 @@ def repo_task_counts(root):
     return out
 
 
-
 def file_index(root=ROOT):
     """One entry per results/**/*.jsonl: run id, path, rows (non-empty lines), date, lanes, sha256."""
     out = []
-    paths = sorted((root / "results").rglob("*.jsonl"))
-    for path in paths:
+    for path in sorted((root / "results").rglob("*.jsonl")):
         lines = [line for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
         rows = []
         for line in lines:
