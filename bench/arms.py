@@ -6,7 +6,7 @@ Runner code (trim_probe, plan_first, gated_repair) was removed in the 2026-11 sh
 python3 -m bench.arms export-trim    # cache/trim/*.json -> results/2026-10-22b-trim.jsonl (make grade)"""
 import json, os, sys
 
-from bench.run import CODEX_FLAGS
+from bench.run import CODEX_FLAGS, write_rows
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PILOT = os.path.join(ROOT, "bench", "pilot")
@@ -47,8 +47,7 @@ CONFIGS = {
 def export():
     rows = [json.load(open(os.path.join(CACHE, f))) for f in sorted(os.listdir(CACHE)) if f.endswith(".json")] if os.path.isdir(CACHE) else []
     rows.sort(key=lambda r: (r["step"], r["config"], r["problem"], r["round"]))
-    with open(OUT, "w") as f:
-        for r in rows: f.write(json.dumps({k: v for k, v in r.items() if k != "text"}, sort_keys=True) + "\n")
+    write_rows(OUT, [json.dumps({k: v for k, v in r.items() if k != "text"}, sort_keys=True) + "\n" for r in rows])
     print(f"{len(rows)} trim rows -> {os.path.relpath(OUT, ROOT)}")
 
 

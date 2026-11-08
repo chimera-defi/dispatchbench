@@ -8,7 +8,7 @@ task's starting repo and hidden tests, and the repeat number."""
 import argparse, datetime, hashlib, json, os, re, shutil, subprocess, tempfile, threading, time
 from concurrent.futures import ThreadPoolExecutor
 
-from bench.run import CONFIGS, TIER, CLAUDE, CODEX, GROK, grok_spend, check_claude_budget, SpendLimit, cache_state, failure, stop_message, cli_version, parse_reps
+from bench.run import CONFIGS, TIER, CLAUDE, CODEX, write_rows, check_claude_budget, SpendLimit, cache_state, failure, stop_message, cli_version, parse_reps
 from bench.codex_env import isolated_codex_env
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -26,7 +26,6 @@ CLAUDE_FLAGS = ["--output-format", "stream-json", "--verbose", "--no-session-per
 CODEX_FLAGS = ["--ignore-user-config", "-c", "skills.include_instructions=false", "-c", "service_tier=default",
                "--json", "--ephemeral", "--skip-git-repo-check", "-s", "workspace-write"]
 GROK_FLAGS = ["--output-format", "json", "--always-approve", "--no-subagents", "--disable-web-search"]
-GROK_BUDGET_USD = 15.0
 GROK_OUT = os.path.join(ROOT, "results", "2026-10-27-grok-agentic.jsonl")
 DELEGATE = re.compile(r"\b(devin|kimi|grok|delegate|codex exec|claude -p)\b")
 
@@ -103,29 +102,6 @@ def run_codex(mid, eff, prompt, w, config=None):
                 error=err or (r.stderr.strip()[-300:] if r.returncode else None), error_type="infrastructure" if err or r.returncode else None, delegate_calls=deleg), r.stdout
 
 
-def run_grok(mid, eff, prompt, w):
-    spent = grok_spend(CACHE)
-    if spent >= GROK_BUDGET_USD:
-        raise SpendLimit(f"refused: Grok agentic spend ${spent:.2f} >= ${GROK_BUDGET_USD}")
-    cmd = [GROK, "-p", prompt, "-m", mid, "--reasoning-effort", eff, "--cwd", w] + GROK_FLAGS
-    r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, cwd=w, timeout=1500)
-    try:
-        d = json.loads(r.stdout)
-        if not isinstance(d, dict): raise ValueError("expected a JSON object")
-    except (ValueError, TypeError):
-        return dict(is_error=True, error=(r.stderr or r.stdout or "missing Grok JSON")[-300:],
-                    error_type="infrastructure", cost_usd=None), r.stdout
-    u = d.get("usage") or {}
-    err = bool(d.get("is_error") or d.get("error") or r.returncode)
-    return dict(in_tok=u.get("input_tokens", 0) + u.get("cache_read_input_tokens", 0) + u.get("cache_creation_input_tokens", 0),
-                cached_tok=u.get("cache_read_input_tokens", 0), cache_write_tok=u.get("cache_creation_input_tokens", 0),
-                out_tok=u.get("output_tokens", 0), reasoning_tok=u.get("reasoning_tokens", 0),
-                cost_usd=d.get("total_cost_usd"), cost_kind="measured (CLI total_cost_usd)",
-                turns=d.get("num_turns"), tool_calls=None, delegate_calls=None, is_error=err,
-                error=str(r.stderr or d.get("error") or d.get("text") or "Grok error")[-300:] if err else None,
-                error_type="infrastructure" if r.returncode else "model" if err else None), r.stdout
-
-
 def pytest(w, *args, source=None, collect=False):
     output = os.path.join(w, "receipt.json")
     runner = os.path.join(ROOT, "bench", "agentic", "pytest_runner.py")
@@ -183,7 +159,8 @@ def one(config, task, rep, lanes, regrade=False):
         orig_tests = {f: open(os.path.join(w, "tests", f), "rb").read() for f in os.listdir(os.path.join(w, "tests"))}
         t0 = time.monotonic()
         try:
-            res, raw = ({"claude": run_claude, "codex": (lambda *a: run_codex(*a, config=config)) if config in TIER else run_codex, "grok": run_grok}[cli])(mid, eff, prompt, w)
+            if cli == "grok": raise SystemExit("the grok caller was removed; use the runner at commit 7e946a6")
+            res, raw = ({"claude": run_claude, "codex": (lambda *a: run_codex(*a, config=config)) if config in TIER else run_codex}[cli])(mid, eff, prompt, w)
         except (subprocess.TimeoutExpired, OSError) as exc:
             res, raw = failure(exc, time.monotonic() - t0)
         wall = time.monotonic() - t0
@@ -229,8 +206,7 @@ def export(output=None, keys=None):
     rows.sort(key=lambda r: (r.get("grader_version", 1), r.get("ts", ""), r.get("key", "")))
     latest = {(r["config"], r["task"], r["repeat"]): r for r in rows}
     rows = [latest[k] for k in sorted(latest)]
-    with open(output, "w") as f:
-        for r in rows: f.write(json.dumps(r, sort_keys=True) + "\n")
+    write_rows(output, [json.dumps(r, sort_keys=True) + "\n" for r in rows])
     print(f"{len(rows)} agentic runs -> {os.path.relpath(output, ROOT)}")
 
 
@@ -245,18 +221,6 @@ def main():
         return export(a.output)
     cfgs = a.configs.split(","); tasks = TASK_IDS if a.tasks == "all" else a.tasks.split(","); reps = parse_reps(a.repeats)
     assert 1 <= a.lanes <= 4
-    is_grok = any(CONFIGS[c][0] == "grok" for c in cfgs)
-    if is_grok:
-        assert all(CONFIGS[c][0] == "grok" for c in cfgs), "run Grok separately from historical lanes"
-        jobs = [(cfg, task, rep) for rep in reps for task in tasks for cfg in cfgs]
-        def job(args):
-            cfg, task, rep = args
-            msg = one(cfg, task, rep, a.lanes, regrade=a.regrade)
-            print(f"[agentic] {cfg} {task} r{rep}: {msg}", flush=True)
-        with ThreadPoolExecutor(a.lanes) as ex:
-            list(ex.map(job, jobs))
-        return export(a.output or GROK_OUT, {key_for(*args) for args in jobs})
-
     def lane(cfg):
         for rep in reps:
             for task in tasks:
