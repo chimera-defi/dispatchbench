@@ -21,7 +21,7 @@ hard:                ## L7 rung, added after the main run (PLAN.md, deviation 16
 agentic:             ## agentic track (cached runs are skipped)
 	$(PY) -m bench.agentic.run --configs $(AGENT_CONFIGS) --tasks all --repeats 1-3 --lanes 4
 
-grade:               ## grade cached completions in the sandbox, write results/*.jsonl
+grade:               ## grade cached completions in the sandbox; refuses to rewrite existing results rows
 	$(PY) -m bench.grade_all
 	$(PY) -m bench.agentic.run --export
 	$(PY) -m bench.arms export-trim

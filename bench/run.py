@@ -6,12 +6,8 @@ python3 -m bench.run --phase fastmode --configs sol61-high-fast,sol61-xhigh --pr
 
 Cache entry: cache/calls/<sha256>.json with the completion text, token usage, wall time and CLI metadata.
 Grading is a separate step (bench.grade_all), so lanes never compete with timed test runs."""
-import argparse, datetime, hashlib, json, os, re, shlex, shutil, subprocess, sys, tempfile, threading, time
-import urllib.error
-import urllib.request
-import socket
+import argparse, datetime, hashlib, json, os, re, shutil, subprocess, sys, tempfile, threading, time
 from concurrent.futures import ThreadPoolExecutor
-from http.client import HTTPException
 
 from bench import problems
 from bench.codex_env import isolated_codex_env
@@ -25,7 +21,6 @@ GROK = os.environ.get("GROK_BIN", "grok")
 DEVIN = os.environ.get("DEVIN_BIN", "devin")
 HETZNER_BASE_URL = "https://inference.hetzner.com/api/v1"
 CLAUDE_BUDGET_USD = 8.00
-GROK_BUDGET_USD = 60.00  # raised 2026-10-28 for the full-spectrum Grok run.
 
 CONFIGS = {}
 for fam, mid in [("haiku", "claude-haiku-5-5"), ("sonnet", "claude-sonnet-5-5")]:
@@ -98,6 +93,14 @@ Reply with only the code in a single ```python block. Do not run any commands or
 _versions = {}
 
 
+def write_rows(path, lines):
+    """Results are history: append new rows, keep existing lines as they are, refuse if an existing row would change."""
+    old = open(path).readlines() if os.path.exists(path) else []
+    gone = set(old) - set(lines)
+    if gone: raise SystemExit(f"{os.path.relpath(path, ROOT)}: refusing to rewrite {len(gone)} existing rows; write new results to a new file")
+    with open(path, "w") as f: f.writelines(old + [l for l in lines if l not in set(old)])
+
+
 def cli_version(cli):
     if cli == "hetzner": return "chat/completions-v1"
     if cli not in _versions:
@@ -144,20 +147,6 @@ def claude_spend(cache_root=None):
     return total
 
 
-def grok_spend(cache_root=None):
-    """Known Grok CLI cost, including the tool probe and retained retry receipts."""
-    def amount(d):
-        if not isinstance(d, dict): return 0.0
-        grok = d.get("cli") == "grok" or str(d.get("model", "")).startswith("grok-")
-        return ((d.get("cost_usd") or 0.0) if grok else 0.0) + amount(d.get("previous_attempt"))
-    total = 0.0
-    for base, _, files in os.walk(cache_root or os.path.join(ROOT, "cache")):
-        for f in files:
-            if f.endswith(".json"):
-                with open(os.path.join(base, f)) as src: total += amount(json.load(src))
-    return total
-
-
 class SpendLimit(RuntimeError): pass
 
 
@@ -165,12 +154,6 @@ def check_claude_budget():
     spent = claude_spend()
     if spent >= CLAUDE_BUDGET_USD:
         raise SpendLimit(f"refused: Claude spend ${spent:.2f} >= ${CLAUDE_BUDGET_USD}")
-
-
-def check_grok_budget():
-    spent = grok_spend()
-    if spent >= GROK_BUDGET_USD:
-        raise SpendLimit(f"refused: Grok spend ${spent:.2f} >= ${GROK_BUDGET_USD}")
 
 
 def error_kind(row):
@@ -238,178 +221,6 @@ def parse_codex(stdout):
     return dict(in_tok=i, cached_tok=c, cache_write_tok=0, out_tok=o, reasoning_tok=rs, tool_items=tools, error=err, text=text)
 
 
-def call_grok(mid, eff, prompt, cwd):
-    check_grok_budget()
-    cmd = [GROK, "-p", prompt, "-m", mid, "--reasoning-effort", eff] + GROK_FLAGS
-    t = time.monotonic()
-    r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, cwd=cwd, timeout=1200)
-    wall = time.monotonic() - t
-    try:
-        d = json.loads(r.stdout)
-        if not isinstance(d, dict): raise ValueError("expected a JSON object")
-    except (ValueError, TypeError):
-        return dict(wall_s=wall, text="", is_error=True, error=(r.stderr or r.stdout)[-300:],
-                    error_type="infrastructure", cost_usd=None), r.stdout
-    u = d.get("usage") or {}
-    error = d.get("error")
-    is_error = bool(d.get("is_error") or error or r.returncode)
-    return dict(wall_s=wall, text=d.get("text", ""), is_error=is_error,
-                error=str(r.stderr or error or d.get("text", ""))[-300:] if is_error else None,
-                error_type="infrastructure" if r.returncode else "model",
-                in_tok=u.get("input_tokens", 0) + u.get("cache_read_input_tokens", 0) + u.get("cache_creation_input_tokens", 0),
-                cached_tok=u.get("cache_read_input_tokens", 0), cache_write_tok=u.get("cache_creation_input_tokens", 0),
-                out_tok=u.get("output_tokens", 0), reasoning_tok=u.get("reasoning_tokens", 0),
-                cost_usd=d.get("total_cost_usd"), cost_kind="measured (CLI total_cost_usd)",
-                turns=d.get("num_turns")), r.stdout
-
-
-class DevinStop(RuntimeError):
-    """Hard stop for the Devin lane: non-zero exit or an upgrade/limit message. Carries the stored row."""
-    def __init__(self, text, res, raw):
-        super().__init__(text); self.res, self.raw = res, raw
-
-
-DEVIN_STOP_RE = re.compile(r"upgrade to pro|usage limit|rate limit|quota|credits|exceeded", re.I)
-DEVIN_EMPTY = os.path.join(ROOT, "cache", "tmp", "devin_empty")
-
-
-def call_devin(mid, eff, prompt, cwd=None):
-    """Free-tier Devin CLI, auto permission mode, run in an empty directory (nothing to read, nothing to edit)."""
-    cwd = cwd or DEVIN_EMPTY
-    os.makedirs(cwd, exist_ok=True)
-    cmd = [DEVIN, "--model", mid, "--permission-mode", "auto", "-p", prompt]
-    t = time.monotonic()
-    r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, cwd=cwd, timeout=1200)
-    wall = time.monotonic() - t
-    base = dict(wall_s=wall, cost_usd=None, cost_kind="free-tier (tokens not reported)", in_tok=None, out_tok=None)
-    out = (r.stdout or "") + ("\n" + r.stderr if r.stderr else "")
-    if r.returncode != 0 or DEVIN_STOP_RE.search(out):
-        text = (r.stderr.strip() or r.stdout.strip() or f"exit {r.returncode}")
-        res = dict(base, text="", is_error=True, error=text[-1000:], error_type="infrastructure",
-                   outcome="harness_error", quota_error=True)
-        raise DevinStop(text, res, r.stdout)
-    return dict(base, text=r.stdout, is_error=False, error=None), r.stdout
-
-
-def _hetzner_key():
-    """Read credentials at call time, without sourcing shell code."""
-    key = os.environ.get("HETZNER_INFERENCE_API_KEY")
-    if key: return key
-    try:
-        with open(os.path.expanduser("~/.config/hetzner/inference.env")) as src:
-            for line in src:
-                match = re.match(r"^\s*(?:export\s+)?HETZNER_INFERENCE_API_KEY\s*=\s*(.*)$", line)
-                if match:
-                    parts = shlex.split(match[1], comments=True)
-                    if len(parts) != 1: raise ValueError("Invalid Hetzner credential assignment")
-                    return parts[0]
-    except FileNotFoundError:
-        pass
-    return ""
-
-
-class _HetznerNoRedirect(urllib.request.HTTPRedirectHandler):
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        raise urllib.error.HTTPError(req.full_url, code, msg, headers, fp)
-
-
-def _hetzner_tokens(value):
-    try: return int(value)
-    except (ValueError, TypeError, OverflowError): return None
-
-
-def call_hetzner(mid, eff, prompt, cwd):
-    """Free experimental API; only the benchmark prompt is sent, with no tools."""
-    t = time.monotonic()
-    key = ""
-    raw = ""
-    message = {"content": "", "reasoning_content": "", "reasoning": ""}
-    usage = {}
-    saw_choice = False
-    res = dict(text="", is_error=False, error=None, in_tok=0, out_tok=0, cached_tok=0,
-               cache_write_tok=0, reasoning_tok=0, cost_usd=0.0,
-               cost_kind="free-tier (Hetzner experimental, no list price)")
-
-    def scrub(text, normalize=True):
-        # Normalize JSON escapes as well, in case a server echoes the credential.
-        if normalize:
-            try: text = json.dumps(json.loads(text), ensure_ascii=False)
-            except ValueError: pass
-        if key:
-            text = text.replace(key, "[REDACTED]").replace(json.dumps(key)[1:-1], "[REDACTED]")
-        return text
-
-    def remaining_time():
-        remaining = 1800 - (time.monotonic() - t)
-        if remaining <= 0: raise TimeoutError("Hetzner stream exceeded 1800s wall cap")
-        return remaining
-
-    try:
-        key = _hetzner_key()
-        if not key: raise ValueError("Missing Hetzner inference credential")
-        body = json.dumps({"model": mid, "messages": [{"role": "user", "content": prompt}],
-                           "stream": True, "stream_options": {"include_usage": True}}).encode()
-        request = urllib.request.Request(HETZNER_BASE_URL + "/chat/completions", data=body,
-                                         headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"},
-                                         method="POST")
-        try:
-            opener = urllib.request.build_opener(_HetznerNoRedirect())
-            with opener.open(request, timeout=min(120, remaining_time())) as response:
-                def abort_stream():
-                    # Closing a buffered reader can block on its read lock. Shutdown
-                    # the underlying urllib socket to interrupt even a trickling read.
-                    try: response.fp.raw._sock.shutdown(socket.SHUT_RDWR)
-                    except (AttributeError, OSError): pass
-
-                remaining = remaining_time()
-                deadline = threading.Timer(remaining, abort_stream)
-                deadline.daemon = True
-                deadline.start()
-                try:
-                    while True:
-                        read_timeout = min(120, remaining_time())
-                        try: response.fp.raw._sock.settimeout(read_timeout)
-                        except AttributeError: pass
-                        line = response.readline()
-                        remaining_time()
-                        if not line: raise ValueError("Hetzner stream ended before [DONE]")
-                        if not line.startswith(b"data:"): continue
-                        data = line[5:].strip()
-                        if data == b"[DONE]":
-                            if not saw_choice: raise ValueError("Hetzner stream contained no choices")
-                            break
-                        chunk = json.loads(data)
-                        if chunk.get("error"): raise ValueError("Hetzner stream returned an error")
-                        choices = chunk["choices"]
-                        if not isinstance(choices, list): raise ValueError("Invalid Hetzner choices")
-                        if choices:
-                            delta = choices[0]["delta"]
-                            for field in message:
-                                part = delta.get(field) or ""
-                                if not isinstance(part, str): raise ValueError("Expected Hetzner delta text")
-                                message[field] += part
-                            saw_choice = True
-                        usage = chunk.get("usage") or {}
-                finally:
-                    deadline.cancel()
-        except urllib.error.HTTPError as exc:
-            # Do not persist an untrusted proxy HTML body (or echo credentials).
-            with exc:
-                error = scrub(f"HTTP {exc.code}: {exc.reason}")[:300]
-            res.update(is_error=True, error=error, error_type="infrastructure")
-        else:
-            res.update(text=scrub(message["content"], normalize=False), in_tok=_hetzner_tokens(usage.get("prompt_tokens", 0)),
-                       out_tok=_hetzner_tokens(usage.get("completion_tokens", 0)),
-                       cached_tok=_hetzner_tokens((usage.get("prompt_tokens_details") or {}).get("cached_tokens", 0)),
-                       reasoning_tok=_hetzner_tokens((usage.get("completion_tokens_details") or {}).get("reasoning_tokens", 0)))
-    except (OSError, HTTPException, ValueError, TypeError, KeyError, IndexError, AttributeError) as exc:
-        res.update(text="", is_error=True, error=scrub(str(exc))[:300], error_type="infrastructure")
-    if saw_choice:
-        raw = scrub(json.dumps({"choices": [{"message": message}], "usage": usage}))
-    res["wall_s"] = time.monotonic() - t
-    return res, raw
-
-
 def call_codex(mid, eff, prompt, cwd, flags=CODEX_FLAGS):
     cmd = [CODEX, "exec", "-m", mid, "-c", f"model_reasoning_effort={eff}"] + flags + ["-C", cwd, prompt]
     t = time.monotonic()
@@ -432,15 +243,11 @@ def one(config, pid, rep, phase, lanes):
     t0 = time.monotonic()
     try:
         if cli == "claude": res, raw = call_claude(mid, eff, prompt, cwd)
-        elif cli == "grok": res, raw = call_grok(mid, eff, prompt, cwd)
-        elif cli == "devin": res, raw = call_devin(mid, eff, prompt)
-        elif cli == "hetzner": res, raw = call_hetzner(mid, eff, prompt, cwd)
+        elif cli in ("grok", "devin", "hetzner"):
+            raise SystemExit("the grok/devin/hetzner callers were removed; use the runner at commit 7e946a6")
         else: res, raw = call_codex(mid, eff, prompt, cwd, codex_flags(config))
     except SpendLimit as exc:
         return str(exc)
-    except DevinStop as exc:
-        res, raw = exc.res, exc.raw
-        print(f"DEVIN STOP: {exc}", flush=True)
     except (subprocess.TimeoutExpired, OSError) as exc:
         res, raw = failure(exc, time.monotonic() - t0)
     finally:
@@ -487,8 +294,6 @@ def main():
     with ThreadPoolExecutor(a.lanes) as ex:
         list(ex.map(lane, cfgs))
     print(f"Known Claude CLI cost across all cache dirs: ${claude_spend():.4f}")
-    if any(CONFIGS[c][0] == "grok" for c in cfgs):
-        print(f"Known Grok CLI cost across all cache dirs: ${grok_spend():.4f}")
 
 
 if __name__ == "__main__":
