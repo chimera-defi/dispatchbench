@@ -1,20 +1,18 @@
 """Widgets for the page (results/report/page.html), all drawn from results/dataset.json: the two Pareto scatters, the
 problem × config grid, the token-floor bars and the short result table. Inline SVG and HTML that take their colours
 from the page's CSS variables, so both themes work. Standard library only."""
-import html, json, math, os, re
+import html, math, os, re
 import unicodedata
 
 from analysis import charts, configs, dataset
 from html.parser import HTMLParser
 from analysis.charts import FAMILY, MIN_PASS
-from analysis.labels import TESTS, DISP, pshort, plabel, plabel_html
+from analysis.labels import TESTS, DISP, plabel, plabel_html
 
 # Plot order and family colour (a CSS variable of the page). luna-high is the exploratory full-ladder run.
 ORDER = ["haiku-low", "haiku-medium", "haiku-high", "sonnet-medium", "sol61-medium", "luna-high", "luna-medium", "luna-low", "luna-low-bare",
          "astra-medium", "astra-medium-fast", "sol61-high", "sol61-high-fast", "sol56-high", "luna56-high", "luna56-low", "terra61-high", "terra61-high-fast", "terra61-low", "terra61-low-fast"]
-# Full-ladder comparison order plus the historical Devin probe.
 # API calibration rows have their own hetzner(s) projection and join non-price widgets explicitly.
-ORDER_ALL = ORDER + list(configs.DEVIN_CONFIGS)
 GROK_ORDER = configs.GROK_CONFIGS
 from analysis.dataset import WINNER_PICKS, front, speed_dominates
 FAM = FAMILY
@@ -218,13 +216,9 @@ def separate_points(pts, X, Y):
         placed.append((p["plot_x"], p["plot_y"]))
     for p in pts:
         if not p.get("partial") or "plot_x" in p: continue
-        x, y = X(p["x"]), Y(p["y"])
-        step = 0
-        while any(math.dist((x + step, y), q) < 14 for q in placed):
-            step += 18
-        if step:
-            x += step
-            p.update(plot_x=x, plot_y=y, jitter=True)
+        y = Y(p["y"])
+        x = charts.dodge(X(p["x"]), y, placed)
+        if x != X(p["x"]): p.update(plot_x=x, plot_y=y, jitter=True)
         placed.append((x, y))
 
 
@@ -600,7 +594,7 @@ def rescue_arms(ds=None):
 def grid(s, grok=None):
     """Problems (rows, by rung) × configs (columns); each cell is passes out of the attempts at that problem.
     grok maps each Grok config to {problem: [passes, attempts]}; a config that skipped a problem shows a dash there."""
-    grok = grok or {}; cols = ORDER + [c for c in GROK_ORDER if c in grok] + [c for c in ORDER_ALL if c in configs.DEVIN_CONFIGS] + list(hetzner(s))
+    grok = grok or {}; cols = ORDER + [c for c in GROK_ORDER if c in grok] + list(configs.DEVIN_CONFIGS) + list(hetzner(s))
     E = {**every(s), **devin(s), **hetzner(s)}; probs = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
     main = set(probs)
     hard = sorted({p for v in s["hard"].values() for p in v["by_problem"]})
@@ -979,16 +973,7 @@ PILOT = [("Fizz Buzz", "fizz-buzz", "Easy"), ("Course Schedule II", "course-sche
          ("Wildcard Matching", "wildcard-matching", "Hard")]
 
 
-def set_definitions(s):
-    main = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
-    hard = sorted({p for v in s["hard"].values() for p in v["by_problem"]})
-    per = s["design"]["per_rung"]
-    l7 = ", ".join(DISP(c) for c in ORDER if c in s["hard"])
-    return main, hard, per, l7
-
-
 def method(s):
-    from bench.run import CLAUDE_FLAGS, codex_flags
     lvl = lambda d: f'<span class="lc {d.lower()}" title="{d}: my LeetCode difficulty guess">{d[0]}</span>'
     like = lambda p: (f'<br><span class="like">like <a href="https://leetcode.com/problems/{ANALOGUE[p][1]}/" title="closest LeetCode analogue, not the source">{esc(ANALOGUE[p][0])}</a></span>'
                       if ANALOGUE.get(p) else '<br><span class="like">no close LeetCode analogue</span>')
@@ -1004,34 +989,13 @@ def method(s):
                 f'<pre class="problem-signature"><code>{esc(module.SIGNATURE)}</code></pre>'
                 f'<pre class="problem-statement"><code>{esc(module.STATEMENT)}</code></pre>'
                 f'<p><a href="{REPO}{p}.py">reference solution (spoiler)</a></p></details></li>')
-    main, hard, _, _ = set_definitions(s)
+    main = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
+    hard = sorted({p for v in s["hard"].values() for p in v["by_problem"]})
     li = [f'<li class="round"><b>{configs.set_label("main ladder", capital=True)}</b>: {len(main)} new problems.<ul>'
           + "".join(item(p, s["problems"][p]["rung"]) for p in main) + "</ul></li>",
           f'<li class="round"><b>{configs.set_label("L7 set")}</b>: extra-hard problems, scored separately.<ul>'
           + "".join(item(p, 7) for p in hard) + "</ul></li>"]
-    flag = lambda fl: esc(" ".join(f if f else '""' for f in fl))
-    group = {}
-    for c, v in every(s).items():
-        group.setdefault((v["cli"], v["model"]), []).append((c, v["effort"]))
-    cmds = []
-    for (cli, model), entries in group.items():
-        efforts = "|".join(e for e in ("low", "medium", "high", "xhigh") if any(v == e for _, v in entries))
-        names = ", ".join(DISP(c) for c, _ in entries)
-        if cli == "claude":
-            command = f"claude -p --model {model} --effort {efforts} {flag(CLAUDE_FLAGS)}"
-        else:
-            flags = [codex_flags(c) for c, _ in entries]
-            base = list(flags[0])
-            tiers = list(dict.fromkeys(f.split("=", 1)[1] for fl in flags for f in fl if f.startswith("service_tier=")))
-            tiers.sort(key=lambda v: v != "default")
-            base = ["service_tier=" + "|".join(tiers) if f.startswith("service_tier=") else f for f in base]
-            command = f"codex exec -m {model} -c model_reasoning_effort={efforts} {flag(base)}"
-        cmds.append(f'<li>{esc(names)} → <code>{command}</code></li>')
-    from bench.run import CONFIGS
-    for c in configs.DEVIN_CONFIGS:
-        cmds.append(f'<li>{esc(DISP(c))} → <code>devin --model {CONFIGS[c][1]} --permission-mode auto -p …</code> (empty working directory, one repeat)</li>')
-    cmds.append('<li><code>python3 -m bench.gated_repair</code>: answer, then run the sample tests. haiku-low repairs failures.</li>')
-    return "".join(li), "".join(cmds)
+    return "".join(li)
 
 
 def notation_meanings(ds):
@@ -1232,5 +1196,5 @@ def widgets(s, need, ds=None, names=None):
             "grok_summary": lambda: grok_summary(s, ds or dataset.read()),
             "winner": lambda: winner_table(ds or dataset.read(), need),
             "legend": lambda: legend(ds or dataset.read()),
-            "problems": lambda: method(s)[0]}
+            "problems": lambda: method(s)}
     return {name: draw() for name, draw in renderers.items() if names is None or name in names}

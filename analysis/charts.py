@@ -42,11 +42,9 @@ def token_style():
 
 
 def svg(w, h, body, x=0, y=0):
-    if not x and not y:
-        return (f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {w} {h}' width='{w}' height='{h}' {FONT} font-size='12'>"
-                f"<rect width='{w}' height='{h}' fill='{PLATE}'/>{''.join(body)}</svg>\n")
+    origin = f" x='{x}' y='{y}'" if x or y else ""
     return (f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='{x} {y} {w} {h}' width='{w}' height='{h}' {FONT} font-size='12'>"
-            f"<rect x='{x}' y='{y}' width='{w}' height='{h}' fill='{PLATE}'/>{''.join(body)}</svg>\n")
+            f"<rect{origin} width='{w}' height='{h}' fill='{PLATE}'/>{''.join(body)}</svg>\n")
 
 
 def text(x, y, s, size=12, anchor="start", fill=INK, weight="normal", rotate=None):
@@ -63,27 +61,79 @@ def log_ticks(lo, hi):
     return out
 
 
+def log_scale(x0, x1, L, W, R):
+    """Log-scale X mapping for the value range x0..x1 onto the plot width."""
+    return lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R)
+
+
+def hgrid(y, x2, label, L):
+    """One horizontal gridline from L to x2 with its tick label."""
+    return [f"<line x1='{L}' x2='{x2}' y1='{y:.1f}' y2='{y:.1f}' stroke='{GRID}'/>", text(L - 8, y + 4, label, 11, "end", MUTED)]
+
+
+def log_x_axis(X, x0, x1, T, bottom, mid, label):
+    """Vertical gridlines at the log ticks, their dollar labels, and the axis title centred at mid."""
+    b = []
+    for v in log_ticks(x0, x1):
+        b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{bottom}' stroke='{GRID}'/>", text(X(v), bottom + 18, dataset.usd(v, tick=True), 11, "middle", MUTED)]
+    return b + [text(mid, bottom + 38, label, 12, "middle", MUTED)]
+
+
+def leader(x, y, lx, ly, col):
+    """Thin line from a mark to its moved label."""
+    return f"<line x1='{x:.1f}' x2='{lx:.1f}' y1='{y + (6 if ly > y else -6):.1f}' y2='{ly + (-3 if ly > y else 3):.1f}' stroke='{col}' stroke-width='1' opacity='0.6'/>"
+
+
+def dodge(x, y, taken):
+    """Shift x right in steps of 18 until no taken mark is within 14."""
+    step = 0
+    while any(math.dist((x + step, y), p) < 14 for p in taken):
+        step += 18
+    return x + step
+
+
+def visible(d):
+    """The configs of one section that charts do not hide."""
+    return {c: v for c, v in (d or {}).items() if c not in configs.CHART_HIDDEN}
+
+
+def plotted(d):
+    """The visible configs that have a cost per pass."""
+    return {c: v for c, v in visible(d).items() if v.get("usd_per_pass")}
+
+
+def free_spot(candidates, x, y, tw, boxes, taken, bottom):
+    """First (dx, dy, anchor) offset whose label box stays inside the plot, clear of other label boxes and of every mark but the one
+    at (x, y). Returns (label x, label y, anchor, box), or None."""
+    for dx, dy, anchor in candidates:
+        lx, ly = x + dx, y + dy
+        left = lx - tw if anchor == "end" else lx
+        rect = (left, ly - 12, left + tw, ly + 3)
+        if rect[0] < 96 or rect[2] > 754 or rect[1] < 30 or rect[3] > bottom: continue
+        if any(not (rect[2] < q[0] or rect[0] > q[2] or rect[3] < q[1] or rect[1] > q[3]) for q in boxes): continue
+        if any(math.hypot(cx - x, cy - y) > 1 and rect[0] < cx + 8 and rect[2] > cx - 8 and rect[1] < cy + 8 and rect[3] > cy - 8 for cx, cy in taken): continue
+        return lx, ly, anchor, rect
+
+
 def pareto_chart(s, hero=False):
     """hero: README version, no intervals, labels only on the frontier and the Winner picks."""
     from analysis.dataset import WINNER_PICKS
     cfg = {c: v for c, v in s["configs"].items() if v["usd_per_pass"]}
-    extra = {c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"] and c not in configs.CHART_HIDDEN}  # exploratory, not on the pre-registered frontier
+    extra = plotted(s.get("exploratory"))  # exploratory, not on the pre-registered frontier
     allc = {**cfg, **extra}
     # Grok is drawn on the same scale, never used to set it, and never joins the frontier. The README hero stays the full ladder.
     # grok47-medium ran p01-p06 only, so it stays off the plot.
-    grok = {} if hero else {c: v for c, v in (s.get("grok") or {}).items() if v.get("usd_per_pass") and c not in configs.CHART_HIDDEN}
+    grok = {} if hero else plotted(s.get("grok"))
     W, H, L, R, T, B = 760, 480, 96, 30, 50, 80
     xs = [v["usd_per_pass"] for v in allc.values()]
     x0, x1 = min(xs) / 1.6, max(xs) * 1.6; y0 = 0.6
-    X = lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R)
+    X = log_scale(x0, x1, L, W, R)
     Y = lambda p: H - B - (p - y0) / (1 - y0) * (H - T - B)
     b = [text(L, 24, "Pass rate vs $ per pass, main ladder (up and left is better)" if hero else "Pass rate vs cost per passing solution (main ladder p01-p12, x log)", 14, weight="600")]
     for p in (0.6, 0.7, 0.8, 0.9, 1.0):
-        b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
-    for v in log_ticks(x0, x1):
-        b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{H - B}' stroke='{GRID}'/>", text(X(v), H - B + 18, dataset.usd(v, tick=True), 11, "middle", MUTED)]
-    b += [text((L + W - R) / 2, H - B + 38, "$ per passing call", 12, "middle", MUTED),
-          text(26, (T + H - B) / 2, "pass rate (12 problems × 5 attempts)", 12, "middle", MUTED, rotate=-90)]
+        b += hgrid(Y(p), W - R, f"{100 * p:.0f}%", L)
+    b += log_x_axis(X, x0, x1, T, H - B, (L + W - R) / 2, "$ per passing call")
+    b.append(text(26, (T + H - B) / 2, "pass rate (12 problems × 5 attempts)", 12, "middle", MUTED, rotate=-90))
     front = s["pareto"]
     if len(front) > 1:
         pts = " ".join(f"{X(cfg[c]['usd_per_pass']):.1f},{Y(cfg[c]['pass_at_1']):.1f}" for c in front)
@@ -116,30 +166,18 @@ def pareto_chart(s, hero=False):
     for c, x, y, right, label, hollow, col, on in sorted(pending, key=lambda r: (not r[7], r[2], r[1])):
         tw = 6.4 * len(label)
         pref = LABEL_DY.get(c, -8)
-        spot = None
-        for dy in [pref] + [d for k in range(1, 26) for d in (pref - 14 * k, pref + 14 * k)]:
-            for side in ((right, not right) if dy == pref else (right, not right)):
-                lx, ly = (x - 10 if side else x + 10), y + dy
-                left = lx - tw if side else lx
-                rect = (left, ly - 12, left + tw, ly + 3)
-                if rect[0] < L or rect[2] > W - 6 or rect[1] < 30 or rect[3] > H - B + 4: continue
-                if any(not (rect[2] < q[0] or rect[0] > q[2] or rect[3] < q[1] or rect[1] > q[3]) for q in label_boxes): continue
-                if any(math.hypot(cx - x, cy - y) > 1 and rect[0] < cx + 8 and rect[2] > cx - 8 and rect[1] < cy + 8 and rect[3] > cy - 8 for cx, cy in taken): continue
-                spot = (lx, ly, "end" if side else "start", rect); break
-            if spot: break
+        candidates = [(-10 if side else 10, dy, "end" if side else "start")
+                      for dy in [pref] + [d for k in range(1, 26) for d in (pref - 14 * k, pref + 14 * k)] for side in (right, not right)]
+        spot = free_spot(candidates, x, y, tw, label_boxes, taken, H - B + 4)
         if spot is None:
             spot = (x + 10, y + pref, "start", (x + 10, y + pref - 12, x + 10 + tw, y + pref + 3))
         lx, ly, anchor, rect = spot
         label_boxes.append(rect)
-        if abs(ly - y) >= 20:
-            b.append(f"<line x1='{x:.1f}' x2='{lx:.1f}' y1='{y + (6 if ly > y else -6):.1f}' y2='{ly + (-3 if ly > y else 3):.1f}' stroke='{col}' stroke-width='1' opacity='0.6'/>")
+        if abs(ly - y) >= 20: b.append(leader(x, y, lx, ly, col))
         b.append(text(lx, ly, label, 11, anchor, MUTED if hollow else INK))
     for c, v in grok.items():
-        x, y = X(v["usd_per_pass"]), Y(v["pass_at_1"])
-        step = 0
-        while any(math.dist((x + step, y), p) < 14 for p in taken):
-            step += 18  # only this mark moves; the series it collided with stays put
-        x += step
+        y = Y(v["pass_at_1"])
+        x = dodge(X(v["usd_per_pass"]), y, taken)  # only this mark moves; the series it collided with stays put
         taken.append((x, y))
         lo, hi = v["ci95_plot"]
         col = FAMILY(c)
@@ -147,28 +185,15 @@ def pareto_chart(s, hero=False):
         b.append(grok_mark(x, y))
         label = f"{DISP(c)} ({100 * v['pass_at_1']:.0f}%)"
         tw = 6.4 * len(label)
-        spot = None
-        for dx, dy, anchor in ((10, -8, "start"), (-10, -8, "end"), (10, 14, "start"), (-10, 14, "end"),
-                               (10, -22, "start"), (-10, 28, "end"), (-10, 32, "end"), (10, 28, "start"),
-                               (-10, 42, "end"), (-10, 56, "end"), (-10, 68, "end")):
-            lx, ly = x + dx, y + dy
-            left = lx - tw if anchor == "end" else lx
-            rect = (left, ly - 12, left + tw, ly + 3)
-            if rect[0] < L or rect[2] > W - 6 or rect[1] < 30 or rect[3] > H - B:
-                continue
-            if any(not (rect[2] < q[0] or rect[0] > q[2] or rect[3] < q[1] or rect[1] > q[3]) for q in label_boxes):
-                continue
-            if any(math.hypot(cx - x, cy - y) > 1 and rect[0] < cx + 8 and rect[2] > cx - 8 and rect[1] < cy + 8 and rect[3] > cy - 8 for cx, cy in taken):
-                continue
-            spot = (lx, ly, anchor, rect)
-            break
+        spot = free_spot(((10, -8, "start"), (-10, -8, "end"), (10, 14, "start"), (-10, 14, "end"),
+                          (10, -22, "start"), (-10, 28, "end"), (-10, 32, "end"), (10, 28, "start"),
+                          (-10, 42, "end"), (-10, 56, "end"), (-10, 68, "end")), x, y, tw, label_boxes, taken, H - B)
         if spot is None:
             spot = (x + 10, y + 14, "start", None)
         lx, ly, anchor, rect = spot
         if rect:
             label_boxes.append(rect)
-        if abs(ly - y) >= 20:  # the 100% row is already full, so a moved Grok label keeps a leader
-            b.append(f"<line x1='{x:.1f}' x2='{lx:.1f}' y1='{y + (6 if ly > y else -6):.1f}' y2='{ly + (-3 if ly > y else 3):.1f}' stroke='{col}' stroke-width='1' opacity='0.6'/>")
+        if abs(ly - y) >= 20: b.append(leader(x, y, lx, ly, col))  # the 100% row is already full, so a moved Grok label keeps a leader
         b.append(text(lx, ly, label, 11, anchor, INK))
     b.append(text(L, H - 10, "Dashed: best trade-offs. Hollow: fast mode. Codex $ is a token-price estimate." if hero else
                   "Dashed: best trade-offs. Bars: 95% CI. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
@@ -187,7 +212,7 @@ def cost_time_chart(s):
     """$ per pass against median latency, function track L1-L6. The frontier is drawn over configs at or above MIN_PASS
     pass@1: among those, the ones no other config beats on both cost and time."""
     from analysis.dataset import speed_dominates
-    allc = {**{c: v for c, v in s["configs"].items() if v["usd_per_pass"]}, **{c: v for c, v in (s.get("exploratory") or {}).items() if v["usd_per_pass"] and c not in configs.CHART_HIDDEN}}
+    allc = {**{c: v for c, v in s["configs"].items() if v["usd_per_pass"]}, **plotted(s.get("exploratory"))}
     pts = {c: (v["usd_per_pass"], v["latency_s"]["median"]) for c, v in allc.items()}
     ok = {c: p for c, p in pts.items() if allc[c]["pass_at_1"] >= MIN_PASS}
     front = [a for a, (x, y) in ok.items() if not any(speed_dominates({"x": y2, "y": x2}, {"x": y, "y": x}) for b, (x2, y2) in ok.items() if b != a)]
@@ -195,58 +220,50 @@ def cost_time_chart(s):
     W, H, L, R, T, B = 760, 440, 96, 30, 50, 80
     xs = [p[0] for p in pts.values()]; x0, x1 = min(xs) / 1.6, max(xs) * 1.6
     y1 = math.ceil(max(p[1] for p in pts.values()) / 5) * 5 + 5
-    X = lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R)
+    X = log_scale(x0, x1, L, W, R)
     Y = lambda t: H - B - t / y1 * (H - T - B)
     title = "Cost per passing solution vs median latency (main ladder p01-p12, x log)"
     b = [text(L, 24, title, 14, weight="600")]
     for t in range(0, int(y1) + 1, 5):
-        b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(t):.1f}' y2='{Y(t):.1f}' stroke='{GRID}'/>", text(L - 8, Y(t) + 4, f"{t} s", 11, "end", MUTED)]
+        b += hgrid(Y(t), W - R, f"{t} s", L)
     # Grok is slower than this axis. Extra gridlines sit above it; the scale and the existing lines stay.
-    grok = {c: v for c, v in (s.get("grok") or {}).items() if v.get("usd_per_pass") and c not in configs.CHART_HIDDEN}
+    grok = plotted(s.get("grok"))
     tops = []
     gmax = max((v["latency_s"]["median"] for v in grok.values()), default=0)
     if gmax > y1:
         for t in range(int(y1) + 5, math.ceil(gmax / 5) * 5 + 1, 5):
-            b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(t):.1f}' y2='{Y(t):.1f}' stroke='{GRID}'/>", text(L - 8, Y(t) + 4, f"{t} s", 11, "end", MUTED)]
+            b += hgrid(Y(t), W - R, f"{t} s", L)
             tops.append(Y(t) - 11)
-    for v in log_ticks(x0, x1):
-        b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{H - B}' stroke='{GRID}'/>", text(X(v), H - B + 18, dataset.usd(v, tick=True), 11, "middle", MUTED)]
-    b += [text((L + W - R) / 2, H - B + 38, "$ per passing call", 12, "middle", MUTED),
-          text(26, (T + H - B) / 2, "median seconds per call", 12, "middle", MUTED, rotate=-90)]
+    b += log_x_axis(X, x0, x1, T, H - B, (L + W - R) / 2, "$ per passing call")
+    b.append(text(26, (T + H - B) / 2, "median seconds per call", 12, "middle", MUTED, rotate=-90))
     if len(front) > 1:
         b.append(f"<polyline points='{' '.join(f'{X(pts[c][0]):.1f},{Y(pts[c][1]):.1f}' for c in front)}' fill='none' stroke='{PURPLE}' stroke-width='2.5' stroke-dasharray='6 4'/>")
-    lanes, taken = {}, []
+    lanes, taken = [], []
+
+    def put_label(px, py, col, lab, fill):
+        """Label above the mark in the first lane free of earlier labels; a stub joins a raised label to its mark. Returns the label's y."""
+        w = 6.3 * len(lab)
+        xl = px - 10 - w if px + 10 + w > W - R else px + 10
+        lane = next(k for k in range(30) if all(abs(ly - (py - 12 - 16 * k)) >= 15 or e < xl - 6 or s0 > xl + w + 6 for s0, e, ly in lanes))
+        ly = py - 12 - 16 * lane
+        lanes.append((xl, xl + w, ly))
+        if lane: b.append(f"<line x1='{px:.1f}' x2='{px:.1f}' y1='{py - 7:.1f}' y2='{ly + 3:.1f}' stroke='{col}' stroke-width='1' opacity='0.6'/>")
+        b.append(text(xl, ly, lab, 11, fill=fill))
+        return ly
+
     for c, (x, t) in sorted(pts.items(), key=lambda item: item[1][0]):
         hollow = "-fast" in c; px, py = X(x), Y(t)
         taken.append((px, py))
         col = FAMILY(c)
         b.append(f"<circle cx='{px:.1f}' cy='{py:.1f}' r='6' fill='{PLATE if hollow else col}' stroke='{PURPLE if c in front else col if hollow else PLATE}' stroke-width='{3 if c in front else 2 if hollow else 1.5}'/>")
-        lab = f"{DISP(c)} ({100 * allc[c]['pass_at_1']:.0f}%){' *' if allc[c]['cost_kind'] == 'proxy' else ''}"; w = 6.3 * len(lab)
-        xl = px - 10 - w if px + 10 + w > W - R else px + 10
-        lane = next(k for k in range(30) if all(abs(ly - (py - 12 - 16 * k)) >= 15 or e < xl - 6 or s0 > xl + w + 6 for s0, e, ly in lanes.setdefault(0, [])))
-        ly = py - 12 - 16 * lane
-        lanes[0].append((xl, xl + w, ly))
-        if lane: b.append(f"<line x1='{px:.1f}' x2='{px:.1f}' y1='{py - 7:.1f}' y2='{ly + 3:.1f}' stroke='{col}' stroke-width='1' opacity='0.6'/>")
-        b.append(text(xl, ly, lab, 11, fill=MUTED if hollow else INK))
+        put_label(px, py, col, f"{DISP(c)} ({100 * allc[c]['pass_at_1']:.0f}%){' *' if allc[c]['cost_kind'] == 'proxy' else ''}", MUTED if hollow else INK)
     for c, v in grok.items():  # after the other labels, so their lanes stay where they were
-        x, t = v["usd_per_pass"], v["latency_s"]["median"]
-        px, py = X(x), Y(t)
-        step = 0
-        while any(math.dist((px + step, py), p) < 14 for p in taken):
-            step += 18
-        px += step
+        py = Y(v["latency_s"]["median"])
+        px = dodge(X(v["usd_per_pass"]), py, taken)
         taken.append((px, py))
-        col = FAMILY(c)
         b.append(grok_mark(px, py))
         tops.append(py - 10)
-        lab = f"{DISP(c)} ({100 * v['pass_at_1']:.0f}%)"; w = 6.3 * len(lab)
-        xl = px - 10 - w if px + 10 + w > W - R else px + 10
-        lane = next(k for k in range(30) if all(abs(ly - (py - 12 - 16 * k)) >= 15 or e < xl - 6 or s0 > xl + w + 6 for s0, e, ly in lanes.setdefault(0, [])))
-        ly = py - 12 - 16 * lane
-        lanes[0].append((xl, xl + w, ly))
-        tops.append(ly - 11)
-        if lane: b.append(f"<line x1='{px:.1f}' x2='{px:.1f}' y1='{py - 7:.1f}' y2='{ly + 3:.1f}' stroke='{col}' stroke-width='1' opacity='0.6'/>")
-        b.append(text(xl, ly, lab, 11, fill=INK))
+        tops.append(put_label(px, py, FAMILY(c), f"{DISP(c)} ({100 * v['pass_at_1']:.0f}%)", INK) - 11)
     b.append(text(L, H - 10, f"Purple ring: best trade-offs, pass rate ≥ {100 * MIN_PASS:.0f}%, then cost and time. Solid: normal speed; hollow: fast mode. * Codex cost is proxy.", 10, fill=MUTED))
     note = (s.get("facts") or {}).get("grok_chart_note", "")
     pad = 0
@@ -265,29 +282,24 @@ def cost_time_chart(s):
     return svg(W, H + pad, b)
 
 
-def rung_rows(s, ds=None):
-    """The one place the rung chart reads data: ({config: {rung 'L1': (passed, n)}}, rungs L1..L6 in order). Reads the dataset's main-ladder set."""
-    ds = ds or dataset.read(); ex = s.get("exploratory") or {}
-    keep = list(s["configs"]) + [c for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast", "terra61-low", "terra61-low-fast", "terra61-high", "terra61-high-fast") if c in ex]  # fast mode beside its default tier
-    by = {r["config"]: r["by_rung"] for r in ds["rows"] if r["source"] == "main" and r["set"] == "main ladder"}
-    rows = {c: {g: tuple(v) for g, v in by[c].items()} for c in keep}
-    for r in ds["rows"]:  # free-tier exploratory lanes: one repeat, shown for pass rates, never for $
-        if r["source"] == "main" and r["set"] in ("partial ladder", "calibration") and r["config"] in configs.FREE_TIER_CONFIGS:
-            rows[r["config"]] = {g: tuple(v) for g, v in r["by_rung"].items()}
-    return rows, sorted({g for r in rows.values() for g in r}, key=lambda g: int(g[1:]))
-
-
 def rung_chart(s, ds=None):
     """Heat table, one row per config (family shape + colour + name, grouped by family), one column per rung L1-L6;
     each cell is passes out of the attempts on that rung. Perfect cells stay plain, so the misses stand out."""
     from analysis.page import ORDER, config_marker  # lazy: page imports this module
-    cfg, rungs = rung_rows(s, ds)
+    ds = ds or dataset.read(); ex = s.get("exploratory") or {}
+    keep = list(s["configs"]) + [c for c in ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast", "terra61-low", "terra61-low-fast", "terra61-high", "terra61-high-fast") if c in ex]  # fast mode beside its default tier
+    by = {r["config"]: r["by_rung"] for r in ds["rows"] if r["source"] == "main" and r["set"] == "main ladder"}
+    cfg = {c: {g: tuple(v) for g, v in by[c].items()} for c in keep}
+    for r in ds["rows"]:  # free-tier exploratory lanes: one repeat, shown for pass rates, never for $
+        if r["source"] == "main" and r["set"] in ("partial ladder", "calibration") and r["config"] in configs.FREE_TIER_CONFIGS:
+            cfg[r["config"]] = {g: tuple(v) for g, v in r["by_rung"].items()}
+    rungs = sorted({g for r in cfg.values() for g in r}, key=lambda g: int(g[1:]))
     names = sorted(cfg, key=lambda c: ORDER.index(c) if c in ORDER else len(ORDER))  # Devin last: it is not in ORDER
     L, T, cw, rh = 190, 270, 90, 30
     W = L + len(rungs) * cw + 12
     H = T + rh * len(names) + 40
     probs = {g: [plabel(q) for q in sorted(s["problems"]) if f"L{s['problems'][q]['rung']}" == g] for g in rungs}
-    caption = (ds or dataset.read())["facts"]["rung_caption"]
+    caption = ds["facts"]["rung_caption"]
     b = [text(12, 24, "Pass rate by difficulty rung (main ladder p01-p12)", 15, weight="600"),
          text(12, 46, caption, 10, fill=MUTED)]
     for i, g in enumerate(rungs):
@@ -316,7 +328,7 @@ def rung_chart(s, ds=None):
 
 def heatmap(s):
     """Main-run configs first, then exploratory ones after a gap; family-coloured headers and dashes for unrun problems."""
-    ex = {c: v for c, v in (s.get("exploratory") or {}).items() if c not in configs.CHART_HIDDEN}
+    ex = visible(s.get("exploratory"))
     dv = {c: v for c, v in {**s.get("exploratory", {}), **s.get("hetzner", {})}.items() if c in configs.FREE_TIER_CONFIGS}  # 1 repeat: cells are 0 or 1 of 1
     cols = [(c, {p: v[c] for p, v in s["problems"].items()}, False) for c in s["configs"]] + [(c, v["by_problem"], True) for c, v in ex.items()] \
         + [(c, v["by_problem"], True) for c, v in dv.items()]
@@ -368,13 +380,12 @@ def agentic_chart(s):
     W, H, L, R, T, B = 760, 500, 80, 40, 200, 80
     xs = [v["usd_per_run"] for v in ag.values()]
     x0, x1 = min(xs) / 1.5, max(xs) * 1.5
-    X = lambda v: L + (math.log(v) - math.log(x0)) / (math.log(x1) - math.log(x0)) * (W - L - R); Y = lambda p: H - B - p * (H - T - B)
+    X = log_scale(x0, x1, L, W, R); Y = lambda p: H - B - p * (H - T - B)
     b = [text(L, 24, "Repo tasks (4 tasks x 3 runs, with tools): task complete vs $ per run", 14, weight="600")]
     for p in (0, 0.25, 0.5, 0.75, 1.0):
-        b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
-    for v in log_ticks(x0, x1):
-        b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{H - B}' stroke='{GRID}'/>", text(X(v), H - B + 18, dataset.usd(v, tick=True), 11, "middle", MUTED)]
-    b += [text((L + W - R) / 2, H - B + 38, "$ per run", 12, "middle", MUTED), text(20, (T + H - B) / 2, "share of runs passing", 12, "middle", MUTED, rotate=-90)]
+        b += hgrid(Y(p), W - R, f"{100 * p:.0f}%", L)
+    b += log_x_axis(X, x0, x1, T, H - B, (L + W - R) / 2, "$ per run")
+    b.append(text(20, (T + H - B) / 2, "share of runs passing", 12, "middle", MUTED, rotate=-90))
     # Direct labels above the dots, with vertical stubs clear of the shared 100% line.
     for i, (c, v) in enumerate(sorted(ag.items(), key=lambda kv: kv[1]["usd_per_run"])):
         x, y = X(v["usd_per_run"]), Y(v["task_complete"] / v["n"]); lo, hi = v["ci95_plot"]  # headline rule: task complete
@@ -393,8 +404,7 @@ def agentic_chart(s):
     return svg(W, H, b)
 
 
-def bars(title, rows, fmt, note, W=360, L=None, R=8, low_start=None, values=None, cached=None,
-         responsive=False):
+def bars(title, rows, fmt, note, W=360, R=8, low_start=None, values=None, cached=None, responsive=False):
     """Compact horizontal desktop rows; phones stack values below their bars."""
     import textwrap
     if responsive:
@@ -444,7 +454,7 @@ def bars(title, rows, fmt, note, W=360, L=None, R=8, low_start=None, values=None
 
 
 def all_configs(s):
-    return [(c, v, "-fast" in c) for c, v in {**s["configs"], **{c: v for c, v in (s.get("exploratory") or {}).items() if c not in configs.CHART_HIDDEN}}.items()]
+    return [(c, v, "-fast" in c) for c, v in {**s["configs"], **visible(s.get("exploratory"))}.items()]
 
 
 def ladder(ds, s, set_="main ladder"):
@@ -497,7 +507,7 @@ def harness_chart(s):
     Y = lambda p: H - B - (p - 0.5) / 0.5 * (H - T - B)
     b = [text(8, 24, f"Same models, two benches: passes out of {cells['luna-low'][0][1]}", 14, weight="600")]
     for p in (0.5, 0.75, 1.0):
-        b += [f"<line x1='{L}' x2='{W - R + 10}' y1='{Y(p):.1f}' y2='{Y(p):.1f}' stroke='{GRID}'/>", text(L - 8, Y(p) + 4, f"{100 * p:.0f}%", 11, "end", MUTED)]
+        b += hgrid(Y(p), W - R + 10, f"{100 * p:.0f}%", L)
     for x, lab in cols:
         b.append(text(x, H - B + 22, lab, 12, "middle", MUTED))
     for c, pts in cells.items():
@@ -518,12 +528,9 @@ def build(ds=None, names=None):
                  "cost_time.svg": lambda: cost_time_chart(s), "pass_by_rung.svg": lambda: rung_chart(s, ds),
                  "heatmap.svg": lambda: heatmap(s), "token_floor.svg": lambda: floor_chart(s),
                  "agentic.svg": lambda: agentic_chart(s), "token_in.svg": lambda: token_in_chart(s, ds),
-                 "harness_bias.svg": lambda: harness_chart(s)}
+                 "harness_bias.svg": lambda: harness_chart(s), "cost_total.svg": lambda: cost_tokens_chart(s, ds)[0],
+                 "cost_per_1k.svg": lambda: cost_tokens_chart(s, ds)[1]}
     charts = {name: draw() for name, draw in renderers.items() if names is None or name in names}
-    if names is None or names & {"cost_total.svg", "cost_per_1k.svg"}:
-        total, per = cost_tokens_chart(s, ds)
-        charts.update({k: v for k, v in (("cost_total.svg", total), ("cost_per_1k.svg", per))
-                       if names is None or k in names})
     # Inline report charts inherit the page bundle; standalone files carry it.
     return {name: body.replace(">", ">" + token_style(), 1)
             if body and name != "hero.svg" else body for name, body in charts.items()}
@@ -537,20 +544,12 @@ def main():
     print("charts ->", os.path.relpath(OUT, ROOT), ", ".join(n for n, b in charts.items() if b))
 
 
-
-
 def explorer_cost_label(r):
     return {"measured": "measured", "proxy": "token-estimate", "unmetered": "unmetered", "free-tier": "free tier"}[r["cost_kind"]]
 
 
-def explorer_colour(r, facet="vendor"):
-    if facet == "effort": key = "effort-" + r["effort"]
-    elif facet == "mode": key = r["mode"]
-    else:
-        key = ("pipeline" if r["mode"] == "pipeline" else
-               "sonnet" if r["model_short"] == "sonnet" else
-               "codex-old" if r["family"] == "Codex" and r["generation"] == "5.6" else r["family"].lower())
-    return f"var(--data-{key})"
+def explorer_colour(r):
+    return "var(--data-" + explorer_family_label(r).lower().replace("codex 5.6", "codex-old") + ")"
 
 
 def explorer_family_label(r):
