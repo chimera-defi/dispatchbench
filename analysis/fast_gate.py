@@ -7,10 +7,15 @@ ladder and rescue metrics, just as in summarize and luna_rescue.
 import functools
 import json
 from pathlib import Path
+import os
 import statistics
+import tempfile
 
+from analysis.luna_rescue import PIDS
+from analysis.summarize import cost
+from bench import problems
+from bench.grade import _norm, run_sandbox
 from bench.grade_all import extract
-from bench.gated_repair import PIDS, cost, visible
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIGS = ("sol61-high", "sol61-high-fast", "astra-medium", "astra-medium-fast")
@@ -22,6 +27,33 @@ def _metrics(rows):
             "usd_per_pass": sum(cost(r) for r in rows) / k if k else None,
             "median_s": statistics.median(r["wall_s"] for r in rows),
             "claude_usd_per_pass": 0.0}
+
+
+def visible(pid, code):
+    """Run the problem's worked examples in the sandbox and report visible failures."""
+    if not code.strip():
+        return False, "no code"
+    m = problems.load(pid)
+    src_path = tempfile.NamedTemporaryFile("w", suffix=".py", delete=False, prefix="visible-")
+    try:
+        src_path.write(code); src_path.close()
+        cases = [list(args) for args, _ in m.EXAMPLES]
+        results, status = run_sandbox(src_path.name, m.FUNC, cases, wall_s=10)
+    finally:
+        src_path.close()
+        os.remove(src_path.name)
+    if status != "ok":
+        return False, status
+    failures = []
+    for (args, expected), result in zip(m.EXAMPLES, results):
+        call = f"{m.FUNC}({', '.join(repr(x) for x in args)})"
+        if "err" in result:
+            failures.append(f"{call} returned crash: {result['err']}, expected {_norm(expected)}")
+        elif _norm(result.get("out")) != _norm(expected):
+            failures.append(f"{call} returned {result.get('out')!r}, expected {expected!r}")
+    if len(results) != len(m.EXAMPLES):
+        failures.append(f"sandbox returned {len(results)} results, expected {len(m.EXAMPLES)}")
+    return not failures, "\n".join(failures)
 
 
 @functools.lru_cache(maxsize=1)

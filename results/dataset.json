@@ -23880,11 +23880,7 @@
    "esc_max": {
     "value": 2,
     "display": "2",
-    "source": "bench/escalate.py: passes <= 2",
-    "pin": [
-     "bench/escalate.py",
-     "passes\\[\\(c, p\\)\\] <= 2"
-    ]
+    "source": "bench/escalate.py: passes <= 2"
    },
    "selftest_min": {
     "value": 12,
@@ -33628,11 +33624,7 @@
     "esc_max": {
      "value": 2,
      "display": "2",
-     "source": "bench/escalate.py: passes <= 2",
-     "pin": [
-      "bench/escalate.py",
-      "passes\\[\\(c, p\\)\\] <= 2"
-     ]
+     "source": "bench/escalate.py: passes <= 2"
     },
     "selftest_min": {
      "value": 12,

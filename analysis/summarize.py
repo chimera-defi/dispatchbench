@@ -458,8 +458,8 @@ def manifest(rows, agent, s):
 def exploratory_manifest():
     """Provenance for exploratory inputs, including the post-hoc appendix and pilots."""
     import glob
-    from bench.plan_first import BUILDERS, PLANNER
-    from bench.gated_repair import CONFIGS
+    from bench.arms import BUILDERS, PLANNER
+    from bench.arms import CONFIGS
 
     def entry(path, rows, script, configs=None, models=None):
         if configs is None:
@@ -646,7 +646,7 @@ def tables(s):
               "Levels are cumulative. base = the function-track harness. nodoc = project_doc_max_bytes=0. noctx = environment and permission context off. "
               "nofeat = tool-adding features and web search off. mininst = one-line model_instructions_file (no longer stock Codex). noshell = shell and exec tools off.", "",
               ]
-        from bench.trim_probe import LEVELS
+        from bench.arms import LEVELS
         levels = [lv for lv in LEVELS if any(k.endswith("/" + lv) for k in t["floor"])]
         L += ["| model | " + " | ".join(levels) + " |", "|---|" + "---|" * len(levels)]
         for m in dict.fromkeys(k.split("/")[0] for k in t["floor"]):

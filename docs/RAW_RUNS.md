@@ -115,6 +115,6 @@ The publication scan covered home paths, email addresses, API keys and tokens
 (`sk-`, `sk-ant-`, `xai-`, `gh*_`, `AKIA`, JWTs and bearer tokens), private keys,
 IP addresses, the host name, instruction-file text and internal project words.
 Hits kept on purpose: the synthetic sandbox HOME for user `codex` set by
-[bench/codex_harness.py](../bench/codex_harness.py); `github.com/xai-org` (public vendor source link);
+[bench/codex_harness.py](https://github.com/chimera-defi/dispatchbench/blob/b9fc17b/bench/codex_harness.py); `github.com/xai-org` (public vendor source link);
 Anthropic's noreply commit-trailer address in `.claude/workflows`; and
 `chimera-defi` / `chimera_defi` (repo owner). This doc describes the path and address without repeating them.

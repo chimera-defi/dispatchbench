@@ -8,12 +8,12 @@ Path | what | produced by | read by. Cache (`cache/`, 15 MB) holds raw call tran
 - `2026-10-25-isolated-agentic.jsonl` clean-home rerun of the repo tasks (the headline repo-task rows; patches in `cache/isolated/agentic_patches/`) | bench runner | summarize, dataset
 - `2026-10-26-grok-function.jsonl`, `2026-10-28-grok-spectrum-function.jsonl` Grok function track (first run, then the full spectrum) | bench runner | summarize, dataset, grok
 - `2026-10-27-grok-agentic.jsonl` Grok repo tasks (patches in `cache/agentic_patches/`) | bench runner | dataset, grok
-- `2026-10-28-t1-hidden-v2-regrade.jsonl` every stored t1_discount patch regraded against the stricter hidden suite (grader_version 3; no model calls; the 10-22 main run stored no patches) | bench.regrade_t1 | dataset (facts t1v2_*, table t1_regrade)
+- `2026-10-28-t1-hidden-v2-regrade.jsonl` every stored t1_discount patch regraded against the stricter hidden suite (grader_version 3; no model calls; the 10-22 main run stored no patches) | [bench/regrade_t1.py](https://github.com/chimera-defi/dispatchbench/blob/b9fc17b/bench/regrade_t1.py) | dataset (facts t1v2_*, table t1_regrade)
 - `2026-10-28-terra-function.jsonl` gpt-5.6-terra function track | bench runner | summarize, dataset
 - `2026-10-28-devin-function.jsonl` Devin function track (one repeat, free tier, no dollars) | devin runner | summarize, dataset
 - `2026-11-01-hetzner-function.jsonl` Hetzner streaming calibration (24 graded rows: two configs, one repeat on 12 problems; measured input/output tokens, free experimental tier with no published list price) | bench runner | summarize, dataset
 - `2026-11-01-hetzner-notes.json` operator-supplied gateway observation and service note; the first non-streaming attempt is not in the repo cache | operator run note | dataset (sourced prose; separate from measured streaming rows)
-- `2026-10-22b-trim.jsonl` Codex harness trim probe | bench.trim_probe | summarize, dataset
+- `2026-10-22b-trim.jsonl` Codex harness trim probe | [bench/trim_probe.py](https://github.com/chimera-defi/dispatchbench/blob/b9fc17b/bench/trim_probe.py) | summarize, dataset
 - `2026-10-22-pilot.jsonl`, `2026-10-22-pilot-agentic.jsonl` early pilot | bench runner | dataset, report appendix
 - `quality.jsonl`, `quality_meta.json` readability grades | quality step | report.quality_table
 - `agentic_tests.json` hidden repo-task tests | agentic export | agentic grader
@@ -38,7 +38,7 @@ Path | what | produced by | read by. Cache (`cache/`, 15 MB) holds raw call tran
 - `review-sol61/probe.py`, `probe.json`, `audit.txt` offline fairness and harness probes and their output | probe.py (offline, no model calls) | REVIEW.md, receipt.json
 - `review-sol61/receipt.json` historical hashes of the reviewed files | the reviewer | nobody at run time; receipt.json still names the old root path REVIEW.md and the removed bundle
 - `review-sol61/review.bundle` was removed from the tree on 2026-10-28 because it contains a local home path and needs a parent commit outside public history, so it cannot be imported. Older commits still contain it; read `research/review-sol61/REVIEW.md` instead.
-- `review-astra/probe.json` output of `bench/review_probe.py` | bench/review_probe.py | research/review-astra/REVIEW.md
+- `review-astra/probe.json` output of `bench/review_probe.py` | [bench/review_probe.py](https://github.com/chimera-defi/dispatchbench/blob/b9fc17b/bench/review_probe.py) | research/review-astra/REVIEW.md
 - `codex-own-harness` is merged (via fairness-qa): `appendix/harness_bias.jsonl`, `appendix/codex_harness.jsonl` | analysis/harness_bias.py | dataset, page Q&A
 
 ## Proposed moves (none made)
