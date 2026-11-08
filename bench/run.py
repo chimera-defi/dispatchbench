@@ -68,7 +68,7 @@ def codex_flags(config, portable=False):
         return [f"service_tier={TIER[config]}" if f == "service_tier=default" else f for f in CODEX_FLAGS]
     if config not in TRIM_LEVEL:
         return CODEX_FLAGS
-    from bench import trim_probe as T  # late import: trim_probe imports this module
+    from bench import arms as T  # late import: arms imports this module
     if hashlib.sha256(open(T.MIN_INST, "rb").read()).hexdigest() != T.MIN_INST_SHA:
         raise SystemExit("min_instructions.txt changed: add its hash to the cache key before making new calls")
     return CODEX_FLAGS + T.LEVELS[TRIM_LEVEL[config]] if portable else T.flags(TRIM_LEVEL[config])

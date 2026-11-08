@@ -39,7 +39,7 @@ Pilot `codex-*` names map to `gpt-6.1-sol`; see the registry for display aliases
 | Codex CLI (`codex`) | 0.163.0, 0.164.0 | Function read-only sandbox with a no-tools prompt; repo tasks use workspace-write |
 | Grok CLI (`grok`) | 1.0.70 | Function tool allow/deny flags; repo tools enabled, web and subagents disabled |
 
-The [Codex-designed harness](../bench/codex_harness.py) is a separate appendix intervention.
+The [Codex-designed harness](https://github.com/chimera-defi/dispatchbench/blob/b9fc17b/bench/codex_harness.py) is a separate appendix intervention.
 It lets both families implement `solution.py`, run checks and revise within one session.
 Its source records validation against Codex 0.163.0 and Claude 2.1.293.
 Per-row `cli_version` fields remain the record of each actual call.
@@ -139,11 +139,11 @@ The pilot's old 1.5× priority estimate is repriced at 2× by analysis.
 The standard runners use fresh working directories and ignore user/project settings.
 Historical Codex runs still loaded user instruction text despite those flags.
 This affected token floors and repo-task behavior; deviations 1–3, 9 and 12 document it.
-[bench/isolated.py](../bench/isolated.py) reruns selected cells with a fresh Codex home,
+[bench/isolated.py](https://github.com/chimera-defi/dispatchbench/blob/b9fc17b/bench/isolated.py) reruns selected cells with a fresh Codex home,
 using [bench/codex_env.py](../bench/codex_env.py) for the isolated environment.
 Historical rows remain separate. See the report for the retained function comparison and clean-home repo reruns.
 
-[bench/codex_harness.py](../bench/codex_harness.py) adds a separate Bubblewrap filesystem allowlist,
+[bench/codex_harness.py](https://github.com/chimera-defi/dispatchbench/blob/b9fc17b/bench/codex_harness.py) adds a separate Bubblewrap filesystem allowlist,
 a synthetic HOME and read-only authentication mounts. It hides host instructions and prior answers.
 It needs Linux, Bubblewrap/user namespaces and the chosen CLIs.
 Its code-execution intervention differs from the original function track.
@@ -185,15 +185,9 @@ The [Makefile](../Makefile) is the command reference.
 | `make report` / `make audit` | Rebuild / verify offline analysis | No |
 | `make selftest` | Validate reference checkers and planted bugs; about 12 minutes | No |
 | `make grade` | Grade/export cached completions and repo verdicts | No |
-| `make solutions` | Export graded answers | No |
-| `make quality` | Static, growth and memory measurements; needs uvx, radon and ruff | No model calls |
 | `make run` | Main function configs, five repeats, four lanes | Yes, for uncached calls |
 | `make hard` | Selected L7 configs, five repeats, four lanes | Yes, for uncached calls |
 | `make agentic` | Repo tasks, three repeats, four lanes | Yes, for uncached calls |
-| `make escalate` | Planned conditional effort escalation | Yes, for uncached calls |
-| `make trim` | Harness floor and paired probes | Yes, for uncached calls |
-| `make plan-first` | Appendix F plans and builds | Yes, for uncached calls |
-| `make gated-repair` | Appendix G builds and conditional repair | Yes, for uncached calls |
 
 For example, `make run RUN_CONFIGS=haiku-low,luna-low` narrows the configs.
 `HARD_CONFIGS` and `AGENT_CONFIGS` override the other tracks.
