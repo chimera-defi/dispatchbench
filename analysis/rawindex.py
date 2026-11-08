@@ -88,6 +88,3 @@ def file_index(root=ROOT):
         out.append({"run": run, "path": path.relative_to(root).as_posix(), "rows": len(lines), "date": run_date(path, rows), "lanes": lanes(rows), "sha256": sha256(path)})
     return out
 
-
-def supporting(root=ROOT):
-    return [(path, sha256(root / path)) for path in SUPPORTING]
