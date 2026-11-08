@@ -1,7 +1,7 @@
 """Grade every cached completion serially and write results/<run>-function.jsonl. No model calls.
 
 Grades are cached in cache/grades by (problem file hash, code hash), so a rebuild only grades what changed."""
-import hashlib, json, os, re, subprocess, sys, tempfile
+import argparse, hashlib, json, os, re, subprocess, sys, tempfile
 
 from bench import problems
 from bench.run import CALLS, ROOT, write_rows
@@ -43,12 +43,10 @@ def check_grader():
             raise SystemExit(f"bench/{f} changed since cache/grades/ was written: clear cache/grades/ and update GRADER_SHA")
 
 
-def main(entries=None, output=None):
+def main(entries, output=None):
     check_grader()
     rows = []
-    entries = sorted(entries if entries is not None else
-                     (json.load(open(os.path.join(CALLS, f))) for f in os.listdir(CALLS) if f.endswith(".json")),
-                     key=lambda e: (e["ts"], e["config"]))
+    entries = sorted(entries, key=lambda e: (e["ts"], e["config"]))
     os.makedirs(GRADES, exist_ok=True)
     for e in entries:
         code = extract(e.get("text"))
@@ -72,4 +70,8 @@ def main(entries=None, output=None):
 
 
 if __name__ == "__main__":
-    main()
+    ap = argparse.ArgumentParser(description="Grade cached calls. The default output is history and refuses to change; send new configs to a new file.")
+    ap.add_argument("--configs", help="comma-separated configs to grade; default all"); ap.add_argument("--output", help="results file; default the historical one")
+    a = ap.parse_args()
+    calls = [json.load(open(os.path.join(CALLS, f))) for f in os.listdir(CALLS) if f.endswith(".json")]
+    main([e for e in calls if not a.configs or e["config"] in a.configs.split(",")], a.output)
