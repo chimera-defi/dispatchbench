@@ -1,6 +1,8 @@
 # SHRINK-PLAN-2: the report generator (2026-11-08)
 
-Phase 1: [SHRINK-PLAN.md](SHRINK-PLAN.md), [SHRINK-REPORT.md](SHRINK-REPORT.md). Baseline for this plan: main at 7e946a6.
+Outcome: [SHRINK-REPORT-2.md](SHRINK-REPORT-2.md). Stage 3 (freeze) was dropped and stage 4 came in far below budget; this plan is kept as written before the build, apart from the recorded freeze decision.
+
+Phase 1: `SHRINK-PLAN.md` and `SHRINK-REPORT.md` at commit 7e946a6. Baseline for this plan: main at 7e946a6.
 
 ## What the trace found
 Method: a `sys.monitoring` line tracer over `analysis/*` while running the whole `make report` and `make audit` module chain; then a key-by-key check of facts against templates and Python readers.
