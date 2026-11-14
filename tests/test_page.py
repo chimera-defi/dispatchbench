@@ -8,7 +8,7 @@ from urllib.parse import parse_qs, urlsplit
 
 import pytest
 
-from analysis import configs, dataset, page
+from analysis import configs, dataset, labels, page
 
 ROOT = Path(__file__).resolve().parents[1]
 HTML = (ROOT / 'results/report/page.html').read_text()
@@ -190,10 +190,17 @@ def test_hero_labels_are_readable_and_every_config_is_titled():
     plotted = page.main_ladder_rows(dataset.view(dataset.read()))
     svgs = hero_svgs()
     assert len(svgs) == 2
+    full = [c for c, v in plotted if v['passes'] == v['n']]
     for svg in svgs:
         sizes = [float(x) for x in re.findall(r'<text\b[^>]*font-size=\'([\d.]+)\'', svg)]
         assert sizes and min(sizes) >= 12
         assert svg.count('<title>') == len(plotted)
+        assert 'rotate(' not in svg
+        texts = [unescape(re.sub(r'<[^>]+>', '', x)) for x in re.findall(r'<text\b[^>]*>(.*?)</text>', svg, re.S)]
+        for c, _ in plotted:  # every plotted config is named on the drawing itself, at both widths (a <title> alone does not count)
+            assert any(x == labels.DISP(c) or x.startswith(labels.DISP(c) + ' ✓') for x in texts), c
+        poles = [line for line in re.findall(r'<line\b[^>]*>', svg) if "stroke-width='1.25'" in line]
+        assert len(poles) >= len(full)
 
 
 def test_pick_rows_match_the_winner_picks():
