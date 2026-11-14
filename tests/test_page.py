@@ -123,6 +123,8 @@ def test_sections_ids_and_permalinks():
     ids = re.findall(r'\sid="([^"]+)"', HTML)
     assert len(ids) == len(set(ids))
     assert re.findall(r'<section\b[^>]*?\bid="([^"]+)"', HTML) == SECTIONS
+    toc = re.search(r'<nav class="toc"[^>]*>(.*?)</nav>', HTML, re.S)[1]
+    assert re.findall(r'href="#([^"]+)"', toc) == SECTIONS  # the contents strip lists every section, in page order
     for s in SECTIONS:
         m = re.search(r'<section\b[^>]*?\bid="' + s + r'"[^>]*>.*?<h[1-6][^>]*>(.*?)</h[1-6]>', HTML, re.S)
         assert f'<a class="hlink" href="#{s}" aria-label="Link to this section: ' in m[1], s

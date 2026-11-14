@@ -522,7 +522,7 @@ tr.pickrow>td:first-child{box-shadow:inset 3px 0 0 var(--accent);font-weight:700
  .hero-chart .hero-narrow{display:block}
  .hero-chart{padding:8px 4px}
  .pbar{display:none}
- .toc{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px;mask-image:linear-gradient(to right,var(--mask-opaque) 86%,transparent)}
+ .toc{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px;-webkit-mask-image:linear-gradient(to right,var(--mask-opaque) 86%,transparent);mask-image:linear-gradient(to right,var(--mask-opaque) 86%,transparent)}
  .toc::-webkit-scrollbar{display:none}
  .toc a{flex:none}
 }

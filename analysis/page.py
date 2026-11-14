@@ -1228,9 +1228,9 @@ def hero_svg(rows, W, H, narrow=False, aria=""):
         pos = []
         for (x, _) in top: pos.append(max(x, pos[-1] + gap if pos else L))
         for i in reversed(range(len(top))): pos[i] = min(pos[i], his[i], pos[i + 1] - gap if i + 1 < len(top) else 1e9)
-        if pos[0] >= L - 0.5 or not narrow: break
+        if not top or pos[0] >= L - 0.5 or not narrow or all(c in WINNER_PICKS for _, c in top): break
         drop = max((i for i, (_, c) in enumerate(top) if c not in WINNER_PICKS), key=lambda i: top[i][0]); del top[drop]
-    rise = max(est(labels(c), c in WINNER_PICKS) * math.sin(math.radians(ang)) + 12 for _, c in top)
+    rise = max((est(labels(c), c in WINNER_PICKS) * math.sin(math.radians(ang)) + 12 for _, c in top), default=0)
     T = round((34 if narrow else 14) + rise + 16)
     Y = lambda p: bottom - (p - low) / (1 - low) * (bottom - T)
     b = [f"<rect x='{L}' y='{Y(MIN_PASS):.1f}' width='{W - L - R}' height='{bottom - Y(MIN_PASS):.1f}' fill='{BADC}' fill-opacity='0.07'/>"]
@@ -1241,8 +1241,9 @@ def hero_svg(rows, W, H, narrow=False, aria=""):
         b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{bottom}' stroke='{GRID}'/>", text(X(v), bottom + 18, dataset.usd(v, tick=True), 12, "middle", MUTED)]
     b.append(text((L + W - R) / 2, bottom + 40, "$ per pass (log) · left is cheaper", 12, "middle", MUTED))
     b.append(text(8, 16, "Pass rate · up is better", 12, "start", MUTED) if narrow else text(16, (T + bottom) / 2, "Pass rate · up is better", 12, "middle", MUTED, rotate=-90))
-    band = (W - R - 6 - est("below 90%: avoid"), bottom - 16, W - R - 6, bottom - 3)
-    b.append(text(W - R - 6, bottom - 5, "below 90%: avoid", 12, "end", MUTED))
+    avoid = f"below {100 * MIN_PASS:.0f}%: avoid"
+    band = (W - R - 6 - est(avoid), bottom - 16, W - R - 6, bottom - 3)
+    b.append(text(W - R - 6, bottom - 5, avoid, 12, "end", MUTED))
     if not narrow: b.append(text(L + 6, Y(1) - 8, "passed every try", 12, "start", MUTED))
     pts = {c: (X(v["usd_per_pass"]), Y(v["passes"] / v["n"])) for c, v in rows}
     boxes, taken = [band], list(pts.values())
@@ -1280,10 +1281,12 @@ def hero(s):
         r = next(r for r in exp["rows"] if r["config"] == c); legend.setdefault(charts.explorer_family_label(r), FAM(c))
     key = " · ".join(f'<span style="border-left:8px solid {col};padding-left:6px;">{esc(name)}</span>' for name, col in legend.items())
     st = next(st for st in exp["sets"] if st["id"] == exp["default_set"])
-    cost = ", ".join(esc(r["display"]) for r in exp["rows"] if r["key"] in st["rows"] and (r["cost_kind"] == "unmetered" or r["usd_per_pass"] is None))
+    shown = [r for r in exp["rows"] if r["key"] in st["rows"]]; free = lambda r: r["cost_kind"] == "unmetered" or r["usd_per_pass"] is None
+    cost = ", ".join(esc(r["display"]) for r in shown if free(r))
+    part = ", ".join(esc(r["display"]) for r in shown if not free(r) and r["config"] not in {c for c, _ in rows})
     repeats = E[ORDER[0]]["n"] // len(s["problems"])
     cap = (f'Main ladder: {len(s["problems"])} problems × {repeats} tries per config. Ring: Winner pick. Hollow: fast mode. Codex cost estimated from tokens and list prices.<br>'
-           f'<span class="hero-key">{key}</span><br>' + (f'Not plotted, no cost: {cost}. ' if cost else '') + 'Every number is in <a href="#results">Results</a>.')
+           f'<span class="hero-key">{key}</span><br>' + (f'Not plotted, partial ladder: {part}. ' if part else '') + (f'Not plotted, no cost: {cost}. ' if cost else '') + 'Every number is in <a href="#results">Results</a>.')
     return (f'<figure class="hero-chart" id="hero">\n{hero_svg(rows, 760, 480, aria=f"""role="img" aria-label="{esc(label)}" """)}\n'
             f'{hero_svg(rows, 360, 580, True, aria="aria-hidden=\"true\"")}\n<figcaption class="small muted">{cap}</figcaption>\n</figure>')
 
@@ -1297,7 +1300,7 @@ def repo(s):
                        lambda x: f"{100 * x:.0f}%", "", values=vals, responsive=True)
     ci = lambda v: f'{100 * v["ci95_plot"][0]:.1f}%–{100 * v["ci95_plot"][1]:.1f}%'
     body = "".join(f'<tr><td>{dot(FAM(c))}{esc(DISP(c))}</td><td>{v["task_complete"]}/{v["n"]}</td><td>{v["hidden_pass"]}/{v["n"]}</td><td>{ci(v)}</td><td>{cost(v)}</td></tr>' for c, v in ag)
-    return ('<div class="compact-bars">' + bars + '</div><details class="small"><summary>Repo-task numbers and 95% intervals</summary>'
+    return ('<div class="compact-bars" id="repo-chart">' + bars + '</div><details class="small"><summary>Repo-task numbers and 95% intervals</summary>'
             '<div class="tablewrap"><table><thead><tr><th>config</th><th>task complete</th><th>hidden tests</th><th>95% interval (task complete)</th><th>$ per run</th></tr></thead>'
             f'<tbody>{body}</tbody></table></div><p class="small muted">Task complete: hidden and the run\'s own visible suite both green. Hidden: hidden suite only. '
             'Interval: 95% for task complete; a perfect score shows its lower bound. ~ Estimated from tokens.</p></details>')
