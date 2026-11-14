@@ -849,26 +849,31 @@ def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, ra
             f'<td>{configs.cell_markup(("~" if proxy else "") + (cost_label or price(usd)))}</td><td>{price(cusd)}</td><td>{seconds}</td><td class="verdict-cell" title="{esc(key)}">{verdict}</td></tr>')
 
 
-def grok_results(s):
-    """Group Grok by measured problem coverage and repeats, independently of retest rows."""
+def grok_results(s, full=None):
+    """Group Grok by measured problem coverage and repeats, independently of retest rows.
+
+    full=True keeps main-ladder groups; full=False keeps partial-ladder groups.
+    """
     groups = {}
     for c in GROK_ORDER:
         v = (s.get("grok") or {}).get(c)
         if not v: continue
         problems = tuple(sorted(v["by_group"]))
         repeats = sorted({g["n"] for g in v["by_group"].values()})
-        full = set(problems) == set(s["problems"])
-        scope = "main ladder" if full else "partial ladder"
+        is_full = set(problems) == set(s["problems"])
+        if full is not None and is_full != full:
+            continue
+        scope = "main ladder" if is_full else "partial ladder"
         repeat_label = str(repeats[0]) if len(repeats) == 1 else f"{repeats[0]}–{repeats[-1]}"
         label = f"Grok · {scope} ({problems[0][:3]}–{problems[-1][:3]}). {repeat_label} repeats per problem."
         missed = v["n"] - v["passes"]
-        beaten = full and any(
+        beaten = is_full and any(
             o["pass_at_1"] >= v["pass_at_1"]
             and dataset.median_seconds(v) is not None
             and dataset.median_seconds(o) < dataset.median_seconds(v)
             and o["usd_per_pass"] is not None and v["usd_per_pass"] is not None
             and o["usd_per_pass"] < v["usd_per_pass"] for o in every(s).values())
-        verdict = ("beaten; " if beaten else "partial ladder; " if not full else "") + (
+        verdict = ("beaten; " if beaten else "partial ladder; " if not is_full else "") + (
             f"missed {missed}" if missed else "0 misses")
         floor = bool(v.get("outcomes", {}).get("timeout")) and v["usd_per_pass"] is not None
         note = "Unbilled timeout; cost per pass is a lower bound." if floor else ""
@@ -917,12 +922,21 @@ def short_table(s, need):
     repeats = E[ORDER[0]]["n"] // len(problems)
     ladder_label = f'{configs.set_label("main ladder", capital=True)}: {len(problems)} problems × {repeats} tries = {E[ORDER[0]]["n"]} calls'
     subset_label = f'{configs.set_label("rescue set", capital=True)}: {len(s["design"]["rescue_problems"])} problems × {repeats} tries = {a[HARD[0][0]]["n"]} attempts'
-    return ('<div class="tablewrap"><table class="sortable"><thead><tr><th>config</th><th>passed</th><th>$ per pass</th>'
-            '<th>Claude $</th><th>median s</th><th>verdict</th></tr></thead>'
-            + group(ladder_label, top, "main", extra=(
-                '<tr class="grp"><th colspan="6">' + esc("Main ladder: Hetzner " + configs.HETZNER_NOTE)
-                + '</th></tr>' + "".join(body for _, body in hetzner_rows)))
-            + grok_results(s) + group(subset_label, hard, "rescue", extra=devin_rows) + low_group + '</table></div>')
+    grok_main, grok_part = grok_results(s, full=True), grok_results(s, full=False)
+    n_grok_part = grok_part.count("<tr") - grok_part.count('class="grp"')
+    more = []
+    if hetzner_rows: more.append(f"Hetzner free tier ({len(hetzner_rows)})")
+    if n_grok_part: more.append(f"Grok partial ladder ({n_grok_part})")
+    if hard: more.append(f"{configs.set_label('rescue set')} ({len(hard)})")
+    if dv_rows: more.append(f"Devin ({len(dv_rows)})")
+    head = '<thead><tr><th>config</th><th>passed</th><th>$ per pass</th><th>Claude $</th><th>median s</th><th>verdict</th></tr></thead>'
+    wrap = lambda body: '<div class="tablewrap"><table class="sortable">' + head + body + '</table></div>'
+    hetzner_group = ('<tbody><tr class="grp"><th colspan="6">' + esc("Main ladder: Hetzner " + configs.HETZNER_NOTE)
+                     + '</th></tr>' + "".join(body for _, body in hetzner_rows) + '</tbody>') if hetzner_rows else ""
+    return (wrap(group(ladder_label, top, "main") + grok_main + low_group)
+            + '<details class="more-rows"><summary>' + esc("More rows: " + ", ".join(more)) + '</summary>'
+            + wrap(hetzner_group + grok_part + group(subset_label, hard, "rescue", extra=devin_rows))
+            + '</details>')
 
 
 def result_notes(s):
@@ -1223,17 +1237,32 @@ def hero_svg(rows, W, H, narrow=False, aria=""):
     labels = lambda c: DISP(c) + (f" ✓ {WINNER_PICKS[c]}" if c in WINNER_PICKS else "")
     # Every perfect config, left to right. A tie keeps the order of rows. None is dropped.
     top = sorted(((X(v["usd_per_pass"]), c) for c, v in rows if v["passes"] == v["n"]), key=lambda t: t[0])
+    if top:
+        x, c = top[0]; pick = c in WINNER_PICKS; label = labels(c)
+        if x - 5 - est(label, pick) < 2:
+            t = 7 + est(label, pick); a = (t - L) / (W - R - L)
+            if 0 < a < 1:
+                v0 = next(v["usd_per_pass"] for cfg, v in rows if cfg == c)
+                x0 = math.exp((math.log(v0) - a * math.log(x1)) / (1 - a))
+                X = log_scale(x0, x1, L, W, R)
+                top = sorted(((X(v["usd_per_pass"]), c) for c, v in rows if v["passes"] == v["n"]), key=lambda t: t[0])
+    poles, prev_px = [], None
+    for x, c in top:
+        px = x if prev_px is None else max(x, prev_px + 6)
+        px = min(px, W - R)
+        poles.append((x, px, c)); prev_px = px
     step = 16; base = 34 if narrow else 14; phrase = "passed every try"
 
-    def level_label(x, c):
+    def level_label(px, c):
         pick = c in WINNER_PICKS; label = labels(c)
-        if x - 5 - est(label, pick) < 2: label = DISP(c)
+        if px - 5 - est(label, pick) < 2: label = DISP(c)
         return pick, label
-    fits = lambda x, c: x - 5 - est(level_label(x, c)[1], c in WINNER_PICKS) >= 2  # else the label goes right of its line
+    fits = lambda px, c: px - 5 - est(level_label(px, c)[1], c in WINNER_PICKS) >= 2  # else the label goes right of its line
     note = not narrow and all(x - 12 > L + 6 + est(phrase) for x, _ in top)  # no 100% mark under the note
 
     # "passed every try" sits on the 100% line at the left (wide drawing); the stairs start one notch higher when the first label would touch it
-    off = 36 if note and top and top[0][0] - 5 - est(level_label(*top[0])[1], top[0][1] in WINNER_PICKS) < L + 6 + est(phrase) + 8 else 22
+    px0, c0 = (poles[0][1], poles[0][2]) if poles else (0, None)
+    off = 36 if note and poles and px0 - 5 - est(level_label(px0, c0)[1], c0 in WINNER_PICKS) < L + 6 + est(phrase) + 8 else 22
     T = round(base + 16 + max(len(top) - 1, 0) * step + off)
     Y = lambda p: bottom - (p - low) / (1 - low) * (bottom - T)
     b = [f"<rect x='{L}' y='{Y(MIN_PASS):.1f}' width='{W - L - R}' height='{bottom - Y(MIN_PASS):.1f}' fill='{BADC}' fill-opacity='0.07'/>"]
@@ -1250,11 +1279,11 @@ def hero_svg(rows, W, H, narrow=False, aria=""):
     pts = {c: (X(v["usd_per_pass"]), Y(v["passes"] / v["n"])) for c, v in rows}
     boxes, taken = [band], list(pts.values())
     stair = []
-    for i, (x, c) in enumerate(top):  # flagpoles before the marks, so the marks sit on top
-        pick, label = level_label(x, c); by = Y(1) - off - i * step
-        b.append(f"<line x1='{x:.1f}' y1='{Y(1) - (13 if pick else 9):.1f}' x2='{x:.1f}' y2='{by - 9:.1f}' stroke='{FAM(c)}' stroke-width='1.25' opacity='0.9'/>")
+    for i, (x, px, c) in enumerate(poles):  # flagpoles before the marks, so the marks sit on top
+        pick, label = level_label(px, c); by = Y(1) - off - i * step
+        b.append(f"<line x1='{x:.1f}' y1='{Y(1) - (13 if pick else 9):.1f}' x2='{px:.1f}' y2='{by - 9:.1f}' stroke='{FAM(c)}' stroke-width='1.25' opacity='0.9'/>")
         width = est(label, pick)
-        lx, anchor = (x - 5, "end") if fits(x, c) else (x + 5, "start")
+        lx, anchor = (px - 5, "end") if fits(px, c) else (px + 5, "start")
         boxes.append((lx - width, by - 12, lx, by + 3) if anchor == "end" else (lx, by - 12, lx + width, by + 3))
         stair.append(text(lx, by, label, 12, anchor, "var(--accent)" if pick else INK, "700" if pick else "normal"))
     for c, v in sorted(rows, key=lambda r: r[1]["passes"] != r[1]["n"]):  # solid marks first, so a hollow twin lands on top of its neighbour

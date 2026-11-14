@@ -526,16 +526,15 @@ def build(ds=None, names=None):
     """{file name: SVG text or None}, using only the dataset."""
     ds = ds or dataset.read(); s = dataset.view(ds)
     check_design(s)
-    renderers = {"pareto.svg": lambda: pareto_chart(s), "hero.svg": lambda: explorer_svg(ds["explorer"], standalone=True),
+    renderers = {"pareto.svg": lambda: pareto_chart(s),
                  "cost_time.svg": lambda: cost_time_chart(s), "pass_by_rung.svg": lambda: rung_chart(s, ds),
                  "heatmap.svg": lambda: heatmap(s), "token_floor.svg": lambda: floor_chart(s),
                  "agentic.svg": lambda: agentic_chart(s), "token_in.svg": lambda: token_in_chart(s, ds),
                  "harness_bias.svg": lambda: harness_chart(s), "cost_total.svg": lambda: cost_tokens_chart(s, ds)[0],
                  "cost_per_1k.svg": lambda: cost_tokens_chart(s, ds)[1]}
     charts = {name: draw() for name, draw in renderers.items() if names is None or name in names}
-    # Inline report charts inherit the page bundle; standalone files carry it.
-    return {name: body.replace(">", ">" + token_style(), 1)
-            if body and name != "hero.svg" else body for name, body in charts.items()}
+    # Chart files carry the page token bundle so they paint the same off the report.
+    return {name: body.replace(">", ">" + token_style(), 1) if body else body for name, body in charts.items()}
 
 
 def main():
@@ -622,7 +621,7 @@ def explorer_annotations(rows, frontier, positions, bounds, width):
     return ''.join(out)
 
 
-def explorer_svg(exp, standalone=False, width=760):
+def explorer_svg(exp, width=760):
     """The default view, pre-rendered for no-JS readers and the OG source."""
     st = next(s for s in exp["sets"] if s["id"] == exp["default_set"])
     rows = [r for r in exp["rows"] if r["key"] in st["rows"] and r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None]
@@ -659,10 +658,6 @@ def explorer_svg(exp, standalone=False, width=760):
     b.append(f'<defs><clipPath id="ex-static-annotations"><rect x="{L}" y="{T}" width="{W-L-R}" height="{B-T}"/></clipPath></defs>'
              '<g clip-path="url(#ex-static-annotations)">'+explorer_annotations(rows, frontier, positions, (L,T,W-R,B), width)+'</g>')
     b += [text((L+W-R)/2,H-18,'$ per pass (log) · left is cheaper',12,'middle',MUTED),text(22,(T+B)/2,'Pass rate · up is better',12,'middle',MUTED,rotate=-90)]
-    if standalone:
-        tokens = token_style()
-        paint = ".ex-grid{fill:none;stroke:var(--data-grid)}.ex-front{fill:none;stroke:var(--frontier);stroke-dasharray:5 4}.ex-shade{fill:var(--data-beaten)}.ex-ci{fill:none;stroke-width:1.5;opacity:.35}.ex-ring{fill:none;stroke:var(--frontier);stroke-width:2}.ex-trail{fill:none;opacity:.5}.ex-number-ring{fill:var(--frontier);stroke:var(--panel)}.ex-number{fill:var(--panel);font-weight:700;stroke:none}.ex-svg{background:var(--panel)}"
-        b.insert(0,tokens+"<style>"+paint+"</style>")
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" class="ex-svg" style="min-width:0">'+''.join(b)+'</svg>')
 
 
