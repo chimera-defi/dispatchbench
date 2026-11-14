@@ -102,16 +102,18 @@ def plotted(d):
     return {c: v for c, v in visible(d).items() if v.get("usd_per_pass")}
 
 
-def free_spot(candidates, x, y, tw, boxes, taken, bottom, xmin=96, right=754, top=30):
+def free_spot(candidates, x, y, tw, boxes, taken, bottom, xmin=96, right=754, top=30, pad=8, beside=0):
     """First (dx, dy, anchor) offset whose label box stays inside the plot, clear of other label boxes and of every mark but the one
-    at (x, y). Returns (label x, label y, anchor, box), or None."""
+    at (x, y). `beside` also keeps a label out of the slot level with another mark and within that many px of it, where it would
+    read as that mark's own label. Returns (label x, label y, anchor, box), or None."""
     for dx, dy, anchor in candidates:
         lx, ly = x + dx, y + dy
         left = lx - tw if anchor == "end" else lx
         rect = (left, ly - 12, left + tw, ly + 3)
         if rect[0] < xmin or rect[2] > right or rect[1] < top or rect[3] > bottom: continue
         if any(not (rect[2] < q[0] or rect[0] > q[2] or rect[3] < q[1] or rect[1] > q[3]) for q in boxes): continue
-        if any(math.hypot(cx - x, cy - y) > 1 and rect[0] < cx + 8 and rect[2] > cx - 8 and rect[1] < cy + 8 and rect[3] > cy - 8 for cx, cy in taken): continue
+        if any(math.hypot(cx - x, cy - y) > 1 and rect[0] < cx + pad and rect[2] > cx - pad and rect[1] < cy + pad and rect[3] > cy - pad for cx, cy in taken): continue
+        if beside and any(math.hypot(cx - x, cy - y) > 1 and abs(ly - 4.5 - cy) < 7 and rect[0] < cx + beside and rect[2] > cx - beside for cx, cy in taken): continue
         return lx, ly, anchor, rect
 
 
