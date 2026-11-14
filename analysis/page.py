@@ -766,6 +766,9 @@ def explorer_data(s):
                            heading_id="config-" + anchor_slug(r["display"])) for r in exp["rows"]])
 
 
+UNAVAILABLE = ": cost unavailable. Use Speed × Pass."
+
+
 def explorer(s):
     exp = s["explorer"]
     st = next(st for st in exp["sets"] if st["id"] == exp["default_set"])
@@ -788,7 +791,7 @@ def explorer(s):
         "__SET_NOTE__": esc(st["note"]),
         "__LEGEND__": " · ".join(f'<span style="border-left:8px solid {colour};padding-left:6px;">{esc(label)}</span>' for label, colour in legend.items()),
         "__EXPLORER_SVG__": charts.explorer_svg(exp, width=320),
-        "__EXCLUDED__": " ".join(esc(r["display"] + ": cost unavailable. Use Speed × Pass.") for r in rows if r not in plotted),
+        "__EXCLUDED__": " ".join(esc(r["display"] + UNAVAILABLE) for r in rows if r not in plotted),
         "__CHIPS__": "".join(f'<li><b>{i}</b>'+button(r)+"</li>" for i,r in enumerate(fr,1)),
         "__DETAIL__": detail,
         "__CONFIG_BUTTONS__": "".join(f'<button class="btn" data-config="{esc(r["key"])}" aria-pressed="true">{esc(r["display"])} · {charts.explorer_cost_label(r)}</button>' for r in rows),
@@ -840,7 +843,9 @@ def row(name, col, k, n, usd, cusd, sec, verdict, proxy=False, derived="", *, ra
     suffix = f'<span class="muted"> · {esc(set_name)}</span>' if set_name else ""
     price = lambda value: missing_label if value is None and missing_label else dataset.usd(value)
     seconds = f"{sec:.1f}" if sec is not None else "not measured"
-    return (f'<tr{attr}><td>{dot(col)}{esc(name)}{suffix}</td><td><span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
+    pick = ' class="pickrow"' if verdict.startswith("✓ pick") else ""
+    bar = f'<span class="pbar" aria-hidden="true"><span class="pfill" style="width:{100 * r:.0f}%"></span></span>'
+    return (f'<tr{pick}{attr}><td>{dot(col)}{esc(name)}{suffix}</td><td class="passcell">{bar}<span class="pill {cls}">{100 * r:.0f}% ({k}/{n})</span></td>'
             f'<td>{configs.cell_markup(("~" if proxy else "") + (cost_label or price(usd)))}</td><td>{price(cusd)}</td><td>{seconds}</td><td class="verdict-cell" title="{esc(key)}">{verdict}</td></tr>')
 
 
@@ -1188,6 +1193,116 @@ def grok_summary(s, ds):
     return table + '<ul class="tight small">' + ''.join(f'<li>{esc(t)}</li>' for t in bullets) + '</ul>'
 
 
+def main_ladder_rows(s):
+    """The full main-ladder configs that have a $ per pass, as the Results table lists them (Hetzner, Devin, partial ladders and pipelines are out)."""
+    E = every(s); full = set(s["problems"])
+    rows = [(c, E[c]) for c in ORDER if E[c]["usd_per_pass"]]
+    return rows + [(c, v) for c in GROK_ORDER if (v := (s.get("grok") or {}).get(c)) and set(v["by_group"]) == full and v["usd_per_pass"]]
+
+
+def pick_cards(s, ds):
+    """Three cards, one per Winner pick: the unchanged fact sentence, what the config is, and its main-ladder numbers."""
+    E, F = every(s), s["facts"]; cards = []
+    for c, role in WINNER_PICKS.items():
+        v, r = E[c], dataset.get(ds, c, "main ladder")
+        what = f'{r["family"]} · {r["model"]} · {r["effort"]}' + (" · fast mode" if r["mode"] == "fast" else "")
+        nums = f'{v["passes"]}/{v["n"]} passed · {"~" if v["cost_kind"] == "proxy" else ""}{dataset.usd(v["usd_per_pass"])} per pass · {dataset.median_seconds(v):.1f} s median'
+        cards.append(f'<div class="wpick wpick-{role}"><p class="wpick-role">{role.capitalize()}</p><p class="wpick-say"><b>{esc(F["winner_" + role])}</b></p>'
+                     f'<p class="wpick-what">{esc(what)}</p><p class="wpick-num">{esc(nums)}</p></div>')
+    return '<div class="wpicks">\n' + "\n".join(cards) + '\n</div>'
+
+
+def hero_svg(rows, W, H, narrow=False, aria=""):
+    """One static chart: log $ per pass across, pass rate up. Marks at 100% get rotated column labels, the rest plain labels."""
+    from analysis.charts import text, log_scale, log_ticks, leader, free_spot, FONT, INK, MUTED, GRID, BADC
+    ang = 60 if narrow else 40; L, R = (44, 14) if narrow else (70, 24); bottom = H - 50
+    est = lambda s, bold=False: (7.9 if bold else 7.2) * len(s)
+    xs = [v["usd_per_pass"] for _, v in rows]; x0, x1 = min(xs) / 1.3, max(xs) * 1.3
+    X = log_scale(x0, x1, L, W, R)
+    low = min(0.7, math.floor(min(v["passes"] / v["n"] for _, v in rows) * 10) / 10); lo_pct = round(low * 100)
+    gap = (14 if narrow else 16) / math.sin(math.radians(ang))
+    top = [(X(v["usd_per_pass"]), c) for c, v in sorted(rows, key=lambda r: r[1]["usd_per_pass"]) if v["passes"] == v["n"]]
+    labels = lambda c: DISP(c) + (f" ✓ {WINNER_PICKS[c]}" if c in WINNER_PICKS else "")
+    while True:  # spread anchors at least `gap` apart, keeping order; the narrow chart drops other labels that cannot fit
+        his = [W - 6 - est(labels(c), c in WINNER_PICKS) * math.cos(math.radians(ang)) for _, c in top]
+        pos = []
+        for (x, _) in top: pos.append(max(x, pos[-1] + gap if pos else L))
+        for i in reversed(range(len(top))): pos[i] = min(pos[i], his[i], pos[i + 1] - gap if i + 1 < len(top) else 1e9)
+        if pos[0] >= L - 0.5 or not narrow: break
+        drop = max((i for i, (_, c) in enumerate(top) if c not in WINNER_PICKS), key=lambda i: top[i][0]); del top[drop]
+    rise = max(est(labels(c), c in WINNER_PICKS) * math.sin(math.radians(ang)) + 12 for _, c in top)
+    T = round((34 if narrow else 14) + rise + 16)
+    Y = lambda p: bottom - (p - low) / (1 - low) * (bottom - T)
+    b = [f"<rect x='{L}' y='{Y(MIN_PASS):.1f}' width='{W - L - R}' height='{bottom - Y(MIN_PASS):.1f}' fill='{BADC}' fill-opacity='0.07'/>"]
+    for pct in range(lo_pct, 101, 10):
+        b += [f"<line x1='{L}' x2='{W - R}' y1='{Y(pct / 100):.1f}' y2='{Y(pct / 100):.1f}' stroke='{GRID}'/>", text(L - 6, Y(pct / 100) + 4, f"{pct}%", 12, "end", MUTED)]
+    for v in log_ticks(x0, x1):
+        if narrow and round(math.log10(v), 6) % 1: continue
+        b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{bottom}' stroke='{GRID}'/>", text(X(v), bottom + 18, dataset.usd(v, tick=True), 12, "middle", MUTED)]
+    b.append(text((L + W - R) / 2, bottom + 40, "$ per pass (log) · left is cheaper", 12, "middle", MUTED))
+    b.append(text(8, 16, "Pass rate · up is better", 12, "start", MUTED) if narrow else text(16, (T + bottom) / 2, "Pass rate · up is better", 12, "middle", MUTED, rotate=-90))
+    band = (W - R - 6 - est("below 90%: avoid"), bottom - 16, W - R - 6, bottom - 3)
+    b.append(text(W - R - 6, bottom - 5, "below 90%: avoid", 12, "end", MUTED))
+    if not narrow: b.append(text(L + 6, Y(1) - 8, "passed every try", 12, "start", MUTED))
+    pts = {c: (X(v["usd_per_pass"]), Y(v["passes"] / v["n"])) for c, v in rows}
+    boxes, taken = [band], list(pts.values())
+    for c, v in sorted(rows, key=lambda r: r[1]["passes"] != r[1]["n"]):  # solid marks first, so a hollow twin lands on top of its neighbour
+        x, y = pts[c]; tip = f'{DISP(c)}: {v["passes"]}/{v["n"]} passed, {"≥" if c in GROK_ORDER and v.get("outcomes", {}).get("timeout") else "~" if v["cost_kind"] == "proxy" else ""}{dataset.usd(v["usd_per_pass"])} per pass, {dataset.median_seconds(v):.1f} s median'
+        b.append(f"<g><title>{esc(tip)}</title>{config_marker(c, x, y, FAM(c))}</g>")
+        if c in WINNER_PICKS: b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='11' fill='none' stroke='var(--accent)' stroke-width='2'/>")
+    kept = {c: p for (_, c), p in zip(top, pos)}
+    for c, ax in kept.items():
+        x, y = pts[c]; pick = c in WINNER_PICKS
+        if abs(ax - x) > 2: b.append(leader(x, y - 3, ax, y - 15, GRID))
+        b.append(text(ax, y - 15, labels(c), 12, "start", "var(--accent)" if pick else INK, "700" if pick else "normal", rotate=-ang))
+    for c, v in sorted(rows, key=lambda r: -r[1]["passes"] / r[1]["n"]):
+        if c in kept: continue
+        x, y = pts[c]; name = labels(c); tw = est(name, c in WINNER_PICKS)
+        cand = [(dx, 4 + sgn * 16 * k, a) for k in range(0, 3 if narrow else 14) for sgn in ((1, -1) if k else (1,)) for dx, a in ((15, "start"), (-15, "end"))]
+        spot = free_spot(cand, x, y, tw, boxes, taken, bottom, L + 2, W - 4, T + 12)
+        if spot is None:
+            if narrow: continue
+            spot = (x + 15, y + 4, "start", None)
+        lx, ly, a, rect = spot
+        if rect: boxes.append(rect)
+        if abs(ly - 4 - y) >= 20: b.append(leader(x, y, lx, ly - 4, GRID))
+        b.append(text(lx, ly, name, 12, a, INK))
+    return f'<svg class="hero-{"narrow" if narrow else "wide"}" {NS} {FONT} font-size="12" viewBox="0 0 {W} {H}" {aria}>' + "".join(b) + "</svg>"
+
+
+def hero(s):
+    """Static cost vs accuracy chart; both viewBoxes are drawn here and CSS shows one."""
+    rows = main_ladder_rows(s); E = every(s); exp = s["explorer"]
+    full = [c for c, v in rows if v["passes"] == v["n"]]; picks = ", ".join(f"{DISP(c)} ({r})" for c, r in WINNER_PICKS.items())
+    label = f"Pass rate against $ per pass on a log scale for {len(rows)} configs; {len(full)} pass every try. Winner picks: {picks}."
+    legend = {}
+    for c, _ in rows:
+        r = next(r for r in exp["rows"] if r["config"] == c); legend.setdefault(charts.explorer_family_label(r), FAM(c))
+    key = " · ".join(f'<span style="border-left:8px solid {col};padding-left:6px;">{esc(name)}</span>' for name, col in legend.items())
+    st = next(st for st in exp["sets"] if st["id"] == exp["default_set"])
+    cost = ", ".join(esc(r["display"]) for r in exp["rows"] if r["key"] in st["rows"] and (r["cost_kind"] == "unmetered" or r["usd_per_pass"] is None))
+    repeats = E[ORDER[0]]["n"] // len(s["problems"])
+    cap = (f'Main ladder: {len(s["problems"])} problems × {repeats} tries per config. Ring: Winner pick. Hollow: fast mode. Codex cost estimated from tokens and list prices.<br>'
+           f'<span class="hero-key">{key}</span><br>' + (f'Not plotted, no cost: {cost}. ' if cost else '') + 'Every number is in <a href="#results">Results</a>.')
+    return (f'<figure class="hero-chart" id="hero">\n{hero_svg(rows, 760, 480, aria=f"""role="img" aria-label="{esc(label)}" """)}\n'
+            f'{hero_svg(rows, 360, 580, True, aria="aria-hidden=\"true\"")}\n<figcaption class="small muted">{cap}</figcaption>\n</figure>')
+
+
+def repo(s):
+    """Repo tasks as bars, cheapest run first, with the old chart's numbers kept in a collapsed table."""
+    ag = sorted(s["agentic"].items(), key=lambda kv: kv[1]["usd_per_run"])
+    cost = lambda v: ("~" if v["cost_kind"] == "proxy" else "") + dataset.usd(v["usd_per_run"])
+    vals = [f'{v["task_complete"]}/{v["n"]} complete, {v["hidden_pass"]}/{v["n"]} hidden, {cost(v)}' for _, v in ag]
+    bars = charts.bars("Repo tasks: complete, hidden tests, $ per run", [(DISP(c), v["task_complete"] / v["n"], FAM(c), "-fast" in c) for c, v in ag],
+                       lambda x: f"{100 * x:.0f}%", "", values=vals, responsive=True)
+    ci = lambda v: f'{100 * v["ci95_plot"][0]:.1f}%–{100 * v["ci95_plot"][1]:.1f}%'
+    body = "".join(f'<tr><td>{dot(FAM(c))}{esc(DISP(c))}</td><td>{v["task_complete"]}/{v["n"]}</td><td>{v["hidden_pass"]}/{v["n"]}</td><td>{ci(v)}</td><td>{cost(v)}</td></tr>' for c, v in ag)
+    return ('<div class="compact-bars">' + bars + '</div><details class="small"><summary>Repo-task numbers and 95% intervals</summary>'
+            '<div class="tablewrap"><table><thead><tr><th>config</th><th>task complete</th><th>hidden tests</th><th>95% interval (task complete)</th><th>$ per run</th></tr></thead>'
+            f'<tbody>{body}</tbody></table></div><p class="small muted">Task complete: hidden and the run\'s own visible suite both green. Hidden: hidden suite only. '
+            'Interval: 95% for task complete; a perfect score shows its lower bound. ~ Estimated from tokens.</p></details>')
+
+
 def widgets(s, need, ds=None, names=None):
     arms = rescue_arms(ds or s)
     renderers = {"grid": lambda: grid(s, (ds or dataset.read()).get("grok_comparison", {}).get("by_problem")), "floor": lambda: floor(s), "pipes": lambda: pipes(arms),
@@ -1196,5 +1311,6 @@ def widgets(s, need, ds=None, names=None):
             "grok_summary": lambda: grok_summary(s, ds or dataset.read()),
             "winner": lambda: winner_table(ds or dataset.read(), need),
             "legend": lambda: legend(ds or dataset.read()),
-            "problems": lambda: method(s)}
+            "problems": lambda: method(s),
+            "picks": lambda: pick_cards(s, ds or dataset.read()), "hero": lambda: hero(s), "repo": lambda: repo(s)}
     return {name: draw() for name, draw in renderers.items() if names is None or name in names}
