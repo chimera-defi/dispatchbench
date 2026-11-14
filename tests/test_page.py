@@ -12,8 +12,8 @@ from analysis import configs, dataset, page
 
 ROOT = Path(__file__).resolve().parents[1]
 HTML = (ROOT / 'results/report/page.html').read_text()
-SECTIONS = ['winner', 'pareto', 'results', 'problems', 'grok', 'method', 'fail', 'tokens', 'pipes',
-            'fair', 'conclusion', 'limits', 'extras', 'notes', 'interesting', 'equiv']
+SECTIONS = ['winner', 'pareto', 'results', 'fail', 'pipes', 'equiv', 'grok', 'extras', 'fair', 'interesting', 'conclusion',
+            'method', 'problems', 'tokens', 'limits', 'notes']
 TOPBAR = ('<div class="ds-topbar"><div><a href="https://chimericlabs.xyz/">← Chimeric Labs</a>'
           '<a href="https://github.com/chimera-defi/dispatchbench">Source on GitHub</a></div></div>')
 
@@ -54,15 +54,17 @@ class Charts(HTMLParser):
     VOID = {'input', 'meta', 'link', 'br', 'hr', 'img', 'wbr'}
 
     def __init__(self):
-        super().__init__(); self.stack = []; self.charts = 0; self.xfig = False
+        super().__init__(); self.stack = []; self.charts = 0; self.xfig = False; self.hero = False; self.explorer = False
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
         if tag not in self.VOID: self.stack.append((tag, a))
         ids = {s[1].get('id') for s in self.stack}
-        if tag == 'svg' and a.get('role') == 'img' and 'pareto' in ids and not any(t == 'details' for t, _ in self.stack):
-            if not any('v-free' in s[1].get('class', '') or 's-rescue' in s[1].get('class', '') for s in self.stack):
-                self.charts += 1
+        closed = any(t == 'details' for t, _ in self.stack)
+        if tag == 'svg' and 'hero-wide' in a.get('class', '') and a.get('role') == 'img' and 'pareto' in ids and not closed:
+            self.charts += 1
+        if a.get('id') == 'hero' and tag == 'figure' and a.get('class') == 'hero-chart' and 'pareto' in ids: self.hero = True
+        if a.get('id') == 'ex-chart' and 'extras' in ids and not closed: self.explorer = True
         if tag == 'figure' and a.get('id') == 'xfig' and 'extras' in ids: self.xfig = True
 
     def handle_endtag(self, tag):
@@ -73,7 +75,7 @@ class Charts(HTMLParser):
 
 def test_charts_visible_with_details_closed_and_xfig_present():
     p = Charts(); p.feed(HTML)
-    assert p.charts == 1 and p.xfig
+    assert p.charts == 1 and p.hero and p.explorer and p.xfig
     for frag in ('<button type="button" id="pair-speed-preset" aria-pressed="true" aria-controls="pair-speed">Speed vs $ per pass</button>',
                  '<div id="pair-speed" class="chart">', '<div id="pair-custom" hidden>', '<p id="speed-vs-per-pass" class="ctl pair-presets"',
                  '<details open><summary>Explore tokens, reasoning, and latency</summary>'):
@@ -121,13 +123,14 @@ def test_sections_ids_and_permalinks():
     ids = re.findall(r'\sid="([^"]+)"', HTML)
     assert len(ids) == len(set(ids))
     assert re.findall(r'<section\b[^>]*?\bid="([^"]+)"', HTML) == SECTIONS
+    toc = re.search(r'<nav class="toc"[^>]*>(.*?)</nav>', HTML, re.S)[1]
+    assert re.findall(r'href="#([^"]+)"', toc) == SECTIONS  # the contents strip lists every section, in page order
     for s in SECTIONS:
         m = re.search(r'<section\b[^>]*?\bid="' + s + r'"[^>]*>.*?<h[1-6][^>]*>(.*?)</h[1-6]>', HTML, re.S)
         assert f'<a class="hlink" href="#{s}" aria-label="Link to this section: ' in m[1], s
     assert re.findall(r'<li class="prow" id="(p\d\d)"|<li id="(pilot-[^"]+)"', HTML)  # problem rows exist
     for i in range(1, 16):
         assert f'href="#p{i:02}" aria-label="Link to this section' in HTML, i
-    assert HTML.index('id="results"') < HTML.index('id="problems"') < HTML.index('id="grok"')
 
 
 def test_sortable_headers_and_script_inlined():
@@ -168,3 +171,31 @@ def test_every_config_family_appears_on_the_page():
         assert family in HTML, family
     for name in {r['display'] for r in rows}:
         assert unescape(name) in unescape(HTML) or name in HTML, name
+
+
+def hero_svgs():
+    fig = re.search(r'<figure class="hero-chart" id="hero">.*?</figure>', HTML, re.S)[0]
+    return re.findall(r'<svg\b.*?</svg>', fig, re.S)
+
+
+def test_pick_sentences_sit_inside_the_picks_block():
+    block = re.search(r'<div class="wpicks">.*?</div>\s*</div>|<div class="wpicks">.*', HTML, re.S)[0]
+    facts = dataset.read()['facts']
+    for pick in dataset.WINNER_PICKS.values():
+        assert unescape(facts['winner_' + pick]) in unescape(re.sub(r'<[^>]+>', '', block)), pick
+    assert block.count('class="wpick ') == len(dataset.WINNER_PICKS)
+
+
+def test_hero_labels_are_readable_and_every_config_is_titled():
+    plotted = page.main_ladder_rows(dataset.view(dataset.read()))
+    svgs = hero_svgs()
+    assert len(svgs) == 2
+    for svg in svgs:
+        sizes = [float(x) for x in re.findall(r'<text\b[^>]*font-size=\'([\d.]+)\'', svg)]
+        assert sizes and min(sizes) >= 12
+        assert svg.count('<title>') == len(plotted)
+
+
+def test_pick_rows_match_the_winner_picks():
+    ladder = re.search(r'<tbody><tr class="grp"><th colspan="6">Main ladder: 12 problems.*?</tbody>', HTML, re.S)[0]
+    assert ladder.count('class="pickrow"') == len(dataset.WINNER_PICKS)

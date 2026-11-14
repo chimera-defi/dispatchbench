@@ -102,14 +102,14 @@ def plotted(d):
     return {c: v for c, v in visible(d).items() if v.get("usd_per_pass")}
 
 
-def free_spot(candidates, x, y, tw, boxes, taken, bottom):
+def free_spot(candidates, x, y, tw, boxes, taken, bottom, xmin=96, right=754, top=30):
     """First (dx, dy, anchor) offset whose label box stays inside the plot, clear of other label boxes and of every mark but the one
     at (x, y). Returns (label x, label y, anchor, box), or None."""
     for dx, dy, anchor in candidates:
         lx, ly = x + dx, y + dy
         left = lx - tw if anchor == "end" else lx
         rect = (left, ly - 12, left + tw, ly + 3)
-        if rect[0] < 96 or rect[2] > 754 or rect[1] < 30 or rect[3] > bottom: continue
+        if rect[0] < xmin or rect[2] > right or rect[1] < top or rect[3] > bottom: continue
         if any(not (rect[2] < q[0] or rect[0] > q[2] or rect[3] < q[1] or rect[1] > q[3]) for q in boxes): continue
         if any(math.hypot(cx - x, cy - y) > 1 and rect[0] < cx + 8 and rect[2] > cx - 8 and rect[1] < cy + 8 and rect[3] > cy - 8 for cx, cy in taken): continue
         return lx, ly, anchor, rect
@@ -429,7 +429,7 @@ def bars(title, rows, fmt, note, W=360, R=8, low_start=None, values=None, cached
         if note: wide.append(f'<p class="bar-note">{escape(note)}</p>')
         return phone + "".join(wide) + '</div>'
     label_lines = [textwrap.wrap(r[0], 20, break_long_words=True, break_on_hyphens=False) for r in rows]
-    L = min(140, max(90, max(len(line) for lines in label_lines for line in lines) * 6.2 + 12))
+    L = min(140, max(90, max(len(line) for lines in label_lines for line in lines) * 7.4 + 12))
     title_lines = textwrap.wrap(title, 45)
     note_lines = textwrap.wrap(note, 55)
     T, step, bh = 22 + 18 * len(title_lines), 62, 22

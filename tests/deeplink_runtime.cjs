@@ -57,7 +57,7 @@ const {chromium}=require('playwright');
    const grokIds=await page.locator('#grok h2,#grok h3').evaluateAll(hs=>hs.map(h=>h.id));
    assert.deepEqual(grokIds,['grok-and-devin','closest-lanes-by-pass-rate','is-grok-better-at-anything',
     'first-run-2-repeats-p01p06','key-numbers','first-run-where-it-got-to','first-run-closest-lanes',
-    'repository-tasks','devin']);
+    'repository-tasks','devin','hetzner']);
    const ids=await page.locator('[id]').evaluateAll(els=>els.map(el=>el.id));assert.equal(new Set(ids).size,ids.length,'live ids must not collide');
    assert(!ids.some(id=>id.includes('accuracyone')),'heading words must not glue together');
    for(const id of ['results','pareto','grok','conclusion','interesting']){
