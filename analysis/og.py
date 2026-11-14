@@ -6,7 +6,6 @@ from analysis import dataset
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "results", "report", "og.png")
-HERO = os.path.join(ROOT, "results", "report", "charts", "hero.svg")
 TITLE = "DispatchBench: which model should a coding task go to?"
 MAX_BYTES = 300_000
 
@@ -16,8 +15,11 @@ def takeaway(facts):
     return " ".join(facts[k] for k in ("winner_default", "winner_budget", "winner_speed"))
 
 
-def card_html(facts):
-    svg = open(HERO).read()
+def card_html(facts, ds):
+    from analysis import charts, page
+    s = dataset.view(ds)
+    svg = page.hero_svg(page.main_ladder_rows(s), 760, 520)
+    svg = svg.replace(">", ">" + charts.token_style(), 1)
     return f"""<!doctype html><html data-theme="light"><meta charset="utf-8">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@600&amp;display=block"><style>
 *{{box-sizing:border-box}}html,body{{margin:0;width:1200px;height:630px;background:var(--bg);color:var(--fg);
@@ -34,10 +36,11 @@ def build():
     chrome = next((p for p in (shutil.which(n) for n in ("google-chrome", "chromium", "chromium-browser")) if p), None)
     if not chrome:
         print("og.png: Chrome not found; kept the existing file"); return 0
-    facts = dataset.read()["facts"]
+    ds = dataset.read()
+    facts = ds["facts"]
     with tempfile.TemporaryDirectory() as d:
         src, png = os.path.join(d, "card.html"), os.path.join(d, "og.png")
-        open(src, "w").write(card_html(facts))
+        open(src, "w").write(card_html(facts, ds))
         r = subprocess.run([chrome, "--headless", "--disable-gpu", "--no-sandbox", "--hide-scrollbars", "--window-size=1200,630", "--virtual-time-budget=10000",
                             f"--screenshot={png}", "file://" + src], capture_output=True, text=True, timeout=120)
         if r.returncode or not os.path.exists(png):
