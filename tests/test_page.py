@@ -199,12 +199,13 @@ def test_hero_labels_are_readable_and_every_config_is_titled():
         texts = [unescape(re.sub(r'<[^>]+>', '', x)) for x in re.findall(r'<text\b[^>]*>(.*?)</text>', svg, re.S)]
         for c, _ in plotted:  # every plotted config is named on the drawing itself, at both widths (a <title> alone does not count)
             assert any(x == labels.DISP(c) or x.startswith(labels.DISP(c) + ' ✓') for x in texts), c
-        poles = [float(re.search(r"x1='([\d.]+)'", line)[1]) for line in re.findall(r'<line\b[^>]*>', svg) if "stroke-width='1.25'" in line]
-        assert len(poles) == len(full)  # one straight line per 100% mark
+        flag = [re.search(r"x1='([\d.]+)'[^>]*x2='([\d.]+)'", line) for line in re.findall(r'<line\b[^>]*>', svg) if "stroke-width='1.25'" in line]
+        marks = [float(m[1]) for m in flag]; tops = [float(m[2]) for m in flag]
+        assert len(marks) == len(full)  # one straight line per 100% mark
         ends = {float(x) for x in re.findall(r"<text x='([\d.]+)'[^>]*text-anchor='end'", svg)}
-        assert all(any(abs(x - 5 - e) < 0.11 for e in ends) for x in poles)  # each line has its label ending beside it
+        assert all(any(abs(px - 5 - e) < 0.11 for e in ends) for px in tops)  # each line has its label ending beside it
         rings = [float(x) for x in re.findall(r"<circle cx='([\d.]+)'[^>]*r='11'", svg)]
-        assert len(rings) == len(dataset.WINNER_PICKS) and all(any(abs(r - x) < 0.11 for x in poles) for r in rings)  # and stands on its mark
+        assert len(rings) == len(dataset.WINNER_PICKS) and all(any(abs(r - x) < 0.11 for x in marks) for r in rings)  # and stands on its mark
         boxes = []
         for x, y, anchor, weight, body in re.findall(r"<text x='([\d.]+)' y='([\d.]+)'[^>]*text-anchor='(\w+)'[^>]*font-weight='(\w+)'[^>]*>(.*?)</text>", svg, re.S):
             w = (7 if weight == '700' else 6.5) * len(unescape(re.sub(r'<[^>]+>', '', body))); x, y = float(x), float(y)
@@ -217,3 +218,42 @@ def test_hero_labels_are_readable_and_every_config_is_titled():
 def test_pick_rows_match_the_winner_picks():
     ladder = re.search(r'<tbody><tr class="grp"><th colspan="6">Main ladder: 12 problems.*?</tbody>', HTML, re.S)[0]
     assert ladder.count('class="pickrow"') == len(dataset.WINNER_PICKS)
+
+
+def test_narrow_hero_shows_haiku_high_budget_pick():
+    assert 'haiku-high ✓ budget' in unescape(re.sub(r'<[^>]+>', '', hero_svgs()[1]))
+
+
+def test_hero_flagpole_tops_are_spread():
+    for svg in hero_svgs():
+        tops = sorted(float(re.search(r"x2='([\d.]+)'", line)[1])
+                      for line in re.findall(r'<line\b[^>]*>', svg) if "stroke-width='1.25'" in line)
+        assert all(b - a >= 5 for a, b in zip(tops, tops[1:])), tops
+
+
+def test_hero_svg_file_is_not_emitted():
+    from analysis import charts
+    assert 'hero.svg' not in charts.build()
+    assert not (ROOT / 'results/report/charts/hero.svg').exists()
+
+
+def test_results_short_tables_split_old_rows_once():
+    section = re.search(r'<section\b[^>]*\bid="results"[^>]*>.*?</section>', HTML, re.S)[0]
+    tables = [t for t in re.findall(r'<table class="sortable">(.*?)</table>', section, re.S)
+              if re.search(r'<th[^>]*>passed</th>', t)]
+    assert len(tables) == 2
+    first, more = tables
+    def config_rows(table):
+        rows, group = [], None
+        for m in re.finditer(r'<tr\b([^>]*)>(.*?)</tr>', table, re.S):
+            attrs, body = m.group(1), m.group(2)
+            if 'grp' in attrs.split() or 'class="grp"' in attrs:
+                group = unescape(re.sub(r'<[^>]+>', '', re.search(r'<th[^>]*>(.*?)</th>', body, re.S)[1]))
+            elif '<td>' in body:
+                rows.append((group, unescape(re.sub(r'<[^>]+>', '', re.search(r'<td>(.*?)</td>', body, re.S)[1]))))
+        return rows
+    assert not re.search(r'hetzner', first, re.I)
+    assert not re.search(r'<tr class="grp"><th[^>]*>Retest set:', first)
+    a, b = config_rows(first), config_rows(more)
+    combined = a + b
+    assert a and b and len(combined) == len(set(combined))

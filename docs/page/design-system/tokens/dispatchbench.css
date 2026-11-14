@@ -15,7 +15,7 @@
  color-scheme:light dark;
 }
 @media(prefers-color-scheme:light){:root:not([data-theme="dark"]){
- --bg:var(--color-neutral-100);--panel:#fff2f2;--fg:#292b31;--muted:#595d6c;--line:#cfd3e5;
+ --bg:var(--color-neutral-100);--panel:#ffffff;--fg:#292b31;--muted:#595d6c;--line:#cfd3e5;
  --accent:#a02e40;--accent-text:var(--color-accent-700);--frontier:var(--accent);
  --data-claude:#865025;--data-codex:#365f91;--data-codex-old:#486d98;--data-grok:#0074b0;--data-pipeline:#714496;
  --data-haiku:var(--data-claude);--data-sonnet:#9a4e43;--data-luna:var(--data-codex);--data-sol:var(--data-codex);--data-astra:var(--data-codex);--data-terra:var(--data-codex);--data-other:var(--muted);
@@ -24,7 +24,7 @@
  --good:#286b65;--warn:var(--data-claude);--bad:var(--color-accent-700);
  --data-grid:color-mix(in srgb,var(--fg) 14%,transparent);--data-beaten:color-mix(in srgb,var(--fg) 7%,transparent);--data-frontier:var(--frontier);--data-focus:var(--fg);
  --shadow-sm:0 0 0 1px var(--line);--shadow-md:0 0 0 1px var(--line),0 6px 18px rgba(0,0,0,.18);--mask-opaque:#000;
- --color-bg:var(--color-neutral-100);--color-surface:var(--color-accent-100);--color-text:var(--color-neutral-900);--color-divider:var(--color-neutral-300);--color-accent:var(--color-accent-700);
+ --color-bg:var(--color-neutral-100);--color-surface:#ffffff;--color-text:var(--color-neutral-900);--color-divider:var(--color-neutral-300);--color-accent:var(--color-accent-700);
  --color-kicker:var(--color-accent-700);--color-link:var(--color-accent-700);--color-link-hover:var(--color-accent-800);
  --color-muted:var(--color-neutral-700);--color-subtle:var(--color-neutral-700);
  /* Light equivalents: opaque muted copy and black ink at 45% keep AA contrast. */
@@ -33,7 +33,7 @@
  color-scheme:light;
 }}
 :root[data-theme="light"]{
- --bg:var(--color-neutral-100);--panel:#fff2f2;--fg:#292b31;--muted:#595d6c;--line:#cfd3e5;
+ --bg:var(--color-neutral-100);--panel:#ffffff;--fg:#292b31;--muted:#595d6c;--line:#cfd3e5;
  --accent:#a02e40;--accent-text:var(--color-accent-700);--frontier:var(--accent);
  --data-claude:#865025;--data-codex:#365f91;--data-codex-old:#486d98;--data-grok:#0074b0;--data-pipeline:#714496;
  --data-haiku:var(--data-claude);--data-sonnet:#9a4e43;--data-luna:var(--data-codex);--data-sol:var(--data-codex);--data-astra:var(--data-codex);--data-terra:var(--data-codex);--data-other:var(--muted);
@@ -42,7 +42,7 @@
  --good:#286b65;--warn:var(--data-claude);--bad:var(--color-accent-700);
  --data-grid:color-mix(in srgb,var(--fg) 14%,transparent);--data-beaten:color-mix(in srgb,var(--fg) 7%,transparent);--data-frontier:var(--frontier);--data-focus:var(--fg);
  --shadow-sm:0 0 0 1px var(--line);--shadow-md:0 0 0 1px var(--line),0 6px 18px rgba(0,0,0,.18);--mask-opaque:#000;
- --color-bg:var(--color-neutral-100);--color-surface:var(--color-accent-100);--color-text:var(--color-neutral-900);--color-divider:var(--color-neutral-300);--color-accent:var(--color-accent-700);
+ --color-bg:var(--color-neutral-100);--color-surface:#ffffff;--color-text:var(--color-neutral-900);--color-divider:var(--color-neutral-300);--color-accent:var(--color-accent-700);
  --color-kicker:var(--color-accent-700);--color-link:var(--color-accent-700);--color-link-hover:var(--color-accent-800);
  --color-muted:var(--color-neutral-700);--color-subtle:var(--color-neutral-700);
  /* Light equivalents: opaque muted copy and black ink at 45% keep AA contrast. */

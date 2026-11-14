@@ -154,7 +154,9 @@ tr.grp th::after{content:none}
 
 .pl{border-bottom:1px dotted var(--muted);cursor:help}
 .sets{border:1px solid var(--line);border-radius:6px;padding:8px 12px;margin:8px 0 12px;background:var(--panel)}
-#problems li.round>ul>li.prow{display:grid;grid-template-columns:minmax(0,22rem) 1fr;column-gap:8px;align-items:baseline}
+#problems ul.tight{max-width:none}
+#problems li.round>ul>li.prow{display:grid;grid-template-columns:minmax(0,24rem) minmax(0,44rem);column-gap:8px;align-items:baseline}
+@media (min-width:641px){#problems li.round>ul{gap:10px}#problems .prow .pn{grid-row:span 2}#problems .prow .problem-try{grid-column:2;margin-top:0}#problems .prow .problem-try>summary{padding:2px 0}}
 .prow .lc{margin-right:0;justify-self:start}.prow .rung{color:var(--muted);font:600 11px var(--mono)}
 .prow .pn{overflow-wrap:anywhere}.prow .like{font-size:12px;color:var(--muted)}.prow .pd{min-width:0}
 @media (max-width:640px){#problems li.round>ul>li.prow{grid-template-columns:1fr}.prow .pd{grid-column:1/-1;padding-left:2px;color:var(--muted)}}
@@ -525,4 +527,6 @@ tr.pickrow>td:first-child{box-shadow:inset 3px 0 0 var(--accent);font-weight:700
  .toc{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px;-webkit-mask-image:linear-gradient(to right,var(--mask-opaque) 86%,transparent);mask-image:linear-gradient(to right,var(--mask-opaque) 86%,transparent)}
  .toc::-webkit-scrollbar{display:none}
  .toc a{flex:none}
+ .passcell,.passcell .pill{white-space:normal}
+ .sortable .pill{border-radius:8px;text-align:center}
 }
