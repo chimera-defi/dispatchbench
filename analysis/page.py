@@ -1229,9 +1229,11 @@ def hero_svg(rows, W, H, narrow=False, aria=""):
         pick = c in WINNER_PICKS; label = labels(c)
         if x - 5 - est(label, pick) < 2: label = DISP(c)
         return pick, label
+    fits = lambda x, c: x - 5 - est(level_label(x, c)[1], c in WINNER_PICKS) >= 2  # else the label goes right of its line
+    note = not narrow and all(x - 12 > L + 6 + est(phrase) for x, _ in top)  # no 100% mark under the note
 
     # "passed every try" sits on the 100% line at the left (wide drawing); the stairs start one notch higher when the first label would touch it
-    off = 36 if not narrow and top and top[0][0] - 5 - est(level_label(*top[0])[1], top[0][1] in WINNER_PICKS) < L + 6 + est(phrase) + 8 else 22
+    off = 36 if note and top and top[0][0] - 5 - est(level_label(*top[0])[1], top[0][1] in WINNER_PICKS) < L + 6 + est(phrase) + 8 else 22
     T = round(base + 16 + max(len(top) - 1, 0) * step + off)
     Y = lambda p: bottom - (p - low) / (1 - low) * (bottom - T)
     b = [f"<rect x='{L}' y='{Y(MIN_PASS):.1f}' width='{W - L - R}' height='{bottom - Y(MIN_PASS):.1f}' fill='{BADC}' fill-opacity='0.07'/>"]
@@ -1252,13 +1254,14 @@ def hero_svg(rows, W, H, narrow=False, aria=""):
         pick, label = level_label(x, c); by = Y(1) - off - i * step
         b.append(f"<line x1='{x:.1f}' y1='{Y(1) - (13 if pick else 9):.1f}' x2='{x:.1f}' y2='{by - 9:.1f}' stroke='{FAM(c)}' stroke-width='1.25' opacity='0.9'/>")
         width = est(label, pick)
-        boxes.append((x - 5 - width, by - 12, x - 5, by + 3))
-        stair.append(text(x - 5, by, label, 12, "end", "var(--accent)" if pick else INK, "700" if pick else "normal"))
+        lx, anchor = (x - 5, "end") if fits(x, c) else (x + 5, "start")
+        boxes.append((lx - width, by - 12, lx, by + 3) if anchor == "end" else (lx, by - 12, lx + width, by + 3))
+        stair.append(text(lx, by, label, 12, anchor, "var(--accent)" if pick else INK, "700" if pick else "normal"))
     for c, v in sorted(rows, key=lambda r: r[1]["passes"] != r[1]["n"]):  # solid marks first, so a hollow twin lands on top of its neighbour
         x, y = pts[c]; tip = f'{DISP(c)}: {v["passes"]}/{v["n"]} passed, {"≥" if c in GROK_ORDER and v.get("outcomes", {}).get("timeout") else "~" if v["cost_kind"] == "proxy" else ""}{dataset.usd(v["usd_per_pass"])} per pass, {dataset.median_seconds(v):.1f} s median'
         b.append(f"<g><title>{esc(tip)}</title>{config_marker(c, x, y, FAM(c))}</g>")
         if c in WINNER_PICKS: b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='11' fill='none' stroke='var(--accent)' stroke-width='2'/>")
-    if not narrow: b.append(text(L + 6, Y(1) - 7, phrase, 12, "start", MUTED))
+    if note: b.append(text(L + 6, Y(1) - 7, phrase, 12, "start", MUTED))
     b.extend(stair)
     topped = {c for _, c in top}
     rest = [c for c, v in sorted(rows, key=lambda r: -r[1]["passes"] / r[1]["n"]) if c not in topped]; spots = {}
