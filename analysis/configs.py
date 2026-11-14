@@ -229,10 +229,12 @@ def _seen(text, name):
 
 def where(e, rest, chart_bodies):
     """Where the page shows this config outside the section, decided by source: main-run names are searched in the page text, repo-task
-    names in the agentic chart, rescue arms by their page label. Pilot, trim and harness-bias configs are never claimed elsewhere."""
+    names in the repo-task chart, rescue arms by their page label. Pilot, trim and harness-bias configs are never claimed elsewhere."""
     if e["source"] == "main" and _seen(rest, e["config"]): return "charts and tables"
     if e["source"] == "agentic":
-        return "repo-task chart" if e["config"] in (chart_bodies.get("agentic.svg") or "") else "only here"
+        repo = re.search(r'<div class="compact-bars" id="repo-chart">.*?</details>', rest, re.S)  # the page's repo-task bars and table
+        shown = e["config"] in (chart_bodies.get("agentic.svg") or "") or (repo is not None and _seen(repo[0], e["config"]))
+        return "repo-task chart" if shown else "only here"
     if e["source"] == "rescue":
         from analysis import page  # lazy: page imports labels, which imports this module
         shown = page.NAME.get(e["config"])
