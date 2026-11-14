@@ -1213,25 +1213,28 @@ def pick_cards(s, ds):
 
 
 def hero_svg(rows, W, H, narrow=False, aria=""):
-    """One static chart: log $ per pass across, pass rate up. Marks at 100% get rotated column labels, the rest plain labels."""
-    from analysis.charts import text, log_scale, log_ticks, leader, free_spot, FONT, INK, MUTED, GRID, BADC
-    ang = 60 if narrow else 40; L, R = (44, 14) if narrow else (70, 24); bottom = H - 50
-    est = lambda s, bold=False: (7.9 if bold else 7.2) * len(s)
+    """One static chart: log $ per pass across, pass rate up. The 100% row is a staircase of level labels; other labels stay level."""
+    from analysis.charts import text, log_scale, log_ticks, free_spot, FONT, INK, MUTED, GRID, BADC
+    L, R = (44, 14) if narrow else (70, 24); bottom = H - 50
+    est = lambda s, bold=False: (7.0 if bold else 6.7) * len(s)  # a little over the drawn width
     xs = [v["usd_per_pass"] for _, v in rows]; x0, x1 = min(xs) / 1.3, max(xs) * 1.3
     X = log_scale(x0, x1, L, W, R)
     low = min(0.7, math.floor(min(v["passes"] / v["n"] for _, v in rows) * 10) / 10); lo_pct = round(low * 100)
-    gap = (14 if narrow else 16) / math.sin(math.radians(ang))
-    top = [(X(v["usd_per_pass"]), c) for c, v in sorted(rows, key=lambda r: r[1]["usd_per_pass"]) if v["passes"] == v["n"]]
     labels = lambda c: DISP(c) + (f" ✓ {WINNER_PICKS[c]}" if c in WINNER_PICKS else "")
-    while True:  # spread anchors at least `gap` apart, keeping order; the narrow chart drops other labels that cannot fit
-        his = [W - 6 - est(labels(c), c in WINNER_PICKS) * math.cos(math.radians(ang)) for _, c in top]
-        pos = []
-        for (x, _) in top: pos.append(max(x, pos[-1] + gap if pos else L))
-        for i in reversed(range(len(top))): pos[i] = min(pos[i], his[i], pos[i + 1] - gap if i + 1 < len(top) else 1e9)
-        if not top or pos[0] >= L - 0.5 or not narrow or all(c in WINNER_PICKS for _, c in top): break
-        drop = max((i for i, (_, c) in enumerate(top) if c not in WINNER_PICKS), key=lambda i: top[i][0]); del top[drop]
-    rise = max((est(labels(c), c in WINNER_PICKS) * math.sin(math.radians(ang)) + 12 for _, c in top), default=0)
-    T = round((34 if narrow else 14) + rise + 16)
+    # Every perfect config, left to right. A tie keeps the order of rows. None is dropped.
+    top = sorted(((X(v["usd_per_pass"]), c) for c, v in rows if v["passes"] == v["n"]), key=lambda t: t[0])
+    step = 16; base = 34 if narrow else 14; phrase = "passed every try"
+
+    def level_label(x, c):
+        pick = c in WINNER_PICKS; label = labels(c)
+        if x - 5 - est(label, pick) < 2: label = DISP(c)
+        return pick, label
+    fits = lambda x, c: x - 5 - est(level_label(x, c)[1], c in WINNER_PICKS) >= 2  # else the label goes right of its line
+    note = not narrow and all(x - 12 > L + 6 + est(phrase) for x, _ in top)  # no 100% mark under the note
+
+    # "passed every try" sits on the 100% line at the left (wide drawing); the stairs start one notch higher when the first label would touch it
+    off = 36 if note and top and top[0][0] - 5 - est(level_label(*top[0])[1], top[0][1] in WINNER_PICKS) < L + 6 + est(phrase) + 8 else 22
+    T = round(base + 16 + max(len(top) - 1, 0) * step + off)
     Y = lambda p: bottom - (p - low) / (1 - low) * (bottom - T)
     b = [f"<rect x='{L}' y='{Y(MIN_PASS):.1f}' width='{W - L - R}' height='{bottom - Y(MIN_PASS):.1f}' fill='{BADC}' fill-opacity='0.07'/>"]
     for pct in range(lo_pct, 101, 10):
@@ -1240,34 +1243,43 @@ def hero_svg(rows, W, H, narrow=False, aria=""):
         if narrow and round(math.log10(v), 6) % 1: continue
         b += [f"<line x1='{X(v):.1f}' x2='{X(v):.1f}' y1='{T}' y2='{bottom}' stroke='{GRID}'/>", text(X(v), bottom + 18, dataset.usd(v, tick=True), 12, "middle", MUTED)]
     b.append(text((L + W - R) / 2, bottom + 40, "$ per pass (log) · left is cheaper", 12, "middle", MUTED))
-    b.append(text(8, 16, "Pass rate · up is better", 12, "start", MUTED) if narrow else text(16, (T + bottom) / 2, "Pass rate · up is better", 12, "middle", MUTED, rotate=-90))
+    b.append(text(8, 16, "Pass rate · up is better", 12, "start", MUTED))
     avoid = f"below {100 * MIN_PASS:.0f}%: avoid"
     band = (W - R - 6 - est(avoid), bottom - 16, W - R - 6, bottom - 3)
     b.append(text(W - R - 6, bottom - 5, avoid, 12, "end", MUTED))
-    if not narrow: b.append(text(L + 6, Y(1) - 8, "passed every try", 12, "start", MUTED))
     pts = {c: (X(v["usd_per_pass"]), Y(v["passes"] / v["n"])) for c, v in rows}
     boxes, taken = [band], list(pts.values())
+    stair = []
+    for i, (x, c) in enumerate(top):  # flagpoles before the marks, so the marks sit on top
+        pick, label = level_label(x, c); by = Y(1) - off - i * step
+        b.append(f"<line x1='{x:.1f}' y1='{Y(1) - (13 if pick else 9):.1f}' x2='{x:.1f}' y2='{by - 9:.1f}' stroke='{FAM(c)}' stroke-width='1.25' opacity='0.9'/>")
+        width = est(label, pick)
+        lx, anchor = (x - 5, "end") if fits(x, c) else (x + 5, "start")
+        boxes.append((lx - width, by - 12, lx, by + 3) if anchor == "end" else (lx, by - 12, lx + width, by + 3))
+        stair.append(text(lx, by, label, 12, anchor, "var(--accent)" if pick else INK, "700" if pick else "normal"))
     for c, v in sorted(rows, key=lambda r: r[1]["passes"] != r[1]["n"]):  # solid marks first, so a hollow twin lands on top of its neighbour
         x, y = pts[c]; tip = f'{DISP(c)}: {v["passes"]}/{v["n"]} passed, {"≥" if c in GROK_ORDER and v.get("outcomes", {}).get("timeout") else "~" if v["cost_kind"] == "proxy" else ""}{dataset.usd(v["usd_per_pass"])} per pass, {dataset.median_seconds(v):.1f} s median'
         b.append(f"<g><title>{esc(tip)}</title>{config_marker(c, x, y, FAM(c))}</g>")
         if c in WINNER_PICKS: b.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='11' fill='none' stroke='var(--accent)' stroke-width='2'/>")
-    kept = {c: p for (_, c), p in zip(top, pos)}
-    for c, ax in kept.items():
-        x, y = pts[c]; pick = c in WINNER_PICKS
-        if abs(ax - x) > 2: b.append(leader(x, y - 3, ax, y - 15, GRID))
-        b.append(text(ax, y - 15, labels(c), 12, "start", "var(--accent)" if pick else INK, "700" if pick else "normal", rotate=-ang))
-    for c, v in sorted(rows, key=lambda r: -r[1]["passes"] / r[1]["n"]):
-        if c in kept: continue
-        x, y = pts[c]; name = labels(c); tw = est(name, c in WINNER_PICKS)
-        cand = [(dx, 4 + sgn * 16 * k, a) for k in range(0, 3 if narrow else 14) for sgn in ((1, -1) if k else (1,)) for dx, a in ((15, "start"), (-15, "end"))]
-        spot = free_spot(cand, x, y, tw, boxes, taken, bottom, L + 2, W - 4, T + 12)
-        if spot is None:
-            if narrow: continue
-            spot = (x + 15, y + 4, "start", None)
-        lx, ly, a, rect = spot
-        if rect: boxes.append(rect)
-        if abs(ly - 4 - y) >= 20: b.append(leader(x, y, lx, ly - 4, GRID))
-        b.append(text(lx, ly, name, 12, a, INK))
+    if note: b.append(text(L + 6, Y(1) - 7, phrase, 12, "start", MUTED))
+    b.extend(stair)
+    topped = {c for _, c in top}
+    rest = [c for c, v in sorted(rows, key=lambda r: -r[1]["passes"] / r[1]["n"]) if c not in topped]; spots = {}
+    for near in (True, False):  # a label that fits beside its own mark claims that spot first; the others move, each with a line to its mark
+        for c in rest:
+            if c in spots: continue
+            x, y = pts[c]
+            cand = [(dx, 4 + sgn * 16 * k, a) for k in ((0,) if near else range(1, 5 if narrow else 14)) for sgn in ((1, -1) if k else (1,)) for dx, a in ((15, "start"), (-15, "end"))]
+            spot = free_spot(cand, x, y, est(labels(c)), boxes, taken, bottom, L + 2, W - 4, T + 4, pad=11, beside=24)
+            if spot is None:
+                if near or narrow: continue  # the narrow drawing leaves out a label with no free spot
+                spot = (x + 15, y + 4, "start", None)
+            spots[c] = spot
+            if spot[3]: boxes.append(spot[3])
+    for c, (lx, ly, a, _) in spots.items():
+        x, y = pts[c]
+        if abs(ly - 4 - y) >= 12: b.append(charts.leader(x, y, lx, ly - 4, MUTED))
+        b.append(text(lx, ly, labels(c), 12, a, INK))
     return f'<svg class="hero-{"narrow" if narrow else "wide"}" {NS} {FONT} font-size="12" viewBox="0 0 {W} {H}" {aria}>' + "".join(b) + "</svg>"
 
 
@@ -1287,8 +1299,8 @@ def hero(s):
     repeats = E[ORDER[0]]["n"] // len(s["problems"])
     cap = (f'Main ladder: {len(s["problems"])} problems × {repeats} tries per config. Ring: Winner pick. Hollow: fast mode. Codex cost estimated from tokens and list prices.<br>'
            f'<span class="hero-key">{key}</span><br>' + (f'Not plotted, partial ladder: {part}. ' if part else '') + (f'Not plotted, no cost: {cost}. ' if cost else '') + 'Every number is in <a href="#results">Results</a>.')
-    return (f'<figure class="hero-chart" id="hero">\n{hero_svg(rows, 760, 480, aria=f"""role="img" aria-label="{esc(label)}" """)}\n'
-            f'{hero_svg(rows, 360, 580, True, aria="aria-hidden=\"true\"")}\n<figcaption class="small muted">{cap}</figcaption>\n</figure>')
+    return (f'<figure class="hero-chart" id="hero">\n{hero_svg(rows, 760, 520, aria=f"""role="img" aria-label="{esc(label)}" """)}\n'
+            f'{hero_svg(rows, 360, 600, True, aria="aria-hidden=\"true\"")}\n<figcaption class="small muted">{cap}</figcaption>\n</figure>')
 
 
 def repo(s):

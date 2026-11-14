@@ -8,7 +8,7 @@ from urllib.parse import parse_qs, urlsplit
 
 import pytest
 
-from analysis import configs, dataset, page
+from analysis import configs, dataset, labels, page
 
 ROOT = Path(__file__).resolve().parents[1]
 HTML = (ROOT / 'results/report/page.html').read_text()
@@ -190,10 +190,28 @@ def test_hero_labels_are_readable_and_every_config_is_titled():
     plotted = page.main_ladder_rows(dataset.view(dataset.read()))
     svgs = hero_svgs()
     assert len(svgs) == 2
+    full = [c for c, v in plotted if v['passes'] == v['n']]
     for svg in svgs:
         sizes = [float(x) for x in re.findall(r'<text\b[^>]*font-size=\'([\d.]+)\'', svg)]
         assert sizes and min(sizes) >= 12
         assert svg.count('<title>') == len(plotted)
+        assert 'rotate(' not in svg
+        texts = [unescape(re.sub(r'<[^>]+>', '', x)) for x in re.findall(r'<text\b[^>]*>(.*?)</text>', svg, re.S)]
+        for c, _ in plotted:  # every plotted config is named on the drawing itself, at both widths (a <title> alone does not count)
+            assert any(x == labels.DISP(c) or x.startswith(labels.DISP(c) + ' ✓') for x in texts), c
+        poles = [float(re.search(r"x1='([\d.]+)'", line)[1]) for line in re.findall(r'<line\b[^>]*>', svg) if "stroke-width='1.25'" in line]
+        assert len(poles) == len(full)  # one straight line per 100% mark
+        ends = {float(x) for x in re.findall(r"<text x='([\d.]+)'[^>]*text-anchor='end'", svg)}
+        assert all(any(abs(x - 5 - e) < 0.11 for e in ends) for x in poles)  # each line has its label ending beside it
+        rings = [float(x) for x in re.findall(r"<circle cx='([\d.]+)'[^>]*r='11'", svg)]
+        assert len(rings) == len(dataset.WINNER_PICKS) and all(any(abs(r - x) < 0.11 for x in poles) for r in rings)  # and stands on its mark
+        boxes = []
+        for x, y, anchor, weight, body in re.findall(r"<text x='([\d.]+)' y='([\d.]+)'[^>]*text-anchor='(\w+)'[^>]*font-weight='(\w+)'[^>]*>(.*?)</text>", svg, re.S):
+            w = (7 if weight == '700' else 6.5) * len(unescape(re.sub(r'<[^>]+>', '', body))); x, y = float(x), float(y)
+            left = x - w if anchor == 'end' else x - w / 2 if anchor == 'middle' else x
+            boxes.append((left, y - 10, left + w, y + 2))
+        clash = [(p, q) for i, p in enumerate(boxes) for q in boxes[i + 1:] if p[0] < q[2] and q[0] < p[2] and p[1] < q[3] and q[1] < p[3]]
+        assert not clash, clash  # no two pieces of chart text overlap
 
 
 def test_pick_rows_match_the_winner_picks():
