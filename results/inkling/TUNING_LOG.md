@@ -1,0 +1,7 @@
+# p01 tuning attempts
+- Attempt 0 (historical, ChatGPT 2026-11-21): llama-cli -t2 -c512 -n320. Ended mid-thinking, no code. Cause: token budget.
+- Attempt 1 (2026-11-22 01:2x): llama-server --jinja -c16384 -t6 -np1 temp1/top_k50/top_p1/min_p0, max_tokens 12288, default effort. Result: see below.
+  Attempt 1 outcome: PASS (grader: 311 cases, worst_time_frac 0.05), 1664 out tokens, 331 s wall, gen 5.27 tok/s, finish_reason=stop. Raw in attempt1_c16384/. No tuning needed.
+- Settings frozen after attempt 1: only change vs attempt 1 is ctx 16384 -> 32768 (docs: start at 32768). Grader frozen (bench/grade.py, repo main afc9963). Full p01-p15 run re-does p01 on frozen settings.
+- Primary run (frozen settings, max_tokens 12288, default effort): 7/15, 9.01 h generation. Passes p01-p05, p07, p08. Fails p06, p09-p15: all `finish_reason=length` with no final code, i.e. the model was still thinking at the cap (a token-budget failure, not a wrong answer). p15 also ran at 2.2 tok/s because other processes held load average 12-25 at the time (recorded, nothing lowered).
+- Retry plan (operator, 2026-11-22), labelled secondary, never replaces the primary: stage 1 effort medium (0.7, via `chat_template_kwargs.reasoning_effort`, checked with /apply-template) at max_tokens 16384 on the capped tasks; stage 2 effort low (0.2) at 16384 on those still capped; stage 3 default effort at 24576 on those still capped. Results land in a follow-up commit/PR.

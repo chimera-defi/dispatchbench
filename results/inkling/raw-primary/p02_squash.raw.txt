@@ -1,0 +1,68 @@
+=== REASONING ===
+We need answer only code block. Need solve carefully. Let's reason.
+
+Problem: Compress string by maximal runs of same character. For each run char c length n: if n >=3, output decimal str(n) + esc(c). Else (n=1 or 2), output esc(c) repeated n times (each char escaped once). esc(c) = c unless c is digit 0-9 or backslash '\'. If so output '\' + c. For n=2, e.g "aa" -> esc(c) once per character => "aa" (two copies) not "2a". For c digit length 2: esc('1')='\1', repeated twice -> "\\1\\1"? In Python literal output chars: backslash,1,backslash,1 = "\\1\\1". Constraints printable ASCII. Max length 200k, output maybe up to length? If all chars digit with runs of 2, each char output length 2 -> 400k, fine.
+
+Need implement function. Simplest iterate through string with index, group runs.
+
+def squash(s):
+    parts=[]
+    i=0
+    n=len(s)
+    while i<n:
+        c=s[i]
+        j=i+1
+        while j<n and s[j]==c:
+            j+=1
+        cnt=j-i
+        esc = ('\\' + c) if ('0' <= c <= '9' or c == '\\') else c
+        if cnt >=3:
+            parts.append(str(cnt))
+            parts.append(esc)
+        else:
+            parts.append(esc * cnt)
+        i=j
+    return ''.join(parts)
+
+Check examples: "aaab": run a length3 -> "3a", run b length1 -> "b": "3ab". Good. "aabccccccccccc": Let's count: aa b cccccccccc? String "aabccccccccccc" length? after aab, c repeated? Example says returns "aab11c". Let's count: a a b c c c c c c c c c c c? likely 11 c's -> run length 11 => "11c", output "aa" + "b" + "11c" = "aab11c". Good.
+"111": run length3 digit 1: esc='\1' -> str(3)+'\1' = "3\1" chars 3, backslash,1 = "3\\1". Good.
+"a1": run a length1 -> "a"; run1 length1 -> esc digit -> "\1"; join "a\\1". Good.
+"\\\\" as Python literal (two backslashes): string contains two backslash chars. c='\', cnt=2 (<3), esc="\\" (two chars: backslash backslash), repeated cnt=2 => four backslashes. Good. But caution: esc = '\\' + c; in code within final answer, fine.
+
+Need only code block. No extra text.
+
+Potential pitfall: For run length >=3 and c digit, decimal length could itself be digits, e.g "11"? Wait run char c is same character, so c digit. Output for run length 11 of '1': "11\\1"? Actually str(11)="11", esc('1')="\1", join => "11\1" chars '1','1','\','1'. Is that intended? Yes. It could be ambiguous but spec says write each run exactly.
+
+Need ensure maximal runs. Good.
+
+Need consider length 0: while not enter, join returns ''.
+
+Constraints 200000: fine.
+
+Now final only code block. Use exactly function. Ensure code has only function. No imports.
+
+Need be careful in final answer: code block with python. No explanations. Done.
+=== CONTENT ===
+```python
+def squash(s: str) -> str:
+    parts = []
+    i = 0
+    n = len(s)
+    while i < n:
+        c = s[i]
+        j = i + 1
+        while j < n and s[j] == c:
+            j += 1
+        cnt = j - i
+        if '0' <= c <= '9' or c == '\\':
+            esc = '\\' + c
+        else:
+            esc = c
+        if cnt >= 3:
+            parts.append(str(cnt))
+            parts.append(esc)
+        else:
+            parts.append(esc * cnt)
+        i = j
+    return ''.join(parts)
+```

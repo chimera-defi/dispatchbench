@@ -1,0 +1,407 @@
+=== REASONING ===
+We need to solve weighted interval scheduling with k machines. Standard DP: sort jobs by end time. Sort jobs by end. DP where dp[i][j] = max total pay considering first i jobs (in sorted order by end) using j machines... but that's pseudo-polynomial? Actually classic solution:
+
+Sort jobs by end time. Let dp[i] = max total pay considering first i jobs? With k machines, need richer state.
+
+Known approach: sort jobs by end time. Define dp[i][j] = maximum total pay of a set of jobs among jobs 0..i-1 (sorted by end) that uses at most j machines. Recurrence: dp[i][j] = max(dp[i-1][j], job[i-1].pay + dp[p[i-1]][j])? No—that only handles one machine? Let's think.
+
+Actually with k identical machines, the problem is: assign jobs to k machines, each machine is a non-overlapping set. Equivalent to selecting max weight set of intervals with depth ≤ k. This is a classic problem solved by min-cost max-flow or DP with k machines.
+
+n ≤ 300, k ≤ 10. Simplest robust: build min-cost max-flow? Or DP O(n^2 k).
+
+Alternative DP: sort jobs by end time. Let p[i] = index of latest job j < i with end[j] ≤ start[i] (compatible). With k machines, we can do DP where dp[i][j] = max profit using jobs 0..i-1 with exactly... Hmm.
+
+Standard approach for k machines: Since machines are identical, state = multiset? Actually there's known DP: sort by end; dp[i][j] = max total pay using first i jobs and j machines... but compatibility depends on which machine, not just count.
+
+Let's think: with k machines and identical machines, the answer for selecting a set of intervals with depth ≤ k. There is known DP O(k n^2): sort by end. Let dp[i][m] = maximum total pay of a subset of jobs [0, i) such that the subset is assignable to m machines (i.e., depth ≤ m). Transition: for each job i-1 taken... hmm but taking job i-1, the jobs sharing machine with it must be compatible with it, and remaining machines...
+
+Alternative known solution: dp[i][j] = max profit using jobs 0..i-1 with j machines available... Actually think of it as: dp[i][j] = max over subsets of first i jobs with depth ≤ j. Recurrence: dp[i][j] = max(dp[i-1][j], dp[p[i-1]][j-1] + pay[i-1])? Explanation: either job i-1 is not taken: dp[i-1][j]. Or job i-1 is taken: then one machine handles job i-1 chain... But the recursion dp[p[i-1]][j-1] + pay[i-1] assumes job i-1's machine runs a chain of jobs all compatible with i-1, but dp[p[i-1]][j-1] would account only for the fact that one machine is used by job i-1, and other j-1 machines handle first p[i-1] jobs. Wait: if job i-1 is taken, consider the set of jobs on job i-1's machine: they must all be compatible with job i-1 (ending ≤ start[i-1]). We can't just reduce to dp[p[i-1]][j-1] because that would require the other j-1 machines handle only jobs before p[i-1]... Actually partition: one machine contains job i-1 and some set of jobs all ending ≤ start[i-1] and mutually non-overlapping; other machines contain remaining jobs (which are within first i-1 jobs). But the remaining jobs could be jobs after... no, all jobs in first i-1 are sorted by end, jobs taken after job i-1? none since we consider first i-1 and job i-1 is the last in sorted order. Jobs before i-1 may overlap job i-1? They end ≤ end[i-1] but could overlap with start[i-1]. A job that overlaps job i-1 can't be on same machine, but can be on another machine. So the recurrence needs to "remove" all jobs overlapping job i-1, not just those compatible.
+
+Standard algorithm: min-cost max-flow. With n=300, k=10, max flow with O(n) nodes... Let's design.
+
+Interval scheduling with k machines as min-cost max-flow: sort jobs by start. Create timeline events. Actually simpler: build a DAG of jobs sorted by end time, edges i→j if end[i] ≤ start[j] with capacity 1 cost = -pay[j]? Then selecting max weight set of intervals with depth ≤ k: flow model with source/sink.
+
+Standard reduction: Sort unique end times? Let's do: create nodes for each job (sorted by end). Edge from job i to job j if end[i] <= start[j] (i<j). But with k machines, need k-path from source to sink.
+
+Alternative: dp with profile state — too complex.
+
+Min-cost max-flow approach: nodes = jobs sorted by end time, plus source and sink. Source connects to each job's node with capacity 1 cost 0? Hmm but we need depth ≤ k constraint, which is equivalent to k machines: we can add k units of flow.
+
+Classic: For k machines, create nodes: source -> t_0? Let's think of timeline: points = sorted unique times. Edges from t_i to t_{i+1} with capacity k cost 0 (machine capacity over time). Each job (s,e,p) has edge from node v_s to v_e with capacity 1 cost -p. Then find min-cost flow of k units from first time node to last time node. That's the standard interval scheduling with k machines. Number of distinct times ≤ 600, nodes ≤ 600, edges O(times + jobs). k ≤ 10 units. Min-cost max-flow with 10 units — trivial.
+
+Let's implement min-cost max-flow (successive shortest paths with potentials) since costs are negative (negated pay). Actually edge costs negative; use Dijkstra with potentials, or just Bellman-Ford for simplicity since small. With ≤ 600 nodes and ≤ 10 units, Bellman-Ford each augmentation is O(VE) = fine.
+
+Alternatively simpler DP: since k ≤ 10 and n ≤ 300, O(k n^2) DP exists: 
+
+dp[i][j] = max total pay considering jobs 0..i-1 with... Let me recall known solution: Weighted interval scheduling with m machines. One known dynamic programming: sort jobs by end time. dp[i][j] = max profit using first i jobs with j machines? Hmm.
+
+Better known: Let f[i] = max profit considering first i jobs with unlimited machines? Not directly.
+
+Actually, there's a neat DP: dp[i][j] = max total pay for jobs among first i sorted-by-end, using at most j machines, where dp[i][j] = max(dp[i-1][j], pay_i + ...)? The issue again is machine allocation. Hmm, but there's a known correct recurrence for m machines:
+
+Actually there's known DP with "depth" concept. Let's instead just do min-cost max-flow; it's robust.
+
+Flow model details:
+- Collect all times (start and end of each job), sort unique.
+- Node index for each time. Source = node for earliest time (times[0]), sink = node for latest time (times[-1]).
+- Actually source must have capacity-k edges along time edges: for each consecutive time pair (t_i, t_{i+1}), edge with capacity k, cost 0.
+- For each job (s, e, p): edge from node(s) to node(e), capacity 1, cost -p.
+- Find min-cost flow of exactly k units from source to sink. Min-cost flow sends k units from earliest to latest time; flow along time edges consumes capacity; a job edge "diverts" one unit of flow from timeline to job, and back... Wait edges from s to e directly: a unit of flow can take the job edge instead of the timeline path, paying cost -p. Since flow passes through node(s), it can either go along the timeline edge to... no—timeline edges connect consecutive times; the flow path is along timeline edges only. If at node(s), flow chooses job edge to node(e), skipping the intermediate timeline edges, consuming nothing on timeline edges in between but consuming the job's capacity. That works: total k units from earliest to latest; each unit either follows timeline (paying 0) or takes job edge (paying -pay). But a single unit could take multiple job edges? If flow goes along timeline from time i to i+1, then at node(t_j) could branch? In flow networks, flow on a path from source to sink is a single path; a unit taking job edge from s to e, then rejoins timeline at e. So one unit = one machine's schedule, taking multiple job edges. Yes that's exactly right: k units = k machines, each path along timeline using some job edges.
+
+Timeline edges: connect t_i → t_{i+1}, capacity k (k machines), cost 0. Unit of flow on timeline edge i means one machine is running during that interval; job edges divert flow.
+
+Min-cost max-flow of k units: sends exactly k units (source to sink). Since timeline capacity is k per edge and exactly k units must get from source to sink, all timeline edges saturated... wait, each unit follows a path from source to sink; each path is sequence of timeline edges and job edges. Timeline edge between consecutive times is used by the number of units that pass through that interval without taking a job over it. Capacity k allows up to k units. Exactly k units total from source to sink, so each timeline edge has flow = number of units passing through (k minus those taking jobs spanning it) ≤ k. Good.
+
+Min-cost = -(max total pay). Answer = -mincost.
+
+Number of distinct times ≤ 600 (2*300), nodes ≤ 600. Edges: timeline ≤ 599, job edges ≤ 300. Flow units ≤ 10. Bellman-Ford each push: O(V*E) ~ 600*900 = 540k per augmentation, times 10 = 5.4M, fine.
+
+Implement standard min-cost max-flow:
+
+Nodes 0..m-1. Edge class with to, cap, cost, rev? Use list of edges; each directed edge stored as [to, cap, cost, index_in_adj]. Standard.
+
+We send up to k units via successive shortest augmenting path (Bellman-Ford because negative costs). Maintain current path via predecessor; if min cost path has negative reduced cost we might loop? Bellman-Ford detects negative cycles; since flow is integral and each augmentation increases flow by 1, at most k augmentations, no infinite loop. Even if there's a negative-cost cycle, successive shortest path with Bellman-Ford would decrease cost each iteration until flow = k. Fine.
+
+Simplest: implement min_cost_flow(net, source, sink, max_units).
+
+```python
+def min_cost_max_flow(N, source, sink, max_flow):
+    # adj[i] = list of [to, cap, cost, rev_index]
+    adj = [[] for _ in range(N)]
+    def add_edge(u, v, cap, cost):
+        adj[u].append([v, cap, cost, len(adj[v])])
+        adj[v].append([u, 0, -cost, len(adj[u]) - 1])
+    ...
+```
+
+Then augment.
+
+Build graph:
+
+```python
+def k_machine_schedule(jobs, k):
+    times = sorted({t for s,e,p in jobs for t in (s,e)})
+    idx = {t:i for i,t in enumerate(times)}
+    N = len(times)
+    if N == 0: return 0
+    source, sink = 0, N-1
+    add_timeline edges: for i in range(N-1): add_edge(i, i+1, k, 0)
+    for s,e,p in jobs: add_edge(idx[s], idx[e], 1, -p)
+    flow, cost = min_cost_max_flow(N, source, sink, k)
+    return -cost
+```
+
+Wait: jobs with start==end? Constraints start<end, fine. Also duplicate times handled by unique list. Source at earliest time, sink at latest. Edges from earliest to latest: timeline edges. Job edges skip.
+
+But note: job edges added are directed from s to e; these are also along timeline direction since s<e.
+
+Min-cost flow with exactly k units: if source==sink (N==1) no jobs possible (since start<end, times distinct). Return 0.
+
+If total jobs = 0, times empty, return 0.
+
+Min-cost max-flow:
+
+```python
+def min_cost_max_flow(N, S, T, maxf):
+    adj = [[] for _ in range(N)]
+    def add_edge(u,v,cap,cost):
+        adj[u].append([v,cap,cost,len(adj[v])])
+        adj[v].append([u,0,-cost,len(adj[u])-1])
+    # caller adds
+    flow=0; cost=0
+    while flow < maxf:
+        # Bellman-Ford
+        INF = float('inf')
+        dist=[INF]*N; dist[S]=0; prev=[-1]*N; prev_edge=[-1]*N
+        for it in range(N-1):
+            updated=False
+            for u in range(N):
+                if dist[u]==INF: continue
+                for ei,e in enumerate(adj[u]):
+                    v=e[0]; cap=e[1]; c=e[2]
+                    if cap>0 and dist[u]+c<dist[v]:
+                        dist[v]=dist[u]+c; prev[v]=u; prev_edge[v]=ei; updated=True
+            if not updated: break
+        if dist[T]==INF: break
+        # augment 1 unit (could be more but costs equal along path; augment bottleneck)
+        # bottleneck
+        v=T; bf=maxf-flow
+        path=[]
+        while v!=S:
+            u=prev[v]; ei=prev_edge[v]; e=adj[u][ei]
+            path.append((u,ei,e[1]))
+            bf=min(bf,e[1])
+            v=u
+        v=T
+        while v!=S:
+            u,ei,_ = path.pop()  # messy
+            ...
+```
+
+Let me write more cleanly.
+
+```python
+def min_cost_flow(adj, N, S, T, maxf):
+    flow = 0
+    total_cost = 0
+    while flow < maxf:
+        INF = float('inf')
+        dist = [INF]*N
+        dist[S] = 0
+        prev_u = [-1]*N
+        prev_ei = [-1]*N
+        for _ in range(N-1):
+            updated = False
+            for u in range(N):
+                if dist[u] == INF: continue
+                for ei, e in enumerate(adj[u]):
+                    if e[1] > 0 and dist[u] + e[2] < dist[e[0]]:
+                        dist[e[0]] = dist[u] + e[2]
+                        prev_u[e[0]] = u
+                        prev_ei[e[0]] = ei
+                        updated = True
+            if not updated: break
+        if dist[T] == INF:
+            break
+        # bottleneck
+        bf = maxf - flow
+        v = T
+        path_edges = []
+        while v != S:
+            u = prev_u[v]; ei = prev_ei[v]
+            path_edges.append((u, ei))
+            bf = min(bf, adj[u][ei][1])
+            v = u
+        for u, ei in path_edges:
+            e = adj[u][ei]
+            e[1] -= bf
+            adj[v2?]...
+```
+
+Need reverse edge index: store rev in the edge list: e = [v, cap, cost, rev_idx] where rev_idx = index of reverse edge in adj[v]. Standard.
+
+```python
+def add_edge(u, v, cap, cost):
+    adj[u].append([v, cap, cost, len(adj[v])])
+    adj[v].append([u, 0, -cost, len(adj[u])-1])
+```
+
+Augmentation:
+
+```python
+for u, ei in path_edges:
+    e = adj[u][ei]
+    v = e[0]
+    rev = adj[v][e[3]]
+    e[1] -= bf
+    rev[1] += bf
+    total_cost += bf * e[2]  # cost before decrease; cost unchanged
+    flow += bf
+```
+
+But careful: total_cost += bf * e[2] where e[2] is original cost — yes since we only mutate cap.
+
+Since all costs along path: timeline 0, job -pay. Augmenting bf units all pay the same per-unit cost? Along a path, each unit picks same edges (same path), so per-unit cost = dist[T]. total cost increase = bf * dist[T]. Simpler: total_cost += bf*dist[T]. But note after augmentation, path edges' reverse edges now have capacity. Fine.
+
+Wait: the bottleneck could be > 1: bf = min remaining flow and edge caps. Source edges? Source has no dedicated edges; source connects to timeline edges. Bottleneck may be timeline edge cap k or original... flow increments by bf. But is flow integral? Yes integral caps. Sending bf along path increments flow by bf; that's correct.
+
+Potential issue: successive shortest path with negative costs: Bellman-Ford each time; fine. But we should ensure we don't re-augment on a path that includes reverse (decreasing) edges that cancel previous flow—that's fine and correct.
+
+Number of iterations: each iteration increases flow by at least 1; at most k=10 iterations. Fine.
+
+Now the answer = -total_cost.
+
+Double check with examples.
+
+Example 1: jobs [[0,4,5],[1,3,4],[3,6,4]], k=1. Times: 0,1,3,4,6. source=0(idx0, time0), sink=time6.
+Edges: timeline: (0→1) cap1 cost0, (1→2), (2→3), (3→4).
+Job edges: job0: idx(0)=0 → idx(4)=3, cap1, cost -5. job1: idx(1)=1 → idx(3)=2, cost -4. job2: idx(3)=2 → idx(6)=4, cost -4.
+Send 1 unit from node0 to node4. Possible path: timeline 0→1→2, then job1 edge 1? wait job1 edge goes from node1 to node2. Path: 0 -> timeline -> node1 -> job1 edge (node1→node2) -> timeline node2→node3? then... we want 0→4. Options:
+- Take job0: node0→node3 (cost -5), then timeline node3→4. total -5 (pay 5).
+- Take job1: node0→node1 (timeline), node1→node2 (job1, -4), node2→node3→node4 timeline. total -4.
+- Take job2: node0→1→2, then node2→4 (job2, -4). total -4.
+- Take job1 then job2? job1 ends at time3 (node2), job2 starts at time3 (node2). Path: node0→node1 timeline, node1→node2 job1 (-4), node2→node4 job2 (-4). Total -8 (pay 8). Yes! Answer 8.
+
+Example 2: jobs [[0,10,9],[0,5,5],[5,10,5],[0,10,1]], k=2. Expected 19.
+Times: 0,5,10. source=node0, sink=node2.
+Timeline edges cap2 cost0: 0→1, 1→2.
+Job edges: job0: 0→2 cap1 cost -9; job1: 0→1 cap1 cost -5; job2: 1→2 cap1 cost -5; job3: 0→2 cap1 cost -1.
+Send 2 units.
+Path1: 0→1 timeline, 1→2 timeline? That's 0 pay, but we want max pay: 
+Path1 (machine1): 0→1 job1 (0→1, -5)? Wait job1 edge goes 0→1 directly. Path: 0→1 via job1 (-5), then 1→2 via job2 (-5). total -10.
+Path2 (machine2): 0→1 timeline, 1→2 job2? no job2 capacity used? job2 cap 1; only one unit can take it. Alternatives: machine2: 0→2 job0 (-9). total -9. Sum -19 → answer 19. Yes: machine1 takes jobs 1 and 2 (5+5=10), machine2 takes job0 (9). Total 19. 
+
+Now, are there subtle issues with jobs not spanning full timeline? Source is earliest time; edges exist everywhere. Min-cost flow with exactly k units. Yes.
+
+Potential subtlety: A unit of flow could take a job edge and then a timeline edge that... all good.
+
+Now implement cleanly. Also `list[list[int]]` type hint; fine in Python 3.9+? `list[list[int]]` requires Python 3.9+. Fine.
+
+Bellman-Ford with N up to 600, no negative cycles in residual graph initially? There can be negative cost edges (job edges) but the residual graph includes reverse edges with positive costs. Negative cycles could appear if flow reassigned? Successive shortest path with Bellman-Ford handles negative cost edges fine as long as no negative cycle in residual network. Initially acyclic in costs? The graph has job edges and timeline edges, both directed increasing time → acyclic. Residual after augmenting: reverse edges directed backward with reversed costs. A cycle could form: forward job edge (cost -p) reversed (cost +p), timeline edges... Consider cycle: timeline forward edges (cost 0) and reverse job edge (cost +p): going forward timeline from 0 to s, then reverse job edge? Reverse job edge goes from e to s. Path: start node s, follow forward timeline s→...→e? wait reverse job edge goes from e back to s. Cycle: s → timeline forward to e (cost 0), e → reverse job edge → s (cost +p). Positive cost, not negative. Other cycle: forward timeline from e... Suppose cycle: source... Let's not worry; standard min-cost max-flow correct.
+
+But wait, we might not even need exact integrality issues. Fine.
+
+Edge case: k larger than needed: maxf=k, but if not enough jobs, we just saturate; min-cost flow stops when dist[T] INF? No: timeline edges have capacity k, so there's always a path of timeline edges (cost 0) from source to sink. So it will always find path, augment with bottleneck = k minus flow... Actually after augmenting bf units, flow = bf; bottleneck bf = min(maxf - flow, min edge capacity on path). Timeline cap = k, so bottleneck = min(k - flow, ...). After flow reaches k, loop ends. Since timeline path exists with capacity k, we can always send k units (each unit flows along timeline with no jobs). So loop runs until flow=k. Cost accumulates only from job edges. Good.
+
+One nuance: successive shortest path augments by bottleneck units along the shortest path — but the "shortest path" distances might differ per unit? All units same cost, fine.
+
+Now, the function signature: `def k_machine_schedule(jobs: list[list[int]], k: int) -> int:`. Return max total pay.
+
+Write final code:
+
+```python
+def k_machine_schedule(jobs: list[list[int]], k: int) -> int:
+    if not jobs:
+        return 0
+    times = sorted({t for s, e, p in jobs for t in (s, e)})
+    n_times = len(times)
+    idx = {t: i for i, t in enumerate(times)}
+    N = n_times
+    source, sink = 0, N - 1
+    adj = [[] for _ in range(N)]
+
+    def add_edge(u, v, cap, cost):
+        adj[u].append([v, cap, cost, len(adj[v])])
+        adj[v].append([u, 0, -cost, len(adj[u]) - 1])
+
+    for i in range(N - 1):
+        add_edge(i, i + 1, k, 0)
+    for s, e, p in jobs:
+        add_edge(idx[s], idx[e], 1, -p)
+
+    flow = 0
+    total_cost = 0
+    while flow < k:
+        INF = float('inf')
+        dist = [INF] * N
+        dist[source] = 0
+        prev_u = [-1] * N
+        prev_ei = [-1] * N
+        for _ in range(N - 1):
+            updated = False
+            for u in range(N):
+                du = dist[u]
+                if du == INF:
+                    continue
+                for ei, e in enumerate(adj[u]):
+                    if e[1] > 0 and du + e[2] < dist[e[0]]:
+                        dist[e[0]] = du + e[2]
+                        prev_u[e[0]] = u
+                        prev_ei[e[0]] = ei
+                        updated = True
+            if not updated:
+                break
+        if dist[sink] == INF:
+            break
+        bf = k - flow
+        v = sink
+        path = []
+        while v != source:
+            u = prev_u[v]
+            ei = prev_ei[v]
+            path.append((u, ei))
+            c = adj[u][ei][1]
+            if c < bf:
+                bf = c
+            v = u
+        v = sink
+        for u, ei in path:
+            e = adj[u][ei]
+            v = e[0]
+            rev = adj[v][e[3]]
+            e[1] -= bf
+            rev[1] += bf
+        total_cost += bf * dist[sink]
+        flow += bf
+
+    return -total_cost
+```
+
+Wait bug: in augmentation loop `v` reused; fine. But note total_cost += bf * dist[sink]: dist[sink] is the shortest path cost per unit (since all units same path). Yes.
+
+But wait: is bf possibly > 1? Timeline edges cap k; job edges cap 1. So path bottleneck ≤ 1? If path includes a job edge, bottleneck ≤ 1. Otherwise (pure timeline path), bottleneck = k - flow. Pure timeline path cost 0; would only be chosen if no negative path exists. That's fine; sending k - flow units with cost 0. But could that skip beneficial earlier augmentations? Successive shortest path: lowest cost path first; cost 0 paths are explored only when no cheaper path. Good.
+
+Potential issue: Bellman-Ford with negative edge costs and no initial negative cycle: number of iterations N-1 enough to find shortest path if no negative cycle. Residual graph includes reverse edges; could contain negative-cost cycle at some iteration? If it does, true min-cost flow infeasible? Standard algorithms detect. Let's examine possible negative cycle in residual: Forward edges directed increasing time with costs 0 (timeline) and -p (job). Reverse edges directed decreasing time with costs +p (reverse job) and 0 (reverse timeline). A cycle must alternate directions. Consider cycle: forward timeline from u to v (u<v), then... to get back to u, reverse edges decrease time: reverse job edge from v to w (w<v)... e.g., forward timeline edges from time s to time e, then reverse job edge from e to s (cost +p). Weighted cycle cost = 0 + p > 0. Reverse timeline edges (cost 0) plus forward job edges: cycle: forward timeline from u to v, forward job edge from... job edge is increasing time; can't return. Reverse job edge from e to s (decreasing), forward timeline from s to e (cost 0): that's the same as before. Reverse timeline edges (cost 0, decreasing time): forward job edge from s to e (decreasing? no, increasing). Cycle: reverse timeline from v to u (decreasing, cost 0), forward timeline from u to v (cost 0)? That would be two edges back and forth — cycle = forward timeline edge u→v and reverse timeline edge v→u (if flow exists on forward edge). Cost 0. Zero cycle, fine—not negative. Other cycles: forward job edge (-p) then reverse timeline edges from e back to s (decreasing time, cost 0). Cost -p < 0! If reverse timeline edges exist (i.e., flow on timeline edges), then cycle: forward job edge s→e (cost -p), then reverse timeline edges e→...→s (cost 0). Negative cycle! This indicates the current flow can be improved: take k units off timeline, divert through job edge. But does this correspond to a valid improvement? Yes—it's exactly the augmentation we do: after some flow, a new augmentation may use reverse timeline edges to "backtrack". Min-cost flow via successive shortest augmenting path with full Bellman-Ford distance computation handles this: the shortest path from source to sink might go through reverse edges. Wait but negative cycle in the residual graph means the shortest "path" from source to sink is ill-defined (could cycle and decrease unboundedly) — but flow conservation: hmm.
+
+Actually negative cycles in the residual network mean that the current flow is not optimal, and successive shortest path method (which finds the shortest path and augments) is still correct as long as we always augment along shortest path — but if there's a negative cycle on the path or reachable... Hmm. The standard successive shortest paths algorithm for min-cost flow: repeatedly find the shortest path from s to t in residual graph (with reduced costs or Bellman-Ford) and augment along it. If shortest path has negative cost, augmenting reduces cost. If there's a negative cycle, that would mean current flow can be improved further, but s-t shortest path augmentation still reduces cost by at least... Actually the correctness of successive shortest paths requires that augmenting along the shortest s-t path leads to optimal flow at the end (when no negative s-t path remains, i.e., min distance ≥ 0 or no path). Negative cycles don't directly cause issues because the algorithm terminates when shortest path cost ≥ 0 (or no path). But negative cycle could make shortest path distances ill-defined (−∞) if the cycle is reachable from source and can reach sink. With Bellman-Ford, dist[T] would be −∞ (i.e., keep decreasing). In our implementation, after N-1 iterations, if updated keeps happening, dist[T] might be very low but finite (it doesn't reach −∞ in finite iterations; we just get some finite value after N-1 rounds, but the true shortest path with repeated cycle traversal could keep decreasing).
+
+Hmm, let's think concretely. After augmenting a path with a job edge, residual network: reverse job edge from e to s with capacity 1 cost +p, reverse timeline edges with capacity 1 cost 0. Cycle: forward job? The current flow along that job edge was increased; the same job edge is now saturated (cap 0), so can't use forward. Instead cycle for improving: take a different job edge? Let's think: we only augment along s-t paths, never cycle. The successive shortest path algorithm is standard and correct: at each iteration, compute true shortest s-t path; if cost ≥ 0, stop. The presence of negative cycles would mean current flow not optimal, and would be detected as dist[T] = −∞, which Bellman-Ford detects (if updated in Nth iteration). To be safe, we can add detection: after N iterations, if still updated, there's a negative cycle → but can that happen? Let's examine whether reverse timeline edges allow negative cycles in this specific network.
+
+Residual graph edges:
+- Timeline forward edge u→v (v=u+1) capacity k minus flow, cost 0.
+- Timeline reverse edge v→u (flow>0) cost 0.
+- Job edge s→e cap 1 - flow, cost -p.
+- Job reverse edge e→s (flow>0) cost +p.
+
+A negative cycle must contain at least one negative-cost edge (job forward, cost -p) since other edges cost 0 or positive. Forward job edge s→e (cost -p). Remaining edges to return from e to s: timeline reverse edges (0 cost, decreasing time), job reverse edges (+p, decreasing time), timeline forward edges (0, increasing). Cycle: s →(job, -p)→ e, then edges e→s decreasing in time: could be timeline reverse edges e→e-1→...→s (cost 0 each), total -p. Negative! This cycle exists if flow on timeline edges between s and e exists and the job edge's forward capacity remains.
+
+But wait: if the job edge s→e has forward capacity (1 - flow = 1, flow 0) and the timeline edges between s and e have flow > 0... can that happen? Timeline edge u→u+1 flow = number of units passing through that interval via timeline = k - (number of chosen jobs spanning that interval). If job (s,e) has flow 0, meaning it's not chosen. Timeline flow through interval = k - jobs chosen spanning it. If some chosen jobs span the interval, timeline flow through it = k - (# chosen spanning). Could be > 0 (e.g., 2 machines, 1 job spanning, timeline flow 1). So yes, negative cycle exists: augment along cycle: take one unit: move it from timeline through the interval to the job edge. This is precisely the kind of "re-optimization" min-cost flow must find — but successive shortest path augmenting along s-t path also finds better solutions eventually; the concern is just algorithmic termination/correctness, not correctness.
+
+Hmm, but actually the standard successive shortest path algorithm maintains optimality: If current flow is not optimal, then there exists a negative cycle in residual. But the algorithm augments along shortest s-t path, not shortest cycle. Does successive shortest path find optimal flow for arbitrary costs? Yes — the classical result: the successive shortest paths algorithm finds min-cost flow (for integer capacities, integral flow). The key theorem: augmenting along a shortest s-t path each time decreases total cost, and upon termination (no negative s-t path), the flow is optimal. But the negative cycle issue: if a negative cycle exists, then... hmm, does a negative cycle imply a negative s-t path? Not necessarily. Let's think.
+
+Classical algorithm correctness holds for networks where initially s,t connected etc. The standard argument uses reduced costs and potentials; augmenting along shortest path with potentials (Dijkstra) works and terminates when no negative reduced cost s-t path remains... The presence of negative cycles means the current flow can be improved, but successive shortest paths augmenting only along s-t paths: does it terminate at the optimal flow? Consider an example where negative cycle exists but no negative s-t path. Hmm.
+
+Let's construct: two timeline edges etc. Actually, in our model, any negative cycle can be "opened up" into a negative s-t path because source and sink connect to the timeline at the ends. Negative cycle: forward job edge s→e, reverse timeline edges e→s. To make s-t path: we can start at source, go along forward timeline to s, take job edge to e, go along reverse timeline to s?? That goes back to s, then need to get to sink — from s can't continue forward without repeating. Hmm, but a path can't revisit nodes? A simple path can't include the cycle. Let's think about whether successive shortest path yields correct answer here.
+
+Alternative much simpler and safer: use a DP that we can prove correct, or implement min-cost flow with cycles too (i.e., full successive shortest path handles this but we can instead just compute min-cost flow over the network properly by augmenting along s-t path — but as discussed, negative cycle might exist without negative s-t path, and then successive shortest path stops prematurely, yielding suboptimal flow).
+
+Hmm, wait. Actually the successive shortest paths algorithm: it augments along the shortest s-t path. If no s-t path with negative reduced cost exists, stop. Its optimality: for graphs with arbitrary costs but no negative cycles initially? The theorem (e.g., from network simplex literature): successive shortest path algorithm is correct for min-cost flow: each augmentation along shortest s-t path reduces cost; terminates when shortest path cost ≥ 0. At termination, the flow is optimal. But if there's a negative cycle, then... The correctness proof: When no s-t path of negative cost remains, define potential π = dist(·) from s. Then all residual arcs have reduced cost ≥ 0 (that's exactly what "no negative s-t path"... hmm, not quite: reduced costs ≥ 0 means no negative cycles in residual graph). Actually: current flow is optimal iff residual graph has no negative-cost cycle (for s-t flow problems with free circulation). Equivalently, for fixed flow value (k units), flow is optimal iff... no negative cycle in residual. Yes! Standard theorem: a feasible flow of given value is optimal iff the residual graph contains no negative-cost cycle.
+
+So our correctness criterion: stop when residual graph has no negative cycle, which is equivalent to: after computing dist from source... hmm, "no negative s-t path" is weaker than "no negative cycle"? A negative cycle reachable from s that can reach t — since network is strongly connected in residual? Hmm.
+
+Let's think: our residual graph has source connected to timeline edges forward (capacity flow remaining). Sink connects via timeline final edge. Actually source connects only to node 1 (timeline edge 0→1) with capacity k, reverse edge from node1→source capacity = flow. Similarly sink.
+
+Simpler approach: use LP-free, well-understood DP. Alternatively, use a clean min-cost circulation algorithm? Or use Blossom? Overkill.
+
+Alternative: Use the known O(k n^2) DP properly. Let me think again carefully.
+
+Weighted interval scheduling with k machines: sort jobs by end time. dp[i][m] = maximum total pay considering jobs 0..i-1 (first i in sorted order) using at most m machines. Recurrence: dp[i][m] = max(dp[i-1][m], pay_i + dp[j][m-1]) where j = number of jobs compatible... no, need j = index after which jobs overlap. Hmm.
+
+Wait: Let's think. Sorted by end time. If job i is taken, then the machine it's assigned to contains a sequence of jobs that end ≤ start[i]... all jobs on that machine end ≤ start[i] and are mutually compatible. The other m-1 machines contain remaining jobs among first i (sorted by end). The remaining jobs are not necessarily "first j jobs" for some j < i because jobs before i that overlap job i cannot be on the same machine but can be on other machines. So dp[i-1][m] and dp[?][m-1] don't capture it.
+
+Alternative DP: dp[i][m] where the state is "first i jobs, using m machines" — hmm.
+
+Known correct DP for k-track assignment: define f(i) = minimum... There's a classic O(k n^2) DP using "depth": process events, dp over which jobs active? n=300, no.
+
+Alternative known approach: assign jobs via min-cost max-flow, which is what we have; let's just make the flow algorithm bulletproof.
+
+Bulletproof min-cost max-flow: Use Bellman-Ford with negative cycle detection and repeatedly augment s-t paths; also handle negative cycles explicitly: while residual has negative cycle, augment along it. Actually simpler: since k ≤ 10 and costs small, use a different formulation: since flow value is fixed k and machines identical, we could also just do a DP over timeline with state being which jobs are "active" — too complex.
+
+Better: Let's fix min-cost max-flow so it's correct: run successive shortest path; when no negative s-t path remains, instead of stopping, we need to ensure no negative cycle exists. But we can avoid the issue by augmenting along the shortest s-t path and note that negative cycles in this network can be eliminated by s-t path augmentations? Let's test with the problematic scenario: flow along timeline with some jobs flow=0. Negative cycle: one unit of timeline flow through interval [s,e) is diverted through job edge. Is there also a negative s-t path? Path: source → forward timeline along 0..→ s → job edge s→e → forward timeline e→...→sink. This path has cost -p < 0 (if forward timeline capacity remains ≥ 1 from s onward... capacity k, flow k - #chosen-spanning-some-interval; at interval just after s, flow ≤ k-1? Since no job chosen spans [s,e)... wait maybe some other chosen job spans part of [s,e). Hmm, capacity on edge between u and u+1 for u in [s,e): flow = k - (# chosen jobs spanning that edge). Forward capacity = k - flow = # chosen jobs spanning that edge ≥ 1? Not necessarily ≥ 1... # chosen jobs spanning edge could be anywhere from 0 to k. If a chosen job spans the whole [s,e), then forward capacity at internal edges = k - 1 ≥ 1 hmm depends.
+
+The shortest s-t path would choose the path with most negative total cost. If current flow is not optimal, the optimal improvement cycle can be converted to an s-t path with no greater cost? Hmm.
+
+Actually, there's a theorem: successive shortest path (SSP) with unit... Let me recall precisely: The SSP algorithm is correct for min cost flow when the network has no negative cycles initially. It terminates when no negative-cost s-t path exists in residual. The resulting flow is optimal (for the max flow value achieved). Yes, this is a standard result and SSP is well-known to be correct for min-cost max-flow. The proof relies on: if the flow is not optimal, residual contains a negative cycle; but does SSP produce optimal? Hmm, actually I recall that SSP produces optimal flow for min-cost flow given that it sends flow up to max flow. Let me verify with the negative cycle concern.
+
+Theorem (e.g., Ahuja-Magnanti-Orlin): successive shortest paths algorithm terminates with an optimal flow. Proof: Suppose the residual network (at termination) is not optimal, i.e., contains a negative cycle C. Then... they use reduced costs and show no negative cycle exists at termination. The termination condition: no s-t path with negative cost. Hmm, they prove that no negative cycle can exist when no s-t path does? Is that true? Given a negative cycle C in residual, can we find an s-t path with negative cost? If source is connected to cycle and cycle can reach sink? Not in general! In arbitrary networks, SSP is NOT correct... wait, I recall SSP is correct. Let me recall precisely.
+
+Hmm, actually the correct classical statement: The successive shortest paths algorithm yields the min-cost max-flow when the capacities are integral — it repeatedly finds the shortest s-t path in the residual network (with respect to current costs) and augments the maximum bottleneck flow along it. If no s-t path exists, stop. This algorithm terminates with an optimal min-cost max-flow. Termination: Each augmentation increases flow value (or flow stays the same? If bottleneck is 0 no... it augments at least 1 unit since bottleneck ≥ 1). Number of augmentations ≤ maxflow ≤ k ≤ 10. Correctness proof standard.
+
+The negative cycle concern: at the end, residual graph can have negative cycles? Consider: the optimal flow of the residual network must have no negative-cost cycles (for the same flow value, not for more flow). Hmm, the optimality condition: A flow f is min-cost flow of its value iff the residual network has no negative-cost cycle. If SSP stops (no negative s-t path found) but residual still has negative cycle, flow isn't optimal.
+
+Does SSP guarantee that? Suppose flow is not optimal: ∃ negative cycle C in residual. C has edges... s-t path negative? Let me think: is it possible? Residual graph: source S, sink T. Any negative cycle C is a closed walk. If we could "rotate" it: consider a path from S to T... Actually there's a known fact: a feasible flow is optimal iff there is no negative cycle in residual. SSP's termination condition (no negative s-t path) is weaker in general, BUT for the max-flow-then-min-cost structure... hmm.
+
+Let me just check known references: "Successive shortest paths algorithm" — from Wikipedia: "The algorithm works by successive shortest paths... It is a min-cost flow algorithm. It produces the optimal flow." I'm fairly confident SSP is correct for integral capacities (produces min cost flow, with max flow maybe slightly extended by augmentation of bottleneck). Let me recall the proof idea: define reduced cost with respect to π(v) = dist(s,v). After augmentation, π is updated. At termination, no negative reduced-cost s-t path... hmm, standard proof: with potentials, invariant: dist estimates potentials. When the shortest path cost d ≥ 0, any residual arc (u,v) has reduced cost c_uv + π(u) - π(v) ≥ 0 (since otherwise shortest path would pick it). Thus all residual arcs have non-negative reduced cost. A cycle of reduced cost = sum of reduced costs ≥ 0 (not necessarily each cycle's reduced cost... each cycle has total reduced cost = sum reduced costs ≥ 0). And total cost of flow = f*π stuff... The flow is optimal. Yes, I trust this.
+
+But note: SSP as commonly presented uses reduced costs maintained across iterations; my implementation recomputes dist from scratch each iteration via Bellman-Ford, which at the end (no negative s-t path) leaves residual with no negative s-t path, but we need no negative cycle. Hmm — my concern returns. Let me look at the standard proof more carefully.
+
+Standard SSP algorithm: Start with zero flow. While s can reach t in residual: find shortest path, augment. At the end, flow = max flow. Proof of optimality: At termination, no s-t path exists (max flow) — but our algorithm continues as long as flow < k, not until max flow. With negative costs, a shortest path may have cost < 0, but we continue augmenting until flow = k. At the end (flow = k), some arcs may be saturated; residual might contain negative cycles (e.g., the one I constructed). Then flow is not necessarily optimal for value k? Hmm. Wait, but SSP is proven optimal for the flow sent: the standard proof of SSP's correctness for min-cost flow uses potentials and works regardless of whether we've ended at max flow. Let me recall it properly.
+
+Proof sketch (from Ahuja & Magnanti & Orlin textbook): Claim: SSP finds a min-cost flow for given flow amount. Lemma: Let π be potential after each augmentation such that residual reduced costs are... hmm.
+
+Alternatively, just avoid the headache: use network simplex? No.
+
+Alternative: Since flow value ≤ 10 and network small, we can literally find the optimal min-cost flow via a totally correct algorithm like the Orlin/SPFA... Let's instead use a different exact approach: DP with shortest paths over a DAG of "active machines"? Alternatively, use min-cost flow with explicit handling: since time is discrete and cost = sum of job pay, maybe a different formulation is cleanest:
+
+Alternative formulation via DP on timeline with "which jobs are running" state: too big.
+
+Alternative: use min-cost max-flow but implement it as: repeatedly, find the shortest path from s to t; augment; if shortest path found (negative cost), augment; if no path, break; and separately, eliminate negative cycles within residual network (within s-t-avoiding cycles). Given the structure, let's just incorporate cycle augmentation: after each s-t augmentation, we could check for negative cycles via Bellman-Ford starting from all nodes with residual edges and augment along them. That's more complex.
+
+Simplest bulletproof: implement full min-cost max-flow using the classic successive shortest augmenting path with potentials (which is correct) and also continue augmenting until flow reaches k; if no negative s-t path found but negative cycles remain, handle them by augmenting along negative cycles (like the algorithm in "minimum cost circulation"). Honestly, let me instead prove SSP-with-k-units correct or use another method.
+
+Actually, let me think about this more concretely and verify with the problematic case whether SSP does find optimal.
+
+Claim: SSP yields optimal flow for any fixed flow value? Consider the algorithm: repeatedly find shortest s-t path P in current residual network (with current flow). Augment bottleneck along P. Continue. This terminates (since flow increases, bounded by k... but bottleneck could be ≥ 1, flow increases each iteration, bounded by k; so ≤ k iterations). Final flow f*. Is f* optimal among flows of value k (indivisible? integral)?
+
+Correctness proof: induction with potentials. Actually the standard proof I remember demonstrates that SSP finds the min-cost max-flow, but the key lemma is the "optimality at termination": at termination, π = dist(s, ·) from the last iteration satisfies reduced cost ≥ 0 over all residual arcs. Reduced cost c_uv + π(u) - π(v). If π = dist(s,·) (true shortest distances), then every residual
+=== CONTENT ===

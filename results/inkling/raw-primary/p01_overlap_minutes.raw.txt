@@ -1,0 +1,57 @@
+=== REASONING ===
+We need answer only code in a single python block. Need solve. Let's reason.
+
+Problem: total number of minutes during which at least k meetings are in progress. Meetings are half-open intervals [start,end) at minute timestamps. Since start,end integers. Need sum over minutes t of indicator(count meetings with start <= t < end >= k). Equivalently integrate coverage over integer minute cells.
+
+We can sweep events on half-open intervals. Need minutes count, not continuous duration? Same for unit minute cells if integral endpoints. Each interval covers end-start minutes. Using sweep over coordinate boundaries with active count. Because intervals start/end at integer boundaries. The measure of union at level >=k equals sum over elementary segments between sorted unique boundary points length * (active>=k). Since endpoints integer, minutes count equals duration in minute cells; half-open. If active count >=k over segment [x, y), contributes y-x minutes. Need process events.
+
+Approach 1: events list of (coord, +1/-1). Sort by coord. But within same coordinate, need handle end and start. Since half-open, at coordinate x, ends remove coverage for segment to right, starts add. For segment [x,next), active after processing all events at x. Thus we must process at x all ends and starts before evaluating segment to next. But if we process ends before starts at same x, segment to right uses correct net. Actually at x, meetings with end==x should no longer cover segment [x,next), meetings with start==x should cover segment [x,next). So net delta = starts - ends; active += starts - ends; then segment [x,next) covered if active>=k. Easier: collect events: for each interval, (start, +1), (end, -1). But zero-length intervals start==end: no events (or events cancel; if included, active net 0 but could create point; not contribute). We can skip.
+
+Then sort unique coordinates and compute segment lengths. Simpler: create dict delta[coord] += 1 for start, += -1 for end. Sort keys. Maintain active; for consecutive keys, segment [key_i, key_{i+1}) exists if there are keys; but coverage within segment determined by active after applying delta at key_i. We need process sorted unique coords: for each current coord, active += delta[coord]; then if it is not last coordinate, add (next_coord - coord) if active>=k. But careful: for first coord, active should include starts at first coord and ends at first coord. delta handles that. For second coordinate, before adding delta at second, segment from first to second uses active after first. That's correct. If delta at second is end, active after adding is after end; segment after second uses that. Good. Segment from last coord to next (none) no contribution. What about active after last? no after end no future. Good.
+
+Alternative sweep events sorted with order ends before starts; accumulate sum. But dict unique coords is clean. Complexity O(n log n) with up to 200k events.
+
+Need ensure minutes during which at least k in progress. Since endpoints integer and minute intervals of length 1, duration in continuous time equals number of minutes with coverage? Let's verify: minutes are discrete [m,m+1) for integer m? "covers minute start up to but not including minute end" means minute t covered if start <= t < end. For integer endpoints. Duration in time equals count of integer minutes covered because intervals align to integer boundaries. Segmented [x,y) with active>=k covers y-x minutes (all minute cells fully covered). Sum of widths times indicator equals number of covered minutes. Good.
+
+Edge cases: n=0 returns 0. k=1: total union length. Example 3: intervals [1,4),[2,3),[2,6); k=1. Union [1,6) length 5. Sweep: coords 1 delta +1; 2 delta +1+1=+2? start [1,4] done, [2,3] start, [2,6] start. Let's list deltas: start1+1, end4-1, start2+1, end3-1, start2+1, end6-1. delta[1]=+1, delta[2]=+2, delta[3]=-1, delta[4]=-1, delta[6]=-1. coords sorted. active=0; at1 active=1; segment [1,2) add1; at2 active=3; segment[2,3) add1; at3 active=2; segment[3,4) add1; at4 active=1; segment[4,6) add2; total5. Good.
+
+First example [[0,10],[5,15]] k=2: deltas 0+1,5+1,10-1,15-1. at0 active1 segment[0,5) not active>=2; at5 active2 segment[5,10) add5; at10 active1; at15 active0 total5. Good. Second: [[0,5],[5,10]], k=2: deltas0+1,5+1 (start second),5-1 (end first),10-1. At5 net delta 0 (start+1 end-1) total0, active1; segment[0,5) active1 not count; segment[5,10) active1 not count total0. Good.
+
+Potential issue: meetings list elements maybe tuples? Constraints says list[list[int]], fine.
+
+Need implement exactly top-level function with signature. Reply only code in a single python block. No explanation. Should use from collections import defaultdict? Acceptable. Single code block only. No extra text.
+
+Need ensure code robust for large n: dict operations O(n). Sorting keys O(n log n). Fine.
+
+Need decide exact implementation. Could skip zero-length intervals. But if we include zero-length interval events, delta[start]+=1 and delta[end]-=1 cancel; if we skip they'd also cancel. No contribution either way. Simpler if start==end: continue. For non-empty: delta[start]=delta.get(start,0)+1; delta[end]=delta.get(end,0)-1.
+
+Then keys = sorted(delta); active=0; total=0; for idx, x in enumerate(keys): active += delta[x]; if idx+1 < len(keys): y=keys[idx+1]; if active>=k: total += y-x. Return total.
+
+Let's test with segment after applying all deltas at x. Suppose at same coordinate, starts and ends both. Net delta = s-e, active += s-e. Is active after x correct? End-only coordinate: active decreases by number of meetings ending; starts zero. Correct. Start-only: increases. Both: net. Good.
+
+Could also compute total via event-based but this is clean.
+
+Now final must only code block. Use exactly def. Since user says do not run commands/tools. Fine.
+
+Need ensure "single ```python block" and nothing else. Final channel. Done.
+=== CONTENT ===
+```python
+def overlap_minutes(meetings: list[list[int]], k: int) -> int:
+    delta = {}
+    for start, end in meetings:
+        if start == end:
+            continue
+        delta[start] = delta.get(start, 0) + 1
+        delta[end] = delta.get(end, 0) - 1
+
+    keys = sorted(delta)
+    active = 0
+    total = 0
+    for i, x in enumerate(keys):
+        active += delta[x]
+        if i + 1 < len(keys):
+            y = keys[i + 1]
+            if active >= k:
+                total += y - x
+    return total
+```

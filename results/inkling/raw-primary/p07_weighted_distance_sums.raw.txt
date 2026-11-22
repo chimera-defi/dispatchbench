@@ -1,0 +1,188 @@
+=== REASONING ===
+We need to compute for each node v, sum over u of w[u] * dist(u, v).
+
+Standard rerooting technique: root the tree at 0. Compute two values per node:
+- down[v] = sum over u in subtree of v (including v) of w[u] * dist(u, v) — actually let's define properly.
+
+Let children's subtree sizes and weighted sums.
+
+Standard approach:
+1. DFS from root, compute for each node:
+   - sub[v] = sum of w[u] over subtree of v (including v)
+   - Also we need sum of distances from v to all nodes in subtree of v: Let f[v] = sum_{u in subtree(v)} w[u] * dist(u, v). Then f[v] = sum of w[v]*0? Actually dist(v,v)=0. For child c: f[v] += f[c] + sub[c] (because for each u in subtree(c), dist(u, v) = dist(u,c) + 1, so w[u]*dist(u,v) = w[u]*dist(u,c) + w[u]*1; sum over subtree(c): f[c] + sub[c]).
+
+2. Then reroot: for parent p of v, contribution from "outside" subtree: need sum over all u not in subtree(v) of w[u]*dist(u, v). Compute total weighted sum W = sum of all w. Let h[v] = sum_{u not in subtree(v)} w[u] * dist(u, v). When moving from v up to parent p, h[p] = ? Let's derive.
+
+Define g[v] = sum_{u not in subtree(v)} w[u] * dist(u, v).
+
+For root: g[root] = 0 (no outside).
+
+For child c of v: outside of c consists of: v and nodes outside of v (i.e., ancestors and nodes in other subtrees of ancestors). dist(u, c) = dist(u, v) + 1 if u is not in subtree of v? Wait careful.
+
+Let's do standard rerooting:
+
+Let up[v] = sum_{u not in subtree(v)} w[u] * dist(u, v).
+
+For node v, children c_i.
+
+up[root] = 0.
+
+For child c of v:
+outside nodes relative to c: nodes not in subtree(c). This includes:
+- v itself: w[v] * dist(v, c) = w[v]*1.
+- nodes outside subtree(v) (i.e., ancestors, siblings' subtrees, etc.): dist(u, c) = dist(u, v) + 1 (since path from u to c goes through v: u is not in subtree(v), so path to c passes through v then to c). Actually if u is in subtree(v) but not in subtree(c) (e.g., in another child subtree of v, or u=v), then dist(u, c) = dist(u, v) + 1 as well since path goes up to v then down to c. For u outside subtree(v), path to c: up to v then down to c; dist(u, c) = dist(u, v) + 1.
+
+So for all u not in subtree(c): dist(u, c) = dist(u, v) + 1. Therefore:
+up[c] = sum_{u not in subtree(c)} w[u] * (dist(u, v) + 1)
+= sum_{u not in subtree(c)} w[u] * dist(u, v) + sum_{u not in subtree(c)} w[u].
+
+Now sum_{u not in subtree(c)} w[u] = W - sub[c].
+
+sum_{u not in subtree(c)} w[u] * dist(u, v): nodes not in subtree(c) = nodes in subtree(v) not in subtree(c) plus nodes outside subtree(v).
+
+sum_{u in subtree(v), u not in subtree(c)} w[u]*dist(u, v) = f[v] - f[c] - sum_{u in subtree(c)} w[u]*dist(u, v)? Hmm, f[v] = sum_{u in subtree(v)} w[u]*dist(u, v). f[v] = f[c] + sum_{u in subtree(c)} w[u] * (dist(u,c)+1) + other children contributions... Actually simpler: sum over u in subtree(v) not in subtree(c): w[u]*dist(u,v) = f[v] - sum_{u in subtree(c)} w[u]*dist(u, v). And sum_{u in subtree(c)} w[u]*dist(u,v) = sum_{u in subtree(c)} w[u]*(dist(u,c)+1) = f[c] + sub[c].
+
+So sum_{u in subtree(v), not subtree(c)} = f[v] - f[c] - sub[c].
+
+And sum_{u outside subtree(v)} w[u]*dist(u, v) = up[v] (by definition of up[v] since up[v] is sum over u not in subtree(v) of w[u]*dist(u,v)). Yes.
+
+Thus:
+up[c] = up[v] + f[v] - f[c] - sub[c] + (W - sub[c])
+= up[v] + f[v] - f[c] - sub[c] + W - sub[c]
+= up[v] + f[v] - f[c] - 2*sub[c] + W.
+
+Then S(v) = f[v] + up[v].
+
+Check with example: n=3, edges (0,1),(1,2), w=[1,10,100]. Tree is path 0-1-2. Root at 0. Subtree of 0: {0,1,2}; subtree of 1: {1,2}; subtree of 2: {2}.
+
+f[2] = 0 (single node). sub[2]=100.
+f[1] = sum_{u in {1,2}} w[u]*dist(u,1) = 10*0 + 100*1 = 100. sub[1] = 110.
+f[0] = sum w[u]*dist(u,0) = 1*0 + 10*1 + 100*2 = 210. sub[0] = 111.
+
+up[0] = 0.
+up[1] = up[0] + f[0] - f[1] - 2*sub[1] + W = 0 + 210 - 100 - 220 + 111 = 1? Compute: 210-100=110; 110-220=-110; -110+111=1. Hmm. Let's verify directly: up[1] = sum_{u not in subtree(1)} w[u]*dist(u,1) = w[0]*dist(0,1) = 1*1 = 1. ✓.
+
+up[2]: children of 1: only 2. up[2] = up[1] + f[1] - f[2] - 2*sub[2] + W = 1 + 100 - 0 - 200 + 111 = 12. Verify directly: up[2] = sum_{u not in subtree(2)} w[u]*dist(u,2) = w[0]*2 + w[1]*1 = 2 + 10 = 12. ✓.
+
+S(0) = f[0]+up[0] = 210 ✓.
+S(1) = f[1]+up[1] = 100+1 = 101 ✓.
+S(2) = f[2]+up[2] = 0+12 = 12 ✓.
+
+Great.
+
+Implementation: use iterative DFS to avoid recursion limits (n up to 200000; recursion could work with sys.setrecursionlimit(300000) but Python stack memory might still be fine; path case recursion of 200000 deep might hit recursion limit and speed issues; better iterative).
+
+Plan:
+- adjacency list.
+- iterative DFS: order = []; stack = [0]; parent = [-1]*n; parent[0] = -2 marker. Do a traversal to build parent and order.
+- Then process nodes in reverse order: compute sub[v] and f[v].
+- Then process in order (top-down): compute up[v], store S.
+
+Use iterative stack for second pass.
+
+Code:
+
+```python
+def weighted_distance_sums(n, edges, w):
+    adj = [[] for _ in range(n)]
+    for a, b in edges:
+        adj[a].append(b)
+        adj[b].append(a)
+    parent = [-1]*n
+    parent[0] = -2
+    order = []
+    stack = [0]
+    while stack:
+        v = stack.pop()
+        order.append(v)
+        for u in adj[v]:
+            if u != parent[v]:
+                parent[u] = v
+                stack.append(u)
+    W = sum(w)
+    sub = w[:]  # sub[v] = w[v] + sum children sub
+    f = [0]*n
+    for v in reversed(order):
+        s = w[v]
+        fv = 0
+        for u in adj[v]:
+            if parent[u] == v:
+                s += sub[u]
+                fv += f[u] + sub[u]
+        sub[v] = s
+        f[v] = fv
+    S = [0]*n
+    S[0] = f[0]  # up[0]=0
+    # top-down pass
+    stack = [0]
+    while stack:
+        v = stack.pop()
+        up_v = S[v] - f[v]  # up[v]
+        for u in adj[v]:
+            if parent[u] == v:
+                up_u = up_v + f[v] - f[u] - 2*sub[u] + W
+                S[u] = f[u] + up_u
+                stack.append(u)
+    return S
+```
+
+Wait, up[0] = 0, S[0] = f[0]. Then for child, compute up_u. Note f[v] is f[v] of current node; f[u] is child's. Good.
+
+But careful: S[v] - f[v] gives up_v. For root, up=0, S=f, fine.
+
+Alternatively carry ups directly. Minor.
+
+Check reversed(order): order is a preorder (parent before children). Reverse ensures children processed before parents. ✓.
+
+Memory: adjacency list with n up to 200000, fine.
+
+Edge cases: n=1, edges empty. First DFS: parent[0]=-2, stack=[0], order=[0]. W=w[0]. sub[0]=w[0], f[0]=0. S[0]=0. Return [0]. Correct (only node, dist 0).
+
+Now the problem says reply with only code in a single python block. So output exactly one code block, nothing else.
+=== CONTENT ===
+```python
+def weighted_distance_sums(n: int, edges: list[list[int]], w: list[int]) -> list[int]:
+    adj = [[] for _ in range(n)]
+    for a, b in edges:
+        adj[a].append(b)
+        adj[b].append(a)
+
+    parent = [-1] * n
+    parent[0] = -2
+    order = []
+    stack = [0]
+    while stack:
+        v = stack.pop()
+        order.append(v)
+        for u in adj[v]:
+            if parent[u] == -1:
+                parent[u] = v
+                stack.append(u)
+
+    total_w = sum(w)
+    sub = [0] * n  # sub[v] = sum of w in subtree of v
+    f = [0] * n    # f[v] = sum_{u in subtree(v)} w[u] * dist(u, v)
+    for v in reversed(order):
+        s = w[v]
+        fv = 0
+        for u in adj[v]:
+            if parent[u] == v:
+                s += sub[u]
+                fv += f[u] + sub[u]
+        sub[v] = s
+        f[v] = fv
+
+    res = [0] * n
+    res[0] = f[0]  # up-contribution of root is 0
+    stack = [0]
+    while stack:
+        v = stack.pop()
+        up_v = res[v] - f[v]
+        for u in adj[v]:
+            if parent[u] == v:
+                up_u = up_v + f[v] - f[u] - 2 * sub[u] + total_w
+                res[u] = f[u] + up_u
+                stack.append(u)
+
+    return res
+```

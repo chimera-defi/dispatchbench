@@ -1,0 +1,214 @@
+=== REASONING ===
+We need answer with only code block. Need solve problem. Need think carefully.
+
+We have n lamps ring. state binary. Every second all lamps change at once: new value at i is XOR over d in offsets of old values at (i+d)%n. Offsets may duplicate; duplicates cancel (two terms same d -> XOR cancels). So net effect per second is linear operator over F2 on vector state length n: y_i = XOR_{d in unique offsets?} x_{(i+d) mod n}, but duplicates cancel exactly. However if offsets duplicate count even -> cancel all; odd -> one term. So effective set S of offsets with odd multiplicity. Since len<=6, at most 6 terms, after cancellation at most maybe 3 odd duplicates? We can compute counts mod 2 and unique shifts.
+
+Need after t seconds (up to 1e18), n up to 5000. Naive t iterations too high. Need exploit linear algebra over F2 with structured operator. State string length n. Need output string after t applications of T. T is circulant linear operator with polynomial p(x)=sum_{d in S} x^{d mod n} in ring R=F2[x]/(x^n-1). But offsets negative can be reduced mod n (since (i+d) mod n). Effective S are residues mod n with multiplicity odd (if an offset equals equivalent residues? offsets can differ by multiples of n; net residue mod n. Duplicates: count occurrences by residue mod n; parity matters. If same residue with even count cancels. Good). Then T corresponds to multiplication by p in cyclic group algebra. Need compute p^t mod (x^n -1) over F2, then apply to state. n<=5000, t<=1e18. Straight binary exponentiation of polynomial degree<n with each multiplication O(n log n?) Could do by repeated squaring polynomial multiplication modulo x^n-1. n=5000, t 60 bits, polynomial mult naive O(n^2)=25M, squarings ~60 -> 1.5B too high in Python maybe borderline/too slow. Need better.
+
+Alternative: State only length n=5000. t huge. Need fast exponentiation. Options:
+
+1. Use matrix exponentiation? n=5000 impossible.
+2. Use polynomial power via Frobenius over F2? Since modulo x^n-1. In characteristic 2, (a+b)^{2^k}=a^{2^k}+b^{2^k}; and x^{2^k}? Could help for t binary decomposition, but t arbitrary with many set bits. Effective polynomial p sparse (<=6 terms). Need p^t mod (x^n-1). We can use exponentiation by squaring with sparse polynomials? Repeated squaring doubles number of terms potentially, but modulo n maybe up to? Multiplication of sparse polynomials yields at most product terms with collisions. Start p has m terms (<=6 maybe). Squaring can increase m: m^2 up to 36, still small. Multiplying by p for each set bit increases m by factor m, but m can grow. However because p sparse, repeated squaring polynomial has up to (m)^{2^r} terms modulo n; could blow up to n (5000) maybe not too bad? Let's estimate: m<=6. After squaring once, up to 36 terms (unless collisions); after 2 squarings up to 1296? Actually number of pair sums modulo n can collide but distinct terms can be up to product; after squaring repeatedly, m_r <= min(n, m_{r-1}^2). For m=6: r1 36, r2 1296, r3 5000 (capped). Over 60 bits, if we compute p^{2^j}, terms capped at n=5000. Naive multiplication of two polynomials with k,l terms: k*l <= maybe 36*? For set bit multiplication, state polynomial has m_acc <= min(n, m * m_power). If accumulator becomes dense (5000) and power polynomial dense (5000), naive multiply O(25M) per set bit, up to 60 -> too high but maybe okay in optimized numpy? Need avoid heavy.
+
+Could use FFT over complex? Need exact mod 2; polynomial over F2 can be represented as bitmask (Python int) and multiplication modulo x^n-1 using shifts and XOR. Since n<=5000, Python int bit operations are fast. Multiplication of sparse or dense polynomials as bitsets: For polynomial A bits at positions (residues) and B bits, convolution modulo n: result bit j = XOR_{a in A,b in B, (a+b)%n=j} 1. Naively for each set bit in A, shift B by a, mask? But modulo n requires wrap: term x^a * B(x) modulo x^n-1: if a+b>=n wrap (a+b-n). We can compute shift_left_wrap(B, a) = ((B << a) | (B >> (n-a))) & mask if a>0? Let's derive. Represent polynomial B bits positions 0..n-1. Multiply by x^a: term bits b+a; if >=n, subtract n. So y = ((B << a) & mask) | ((B >> (n - a)) & mask?) Need if a=0 no wrap. For a in 1..n-1: bits b<n-a go to b+a (<n): (B << a) & mask gives bits positions a..n-1 from b=0..n-a-1. Bits b>=n-a (i.e. b >= n-a) go to b+a-n = b-(n-a): values 0..a-1. That is (B >> (n-a)) & ((1<<a)-1)? Let's check B bit b=n-a -> shifted after wrap position 0: B >> (n-a) includes bit 0. B bits b=n-a..n-1 map to positions 0..a-1. (B >> (n-a)) has bits positions 0..a-1 (within full int). Mask low a bits. So y=((B << a) & mask) | (B >> (n-a)) & ((1<<a)-1). Since (B >> (n-a)) may have higher bits? B length n; B >> (n-a) has bits positions 0..a-1 only (because B has bits up to n-1; shift by n-a yields bits up to a-1) actually if B has bit n-1, shifted to a-1; yes positions <a. Good. For a=0, y=B. This multiplication by x^a is O(machine words) via Python int shift/xor. Multiplying two polynomials represented as ints via iterating set bits of one polynomial and XOR shifted other. If one polynomial has k set bits, cost k shifts of big int length n (~5000 bits = 79 bytes? Actually 5000 bits ~625 bytes, Python int shift cheap O(len words) but with 5000 bits ~80 30-bit digits; k up to 5000 -> 400k digit operations maybe okay in C but Python loop 5000 with bigint ops maybe okay ~ milliseconds? Need for t exponentiation with accumulator dense maybe fine.
+
+Need compute effective polynomial p as int bits. Then exponentiate modulo x^n-1. Since n<=5000, t<=1e18 (60 bits). Naive loop: result=1 (bit0). base=p. while t: if t&1: result=mul(result,base); base=mul(base,base); t//=2. Each mul cost depends on set bits of result or base. Need optimize multiplication by choosing iterate over set bits of smaller polynomial. Cost O(min(popcount(a), popcount(b)) * n_words). Bigint shifts in loop: each iteration shift of big int by variable, XOR, mask; 5000 bits, 1000 set bits -> 1000*80=80k word ops, fine. But if popcount(result) and base both ~5000, set-bit loop 5000 per multiplication; with 120 multiplications (60 squarings + ~30 accumulator muls) -> 600k bigint shift operations each ~80 words = 48M word ops plus Python overhead maybe acceptable? likely okay (5000*120=600k loops, each shift/xor/mask maybe ~0.01us? Actually bigint shift/xor on 5000 bits maybe ~microseconds; 600k* maybe 2us =1.2s; okay). We can optimize by always iterate over set bits of base or result whichever smaller; if both dense, choose maybe bits in smaller; equal 5000. Still okay.
+
+But note effective offsets len<=6, but after squaring base can become dense (popcount up to n). Result accumulation similarly dense. 60 squarings with dense polynomials: each squaring cost if we iterate over set bits of base (n) = 5000 shifts; result accumulator cost up to maybe another 5000 per set bit; total maybe 60*5000 + 30*5000 =450k bigint ops. Fine.
+
+Need also apply polynomial r=p^t to state. state int bits (n bits). new = mul(r, state). Cost min(popcount r, popcount state)*shift. Fine.
+
+Alternative use recurrence for XOR linear map? This polynomial method is exact and simple. Need prove duplicate offsets cancel: counts mod2. Yes.
+
+Need consider offsets larger than n and negative: Reduce d mod n (Python %) gives residue r in [0,n-1]. But duplicate cancellation before or after mod? Offsets d and d+n are same term (same i+d mod n) and cancel if even count. Counting by residue mod n and parity is correct: two terms with same residue modulo n are identical. If offsets differ by multiple of n, they reduce same residue; even count cancels. Example offsets [1, n+1] (n arbitrary) same term twice -> cancel. Count by residue: both residue1, count2 ->0. Good. If offsets [0, n] same. Fine.
+
+Need be careful: Offsets list length <=6, but t can be 0: return original state. Our polynomial method with t=0: exponentiation loop zero iterations, r=1, apply identity -> state. Good.
+
+Need implement exactly top-level function. No explanation. Reply only code in single python block.
+
+Now, is there any subtlety with new value being XOR in order given? XOR commutative, order irrelevant. Duplicate terms cancel, as stated. For len(offsets)<=6, after parity count m<=6? Actually residue parity could produce at most 6 nonzero, but if same residue odd count one. Good.
+
+Let's test examples manually:
+
+evolve("0100", [1],1): state bits positions? Need decide bit representing lamp i. Let's set bit i = state[i] (0/1). New state y_i = XOR_d old x_{(i+d) mod n}. If we multiply polynomial? Need get orientation right for efficient polynomial. Represent state as bits x_i at position i. The operator T: y_i = sum_d x_{(i+d)%n}. This is not multiplication by x^d in standard orientation? Standard polynomial A=sum x_i z^i. Multiplication by z^d gives coefficient at position i? A*z^d mod z^n-1 has coefficient at position i = x_{i-d} (because (i-d)+d = i). That maps y_i = x_{i-d}, i.e. copies left? Need orientation. We want y_i = x_{i+d}. This is multiplication by z^{-d} standard, or reverse bits. But we can adapt. Alternatively represent bits reversed? Simpler: define transform for offset d to shift bits left by d modulo n? y_i = x_{(i+d)%n}; y bit i equals x bit (i+d mod n). That means y is x shifted right by d? Let's visualize n=4, offset d=1, state "0100" bits x_1=1. y_i=x_{i+1 mod4}; y_3=x_0=0, y_0=x_1=1, y_2=x_3=0, y_1=x_2=0 => y bits position0=1 => string "1000". Example output "1000". Good. So bit position i in y = bit (i+d mod n) in x. For polynomial p=sum z^d? Need y = ? If we apply T to bitset using repeated? Could just iterate over effective offsets for t? no.
+
+We need handle orientation in polynomial power. There are two possibilities:
+- Represent state as bits with lamp i at position i. The operator T maps y to x with y_i = x_{(i+d) mod n}. This is equivalent to taking polynomial X(z)=sum_i x_i z^{n-i?} maybe. Let's derive a clean convention for polynomial multiplication modulo z^n-1.
+
+Standard multiplication modulo z^n-1: If B=sum_i b_i z^i, multiply by z^a: C=sum_i b_i z^{i+a} mod z^n-1 = sum_{j} c_j z^j with c_j = b_{j-a} (mod n). Thus coefficient at j = old position j-a. That is mapping y_j = x_{j-a}. We want y_i = x_{i+d}. Set j-a = i+d -> a = j - i - d? Not fixed because j fixed? Wait for y_j = x_{j-a}, we want x_{j+d}; set -a = d (mod n) -> a = -d mod n. Yes y = X * z^{-d} mod. So T_d corresponds to multiply by z^{(-d) mod n}. For multiple offsets, y = X * sum_d z^{(-d) mod n}. Because X*z^{-d1}+... over F2 (XOR). Alternatively multiply by p(z)=sum z^{(-d) mod n}. Good.
+
+Alternatively we can represent bits in reverse index (lamp i at position n-i mod n) then standard multiplication. But easiest: when building p for offsets, use antipodal exponent r = (-offset) % n, set bit r. Then applying polynomial r_final to state via standard multiplication (coefficient y_j = sum over a in poly, i? Let's verify). Standard multiply A(state bits) by R(z)=sum z^a gives C coefficient j = sum_{a in A, b?} but when implementing multiplication by powers z^a via shifts, coefficient y_j = sum_{a in R?} x_{j-a} (mod n). If R contains a=(-d) mod n, then y_j = x_{j-(-d)} = x_{j+d}. Correct. Good.
+
+Need implement bitset_mul(A,B) with standard orientation: result coefficient j = XOR_{i+k ≡ j mod n} a_i b_k. Implementation iterate over bits i in A, shift B by i, coefficient j gets b_{j-i}. Wait if A bit i (state index i) and B bit k (power exponent k), after multiplication coefficient at j = i+k mod n. If we multiply state X (bits x_i) by polynomial R (bits r_k at exponent k), then result y_i+k = x_i; coefficient y_j = x_{j-k}. Good. Implementation: for each set bit i in X, result ^= shift(R bitset by i). shift_wrap(B,i) puts B bits k into positions (i+k) mod n. Then coefficient j = sum x_i * R_{j-i}; yes.
+
+But in exponentiation, base=p is polynomial R=sum z^{-d}. Power base^2 corresponds multiplication standard, coefficient y_j? It represents T^2? Let's check T_d^2: y_i = x_{i+2d}. Polynomial R1=z^{-d}; standard multiplication R1*R1 = z^{-2d}; applying to state gives y_j = x_{j-(-2d)} = x_{j+2d}. Correct. Good. Applying final to state: standard shift state bits by power bits positions a=-effective sum? It works.
+
+Need implement shift_by(B, i): if i==0: return B; else ((B << i) & mask) | (B >> (n-i)) (and maybe mask low i? B>>(n-i) bits positions 0..i-1; no need mask because B length n ensures no higher bits? Let's check B may have bit n-1; shift right by n-i -> bit position (n-1)-(n-i)=i-1; low bit positions 0..i-1, yes no higher. For i between1 and n-1. Good. But if B has bit exactly n-1 and i? (n-1)-(n-i)=i-1. fine. For i=n? not used since exponents mod n in 0..n-1. i could be 0 -> return B. Good.
+
+Alternative implement shift_by as: ((B << i) & mask) | (B >> (n - i)) if i else B. But when i=0, n-i=n, B>>n =0, (B<<0)&mask=B; could use same formula for i=0? B>>(n) yields 0 (for B < (1<<n)); (B<<0)&mask=B. Actually B >> n = 0, so formula works for i=0 too: shift_by(B,0)=B. But bit_length of B>>n when n maybe? fine. Use if i: ... else B for clarity.
+
+Multiplication: def mul(A,B): if A==0 or B==0: return 0; if B==1: return A; if A==1: return B; iterate bits in smaller of popcount. We need bits as ints. Python int.bit_count() available in Python 3.8? Actually int.bit_count() introduced Python 3.8? I know int.bit_count() is Python 3.8 or 3.10? Let's recall: int.bit_count() introduced in Python 3.8? PEP 599? Actually int.bit_count() added in Python 3.8? No, int.bit_count() is new in Python 3.8? Let's verify memory: int.bit_count() was added in Python 3.8 maybe? I know `int.to_bytes` old, `int.bit_count()` from Python 3.8? Quick mental: docs say int.bit_count() New in version 3.8? Wait there is `int.bit_length()` old; `int.bit_count()` added in Python 3.8? I think Python 3.8 introduced? Actually PEP 584? No. I recall `int.bit_count()` was added in Python 3.8 or 3.10? Let's be safe for Python 3.3+? User says Python 3; current Python 3.11 likely. Use `bin(x).count('1')` if concerned, but slower. Since t up to 1e18, use bit.bit_count? The environment probably Python3.10+. But no commands/tools, need code. Better not rely on `bit_count`? Could use `bit_count` if available? Safer to avoid uncertain methods? But 64-bit ints in Python, setting bits and iterating via `while x: i = (x & -x).bit_length() - 1; ...; x ^= (1 << i)` is O(popcount). For popcount, we can track count? Simpler use `bin(x).count('1')`, but in multiplication over many iterations with n=5000, bin of 5000 bits ~7KB; repeated bin calls could be expensive but only maybe ~120 times plus per loop? We can just choose iteration side based on known estimates: If B has <=6 set bits initially, iterate base bits. After squaring, popcount unknown; we can compute popcounts with bin().count. Number of multiplications ~90; computing bin for both operands each multiplication (~90*2) fine. Or maintain popcount as integer variable alongside bitset to compare sizes. Since we create polynomials, can track popcount. Simpler: choose smaller by bin(A).count('1') vs bin(B).count('1'), but in loop over set bits using x & -x etc. 900k? Fine. However to iterate set bits, repeatedly `x & -x` creates ints; okay.
+
+Maybe optimize multiplication further using the fact n<=5000 small. We could represent polynomials as Python lists of booleans and use convolution? No, bitset is good.
+
+Need mask = (1 << n) - 1. But for n=5000, mask int fine.
+
+State bits: from string: bits=0; for i,ch in enumerate(state): if ch=='1': bits |= 1<<i. Note string index i left to right corresponds lamp i, output same. Bits bit positions correspond lamp indices. Good. Output string: for i in range(n): '1' if (res>>i)&1 else '0'.
+
+Potential issue: For effective polynomial p built with antipodal exponents: for each offset count parity, r=(-off)%n; set bit r. Need count parity by residue or offset? Let's do: counts={}; for off in offsets: residue=off % n; counts[residue]=counts.get(residue,0)^1? If we toggle counts mod2 by residue, duplicate offsets with same residue cancel. But what about offsets differing by n but different counts 2 (even) same residue toggle twice -> 0. Good. However this only retains residue parity; but what if two offsets different residues produce same antipodal exponent? antipodal r same iff off same mod n (for n positive). So parity by residue is same. We don't actually need antipodal parity? Build p: for residue, parity in counts.items() if parity=1: r=(-residue)%n; p|=1<<r. But counts after toggling by residue: if same residue odd -> count1. Good. Equivalent.
+
+Then exponentiation: base = p; result=1 (bit0: polynomial 1). While t>0: if t&1: result=mul(result,base); t >>=1; if t: base=mul(base,base). Wait standard loop: while t>0: if t&1: result=mul(result,base); t >>=1; if t: base=mul(base,base)? Need squaring after consuming bit. If t becomes 0 after shift, no need square. But in code, typical: while t: if t&1: result=mul(result,base); t >>=1; if t: base=mul(base,base). Or if t: base=mul(base,base) after shifting always. Let's design carefully to avoid computing extra and bug.
+
+Simplest:
+r=1
+base=p
+tt=t
+while tt:
+    if tt & 1:
+        r=mul(r,base)
+    tt >>=1
+    if tt:
+        base=mul(base,base)
+Then at end r = p^original_t? Let's prove: Loop processes bits LSB. On iteration before shift, base=p^{2^i}; if bit set multiply r by base. Then tt=floor(original/2^{i+1}); after shifting, if tt>0 square base for next bit. If bit not set, still shift; if tt>0 square. At end base not used. Correct. Could always square after shift before check but wastes; fine. But note when tt becomes 0 and bit was set, r multiplied; no square. Good.
+
+However initial p maybe zero (all offsets cancel). Then polynomial p=0. If t=0, result=1. If t>0, r should be 0 polynomial (since T^t=zero operator? If effective polynomial zero means T maps every state to 0? Let's check if effective set empty, each new lamp XOR over zero terms = 0, yes T=0. Then T^t for t>=1 = 0 (state empty). Polynomial p=0. In exponentiation with tt>0: first iteration if msb? Suppose p=0, t=5 (bits 101). i=0 bit set: r=mul(1,0)=0; tt=2 (10); base=mul(0,0)=0; i=1 bit=0: r stays0; tt=1; base=0; i=2 bit=1: r=mul(0,0)=0. Good. If p=0, t huge, r=0. Applying zero polynomial to state = zero bits. Output all zeros. Example "1", [0,0],5: effective p=0; t>0 => state 0 -> "0". Good. Note [0,0] duplicate cancels. But t=0 returns original. Good.
+
+Another subtlety: if p=0 and t>0 but our exponentiation first bit maybe not set (e.g., t=2 bits 10). r=1 (bit0 = polynomial 1) at iteration i=0, base=0, bit=0, tt=1, base=0; i=1: bit=1, r=mul(1,0)=0. Good. If t=4: bit0=0, tt=2, base=mul(0,0)=0; bit=0 tt=1 base=0; bit=1 r=mul(1,0)=0. Good.
+
+What if p=1 (no offsets? impossible because offsets nonempty <=6? After cancellation effective polynomial could be zero, not one. Offsets [0,0,0]? count residue0 parity1? offsets [0] effective p=1 (identity polynomial) because antipodal exponent0. T is identity. t huge: exponentiation with p=1, r=1. Good. If offsets [0,0] p=0. Good.
+
+Need ensure p=identity corresponds T leaves state unchanged? For d=0, y_i=x_i; polynomial p=z^0=1; applying to state = state. Good.
+
+Potential issue with antipodal p: For d=1, effective offsets [1] example: p=z^{-1 mod n}=bit n-1. For n=4, p bits position3. Exponentiation t=1: r=p. Apply to state bits x1=1: result coefficient j = sum_i x_i * p_{j-i}. p has k=3; result bit j gets x_{j-3}? Wait standard multiplication state X by R: coefficient y_j = sum_{i} x_i R_{j-i mod n}. R bit k=3, so j-i=3 => i=j-3; y_j=x_{j-3}. For n=4, y_0 = x_{-3 mod4}=x_1; y_1=x_{-2}=x_2=0; y_2=x_{-1}=x_3=0; y_3=x_0=0. bits positions 0 and? result bit0 =1 => string "1000". Matches. Good.
+
+Now duplicate offsets in result with t: Example evolve("0100", [-1,1],1). Offsets [-1,1]: residues n-1 and1 both odd; effective p = z^{-(n-1)} + z^{-1} = z^{1} + z^{n-1}? Wait antipodal: for residue d=-1 mod n = n-1, antipodal r=(-d) mod n = 1 mod n. For residue d=1, r=(-1) mod n = n-1. p bits positions1 and n-1. Apply to state bits (n=4 x1=1): y_j = sum_i x_i p_{j-i}. i=1: need p_{j-1}; p bits k=1,3. p_{j-1}=1 when j-1=1 => j=2; or j-1=3 => j=4 mod4=0. So y_2=1,y_0=1 => bits positions0 and2 => "1010". Matches. Good.
+
+Example evolve("110", [5],2): n=3, state bits positions0,1 (bits: i0=1,i1=1,i2=0). Effective offset d=5 residue 5%3=2, antipodal r=(-2)%3=1. p bits position1. T should y_i = x_{i+5 mod3}=x_{i+2}. After one: y0=x2=0,y1=x0=1,y2=x1=1 => "011"? Wait state "110" (lamp0=1,lamp1=1,lamp2=0). d=5, i0: lamp2 old x2=0 -> y0=0; i1: lamp3 mod3=0 x0=1 -> y1=1; i2: lamp4 mod3=1 x1=1 -> y2=1 => "011". After second: y0=x2 old=1,y1=x0 old=0,y2=x1 old=1 => "101". Example returns "101". Good. Polynomial p bit1. r2=p^2 = z^{2} (standard) (since z^1*z^1 = z^2). Apply to state: y_j = x_{j-2 mod3}. j0 -> x_{1}? j-2=-2 mod3=1, x1=1 -> y0=1; j1 -> x_{-1}=x2=0; j2 -> x_0=1 => y0=1,y2=1 => "101". Good. Note T^2 effective offset 10 mod3 =1? y_i = x_{i+10}=x_{i+1}; Wait 5+5=10; 10 mod3=1; y_i=x_{i+1}. For j0, x1=1, j1 x2=0, j2 x0=1 = "101". yes. Polynomial antipodal for offset10 mod3=1 is z^{-1}=bit2? Wait inconsistency? Let's re-evaluate: Effective offset d=5 modulo n=3 is 2 (since 5 mod3=2). Antipodal exponent r=(-d) mod n = (-2) mod3 =1 (bit1). T by d: y_i=x_{i+d}=x_{i+2}. Polynomial p bit? Standard multiplication by p=bit1 gives y_j=x_{j-1}? Wait hold on! I may have made a sign error in the general standard multiplication orientation. Let's revisit carefully. This is critical.
+
+Standard multiplication: State X has bits x_i at exponent i. p bits at exponents k. Product P(X) = X * p. Coefficient at exponent j = sum_{i+k ≡ j mod n} x_i * p_k. If p has bit k=1, coefficient j = sum_{i: i+k≡j} x_i = x_{j-k}. Thus multiplying by p bit k yields y_j = x_{j-k}. We want y_i = x_{i+d}. So need j-k = j+d mod n -> -k = d mod n -> k = (-d) mod n. Yes. For d=5 residue2, k=(-2) mod3 =1. Product gives y_j=x_{j-1}. But y_i=x_{i+d}=x_{i+2}. Mod3, i+2 = i-1 (since +2 ≡ -1). Ah because d mod3=2 = -1. Yes y_i=x_{i-1}; matches. Good.
+
+For t=2, T^2 should y_i=x_{i+10}=x_{i+1} (10 mod3=1). Applying p^2: bit1*bit1=bit2; y_j=x_{j-2}=x_{j+1}; yes. Good.
+
+Good. For example [-1,1] n=4, offsets residues 3 and1; effective exponents r=(-3)%4=1 and (-1)%4=3. p bits1,3. y_i=x_{i-1}+x_{i-3}=x_{i-1}+x_{i+1}. For i=0 y0=x3=0 + x1=1 =>1; i=1 y1=x0=0+x2=0=>0? Expected output "1010": y1=0 yes; i=2 y2=x1=1+x3=0=>1; i=3 y3=x2=0+x0=0? Wait output bit3 should 0. y3=x_{2}+x_{0} =0+0=0. Output bits positions0 and2 => "1010". Good.
+
+Now let's think about complexity more. n=5000; p bitset maybe <=6. Exponentiation by squaring with dense polynomials. Need ensure code robust for n=1 edge cases. Let's examine n=1. Mask=(1<<1)-1=1. Offsets residues all 0. parity counts by residue: if total number offsets odd -> p=1 (bit0); even -> p=0. Antipodal r=0. T identity if odd? n=1, lamp 0 new = XOR over offsets of x0 = total terms mod2. If odd, y0=x0; if even y0=0. p must be z^0=1 for identity if odd, p=0 if even. Good. Exponentiation with mask n=1; shift_by(B,i) for i? exponent bits only 0, so shifts zero. Good.
+
+Need handle t=0 with p=0: exponentiation r=1 (identity) (not p^0? p^0=1 yes). Apply to state. Good.
+
+Potential issue: Polynomial p when offsets parity effective set includes residue0 but antipodal r=0, p bit0 =1. Good.
+
+Now code style. Implement exactly top-level function. We can include helper functions? User says implement exactly this function (top-level function, not class). They might not forbid helpers. To be safe, only top-level function? They say "Implement exactly this function" maybe expects just function no extra classes; helper functions top-level likely okay but "exactly this function" maybe means no extra main. Better include only the function and maybe nested helper inside it. Nested helpers avoid extra top-level names. Use nested `def mul(a,b):` inside `evolve`. That keeps top-level only evolve.
+
+Code:
+```python
+def evolve(state: str, offsets: list[int], t: int) -> str:
+    n = len(state)
+    parity = {}
+    for off in offsets:
+        r = off % n
+        parity[r] = parity.get(r, 0) ^ 1
+    mask = (1 << n) - 1
+    p = 0
+    for r, par in parity.items():
+        if par:
+            antipode = (-r) % n
+            p |= 1 << antipode
+    def shift_wrap(a, s):
+        if s == 0:
+            return a
+        return ((a << s) & mask) | (a >> (n - s))
+    def mul(a, b):
+        if a == 0 or b == 0:
+            return 0
+        # choose to iterate over bits of one operand
+        # use lower popcount operand as iteration source
+        if bin(a).count('1') <= bin(b).count('1'):
+            x = a
+            y = b
+        else:
+            x = b
+            y = a
+        res = 0
+        while x:
+            low = x & -x
+            i = low.bit_length() - 1
+            res ^= shift_wrap(y, i)
+            x ^= low
+        return res
+    def apply(state_bits):
+        return mul(state_bits, result?) # need after exponent
+    result_poly = 1
+    base = p
+    tt = t
+    while tt:
+        if tt & 1:
+            result_poly = mul(result_poly, base)
+        tt >>= 1
+        if tt:
+            base = mul(base, base)
+    res = result_poly
+    bits = 0
+    for i, ch in enumerate(state):
+        if ch == '1':
+            bits |= 1 << i
+    out = mul(bits, res)
+    return ''.join('1' if (out >> i) & 1 else '0' for i in range(n))
+```
+Potential bug in shift_wrap for s and a bits: if n=1, s=0 only, fine. If s !=0, for s maybe n-s =0 when s=n? not possible since exponents s are 0..n-1. good. But in mul, x bits positions i correspond exponents 0..n-1; y set maybe includes bits. shift_wrap(y,i) fine.
+
+However, shift_wrap formula with `a >> (n - s)`: for s in 1..n-1, if a has bits in higher positions such that a>>(n-s) has bits beyond? Let's re-evaluate generally with Python int shift right. a < 2^n. (n-s) in 1..n-1. a >> (n-s) < 2^{n-(n-s)} = 2^s. It contains bits positions 0..s-1; good. No mask needed. If s=0 handled. If s can be n? no.
+
+In mul, if chosen x = smaller, loop over set bits and XOR shift_wrap(y,i). If y is maybe zero? handled. If b==1, shift_wrap(1,i)=1<<i; loop okay. We don't need special.
+
+Complexity of `bin(a).count('1')`: called in mul; number calls maybe ~ for each mul. For dense polynomials, bin length 5001 bits ~ ~7KB string; times 120*2 = maybe 1.7MB, fine. But using bin once per multiplication for both operands is okay. However each `mul` may be called ~2*number_bits ~120; each bin call 7KB; negligible.
+
+But maybe we can track popcounts to avoid repeated bin and loop; not needed.
+
+Potential issue: `int.bit_length` for low = x & -x; fine.
+
+Important: In evolve, effective offsets counts by residue `off % n`. But duplicate terms cancel in order? XOR commutative and duplicate cancellation pairwise. If three copies, parity odd. toggle by 1 mod 2 with `parity.get(r,0) ^ 1`; works.
+
+Potential issue: offsets list can include huge values >2^? Python fine.
+
+Potential issue: t can be bool? not relevant.
+
+Need output only code block no text. Good.
+
+Let's verify with examples manually more and maybe edge cases.
+
+Example 1: state "0100", n4, offsets [1]. parity {1:1}; p bit antipode (-1%4=3) => 1<<3. exponent t=1: result=1; tt=1; bit set: result=mul(1, base). mul: bin(result).count('1')=1 <= bin(base)=1; x=result(bits? result=1 -> i=0, x=1), y=base(bit3). res=shift_wrap(base,0)=bit3. output string: out bit3=1 => lamp3 = '1'? Wait output should "1000" (lamp0=1). But out bit3=1 would output "0001". Oh! I think we made an orientation/inversion bug in how we output bits? Let's re-evaluate carefully! This is critical. State "0100": bits x_1=1. We expect new state bit0=1. We built p=bit3. Applying mul(bits=x, res=p) with standard multiplication: x has bit i=1. y=p (bits k=3). result bit (i+k)=bit4 mod4=0. Ah! I made a mistake just now: I said result=shift_wrap(base,0) because x=result (poly 1) not state. Wait in exponentiation, result_poly = p; then later out=mul(state_bits, result_poly). But in exponentiation for t=1, result_poly=mul(result=1, base=p). Here multiplication of polys: x=result=1 (bits i=0), y=base=p(bit3). res=shift_wrap(y, i=0)=bit3. Good, result_poly is polynomial bit3. Then out=mul(bits_state (bit1), result_poly(bit3)). chosen x maybe smaller; both popcount1. x=bits_state, y=result_poly. i=1; res=shift_wrap(y=bit3, i=1). Formula ((bit3 <<1)&mask) = bit4&mask for n4 = bit0? 1<<(3+1)=1<<4; & (1<<4-1=15) => bit0 (since 16 mod16 =0) =1. ((a >> (n-s)) with s=1) = bit3>>3 = bit0 =1. But res = ((a<<s)&mask) | (a >> (n-s)). That would be bit0 | bit0 = bit0. Good. I forgot result=1 vs state in final apply. Output bit0 -> "1000". Good.
+
+But wait for k=1, shift_wrap(y=bit3) should compute y shifted by i=1: bit3+1=bit4 mod4=bit0. second part `a >> (n - s)` = bit3 >>3 = bit0. first part `(a <<1)&mask` = bit4 &15. For n=4, 1<<4 & 0b1111 = 0, not bit0! Hold on: mask=(1<<n)-1 = 15 = bits 0..3. `(a << s) & mask`: a=1<<3=8 (bit3). a<<1=16; &15 =0. I mistakenly said bit0; but a<<1 for bit3 -> bit4 which is outside mask -> 0. The wrap should come from `a >> (n-s)` = 8 >>3 =1 (bit0). Correct: bit3 moves to bit0 via second part. Good. For bit2 (a=4) n4 s1: a<<1=8&15=8 (bit3); second part=4>>3=0; result bit3. Expected (2+1=3). Good. For bit3 -> bit0, second part. Formula good. For general s=2, y bit2: a=4, a<<2=16 &15=0 (wrap expected bit0); second part=4>>(2)=1 (bit0). Good. For s=3, y bit0: a=1; a<<3=8; second part=1>>1=0 (n-s=1) output bit3; expected bit3. For s=3,y bit1: a=2; a<<3=16 &15=0; second part=2>>1=1 (bit0); expected bit1+3=0. Good. Formula works.
+
+Now for p built bit k, out=mul(state_bits, p). Standard product as above y_j=x_{j-k}. With k=3 in n4, y_0=x_{0-3}=x_{1}=1; y1=x_{-2}=x_2=0; y2=x_{-1}=x_3=0; y3=x0=0 => "1000". Good.
+
+Example [-1,1] n4: parity: residues 3 (for -1) and1, both odd. p antipode: r3 -> (-3)%4 =1; r1 ->3. p bits1 and3. out=mul(x1=1, p): x bit1; y=p bits k=1,3. i=1; k1 -> shift_wrap p=bits1,3 by1: bit1->bit2; bit3->bit0. res bits0,2 => "1010". Good.
+
+Example evolve("110", [5],2): effective residue 2, p antipode? For r=2, antipode = (-2)%3=1. base bit1. t=2 (binary 10): iter1 tt=2? Wait tt=2; bit0=0 -> r=1; tt=1; base=mul(bit1,bit1)=? standard product bit1*bit1 = bit2 (with n3). iter2: tt=1, bit=1 -> r=mul(r=1, base=bit2)=bit2. tt=0 no square. result_poly=bit2. Apply state bits i0,i1: i0 -> p bit2 shifted by0 = bit2; i1 -> bit2 shifted by1 -> bit0? bit2+1=bit3 mod3=bit0. res bits2 and0 => lamp0=1,lamp1=0? Wait state "110": bits0=1, bits1=1. out bit2=1, out bit0=1 -> string indices i0=1,i1=0,i2=1 = "101". matches. Good.
+
+Example evolve("1", [0,0],5): n1, parity {0:0} (two toggles) => p=0. t=5 tt=5: iter1 bit1: r=mul(1,0)=0; tt=2; base=mul(0,0)=0; iter2 tt=2 bit0: r stays0; tt=1; base=0; iter3 tt=1 bit1: r=mul(0,0)=0. out=mul(state bit0,0)=0. string "0". Good.
+
+Example evolve("1011", [2,7],0): n4, t=0. parity residues: 2 and7%4=3, p bits antipodes: -2 mod4=2; -3 mod4=1 => p bits2,1. exponent not used; result=1; out=state -> "1011". Good.
+
+Now, we need be mindful of standard polynomial multiplication over n=5000 with 1-bit identity. Multiplying identity result=1 by base: in mul, chosen x maybe identity (popcount1), y=base. Loop i=0 only, res=shift_wrap(base,0)=base. O(1). Good.
+
+Now potential issue: p=0 and t=0; r=1; output state. Good.
+
+Now, let's think if offsets duplicate terms cancel but if count of residue parity is 0 then T? Example offsets [1,1,1] effective p bit antipode1. T = XOR of three same terms = one term. Good. Since t may be huge, p^t uses polynomial p. Fine.
+
+Now perhaps there is a more direct formula for T^t using offsets grouped by parity? Since len<=6, effective p sparse with at most? Count by parity yields at most 6 nonempty residues, but after antipode p has m<=6 bits. Could compute p^t in ring with m<=6 without densifying too often by using sparse exponentiation and then state? Dense is fine. Need ensure time within limit. Let's estimate actual operations more precisely. Multiply function may iterate over set bits of chosen smaller operand. In squaring, both operands equal, so chosen x = either (same popcount); iterating over set bits of base. When base reaches dense 5000 bits, a single shift_wrap creates a new Python int by shifts. Each iteration: low = x&-x; i = low.bit_length()-1; res ^= shift_wrap(y,i); x ^= low. shift_wrap: if s==0 return y; else `(a << s) & mask` -> creates large int bits length n+s up to 10000 bits (~1250 bytes) before mask; `a >> (n-s)` -> int length s bits. XOR with mask. This is maybe ~0.5-2 microseconds. 5000 iterations = ~5-10 ms per dense squaring? Actually 5000 * 1us =5ms, times 60 =300ms. accumulator multiplications 30 * maybe less because result dense? If result dense and base dense, 5000 iterations each. 30*5ms=150ms. Good. Python loop overhead maybe 0.2us? Actually each while iteration with shifts likely >0.5us, 150k iterations (5000*30) =75ms? plus 300k? Fine.
+
+But wait: In squaring, `bin(a).count('1')` computes bin of dense int 5000 bits; 120 calls * generating ~7KB string = tiny. Good.
+
+Alternative to reduce Python loop, use polynomial convolution via FFT; not needed.
+
+Need maybe use bitset representation of state with bit i = lamp i. Return string join.
+
+Potential bug: If state contains other chars? Assume valid. Fine.
+
+Potential bug with using `bin(a).count('1')` in `mul` for every call: In exponentiation, result_poly and base can be 0; bin(0).count('1')=0; handled by early return. Identity=1; popcounts equal; x=result maybe. Good.
+
+Let's consider a subtle formula for `shift_wrap`: For s in [1,n-1]: `(a << s) & mask` yields bits from a with index k such that k+s<n (value at position k+s). `a >> (n - s)` yields bits from a with index k >= n-s? Positions k=n-s..n-1 shifted right by n-s -> positions 0..s-1. Union gives all wrapped positions. But `a >> (n - s)` should be masked to s bits? It has length <=s, so yes. However if s= n? no. If s=0, no wrap; but `a >> n` =0 and `(a<<0)&mask=a`, formula would also work if implemented with else. But use if s==0. Good.
+
+One possible concern: When `s` close to n, `n-s` small, `a >> (n-s)` may yield a bit at position s-1 or maybe position? Example n=4,s=3,a bit0=1: a>>1 =0? Wait n-s=1. a bit
+=== CONTENT ===

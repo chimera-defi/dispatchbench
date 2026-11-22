@@ -1,0 +1,374 @@
+=== REASONING ===
+We need answer only code block. Need solve. Need be careful with Python syntax return type int | str requires Python 3.10+, but okay. Need implement expression evaluator exactly.
+
+Let's reason fully.
+
+We need parse non-negative decimal integer literals (no negative literal), operators + - * / % ^, unary minus, parentheses, spaces. Input syntactically valid. Need exact integer arithmetic no size limit. In test exponents stay small enough result few thousand digits, so big ints okay.
+
+Grammar per precedence:
+expression -> term ( (+|-) term )*
+term -> factor ( (*|/|%) factor )*
+factor -> unary maybe? Let's define.
+Precedence: ^ tightest, right-assoc, but unary minus binds looser than ^. And right operand of ^ may start with unary minus. This is a nuanced grammar.
+
+We need parse according to rules:
+1. ^ power, right-assoc: 2^3^2 = 2^(3^2).
+2. Unary minus, may repeat. Binds looser than ^, so -2^2 = -(2^2). The right operand of ^ may start with a unary minus: 2^-1 = 2^(-1).
+3. * / % left
+4. + - left
+
+So grammar:
+expr := addsub
+addsub := muldiv ( ('+'|'-') muldiv )*
+muldiv := unary? Actually * / % operands are factor maybe.
+precedence ^ is tightest. Unary minus lower than ^. So expression consists of terms: higher level: additive; multiplicative; then power; then unary; then primary.
+But unary binds looser than ^, meaning parse of a subexpression at unary level should handle optional unary minuses applied to a power? Let's construct precisely.
+
+Standard grammar with unary minus lower than power:
+additive := multiplicative (('+'|'-') multiplicative)*
+multiplicative := unary (('*'|'/'|'%') unary)*  // but unary here? Need power.
+Hmm if ^ tighter than unary, then parse a unary expression as optional '-' then power? Let's define:
+unary := '-' unary | power   (unary minus repeated; binds looser than ^? Wait if unary := '-' unary | power, then in multiplicative, operand unary calls unary, which calls power. Then -2^2: multiplicative operand unary -> sees '-', recursive unary -> power for '2^2'? Let's simulate: parse unary: sees '-', consume, parse unary recursively: parse power -> parse primary 2, then sees ^, parse unary? Need right operand of ^ may start with unary minus. So power grammar: power := primary ('^' unary )? right operand is unary? Let's detail.
+
+Because ^ tighter than unary, a unary minus cannot be applied to `2^2` as `(-2)^2`, but can be applied around entire power `-2^2 = -(2^2)`. Good: unary := '-' unary | power. This yields -2^2: unary sees '-', recurse unary -> parse power: primary 2, sees ^, right operand: ??? parse unary (because right operand may start with unary minus) -> unary for '2' -> power 2. Result power=4; unary returns -4. Good. `(-2)^2`: primary parentheses returns -2; then power: primary -2, sees ^, right operand unary 2 =>4. Good.
+
+Right operand of ^ may start with unary minus: `2^-1`: power := primary ('^' unary)*? Since ^ right-assoc and tightest. Need parse right operand allowing unary minus. If power := primary ('^' unary)? for right associativity, we can parse left primary then while sees ^, consume and parse right = unary (which can include repeated minuses and maybe further ^? Wait right operand of ^ may start with unary minus, but can right operand contain caret? For right associativity `2^3^2` = 2^(3^2). If power right operand is unary, and unary's recursive call includes power, then right operand of first ^ can be `3^2` via unary->power->3^2. Yes.
+
+But need ensure `-2^2^3` parses correctly: unary outer: '-' then unary -> power: primary 2, sees ^, right operand unary: parses `2^3`? Let's simulate. Expression -2^2^3. unary: '-' consume; recursive unary: parse power. power: primary 2. sees ^ consume. right operand: parse unary. unary: sees '2' not '-', parse power: primary 2; sees ^ consume; right operand unary: parse 3 -> power 3. So right operand = 2^3=8. first power = 2^8=256. unary returns -256. Expected? Unary minus binds looser than ^, right operand of ^ may start with unary minus. Precedence: ^ tightest right assoc. So -2^2^3 = -(2^(2^3)) = -(2^8) = -256. Correct.
+
+Need handle unary minus right operand of ^: `2^-1` power: primary 2, sees ^, right operand parse unary: sees '-', consume, recursive unary -> parse power: primary 1 -> power 1; unary returns -1. power result 2^-1. Then semantic error negative exponent. Good.
+
+`2^--1`: right operand unary: '-' consume; unary: '-' consume; unary -> power 1 -> 1; inner unary returns 1; outer returns -1? Let's simulate carefully: unary parse for right operand of ^:
+function parse_unary(): if tok == '-': consume; return -parse_unary(); else return parse_power().
+Right operand `--1`: parse_unary sees '-' consume -> return -parse_unary(). inner parse_unary sees '-' consume -> return -parse_unary(). inner inner parse_unary sees '1' -> parse_power =1. inner inner returns 1. inner (the one after first '-'?) Wait enumerate:
+A = parse_unary for right operand.
+A sees '-' (first), consumes, returns - B where B = parse_unary().
+B sees '-' (second), consumes, returns - C where C = parse_unary().
+C sees '1', not '-', returns parse_power() =1.
+B returns -1.
+A returns -(-1)=1. Good. `2^--1` = 2^1 =2. Is unary minus may repeat `--3` is 3, yes.
+
+Potential ambiguity with factorial? no.
+
+Need parse primary: non-negative decimal integer literals, parentheses. Since input syntactically valid, no need to raise parse errors maybe but can include. Spaces handled by skipping.
+
+Need evaluate operations with exact integer arithmetic. In Python, `/` for ints truncates toward zero? Important: Python's `//` floors (toward negative infinity), not truncate. Need implement trunc division: `int(a / b)` not exact for big ints; need use sign. `a // b` adjusts: if a % b != 0 and ((a < 0) != (b < 0)): `a // b - 1`? Let's derive. Trunc toward zero: q = abs(a)//abs(b); if (a<0) != (b<0): q = -q; else q=q. Since a,b non-zero for divisions. Simpler: q = abs(a)//abs(b); if (a<0) != (b<0): q = -q. Remainder a % b defined by a - b*(a/b) using truncating /. Example -7 % 2 with truncating -3: -7 - 2*(-3) = -7 +6 = -1. `7 % -2`: trunc 7/-2 = -3 (since -3.5 toward zero = -3); remainder = 7 - (-2)*(-3) = 7 - 6 =1. Good. Use custom remainder.
+
+Power: `a ^ b` with b>=0 is a to power b, 0^0=1. If b<0, whole result error. Also if b huge? Exponents small enough; Python int handles. Need note `-` base with positive exponent okay. Need ensure 0^0=1 (Python does). Negative base and exponent okay. For negative exponent, whole result error. Does that include e.g. `2^0^-1`? right operand -1, error. Entire expression error if any evaluated step raises to negative power. We should catch and return "error". Also division/remainder by zero. What about power with huge exponent and exact result few thousand digits; okay. Need not bound.
+
+Potential issue: `0 % 0`, `x % 0`: error. Division by zero. Need catch.
+
+Need implement parser with index. Need no command tools. We can include `from __future__ import annotations`? Function signature uses `int | str`, Python 3.10. User explicitly Python 3; okay. If concerned for Python 3.9, could use `Union[int,str]`, but function must be exactly `def calc(expr: str) -> int | str:`. So no.
+
+Need ensure only code in a single ```python block. No explanations.
+
+Let's design meticulously.
+
+Implementation:
+```
+def calc(expr: str):
+    tokens = []? Or parse with index.
+```
+Simpler recursive descent over string index with skip spaces. Need handle unary minus. Since input syntactically valid, no need for detailed errors besides domain errors. But maybe syntactically valid but semantically error, return string.
+
+Define inner closure with expr, pos=0, n=len.
+```
+    pos = 0
+    N = len(expr)
+    def peek():
+        while pos < N and expr[pos] == ' ': pos += 1? 
+```
+Careful: peek should not consume spaces? Better define `skip_ws()` that sets pos. Use skip_ws before each token check. No tabs? "any number of spaces" only spaces. Skip ' '.
+```
+    def skip_ws():
+        nonlocal pos
+        while pos < n and expr[pos] == ' ': pos += 1
+    def error(): raise _Error  # or use exception
+    class CalcError(Exception): pass
+```
+Need return error. Use exception to short-circuit nested parse. Alternatively use exceptions from domain. Since parse is syntactically valid, we can use a custom exception for domain to abort. Simpler: wrap entire parse/eval and let `ZeroDivisionError`? But custom division function raises. Let's implement helper `_div_trunc(a,b)`:
+```
+if b == 0: raise ZeroDivisionError
+q = abs(a)//abs(b)
+if (a<0) != (b<0): q = -q
+return q
+```
+Remainder: `a - b*_div_trunc(a,b)`, but if b==0 _div_trunc raises; catch. However if b==0 and a==0? error regardless. Good.
+Power: if exponent <0 raise DomainError? Could just return sentinel? Better custom exception.
+```
+class _Error(Exception): pass
+```
+In power: if b <0: raise _Error. value = a**b (with Python; b nonnegative). But if a == 0 and b == 0, Python returns 1. Good. Need avoid using Python's `**` with negative exponent? We raise before.
+
+Recursive descent functions:
+```
+    def parse_expr(): parse_additive
+    def parse_additive():
+        skip_ws()
+        left = parse_multiplicative()
+        while True:
+            skip_ws()
+            if pos < n and expr[pos] == '+':
+                pos += 1; right = parse_multiplicative(); left = left + right
+            elif pos < n and expr[pos] == '-':
+                pos += 1; right = parse_multiplicative(); left = left - right
+            else: return left
+    def parse_multiplicative():
+        left = parse_unary()  # Need power inside unary
+        while True:
+            skip_ws()
+            if expr[pos] == '*': pos+=1; right=parse_unary(); left = left*right
+            elif '/': pos+=1; right=parse_unary(); left = div_trunc(left,right)
+            elif '%': pos+=1; right=parse_unary(); left = remainder(left,right)
+            else return left
+```
+Wait multiplicative operands should be `unary`? Grammar: unary binds looser than ^ but tighter than *? Need determine. Let's examine precedence chain precisely.
+
+Precedence tightest to loosest: 1 ^, 2 unary minus, 3 * / %, 4 + -.
+A common grammar for unary with precedence between ^ and * is:
+```
+expr := term (('+'|'-') term)*
+term := factor (('*'|'/'|'%') factor)*
+factor := unary ('^' factor)? ? 
+```
+No, need unary and power. Let's formalize.
+Operators: ^ precedence higher than unary minus. Unary minus precedence lower than ^ but higher than *? Yes tightest 1 ^, then unary minus, then * / %, then + -. So an expression like `-2 * 3`: unary binds looser than ^ but tighter than *? Actually tightest to loosest means higher in list binds tighter. ^ (1) tightest, unary (2), * / % (3), + - (4). So unary minus binds tighter than *? Yes unary is above *, so `-2 * 3` = (-2)*3 = -6, not -(2*3) = -6 anyway same for multiplication? For division: `-6 / 3` = (-6)/3 = -2, whereas if unary loose, -(6/3)=-2 same. For subtraction: `-2 + 3` = (-2)+3 =1, whereas unary loose -(2+3)=-5; need unary tighter than + and */%. Yes.
+
+Grammar should be:
+```
+additive := multiplicative (('+'|'-') multiplicative)*
+multiplicative := unary_not_power? (('*'|'/'|'%') unary?)*  
+```
+No, power is tighter than unary. Unary is expression with optional minuses followed by a power. That is unary := ('-')* power. Since ^ is tighter than unary and right-assoc, power := primary ('^' unary)*? But unary is recursively where right operand may start with unary minus. Need avoid double count. Let's set:
+```
+expr := additive
+additive := multiplicative (('+'|'-') multiplicative)*
+multiplicative := unary (('*'|'/'|'%') unary)*
+unary := '-' unary | power
+power := primary ('^' unary)?  # but right-assoc and primary maybe parentheses or literal; if right operand is unary, then parse `2^3^2`: power sees primary 2, sees ^, parse unary for right. That right unary -> power `3^2`: primary 3, sees ^, parse unary for right `2`: primary 2. returns 3^2=9. power returns 2^9=512. Good. But what about `2^3 * 4`: unary parse -> power returns 2^3=8 (it parses right operand `3 *4`? Wait after power, it sees '*'? Need check.)
+```
+Critical: In power, after primary 2 and ^, it parses right operand via `unary`. The right operand unary after seeing '3' calls power, which primary 3, then after primary 3, checks for '^'. It does NOT check for '*'; power only handles '^'. It returns 3 (or 3^... if ^). Then returns to outer power: after right operand, returns 2^3 =8. Then unary returns 8. Then multiplicative after left (unary=8) sees '*', parses unary right=4, returns 32. Good.
+
+But consider `-2^2 * 3`. Start additive -> multiplicative -> unary: sees '-', consume, recursive unary: parse power: primary 2; sees ^; parse unary right = power 2 -> returns 4; outer power=4; unary returns -4; multiplicative sees '*', right unary=3, result -12. Expected: -2^2 = -4, *3 = -12. Good.
+
+Consider `2^3^2`: as above.
+Consider `2^-3^2`? Grammar power: primary 2, ^, right = unary. Right unary: sees '-', consume, recursive unary: parse power primary 3; sees ^? After 3, next token is `^2` (because input `-3^2`), so power for right operand inside right unary: It parses primary 3, sees ^, parses unary right=2 -> returns 3^2=9. Then inner power returns 9? Wait let's simulate carefully with our grammar right operand = unary.
+Input: `2^-3^2` (intended? Precedence: ^ right assoc, unary minus right operand starts with unary minus. This is ambiguous: `^` right operand may start with unary minus. Does `2^-3^2` equal 2^(-(3^2)) or 2^((-3)^2)? Need parse according to rules. Rules: ^ right-assoc. Unary minus binds looser than ^. Right operand of ^ may start with unary minus: 2^-1 = 2^(-1). This means the right operand of ^ is a unary expression, and unary expression can be '-' then? What is right operand of ^ if it starts with unary minus and then power: e.g. `2^-3^2`. The right operand of first ^ is a unary expression starting at after ^: `-3^2`. According to unary grammar, it consumes '-' and parses the rest as unary. Rest `3^2`: power -> primary 3, sees ^, right operand unary=2, returns 3^2=9. unary returns -9. So entire = 2^(-9) -> error. That is intended (unary minus applies to whole `3^2`, because unary binds looser than ^). Compare with `2^(-3)^2`? That would parse right operand of ^ after first ^ as `-3`? Input `2^(-3)^2`: right operand unary sees '-'? Wait after first ^, there is `(-3)^2`, not unary starting with '-'? Actually right operand starts with '('; unary parse: sees '(' not '-', parse power: primary '(-3)' returns -3; then power sees ^ after parentheses; parse right operand unary for '2' -> returns -3^2? Let's simulate: power right operand? Outer power: primary 2; sees ^; parse unary for right: sees '(' so parse power: primary '(-3)' = -3; sees ^ after ) ; parse right operand unary for '2' -> returns 2; power returns (-3)^2 =9; unary returns 9; outer =2^9=512. So `2^(-3)^2` = 512, while `2^-3^2` = 2^(-(3^2)) error. This is consistent with given example? They don't explicitly give. Rules: right operand of ^ may start with a unary minus. That suggests after ^, we parse a unary expression. A unary expression starting with '-' then power. Since ^ is tighter than unary, in `-3^2`, the `-` applies outside the power `3^2`. Thus yes. Good.
+
+But wait, power grammar `power := primary ('^' unary)?` only handles one ^; need loop / right-assoc. Better:
+```
+    def parse_power():
+        base = parse_primary()
+        if next is '^':
+            consume
+            exponent = parse_unary()   # right-assoc because parse_unary -> parse_power
+            return power_op(base, exponent)
+        return base
+```
+Because parse_unary -> parse_power for non-minus; if exponent starts with '-' then recursive unary handles minuses and still parses power, so right associativity okay. But what about `2^3^2` where after consuming first ^, exponent=parse_unary. parse_unary sees '3' (no '-'), calls parse_power for '3^2', returns 9. Then outer power = 512. Good. `2^3^2^4`: outer ^ -> exponent=parse_unary -> power for `3^2^4`: primary 3, sees ^, exponent=parse_unary -> power for `2^4`? Let's simulate nested. It returns 3^(2^4)=3^16, outer=2^(3^16). Correct right assoc. Since parse_unary calls parse_power, which handles further ^, good.
+
+Need ensure multiplicative doesn't swallow powers. Since multiplicative uses parse_unary for left, and parse_unary calls parse_power; after parse_power returns (it only consumes ^s and right unary), parse_unary returns the computed value. Then multiplicative sees next token; '*' not consumed inside power. Good.
+
+One subtlety: unary minus may repeat and bind looser than power. But in multiplicative we parse left=parse_unary. Consider expression `-2 * -3`. parse_unary for left: sees '-', recursive unary -> power for 2 -> returns 2, returns -2. multiplicative sees '*', parse_unary right: '-' then power 3 => -3. result 6. Good. `2 * -3` similar. `--2^2`: multiplicative parse_unary left: '-' consume -> recursive unary: '-' consume -> recursive unary -> power: primary 2, sees ^? next token after 2 is ^2; so power parse returns 2^2=4. Inner unary (after first '-'?) Let's simulate: parse_unary for whole left: A sees '-' consume, returns -B where B=parse_unary(). B sees '-' consume, returns -C where C=parse_unary(). C sees '2' no '-', parse_power: primary 2, sees ^, parse_unary right = power 2 -> returns 2^2=4. C=4. B returns -4. A returns 4. Result 4. Correct per --3 is 3 and -? Wait `--2^2`: unary repeat --, and power. Expected according to precedence: -- applied outside power? `--2^2` = (--)(2^2)? There are two minuses, both looser than ^; so `2^2` =4, then -- =4. Yes.
+
+Now primary parse: skip_ws; if '(' consume, parse_expr, skip_ws, expect ')' (valid). Return value. Else parse decimal integer literal: accumulate digits isdigit; value int(str). Since input valid. Need handle empty? no.
+
+Then domain operations. We can catch errors globally and return "error". But note: if parse hits valid syntax, okay; domain error in evaluation (power recursion or multiplication) can be raised inside parse functions. We can wrap:
+```
+    try:
+        result = parse_expr()
+        skip_ws()
+        # ensure no trailing tokens: valid, but if pos<n raise _Error? return error? Input syntactically valid; still we can if pos<n then return "error"
+        return result
+    except _Error:
+        return "error"
+```
+Need catch ZeroDivisionError? We'll raise _Error for div/rem. For power negative exponent, raise _Error. For no? Multiplication not overflow in Python. Division helper if b ==0 raise _Error. Remainder helper uses div then computes; if b==0 before compute, raise.
+
+Need also consider domain for `0 ** 0` =1. For nonnegative exponent, Python `**` handles ints; big exponent with base maybe huge; constraints okay. `a ** 0` =1. What about `a =0`, `b=0`: okay returns 1. What about `a=0`, `b` nonnegative large -> returns 0. Good.
+
+Potential issue: Python `**` with negative exponent would return float, but we raise before. Good.
+
+Now, exactly one function `calc` top-level. We can include helper classes inside function. Need ensure no additional top-level functions? User says implement exactly this function; probably can include only calc, but helper nested fine. Reply only code. Need no comments? fine.
+
+Need decide return type. Use `int | str` in signature. Python 3.10. Fine.
+
+Let's write code with nested helper class and functions. Need be careful with nonlocal pos inside nested functions. Use `nonlocal pos`. In closure definitions inside function.
+
+Potential pitfall: recursion depth. Parenthesis nesting depth at most 50; unary repeats maybe? Input length 10000, could have many unary minus signs alternating with spaces, e.g. `----...----3`. Recursion depth for unary could be ~5000? Wait constraints: length 10000 and syntax valid. Unary minus repeats may be many; only length 10000; could have 9999 minuses before a literal with spaces? Example `---...-1` length 10001? length <=10000, so up to ~9998 minuses if no spaces, recursion depth ~9998, exceeding Python default recursion limit 1000. Need handle. Important! The problem statement mentions parenthesis nesting depth at most 50 but not unary repetition. `--3` is 3, unary minus may repeat. It doesn't bound number of unary minuses except length 10000 and spaces. Could be 9999 unary minuses. Recursive descent with unary recursion will hit RecursionError. Need either increase recursion limit dynamically or implement unary loop. We should avoid recursion for unary. Similarly power recursion for nested right operands with `^` and parens; paren depth <=50 and exponents small; ^ right associativity could have many carets, e.g. `2^2^2^2...` with ~3333 carets length 10000? Each caret needs digits, so caret count <= maybe 5000? `2^2^2^2...` with repeated `2^` ~ 3333 carets, and recursion through right operands (power calls parse_unary calls parse_power) could be depth ~3333. Parenthesis depth <=50 but caret nesting no explicit depth limit except length. Need handle non-recursive or increase recursion limit. We can set recursion limit appropriately inside calc. But changing global recursion limit inside function is okay? Usually acceptable; but we should not permanently modify? We can save and restore. Or implement parse iteratively. Simpler robust: dynamically set recursion limit to high enough while parsing, restore after. Since constraints length 10000, depth <= maybe 10000; set recursion limit to e.g. max(current, len(expr)+100) carefully. But the problem says parenthesis nesting depth <=50, but not caret chains. They didn't say any repetition bounded by 50. Constraints 1 <= len <= 10000 and exact result few thousand digits. We should handle high recursion.
+
+Option: avoid recursion for unary by loop. Avoid recursion for power? Right associativity parse could be iterative: parse primary; while next is '^': consume; parse right operand unary. But right operand unary itself can be recursive via power; if implemented iteratively? Let's design to reduce recursion. But still parenthesis nesting depth 50 only; power caret chain can be long and recursive. Could set recursion limit to len+some. That is simplest and reliable. But setting global recursion limit maybe changes process; we can restore in finally. Is it safe? In code challenge, okay. Alternatively write iterative shunting-yard. Let's consider shunting-yard iterative to avoid recursion depth; more code but no recursion. Yet exact semantics with unary minus and power right operand are tricky but doable. Recursion limit approach is simplest and less code. But global recursion limit may be modified by caller? We'll save/restore with try/finally. If expression length 10000, maximum recursion depth maybe O(len) ~10000. Set recursion limit to 100000 or `max(current, len(expr)*2+100)`. Since length <=10000, default 1000 insufficient. Use `sys.setrecursionlimit(max(current, len(expr) + 100))`. However Python's maximum recursion depth is limited by memory; 10000 fine. If current recursion limit large? no.
+
+But if function is called within deep recursion by another context, setting recursion limit higher doesn't reduce existing stack. It just allows nested frames up to higher. Fine.
+
+Let's consider exact expression length 10000 and unary minus repeats. Stack frames for additive/multiplicative/unary/power could be several times length if using recursion: e.g. 9999 unary minus. If we implement unary iteratively with a loop, recursion depth for unary decreases. Multiplicative/additive loops are iterative over top-level operators; but each call to parse_multiplicative is recursive from additive for each RHS? Additive loops call parse_multiplicative repeatedly; not recursive stack if uses loop and calls function, but function call returns; depth remains 1 for loop. Good. Multiplicative loops call parse_unary for each factor; depth constant. Parse_unary: if implemented recursively ('-' recursive) could depth high; implement iteratively instead: consume all '-' tokens count, then parse_power; then apply sign. That is easy. Then parse_power: implemented recursively for right operand; chain of carets could be high. Can implement parse_power iteratively by collecting and evaluating right-assoc. Let's see.
+
+Implementation with iterative unary and power:
+```
+def parse_power():
+    base = parse_primary()
+    while True:
+        skip_ws()
+        if pos < n and expr[pos] == '^':
+            pos += 1
+            # Parse right operand as unary; unary must handle signs.
+            # But if we parse unary iteratively and then parse_power recursively for the non-sign part, chain of ^ may still recurse.
+            right = parse_unary()
+            base = power_op(base, right)
+            # After power, should we continue to see another ^? Yes right-assoc: 2^3^2^4. If base after `2^3` = 8 and right=? Wait if we consume left '2^3', then next token after right operand for first ^ is '^'? For `2^3^2`, parse_primary base=2; see ^, consume; parse right operand unary -> `3^2`. How to parse `3^2`? parse_unary consumes any '-' then calls parse_power. parse_power for base=3: skip_ws; sees '^', consume; parse right operand unary -> 2; base=9; loop skip_ws; no '^'; return 9. Good. So inside parse_power, if we loop after right operand, for `2^3^2`: outer base=2; sees ^; right=parse_unary -> parses `3^2` returns 9; base=2^9=512; then loop skip_ws; no '^'; return. No extra recursion beyond parse_unary->parse_power. The recursion depth is one per caret? Let's count: For `2^3^2^4`, parse_power outer: base=2; see ^; parse_unary for right `3^2^4`. parse_unary -> parse_power: base=3; see ^; parse_unary for right `2^4`. parse_power -> base=2; see ^; parse_unary for right `4`; parse_power base=4 -> returns 4. Right becomes 2^4=16. Middle power returns 3^16. Outer returns 2^(3^16). Depth equals number of carets (~3333). Still could exceed default. We can set recursion limit. Fine.
+
+Alternatively, we could implement caret chain iteratively and evaluate with a stack. Let's explore to avoid recursion limit. Need exact right associativity. We can parse a sequence of primaries separated by ^ with signs/unary. But unary signs in right operands complicates. However we can implement power parsing iteratively with explicit stack: parse primary; then maintain a stack of bases and consume ^ tokens. Need evaluate right-assoc. But unary signs with `^` (right operand can start with unary minus) require that sign belongs to exponent. Let's design a robust iterative approach.
+
+Grammar details:
+- primary := integer | '(' expr ')'.
+- unary := '-'* power (iterative count)
+- power := primary ('^' unary)*? But due to right-assoc and parse_unary calls parse_power, recursion.
+
+Iterative power parse:
+```
+def parse_power():
+    base = parse_primary()
+    # Now parse sequence of '^' operators. Since ^ right-assoc, parse first left primary then collect primaries/sign? 
+    # We can recursively handle but let's make explicit stack for right associativity.
+```
+We know structure: power := primary ('^' unary?)*? But unary's power can itself consume ^, so after parsing primary 2 and seeing ^, we call parse_unary. If we want avoid recursion, we can parse right operand in a nested fashion. We could make parse_unary/parse_power iterative by constructing a list of tokens? Hmm.
+
+Simpler: use recursion and set recursion limit. Need code not overly complex. The constraints are 10000, recursion limit 20000 is okay. Recursion may still be okay with memory (each frame small). Let's set to maybe `max(10000, len(expr)*4 + 1000)` but default max maybe? Actually setting limit to len(expr)*4 = 40000 is fine. But be cautious: if called inside a context with deep stack, our frames maybe plus 40000; still okay maybe. But problem likely expects recursion with paren depth 50 and small unary? It may not test too many unary repeats. But robust is good.
+
+Also exact result few thousand digits; pow can generate big int; recursion frames okay.
+
+Potential issue with setting recursion limit: If the function is called from a context where thread has stack size limited, increasing recursion limit may cause actual stack overflow (Segmentation fault) if too deep. But Python frames consume memory; default thread stack may not handle 10000 frames? Actually CPython recursion uses heap-allocated frames but the C stack is used for each Python frame? In CPython, recursive calls consume C stack in some paths, but with `sys.setrecursionlimit`, it won't crash abruptly; it raises RecursionError when stack limit reached. The actual C stack may have overflow on deeply nested Python calls despite recursion limit? Usually setting recursion limit to 10000 works safely. With length 10000, okay. We can also set to `min(100000, max(current, len(expr)+100))`. Fine.
+
+Alternatively, reduce recursion by implementing `parse_power` iterative. Let's explore more; could produce cleaner no big recursion and no recursion limit. This might be more satisfying.
+
+Iterative approach for power/unary:
+We can parse with a manual stack for ^ precedence. We need parse operators with right associativity and unary signs in exponents. Let's define functions but avoid deep recursion for unary. For caret chain, use explicit stack.
+
+Option A: Tokenize first. That simplifies parsing and avoids repeated char checks. Input syntactically valid. Token types: INT, OP, LPAREN, RPAREN. No unary token; treat '-' separately based on position. Spaces skipped by tokenizer. Parenthesis depth <=50, but iterative bracket matching maybe easier.
+
+Token list length <=10000. Recursive descent over tokens still similar recursion depth for parentheses (<=50), carets (could be ~5000?), unary repeats (could be many) if recursive. We can parse using stack for ^ and loops for unary. But easier to set recursion limit.
+
+Let's not overcomplicate. Final code can use recursion with dynamic limit. Need ensure no hidden reliance on Python version beyond 3.10. Use `int | str` signature. Inside, no external imports except `sys` and maybe `re`? We can avoid regex. Use sys.
+
+Need be careful with exact return for `"error"` string; no extra output.
+
+Let's write code:
+```
+import sys
+
+def calc(expr: str) -> int | str:
+    try:
+        return _eval(expr)
+    except _DomainError:
+        return "error"
+    except (RecursionError, ...)? 
+```
+But user said implement exactly this function; adding top-level helper `_eval` maybe violates "exactly this function"? They said implement exactly this function (a top-level function, not a class). Could include nested helper only. Better include all helpers nested inside `calc`. We can set sys inside. Need import sys at top? That's a top-level import, okay not a function. They didn't prohibit. Could avoid import sys by using recursive limit? We can use `sys.setrecursionlimit`; import sys at top. Is that allowed? Likely yes. Or avoid setting recursion limit by careful iterative implementation. Hmm.
+
+Maybe implement token list and iterative parser to avoid import sys. Let's consider an iterative parser fully. This would be robust and self-contained. Need be exact. Let's design it carefully.
+
+Tokenization:
+```
+tokens=[]
+i=0
+while i<n:
+  c=expr[i]
+  if c==' ': i+=1; continue
+  if c.isdigit():
+    j=i
+    while j<n and expr[j].isdigit(): j+=1
+    tokens.append(('num', int(expr[i:j])))
+    i=j
+  elif c in '+-*/%^()':
+    tokens.append(('op', c))
+    i+=1
+  else: # valid
+    # raise _Error? But every input valid; still treat as error? maybe return "error"
+    raise _Error
+```
+No negative literal. Good.
+
+Now parse using index over tokens with nested funcs? We can implement functions over tokens. Still recursion for parentheses and ^. But we can set recursion limit. Let's examine explicit stacks.
+
+Expression grammar:
+```
+expr := additive
+additive := multiplicative ( ('+'|'-') multiplicative )*
+multiplicative := unary ( ('*'|'/'|'%') unary )*
+unary := '-'* power
+power := primary ('^' unary)*  # But not independent because right operand of ^ is unary, which is parsed separately.
+```
+If we use recursive descent with unary iterative and power recursive, recursion only for power chains and parenthesis nesting. We can eliminate power recursion by handling ^ iteratively with a stack. Let's formulate power parsing carefully.
+
+Parsing primary token:
+- if token op '(' -> consume; value=parse_additive(); expect ')'.
+- if token num -> consume; value=num.
+No negative literal. Parenthesis depth <=50 so recursion for parentheses fine, but we can include anyway.
+
+Parse unary (iterative): consume any number of '-' operators at top (as pre-sign), then parse_power, then apply sign(s). But careful: unary signs before a parenthesized expression: `-(-2)` -> tokens '-' '(' '-' '2' ')' . parse_unary: consume '-' count=1; parse_power -> primary '(' -> additive parses `-2`? Wait additive for inner `-2`: it parses multiplicative -> unary -> consumes '-' then parse_power primary 2 -> -2; additive returns -2; then parse_power primary? Actually parse_power called from parse_unary consumes primary `(-2)` by parse_primary, which consumes '(' and calls parse_additive. parse_additive at inner: parse_multiplicative -> parse_unary -> consumes leading '-' (inner unary) then parse_power primary 2 -> -2. Multiplicative sees no operator; returns -2. Additive expected ')'; returns -2. Then after primary returns for outer parse_power? Need structure.
+Let's define parse_primary returns int value for integer or parenthesized additive; no arithmetic with power inside. In parse_unary, after consuming leading minuses, call parse_power. parse_power parses base=parse_primary; then handles '^'. Good. For outer parse_unary `-( -2)`: consume outer '-' count=1; parse_power -> base=parse_primary: '(' -> parse_additive(inner) returns -2; expect ')'; parse_power then: next token after primary? There are no ^ in outer expression. return -2; sign count=1; unary returns 2. Correct.
+
+Now parse_power iterative:
+Need parse a sequence `primary ('^' unary)*` with right-assoc. Equivalent to: recursive because exponent unary may itself contain primary powers. But maybe we can parse with explicit stack and handle unary signs in exponent. Let's derive.
+
+We can implement `parse_power()` iteratively using a manual stack representing pending bases and operators. But the key is to know where the right operand of a '^' ends. Since right operand is a unary expression, which can start with '-' and includes a power. In a token stream, a unary expression's extent is clear: it begins at a '-' or primary and ends at the first token that is a binary operator ('+','-','*','/','%','^'? Actually within unary, it may encounter '^' and consume the whole power chain). Need recursive/stack.
+
+Maybe use a manual stack with a flag for parsing primary and powers. Let's design a tokenizer-based Pratt parser for precedence. It can handle right associativity and unary with precedence levels exactly.
+
+Pratt parsing approach:
+We have tokens with types. We want parse expression according to precedence list:
+- For infix operators: precedence: ^ highest (say 4) right-assoc; * / % (3) left-assoc; + - (2) left-assoc. Unary minus precedence? Typically unary operator has precedence just below ^ but higher than *; in Pratt, unary binding power is precedence + 1 for right? Need model unary minus as an operator with precedence 3.5? Let's define precedence levels: 1 additive low (left-assoc), 2 multiplicative (left-assoc), 3 power (right-assoc), 4 unary? Hmm list tightest to loosest: ^ (tightest) > unary > * / % > + -. So numeric precedence high = tighter. Let ^ precedence = 4 (right-assoc), unary = 3.5 (right-assoc? Unary minus: -a, and may repeat; should bind tighter than *; a unary operator in Pratt with precedence 4? Let's set: additive=1, multiplicative=2, unary=3, power=4. Right-assoc for power and unary. But unary minus should bind looser than ^. If power precedence=4 and unary=3, then in a Pratt parse, the right operand of ^ when parsing with precedence=4 will allow unary expressions? Let's recall Pratt parser.
+
+In Pratt parser, parse_expression(min_prec):
+```
+left = parse_prefix()  # primary, literal, unary if prefix allowed
+while next has infix with precedence >= min_prec:
+    if infix is right-assoc and precedence == min_prec? ... 
+    right = parse_expression(precedence + (1 if left-assoc? maybe))
+    left = operation(left,right)
+return left
+```
+For unary minus prefix, parse_prefix at expression start: if op == '-', consume and return -parse_expression(unary_precedence?) But to model unary minus binds looser than ^, parse_expression after '-' should be with min_prec = unary_precedence? Let's define.
+
+Alternative simpler: set precedence numbers:
+- additive left-assoc prec=1
+- multiplicative left-assoc prec=2
+- unary minus (prefix) prec=3? It should be tighter than multiplicative and additive. It is looser than ^. So ^ prec=4.
+For right associativity of ^, when we parse operator ^ with prec=4, we parse right operand with min_prec = 4 (for right-assoc) or 5? Typical Pratt:
+```
+parse_expr(min_prec):
+  left = parse_prefix()
+  while next infix prec >= min_prec:
+     op = next
+     consume
+     if op.right_assoc:
+        right = parse_expr(op.prec)   # allow same precedence to support right assoc? Actually for right-assoc, parse right with min_prec = op.prec, not op.prec+1.
+     else:
+        right = parse_expr(op.prec + 1)  # integer precedence
+     left = op.func(left,right)
+  return left
+```
+Let's test with ^: ^ precedence=4 right-assoc. parse_expr(1) for `2^3^2`: left=parse_prefix ->2; next ^ prec4 >=1; consume ^; right=parse_expr(4) (right-assoc). parse_expr(4): left=parse_prefix ->3; while next ^ prec4 >=4; consume ^; right=parse_expr(4): left=parse_prefix ->2; while no infix; returns 2. left=3^2=9; while next none; returns 9. outer right=9; left=2^9=512. Good. For `2^3 * 4`, after outer parse_expr(4) for right operand: left=parse_prefix ->3; while next infix '*' prec2 >=4? no. returns 3. Outer left=2^3=8; back additive/multiplicative handles '*'. Good.
+
+Unary minus prefix: parse_prefix sees current token '-' (infix? but prefix). Need not treat as infix. In parse_prefix:
+```
+if token is '-': consume
+    # We need to parse the next operand with min_prec = unary_prec? Which value should be used so that unary minus binds looser than ^? 
+    # We want -2^2 = -(2^2). Prefix '-' consumed at start of parse_expr(min_prec). If it invokes parse_expr(unary_prec), what is unary_prec? We need right operand to include power. Since unary minus binds looser than ^ (so * not allowed inside? Actually -2*3 = (-2)*3, so unary should not consume multiplicative). After '-', we parse the subexpression for the unary operand with min_prec = unary_prec? If unary_prec = multiplicative_prec? Let's derive.
+```
+We want expression `-2^2 *3`. It should be parsed as `(-(2^2))*3` = -12. In parse_expr: left=parse_prefix. parse_prefix sees '-', consume. It should parse the operand `2^2` and apply unary minus. The operand grammar is `power` (not multiplicative). So it should parse_expression(min_prec = unary_prec) where unary_prec is high enough to include ^ but not * or +. Since ^ prec=4, * prec=2, additive prec=1. A min_prec of 4 will allow ^ (>=4) but not * (2>=4 false). Good. It also allows unary? But prefix minuses are not handled by min_prec; parse_prefix handles them. If nested unary with no spaces, parse_prefix consumes one '-' then parse_expr(4); that parse_expr may see next token '-' which is a prefix, not infix; parse_expr's initial parse_prefix sees '-' and handles the inner. Good.
+
+But if parse_expr(4) begins with parse_prefix and the token is '-', it will handle nested. Fine. So:
+```
+def parse_prefix():
+    skip (tokens index)
+    tok=tokens[pos]
+    if tok == '-':  # op token
+        pos += 1
+        val = parse_expression(UNARY_MIN_PREC)  # = POWER_PREC? maybe prec_power? 
+        return -val
+    if tok num: pos++; return value
+    if tok '(': consume; val=parse_expression(1); expect ')'; return val
+```
+What value should UNARY_MIN_PREC be? Since unary minus binds looser than ^ but tighter than *, and additive has precedence lower. If parse_expression(min_prec) allows infix operators with precedence >= min_prec. We want to parse operand `2^2` but not `*`, so min_prec should be 3 (if ^ prec=4, * prec=2). Allowing ^ (4>=3) but not * (2>=3 false). If min_prec=4, allows ^, also not *; equivalent here. But for unary operand `2^-1`, after '-' and parse_expression(4): left=parse_prefix ->2; while next '^' prec4>=4; right=parse_expression(4) for right operand. Right parse_prefix sees '-' and treats as unary, good. It returns -1. Works. min_prec=4? What about `-2^3^2`: parse_prefix consumes '-', parse_expression(4) parses `2^3^2` with ^ right-assoc, returns 2^(3^2)=512? Actually 2^(3^2)=2^9=512. Then unary returns -512. Good. min_prec=4 means the right operand of unary only allows ^ and unary. It does NOT allow * or +. That's exactly unary binds looser than ^ but tighter than *? Wait unary binds looser than ^ means the operand of unary can include ^; and unary binds tighter than * means after unary operand ends at '*', multiplicative handles it. min_prec=3 (between * and ^) works: allows ^ (4>=3), not * (2>=3 false). For `
+=== CONTENT ===

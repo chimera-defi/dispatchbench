@@ -1,0 +1,281 @@
+=== REASONING ===
+We need answer code only in python block. Need solve carefully.
+
+We need implement list of operations. Need maintain undo stack of successful operations not yet reverted. Important undo reverting open removes account. But subsequent successful ops after open could reference and modify account; order undo is LIFO, so reverting later ops first ensures integrity. Need handle undo stack semantics: "reverts the most recent successful operation that has not already been reverted, ignoring undo operations themselves." This means the stack contains successful ops excluding undo. When an operation succeeds, push record onto stack. When undo executes successfully, pop most recent successful operation and revert it, then do not push undo. After reverting, that op is not in stack. If undo fails (nothing left), it does not change anything; rejected index.
+
+Need think about undo of open: reverting open removes account. But what if account has been modified after open by later ops? Since undo LIFO, all later ops that modify account would have been reverted before open is reverted. So balance equals original N at revert time? Yes. Removing account okay. If account was frozen after open, unfreeze? Let's detail: Operations: open a N; freeze a; undo (revert freeze); undo (revert open). Fine. If open a; freeze a; undo; undo. After first undo revert freeze -> a exists unfrozen balance N. second undo revert open -> remove a. Fine.
+
+Undo of deposit: revert by subtracting N from A. But after deposit, there may be later operations? Again LIFO ensures no. But there can be later operations that do not affect A? E.g open a 10; deposit b? deposit requires B exists. Suppose open a 10; open b 0; deposit a 5; withdraw b 3? withdraw b requires b exists and balance >=3; no. Later operations not affecting a can be reverted after? LIFO order: if later op doesn't touch a, it is popped before deposit because most recent. So reverting deposit happens only after all later successful ops are reverted. Thus A's balance at revert is original + later ops on A? No later ops on A cannot be pending if popped later? Wait pending operations are those not yet reverted; undo pops most recent pending operation. If deposit a 5 is pending but there is later successful operation not affecting a pending, then undo pops later op first. So when deposit finally popped, no pending ops after it; earlier ops before deposit are pending. A's balance = balance before deposit + all pending earlier ops affecting a after deposit? There are no pending ops between open and deposit except deposit itself and ops before deposit. Earlier ops affecting a are before deposit, so they don't modify between deposit and reversion. Actually stack order: [open a, ... earlier ops, deposit a]. Pending ops after deposit are none when popping deposit if it is top. Since undo pops top, deposit must be top when reverted. So all ops after deposit have been reverted already. Thus A's balance = pre-deposit balance + deposit N (assuming deposit was top and no later ops pending). Subtract N to get pre-deposit balance. Good.
+
+Undo of withdraw: revert by adding N back to A. Need account exists. Since reverting in LIFO, account cannot have been removed (open reverted only after all later ops). Good. Balance before withdraw = current - N? Actually after withdraw balance = pre - N. To revert add N. Good.
+
+Undo of transfer: revert by moving N back from B to A: A balance += N, B balance -= N. Requires? Reverting should always be possible; no checks. Good. But what if B was frozen after transfer? LIFO ensures freeze B would be popped before transfer if it was after transfer. Hmm example: open a 100; open b 0; transfer a b 50; freeze b; undo -> revert freeze (B unfrozen); undo -> revert transfer (move 50 back to a; B balance 0 unfrozen). Good.
+
+Undo of freeze: restore previous frozen state. Freeze op record: account A was unfrozen before freeze (requirement not frozen). Reverting freeze should set A unfrozen. Undo of unfreeze: restore frozen state (set frozen True). Good.
+
+Undo of open: remove account. But what if account was created by open and later frozen/unfrozen? LIFO handles.
+
+Undo of? Unknown verbs fail. Wrong token counts fail. Invalid amount fail.
+
+Need parse operations tokens separated by single spaces. String may have leading/trailing spaces? Spec says separated by single spaces. We can split() maybe. Should we handle exactly tokens separated by single spaces; invalid amount etc. If string has extra spaces, splitting by whitespace would ignore; but the operation spec says tokens separated by single spaces. Important? For correctness in problem, likely inputs are valid structure except amount/verbs. Need decide. "Process a list of bank operations, in order. Each operation is a string of tokens separated by single spaces." This implies every string has tokens separated by single spaces; but operations can fail for wrong number of tokens, unknown verb, invalid amount. Extra spaces are not part of spec; using split() would treat "open  a 10" (two spaces) as same. Could be considered malformed? Not specified. Usually use `parts = s.split(' ')`? Safer to use `split()`? Let's reason. They explicitly say tokens separated by single spaces; an operation with double spaces has tokens separated by double? It would be wrong. But tests likely not include extra spaces. Use `split()` for robustness; no downside except accepting malformed spacing. Could use `.split(' ')` and empty strings as tokens causing wrong number? For single spaces exactly, same. For "open a 10 " trailing, split() accepts while split(' ') yields ['open','a','10',''] wrong count fail. Hmm. The examples and constraints probably no spaces. I'd use `s.split()` typical. But amount validation with split okay.
+
+Amount N valid iff consists entirely of decimal digits 0-9, no sign; leading zeros allowed. So check `N.isdigit()`? isdigit returns True for non-ASCII digits (e.g. ٣) in Python; need ensure 0-9 only. Use `all(ch in '0123456789' for ch in token)` and nonempty. Empty token invalid amount (but wrong token count first maybe for missing token). Leading zeros allowed; value int(token). If amount token is empty? Wrong number of tokens if missing; if present empty due double spaces? ignore.
+
+Need maintain balances dict and frozen set or dict flags. Account exists maps to balance; frozen set. Constraints 20000, fine.
+
+Rejected list of indices: ascending list of indices of failed ops. Since ops processed in order, append index when fail; ascending automatically.
+
+Need undo stack memory. Each successful operation push record. Could store tuple (verb, tokens...) and undo function. Need account name any token. But token could be "undo"? Account name any token; so accounts can be named "undo"? Operations tokens separated; verb is first token. If an account is named "undo", then `open undo 10` has verb "open", okay. `deposit undo 5` works. There's no ambiguity because verb determines token count. `undo` operation has exactly one token. Could account name be "0"? yes. Amount token cannot be account name? open A N: A any token including "0"; amount must digits. If A="10" and N="5", open 10 5 okay. Account name can equal digits. No issue.
+
+Invalid amount: e.g `open a 1a` fail; `open a -5` fail (contains '-'); `deposit a 0` fail due N>0; withdraw a 0 fail; transfer a b 0 fail.
+
+Rules:
+open A N: N>=0 always if digits; N>=0 always (no sign). Fails if A already exists. So "where N >=0" redundant. Reject if exists. Create balance int(N), not frozen. Push record.
+deposit A N: requires N>0 and A exists. Frozen allowed. Add. Push.
+withdraw A N: requires N>0, A exists and not frozen, balance>=N. subtract. Push.
+transfer A B N: requires N>0, A != B, both exist, A not frozen, balance A >= N. B may be frozen. Move. Push. Note if B frozen, adding to B allowed? Deposits allowed while frozen; transfer B may be frozen; yes. Should transfer to frozen B be allowed? spec says B may be frozen. Yes.
+freeze A: requires exists and not frozen. Set frozen. Push.
+unfreeze A: exists and frozen. Clear frozen. Push.
+undo: revert most recent successful unreverted op. If none fail. Does undo have any other checks? Exactly one token. `undo extra` wrong number fail. `undo` with stack empty fail. If success, push? no, push never. But what about the undo operation itself should be successful; yes. Should it be recorded in some stack to prevent being reverted by later undo? Explicit "An undo can never itself be reverted" and "ignoring undo operations themselves" means don't push undo. Good.
+
+Revert details:
+- open: remove account A from balances and frozen set. Do not need record balance? can remove. If account somehow missing? It shouldn't; but if previous operation failed? The record only successful, and LIFO ensures not removed. Use `balances.pop(A, None); frozen.discard(A)`.
+- deposit: balances[A] -= N. Since it was added, no issue. Need N as int. Push int maybe.
+- withdraw: balances[A] += N.
+- transfer: balances[A] += N; balances[B] -= N. (A had decreased, B increased). Good.
+- freeze: frozen.discard(A).
+- unfreeze: frozen.add(A).
+
+Need be careful with undo after deposit undone etc. Since stack handles.
+
+Could also implement as list of dicts. Efficiency fine 20000.
+
+Now, potential nuance: Failed operation due to undo with nothing left should be rejected and leave failed operation not affecting stack. yes.
+
+Potential nuance: An operation that breaks a rule changes nothing. For `undo` with nothing left, fails and rejected; doesn't push; stack unchanged. For failed open due to existing, nothing changes. Good.
+
+Need produce exactly function code in single python block, no other text. Ensure top-level function. Should include type hints. Maybe no imports needed. Could include nothing else. Reply only code block. Fine.
+
+Let's test with example manually.
+
+ops indices:
+0 open a 10 -> success balances a=10 stack [open a 10]
+1 open b 0 -> success b=0 stack [open a, open b]
+2 transfer a b 4 -> success a=6 b=4 stack + transfer
+3 freeze a -> success frozen a stack + freeze
+4 deposit a 5 -> frozen allowed -> a=11 stack + deposit (allowed while frozen)
+5 withdraw a 1 -> a frozen -> fail rejected [5]
+6 undo -> revert deposit a 5: a=6; stack [open a, open b, transfer, freeze]
+7 undo -> revert freeze: a unfrozen; stack [open a, open b, transfer]
+8 withdraw a 1 -> a=5 success; stack [open a, open b, transfer, withdraw]
+9 undo -> revert withdraw: a=6; stack [open a, open b, transfer]
+10 undo -> revert transfer: a=6+4=10; b=4-4=0; stack [open a, open b]
+11 undo -> revert open b: remove b; stack [open a]
+12 undo -> revert open a: remove a; stack []
+13 undo -> nothing left fail rejected [5,13]. balances {}. Matches.
+
+But wait after index 12 undoing open a, removing a. Balances empty because b removed. yes.
+
+Need consider reverting open after account was removed? Not possible except stack empty? no.
+
+Let's think about undo of deposit when account was opened and then... maybe operation before deposit is open b, no effect. Fine.
+
+Potential subtle issue: undo stack and failure: an operation may be invalid due to wrong number of tokens. Example "open a" -> parts length 2 -> invalid token count. fail. "open a 1 2" length 4. fail. Unknown verb "foo" length 1. fail. Unknown verb with many tokens fail. For known verbs with wrong tokens fail. Good.
+
+Potential subtle issue: amount valid: token "007" valid; int 7. Leading zeros allowed. What about token "000" open account with 0: valid? open N where N>=0; yes. Example open b 0. Good. Deposit N must >0: token "007" -> 7 valid >0. "000" -> 0 invalid for deposit. Withdraw and transfer same.
+
+Potential subtle issue: A account name could be an amount-only token like "5". If operations strings tokens separated by spaces, verb cannot be "open" etc. Account name any token. Fine.
+
+Potential subtle issue: Freeze/unfreeze account names maybe verb-only. `freeze a` success. If account named "freeze"? `open freeze 1`; `freeze freeze`: parts ['freeze','freeze'] -> freeze A where A='freeze', success if not frozen. Fine.
+
+Potential subtle issue: `undo` token count exactly 1. If input string is "undo extra" (2 tokens) unknown? verb known undo, wrong number -> fail. If input string "foo" unknown. Good.
+
+Now maybe need implement undo records as tuples and handle in undo function. Simpler: store small dict or tuple `(verb, A, B, N)`.
+
+Pseudo:
+
+def ledger(ops):
+    balances = {}
+    frozen = set()
+    stack = []
+    rejected = []
+    for i, s in enumerate(ops):
+        parts = s.split()
+        if not parts:
+            rejected.append(i); continue
+        verb = parts[0]
+        if verb == 'open':
+            if len(parts) != 3: rejected.append(i); continue
+            A, Ntok = parts[1], parts[2]
+            if not is_amount(Ntok): rejected.append(i); continue
+            N = int(Ntok)
+            if A in balances: rejected.append(i); continue
+            balances[A] = N; frozen.discard(A) # maybe no need
+            stack.append(('open', A, None, N))
+        elif verb == 'deposit':
+           if len(parts) != 3: fail
+           A,Ntok...
+           if not amount: fail
+           N=int
+           if N <=0 or A not in balances: fail
+           balances[A]+=N
+           stack.append(('deposit', A, None, N))
+        elif verb == 'withdraw': similar, requires A in balances and A not in frozen and balances[A] >= N; balances[A]-=N; push
+        elif verb == 'transfer': requires len 4; A != B; both exist; A not frozen; bal>=N; N>0; move; push
+        elif verb == 'freeze': len 2; A exists; not frozen; add frozen; push
+        elif verb == 'unfreeze': len 2; A exists; frozen; discard; push
+        elif verb == 'undo': len 1; if not stack: fail; else rec = stack.pop(); apply_revert(rec)
+        else: fail
+    return balances, rejected
+
+Need make code clean. Since returning dict preserves insertion order. balances maps every account that exists at end. If open b then revert open b removes; insertion order may reflect original? not relevant. balances dict only inserted on successful open; removal deletes. If later same name opened after revert? Example open a 10; undo; open a 20; balances a=20. insertion at open initial and removal, re-add at later; order okay. dict maps every account exists.
+
+Potential subtlety with undo reverting open: If account a removed, and the undo stack also contains unrelated earlier successful operations. Fine.
+
+Now amount check function. Could define inside. `def is_digits(token): return len(token) > 0 and all('0' <= ch <= '9' for ch in token)`. Use direct.
+
+Now maybe token count for unknown verbs: What if first token is "undo" but wrong number? We treat known and wrong count fail. Good. If unknown verb but len matches? fail unknown. Good.
+
+Potential invalid amount for open: `open a `? parts length 2 (if not double) wrong. `open a ""`? split no empty. fail wrong. okay.
+
+Need include `from __future__ import annotations`? Python 3, type hints list[str], tuple[dict...] okay in py3.9+? Actually built-in generics in annotations for function signature at runtime require Python 3.9+ if not stringified? The problem explicitly Python 3. `list[str]` works in 3.9+. Constraints? likely modern. We can just use signature. To be safe for Python 3.8, could import List/Dict/Tuple/Optional, but problem asks implement exact function signature `def ledger(ops: list[str]) -> tuple[dict[str, int], list[int]]:`; must keep exactly. So use as given.
+
+Need not process extra text. Code block only.
+
+But let's be extra cautious about amount validation: The rule "An amount N is valid only if it consists entirely of the decimal digits 0-9, with no sign; leading zeros are allowed". This means amount string for open maybe `"007"` valid, int 7. `N >=0` okay. What about empty amount " "? tokens split no; fails wrong count. Good.
+
+Potential issue: If an amount token valid digits but overflow int? Python arbitrary, okay.
+
+Potential issue: `rejected` ascending list. We append in index order. Good.
+
+Now maybe need think about undo and account deletion more carefully: Reverting open removes account. But what if an account name was opened, then a later `open` with same name failed because exists; stack only contains open original. Undo removes account. Later `open` same name after reverting original could be successful. Good.
+
+Now exact revert of open: should remove account and "removes the account". If account exists but frozen? As argued, frozen state should be unfrozen before open revert. But code discards from frozen regardless. If some pending later op was not related to freeze, then freeze cannot be pending. Fine.
+
+Let's consider a case where failure after push? No, we only push after mutation all rules checked. Good.
+
+Now final code only.
+
+Need ensure no explanation. Final only code block. Ensure no extra text around. Done.
+=== CONTENT ===
+```python
+def ledger(ops: list[str]) -> tuple[dict[str, int], list[int]]:
+    def valid_amount(token: str) -> bool:
+        return len(token) > 0 and all('0' <= ch <= '9' for ch in token)
+
+    balances: dict[str, int] = {}
+    frozen: set[str] = set()
+    undo_stack: list[tuple[str, str, str | None, int]] = []
+    rejected: list[int] = []
+
+    for idx, raw in enumerate(ops):
+        parts = raw.split()
+        if not parts:
+            rejected.append(idx)
+            continue
+        verb = parts[0]
+
+        if verb == "open":
+            if len(parts) != 3 or not valid_amount(parts[2]):
+                rejected.append(idx)
+                continue
+            account, amount = parts[1], int(parts[2])
+            if account in balances:
+                rejected.append(idx)
+                continue
+            balances[account] = amount
+            frozen.discard(account)
+            undo_stack.append(("open", account, None, amount))
+
+        elif verb == "deposit":
+            if len(parts) != 3 or not valid_amount(parts[2]):
+                rejected.append(idx)
+                continue
+            account, amount = parts[1], int(parts[2])
+            if amount <= 0 or account not in balances:
+                rejected.append(idx)
+                continue
+            balances[account] += amount
+            undo_stack.append(("deposit", account, None, amount))
+
+        elif verb == "withdraw":
+            if len(parts) != 3 or not valid_amount(parts[2]):
+                rejected.append(idx)
+                continue
+            account, amount = parts[1], int(parts[2])
+            if amount <= 0 or account not in balances or account in frozen or balances[account] < amount:
+                rejected.append(idx)
+                continue
+            balances[account] -= amount
+            undo_stack.append(("withdraw", account, None, amount))
+
+        elif verb == "transfer":
+            if len(parts) != 4 or not valid_amount(parts[3]):
+                rejected.append(idx)
+                continue
+            from_account, to_account, amount = parts[1], parts[2], int(parts[3])
+            if (
+                amount <= 0
+                or from_account == to_account
+                or from_account not in balances
+                or to_account not in balances
+                or from_account in frozen
+                or balances[from_account] < amount
+            ):
+                rejected.append(idx)
+                continue
+            balances[from_account] -= amount
+            balances[to_account] += amount
+            undo_stack.append(("transfer", from_account, to_account, amount))
+
+        elif verb == "freeze":
+            if len(parts) != 2:
+                rejected.append(idx)
+                continue
+            account = parts[1]
+            if account not in balances or account in frozen:
+                rejected.append(idx)
+                continue
+            frozen.add(account)
+            undo_stack.append(("freeze", account, None, 0))
+
+        elif verb == "unfreeze":
+            if len(parts) != 2:
+                rejected.append(idx)
+                continue
+            account = parts[1]
+            if account not in balances or account not in frozen:
+                rejected.append(idx)
+                continue
+            frozen.discard(account)
+            undo_stack.append(("unfreeze", account, None, 0))
+
+        elif verb == "undo":
+            if len(parts) != 1:
+                rejected.append(idx)
+                continue
+            if not undo_stack:
+                rejected.append(idx)
+                continue
+            record = undo_stack.pop()
+            verb_rec, account, other, amount = record
+            if verb_rec == "open":
+                balances.pop(account, None)
+                frozen.discard(account)
+            elif verb_rec == "deposit":
+                balances[account] -= amount
+            elif verb_rec == "withdraw":
+                balances[account] += amount
+            elif verb_rec == "transfer":
+                balances[account] += amount
+                balances[other] -= amount
+            elif verb_rec == "freeze":
+                frozen.discard(account)
+            elif verb_rec == "unfreeze":
+                frozen.add(account)
+
+        else:
+            rejected.append(idx)
+
+    return balances, rejected
+```

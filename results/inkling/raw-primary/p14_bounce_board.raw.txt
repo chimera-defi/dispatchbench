@@ -1,0 +1,256 @@
+=== REASONING ===
+We need answer with only code in single python block. Need solve problem carefully.
+
+We have board cells 0 to n. Token starts on cell 0. Game ends when token rests on cell n. Each turn, roll fair die faces 1..m and move forward by roll. If p+r > n, bounce: from cell p with roll r and p+r > n, it lands on 2n - p - r. Need note landing cell could be? Since p<=n, r<=m<=n. If p+r>n, landing x = 2n - p - r. Since p+r between n+1 and ? p<=n, r<=n, p+r<=2n, x>=0. Also p+r>n => x<n. And p? if p=0, r>n? impossible r<=m<=n, p+r>n with p=0 means r>n impossible. So p maybe. x can equal n? if p+r=n? no. x<n. Good. x can be? nonnegative. 
+
+Jumps: list pairs [a,b]. When token lands on cell a, it moves to cell b straight away, in same turn. If b is also start of a jump, keeps moving, until lands on a cell that starts no jump. These moves do not take extra turns.
+
+Return expected number of turns until game ends, exact fraction [p,q] lowest terms q>=1. If positive probability game never ends, return None.
+
+Need interpret game end with jumps. Token starts on cell 0. Each turn: from current cell p (which after jumps resolves? Need define state). At beginning of turn, token rests on a cell c. If c == n game ends? likely game ends when token rests on cell n. It could have rested on n during previous turn (including after jumps) and game already ended. We can model states as cells that are stable after jump resolution? Need handle jumps after rolling and landing. Let's parse.
+
+Each turn: roll r, move from p to landing y possibly bounce. Then if y == n? It rests on cell n and game ends. But what about jumps from cell y? "When the token lands on cell a, it moves to cell b straight away, in same turn." If y is a jump start with a=b? no. If y==n and n starts a jump? constraints jump starts have 1<=a<=n-1, so n never a jump start. Good. If y<n and y has jump, immediately move to b; then if b is jump start move again until stable cell s. If s==n? Can stable cell be n via jumps? b can be n? Jump pair [a,b] constraints 0<=b<=n, a!=b, a in 1..n-1. Following jumps never loops forever. It could have b=n; then token lands on n via jump, game ends same turn. But when moving to b, if b==n, does it "land" and game ends? The jump move is a move in same turn; game ends when token rests on cell n. If b=n, yes rests on n (n not a jump start), game ends. If b is jump start and eventually resolves to stable cell s. If s==n? Since n not jump start, if some b=n, resolution stops at n. stable s=n. If s<n no jump. Game ends same turn if s==n. Otherwise continue next turn from s.
+
+Need expected number turns until game ends. Positive probability never ends => None. Since finite board and finite transitions? With jumps, there are at most n+1 cells stable states? We can compute expected turns via linear equations. Need consider if from cell 0 stable? Start cell 0. Could 0 be jump start? constraints jump starts a>=1, so 0 not jump start. Good stable start.
+
+Need derive transitions from stable state p (after previous turn resolved) to next stable state after one roll + jump resolution, or terminal n. Then set up equations E_p = 1 + average_r [ E_next(p,r) or 0 if terminal or maybe if next stable is n? Actually if landing resolves to n, game ends that turn, so contribution to future after turn = 0 for that roll. If roll leads to stable s<n, then E_p = 1 + (1/m) sum_r E_s (where E_n=0). But careful: from p to landing y, jump resolution can end at s=n terminal or s<n. Since following jumps never loop forever, deterministic. We can precompute jump_next[p] or resolve_jump(y): maps landing cell y to final stable cell after applying jump chain. It is deterministic and finite. Because jump starts distinct and following jumps never loops forever. Need ensure resolve_jump not recurse too much; n<=80, chain length could exceed? Constraints follow never loops forever, but could chain length up to n? distinct starts and acyclic? If no loops, max length <= number of jump starts <= n-1? Could be n? a in 1..n-1 => at most n-1 starts, chain of distinct starts length <= n-1. Could jump from a to b where b is jump start, b != a; could cycle, forbidden. So resolve via while map.get(cur) is not None: cur=map[cur]. Since no loops, ends. It can go to n or 0 or any cell not jump start. If n is target, stable. Good.
+
+Transitions: function next_stable(p, r): y = p+r; if y>n: y=2*n - p - r. Note if y>n? bounce formula; but if p+r == n exactly? y=n terminal. If p+r<n y=p+r. If p+r>n, y=2n-p-r. Need consider p maybe = n? But we don't query from n. Stable p can be n only terminal. Equations only for p<n. Also p can be 0 stable. Good.
+
+Then resolve jumps from y: while y in jump_map: y = jump_map[y]; (this includes y maybe n? no map doesn't have n). After loop y stable. If y == n: term. Else next state y.
+
+Then linear equations for p in 0..n-1? But if some states unreachable? We can still set up for all p=0..n-1. But beware stable state p could be a jump start? After resolution, stable cannot be jump start. However equations E_p for jump start cells would not be used if transitions resolve. But starting p=0 not jump. Simpler include all cells 0..n-1 as possible stable states? But if p is a jump start, can that happen as beginning of turn? Starting cell 0 not jump. After a turn, resolve final stable cell no jump. Thus non-stable jump-start cells never begin a turn. But equations for them irrelevant. We can include only cells not in jump_map? However need compute expected turns starting at 0; we can construct only reachable stable cells via BFS. But for linear system, including all stable cells (not jump starts, plus maybe n terminal excluded) easy. n<=80 so include q = number of stable cells among 0..n-1 (not in jump_map). But is it possible stable cell p in 0..n-1 has no jump, p=0, yes. p=n? terminal. p=1..n-1 non-jump. Good.
+
+However, wait: jump resolution from y can end at cell b that is a jump start? No, while loop continues until no jump. Good.
+
+Need compute expected turns exactly as fraction. Need handle positive probability game never ends. In a finite Markov chain with absorbing terminal n and possibly transient/cyclic nonterminal states, expected hitting time is finite if all nonterminal states transient (absorption probability 1). If there is a positive probability never ends, return None. Need robust exact check.
+
+Approach: Let states be stable nonterminal cells (0<=p<n, p not jump start?) plus terminal n. At each state p, transitions to terminal n with total probability P_n(p) = (# rolls landing resolved n)/m; or to nonterminal stable q with prob = (# rolls resolving q)/m. Need expected turns E_0. If absorption probability <1 (positive probability never ends), return None. In finite Markov chain, if there is positive probability of never reaching absorption, then expected hitting time infinite. Need detect. We can solve linear system for E_p if finite; if singular due to non-absorbing closed communicating class, then None. But need exact and robust. Simpler: compute absorption probability via linear equations or detect strongly connected components (SCCs) in directed graph of stable nonterminal states with positive transition probabilities. If any SCC with no edge to terminal n (and not absorbing), then positive probability never ends? In finite chain where all states in SCC communicate and no exits to terminal, if starting in some state perhaps positive chance reaches that SCC? Need positive probability game never ends overall from start state 0. We need detect if starting cell 0 has positive probability of eventual entering a closed (non-absorbing) SCC or wandering forever. In finite Markov chain, non-absorption probability positive iff there is a reachable non-terminal SCC (excluding terminal) with no outgoing edges to outside nonterminal? Let's think. A finite Markov chain with one absorbing state n (absorbing). Nonterminal states finite graph with edges if transition prob >0. Positive probability never reach n from start iff there exists a reachable subset? More directly, compute absorption probability A_p = probability start at p and ever reach n. If A_0 < 1 (as exact rational), then positive probability never ends. Expected number finite iff A_0 == 1? In finite Markov chain, if absorption probability =1 from start, expected absorption time finite? There can be states with no path to absorption but unreachable from start, irrelevant. For reachable from start, if all reachable components are transient, expected finite. A_0=1 implies no reachable nonterminal closed class and all reachable paths eventually hit n; expected finite (could be large but finite). In finite graph with no self? Expected hitting time to absorbing state is finite iff absorption probability =1 in all reachable states? Yes. Since finite, if absorption prob=1, mean finite? Need check: finite Markov chain with absorbing state reached with probability 1 has finite expected hitting time. Because expected time for each step conditional on nonabsorption? Standard: if prob hit absorbing =1, expected hitting time finite in finite chain. Proof via finite sum/geometric tail. Yes.
+
+Alternative solve for absorption probabilities exactly; if any? But need expected turns too. We can directly solve expected equations using Gaussian elimination with exact fractions. If linear system singular, return None. But singular might also happen due to unreachable states with positive probability cycles not connected from start. E.g stable state x isolated with self-loop (no terminal) unreachable from start. Including x in system yields singular, but starting expected finite. So must only include reachable states or handle. Safer: compute reachable stable states from start via graph. Then if any reachable state has no path to terminal (or absorption probability <1), return None. Then solve expected linear equations for reachable states.
+
+Need be careful with cycles among reachable stable states and terminal. We can detect terminal reachability from each reachable state via graph reachability (ignoring probs) to terminal. If any reachable nonterminal state cannot reach terminal through state edges (positive transitions), then there is positive probability never end? If state cannot reach terminal, all its outgoing transitions stay within nonterminal and within finite set; it might have transitions to states that can reach terminal but the state itself cannot reach terminal? Contradiction: if any outgoing edge leads to a state that can reach terminal, then the state can reach terminal (edge positive). So if state cannot reach terminal, all outgoing lead to states also cannot reach terminal; finite closed set. From start, if start can reach that state with positive probability, then positive never end. Since start reachable state and cannot reach terminal, positive. If start cannot reach any terminal-unreachable state, all reachable states can reach terminal. Then absorption probability=1? In finite graph, if every reachable state can reach terminal, starting state has absorption prob 1? There is possibility of cycle but every state in cycle has outgoing to terminal and back; probability of eventually exit =1? finite chain with all states can reach terminal (absorbing) has absorption prob 1 from start. Need ensure no infinite path with positive probability. In finite directed graph where every reachable state has a path to terminal, can there be an infinite path with positive probability? An infinite path staying in finite nonterminal set must eventually repeat a state; along the repeated cycle, if every state in cycle has a path to terminal, there is positive probability per excursion to leave cycle (maybe through another state outside cycle but still reachable). Probability never leave is product over repeated attempts -> in finite set, if each cycle position has a positive probability to leave to terminal-reaching region within bounded steps? Need formal: finite nonterminal set S all can reach terminal. Assign graph. Starting in S. Probability never hit terminal =? It is the probability that the chain remains in finite set forever. Since there are finitely many states/edges, the only way to remain forever is to follow a cycle of states in the directed graph with positive probabilities. But a cycle within S that can reach terminal via an outgoing edge: chain may still avoid exit and loop with positive probability? Example two states A,B cycle A->B->A with prob 1 each, and also A->terminal with small? If edge A->terminal exists, chain at A can choose terminal with positive probability; probability of infinite avoiding terminal and returning to A each time is product of (1-eps) over infinitely many visits = 0 if the same A recurs. But what if cycle states distinct and the terminal-reachability path requires passing through a state with tiny probability; still over infinitely many repetitions, probability to never exit tends to 0 if each cycle has positive chance to exit in bounded number steps. More precisely finite set with absorption reachable from all states: Markov chain is absorbed with probability 1. Standard theorem. Good.
+
+So algorithm:
+1. Parse jumps into dict maps (starts distinct). Note a not b and constraints. If duplicate starts? "Jump starts are distinct." ok.
+2. Build stable states: indices 0..n-1 not in jump_map. But what about a stable cell that is unreachable? We can compute reachable via BFS from 0 over transitions. Need transition list to terminal/states. But to compute BFS, we need next stable after roll. We can build transitions dynamically.
+3. Function resolve(cell): while cell in jump_map: cell=jump_map[cell]; return cell. Constraints no loops. Could set seen safety to avoid infinite? But trust. Maybe recursion? Use loop with safety maybe assert. Since n<=80, no issue.
+4. Function transitions_from(p): returns dict mapping target cell (could be n) to number of rolls (count). For r in 1..m: y=p+r; if y>n: y=2*n - p - r; y=resolve(y); if y==n: count[n]+=1 else count[y]+=1. Note y could equal p? yes self-loop. Could y==0 etc. We only count. For BFS reachable stable states (including 0) collect q!=n. Start 0 stable (not in jump_map). BFS. However, to compute expected, need solve equations only for reachable states. Start set = reachable stable states including 0. If 0 cannot reach terminal? We can compute reachability to n for each state via graph (edges with counts). Or simply BFS from each state over edges to see if reaches n. Simpler: build graph adjacency among reachable stable states plus terminal n; mark canReachN by reverse graph from terminal: can[terminal]=True; process states in reverse topological? Graph may have cycles. Better compute set of states that can reach terminal via BFS backwards over edges. Since finite small: can = {p in stable_reachable : exists path p -> n}. Initialize can={n}; repeat: for each state p, if any transition target t (n or stable) has can[t] True, can[p]=True. Repeat until no change. This computes states that can reach terminal (possibly via cycles) but finite and exact. Because if p can reach n in any number steps through finite graph. Good. Then if any state in reachable set (including start) not in can -> None. Because start reaches it (reachable set) and cannot reach terminal, positive never end. Actually if reachable set includes state p not can, start reaches p with positive probability? Reachable via BFS means there is a path with all edges having positive probability (counts>0). Finite path positive probability (m^{-k} times product counts? each edge count>=1 so probability >=1/m^k? positive). From p cannot reach terminal, so never end from p with probability 1; overall positive. Return None.
+   If start in can? If can includes all reachable states, absorption prob=1; solve. If start not in can, then reachable set contains start not can; return None. So check can[0]; if not, None. Additionally if some reachable state not can but can[0] true? Is that possible? If start can reach terminal, start cannot reach a non-can state because if it did, path through that non-can state would lead to terminal? Wait if start can reach terminal, there exists a specific path start->...->terminal. But start may also reach another state p that cannot reach terminal. Reachable via BFS over all edges includes p if any path. If start reaches p via a different path, then positive probability to go to p, then never terminal, so absorption probability from start <1. But can[start] as computed by existence of path to terminal being True would still hold (ignoring probability), so absorption probability might be <1 even though start can reach terminal via some path. This is critical! My can-state reachability ignoring probabilities is insufficient to detect positive nonabsorption when there are multiple branches to terminal and to bad closed sets. Example start has transitions to bad closed state (prob 1/2) and to terminal (prob 1/2). Graph path to terminal exists, can[start]=True, but absorption probability=1/2 <1. Need compute exact absorption probability or expected value and detect failure. Good catch.
+
+Need detect positive probability never ends exactly. Options:
+- Compute exact absorption probabilities A_p satisfying A_n=1; for p stable nonterminal, A_p = average_r A_{next(p,r)}, where terminal next gives A_n=1. This is a linear system. If system has unique solution with A_0<1, return None; if A_0==1, solve expected. But if bad region reachable, absorption probabilities still solve finite linear system? There is also trivial? For finite Markov chain with absorbing state, absorption probabilities are the minimal nonnegative solution to equations. If there is a closed non-absorbing class reachable, the homogeneous equations have multiple solutions? Need handle. Better to compute absorption probability via solving linear system (exact) for all reachable states including bad states; but for bad states, equations A_p = avg of A_q. Since they cannot reach terminal, A_q should be 0. There is a unique? Example bad state self-loop: A= (A+A? actually A_p=average A_p with counts maybe = A_p) no constraint (any A?) If p self-loop with prob 1: A_p = A_p; any value satisfies. But absorption probability from p is 0 (never reaches terminal) or maybe should be 0. Minimal nonnegative solution gives A_p=0. If we use Gaussian elimination on full system with A_n=1, singular; cannot solve. Need special handling.
+
+Alternative detect nonabsorption by graph connected components/reachability of bad states and probabilities. Finite chain: compute probability of ever reaching terminal from start via recursion with memoization and detection of cycles. Since finite small, can compute A using exact rationals with memoization and cycle detection. Or compute expected time directly via linear equations after ensuring absorption probability=1. Need robust.
+
+Approach exact with SCC:
+- Build reachable graph of stable states (nonterminal) and terminal n. For each stable state p, transitions to targets q (stable) or n with total probability w_{p,n}=counts[n]/m, w_{p,q}=counts[q]/m (sum maybe <1; remaining? Actually every roll resolves to either terminal n or some stable state; counts sum m. So probabilities sum 1. For p stable nonterminal, w_pn + sum_q w_pq = 1, where sum_q w_pq = probability next state nonterminal. Good, no probability mass lost).
+- Determine states that can reach terminal? can[p]. Bad states = reachable states not in can[p]. If start reaches any bad state with positive probability, then absorption prob <1 -> None. We can compute probability to reach bad states or expected? Simpler compute A via SCC condensation: Terminal reachability graph. The set of states that cannot reach terminal forms bad set (no outgoing edges to good set). Indeed if a state cannot reach terminal, all states it can reach cannot reach terminal; its outgoing edges remain in bad set. So bad set is closed under transitions (no edges to good states). It includes start if start cannot reach terminal. Good states can reach terminal; by definition all outgoing edges lead either to good states? Not necessarily: a good state can have an outgoing edge to a bad state and also path to terminal. Example start: edges to bad (prob .5) and terminal (prob .5). State start is good via path to terminal, but has edge to bad. Then bad set is separate closed subset reachable from good states. Absorption probability from start =? It solves equations with bad states set to 0. We can set bad states absorption probability 0 and solve for good states. This is easy: identify bad = reachable stable states with no path to terminal (reverse reachability from terminal). Since bad closed. Set A_bad=0. For good states, solve linear equations using terminal=1 and bad=0. If start is good (all chains eventually hit terminal or bad; but bad has probability >0 perhaps), absorption probability A_start = solution. If A_start < 1 exactly, return None (positive never ends). If A_start == 1, solve expected times; else None. This seems robust. But expected time: finite only if absorption prob from start=1. If A_start<1, positive never ends -> None. Good.
+
+But maybe if A_start=1 yet there are reachable bad states with zero probability? Impossible: bad states reachable by BFS have positive probability along path. If start can reach bad state, then absorption probability? Starting at start, probability to ever reach bad state >0. From bad, never reach terminal. Therefore absorption probability <1. Unless path to bad state has zero probability? Edges with counts>0 probability positive; finite path product positive, so >0. So if start can reach bad state, A_start<1. Since bad states are closed components with no path to terminal. Good enough: return None if start reaches any bad state. But careful: bad set = states that cannot reach terminal. Could start reach bad state through an edge with probability >0? yes. Then positive never end. If start cannot reach bad state, then all reachable states can reach terminal, absorption prob=1. This is equivalent to can[start] true? No, because can[start] true even with bad edge. Example start has edges to bad and terminal; bad reachable. can[start]=True (exists path to terminal), but should return None. Need detect bad reachability separately.
+
+So compute bad set via reverse reachability from terminal on graph of reachable states (all edges with counts>0). Then if any bad state reachable from start (BFS from start over graph) => return None. But start is reachable from itself; if start in bad, None. Otherwise, all paths from start stay within good states and reach terminal with probability 1? If no reachable bad state from start, the set of states reachable from start contains only good states (no bad). Then absorption probability=1. Yes.
+
+Then solve expected times for reachable good states. This avoids bad systems. Good.
+
+Alternatively compute absorption probability exactly and expected via linear equations on good states with bad fixed 0 and terminal 1. If A_start<1 return None. This handles if bad reachable but somehow solution? Better simpler structural check.
+
+Need also consider stable state p that is unreachable via any path from start but included in can/bad; ignore. Since BFS start, only reachable stable states. Good.
+
+Potential nuance: Bounce formula can produce y==p? maybe; no issue. Jump map might have b=terminal n; resolve stops at n. Jump map may have b=0; resolve to 0 (stable). Good.
+
+Need exact fraction arithmetic. Python integers rational. Use fractions.Fraction. Since n<=80, states<=80, m<=80, Gaussian elimination exact with Fraction. Need handle linear system E_p = 1 + sum_q Prob(p->q) E_q (terminal contributions omitted because after turn game ends; their E_n=0). For stable reachable good states list S. For each p in S, equation:
+E_p = 1 + sum_{q in S} (count[p->q]/m) * E_q + count[p->n]/m * 0.
+Rearranged: E_p - sum_q (count/m) E_q = 1.
+Or sum_q M_{p,q} E_q = 1 for matrix A with diagonal 1 - sum_q P_pq. Since P_pn> maybe; sum_q P_pq <=1. But if a state has no terminal edge and no outgoing self? bad excluded; good states have path to terminal but could still have P_pn=0 and outgoing to other good states. Matrix A = I - P_SS (where P_SS submatrix of stable-to-stable probabilities). Since absorption prob=1, spectral radius<1, A invertible. Good. Solve A E = ones. Then expected = E_0. Return [num, den] reduced (Fraction already reduced). q>=1.
+
+Check examples.
+
+Let's manually test examples to ensure formula.
+
+Example1 expected_turns(1,1,[]): n=1,m=1. Stable cells: 0 (n=1 terminal). Start 0. Transitions p=0,r=1: y=1 > n? p+r=1, n=1 not >, y=1 terminal. S=[0]. Eq E0 =1 + terminal contribution 0 => [1,1]. ok.
+
+Example2 n=2,m=2,jumps=[]. Stable cells 0,1 (since n=2 terminal, 1 not jump). Start 0.
+Transitions:
+p=0: r=1 -> y=1 stable; r=2 -> y=2 terminal. Eq E0 =1 + (1/2)E1 + (1/2)*0.
+p=1: r=1 -> y=2 terminal; r=2 -> p+r=3>2, y=2*2 -1 -2 =1? 4 -3 =1 stable. Eq E1 =1 + (1/2)*0 + (1/2)E1. Solve: E0=1+0.5E1; E1=1+0.5E1 =>0.5E1=1=>E1=2; E0=2. [2,1]. ok.
+
+Example3 n=3,m=2, jumps [[1,0],[2,0]]. Jump map 1->0, 2->0. Stable cells: 0 only? n=3 terminal; cells 1,2 are jump starts not stable; 0 stable. Start 0. Transitions p=0: r=1 -> y=1 (jump) -> resolve 0 stable. r=2 -> y=2 (jump) -> resolve 0 stable. Eq E0 =1 + E0 (since both rolls go to 0) => 0=1? Actually E0 = 1 + 1*E0 => no solution; bad/nonabsorbing. Good. Structural bad: terminal reachability from 0: edges to 0 only, no n; bad={0} reachable -> None. ok.
+
+Example4 n=3,m=3, jumps [[2,0]]. Stable cells: 0,1? n=3 terminal. 2 is jump start (not stable). 0,1 stable. Start 0. Resolve: y=1 -> stable (no jump); y=2 -> jump->0; y=3 terminal. p=0 r=1 y=1 stable; r=2 y=2 -> resolve 0 stable; r=3 y=3 terminal. p=1: r=1 y=2 -> jump->0; r=2 y=3 terminal; r=3 y=4>3, bounce y=2*3 -1 -3 =2? 6 -4=2 -> jump->0 stable. Eq E0=1+(1/3)E1+(1/3)E0+(1/3)*0 =1+E0/3+E1/3. E1=1+(1/3)E0+(1/3)*0+(1/3)E0 =1+(2/3)E0. Solve: E0 =1 + E0/3 + E1/3. Substitute E1=1+2/3 E0. RHS=1+E0/3 + (1+2/3E0)/3 =1+E0/3+1/3+2/9E0 =4/3 + (1/3+2/9)E0 =4/3 + (5/9)E0. (4/9)E0=4/3 => E0= (4/3)*(9/4)=3. [3,1]. ok.
+
+Need implement exactly function. Return list[int] | None (in Python 3.10? Signature uses list[int] | None; problem says Python 3. Need code compatible? Python 3.9? The signature uses PEP 604 and builtin generics; likely Python 3.10. We just code as given.
+
+Potential issues: exact fraction solve for n up to 80; Gaussian elimination with Fraction. Need choose pivoting. Matrix A size k<=80. Use fractions.Fraction for exactness. Need avoid division by zero. Since good states and absorption prob=1, matrix invertible. But to be safe use partial pivoting. Implement solve(A,b) where A is list of lists Fraction (k x k), b list. Fractions can blow up but numbers small; exact enough. Could use Gaussian elimination with Fraction; fine.
+
+Need BFS reachable and counts.
+
+Let's design code precisely.
+
+```
+def expected_turns(n,m,jumps):
+    from fractions import Fraction
+    jump_map = {}
+    for a,b in jumps:
+        # constraints distinct starts; ignore otherwise
+        jump_map[a]=b
+    terminal = n
+    def resolve(cell):
+        # following jumps never loops forever
+        while cell in jump_map:
+            cell = jump_map[cell]
+        return cell
+    def trans_counts(p):
+        counts = {}
+        for r in range(1, m+1):
+            y = p + r
+            if y > n:
+                y = 2*n - p - r
+            # bounce could in theory equal n? no, if p+r>n then y<n. if p+r<=n, y can be n terminal.
+            y = resolve(y)
+            counts[y] = counts.get(y,0)+1
+        return counts
+    # BFS reachable stable states
+    start = 0
+    # stable means not jump start? start 0 not jump start by constraints. But what if jump with a=0? constraints say a>=1. ok.
+    seen = {0}
+    queue=[0]
+    adj={}
+    while queue:
+        p=queue.pop(0)
+        counts=trans_counts(p)
+        adj[p]=counts
+        for y,c in counts.items():
+            if y==n: continue
+            if y not in seen:
+                seen.add(y)
+                queue.append(y)
+    # Note: counts[y] for stable y; counts[n] terminal omitted in adj? adj includes n. ok
+    # Build reverse reachability to terminal among seen stable states
+    can = {p for p in seen if adj.get(p,{}).get(n,0) > 0}
+    changed=True
+    # Since terminal can be reached direct via counts. Then propagate: p can if any next q in adj[p] has next==n or can[q]
+    # initialize can with states that directly transition to n
+    seen_list=list(seen)
+    changed=True
+    while changed:
+        changed=False
+        for p in seen_list:
+            if p in can: continue
+            for y in adj[p]:
+                if y==n or can.get(y,False):
+                    can[p]=True
+                    changed=True
+                    break
+    # bad states = seen - can
+    if any(p not in can for p in seen):
+        return None
+    # Wait: as discussed, if start can reach bad state via some branch, can[start] may be True but there exists p in seen not can. any() catches it. Good.
+    # But if there is a reachable bad state p that is NOT reachable from start? seen BFS only reachable from start, so ok. If p not can, return None.
+```
+Need be careful: adj built only for seen states; seen includes stable states and maybe includes cell n? We only add nonterminal y not n; start 0. Good. It includes stable states (not jump starts) that are reachable. Could a reachable stable state be a jump start? No. BFS starts 0 stable. transition target y after resolve never a jump start (while loop exits when not in jump_map). Good.
+
+But wait: resolve(y) while cell in jump_map. If jump b equals a cell in jump_map and chain eventually reaches n, while loop stops at n. If chain reaches 0, loops ends at 0. Good.
+
+Now can compute: initialize can={} maybe. But code above sets can direct. Then loop. Complexity ok.
+
+If any reachable state not can: return None. This catches start not can and bad branch reachable. Need prove: any p in seen not can means p has no path to terminal. If start can reach p, then positive probability start->...->p. From p never hits n. So overall positive never ends. Return None. Correct.
+
+Then solve expected. Need know probabilities counts. stable_states = list(seen) (maybe BFS order). Terminal probability not in denominator. For each p, sum over next q stable counts[q]/m. Note counts[n] corresponds terminal. total equation:
+E_p = 1 + sum_{q stable} (counts[q]/m) E_q. There is no separate terminal contribution (since E_n=0). Actually if next q=n, after the turn the game ends; contribution to future is 0. The "1" accounts for the turn. So RHS =1 (not 1 + terminal prob*0) yes.
+Matrix A[i,i] = 1 (or 1? Let's derive): E_p - sum_q P_pq E_q = 1. So A diagonal =1 (not 1-P_pp? because sum_q includes P_pp; A[i,i]=1 - P_pp? Wait: E_p - ∑_q P_pq E_q = 1. If we bring A terms: A[i,i]=1 - P_{p,p}; A[i,j]= -P_{p,q}. But E_p = 1 + ∑_q P_pq E_q. Subtract ∑ P_pq E_q from both sides: E_p - ∑_q P_pq E_q =1. For j=p, LHS coefficient =1 - P_pp. Yes cannot leave diagonal as 1 unless moving P_pp E_p to right; better set A diag =1 - P_pp. Alternatively write as (E_p - ∑_{q≠p}P_pq E_q) = 1 + P_pp E_p; then (1-P_pp)E_p - ∑_{q≠p}P_pqE_q=1. Use full matrix.
+
+Then solve A E = ones. Good. If A invertible. Need verify orientation. For example p=0 with both rolls to p=0 (example3): counts {0:2}; S=[0]; can? adj {0: {0:2}} no n; can empty; any p not can -> None. good.
+
+Example4: S seen [0,1]? BFS queue: start 0 counts {1:1,0:1,n:1}; add 1; adj[0]={1:1,0:1,3:1}; queue [1]; p=1 counts r=1 y=2 -> resolve0, r=2 y=3 terminal, r=3 y=4 bounce y=2 -> resolve0: {0:2,3:1}; seen={0,1}; adj[1]={0:2,3:1}. can: direct p=0 has n edge -> can[0]; p=1 has n edge -> can[1]. seen all can. Matrix:
+p=0: P10=1/3, P00=1/3, terminal=1/3. A00=1-1/3=2/3; A01=-1/3; RHS=1.
+p=1: P10? q=0 count2/3, terminal1/3; A00? Let's index states [0,1]. A[1][0] (p=1)= -2/3; A[1][1]=1 - P_11. P_11=0 (counts q=0 only) =>1; RHS=1. Solve: (2/3)E0 -(1/3)E1=1; -(2/3)E0+1E1=1. Multiply first by3:2E0-E1=3. second: -2E0+3E1=3. Add equations? first 2E0-E1=3; second -2E0+3E1=3 -> 2E1=6 => E1=3; 2E0 -3 =3 -> E0=3, then E1=3? Wait substitute E1=3? first gives E0=3. But earlier we solved E0=3, E1=1+2/3E0=3. yes E1=3. Good. I mistakenly used E0=3? OK.
+
+Need exact check for positive probability never ends: Suppose all reachable states can reach terminal and no reachable bad, then absorption probability=1. Solve expected finite. Good.
+
+Potential subtlety: if all reachable states can reach terminal in graph, but there is a reachable bad state? contradiction because bad state by definition cannot reach terminal and reachable; then not all seen can. So any(p not can) catches. Good.
+
+Now potential subtlety: bad set definition via reverse reachability with cycles. Example state A can reach terminal only by going through state B that also can reach terminal but has probability? If B cannot reach terminal, then A cannot reach terminal. Our reverse propagation handles. With cycles among good states, initial can direct edges to terminal; then expand. Good. Since finite graph and can only expand, loop terminates.
+
+Potential issue with BFS transitions: trans_counts uses jump_map resolve which can chain through jump starts. Following jumps never loops forever. But could jump_map values be cell n? In resolve loop, while cell in jump_map. If cell=n and n in jump_map? constraints no, jump start n not allowed (a<=n-1). So n stops. If b can be a jump start that equals? a!=b; b can be any 0..n; may be n; if b is a jump start with b=a? a!=b for initial pair, but chain could have x->x? Not allowed (a!=b for every jump, and distinct starts, so a not equal its b; but later chain may reach cell with itself? That would be loop x->x forbidden because a!=b). Cycles forbidden by following never loops. Good.
+
+Need make sure expected number of turns until game ends counts the turn in which it ends. Equations with constant 1 yes.
+
+Return [p,q] with q>=1. Fraction(p,q) reduced; can_negative? Expected positive unless game ends on first turn with p=0 and m? Expected >=1. p,q ints. q>=1. If expected maybe zero? no. But q>=1 satisfied. Return list([fr.numerator, fr.denominator]). If None return None.
+
+Need include imports inside or top-level? They ask implement exactly this function (top-level function). We can import Fraction top-level or inside. "Implement exactly this function" maybe only function; but code can include import. Single block only. To be safe, top-level function with from fractions import Fraction inside or at top. They said exactly this function not a class; top-level function. A top-level import is okay? To avoid extra top-level names, import inside function. That's acceptable.
+
+Need ensure list[int] | None annotation. In Python versions without PEP 604, would fail; but problem statement uses it, so Python 3.10+. Fine.
+
+Let's think about exact algorithm for bad reachability more rigorously. Let S=reachable stable nonterminal states. Define can[s]=true if there exists a finite sequence s=x0 -> x1 -> ... -> xk = n with positive probability for each step (edge counts>0). Because counts>0. Reverse dynamic programming: initialize can[s]=true for s with counts.get(n,0)>0. Repeat: if state in can, then for every predecessor p (any q in seen with adj[q] containing s) set can[p]=true. This is equivalent to can[p]=true if any target t in adj[p] has t==n or can[t]. Our loop does that. It will set can true for states reaching n even with cycles. Good. If p not can, there is no path to n; any path from p stays in set of not-can states. Since finite and no terminal, eventually? There is at least an edge (counts sum m) to other state; could a bad state have no edges? Every stable p has m rolls; each resolves to some cell (n or stable). If no edge to n, it has stable edge. So cycle. Positive never end. Good.
+
+But subtle: Could a bad state have an edge to n with probability 0? Counts>0, so if edge to n, direct can. If counts[n]=0 but path exists, can. Good.
+
+Now, if any reachable bad state exists, return None. However, what if start state 0 is in can and no reachable bad states, but there are reachable good states with absorption probability <1 due to zero? No, absorption probability in finite chain with no reachable bad states equals 1 by standard theorem. Let's ensure by solving maybe? Could still return None if A_start<1. But structural check sufficient.
+
+Let's nonetheless compute absorption probabilities as a cross-check? We could solve expected and also check equations residual? no.
+
+Expected solve: Need construct A and b. States list = list(seen) where seen is dict/set. We need stable states order. Use list(seen) (insertion order: BFS order, fine). Index map. For p in states: counts=adj[p]; row zeros; for q,c in counts.items(): if q==n: continue; row[idx[q]] -= Fraction(c,m). row[idx[p]] += 1 (base identity diagonal) then subtract P_pp: row[idx[p]] = 1 - Fraction(counts.get(p,0),m). Set other q row[idx[q]] = -Fraction(counts[q],m). RHS 1. Then solve. Note if q=n ignored. Good. P_pp = counts.get(p,0)/m. Since counts includes stable p. Good.
+
+Matrix invertible? good states all reach terminal; but could still have an SCC with no direct edges to terminal but all states in SCC can reach terminal via path out. That is a transient SCC with positive exit. Matrix I-P_SS invertible because spectral radius<1. Gaussian elimination works.
+
+Gaussian elimination exact with Fraction. Need choose pivot. Implementation:
+
+```
+def solve_linear(A, b):
+    k=len(A)
+    M=[row[:] + [b[i]] for i,row in enumerate(A)]  # rows length k+1
+    for col in range(k):
+        pivot=None
+        for i in range(col,k):
+            if M[i][col] != 0:
+                pivot=i; break
+        if pivot is None: raise ZeroDivisionError
+        if pivot != col:
+            M[col],M[pivot]=M[pivot],M[col]
+        pv=M[col][col]
+        # normalize pivot row
+        M[col]=[x/pv for x in M[col]]
+        for i in range(k):
+            if i==col: continue
+            factor=M[i][col]
+            if factor==0: continue
+            M[i]=[x - factor*y for x,y in zip(M[i], M[col])]
+    return [M[i][k] for i in range(k)]
+```
+This is Gauss-Jordan. k<=80; divisions Fractions; fine. Pivot selection no tolerance. If M[i][col]==0 in Fraction okay. If pivot zero but maybe should use partial pivot based on magnitude; with exact arithmetic, any nonzero pivot works; but Gauss-Jordan without row pivots may accumulate? We swap pivot. If pivot nonzero. No tolerance. Fine. If the system is singular (shouldn't), pivot None; raise. We can catch and return None? Should not happen. But maybe if bug, return None? Better not mask. But for robust, we can if pivot None: return None? But expected finite could still have singular due to bad reachable? we filtered. No.
+
+Potential overflow? Fractions with denominators powers of m up to 80^80 huge? Wait exact Gaussian elimination over Fractions with m=80 and states=80 can produce enormous numerators/denominators? Let's estimate: denominators in matrix entries are powers of m (<=80) (counts/m). RHS=1. Elimination might produce fractions with denominators up to m^k? Could be astronomical (80^80) with numerators huge (thousands digits) but Python handles; maybe slow but k=80, Fraction arithmetic with large integers. Number of operations ~k^3=512k, each with Fraction operations on potentially huge ints. Might be heavy but acceptable? Need consider constraints small but exact fractions can have large numerators. The expected turns could be rational with denominators maybe as large as m^(number states)? Actually expected hitting time in finite chain with m up to80 and states 80 can be huge (maybe exponential in states). Exact fraction representation could have thousands/millions digits. n<=80, expected could be enormous if absorption prob barely above? But no positive nonabsorption; still expected could be enormous but with structural finite chain maybe up to m^{states}? Could be huge (e.g states in a cycle with tiny probability to leave). There is no guarantee expected modest; exact output requires full fraction. Python integers handle; k=80 fine likely. But Gaussian elimination over 80x80 Fractions with big integers may be slow but okay in typical. Could use modular/rational algorithms? Need exact fraction; Fractions fine for n=80.
+
+Could optimize using linear equations with denominator m clearing: Multiply equations by m? Let's see. Matrix A has entries (1 - c_pp/m) = (m-c_pp)/m and -c_pq/m. Multiplying row i by m: (m - c_pp) E_i - ∑_{q≠p} c_pq E_q = m. Nice! This removes denominators for matrix entries. Diagonal and off diagonal are integers. RHS=m. Great. This improves arithmetic (still fraction solutions). Let's derive: E_p - ∑_q (c_pq/m) E_q =1. Multiply by m: m E_p - ∑_q c_pq E_q = m. For q=p, coefficient left m - c_pp. So integer matrix B: B[i,i]=m - c_pp; B[i,j]= -c_pj; RHS=m. This is much nicer. Then solve B E = [m]*k with integer matrix. Solutions rational. Great. Use fractions.Fraction only for solve. Could also use integer Gaussian elimination; fractions ok.
+
+But careful with c_pp: c_pp is number of rolls from p resolving to p. For each row p: left side coefficient for E_p = m - c_pp. For q != p left coefficient = - c_pq. RHS=m. This matrix has diagonal entries m - c_pp. Could be zero? If p has all m rolls resolving to p (c_pp=m), then diagonal 0; off diag zeros; RHS=m. Pivot? It is singular (a cycle with no exit). Such p would be bad and filtered. If p is in a good state, cannot have all rolls to p (else no path to n? If all rolls to p only, no terminal, bad). So diagonal could be zero for good state if all rolls to p? no. If c_pp=m, no terminal edge/no other stable, bad. Not allowed. If c_pp=m-? diagonal at least 1? if c_pp=m-1 and c_q=1, diagonal=1. good. If m=1, c_pp cannot be 1 in good state (would no terminal) so diagonal=1.
+
+Good. Solve integer equation. Could also exploit denominator via rational. Fraction solve with integer matrix.
+
+Potential issue: BFS adj counts includes terminal n counts. For expected matrix, ignore terminal target but note m = sum counts over stable q + counts[n]. Row B diagonal m - c_pp. Good.
+
+Now let's consider alternate interpretation of jumps in same turn and game end. Could jumps be triggered only when token lands on cell a, and if it lands after bounce? Yes "When the token lands on cell a" includes landing after bounce. Good. Jump moves do not take extra turns. If jump lands on n, game ends. We handle. If jump lands on a jump start b, keep moving; but since jump starts are distinct and following never loops, deterministic. Good.
+
+Potential nuance: If bounce lands on cell n? Is it possible if p+r>n? We said y=2n-p-r < n because p+r>n => 2n-(p+r)<n. Could y equal n? if p+r=n? no. Good. If p+r==n, it lands on n terminal; n not jump. good.
+
+Potential nuance: "If that would pass cell n, the token bounces: from cell p with roll r and p+r > n, it lands on 2n - p - r." Suppose bounce lands on a jump start; then jump applies. We handle. Suppose bounce lands on 0 and jump from 0 absent. good.
+
+Potential nuance: token starts on cell 0; if jump from cell0? constraints no. If jumps list contains [0,b], would violate constraints. Ignore? We can still put 0 in jump_map and resolve from 0 at start? But spec says jumps have a>=1. We shouldn't create start-jump. If a invalid [0,b], constraints say nonexistent. Do not handle.
+
+Potential nuance: "If b is also the start of a jump, it keeps moving". If b is a jump start, continue. We do. If b == a? not allowed. If chain reaches terminal n, stop; if b==0, stop. good.
+
+Need answer only code in single python block. No explanation. Ensure no extra text.
+
+Let's formulate final code elegantly.
+
+```
+def expected_turns(n: int, m: int, jumps: list[list[int]]) -> list[int] | None:
+    from fractions import Fraction
+
+    jump_map = {}
+    for a, b in jumps:
+        jump_map[a] = b
+
+    def resolve(cell)
+=== CONTENT ===
