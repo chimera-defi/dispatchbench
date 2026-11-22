@@ -1,0 +1,462 @@
+=== REASONING ===
+We need answer with only code block. Need solve carefully. We can include all reasoning here.
+
+We need implement function sheet(cells) returning dict mapping every name in cells to value. Need parse formulas.
+
+Specification details:
+- Cell name one column letter A..Z followed by row number 1..99 no leading zero. Names valid.
+- Contents: integer literal such as 42 or -7 is that integer. Otherwise content starts with = and rest formula. Spaces may appear between any two tokens.
+- Grammar lowest to highest:
++ - left assoc
+* / left assoc
+unary minus repeat
+atoms: non-negative integer, cell name, ( formula ), function call.
+Functions SUM/MIN/MAX one or more comma-separated args. Each arg either range X1:Y2 (rectangle either order) or formula.
+IF(left OP right, then, else) where OP one of =,<>,<,<=,>,>=, and left right then else formulas.
+Semantics:
+1 arithmetic unbounded ints. / trunc toward zero. Div by zero #DIV/0!.
+2 ref to cell not in cells value 0.
+3 Inside range, cells not in cells skipped. MIN/MAX no values at all give 0, SUM no values gives 0. Formula arguments are never skipped: a formula argument that is a missing cell, such as MIN(Z9), contributes 0.
+Need interpret: Function args evaluated left to right. Each arg either range or formula. If arg is range, evaluate cells in row-major order; missing not in cells skipped; errors propagate first error met. If arg is formula (not range), evaluate formula; missing cell contributes 0. Important: How to distinguish range vs formula? Syntax: range X1:Y2 where X1,Y2 are cell names. A formula argument could be a parenthesized expression etc. Need parse function call args: parse an expression? But range is not an expression in grammar. Need handle specially: When parsing arguments inside function call, if current token is cell name and next after cell name is ':' (maybe spaces between tokens), then parse range X1:Y2. Otherwise parse formula (expression). But formula could start with cell name followed by ':'? No cell names never have colon except ranges. Grammar doesn't allow colon as binary operator, so safe.
+Need consider unary minus in formula and range detection: e.g. SUM(-1, A1:A2). Argument starts with '-' unary; parse formula. Good. SUM(A1:A2:A?) invalid not.
+IF: function name IF with 4 args comma-separated. left right then else formulas (not ranges). In examples IF(A2 = 0, 1, A1). Need parse OP between left and right. Function call syntax: IF( left OP right , then , else ). Grammar says IF(left OP right, then, else). Need parse left formula, then operator (=,<>,<,<=,>,>=), then right formula, then comma, then then formula, then comma, then else formula, then close. Need handle spaces.
+Evaluation order:
+- Each cell evaluated at most once; once it has a value, later references reuse. There are also in-progress cells for cycle. Need evaluate every name in cells. Order? dict iteration order? Problem: "Return a dict mapping every name in cells to its value." Need evaluate all cells. But cells can refer to each other. Need decide evaluation sequence to ensure values consistent. In examples, sheet({"A1": "=IF(A2 = 0, 1, A1)", "A2": "0"}) returns A1:1 A2:0. Evaluation of A1: left A2 evaluate -> A2 is "0" -> 0; right 0; A2=0 true; then branch 1 -> A1=1. A1 not evaluated again. Fine.
+Need produce dict with same insertion order? Probably yes: mapping every name in cells. Could iterate cells in given order and evaluate each (with memoization). If cell is in progress, reference gives #CYCLE!. Each cell evaluated at most once; once value reused.
+Implementation: recursive evaluator with memo dict values (including errors), in_progress set or dict state. For each name in cells: evaluate_cell(name). For name not in cells: return 0 (but maybe if referenced in range skip; in formula return 0). No cycle for missing.
+evaluate_cell(name):
+- if name in memo: return memo[name]
+- if name in visiting: return "#CYCLE!"
+- if name not in cells: return 0 (but maybe no memo needed)
+- set visiting.add(name)
+- content = cells[name]
+- parse/eval formula/literal.
+Need handle literal integer content: if starts with '-' or digits? "An integer literal such as 42 or -7 is that integer." So content maybe "+42"? Not specified, only integer literal such as 42 or -7. Could be "42" or "-7". No leading zero? cell names no leading zero but integer literals maybe can have leading zeros? It says integer literal such as 42 or -7. Probably non-negative integer atoms in grammar no leading zeros? It says atoms: a non-negative integer. Formula grammar non-negative integer. For content, integer literal such as 42 or -7. Could include leading zeros in literal? Hmm. Constraints valid formulas. Could parse content: if content starts with '=' formula; else int(content) maybe handles +42? int('+42') works but not necessary. int(content) accepts spaces? content no spaces? maybe. We'll strip? Contents maybe exactly. Use if content[0] != '=': return int(content) after maybe stripping. If int fails? valid.
+- After eval, memo[name]=value; visiting.remove(name). Return value. Errors: Need store error strings in memo. If a cell errors, later references reuse that error string. Propagation: if left operand error stop. For binary operator: if left error return left error, right not evaluated. Else right; if right error return right; else op. Important if op is comparison for IF: left error return left, else right error return right; if either error result that error. Then compare values; if comparable integers (always, since errors stopped). Comparisons on ints. If left/right are ints. Note: Cell values ints or error strings; comparisons only after errors stopped so both ints. Division by zero error.
+- In formula, function arguments evaluated left to right; cells in a range in row-major order top row first, left to right within a row. For range X1:Y2 either order: normalize min/max row and col. Evaluate cells in order of rectangle row-major. Missing skipped. Errors: if cell value is error string, function result that error immediately? "Function arguments are evaluated left to right, and the cells of a range in row-major order... The first error met is the result." So in a range, encounter first error and return it. In a normal formula argument, evaluate formula expression; if error stops according to expression rules; if returns error, function argument returns that error; function stops first error. If one argument error, result error. Need for MIN/MAX: if no values at all give 0. But if a range includes cells with errors, the first error met is result (not skip or treat as 0). If a cell missing skip. In formula arguments, missing cell contributes 0 (e.g. MIN(Z9) with Z9 not in cells => formula arg missing cell -> value 0 -> min(0)=0). Note: MIN(Z9) as formula argument? Wait MIN takes one or more comma-separated arguments. Each argument either a range or a formula. `Z9` is a cell name, which is a formula (atom) and not a range. So contributes 0. Good.
+- For SUM with no values gives 0. No values can occur if all range args have zero non-missing cells? Example SUM(A:A?) but formulas valid; ranges valid. If args are ranges all empty or range normal with missing only: SUM = 0. If arg is formula, evaluate it and add value (missing cell 0). Need be precise: For SUM, "one or more comma-separated arguments". Each arg either range or formula. For a range arg, sum over non-missing cells' values; if error in any cell, first error result. For formula arg, evaluate formula; if error result error; else add value. At end sum. No values at all -> if no range cells and formula args? If formula arg is 0, sum=0. They say SUM with no values gives 0. With formula arg 0 counts value 0; sum 0. Fine.
+- MIN: range values skipped; if no values at all -> 0. Formula args never skipped; missing cell contributes 0. So for MIN(Z9), values list [0], min 0 -> 0. For MIN(B1:B3) with only B2=4 -> [4] ->4. For MIN(missingrange) no values ->0. Need implement MIN starting with None; if error found return error. If value found, track min. At end if no values -> 0. If formula args included, they contribute to values list (not skipped) so no values false? Example MIN() not allowed (one or more args). MIN(Z9) has one formula arg value 0 => values list has [0], min 0. Good.
+- MAX similar.
+- IF function: args exactly 4 formulas. Evaluate left; if err return; right; if err return; compare with OP; if condition true evaluate then; else evaluate else. Errors in unchosen branch not evaluated. Note: If left/right evaluate to 0? Compare ints. If OP `=` etc. Use Python:
+ '=': l == r
+ '<>': l != r
+ '<': l < r
+ '<=': l <= r
+ '>': l > r
+ '>=': l >= r
+Operators in formula parsing: Need parse tokens with spaces. We can write a tokenizer. Need handle formulas with spaces between any two tokens: e.g. "= A1 + 2". Tokens: numbers, cell names, '(', ')', ',', ':', '+','-','*','/', '=','<>','<=','>','>=','<','>' maybe. Note '<>' and '<=' '>=' three/two char; '=' one. Need lexing carefully before '<'. Also function names letters. Need distinguish cell name vs function name vs identifier. Formula grammar atoms: non-negative integer; cell name; ( formula ); function call. There are also cell names with letters and digits. Function calls are NAME '(' args. Cell name: one column letter A..Z followed by digits 1..99. Function name is letters maybe SUM/MIN/MAX/IF, likely uppercase only. Grammar says function call; no lowercase. We can uppercase formula? Contents could have lowercase function names? Probably valid uses uppercase. We can lex identifier as letters; cell name requires letter(s?) Wait cell name is exactly one column letter A..Z + row digits. But function names are more than one letter. Lexer for atoms: If char is digit, parse number. If char is letter, parse sequence of letters. Then parse digits immediately after letters: if letters length == 1 and digits present -> cell name. If letters length > 1 and no digits? identifier function name. What about cell name like "A1" matches letter sequence "A" and digits "1". Function call `SUM(` has letters "SUM", no digits, then '('; identifier. What about function `MAX` with digits? invalid. Function names could be lowercase? Not specified. We can normalize content formula to uppercase? Not necessarily: cell names uppercase, function names uppercase. If we uppercase, cell names same; integers unaffected; spaces unaffected. Could do formula = content[1:].upper(). But unary minus sign etc unaffected. That seems safe. However lowercase cell names invalid per spec, so no issue. Use uppercase to avoid case sensitivity.
+
+Parsing precedence:
+parse_expr():
+  left = parse_term()
+  while tok in {'+','-'}:
+    op = next
+    right = parse_term()
+    left = eval_bin(left,op,right)
+  return left
+parse_term():
+  left = parse_unary()
+  while tok in {'*','/'}:
+    op
+    right = parse_unary()
+    left = eval_bin(left,op,right)
+  return left
+parse_unary():
+  if tok == '-': next; val=parse_unary(); return neg by eval? Need errors propagate. Unary minus is unary operator; if operand error, result error? Need evaluation order left-to-right and stops at first error. For unary minus, is it a binary operator? Not specified but errors propagate; unary minus on error should yield that error presumably. It should not evaluate after. If operand is error, result error. Arithmetic unary: int. If operand is #DIV/0!, unary minus should not change. Return error.
+  if tok == '+'? Grammar only unary minus, not plus. Don't accept '+'. Actually grammar lowest precedence `+` and `-` are binary; unary minus repeat. No unary plus. Integer atom nonnegative. Do not handle unary '+' except binary after left operand.
+  else parse_atom()
+parse_atom():
+  token INT -> int (nonnegative) no unary (handling inside unary above)
+  token CELL -> evaluate reference (missing ->0; in progress -> cycle; memo)
+  token '(' -> parse_expr(), expect ')' (if missing error? formulas valid)
+  token IDENT -> function call: expect '(' args ')' ; evaluate function. Need parse based on IDENT.
+Need ensure function call parsing doesn't conflict with parenthesized expression. If identifier is a cell name? Already cell. If identifier is "SUM" etc.
+Potential ambiguity: IDENT followed by digits? Cell names handled by lexer. Need lexing sequence: at current pos, if char.isspace skip. If digit: parse number. If letter: parse letters. Suppose letters == 'A'..'Z' length 1 and next char digit? We parse digits immediately. Let's structure lexer function peek token maybe with position and stored current token. Easier: Lex full list of tokens. Tokens with type and value. Since formulas small, full token list okay. Cell names max 2574? Formula size small. Constraints 2574 cells, every formula valid. Token list fine.
+
+Tokenizer:
+tokens=[]; i=0.
+while i < len(s):
+  c=s[i]; if c.isspace(): i++; continue
+  if c.isdigit(): j=i; while s[j].isdigit(): j++; tokens.append(('INT', int(s[i:j]))); i=j; continue
+  if c.isalpha(): j=i; while j<len(s) and s[j].isalpha(): j++; word=s[i:j]; # contains letters only
+     # cell name if len(word)==1 and next char is digit? But we already consumed letters only, next char may digit.
+     if len(word)==1 and i+len(word) < len(s) and s[i+len(word)].isdigit():
+         # parse digits
+         k=i+len(word); while k<len(s) and s[k].isdigit(): k++
+         number=int(s[i+1:k]) maybe word+digits? token cell name value word+s[i+1:k] (should be valid row 1..99); tokens.append(('CELL', value)); i=k; continue
+     tokens.append(('IDENT', word)); i=j; continue
+  if c == '(': '('; c==')'; c==','; c==':'; '+'; '-'; '*'; '/';
+  if c == '=' and s[i+1:i+2] == '='? For comparison ops, need length.
+  For comparisons: if s.startswith('<=', i): '<='; elif s.startswith('>=', i): '>='; elif s.startswith('<>', i): '<>'; elif s.startswith('<', i): '<'; elif s.startswith('>', i): '>'; elif s.startswith('=', i): '='; elif c=='!'? invalid not in spec.
+Need be careful '<>' vs '<': startswith('<>',i) first, then '<=', then '<'. Order among two-char ops: '<=' and '>=' and '<>'. Use tuple.
+  else error.
+This tokenizer treats cell name `A1` as CELL even if word length=1 and digit follows. It treats `A` (function?) if next char not digit, IDENT "A". But valid cell names always have row digits, so function name cannot be a single letter? Function names are SUM/MIN/MAX/IF; no single letter function. Good. It could treat IDENT "E" followed by digit as cell E? row etc valid. Fine.
+But what about function name with digits? Not specified and invalid; we would cell name if single letter followed by digits; invalid formulas won't occur.
+
+Function parsing: In parse_atom, token IDENT. Need expect next token '(' then parse args. For SUM/MIN/MAX: parse_function_args allowing ranges/formulas. Need distinguish range: At argument start, if token is CELL and next token (after optional? tokens no spaces) is ':' then parse range: cell, colon, cell, expect maybe comma/close. Range's second cell: token CELL. Normalize. This range does not evaluate any cells during parsing, just stores either Range or formula? We can evaluate during function call after parsing. Need parse arguments as list of either ('range', (start_name,end_name)) or formula string/AST? Since formulas can be evaluated immediately while parsing. Evaluation order: function args are evaluated left to right. If we parse range as structured and formula as evaluated inline, order? For formula args, evaluating during parse_expr occurs left to right. For range args, evaluation also during argument processing maybe after parsing range; still the order of arguments: we can process one arg at a time. Approach: In parse_atom for function, parse '(' then loop args:
+   if arg_start token CELL and next token ':': parse range; store range descriptor. Then loop next; after all args and ')', evaluate function by processing descriptors in order.
+   else parse expression (starting at current token) and store evaluated value (could be int/error) directly.
+But if we evaluate formula argument inline while parsing and then evaluate range later, evaluation order could be wrong when a range precedes a formula? Example SUM(A1:A2, B1) should evaluate range cells first, then B1. If we parse range descriptor without evaluating, then after parsing all args we evaluate in list order, okay. But formula args inline would evaluate before later args, wrong. So don't evaluate formula args inline; store AST or a thunk. Simpler: parse arguments into list of structured objects: ('range', names) or ('expr', tokens? no). But we already parsed expression's tokens with a parser; we can create AST? Could store a callable thunk. However parser uses closure evaluate_cell and values; thunks must be evaluated later in order. We can define parse_expr to return a Python object `Expr` representing a lazy formula. But simpler: For function args, parse each argument and evaluate immediately for formula, and for range store nothing? No, violates lazy order but maybe function argument evaluation order can be implemented by calling parse for args in order and immediately evaluating before parse next arg. Is that possible? Yes: in function-call parsing, after seeing current arg start, if range: parse range tokens (not evaluate), then process range immediately (evaluate cells) and update accumulator. Then continue to next arg. If formula: parse expression immediately (evaluates), update accumulator. That ensures arguments left to right. For IF, similar: parse left expression, immediately evaluate; parse OP; parse right expression, immediately evaluate; if error etc then parse comma then parse then/else depending on condition. But wait parsing grammar for IF: after right expression, expect comma. If left is error, spec: "IF evaluates left, then right. If either is an error the result is that error." Even if left is error, must still evaluate right? It says IF evaluates left, then right. If either is an error the result is that error. This means yes, evaluate right even if left is error? The phrase: "IF evaluates `left`, then `right`. If either is an error the result is that error. Otherwise only the chosen branch is evaluated." Example? Need parse carefully. It says evaluation goes strictly left to right and stops at first error. For IF, evaluates left then right. If either is an error, result is that error. Does this mean if left is error, right still evaluated? "IF evaluates left, then right" implies yes. But general rule "evaluation goes strictly left to right and stops at the first error" might imply if left operand is error for a binary operator, right operand not evaluated. However IF is special: It says IF evaluates left, then right, then only chosen branch. Need resolve precedence.
+Statement 4: "Errors propagate, and evaluation goes strictly left to right and stops at the first error. For a binary operator, if the left operand is an error the result is that error and the right operand is not evaluated; otherwise the right operand is evaluated next. Function arguments are evaluated left to right, and the cells of a range in row-major order: top row first, left to right within a row. The first error met is the result."
+Statement 5: "IF evaluates left, then right. If either is an error the result is that error. Otherwise only the chosen branch is evaluated. The other branch is never evaluated, so errors and references inside it have no effect."
+Statement 4 generic says evaluation stops at first error. But statement 5 specifically says IF evaluates left, then right. Does that supersede the binary-stop rule? It likely does: for IF, left and right are both the condition operands; if left errors, then right still evaluated? Example not given. Let's parse: "IF evaluates left, then right." Not "evaluates left and stops if error". "If either is an error the result is that error." That means both evaluated, result first error. If left error and right errs, first error left. If right errs, result right. So yes. But what about generic "binary operator if left operand error right not evaluated"—IF's condition maybe has two operands around OP, like a binary operator left-of? It is not a simple binary operator? They call `IF(left OP right, then, else)`. Need treat condition evaluation as: evaluate left; evaluate right regardless of left error; if left error return left; if right error return right. But is that consistent with "Errors propagate, and evaluation goes strictly left to right and stops at the first error"? For binary operator, if left operand is error, right not evaluated; but IF might be considered a function with multiple args, and its internal condition has left/right evaluated in order; it says explicitly IF evaluates left then right. We should follow exception.
+Examples: Example sheet({"A1": "=IF(A2 = 0, 1, A1)", "A2": "0"}) returns A1 1. No help.
+Need also consider IF with left error, e.g. `=IF(A1=0,1,2)` where A1 errors. Should result be A1 error? Should right be evaluated? If right has side effect/cache? Since cells already evaluated maybe no side effect except memo; references to cells can set memo? Missing cell no. Cell references can cause evaluation of referenced cells, with memo. The unchosen branch is never evaluated, but right operand of IF is an operand not branch. So should evaluate right and populate memo. This is subtle. We need decide. Statement 5 strongly indicates evaluate both left and right before condition. Use that.
+What about function arguments and IF's branches: For IF, after condition, only chosen branch evaluated. Once chosen branch returns, function returns; argument `then`/`else` formulas are only parsed/evaluated for chosen branch. But parsing structure for function call must know where args are; can't skip parsing else branch? Actually parser can choose not to parse/evaluate else branch. For function call parsing, we parse arguments in order. For IF, we parse left and right, then comma, then based on condition parse then arg or else arg. We don't need to parse the other branch token at all? But valid formula has tokens for else; if we don't consume tokens, outer parser won't expect close paren. We can parse entire argument strings without evaluating? Or after determining branch, need parse chosen and skip unchosen tokens to close paren. Could either parse chosen branch then skip rest tokens until matching ')'. But skipping tokens doesn't evaluate, okay. Need implement robustly.
+Simpler for function args: parse the raw argument token sequence? But formulas include nested parens; need identify commas at depth 1. We can parse function call with tokens and index. For IF, parse left expression by calling parse_expression (which consumes tokens and evaluates). Then expect comparison op token. Parse right expression (evaluate). Then expect comma. Then evaluate condition. If true: parse then expression (evaluate). Then expect comma, skip/parse else? Need consume remaining tokens until close: we must at least advance index to after close and consume close. We can skip unchosen branch tokens by parsing an expression but not evaluating? Or set a flag to skip evaluation and then consume. But maybe easiest: after condition known, parse chosen branch expression; then expect comma; then parse unchosen branch expression in "skip" mode (does not evaluate cell refs/function calls but consumes tokens properly); then expect close. This ensures tokens consumed and valid; the unchosen branch is parsed but not evaluated. Does parsing in skip mode have side effects? It should not call evaluate_cell; but can consume tokens only. However parse_unary calling parse_term etc can be in skip mode. Need implement skip mode. Or after chosen branch, we can scan tokens for balanced ')' and skip commas? Need parse unchosen branch correctly to know if it contains nested parens/function commas. Skipping expression manually: at current token (start of unchosen branch), advance through tokens until we hit comma or close paren at depth 0 relative? But nested parens can contain commas; need depth counter: set depth=0 at arg start. For token: if '(' depth++; if ')' depth--; if ',' and depth==0: this is the comma after unchosen branch (or after chosen?) ; if depth==0 and token is ')' we're done. Need ensure we can find closing ')' of function call after skipping unchosen branch. Approach: after chosen branch, expect comma token (separator between then and else). Then skip tokens from start of else branch until a comma at depth 0? But there is no comma at top level of else (else is a single expression), and then expect close paren. The function call closing paren is at depth 0. If we set depth=0 at start of else branch and iterate: token '(' -> depth++; token ')' -> depth--; if token ')' and depth==0 and token is close? Problem: else formula may itself start with '(' (nested) which increments depth; when nested closes depth returns 0; okay. If else formula is e.g. `1`, tokens: 1, then `)` (function close) with depth==0 -> stop before close. If else formula is `(1+2)`: token '(' depth=1; '1'; '+'; '2'; ')' depth=0; then function close `)` depth would decrement to -1 if naive. Need differentiate nested close from function close: We need know function call closing paren is the one that when depth==0 and token==')' closes function. For else branch parse with skip mode, we can simply parse a full expression using a skip-aware parser that consumes tokens exactly as parse_expr but doesn't evaluate atoms. That is cleanest.
+Let's design parser with a `skip` boolean or evaluation context. But unchosen branch may have cell references and function calls; skip parser ignores evaluating but still may need to parse nested function calls with skip flag. It can use same grammar but with eval_disabled=True. Functions can be parsed in skip mode and not evaluated: for function call in skip mode, parse arguments similarly but if arguments are expressions, parse in skip mode and ignore values; then skip function close. For IF in skip mode, parse left/right/branches all in skip mode (not evaluated), return dummy. This is doable but more code.
+Alternative: Since after evaluating condition and choosing branch, to consume the unchosen branch, we can use a tokenizer skipper that respects nesting and function commas. Let's explore: We are at current index pointing at first token of else branch. We want to end with index at token of the close paren of the IF call. We can iterate from current index; track depth of parentheses inside else expression relative to the else expression. At start, depth=0. For each token:
+- if token '(' : depth++
+- if token ')':
+    if depth == 0: # this is the close paren of IF call; stop before it (do not consume)
+    else: depth--
+- if token ',' and depth == 0:
+    # This shouldn't happen in a single expression except in a function call? But if else formula is a function call, its args have commas. However commas inside the function call's parentheses are not at depth 0? Let's simulate else = `MAX(A1:B2, 3)`:
+     tokens: IDENT MAX, '(' depth=1, CELL A1, ':' , CELL B2, ',' depth=1 (not skip), INT 3, ')' depth=0, then IF close ')' depth=0? Wait after function's inner ')' depth becomes 0. The next token is IF call's closing ')' with depth=0, stop. Good. Commas inside inner parentheses have depth>=1, ignored. Commas inside nested parens in expressions have depth>0, ignored. But what about a range comma? ranges have no comma. Good.
+    If else expression contains `IF(...)` nested with commas: same; nested args depth>0.
+- if token ',' and depth == 0: this would indicate comma inside IF argument list? But start of else is single formula; there should be no top-level comma before IF close. However if else formula is a function call that is not fully matched? It should be matched. If we encountered top-level comma (depth0) while scanning, that means the else formula was actually multiple? invalid. Not occur.
+At start of else (depth0), if token is ')' stop. If token is '(' depth1, etc. If token is INT/CELL/IDENT/operators etc just advance.
+Then after stop, current index points to close paren. Consume close. But if chosen branch is `then`, we already consumed tokens up through then branch. Need expect comma between then and else. Let's map flow:
+parse_function_call(name, arg_index?) for IF:
+- consume '(' (before first arg)
+- left = parse_expr(skip=False)
+- op = next token (comparison)
+- right = parse_expr(skip=False)
+- expect ',' (token comma)
+- condition = compare(left_val,op,right_val)
+- if condition: val = parse_expr(skip=False) ; skip mode? After val, expect ',' ; if error? Need if val error, do we need parse else branch? Statement 5: "only the chosen branch is evaluated. The other branch is never evaluated". Function semantics: errors propagate; evaluation stops at first error. If chosen branch is error, do we evaluate unchosen branch? No. But parser still needs consume tokens to return to outer context cleanly? The function call parse must return a value and leave parser at close paren. If chosen branch errors, we should immediately return error, but should we consume the else branch? If we return from parse_atom without consuming rest of function tokens, the outer parser (parse_term) after parse_atom will see unread tokens and continue parsing expression incorrectly, e.g. function 1? Example `=IF(A1>0,1,A1)`? If chosen then errors, outer parser gets error from parse_atom; parse_term then sees next token (comma) in outer formula and stops (not * or /), parse_expr sees comma (not +-) stops; top-level parser expects end or maybe token? It would have extra tokens (comma, else, close paren) before expecting end, causing error or wrong parse. But invalid? Formulas valid; need parse full expression regardless of evaluation errors. Thus we need consume tokens even on chosen-branch error (but not evaluate). Similarly for normal expressions: parse_atom parses full expression; unary minus etc consume all tokens, even if evaluation error. Binary ops: parse_expr after left parses right operand even if left error? Statement says for binary operator if left operand error, right operand is not evaluated. But parsing vs evaluation: Parsing needs to consume tokens? In our parser that evaluates as it parses, "right operand not evaluated" for left error means we should not parse right operand's atom? But then tokens unconsumed. Need separate parsing from evaluation, or make parser not consume on error. We need design carefully.
+
+Important: We need evaluate strictly left-to-right and stop at first error, but parser still must parse entire formula tokens to ensure valid and return error. We can separate parsing into AST then evaluation. That may be cleanest and handles unconsumed branches. Construct AST with tokens without evaluating (but still parsing function args, which can be lazy). Then evaluate AST with semantics. This is robust.
+
+AST nodes:
+- ('num', value)
+- ('cell', name)
+- ('neg', expr)
+- ('bin', op, left, right)
+- ('if', left, op, right, then, else)
+- ('func', name, args) where args list of ('range', start, end) or expr node. For SUM/MIN/MAX/IF? Actually IF handled separately. For general function call store (name, args). Evaluation function handles name.
+For parsing function args as ranges vs expressions:
+  parse_function_call(name): consume '('; parse args list:
+    if next token is ')' : args=[] # but SUM/MIN/MAX require one or more, IF require 4; valid formulas; we can still parse.
+    loop:
+      if token CELL and next token ':' : parse range: start=cell, consume ':', end=cell. add ('range', start,end). 
+      else: add ('expr', parse_expr())
+      if token ',' : consume; continue
+      if token ')': break
+      # valid no error
+    consume ')'
+  return ('func', name, args)
+This parses all function args, not evaluate. Then evaluation of func does left-to-right evaluation of args/cells. Good. For IF, can treat as function with args and evaluate specially.
+AST parse for comparison: expression grammar doesn't include comparisons except inside IF. So parse_expr only +,-,*,/,unary. Parser needs compare op for IF; parse_if separately.
+
+This AST approach handles unchosen branch not evaluated. Parsing unchosen branch doesn't evaluate cell refs or function calls, no side effects. Excellent.
+
+Evaluation function evaluate_ast(node):
+- 'num': return value
+- 'cell': return get_cell_value(name) (missing 0, memo, cycle)
+- 'neg': val=evaluate(child); if error return error; return -val? In Python, int and error strings disjoint. If val is error string, return val. else -val.
+- 'bin': left=evaluate; if error return; right=evaluate; if error return; apply op. For `/`, if right==0 return "#DIV/0!"; else trunc toward zero: int(a/b) if nonzero? Python int(a/b) bad for big ints; use abs truncation: if (a>0)==(b>0)? Use `-(-a//b) if b>0 else (a//b if b<0?)`? Simpler for unbounded ints: q = abs(a)//abs(b); if (a<0) != (b<0): q=-q; return q. Since b != 0. Good.
+- 'if': left=evaluate; right=evaluate; if left error return left; (right always evaluated) if right error return right; cond = compare(left,right,op). Need note if left error, still evaluate right? As per statement 5. Implementation order: left = evaluate(left_node); right = evaluate(right_node); if left is error return left; if right is error return right; cond = compare. If cond true: result=evaluate(then_node); else result=evaluate(else_node). return result. If condition true and chosen branch error, return error. Unchosen branch not evaluated.
+But if left error and right evaluates to error, result should be left error (first) as stated "If either is an error the result is that error"? first error met = left. Good.
+Now top-level sheet:
+memo = {} ; visiting set = set()
+def value_of(name): # for formulas' cell refs
+    if name in memo: return memo[name]
+    if name in visiting: return "#CYCLE!"
+    if name not in cells: return 0
+    # evaluate cell
+    visiting.add(name)
+    content = cells[name]
+    if content starts with '=':
+        ast = parse_formula(content[1:])  # assumes valid
+        val = evaluate_ast(ast)
+    else:
+        val = int(content)  # content maybe '42', '-7'; if has spaces? valid no spaces? maybe int handles leading/trailing spaces
+    visiting.remove(name)
+    memo[name] = val
+    return val
+Then for name,content in cells.items(): value_of(name); result[name]=memo[name]. Return result.
+Potential issue: value_of for a cell in progress should add no memo. If later reference to this cell from outside cycle reaches after evaluation, memo set. Good. If evaluating a cell leads back to itself, the recursive value_of(name) inside cell returns #CYCLE!; after evaluation, memo for the inner? Since it's not a separate cell name? It is; memo[name] not set before visiting. We need ensure outer cell that started evaluation does not memo the cycle value incorrectly? Consider A1='=B1', B1='=A1 + 1'. Evaluate A1: visiting {A1}; ast cell B1; value_of(B1): not memo, not visiting; visiting {A1,B1}; content B1; cell A1; value_of(A1): in visiting => returns "#CYCLE!"; memo? This call returns immediately without setting memo (A1 still visiting). B1 expression: left="#CYCLE!", error -> returns "#CYCLE!". Then B1 memo[B1]="#CYCLE!"; visiting remove B1 ({A1}); value_of(B1) returns #CYCLE!; A1 ast cell B1 returns #CYCLE!; A1 memo[A1]="#CYCLE!"; visiting remove A1. Result A1/B1 #CYCLE!. Matches example. Good.
+Consider A1='=A1' (self-reference): evaluate A1: visiting A1; ast cell A1; value_of(A1) returns #CYCLE! (in visiting). ast returns error; memo[A1]=#CYCLE!, visiting remove. Good.
+Consider A1='=A1+1'; same. But parse_expr: left=parse term -> neg -> cell A1? In AST, evaluating left expression yields #CYCLE!, bin error; good.
+Potential issue: value_of returns 0 for missing cell not in cells. If a missing cell referenced in a range, skip. If via formula, return 0 via get_cell. Good.
+Potential issue: cells with literal content: we should set memo and return; no visiting? It might be referenced while visiting. If a cell's content is literal, evaluate quickly; but if we add it to visiting then set memo after, that's fine. If a literal cell is referenced recursively from another cell before its evaluation? It cannot be in progress unless we call value_of while visiting. For example A1='=B1', B1='2'. evaluate A1 visiting A1, call B1: B1 not in memo/visiting; visiting {A1,B1}; content B1 literal; val=2; visiting remove B1; memo[B1]=2; A1 memo[A1]=2. Good. If B1 literal and in visiting (only possible self-reference) not relevant.
+Potential issue: int(content) for literal with '='? Fine. int accepts '-07'? It would return -7. But cell names no leading zero, integer literal maybe can have leading zeros. Spec: "An integer literal such as 42 or -7". It doesn't explicitly forbid leading zeros in non-formula contents, but formula atoms non-negative integer likely no leading zeros. Valid inputs. Use int(content.strip()) maybe robust. However an integer literal content could be `+7`? Not specified; don't accept? int accepts +7. Valid inputs not using. Fine.
+Potential issue: if formula starts with '=' but rest empty? invalid. Fine.
+Potential issue: formulas may have spaces between any two tokens: tokenizer skips whitespace. Grammar says spaces may appear between any two tokens. Good.
+Potential issue: comparison operators are only inside IF. In parse_expr, after parsing left term and while '+','-'; parse_term; no '<'. Compare op for IF: parse_expr for left and right will parse binary arithmetic; then after left expression expect comparison token. But note a formula left for IF could itself contain '='? No comparison operators outside IF; grammar doesn't include comparison. So after left expression, the next token should be comparison op; valid. Similar after right.
+Potential issue: Range detection in parser: `X1:Y2`. Need ensure a formula argument that is `A1:A2` is range. But what about an expression that starts with cell `A1` followed by `:`? Ranges. In function args, if token is CELL and next token is ':', parse range; else parse_expr. Good. In parser, range's end could be a cell name; valid. Need handle order of ranges either order. For evaluation of range: get start/end names; parse names: col letter(s) and row. Need compare columns and rows. Column name single letter A..Z, row int. Let start=(col_index,row), end; min row=... max row; min col; max col. Iterate rows ascending, columns ascending. For each cell name from index: for r in range(rmin,rmax+1): for c in range(cmin,cmax+1): name=chr(ord('A')+c)+str(r). Note rows numbers 1..99, c 0..25. Evaluate get_cell_value. Missing skip (not in cells). If value is error (string), return error immediately. If int, add.
+Function evaluation:
+def eval_func(name,args):
+  if name == 'SUM':
+    total=0; any? no values? return 0 if error? no error.
+    process args in order:
+      if range descriptor: val=eval_range(start,end); if error return; total += sum_parts? Need for missing skipped and errors. We can compute each cell val; if any error return error; total += val.
+      if expr descriptor: val=evaluate_ast(ast); if error return; total += val.
+    return total.
+  But for SUM with no values at all give 0. If no args? not allowed. If range args empty and no formula args? Cannot have no args. If one range arg with no cells, total=0. OK.
+  if name == 'MIN' or 'MAX':
+    has_value=False; best=None
+    for arg in args:
+      if range: for cell in row-major:
+         if cell not in cells: continue
+         v=get_cell_value(cell) # but evaluating missing? skipped before call.
+         if is_error(v): return v
+         has_value=True; best=v if first else min/max
+         # note: formula arguments never skipped; range cells not in cells skipped before ref.
+      else:
+         v=evaluate_ast(expr); if is_error(v): return v; has_value=True; best=...
+    return 0 if not has_value else best
+  if name == 'IF':
+    # args list [('expr', left), ('expr', right), ???]. But IF has OP stored where? Better represent IF specially in AST from parser, not generic function args. But we wanted generic function args. Simpler to not create generic func for IF; parse_if in parse_atom when IDENT == 'IF' before generic? Do that. In parse_atom: if IDENT == 'IF': return parse_if(current?) using tokens; else return parse_function(name) with generic eval.
+  That solves no generic IF arg parsing.
+Else: error unknown function. Valid formulas only SUM/MIN/MAX/IF, so maybe no else.
+
+parse_if:
+- expect '(' (we are at IDENT IF; parse_atom receives token index pointing at IDENT and consumes it). Let's implement parser as class with tokens and pos to ease. Use a simple function-based parser with state dict? I'll implement a small Parser class (top-level class? The user only asks implement exactly function; can include helper class? "Implement exactly this function" maybe only function required; helper functions/classes okay? They said top-level function, not a class; meaning signature must be exactly def sheet(...). Helper classes maybe allowed but to be safe keep only top-level function and nested helpers. We can define nested parser class inside sheet or use closure with list tokens/pos. Closure class? Let's implement with nested functions and nonlocal.
+
+In sheet(cells):
+  tokens = lex(content[1:]) for parsing each formula once? Actually parse formula per cell evaluation. We have memoized values; parse once per formula. Fine. But if we repeatedly parse same formula for each cell (only each cell once), okay.
+  class Parser: pass? Could define nested class in sheet to capture get_cell? Not necessary for parse only. Parser holds tokens and pos. Parsing returns AST; no eval. Defining nested class inside function is okay. Or use a simple list/pos closure. Let's design with nested functions to avoid external class.
+
+def sheet(cells):
+    memo={}
+    visiting=set()
+    def is_error(v): return isinstance(v,str) # error strings are strings
+    def get_cell(name): ... 
+    def parse_formula(s): returns AST
+       tokens=lex(s); pos=0
+       def peek(): return tokens[pos] if pos<len(tokens) else ('END',None)
+       def next(): nonlocal pos; tok=peek(); pos+=1; return tok
+       def expect(type): tok=next(); if tok[0]!=type: raise ValueError(...); return tok
+       def parse_expr():
+          left=parse_term()
+          while peek()[0] in ('+','-'):
+             op=next()[1]
+             right=parse_term()
+             left=('bin',op,left,right)
+          return left
+       def parse_term():
+          left=parse_unary()
+          while peek()[0] in ('*','/'):
+             op=next()[1]
+             right=parse_unary()
+             left=('bin',op,left,right)
+          return left
+       def parse_unary():
+          if peek()==('-','-')? Careful token structure: ('NEG'?) Let's name tokens for symbols: ('op','+') or ('op','-')? I need structure.
+Simplify tokens: tuple (kind, value). Kinds: 'INT','CELL','IDENT','OP','LPAREN','RPAREN','COMMA','COLON','END'. For OP, value '+','-','*','/','=','<>','<','<=','>','>='.
+peek returns token tuple; compare kind.
+parse_unary: if tok[0]=='OP' and tok[1]=='-': next(); return ('neg', parse_unary()); else parse_atom().
+parse_atom:
+  tok=peek(); kind=tok[0]
+  if kind=='INT': next(); return ('num', tok[1])
+  if kind=='CELL': next(); return ('cell', tok[1])
+  if kind=='LPAREN': next(); node=parse_expr(); expect tok RPAREN; return node
+  if kind=='IDENT':
+     name=tok[1]; next() # ident
+     if name=='IF': consume '('; parse_if(start) maybe. else: consume '('; parse generic function args.
+     return node
+  raise
+  For generic function: name=tok[1]; expect LPAREN; args=[]
+     if peek() kind == 'RPAREN': # invalid for SUM/MIN/MAX but valid? could parse empty; later error. For IF not generic.
+        consume RPAREN; return ('func', name, args) # but not valid; maybe raise.
+     while True:
+        tok=peek()
+        if tok[0]=='CELL' and peek_next()[0]=='COLON': # need peek_next
+           cell1=next()[1]; next(); cell2=next()[1]; args.append(('range',cell1,cell2))
+        else:
+           args.append(('expr', parse_expr()))
+        if peek()[0]=='COMMA': next(); continue
+        if peek()[0]=='RPAREN': next(); break
+        raise
+     return ('func', name, args)
+  Need peek_next: returns tokens[pos+1] if exists else ('END',None).
+  For IF parse: after ident and expect LPAREN:
+     left=parse_expr()
+     op_tok=next(); if op_tok[0]!='OP' or op_tok[1] not in comparisons: raise
+     right=parse_expr()
+     expect COMMA
+     then=parse_expr()
+     expect COMMA
+     else=parse_expr()
+     expect RPAREN
+     return ('if', left, op_tok[1], right, then, else)
+Need if left parse_expr consumes an '='? No. Good.
+Evaluation:
+  def error(v): return isinstance(v,str) # since ints not strings
+  def eval_node(node):
+    typ=node[0]
+    if typ=='num': return node[1]
+    if typ=='cell': return get_cell(node[1])
+    if typ=='neg':
+       v=eval_node(node[1]); if error(v): return v; return -v
+    if typ=='bin':
+       left=eval_node(node[2]); if error(left): return left
+       right=eval_node(node[3]); if error(right): return right
+       op=node[1]
+       if op=='+': return left+right
+       if op=='-': return left-right
+       if op=='*': return left*right
+       if op=='/':
+          if right==0: return "#DIV/0!"
+          sign = -1 if (left<0) != (right<0) else 1
+          return sign * (abs(left)//abs(right))
+       # comparisons not here
+    if typ=='if':
+       cond_left=eval_node(node[1]); cond_right=eval_node(node[3]) ??? Wait store node = ('if', left, op, right, then, else) with indices: 0 if,1 left,2 op,3 right,4 then,5 else. I need consistent. Let's define:
+        ('if', left_node, op, right_node, then_node, else_node) indices: 0 'if',1 left,2 op,3 right,4 then,5 else.
+       left=eval_node(node[1]); right=eval_node(node[3]);
+       if error(left): return left
+       if error(right): return right
+       op=node[2]
+       if op=='=': cond=left==right
+... 
+       return eval_node(node[4] if cond else node[5])
+    if typ=='func':
+       return eval_func(node[1], node[2])
+  def eval_range(start,end):
+       # returns ('values',list of ints) or error? Easier inside eval_func.
+       pass
+  def eval_func(name,args):
+       if name=='SUM':
+          total=0
+          for typ,*payload in args? But ranges tuple length 3; expr tuple length 2. Handle:
+          for arg in args:
+             if arg[0]=='range':
+                err_or_values = iterate_range(*arg[1:])? Need return error or list.
+                for v in vals: total += v; need if error return.
+          Maybe implement range generator that returns list values and optional error. Since cells small, list fine.
+                result = collect_range(arg[1], arg[2]) ; if isinstance(result,str): return result; total += sum(result)
+             else:
+                v=eval_node(arg[1]); if error(v): return v; total += v
+          return total
+       if name in ('MIN','MAX'):
+          if none values: return 0
+          best=None; has=False
+          for arg in args:
+             if arg[0]=='range':
+                vals=collect_range(arg[1],arg[2])
+                if error(vals): return vals
+                for v in vals:
+                   has=True; best = v if best is None else (min(best,v) if name=='MIN' else max(best,v))
+             else:
+                v=eval_node(arg[1]); if error(v): return v
+                has=True; best=...
+          return 0 if not has else best
+       if name=='IF': # not produced, but handle
+       else: raise
+  collect_range(start_name,end_name):
+       rmin,rmax,cmin,cmax = normalize ranges
+       vals=[]
+       for r in range(rmin,rmax+1):
+          for c in range(cmin,cmax+1):
+             name=f"{chr(65+c)}{r}"
+             if name not in cells: continue
+             v=get_cell(name)
+             if is_error(v): return v # but can't return error from list; use sentinel? 
+             vals.append(v)
+       return vals
+Need distinguish error string vs list in collect_range. Since values ints, and error strings strings, return either string (error) or list. In eval_func: res=collect_range(...); if isinstance(res,str): return res; else process list. Good. If range contains a literal missing? handled.
+But get_cell for cell not in cells returns 0; collect_range checks membership before calling, so missing skipped. For formula cell reference, get_cell can return 0.
+Formula cells values: get_cell returns int or error string. Range cells skipped if missing. If cell present in cells but parsing error? valid, no.
+Normalization of cell names to col/row:
+def parse_cell_name(name): col=ord(name[0])-ord('A'); row=int(name[1:]); return col,row
+def normalize range: (c1,r1),(c2,r2): cmin=min; rmin=min; cmax=max; rmax=max.
+
+Parsing ranges: cell2 valid. Need no unary minus in range. Good.
+
+Now subtle semantics: "Each cell is evaluated at most once; once it has a value, later references reuse that value." We memoize all values. For cells that are not in cells? No. If a formula refers to a cell not in cells, it returns 0 but not memoized (not needed). If a cell is evaluated and error string stored, later references reuse. Good.
+Potential issue: When a cell's own evaluation errors, should it be marked visited after error; yes. If a later cell references it, memo returns error. Good.
+Potential issue: The outer sheet must return dict mapping every name in cells to value. If a cell's formula parse fails? valid. Not handle.
+Potential issue: Should order of result exactly same as input cells dict? If iterate cells.items(), insertion order of input dict preserved. If a cell is evaluated earlier as reference, later iteration returns memo. Result construction: iterate original cells and result[name]=get_cell(name). Since get_cell returns memo for any evaluated cell, okay. The result will be in original order. If original order is not evaluation order, values still correct due to memo/cycle. Example if cells {B1:'=A1', A1:'=B1'}? Evaluate in original order B1: visiting B1; B1 cell A1; A1 visiting; A1 cell B1; B1 in visiting -> #CYCLE!; A1 = #CYCLE!; memo A1=#CYCLE!; B1 expression left cell A1? Wait parse B1 `=A1` and evaluate after A1 done returns #CYCLE!; memo B1=#CYCLE!. Then iterate A1 -> memo #CYCLE!. result B1,A1 #CYCLE!. Good. For A1:'=B1+1', B1:'=A1' original order A1 then B1: evaluate A1: visiting A1; cell B1; B1 visiting; A1 in visiting -> #CYCLE!; memo B1 = #CYCLE!; A1 expression left cell B1 => #CYCLE!; memo A1 = #CYCLE!. Good.
+
+Need ensure errors in literal cell cannot occur. Fine.
+
+Now possible issue: AST for formula parse includes generic function args as `('expr', node)`. Good.
+
+Lexer details with spaces: skip. `isalpha` maybe includes non-ASCII letters; formulas valid ASUS. Use [A-Za-z]. For digit use isdigit. Use `c in '0123456789'`.
+
+Now formula content: if content starts with '=', parse rest. If content does not start with '=': integer literal. However formula content could start with '=' but later? no.
+
+Potential issue: `int(content)` for literal content with leading spaces? valid maybe; use int(content.strip()). But `int` accepts `+`/`-`; okay. If literal content is "-7" no issue. If content is "42" no issue. If content is "-0"? int gives 0. Formula grammar non-negative with unary minus could parse -0? irrelevant.
+Potential issue: integer literal can have no leading zeros; no need special-case.
+
+Comparison ops string: lexing: use if s.startswith('<=',i): OP '<='; elif s.startswith('>=',i); elif s.startswith('<>',i); elif s.startswith('=',i): '='; elif s.startswith('<',i): '<'; elif s.startswith('>',i): '>'. Order for '<>' before '<'. For '>=' before '>'. Good. Note s.startswith('=',i) with two-char '==' invalid; not relevant. For '<>' before '<', good.
+
+Range parsing in generic function call: `peek_next` function needs pos from closure and `tokens`; defined.
+
+Function IF parse after generic? In parse_atom, if IDENT == 'IF', consume ident; expect LPAREN; parse left, op, right, comma, then, comma, else, RPAREN. Return ('if', left, op, right, then, else). Note comparisons allowed; left/right formulas parse binary only. Good.
+Generic function calls not IF: expect LPAREN; args=parse_args; expect RPAREN; return ('func', name, args). For SUM/MIN/MAX only. If name unknown, parse still OK; eval raises. Could raise ValueError invalid; valid inputs won't.
+
+Need evaluate formulas with memoization of parsed AST? Each cell parsed once; formulas referencing cell values. No need cache AST. If same formula text in many cells, parse each cell once; total formula lengths small.
+
+Could parse AST once before evaluating? Values depend on other cells, parse independent. Good.
+
+Potential issue: get_cell calls parse formula using the same `cells` object. Defined inner function:
+    def get_cell(name):
+        if name in memo: return memo[name]
+        if name in visiting: return CYCLE
+        if name not in cells: return 0
+        content = cells[name]
+        visiting.add(name)
+        try:
+            if content[0] == '=':   # content nonempty valid
+                val = eval_node(parse_formula(content[1:])) # nested parse returns AST
+            else:
+                val = int(content.strip())
+        finally:
+            visiting.remove(name)
+        memo[name] = val
+        return val
+Need not use try/finally? If parse raises, visiting would remain; valid formulas, but robust: use finally to remove. If int fails, valid no. Use finally. But if val is error string, memo set. If exception, cell removed from visiting but no memo; sheet would propagate. Valid. Good.
+Important: get_cell returns 0 for missing after checking memo/visiting; missing not in cells never visiting. Good.
+
+In top-level sheet, for name in list(cells.keys())? Iterating dict while not modifying; no modification. We can iterate cells.items() and set out[name]=get_cell(name). Since get_cell might add memo but not cells. Out is new dict. Return out. If input cells is a dict; okay.
+
+Need think about evaluation order of cells in a range when a cell inside range is in visited? Example A1='=SUM(B1:B2)'; B1='=A1'; B2='2'. Evaluate A1: visiting A1; ast func SUM; args range B1:B2; collect_range: B1 not in cells? it is; get_cell(B1): not memo; visiting add B1; B1 content '=A1'; parse AST cell A1; eval: A1 in visiting => #CYCLE!; memo B1=#CYCLE!, visiting remove B1 ({A1}); collect_range sees error B1 and returns '#CYCLE!'; eval_func SUM returns #CYCLE!; A1 memo[A1]=#CYCLE!. Result B1 #CYCLE!, A1 #CYCLE!, B2 2. Good.
+If range cell B1 is literal error? no.
+If cell in range referencing itself, e.g. A1='=SUM(A1)'? range A1 single. Evaluate A1 visiting A1; ast func SUM; collect range A1; get_cell(A1) in visiting -> #CYCLE!; return #CYCLE!; memo A1 #CYCLE!. Good.
+
+Potential issue: function arguments with formula that contains range-like syntax? Formula grammar does not include range; only in function calls. If an expression starts with a cell name followed by a colon at the outer arg start, parser treats as range. Good.
+
+Potential issue: `MIN(A1:B3)` where range B? okay.
+
+Potential issue: function arguments with range order: `B3:A1` normalize. Evaluate row-major top row left-to-right. If range start/end either order. Good.
+
+Potential issue: MAX with no values at all gives 0; SUM with no values gives 0. MIN with no values gives 0. Implement has flag.
+
+Potential issue: In SUM with no values but formula arg missing? Missing cell formula contributes 0; SUM has value 0. Good.
+
+Potential issue: SUM with formula argument that is error: first error returned; no need to process later args. Good.
+
+Potential issue: `IF` compare left and right maybe values are bool? no.
+
+Potential issue: Compare strings? No, values ints. If left/right error, stop.
+
+Potential issue: Trunc toward zero division. Implement sign * (abs(left) // abs(right)). Good.
+
+Potential issue: integer literal in formulas with leading zeros? Parser int value; okay.
+
+Potential issue: Cell name parse in lexer: The regex for letters must handle lowercase? Valid uppercase only. Use `c.isalpha()` could accept weird; better. Use `'A' <= c <= 'Z'` or `'a' <= c <= 'z'`? Valid only A-Z. Since valid inputs, use isalpha? I'll use `'A' <= c <= 'Z'` for letters; function names uppercase. But if user passes lowercase function name, invalid per spec. Good. For cell name, if one uppercase letter and next char digit: letters len1, digits parse. Since letters parsed before digits, if function name has one letter and digits immediately (like A1) handled. Good.
+However `IDENT` for SUM could be interpreted as cell if len==1 and next digit; function names length>1, no issue.
+
+Potential issue: `peek_next` in range detection: token next could be ':' but after cell name in parse_expr there are no ranges; the function arg parser sees CELL & COLON. If an expression of the form `A1 : B1` is actually range; yes.
+
+Potential issue: Generic function args parse `if peek()[0]=='RPAREN'` before first arg: for SUM/MIN/MAX requires one or more; if valid none won't occur. We can just let parse_expr raise on RPAREN. Good.
+Need define eval_func after parse_func? We can define functions inside sheet after parser functions; but get_cell calls parse/eval. Python closures okay if defined before get_cell? Order: define memo/visiting, parse, eval, get_cell? Evaluation of AST needs get_cell. Parse needs only tokens, no eval. get_cell needs parse and evaluate_node. Evaluation needs memo/visiting. So define parse_formula first (pure), then eval_node (needs get_cell and get? circular). Use nested function definitions in order: parse_formula (pure). `get_cell` can be defined before eval_node? eval_node needs get_cell, so get_cell defined first; but get_cell calls eval_node; eval_node defined later. In Python, closures capture names at call time; as long as eval_node and parse_formula exist by call time, okay. Define memo/visiting; define parse_formula; define get_cell (references parse_formula and evaluate_node); define evaluate_node and eval helpers; then top-level loop. But evaluate_node defined after get_cell works. get_cell calls evaluate_node; defined by time get_cell is called. Good.
+Need define evaluate_range before eval_func? Both nested; order not critical at runtime.
+Simplify: define all logic then call. Could define `evaluate_node` before get_cell but evaluate_node calls get_cell which then calls parse/evaluate_node; still okay. Let's choose readable order:
+- memo, visiting, constants.
+- lex_tokens(s)
+- parse_formula(s)
+- get_cell(name)
+- collect_range(start,end)
+- evaluate_node(node)
+- evaluate_func(name,args)
+- helper cell parse/normalize
+Then top-level loop.
+But evaluate_node calls get_cell; get_cell defined before evaluate_node but references evaluate_node not yet defined; okay at call time. evaluate_node calls evaluate_func; evaluate_func defined after evaluate_node; okay. collect_range defined before evaluate_func. Good.
+
+However `
+=== CONTENT ===

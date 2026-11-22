@@ -1,0 +1,284 @@
+=== REASONING ===
+We need to solve: given jobs [start,end,pay], k machines, maximize total pay of set of jobs assignable to k machines (interval scheduling with k machines). n <= 300. Classic DP: sort by end time; dp[i] = max total pay using first i jobs? But with k machines, need to consider machine assignments. Standard approach: sort jobs by end. Define dp[i] = max profit considering first i jobs (sorted by end) — but with multiple machines, need more info: track number of machines available? Alternative: greedy for k machines? Weighted interval scheduling with k machines is solvable via DP with state (machine). Since k <= 10 and n <= 300, DP over subsets? Too big.
+
+Standard DP: sort jobs by end time. Let dp[j][m] = max profit considering first j jobs using m free? Actually common solution: sort by end; compute p(j) = index of latest job ending <= start_j. Then dp[j] = max over i in [0..k]? Hmm.
+
+Better: DP with k machines: dp[i] = map from "machine availability"? Since machines are identical and jobs intervals, we can use DP where state is number of machines used? Not sufficient.
+
+Alternative: min-cost flow. Since n=300, k<=10, we can do DP over jobs with state = vector of machine last-end times? That's exponential.
+
+Common known solution: weighted k-track assignment via DP O(k n^2): sort jobs by end time. Let f[i][j] = max profit considering first i jobs (sorted by end) and having exactly j machines busy? Hmm not straightforward.
+
+Actually there's known DP: Let jobs sorted by end. For each job i, and machine state... Consider DP over jobs where dp[j] = max total profit considering first j jobs, but we need to know how many machines are needed/used at each point.
+
+Alternative approach: This is maximum weight independent set in interval graph with k colors — equivalent to coloring intervals with k colors maximizing selected weight. This can be solved via DP: sort endpoints. But k machines with arbitrary weights — can formulate as min-cost max-flow, or use DP with binary search? Let's think.
+
+Known result: weighted interval scheduling on m identical machines can be solved in O(n^2 m) via DP: sort jobs by end. Define dp[i][j] = maximum profit using exactly j machines among first i jobs? Hmm, j machines needed... Actually known DP: dp[i][j] = max profit considering first i jobs with j machines where j = number of machines used so far? Not independent of structure.
+
+Let me think more carefully. There's known DP for k-machine weighted interval scheduling: sort by end. Let f(i, m) = max profit for set of jobs all ending <= end_i? Hmm.
+
+Alternative: transform via min cost flow: time points, k machines. Classic reduction: create timeline sorted unique endpoints, edges with capacity k and cost 0 between consecutive time points; each job as edge from start to end with capacity 1, cost -pay; find min cost circulation/flow. With n=300, time points <= 600, flow with k up to 10 — easy via min-cost max-flow. That's simple and robust.
+
+Simpler: DP by end-time using "machine-available" state? Let's do min-cost flow:
+
+- Collect all unique times (start and end). Sort.
+- Nodes: index 0..m-1 representing times; add super source and sink.
+- For each adjacent time interval, edge from time point t_i to t_{i+1} with capacity k, cost 0.
+- For each job, edge from start-index to end-index with capacity 1, cost -pay.
+- Source = first node, sink = last node. Send flow k from source to sink. Min cost; answer = -cost.
+
+This is a standard formulation. Need min-cost flow implementation. n=600 nodes, edges: intervals m-1 <= 599 with cap k; jobs 300. Flow k <= 10. Easy.
+
+Implement Dijkstra-based min-cost flow with potentials. Or since costs are small, do successive shortest paths: send k units of flow. Each augmentation: Dijkstra from source to sink over residual graph (with reduced costs). k <= 10, fine.
+
+Actually we could also do DP with O(n^2 k) — but flow is simple and safe.
+
+Let me verify examples.
+
+Example 1: jobs [0,4,5],[1,3,4],[3,6,4], k=1. Best: [0,4,5] and [3,6,4]? They overlap [3,4]. So can't. [1,3,4] + [3,6,4] = 8. Yes returns 8.
+
+Example 2: jobs [0,10,9],[0,5,5],[5,10,5],[0,10,1], k=2. Select [0,5,5],[5,10,5],[0,10,9]? All start at 0: two machines, one holds [0,10,9], another holds [0,5,5] then [5,10,5] = 10, total 19. Yes.
+
+Now implement.
+
+Edge representation: arrays to store edges. Standard.
+
+Let's write:
+
+```python
+import heapq
+
+def k_machine_schedule(jobs, k):
+    if not jobs:
+        return 0
+    times = sorted(set([a for a,b,_ in jobs] + [b for a,b,_ in jobs]))
+    idx = {t:i for i,t in enumerate(times)}
+    m = len(times)
+    # nodes 0..m-1
+    # edges list
+    E = []  # each edge: [to, cap, cost, rev_index]
+    def add_edge(u,v,cap,cost):
+        E.append([v,cap,cost,len(E)+1])
+        E.append([u,0,-cost,len(E)-1])
+    for i in range(m-1):
+        add_edge(i,i+1,k,0)
+    for s,e,p in jobs:
+        add_edge(idx[s], idx[e], 1, -p)
+    source = 0
+    sink = m-1
+    flow = 0
+    total_cost = 0
+    # min cost flow with potentials
+    # Use Dijkstra with reduced costs
+    potential = [0]*m
+    while flow < k:
+        dist = [float('inf')]*m
+        dist[source] = 0
+        prev = [-1]*m  # edge index used
+        prev_node = [-1]*m
+        pq = [(0, source)]
+        while pq:
+            d,u = heapq.heappop(pq)
+            if d > dist[u]: continue
+            for ei,(v,cap,cost,_) in enumerate(E):
+                if ei % 2 == 1:  # only forward edges? 
+                    continue
+            ...
+```
+
+Hmm, need to consider residual edges. Standard approach: iterate edges, if cap>0 and edge is in residual direction. Since we store each directed edge with capacity and reverse edge, iterating all edges and checking cap>0 works. The forward direction: we add edge (u->v) with cap c and (v->u) with cap 0. Iterating all edges and checking cap>0 is fine; each edge has a node. Dijkstra over all edges where cap>0, cost as stored. Reduced cost: cost + potential[u] - potential[v]. If dist found, update potentials.
+
+Simpler: no potentials, but costs can be negative (job edges cost -pay). Dijkstra doesn't work with negative costs. Use Bellman-Ford? m small (600), k<=10, edges ~ 2*(599+300+300)? Fine. But negative edges only on job edges; shortest path may use at most one job edge? Actually shortest path from source to sink can use multiple job edges? Path: source node (time index 0) to sink (time index m-1). Path goes along time edges or jumps via job edges (start->end). It can jump via job edge then continue along time edges, then jump again. Each job edge can be used once (cap 1). Shortest path with negative edges — use Bellman-Ford each augmentation. m=600, edges ~ 1800 (with reverses ~3600), k<=10 — trivial.
+
+Simpler: implement Bellman-Ford each time: dist init inf; repeat m times relax. Then if dist[sink] inf break; extract path, augment flow by 1 (min residual along path), total_cost += dist[sink].
+
+But wait: with negative weights and no cycles of negative cost? Reverse edges have positive cost (negated). Path may include reverse edges after augmenting. Cycles: forward job edge then reverse time edge then forward time edge... Could there be negative cycle? Min-cost flow with feasible flow: there is always min-cost flow; Bellman-Ford handles negative edges fine as long as no negative cycle in residual graph. Residual graph may contain negative cycles? In min-cost flow, if no negative cycles initially (no cycles at all actually except reverse), augmenting keeps invariant. Actually initial graph has no cycles (time edges forward, job edges forward from earlier time to later time since start<end). Reverse edges are backward in time edges but cost 0, and reverse job edges cost +pay backward — a cycle would need job edge forward then... time edges only forward; reverse time edges backward; cycle: take forward job edge (start->end), then reverse time edges from end back to start (costs 0), then... to get back to start need to traverse backward time edges then... cycle: job edge forward, then reverse time edges back, then forward time edges? That's a cycle: job (s->e), reverse time edges (e -> ... -> s) along adjacent intervals — but reverse time edges exist only if flow was sent on them. At the beginning, flow=0, no reverse edges. After augmentation, cycles exist but total cost non-negative? Standard argument: augmenting along shortest path in residual graph with min-cost flow yields optimal; negative cycles absent since min cost. Bellman-Ford will find shortest path if no negative cycle. Fine.
+
+Alternatively use potentials properly to use Dijkstra. Let's just use Bellman-Ford for simplicity; sizes tiny.
+
+But careful: augment only if flow < k. Flow = k (we require exactly k units). If some augment fails (sink unreachable), break with leftover.
+
+Let me write:
+
+```python
+import heapq
+
+def k_machine_schedule(jobs: list[list[int]], k: int) -> int:
+    if k <= 0 or not jobs:
+        return 0
+    times = sorted({t for s,e,_ in jobs for t in (s,e)})
+    idx = {t:i for i,t in enumerate(times)}
+    m = len(times)
+    if m < 2:
+        return 0
+    # edges: [to, cap, cost]
+    edges = []
+    def add(u,v,cap,cost):
+        edges.append([v, cap, cost, len(edges)+1])  # forward
+        edges.append([u, 0, -cost, len(edges)-1])   # reverse
+    for i in range(m-1):
+        add(i, i+1, k, 0)
+    for s,e,p in jobs:
+        add(idx[s], idx[e], 1, -p)
+    total = 0
+    flow = 0
+    source, sink = 0, m-1
+    while flow < k:
+        dist = [float('inf')]*m
+        dist[source] = 0
+        in_path = [-1]*m  # previous edge index
+        # Bellman-Ford
+        for i in range(m-1):
+            if dist[sink] == float('inf'):
+                # can't relax further? still relax to propagate
+                pass
+            updated = False
+            for ei,(v,cap,cost,_) in enumerate(edges):
+                if cap > 0 and dist[???] 
+```
+
+Problem: iterating edges doesn't give us u (source node) unless we store it. Store u: edges.append([u,v,cap,cost]). Let's store dict-like list [u,v,cap,cost].
+
+Bellman-Ford:
+
+```python
+        for _ in range(m-1):
+            updated = False
+            for ei,(u,v,cap,cost) in enumerate(edges):
+                if cap > 0 and dist[u] + cost < dist[v]:
+                    dist[v] = dist[u] + cost
+                    in_path[v] = ei
+                    updated = True
+            if not updated: break
+        if dist[sink] == float('inf'):
+            break
+        # augment
+        # find min residual along path
+        path = []
+        v = sink
+        while v != source:
+            ei = in_path[v]
+            if ei == -1: break
+            path.append(ei)
+            u = edges[ei][0]
+            v = u
+        if path and v == source:
+            # bottleneck
+            bottleneck = k
+            for ei in path:
+                bottleneck = min(bottleneck, edges[ei][2])
+            for ei in path:
+                edges[ei][2] -= bottleneck
+                edges[edges[ei][3]][2] += bottleneck
+            flow += bottleneck
+            total += bottleneck * dist[sink]
+```
+
+Wait bottleneck: path edges' residual capacities — min could be >1 but each augment sends only up to 1 typically; flow may be increased by >1? Flow per unit is 1 per machine; each shortest path augmentation sends bottleneck flow but we want total flow k; sending more than 1 per augmentation is fine as long as we eventually get k units? Actually flow is k units total, each unit is a machine. Paths: each augment path sends bottleneck units. That's fine — flow total = number of machines? Wait we need exactly k units of flow, each unit passes through the source and then through time edges or job edges to sink. Each unit is a machine's schedule. Yes total flow k.
+
+cost total = sum of costs. Each job edge used with cost -pay; time edges 0. Answer = -total.
+
+But one subtlety: path reconstruction when in_path[v] == -1 means no path — break out and break while. Let's handle.
+
+Since dist[sink] finite ensures path exists (dist finite implies in_path chain valid). in_path chain: for each v reachable, in_path set. dist[source]=0, fine. But if sink reached only via dist inf? not possible.
+
+Edge case: job times with duplicate times across start/end; idx maps properly.
+
+One more subtlety: `times` contains sorted unique times from jobs. Source = index 0 = smallest time; sink = m-1 = largest time. Each job edge from idx[s] to idx[e], s<e so start index < end index. Time edges forward. Good.
+
+Now verify with examples mentally.
+
+Example 1: times: 0,1,3,4,6. Jobs edges: (0->4, -5), (1->3, -4), (3->6, -4). Time edges forward 0-1-3-4-6 cap 1 (k=1). Source 0, sink 4 (index). Send 1 unit (k=1). Shortest path: 0->1 (0), 1->3 via job edge (-4), 3->4? Actually path 1->3 job edge cost -4, then 3->4 time edge 0, then 4? sink is index of 6 = 4 (0:0,1:1,2:3,3:4,4:6). Hmm indices: 0->0,1->1,2->3,3->4,4->6.
+
+Job edges: (0,3,-5),(1,2,-4),(2,4,-4).
+Time edges: 0-1,1-2,2-3,3-4 each cap1 cost0.
+Source 0 sink 4.
+
+Shortest path from 0 to 4:
+- 0->1->2->3->4: cost0 (time edges), but edges cap1.
+- 0->3 (job) ->4: cost -5. Path 0->4 via job edge 0->3? job edge is 0->3 (start 0, end 4, idx 0->3). Then 3->4 time edge. cost -5. Total -5.
+- 0->1 (time) then 1->2 (job edge) then 2->4? job edge 2->4 (start 3 end 6) cost -4, then done? sink is 4. Path 0->1->2 via job(1->2) = cost -4, then 2->4 via job edge cost -4 = total -8! Path: 0->1 (time), 1->2 (job edge 1->2 cost -4), 2->4 (job edge 2->4 cost -4) => total -8. Great, augmentation picks this. Flow=1, total=-8. Answer 8. 
+
+But wait, can path use both job edges while each cap 1 — yes. And bottleneck = 1 (min residual). Good.
+
+Example 2: times: 0,5,10. k=2. Jobs: (0,2,-9),(0,1,-5),(1,2,-5),(0,2,-1). Time edges cap2: 0-1,1-2.
+Source 0 sink 2. k=2.
+
+Augment 1st: shortest path 0->2 (job): direct 0->2 edges: job(0,2,-9), job(0,2,-1). Path 0->2 (job -9): cost -9. Or 0->1->2 time edges cost 0. Or via job 0->1 (-5) then 1->2 (-5): total -10. Shortest = -10. Augment: path 0->1 job(0->1), 1->2 job(1->2). Residuals: job01 cap 0 left, job12 left. Flow 1, total -10.
+Augment 2nd: remaining options: 0->2 job(-9): cost -9; 0->2 job(-1): cost -1; 0->1 time (cap remaining 1) then 1->2 time (cap remaining 1): cost 0. Shortest = -9. Augment. Total flow 2, total cost -19. Answer 19. 
+
+Now Bellman-Ford: negative cycles? No. Good.
+
+Answer only code in one python block. The function must be top-level.
+
+Potential concern: edges list size ~ 2*(599 + 300) = ~1800; each Bellman-Ford does m-1=599 iterations over ~1800 edges = ~1M operations, times k=10 augmentations = 10M — fine in Python? Maybe slightly slow but okay for n=300 (m up to 600). Could optimize with early termination: if dist[sink] stable. Add flag: if no update, break. Fine.
+
+Let's also consider that after augmentation, we should reset dist each iteration. Fine.
+
+Write final code.
+=== CONTENT ===
+```python
+def k_machine_schedule(jobs: list[list[int]], k: int) -> int:
+    if k <= 0 or not jobs:
+        return 0
+    times = sorted({t for s, e, _ in jobs for t in (s, e)})
+    idx = {t: i for i, t in enumerate(times)}
+    m = len(times)
+    if m < 2:
+        return 0
+
+    # edges: [u, v, cap, cost, rev_index]
+    edges = []
+
+    def add_edge(u, v, cap, cost):
+        edges.append([u, v, cap, cost, len(edges) + 1])
+        edges.append([v, u, 0, -cost, len(edges) - 1])
+
+    for i in range(m - 1):
+        add_edge(i, i + 1, k, 0)
+    for s, e, p in jobs:
+        add_edge(idx[s], idx[e], 1, -p)
+
+    source, sink = 0, m - 1
+    flow = 0
+    total_cost = 0
+
+    while flow < k:
+        dist = [float('inf')] * m
+        dist[source] = 0
+        prev_edge = [-1] * m
+        for _ in range(m - 1):
+            updated = False
+            for ei, (u, v, cap, cost, _) in enumerate(edges):
+                if cap > 0 and dist[u] + cost < dist[v]:
+                    dist[v] = dist[u] + cost
+                    prev_edge[v] = ei
+                    updated = True
+            if not updated:
+                break
+        if dist[sink] == float('inf'):
+            break
+        # reconstruct path
+        path = []
+        v = sink
+        ok = True
+        while v != source:
+            ei = prev_edge[v]
+            if ei == -1:
+                ok = False
+                break
+            path.append(ei)
+            v = edges[ei][0]
+        if not ok or v != source:
+            break
+        bottleneck = k
+        for ei in path:
+            bottleneck = min(bottleneck, edges[ei][2])
+        for ei in path:
+            edges[ei][2] -= bottleneck
+            edges[edges[ei][4]][2] += bottleneck
+        flow += bottleneck
+        total_cost += bottleneck * dist[sink]
+
+    return -total_cost
+```

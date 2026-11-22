@@ -1,0 +1,392 @@
+=== REASONING ===
+We need answer only code block. Need implement robust parser/evaluator. Let's design.
+
+We need evaluate dictionary cells. Values int or error strings. Missing cell value 0. For range: cells not in cells skipped (even if formula? It says cells not in cells skipped; all named valid. References in range: if cell exists, evaluate; error propagate row-major). Ranges corners either order, rectangle. Cell name one column letter A..Z followed row 1..99 no leading zero. We can normalize rectangle bounds.
+
+Formula grammar: precedence + - then * / then unary minus then atoms. Function call functions SUM/MIN/MAX/IF.
+
+Tokenization: skip spaces; tokens: integer literal (with optional sign? unary minus handled at parser, so integer regex digits), cell name (letter followed digits), '=' '<>' '<=' '>=' '<' '>' '+' '-' '*' '/' '(' ')' ',' ':' '.'? no. Need distinguish '=' vs '==' not needed. '<>' etc.
+
+Parsing precedence:
+parse_expr: parse_additive
+parse_additive: left=parse_multiplicative; while op + or -: right=...; combine left-assoc.
+parse_multiplicative similarly.
+parse_unary: if '-': right=parse_unary(); if error propagate? unary minus on error: evaluation strictly left-to-right. For unary minus, the operand is evaluated; if error, result error (no other operand). return -value if int else error. Else parse_atom.
+parse_atom:
+- integer -> int
+- cell name -> eval_cell(name) (missing -> 0)
+- '(' expr ')' -> expr (if error propagates through)
+- function call: identifier FUNC then '(' args ')' ; function name uppercase? Contents likely formulas use exact uppercase function names. Could accept case-insensitive? Safer exact uppercase; grammar says SUM(...). Use identifier letters.
+- else error? valid so ignore.
+
+Function parsing:
+parse function args separated by commas, but for IF special? We can parse generic args as expr or range depending context. Grammar: for SUM/MIN/MAX arguments are either range X1:Y2 or formula. A range is X1:Y2 tokens. But expression could be cell:cell? Need parse argument: If token starts with cell-like atom and after parsing cell, next token is ':', then parse second cell and treat as range. Otherwise parse formula. But cell name vs integer: token cell regex. Need implement parse_sum_arg: save pos; if peek is cell token: consume cell token; if peek is ':' then consume; expect cell token; make RangeNode. else parse formula with original? Parsing may consume; we can just conditional without saving because cell token is a valid expression start; if next not ':' then parse normal expression by returning parse_expr() from current. But if we consume cell first, need reconstruct? Simpler: in parse_function_arg, lookahead: if current token is cell name and token after is ':'? We need lookahead. With parser class peek char. We can implement tokenizer producing list tokens with positions. Then parser uses index. That's easier.
+
+Tokenizer: list of tokens: type, value. Types: INT, CELL, OP? Actually ops: '+','-','*','/','=','<>','<','<=','>','>=','(',')',',',':','IDENT','EOF'.
+Cell regex: [A-Z][1-9][0-9]? Actually rows 1..99 no leading zero. Pattern '[A-Z][1-9][0-9]?' covers A1..A99 but also A0? no first digit 1-9, second optional 0-9 -> 10..99 valid; first digit 1..9 with second 0-9 gives 10..99 (first can't be 0), good. But cell names could be like A1. No leading zero. 'A0' invalid not in cells? Formula valid.
+
+Parsing precedence with token list.
+
+Evaluation:
+eval_cell(name): iterative? Need cycle handling. Dict memo values for evaluated cells. in_progress set. For cell not in cells -> return 0. For formula cell: if in memo return. If name in in_progress -> return "#CYCLE!". Mark in_progress; evaluate; in_progress remove; memo[name]=value; return value.
+Cell literal: content digits or -digits? Integer literal such as 42 or -7. If content matches int regex (possibly '-'), parse int. Missing not. Otherwise formula. Note content could be e.g. "-7". parse_int with sign.
+
+Strict left-to-right evaluation and first error. Function argument evaluation left-to-right; range cells row-major top row left-right. Need evaluate function based on parsed args with evaluation function. Since parser parses full formula before evaluation? Strict left-to-right matters. Need avoid parsing evaluating all args at once. Better build AST and evaluate recursively left-to-right. Parser just syntax, no eval. Evaluation of AST follows rules.
+
+AST nodes: Const(int), Cell(name), Unary(op,node), Bin(op,left,right), Call(func,args), Range(a,b) maybe in args. Need distinguish formula arg vs range arg. For SUM/MIN/MAX args list can be AST node or Range object. For IF args are three AST nodes (left,right,then,else) and no ranges? IF formula args can include function calls, cells, integer; maybe could include range? grammar says left/right/then/else are formulas; formula atoms cannot be range outside SUM/MIN/MAX. So no range.
+
+Evaluation:
+eval_node(node):
+Const -> int
+Cell -> eval_cell(name) (int or error)
+Unary '-' -> v=eval node; if is_error(v) return v; if int -v
+Bin: evaluate left; if error return; right; if error return; if op + - * /; div by zero -> "#DIV/0!". Other comparison? Grammar has comparisons only in IF. Binary AST may include '<' etc? Actually grammar from lowest precedence +/-; comparisons are not in expression grammar except IF condition. IF is special parsed with OP. So Bin for + - * / only. Good.
+Call SUM: args left-to-right. values=[]; for arg in args: if Range: for each cell in rectangle row-major: if cell in cells: v=eval_cell(cell); if error: return error; if int: values.append(v) (missing skipped). Else range has no errors, values collected. if Call formula: v=eval_node(arg); if error return error; if int values.append(v). Since argument missing cell formula evaluates to 0 and contributes. Range missing skipped, but if range cells exist and evaluate error, first error met result. Note if a cell in range is not in cells skip. If value maybe error for formula cell, propagate and stop.
+SUM returns sum(values) (missing skipped in range, formula args missing contributes 0). MIN/MAX: values empty -> 0 else min/max.
+IF: node args [left,right,then,else]. eval left; if error return; eval right; if error return; compare left/right with OP; if condition true eval then else eval else. Errors in chosen branch returned; unchosen not evaluated. Need compare as ints.
+
+Cell literal: content '-7'. parse: if re.fullmatch(r'-?[0-9]+', content): int(content). But content could be formula? starts '='. Otherwise formula. Good.
+
+Error propagation in bin: If left operand error stop. If left ok right error return error. If left maybe error from missing? missing cell returns 0.
+
+Cycle: In range evaluation, if cell evaluating calls back? in_progress set; eval_cell returns cycle if already in progress. But careful: when formula cell A1 references itself, eval_cell(A1): A1 not memo, in progress; parsing; eval Call/Bin; eval A1; sees in progress returns '#CYCLE!'; memo A1='#CYCLE!'. Later references reuse cycle. Good.
+
+Cells not in cells: eval_cell missing returns 0, but should not memoize missing. Memo only names in cells.
+
+Ranges: rectangle with corners in either order. Need compute col letters A=0.. Z=25, rows ints. For range cells names, iterate rows min..max, cols min..max; name=chr(65+col)+str(row). Missing skipped.
+
+Tokenizer details: skip spaces around any tokens. For '<>' two-char; '<=' '>='; '<' '>'; '='; '+','-','*','/','(', ')', ',', ':'; INT digits; IDENT letters; CELL? Identifiers for functions and cells both match [A-Z]+ maybe. Need distinguish. Cell name = single letter [A-Z] + digits [1-9][0-9]?; function identifier = [A-Z]+ without digits (SUM, IF). What about cell names with digits and also function? Grammar: atom cell name vs function call. So token regex: if matches r'[A-Z][1-9][0-9]?' -> CELL; elif matches r'[A-Z]+' -> IDENT; else error. But IDENT could be 'A1'? no because cell regex first. Good. Integers regex [0-9]+.
+
+Spaces between tokens: skip.
+
+Parser with tokens list. Need handle unary minus repeat. Operators precedence. Function call:
+parse_primary:
+ if tok IDENT and next token after IDENT is '(': function name = ident (should be SUM/MIN/MAX/IF). parse call.
+ if tok CELL: return Cell
+ if tok INT: return Const
+ if tok '(': parse expr expect ')'
+ else syntax error.
+Function parse:
+ func = ident_value; expect '('; if ')' and func != IF? For SUM/MIN/MAX one or more args; IF exactly three. Parse first arg:
+ if func in ('SUM','MIN','MAX'): parse range_or_expr(); then while peek ',' consume; parse range_or_expr; else expect ')'
+ else: IF: parse expr? but need OP after left. parse left=parse_expr(); expect OP in =,<>,<,<=,>,>=; right=parse_expr(); expect ','; then=parse_expr(); expect ','; else_=parse_expr(); expect ')'.
+ range_or_expr: Lookahead if tok type CELL and tokens[idx+1] type ':' and tokens[idx+2] CELL: consume CELL, consume ':', consume CELL -> Range(a,b). But what if cell token followed by ':' and a formula? valid ranges always second corner cell, so ok. Otherwise parse_expr().
+Note for IF, left parse_expr could parse range? parse_expr handles atoms: cell atom then maybe ':' not handled -> syntax error. Valid IF no ranges. Good.
+But parse_expr for argument to SUM: if starts with cell and no ':' after, parse_expr returns Cell. Good.
+
+Potential ambiguity: function call parse when IDENT is cell? Not; cell regex before IDENT. Good.
+
+Comparison evaluation in IF: OP can be '=' (equal), '<>' etc. Compare ints (missing -> 0). Error propagated already.
+
+Error representation strings: "#DIV/0!", "#CYCLE!". Only these. is_error function: isinstance(v,str) and v.startswith('#')? Return true for exact.
+
+Division truncation toward zero: int(a/b) problematic; use - (abs(a)//abs(b)) if (a<0) ^ (b<0) else a//b, or q=abs(a)//abs(b); sign = -1 if (a<0) != (b<0) else 1; return sign*q. If b==0 error.
+
+Return dict insertion order: every name in cells. Iterate cells dict order and eval each, memoize.
+
+One subtlety: If a formula cell evaluates with cycle error, memo stores error. Later reference reuses same string. Good.
+
+Missing cell formula argument contributing 0: eval_node Cell missing returns 0. In strict left-to-right for SUM args: for formula argument that is missing cell e.g MIN(Z9): parse_expr Cell, eval returns 0 appended; values [0], MIN=0. Good.
+
+Range errors: cells in rectangle not in cells skipped; if in progress cycle returns cycle and stop (first error). But if cell in range exists and result cycle string, we return immediately, not continue row-major. Good. Formula args within range? Each cell eval_cell handles.
+
+Errors in unchosen branch not evaluated: eval function IF evaluates left,right, compare; then only chosen branch's eval. Good.
+
+Need make sure evaluation left-to-right for binary: In Bin node. Unary: node operand. For formula with function arguments: Call eval loop left-to-right. For range node inside SUM: cells row-major.
+
+Implement AST via classes or tuples. Simplicity: functions. Let's craft code.
+
+Potential parse bug: parse_expr for argument starts with unary minus before function/cell. For range arg, lookahead cell not unary. Good.
+
+Cell token parsing: function identifier IDENT may be 'SUM' etc. Need accept exact uppercase.
+
+Let's write code only block. No explanations.
+=== CONTENT ===
+```python
+import re
+from typing import Any
+
+INT_RE = re.compile(r'[0-9]+')
+CELL_RE = re.compile(r'[A-Z][1-9][0-9]?')
+IDENT_RE = re.compile(r'[A-Z]+')
+
+
+def sheet(cells: dict[str, str]) -> dict[str, int | str]:
+    memo: dict[str, int | str] = {}
+    in_progress: set[str] = set()
+
+    def is_error(v: Any) -> bool:
+        return isinstance(v, str) and v.startswith('#')
+
+    def tokenize(s: str):
+        toks = []
+        i = 0
+        n = len(s)
+        while i < n:
+            c = s[i]
+            if c == ' ' or c == '\t' or c == '\n' or c == '\r':
+                i += 1
+                continue
+            if c in '0123456789':
+                j = i
+                while j < n and s[j].isdigit():
+                    j += 1
+                toks.append(('INT', s[i:j]))
+                i = j
+                continue
+            if c == '<' and i + 1 < n and s[i + 1] == '=':
+                toks.append(('OP', '<=')); i += 2; continue
+            if c == '>' and i + 1 < n and s[i + 1] == '=':
+                toks.append(('OP', '>=')); i += 2; continue
+            if c == '<' and i + 1 < n and s[i + 1] == '>':
+                toks.append(('OP', '<>')); i += 2; continue
+            if c in '+-*/(),:':
+                toks.append(('P', c)); i += 1; continue
+            if c in '=<>':
+                toks.append(('OP', c)); i += 1; continue
+            if c.isalpha() and c.isascii():
+                m = CELL_RE.match(s, i)
+                if m:
+                    toks.append(('CELL', m.group(0)))
+                    i = m.end()
+                    continue
+                m = IDENT_RE.match(s, i)
+                if m:
+                    toks.append(('IDENT', m.group(0)))
+                    i = m.end()
+                    continue
+            raise ValueError('bad char')
+        toks.append(('EOF', ''))
+        return toks
+
+    def parse(toks):
+        idx = 0
+
+        def peek(k=0):
+            return toks[idx + k]
+
+        def next_():
+            nonlocal idx
+            t = toks[idx]
+            idx += 1
+            return t
+
+        def expect_punct(p):
+            t = next_()
+            if not (t[0] == 'P' and t[1] == p):
+                raise ValueError('expected ' + p)
+
+        def parse_expr():
+            node = parse_term()
+            while True:
+                t = peek()
+                if t[0] == 'P' and t[1] in '+-':
+                    next_()
+                    op = t[1]
+                    right = parse_term()
+                    node = ('bin', op, node, right)
+                else:
+                    return node
+
+        def parse_term():
+            node = parse_unary()
+            while True:
+                t = peek()
+                if t[0] == 'P' and t[1] in '*/':
+                    next_()
+                    op = t[1]
+                    right = parse_unary()
+                    node = ('bin', op, node, right)
+                else:
+                    return node
+
+        def parse_unary():
+            t = peek()
+            if t[0] == 'P' and t[1] == '-':
+                next_()
+                return ('neg', parse_unary())
+            return parse_atom()
+
+        def parse_atom():
+            t = next_()
+            if t[0] == 'INT':
+                return ('int', int(t[1]))
+            if t[0] == 'CELL':
+                return ('cell', t[1])
+            if t[0] == 'P' and t[1] == '(':
+                node = parse_expr()
+                expect_punct(')')
+                return node
+            if t[0] == 'IDENT':
+                func = t[1]
+                expect_punct('(')
+                if peek() != ('P', ')'):
+                    first = parse_function_arg(func)
+                    args = [first]
+                    if func == 'IF':
+                        # parse IF specially after left
+                        left = args[0]
+                        op_tok = next_()
+                        if op_tok[0] != 'OP' or op_tok[1] not in ('=', '<>', '<', '<=', '>', '>='):
+                            raise ValueError('expected if op')
+                        op = op_tok[1]
+                        right = parse_expr()
+                        expect_punct(',')
+                        then = parse_expr()
+                        expect_punct(',')
+                        els = parse_expr()
+                        expect_punct(')')
+                        return ('if', op, left, right, then, els)
+                    else:
+                        while peek() == ('P', ','):
+                            next_()
+                            args.append(parse_function_arg(func))
+                        expect_punct(')')
+                        return ('call', func, args)
+                else:
+                    expect_punct(')')
+                    if func == 'IF':
+                        raise ValueError('bad IF')
+                    raise ValueError('bad call')
+            raise ValueError('bad atom')
+
+        def parse_function_arg(func):
+            if func in ('SUM', 'MIN', 'MAX'):
+                t = peek(0)
+                if t[0] == 'CELL' and peek(1)[0] == 'P' and peek(1)[1] == ':' and peek(2)[0] == 'CELL':
+                    a = next_()[1]
+                    next_()
+                    b = next_()[1]
+                    return ('range', a, b)
+            return parse_expr()
+
+        node = parse_expr()
+        if peek() != ('EOF', ''):
+            raise ValueError('trailing tokens')
+        return node
+
+    formulas: dict[str, Any] = {}
+
+    def col_index(name: str) -> int:
+        return ord(name[0]) - ord('A')
+
+    def row_index(name: str) -> int:
+        return int(name[1:])
+
+    def cell_name(col: int, row: int) -> str:
+        return chr(ord('A') + col) + str(row)
+
+    def range_iter(a: str, b: str):
+        c1, c2 = col_index(a), col_index(b)
+        r1, r2 = row_index(a), row_index(b)
+        for r in range(min(r1, r2), max(r1, r2) + 1):
+            for c in range(min(c1, c2), max(c1, c2) + 1):
+                yield cell_name(c, r)
+
+    def eval_node(node):
+        kind = node[0]
+        if kind == 'int':
+            return node[1]
+        if kind == 'cell':
+            return eval_cell(node[1])
+        if kind == 'neg':
+            v = eval_node(node[1])
+            if is_error(v):
+                return v
+            return -v
+        if kind == 'bin':
+            _, op, left, right = node
+            lv = eval_node(left)
+            if is_error(lv):
+                return lv
+            rv = eval_node(right)
+            if is_error(rv):
+                return rv
+            if op == '+':
+                return lv + rv
+            if op == '-':
+                return lv - rv
+            if op == '*':
+                return lv * rv
+            if op == '/':
+                if rv == 0:
+                    return '#DIV/0!'
+                q = abs(lv) // abs(rv)
+                if (lv < 0) != (rv < 0):
+                    q = -q
+                return q
+        if kind == 'if':
+            _, op, left, right, then, els = node
+            lv = eval_node(left)
+            if is_error(lv):
+                return lv
+            rv = eval_node(right)
+            if is_error(rv):
+                return rv
+            if op == '=':
+                cond = lv == rv
+            elif op == '<>':
+                cond = lv != rv
+            elif op == '<':
+                cond = lv < rv
+            elif op == '<=':
+                cond = lv <= rv
+            elif op == '>':
+                cond = lv > rv
+            elif op == '>=':
+                cond = lv >= rv
+            else:
+                raise ValueError('bad op')
+            return eval_node(then if cond else els)
+        if kind == 'call':
+            _, func, args = node
+            values = []
+            for arg in args:
+                if arg[0] == 'range':
+                    for nm in range_iter(arg[1], arg[2]):
+                        if nm not in cells:
+                            continue
+                        v = eval_cell(nm)
+                        if is_error(v):
+                            return v
+                        values.append(v)
+                else:
+                    v = eval_node(arg)
+                    if is_error(v):
+                        return v
+                    values.append(v)
+            if func == 'SUM':
+                return sum(values)
+            if func == 'MIN':
+                return min(values) if values else 0
+            if func == 'MAX':
+                return max(values) if values else 0
+        raise ValueError('bad node')
+
+    def eval_cell(nm: str):
+        if nm not in cells:
+            return 0
+        if nm in memo:
+            return memo[nm]
+        if nm in in_progress:
+            return '#CYCLE!'
+        raw = cells[nm]
+        if re.fullmatch(r'-?[0-9]+', raw):
+            v = int(raw)
+            memo[nm] = v
+            return v
+        if nm in in_progress:
+            return '#CYCLE!'
+        in_progress.add(nm)
+        try:
+            if nm not in formulas:
+                toks = tokenize(raw[1:])
+                formulas[nm] = parse(toks)
+            v = eval_node(formulas[nm])
+        finally:
+            in_progress.remove(nm)
+        memo[nm] = v
+        return v
+
+    return {nm: eval_cell(nm) for nm in cells}
+```

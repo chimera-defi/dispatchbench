@@ -1,0 +1,230 @@
+=== REASONING ===
+We need answer with only code block. Need solve problem. Let's think fully.
+
+We have n lamps ring size n<=5000, offsets len m<=6. Each second all lamps change simultaneously. New value of lamp i = XOR of old values of lamps (i+d) mod n for each d in offsets, in order given. If an offset appears twice, two terms cancel (XOR cancels) — net effect is set of offsets with parity; duplicates cancel. Offsets negative/zero/larger than n; reduce mod n. Then transformation T on binary vector length n: (T x)_i = XOR_{r in R} x_{(i+r) mod n}, where R is multiset with cancellation => binary vector over residues: count[r] = number of offsets congruent r mod n mod 2, keep residues with odd count. m<=6, number unique residues small? At most 6 but after mod n could collide; odd set size <=6 (actually unique odd residues <= number distinct residues <=6). Need apply T^t for t up to 1e18.
+
+Naive simulate t too large. n<=5000, m<=6. Need efficient. Options:
+- Represent state as bytes/int bitmask. Linear cellular automaton over F2 on cyclic group Z_n. Since offsets <=6 and n<=5000, exponentiation by repeated squaring of transformation matrix? Matrix n x n too big (5000^2 ~25M, times log t ~60, too much memory/time maybe borderline but no).
+- Because offsets small, use doubling/squaring of polynomial over F2 with cyclic convolution. T corresponds to multiplication by polynomial p(x)=sum_{r in R} x^r modulo x^n-1 over F2. Need p^t mod (x^n-1), then apply to state (or just compute T^t state). n=5000, m<=6, t<=1e18. Polynomial multiplication with cyclic convolution cost O(k n) where k=number terms (<=6) if multiply sparse polynomial by sparse? Repeated squaring: p has k<=6 terms. Squaring sparse polynomial over F2 modulo x^n-1: (sum_{r in R} x^r)^2 = sum x^{2r} + cross terms. Over F2, (a+b)^2 = a^2+b^2 (cross terms cancel) because 2ab=0. Actually any sum polynomial squared = sum x^{2r} (over F2) because cross terms 2 x^{r+s}=0 mod 2. So squaring doubles each term residue r -> 2r mod n, but if two residues map to same, cancel. Thus sparse exponentiation easy.
+
+Then compute p^t via binary exponentiation: maintain result poly (sparse dict residue->1 maybe) and base poly (sparse), starting base=p (initial offsets reduced mod n, with duplicates cancel by toggling). While t: if bit: result = multiply(result, base) modulo x^n-1; base = square(base) modulo. Multiplication of two sparse polys with sizes a,b (<=6 maybe result size can grow? Let's bound. Multiplying sparse polys of sizes k1,k2: over F2 cross terms cancel only for identical pair? Need compute coefficients for sum_{r in A} x^r * sum_{s in B} x^s = sum_{r,s} x^{r+s mod n}; over F2 coefficient at residue = parity of number of pairs (r,s) with r+s≡residue. Size of product can be up to k1*k2 (<=36) but after cancellations maybe up to 36; however is size bounded by 36 always? base after repeated squaring: size remains <=6? Squaring sparse poly: each term r -> 2r mod n, duplicates cancel, so size <= number distinct 2r mod n <= size <=6. Result multiplying by base (<=6) each bit: result size <= size(result)*size(base) <= 6*6=36? Then after cancellation maybe less; but result grows over bits: binary exponentiation accumulates up to 60 bits; if result can grow? Multiplying result (could be up to 36) by base (<=6) gives up to 216 residues, size maybe <=? But result equals p^e for partial exponent e, which is a sparse polynomial? Is p^e always sparse with size bounded? p has <=6 terms. p^e = sum over choices of e terms binomial coefficients mod 2 times x^{sum r_i}. Over F2, (sum_{r in R} x^r)^e has coefficients equal to multinomial coefficients mod 2; by Lucas theorem, size can be large: number of nonzero terms equals 2^{popcount of e?}? Let's examine.
+
+We need apply T^t to initial state. Approach: exponentiate polynomial p (degree residues) modulo x^n-1. Sparse representation might blow up due to binomial coefficients. But n=5000, m<=6, log t<=60. Need robust.
+
+Alternative: Since m<=6 and n<=5000, we can use matrix exponentiation with bit-parallel row operations? T is a linear map over F2 on vector length n. We can represent state as Python integer bitmask (n bits). Applying T to a bitmask: Need compute XOR of shifted versions of current bitmask for residues R. If R size k<=6 (after cancellation), cost O(k) big-int shifts/xors, each O(n/word) ~5000/64=79 words, cheap. Applying t times too much (t up to 1e18), but we can exponentiate by squaring the operator? We can't store operator as function easily? We can store linear transformation as 2D? But maybe we only need T^t state. Could use exponentiation by squaring with polynomials as above but handle blowup.
+
+Another approach: Because m is tiny (<=6), the trajectory has structure; t huge. Need exact. Generic n=5000, t huge. Need algorithm polynomial in n and log t maybe. Options:
+1. Represent transformation as sparse circulant matrix; compute T^t by binary exponentiation where matrix is stored as sparse polynomial product? Need handle coefficient growth. However maybe using n<=5000 and t<=1e18, we can use exponentiation by squaring on polynomial but coefficients mod 2 and n small. Polynomial p has <=6 terms. p^(2^j) = sum_{r in R} x^{2^j r} over F2 (since repeated squaring, cross terms cancel at each step) — size <=6. Good. For exponentiation by binary method, maintain current result polynomial. Result = p^{processed_bits}. It could grow in size because multiplying two sparse polynomials yields coefficients equal to parity of counts of pairs mapping to same residue; size can grow up to product sizes. But we can instead compute T^t state directly by decomposing exponent bits: T^t = product over set bits of (T^{2^j}) in some order (commutative). Since T is linear, T^t x = XOR over set bits? Not exactly: T^t x = (T^{2^{i1}} ... T^{2^{ir}}) x, order irrelevant. We can initialize result state vector? No, we want result applied to x, not operator.
+
+But we can exploit sparsity of T^{2^j}: operator is XOR of up to 6 shifted copies of the state (because T^{2^j} = multiplication by p^{2^j}, which over F2 equals sum_{r in R} x^{(2^j r mod n)}, with duplicates cancel). Is that identity correct for arbitrary power 2^j? Let's prove: p = sum_{r in R} x^r (R odd residues). Over F2, p^2 = sum_{r in R} x^{2r} (cross terms vanish) modulo x^n-1. Inductively p^{2^j} = sum_{r in R} x^{2^j r} mod x^n-1 (reduce exponents mod n, cancel duplicates). Size <= |R| <=6. Excellent. Then for t binary with set bits j1<j2<...<jr, T^t = T^{2^{j1}} T^{2^{j2}} ... T^{2^{jr}} (commutative). Applying sequentially to state vector: start x = initial bits as integer. For each set bit j (ascending or any order), x = apply operator Op_j to x, where Op_j: out_i = XOR_{r in R} x_{(i + (2^j r mod n)) mod n}. Since R<=6, each application costs k shifts/xors of big ints with n bits. log t <=60, so total cost O(60*6*bigint) — trivial. That solves. Need be careful with bits: t can be 0, return original.
+
+Let's test with examples manually.
+
+Example evolve("0100", [1], 1): offsets reduce [1], R={1}. Op_0 for bit 0: out_i = x_{i+1 mod n}. n=4. state bits indices: '0'='0','1'='1','2'='0','3'='0'. In bit ordering, Python int bitmask maybe set bit i for lamp i. Let x = sum bit i. Shift right by 1? out_i = x_{(i+1) mod n}. If x has bit j set, it contributes to output bit i=(j-1) mod n (because out_i = x_{i+1}); that's x >> 1 with wraparound bit? Alternatively out = ((x >> 1) | ((x << (n-1)) & bit0_mask?)) Need formula. Let's choose convention: bit i represents lamp i; value char index i. Op_j: out_i = XOR_{r in R} x_{(i+r) mod n}. This is circular left shift? If r=1, out_i = x_{i+1 mod n}; output bit at i equals input bit i+1. That's rotate right? For n=4 x=0100 means lamp1 on (bit1=1). out_i = x_{i+1}; out_0 = x_1=1 => '1' at lamp0; out_1=x_2=0; out_2=x_3=0; out_3=x_0=0 => "1000". matches. Good.
+
+Bitmask implementation: moving input bit j to output bit i=(j-r) mod n (since out_{j-r}=x_j). For each residue r, contribution = rotate left? out bit i = x bit (i+r) => input j maps to i=j-r mod n. So contribution is rotate right by r? Rotating right by r means bit j -> j+r? Let's define function rotate_right(x, r, n): bit j moves to bit (j+r) mod n. Output bit i = input bit (i-r) mod n = x_{i-r}; not desired. Rotate left(x, r): bit j -> (j+r) mod n; output bit i = input bit (i-r) mod n. Hmm.
+
+Let's be systematic.
+Given x bit j=1. Operator with residue r: out_i = x_{(i+r) mod n}. Pair out_i = x_j if (i+r) mod n = j => i = (j-r) mod n. So input bit j contributes to output bit (j-r) mod n. That is rotation by -r (right? depends bit increasing left). Implement via shifting and wrapping: contribution = ((x << (-r)?) but r in [0,n-1]. Moving bit j to (j-r) mod n: if r=0, same. Else let s = (n - r) mod n (since j-r = j - r mod n = j + (n-r) mod n). Bit j moves to (j+s) mod n, i.e. left rotate by s (with bit i increasing to higher positions). Check n=4,r=1,s=3. x bit1 moves to (1+3)=0 mod4 => output bit0, correct. x bit0 moves to 3 mod4 => output bit3; out_3 = x_{(3+1)=0}=x0, yes. contribution = rotate_left(x, s, n) where rotate_left moves bit j to (j+s) mod n. Formula rotate_left(x,s,n): ((x << s) | (x >> (n-s))) & ((1<<n)-1) if s!=0. But careful: x << s sets bits j+s for j<n-s; x >> (n-s) sets bits j+s-n for original j >= n-s. Good. Since s can be 0, handle. Alternatively use rotate_right with r: rotate_right(x,r) bit j -> (j+r) mod n; not needed.
+
+But maybe simpler implement apply_op by computing out as integer 0; for each residue r in residues: out ^= rotate_left(x, (n-r)%n, n). If residues list includes 0, rotate 0 no effect. Duplicates cancel before.
+
+Then loop bits t from 0 to floor(log2 t): if (t>>j)&1: x = apply_op_by_power(x, 2^j). Need residues for operator Op_j. We can compute incrementally: base_residues = odd residues from offsets (reduce each offset mod n, toggle set). For j bit, operator p^{2^j} residues = { (2^j * r) mod n for r in base_residues } with duplicates cancel (XOR set). Need compute 2^j mod n? Since exponent 2^j may be enormous for j up to 60 but n<=5000, we can compute step = pow(2,j,n)? But for residues r (0<=r<n), residue_j = (pow(2,j,n) * r) % n? Because 2^j r mod n = (2^j mod n)*r mod n. j up to 63, pow modular okay. For j=0 step=1. For each set bit, compute step = pow(2, j, n) % n (but if n? n>=1; mod n with n=1: residues all 0, set {0}; operator identity? x length 1, 1=0, all offsets same; if odd number terms, new value = XOR of old values = x (because each term x, odd count => x), but duplicates cancel. Wait if all offsets cancel (empty R), T identity. If R={0}, out_i = x_i (not complement), so identity too! Indeed residue 0 means same lamp; one term equals old value x, not complemented. T(x)=x for any state with R={0}. But note if offsets contain [0,0], R empty, identity. Exampleevolve("1",[0,0],5) returns "0"? Wait n=1, offsets [0,0]: duplicates cancel -> empty set. Then each second new value = XOR of no terms = 0 (XOR identity). So T maps any state to all zeros? Important! I mis interpreted. If R empty, each lamp has zero terms; XOR of empty list is 0. So T is zero map, not identity. If R={0}, each lamp has one term old value at same lamp => state unchanged. Good. Example evolve("1",[0,0],5): R empty; after 1 second state "0"; after 5 remains "0". matches. Good.
+
+Need ensure empty R -> after any positive t, all lamps off (zero vector). But by operator approach, T (t=1) has residues empty, out=0. T^t for t>=1 also out=0, and T^t state for t=0 original. Good.
+
+For j loop, if R empty: if t==0 return original; else return all zeros ("0"*n). Because T^1=zero map; T^t=zero for t>=1.
+
+For R nonempty, Op_0 residues = R (duplicates cancel). Op_j residues = {(pow(2,j,n)*r)%n for r in R} but if n=1, pow(2,j,1)=0, residues {0}, operator identity; indeed n=1, any offsets reduce to 0; R may be {0} or empty depending parity. For R={0}, identity. Good.
+
+Now apply each set bit. Need be precise: For binary exponentiation, p^t = product_{j set in t} p^{2^j}; operators commutative. We can process any order. Start x=initial int bits. For j in range(bit_length(t)): if bit set: step=pow(2,j,n) % n? Actually pow(2,j,n) for n=1 returns 0; fine. residues = set(); for r in base_residues: residues.add? Need parity cancellation among possible collisions. Since base_residues size<=6, we can compute counts for residues: use dict counts with integer parity. For each r in base_residues: nr = (step*r) % n; toggle nr in set (or counts dict) because if two residues map to same final residue, XOR terms cancel. For p^{2^j}=sum_{r in R} x^{2^j r}, over F2, if multiple r give same nr, terms cancel. Yes use set toggle.
+
+Then out = 0; for r in residues: out ^= rotate_left(x, (n-r)%n, n). But if n=1, (n-r)%n =0, rotate_left with s=0 should be x (mask all ones). fine.
+
+Then convert x to string length n. Need map bit i to char: bit i corresponds to lamp i. Use format/integer bits: for i in range(n): char = '1' if (x>>i)&1 else '0'. That's O(n), fine.
+
+Let's test with examples manually.
+
+Example evolve("0100",[1],1): base residues {1}. t=1 bits j=0. step=1. residues={1}. x bits: lamp1 -> 1<<1=2. rotate_left(x, s=(4-1)%4=3, n=4): x=0010 (binary bit1). x<<3 = bit1->bit4 (out of mask) | x>>(1) (n-s=1) = bit0? x>>1 = bit0? x=0b0010 >>1 =0b0001; OR =0b0001; mask=0b1111 => bit0=1 => "1000". Good.
+
+Example evolve("0100",[-1,1],1): offsets [-1,1] mod4 -> [3,1], distinct R={3,1} (size2). t=1 bit0 step1 residues {3,1}. x=0b0010.
+ r=3: s=(4-3)%4=1; rotate_left(x,1): bit1->bit2 =>0b0100 (bit2). r=1: s=3; rotate_left(x,3): bit1->bit0 =>0b0001. XOR=0b0101 => lamps bit0=1, bit2=1 => "1010". Matches.
+
+Example evolve("110",[5],2): n=3, offsets [5] mod3 =2 (since 5 mod3=2). R={2}. start x: '110' bits lamp0='1' bit0=1, lamp1='1' bit1=1, lamp2='0': x=0b011=3 (bit0,bit1). t=2 binary bits j=1 only. For j=1 step=pow(2,1,3)=2. residues {(2*2)%3=1} (r=2 ->4 mod3=1). rotate_left s=(3-1)%3=2; x=0b011. x<<2=0b1100 (bits0->2, bit1->3 out? Let's compute: x=0b011; <<2 =0b1100 = 12; x>>(n-s=1)=0b001 =1; OR=0b1101; mask=0b111 =>0b101 (bit0,bit2). String bits bit0=1,bit1=0,bit2=1 => "101". Matches. Good.
+
+Example evolve("1",[0,0],5): offsets reduce [0,0] toggles -> empty. t=5>0 => return "0"*1 = "0". Good.
+
+Example evolve("1011",[2,7],0): t=0 return original "1011". Good.
+
+Need implement exactly function. Could include helper inside? They said top-level function not class. We can define evolve only, maybe helper nested. Reply only code block. Ensure no extra text. Use list[int] type annotation (Python 3.9+? list[int] in annotations okay in Python 3.9 for built-in generics; Python 3.8? Problem says Python 3. They explicitly used list[int], so okay.)
+
+Need consider offsets larger than n, negative: use x % n in Python (returns nonnegative). Toggle parity: Since m<=6 and duplicates cancel, use set: for off in offsets: r=off % n; if r in set: remove else add. This toggles. For empty R and t==0 return state; empty R and t>0 return zeros. Else proceed.
+
+Important nuance: "XOR of the old values ... in the order given. An offset that appears twice contributes two terms, and those two terms cancel." If offsets are e.g. [1,2,1], net residues: 1 cancels (two) = 1? Wait [1,2,1] has 1 appears twice -> cancel, leaves {2}. Correct. If offsets [1,2,3] all distinct, R={1,2,3}. If duplicates within congruent residues mod n cancel too (e.g. offsets [1,1+n] two terms at same lamp). We use mod n toggle; correct.
+
+Now potential issue with operator powers for non-power-of-two t: For t=1, bit0 step=1; p^1=sum x^r. Good. For t=3 (binary 11), p^3 = p^{2} p^{1} = sum_{r} x^{2r} * sum_s x^s. Our sequential application x = Op_0(x) then Op_1(x) (order bit0 then bit1) yields T^3 x. Since operators commute, order doesn't matter, but sequential Op_1 after Op_0 is fine. Need compute Op_1 residues using pow(2,1,n) * r mod n; that's p^2. Applying Op_0 then Op_1 to x yields T x then T^2(Tx)=T^3x. Good.
+
+Could apply bits from high to low; commutative. Fine.
+
+Potential issue with rotate_left when s=0 and n=1: formula `((x << s) | (x >> (n - s))) & mask` if s=0: n-s=n, x>>n =0, mask=(1<<n)-1, fine. But for s !=0. If n=1, s=0 anyway. Use generic: if s ==0: cont=x else ...; but n=1 all s=0.
+
+Simpler function rot_left(x,s,n,mask): return ((x << s) | (x >> (n-s))) & mask if s else x. If s=n? s in [0,n-1], n-s in [1,n]; if s=0 handled. If s>0 and n-s maybe =n? no s>0 -> n-s<n and >=1. Good.
+
+Potential issue mask=(1<<n)-1 for n=5000; big int, okay.
+
+Time complexity: bit_length t <=60; for each set bit, residues up to 6; for each residue, big int shifts/xor O(n/64) ~79 limbs. 60*6*79 ~28k word ops, fine. Actually applying operator for each set bit: if t has up to 60 bits, and each operator has up to 6 terms, each term does a rotate (two shifts+xor) with 5000 bits. Shift by s and by n-s on 5000-bit ints: O(limbs) with big-int; ~60*6*(few*79) = manageable.
+
+Memory fine.
+
+Need final only code in a single python block. No explanations. Should include exactly top-level function evolve. Maybe nested helper rotate inside evolve to avoid extra top-level. That's okay: top-level function not class; nested helper doesn't add top-level. Could define helper outside? They said implement exactly this function; likely expects only evolve. Avoid extra top-level defs. Use nested function inside evolve.
+
+Code:
+
+```python
+def evolve(state: str, offsets: list[int], t: int) -> str:
+    n = len(state)
+    bits = 0
+    for i, ch in enumerate(state):
+        if ch == '1':
+            bits |= 1 << i
+    rset = set()
+    for off in offsets:
+        r = off % n
+        if r in rset:
+            rset.remove(r)
+        else:
+            rset.add(r)
+    if t == 0:
+        return state
+    if not rset:
+        return '0' * n
+    mask = (1 << n) - 1
+    def rot_left(x, s):
+        if s == 0:
+            return x
+        return ((x << s) | (x >> (n - s))) & mask
+    x = bits
+    # iterate over set bits of t
+    # while t: j tracking via bit_length
+    # Note we don't mutate t? Could mutate copy.
+    tt = t
+    j = 0
+    while tt:
+        if tt & 1:
+            step = pow(2, j, n)
+            rr = set()
+            for r in rset:
+                nr = (step * r) % n
+                if nr in rr:
+                    rr.remove(nr)
+                else:
+                    rr.add(nr)
+            if rr:
+                y = 0
+                for r in rr:
+                    s = (n - r) % n
+                    y ^= rot_left(x, s)
+                x = y
+            else:
+                # This should not happen? If rr empty for a set bit, means p^{2^j}=0 polynomial, so operator is zero map.
+                # But p^{2^j}=0 can happen? If all residues after doubling cancel: sum of same/no terms -> zero. For nonempty initial rset, can rr be empty for j>0? Possibly e.g. n=2, R={1}; j=1 step=0 mod2, residues {0}, not empty. n=2,R={?} parity? step=0 => all nr=0 toggle once => rr={0} if rset nonempty? If rset has two residues both map to same 0, rr toggles twice -> empty. Example n=2, R={0,1}? Squaring p = x^0 + x^2? Wait n=2, if R={0,1}, p=x^0+x^1=1+x; p^2=(1+x)^2=1+x^2 = 1+1=0 mod x^2-1 (since x^2=1) over F2. Yes operator zero. So rr can be empty. Then x becomes 0.
+                x = 0
+        tt >>= 1
+        j += 1
+    return ''.join('1' if (x >> i) & 1 else '0' for i in range(n))
+```
+
+Wait if rr empty, then operator for that bit is zero map: T^{2^j} state = 0. Then after this operator, x=0. Subsequent higher-bit operators will also produce 0 (identity for residue0? Applying any operator to zero gives zero; rot_left(0)=0; y=0; x=0). So fine.
+
+But is it possible rr empty for j=0 if rset nonempty? rr = rset, nonempty. j>0 possible as above.
+
+However, careful: `step = pow(2, j, n)` with n=1: pow(2,j,1) returns 0? Python's pow(base, exp, 1) returns 0 yes. residues all nr=0; toggle over rset size. If rset size odd, rr={0}; if even, rr empty. Good.
+
+Potential subtlety: If rr contains residue 0 only, operator is x -> x (identity) as discussed. If rr empty, operator is zero map. Good.
+
+But let's double-check repeated squaring identity with cancellation of cross terms for n not prime. Polynomial algebra over F2 modulo x^n-1. p^{2^j}=((sum_{r in R} x^r)^{2^j}). In char 2, (a+b)^{2^j} = a^{2^j}+b^{2^j} (Freshman's dream) for any a,b, and induction: p^{2^j}=sum_{r in R} x^{2^j r}; duplicates? In the expression sum over r in R (R has distinct residues), each term distinct in r but exponents may coincide after mod n; in polynomial sum modulo x^n-1, like terms are added mod 2. So rr toggles nr. correct.
+
+Now, maybe there is an even deeper subtlety: Offsets given possibly duplicate exactly, and "offset that appears twice contributes two terms, and those two terms cancel". We cancel duplicates by parity. Yes.
+
+Check first example details: `evolve("0100", [1], 1)` returns `"1000"`. Our output string bit0..n-1 corresponds lamps left-to-right. Good.
+
+Let's consider state bit conversion. n up to 5000; `1 << i` okay. `bits` for zero char maybe. We could avoid int bitmask and use list of bits, but int faster.
+
+Edge cases:
+- state length n could be 1. mask=(1<<1)-1=1. t==0 return state. empty rset -> '0'*1. rset nonempty: n=1, all residues 0; rset either {0}. step=0; rr for j: toggle r=0 -> {0}; operator s=0; x unchanged. t arbitrary. Correct: with odd number of terms all same lamp, new value = XOR of odd number of identical old values = old value; if even terms cancel -> empty -> zeros for t>0. Good.
+- n=1, rset empty, t=0 returns original "1" or "0". Good.
+- t=0, return state even if offsets empty? yes.
+
+Now maybe user expects no explanation, code only. final answer only. Ensure no text outside code block. Done.
+
+Need ensure code has no type error with `list[int]` if Python <3.9. They asked Python 3; using list[int] requires 3.9. But they explicitly show annotation. Fine.
+
+Let's consider alternative approach via repeated squaring with bit-parallel could have issue applying operators in increasing bit order and `x` updated. Operators commute, but even if not, T^t = product T^{2^{j_k}} in any order because all powers of same T commute. Sequential application is valid.
+
+Now let's test a random small case manually with brute force for confidence. Example n=4, offsets=[0,1], t=5. R={0,1}; T matrix rows i: out_i=x_i xor x_{i+1}. t=5. Binary 101 bits j=0 (1) and j=2 (4). start x. Compute brute mentally maybe not needed. Code likely.
+
+Potential micro-bug in rot_left for s=0: return x; fine. For s !=0, `x >> (n - s)` where n-s could equal n if s=0 only; okay. If s=n? no.
+
+If n=1 and s=0, okay. If s maybe equals n? no.
+
+If rr empty and we set x=0; after that, loop continues for higher set bits; rot_left(0,s)=0, y=0. Fine.
+
+Now, one nuance: For the highest set bit, `pow(2,j,n)` with j up to 60; if n=100000? n<=5000. fine.
+
+Should we optimize by precomputing residues for each set bit once; yes done inside loop. No need precompute all j.
+
+Could there be nonempty rset but rr empty at a set bit, yet higher bits processed later should be identity on some values? No, zero map absorbs.
+
+Let's think of p^{2^j}=0 case more: If rr empty, then in operator T^{2^j}, out_i=XOR over empty set=0 for all i. Sequential: after this bit, x=0. Correct.
+
+Now final. Ensure exactly one ```python block. No extra prose.
+=== CONTENT ===
+```python
+def evolve(state: str, offsets: list[int], t: int) -> str:
+    n = len(state)
+    x = 0
+    for i, ch in enumerate(state):
+        if ch == '1':
+            x |= 1 << i
+
+    residues = set()
+    for off in offsets:
+        r = off % n
+        if r in residues:
+            residues.remove(r)
+        else:
+            residues.add(r)
+
+    if t == 0:
+        return state
+    if not residues:
+        return '0' * n
+
+    mask = (1 << n) - 1
+
+    def rotate_left(v: int, s: int) -> int:
+        if s == 0:
+            return v
+        return ((v << s) | (v >> (n - s))) & mask
+
+    tt = t
+    j = 0
+    while tt:
+        if tt & 1:
+            step = pow(2, j, n)
+            rs = set()
+            for r in residues:
+                nr = (step * r) % n
+                if nr in rs:
+                    rs.remove(nr)
+                else:
+                    rs.add(nr)
+            y = 0
+            for r in rs:
+                y ^= rotate_left(x, (n - r) % n)
+            x = y
+        tt >>= 1
+        j += 1
+
+    return ''.join('1' if (x >> i) & 1 else '0' for i in range(n))
+```

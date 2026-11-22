@@ -1,0 +1,472 @@
+=== REASONING ===
+We need answer only code in single python block. Need solve arithmetic expression parser in Python 3. Need be careful with unary minus and ^ right associative, looser than ^ but right operand of ^ may start with unary minus. Need define grammar.
+
+Syntax: non-negative decimal integer literals, binary ops + - * / % ^, unary minus, parentheses, spaces. Every input syntactically valid. Need precedence:
+1 ^ right assoc
+2 unary minus repeat
+3 * / % left
+4 + - left
+Notes: unary minus binds looser than ^: -2^2 = -(2^2) = -4. The right operand of ^ may start with a unary minus: 2^-1 is 2^(-1). This is a bit tricky.
+
+Grammar can be:
+expression := term (('+'|'-') term)*
+term := factor (('*'|'/'|'%') factor)*
+factor := unary ('^' unary?)? Actually power precedence higher than unary minus. Need parse:
+power := unary_expr? Let's design.
+
+Standard:
+expr := addsub
+addsub := muldiv (('+'|'-') muldiv)*
+muldiv := power (('*'|'/'|'%') power)*
+power := unary ('^' power)?  // but right operand of ^ may start with unary minus, and unary minus binds looser than ^.
+unary := '-' unary | primary
+primary := number | '(' expr ')'
+
+If power := unary ('^' power)? then unary inside parses -2 (as unary) then ^ 2 => (-2)^2? Actually parsing '-2^2': power -> unary parses '-2' (because unary sees '-' then primary 2 => -2), then sees '^', exponent power parses '2'. Result (-2)^2 = 4, wrong. Need '-2^2' = -(2^2). So power should parse a base that is not unary minus, then unary outside.
+
+Need handle unary minus lower precedence than power. Standard precedence: unary has higher precedence than binary * but lower than ^? Statement: Precedence from tightest to loosest: 1 ^, 2 unary minus, 3 * / %, 4 + -. So ^ tightest, then unary minus, then mult. That means -2^2: ^ applies to 2^2? Wait precedence ^ higher than unary minus means -2^2 parses as -(2^2): the power 2^2 is grouped, then unary minus applied. Yes. But unary minus is loosest among those? It binds looser than ^ but tighter than *. So expression -2*3 = (-2)*3 = -6. -2^2 = -(2^2). Good.
+
+Grammar:
+expr := addsub
+addsub := mult (('+'|'-') mult)*
+mult := unary (('*'|'/'|'%') unary)*
+power := unary? Need encode. Let's define:
+unary := '-' unary | power
+power := primary ('^' unary?)? 
+
+Need power right operand may start with unary minus: 2^-1 -> 2^(-1). Since unary minus binds looser than ^, exponent is typically a unary? Let's inspect. Precedence says ^ tighter than unary minus. If unary minus is looser, then in a^b where b contains unary minus? Typical grammar with ^ tighter than unary: 
+expr -> addsub
+addsub -> mult (+- mult)*
+mult -> unary (* / % unary)*
+unary -> '-' unary | power
+power -> primary ('^' unary)? no...
+
+Let's formalize. Operators precedence from tightest: ^ (binary), then unary minus, then * / %, then + -. Unary minus precedence level is between ^ and *. So parse levels:
+- +,- lowest: parse additively
+- *,/,% next
+- unary minus next (higher)
+- ^ highest
+
+But unary minus is not binary; it consumes a primary/power to its right. We can grammar:
+addsub := multiplicative (('+'|'-') multiplicative)*
+multiplicative := unary (('*'|'/'|'%') unary)*
+unary := '-' unary | power
+power := primary ('^' unary)?  // Need right associative, exponent may start with unary minus. Also exponent can contain more things? Syntax allows `2^3^2`; right associative means 2^(3^2). If power := primary ('^' unary)? after parsing base primary, sees ^, parses unary for exponent. unary := '-' unary | power, so exponent unary can parse '-3^2'? Wait unary -> '-' unary | power. If exponent string is `-3^2`, unary sees '-' then unary -> power parses `3^2` = 9, returns -9. Then 2^-9. Is that correct? Precedence: unary minus looser than ^. In `2^-3^2`, exponent is `-3^2`; since ^ tighter than unary, it should parse as 2^(-(3^2))? Let's evaluate grammar: power base=2, '^', exponent=unary. unary: '-' unary. inner unary: power parses primary 3 ^ power 2 = 9. return -9. result 2^(-9). Is that intended? Precedence: unary minus loosest vs ^, so `-3^2` = -(3^2) = -9. yes. Good.
+
+But is exponent allowed to include lower precedence ops? In typical grammar, right operand of ^ can be any unary expression, not full expression. So `2^3+4` parses as (2^3)+4 because binary + is lower level and exponent unary stops at +. Good. `2^3^2`: power base 2, '^', exponent unary: unary -> power parses 3 ^ power 2 = 9 (because inside exponent power handles `3^2`). Returns 9, result 512. Good. Right associative achieved.
+
+`-2^2`: multiplicative -> unary: sees '-' consumes, unary -> power parses primary 2 ^ power? Wait power := primary ('^' unary)? In unary -> '-' unary, inner unary invokes power. power parses primary 2, sees '^', exponent unary parses 2, returns 4. outer unary returns -4. multiplicative has no more *, addsub returns -4. Correct.
+
+`2^-1`: power base 2, '^', exponent unary sees '-' then unary power parses 1 = 1, returns -1. result 2^(-1). Correct.
+
+`--3`: unary sees '-' unary sees '-' unary power 3 =3, returns -(-(3))=3. Good.
+
+`(-2)^2`: power parses primary '(' expr ')'. expr parses -2 (addsub -> multiplicative -> unary '-' power 2 = -2). returns -2. then '^', exponent unary parses 2. result 4.
+
+Need evaluate with exact integer arithmetic, no size limit. Python ints arbitrary precision. Negative power: raise to negative power => error. Zero base with positive exponent: 0^positive = 0, 0^0 = 1, 0^negative = error (negative power). Need also division/mod by zero error. Exponent small enough. Need be wary of huge results but constraints say few thousand digits, fine.
+
+Need implement parser with index. Input length <=10000, depth <=50. Recursive descent with recursion depth ~ number of unary minus? Could be 10000? Constraints: nesting depth <=50, but unary minus repetitions could be up to ~5000? Syntax allows any number of unary minus. Parenthesis nesting at most 50. Number of unary minus could be large? Each unary minus char counts toward len 10000, so recursion depth maybe ~5000 in worst case if expression like `-----...5`. Python recursion limit default 1000. Need handle by setting recursionlimit higher (e.g. 10000 or 20000) or convert unary parsing iterative. Safest: set sys.setrecursionlimit(10000?) Actually len <=10000, recursion depth could be len for unary chain (all minus signs) ~5000 (since need operand). Also power recursion can nest exponent? Parenthesis nesting at 50 and exponent chain length could be up to ~3334 (`2^2^2^2...`) with recursion depth in power? power calls unary calls power; for right-nested exponent, each '^' adds maybe one power recursion and one unary? Let's estimate depth O(number_of_ops) ~10000. Set recursionlimit(20000) or 100000. That's allowed. Better also implement iterative for unary and power? Could keep simple with recursionlimit 20000/50000. Since input 10000, recursionlimit 10000 enough maybe, but safe use 100000? Python recursion can handle with enough stack but risk RecursionError/segfault? C stack for 10000 frames maybe okay? 10000 frames of Python recursion maybe with default C stack could crash? Setting recursionlimit to 100000 might risk segfault on deep recursion? Python recursion consumes C stack; typically can handle ~10000-100000 depending. But input max 10000 tokens, so depth <10000, setting 20000 okay. We can also avoid deep recursion by manual stack, but easier to use recursion with limit. Need be robust. Let's consider worst-case input `-`*5000 + `1`. Grammar unary recursion 5000. Fine with limit 10000? Set 100000 maybe okay. Use sys.setrecursionlimit(100000). But Python frames 100k maybe risk memory/stack; input only 10k, so 10000 enough. Set 10000? If exactly 9999 minus signs plus 1, recursion depth 9999, limit must exceed. Set 20000.
+
+Need parse spaces. Non-negative decimal integer literals: digits. No decimal. No leading zeros issue? Non-negative decimal integer literals can be '0', '007'? likely yes, accept digits and int().
+
+Need implement function calc returning int or string "error".
+
+Detailed parsing:
+
+```python
+import sys
+sys.setrecursionlimit(20000)
+
+def calc(expr: str):
+    tokens? Simpler index-based.
+    s=expr; n=len(s); i=0
+
+    def skip_spaces():
+        nonlocal i
+        while i < n and s[i]==' ': i += 1
+    def parse_expr():
+        val = parse_addsub? 
+```
+
+Need define non-local properly. Easiest class or nested funcs with nonlocal.
+
+```python
+def calc(expr):
+    s=expr
+    n=len(s)
+    pos=0
+    def peek():
+        while pos<n and s[pos]==' ': pos+=1
+        return s[pos] if pos<n else ''
+    def skip():
+        nonlocal pos
+        while pos<n and s[pos]==' ': pos+=1
+    def parse_expression():
+        return parse_additive()
+    def parse_additive():
+        nonlocal pos
+        skip()
+        val=parse_multiplicative()
+        while True:
+            skip()
+            if pos<n and s[pos]=='+':
+                pos+=1
+                val=val+parse_multiplicative()
+            elif pos<n and s[pos]=='-':
+                pos+=1
+                val=val-parse_multiplicative()
+            else: break
+        return val
+    def parse_multiplicative():
+        val=parse_unary()
+        while True:
+            skip()
+            if pos<n and s[pos]=='*':
+                pos+=1; val=val*parse_unary()
+            elif ... '/': val = trunc_div(val, parse_unary()) with error
+            elif '%': val = mod
+            else break
+    def parse_unary():
+        skip()
+        if pos<n and s[pos]=='-':
+            pos+=1
+            return -parse_unary()
+        return parse_power()
+    def parse_power():
+        skip()
+        base=parse_primary()
+        skip()
+        if pos<n and s[pos]=='^':
+            pos+=1
+            exp=parse_unary()  # right operand may start with unary minus
+            # Right associative because parse_unary invokes parse_power recursively for exponent
+            # evaluate
+            if exp < 0: raise Error
+            if base == 0 and exp == 0: return 1
+            return base ** exp
+        return base
+```
+
+Wait: In parse_power, after base, if '^' then exponent=parse_unary(). But parse_unary as written skips and if '-' parses -parse_unary, else parse_power. For exponent `3^2`, parse_unary -> parse_power parses `3^2` correctly. For exponent `-3^2`, parse_unary: pos at '-', consumes, returns -parse_unary. inner parse_unary -> parse_power parses 3^2 =9, return -9. Good. But subtle: parse_unary's recursive call for exponent is called after '^' with pos at exponent. It can parse a unary minus and then power. Good. Right associativity: `2^3^2`: parse_power base 2, sees ^, exponent parse_unary -> parse_power base 3, sees ^, exponent parse_unary (pos at 2) parses 2, so 3^2=9, exponent=9, return 512. Good.
+
+Potential bug: unary minus precedence vs power in `-2^2`: parse_multiplicative calls parse_unary. parse_unary sees '-', consumes, returns -parse_unary. inner parse_unary sees no '-' (pos at 2), returns parse_power. parse_power parses primary 2, sees ^, exponent parse_unary parses 2. returns 4. inner returns 4; outer returns -4. Good.
+
+Potential bug: parse_unary for binary operand after '*' e.g. `-2` consumed fine. For `2*-3`: multiplicative val=parse_unary (2), sees '*', consumes, parse_unary sees '-', consumes, returns -3, result -6. Good.
+
+Need division truncation toward zero. Python `//` floors. Use `int(a/b)`? No, float issues. Use abs/sign: `q = abs(a)//abs(b); if (a<0) != (b<0): q=-q` or `q = (a//b) if (a%b==0) or sign same?` Simpler:
+```python
+def div_trunc(a,b):
+    if b==0: raise Error
+    q = abs(a)//abs(b)
+    if (a<0) != (b<0): q = -q
+    return q
+```
+Note abs(a) when a=0 okay. `(a<0)!=(b<0)` when b positive/negative. For a=-7,b=2: q=3, true != false => -3. Good.
+Mod: `a - b * div_trunc(a,b)` as spec. Example -7 % 2 = -7 - 2*(-3) = -7+6=-1. 7 % -2 = 7 - (-2)*(-3? div_trunc(7,-2) = 7//? abs: q=3, signs differ (a>0,b<0) -> q=-3. 7 - (-2)*(-3)=7-6=1. Good.
+
+Error propagation: define exception `class Error(Exception): pass` or use sentinel. Since every input syntactically valid but runtime error possible. Use exception `_Error`.
+
+Negative exponent: In parse_power, if exp<0 raise _Error. But careful: unary minus is lower precedence than ^. For `2^-1`, exp=-1 => error. For `(-2)^-1`, parse_power base primary (-2), sees ^, exponent unary parses -1 => error. Good. For `2^0`, exp=0 => base**0, including 0^0 =1 due Python 0**0=1. `0^0` Python returns 1. Good. `a^negative` error.
+
+Potential issue: exponent can be enormous? Constraints small few thousand digits, Python pow handles ints; base**exp could be huge but few thousand digits, okay. But `a` can be large; okay.
+
+Parentheses: parse_primary:
+```python
+def parse_primary():
+    skip()
+    if s[pos]=='(':
+        pos+=1
+        val=parse_expression()
+        skip()
+        # expect ')' (valid)
+        pos+=1
+        return val
+    # number
+    start=pos
+    while pos<n and s[pos].isdigit(): pos+=1
+    return int(s[start:pos])
+```
+Need skip after '('? parse_expression skips at start. Expected ')' valid; still skip before expecting. Good.
+
+Need top-level ensure entire input consumed: after parsing expression, skip, if pos != n raise error? But input syntactically valid; still raise error if not. But not necessary; can check and return "error" for safety. However, if input syntactically valid, pos==n.
+
+Need return type int | str. In Python 3.10+ `int | str`. Constraints say Python 3. Use that annotation. Some environments older Python 3.8 don't support `int | str`. User explicitly says Python 3 and function signature `-> int | str`, so assume 3.10+. Fine.
+
+Need only code in single block. No explanation. Should imports be at top. Good.
+
+Check the tricky grammar for unary minus and power. Statement: "Unary minus, which may repeat (--3 is 3). It binds looser than ^, so -2^2 is -(2^2) = -4. The right operand of ^ may start with a unary minus: 2^-1 is 2^(-1)." This exactly matches grammar. Good.
+
+But wait: right operand of ^ may start with a unary minus. Example `-2^-2`? Precedence: ^ tightest, unary minus next. Parse `-2^-2`: multiplicative -> unary (outer) sees '-' consumes, inner parse_unary -> parse_power base 2 sees ^, exponent parse_unary parses -2, returns -2; power returns 2^-2. Since exponent negative -> error. Outer returns -error. Is that intended? Likely `-2^-2` = -(2^-2) error. Good.
+
+What about `2^-2^2`? Grammar: parse_power base 2, '^', exponent parse_unary: sees '-', consumes, inner parse_unary -> parse_power: base 2, sees '^', exponent unary parses 2, returns 4, inner returns 4; outer returns -4. exponent=-4. result error. Is this intended? Precedence: ^ tightest; in exponent `-2^2`, ^ applies to 2^2 then unary minus -> -(4)=-4. Yes. Note the right operand of ^ starting with unary minus is just one unary minus? Actually may repeat. Good.
+
+What about parsing `4^-2^2`? Fine.
+
+Potential issue with recursion in parse_unary and parse_power mutually: For input with many '^' right associative e.g. `2^2^2^2^2 ...` depth equals number of ops. Input length 10k, okay with recursionlimit 20000. But parse_unary calls parse_power directly; parse_power for exponent calls parse_unary; mutual recursion depth maybe 2 per ^, still <10000? If 5000 ops, depth 10000, limit 20000 safe. But actually number of ^ in 10k digits could be ~3333 (`2^`), depth maybe 6666. Fine. Set 30000? Use 100000 to be safe? Avoid excessive C stack. 20000 sufficient. Let's set 10000? no. 50000? Python recursion limit 50000 maybe risky due C stack. Input max 10k tokens; depth <= about 4*10000? Could be ~30000 for alternating unary minus and power? Worst-case `-` repeated? each unary only one frame. Worst `^` with no spaces: `-` could alternate? e.g. `2^-2^-2^-2...`; each segment consumes ~4 chars per level and recursion depth per level 2-3, with 10000 chars => depth ~7500. Fine. Set 20000.
+
+Now final answer exactly one code block. Ensure no extra text. No comments? Fine to include concise comments maybe. Only code.
+
+Need be careful with nonlocal in nested functions: within `calc`, `pos` is local variable; nested functions assignment `pos += 1` require `nonlocal pos`. I'll declare nonlocal where needed (parse_* functions that update pos). To reduce errors, use a mutable object `state = [0]`? Or define class? Nested funcs with nonlocal okay.
+
+Implementation:
+```python
+import sys
+
+sys.setrecursionlimit(20000)
+
+def calc(expr: str) -> int | str:
+    s = expr
+    n = len(s)
+    pos = 0
+
+    class Error(Exception):
+        pass
+
+    def skip():
+        nonlocal pos
+        while pos < n and s[pos] == ' ':
+            pos += 1
+
+    def parse_expression():
+        return parse_additive()
+
+    def parse_additive():
+        nonlocal pos
+        skip()
+        val = parse_multiplicative()
+        while True:
+            skip()
+            if pos < n and s[pos] == '+':
+                pos += 1
+                val = val + parse_multiplicative()
+            elif pos < n and s[pos] == '-':
+                pos += 1
+                val = val - parse_multiplicative()
+            else:
+                return val
+
+    def parse_multiplicative():
+        nonlocal pos
+        skip()
+        val = parse_unary()
+        while True:
+            skip()
+            if pos < n and s[pos] == '*':
+                pos += 1
+                val = val * parse_unary()
+            elif pos < n and s[pos] == '/':
+                pos += 1
+                b = parse_unary()
+                val = trunc_div(val, b)
+            elif pos < n and s[pos] == '%':
+                pos += 1
+                b = parse_unary()
+                val = trunc_mod(val, b)
+            else:
+                return val
+
+    def parse_unary():
+        nonlocal pos
+        skip()
+        if pos < n and s[pos] == '-':
+            pos += 1
+            return -parse_unary()
+        return parse_power()
+
+    def parse_power():
+        nonlocal pos
+        skip()
+        base = parse_primary()
+        skip()
+        if pos < n and s[pos] == '^':
+            pos += 1
+            exp = parse_unary()
+            if exp < 0:
+                raise Error("negative exponent")
+            return base ** exp
+        return base
+
+    def parse_primary():
+        nonlocal pos
+        skip()
+        if pos < n and s[pos] == '(':
+            pos += 1
+            val = parse_additive()
+            skip()
+            if pos >= n or s[pos] != ')':
+                raise Error("expected )")
+            pos += 1
+            return val
+        start = pos
+        while pos < n and '0' <= s[pos] <= '9':
+            pos += 1
+        if start == pos:
+            raise Error("expected number")
+        return int(s[start:pos])
+
+    def trunc_div(a, b):
+        if b == 0:
+            raise Error("division by zero")
+        q = abs(a) // abs(b)
+        if (a < 0) != (b < 0):
+            q = -q
+        return q
+
+    def trunc_mod(a, b):
+        if b == 0:
+            raise Error("remainder by zero")
+        return a - b * trunc_div(a, b)
+
+    try:
+        val = parse_expression()
+        skip()
+        if pos != n:
+            return "error"
+        return val
+    except Error:
+        return "error"
+```
+
+Need consider trunc_mod calls trunc_div, double check b==0. Fine.
+
+Potential issue: trunc_div `abs(a)` when a is negative works. `a - b*q` exact. Fine.
+
+One subtle issue: recursion limit setting at module import. Function top-level. Fine.
+
+Potential issue: `parse_expression` unneeded but okay.
+
+Check examples mentally:
+- `1 + 2 * 3`: parse_additive -> parse_multiplicative -> parse_unary -> parse_power primary 1 no ^. loop sees '+', val=1+parse_multiplicative. parse_multiplicative: parse_unary -> power 2 no ^; loop sees '*', val=2*parse_unary (3)=6; not + => return 6; total 7.
+- `-2^2`: multiplicative->unary sees '-' consumes; parse_unary -> power base 2, sees ^ exp parse_unary (2) -> 4; outer -4; multiplicative no more; additive no more; -4.
+- `(-2)^2`: power base primary -> ( -> parse_additive -> multiplicative -> unary sees '-' consumes; parse_unary -> power 2; returns -2; skip expect ')' consume; returns -2. sees ^ exp 2 -> 4.
+- `2^3^2`: power base2, ^, exp parse_unary -> power base3 ^ exp parse_unary ->2; 3^2=9; 2^9=512.
+- `-7 / 2`: multiplicative parse_unary -7 => -7; sees /, b=2, trunc_div(-7,2)=-3.
+- `7 % -2`: multiplicative parse_unary 7; sees %, b=parse_unary (-2): unary sees '-' consumes -> parse_power 2 => -2; trunc_mod(7,-2): trunc_div(7,-2): q=3, signs differ => -3; 7 - (-2)*(-3)=7-6=1.
+- `10^20 / 3`: fine.
+- `5 / (3 - 3)`: power base5? Wait expression `5 / (3 - 3)`: multiplicative parse_unary -> power base5 no ^, sees '/', b=parse_unary -> power? parse_unary -> parse_power -> primary '(' parse_additive inside: 3 - 3 =0, expect ')' =>0. trunc_div(5,0) Error -> "error".
+- `2^-1`: power base2, ^, exp parse_unary sees '-' consumes; parse_unary -> parse_power 1 =>1; returns -1; exp<0 -> Error.
+
+Potential issue: `0^0`: parse_power exp 0, exp<0 false; base**exp = 0**0 = 1. Good. `0^1`: 0. `0^-1`: error.
+
+Potential issue: `2^-0`? Grammar exponent unary can be `-0`? parse_unary sees '-' consumes, returns -parse_unary -> parse_power 0 =>0, exp=-0 (0). Python -0 ==0, not <0. base**0=1. Semantics? `2^-0`: unary minus applied to 0 gives 0; power with exponent 0 =1. Fine. Is `-0` allowed? Non-negative literals, unary minus can make negative; zero. Probably okay.
+
+Potential issue: Division by negative zero none.
+
+Need ensure only ' ' spaces; syntax says any number of spaces between tokens, not other whitespace. Good. If input has newline? Not specified; ignore.
+
+Potential issue: int | str annotation in Python 3.9 not supported. But user requires; assume.
+
+Final only code block.
+=== CONTENT ===
+```python
+import sys
+
+sys.setrecursionlimit(20000)
+
+def calc(expr: str) -> int | str:
+    s = expr
+    n = len(s)
+    pos = 0
+
+    class Error(Exception):
+        pass
+
+    def skip():
+        nonlocal pos
+        while pos < n and s[pos] == ' ':
+            pos += 1
+
+    def trunc_div(a, b):
+        if b == 0:
+            raise Error("division by zero")
+        q = abs(a) // abs(b)
+        if (a < 0) != (b < 0):
+            q = -q
+        return q
+
+    def trunc_mod(a, b):
+        if b == 0:
+            raise Error("remainder by zero")
+        return a - b * trunc_div(a, b)
+
+    def parse_primary():
+        nonlocal pos
+        skip()
+        if pos < n and s[pos] == '(':
+            pos += 1
+            val = parse_additive()
+            skip()
+            if pos >= n or s[pos] != ')':
+                raise Error("expected )")
+            pos += 1
+            return val
+        start = pos
+        while pos < n and '0' <= s[pos] <= '9':
+            pos += 1
+        if start == pos:
+            raise Error("expected number")
+        return int(s[start:pos])
+
+    def parse_power():
+        nonlocal pos
+        skip()
+        base = parse_primary()
+        skip()
+        if pos < n and s[pos] == '^':
+            pos += 1
+            exp = parse_unary()
+            if exp < 0:
+                raise Error("negative exponent")
+            return base ** exp
+        return base
+
+    def parse_unary():
+        nonlocal pos
+        skip()
+        if pos < n and s[pos] == '-':
+            pos += 1
+            return -parse_unary()
+        return parse_power()
+
+    def parse_multiplicative():
+        nonlocal pos
+        skip()
+        val = parse_unary()
+        while True:
+            skip()
+            if pos < n and s[pos] == '*':
+                pos += 1
+                val = val * parse_unary()
+            elif pos < n and s[pos] == '/':
+                pos += 1
+                val = trunc_div(val, parse_unary())
+            elif pos < n and s[pos] == '%':
+                pos += 1
+                val = trunc_mod(val, parse_unary())
+            else:
+                return val
+
+    def parse_additive():
+        nonlocal pos
+        skip()
+        val = parse_multiplicative()
+        while True:
+            skip()
+            if pos < n and s[pos] == '+':
+                pos += 1
+                val = val + parse_multiplicative()
+            elif pos < n and s[pos] == '-':
+                pos += 1
+                val = val - parse_multiplicative()
+            else:
+                return val
+
+    try:
+        val = parse_additive()
+        skip()
+        if pos != n:
+            return "error"
+        return val
+    except Error:
+        return "error"
+```
