@@ -1664,7 +1664,7 @@ def explorer_data(ds):
     rates, and never count rescue slices or all-runs aggregates a second time).
     """
     for r in ds["rows"]: r.update(explorer_facets(r))
-    rows = [dict(r, key=r["id"] + "@" + r["set"]) for r in ds["rows"]]
+    rows = [dict(r, key=r["id"] + "@" + r["set"]) for r in ds["rows"] if r["config"] not in configs.INKLING_CONFIGS]  # Inkling: own page section, CPU latency not comparable
     for c, arm in ds["rescue"].items():
         if not arm.get("derived_from"): continue
         ref = arm["derived_from"]
@@ -1675,6 +1675,7 @@ def explorer_data(ds):
     pooled = defaultdict(list)
     repo = defaultdict(list)
     for src, name, st, r in _rows(include_grok_repo=True):
+        if name in configs.INKLING_CONFIGS: continue
         if st not in DERIVED: pooled[(src, name)].append(r)
         if src == "grok-repo": repo[name].append(r)
     for name, rr in repo.items():

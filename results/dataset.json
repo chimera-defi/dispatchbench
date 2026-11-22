@@ -51822,456 +51822,6 @@
     "key": "main/hetzner-qwen38@partial ladder"
    },
    {
-    "id": "main/inkling2mini-default",
-    "source": "main",
-    "config": "inkling2mini-default",
-    "display": "inkling2mini-default",
-    "family": "Inkling",
-    "category": "exploratory",
-    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, Inkling 2 Mini IQ4_NL GGUF, default effort, 12288-token cap: the frozen primary run on p01–p15",
-    "set": "partial ladder",
-    "derived": false,
-    "files": [
-     "results/2026-11-22-inkling-function.jsonl"
-    ],
-    "model": "Inkling-2-Mini-IQ4_NL.gguf",
-    "effort": "default",
-    "service_tier": null,
-    "passes": 7,
-    "n": 15,
-    "pass_rate": 0.4667,
-    "ci95": [
-     0.2,
-     0.7333
-    ],
-    "groups": 15,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 15,
-    "median_s_raw": 2881.2752949399874,
-    "median_s": 2881.28,
-    "p25_s": 664.32,
-    "p75_s": 2936.24,
-    "tokens_in_mean": 530,
-    "tokens_out_mean": 8496,
-    "tokens_cached_mean": 0,
-    "tokens_reasoning_mean": 0,
-    "input_floor": [
-     320,
-     0
-    ],
-    "p90_s": 3028.47,
-    "max_s": 5493.14,
-    "by_group": {
-     "p01_overlap_minutes": {
-      "passes": 1,
-      "n": 1
-     },
-     "p02_squash": {
-      "passes": 1,
-      "n": 1
-     },
-     "p03_ledger": {
-      "passes": 1,
-      "n": 1
-     },
-     "p04_taller_within": {
-      "passes": 1,
-      "n": 1
-     },
-     "p05_pass_route": {
-      "passes": 1,
-      "n": 1
-     },
-     "p06_calc": {
-      "passes": 0,
-      "n": 1
-     },
-     "p07_weighted_distance_sums": {
-      "passes": 1,
-      "n": 1
-     },
-     "p08_recur": {
-      "passes": 1,
-      "n": 1
-     },
-     "p09_k_machine_schedule": {
-      "passes": 0,
-      "n": 1
-     },
-     "p10_avoid_count": {
-      "passes": 0,
-      "n": 1
-     },
-     "p11_best_average": {
-      "passes": 0,
-      "n": 1
-     },
-     "p12_sheet": {
-      "passes": 0,
-      "n": 1
-     },
-     "p13_xor_ring": {
-      "passes": 0,
-      "n": 1
-     },
-     "p14_bounce_board": {
-      "passes": 0,
-      "n": 1
-     },
-     "p15_paint_erase": {
-      "passes": 0,
-      "n": 1
-     }
-    },
-    "misses": 8,
-    "ci95_plot": [
-     0.2,
-     0.7333
-    ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
-    "rule": "function tests (reference + brute force)",
-    "by_rung": {
-     "L1": [
-      2,
-      2
-     ],
-     "L2": [
-      2,
-      2
-     ],
-     "L3": [
-      1,
-      2
-     ],
-     "L4": [
-      2,
-      2
-     ],
-     "L5": [
-      0,
-      2
-     ],
-     "L6": [
-      0,
-      2
-     ],
-     "L7": [
-      0,
-      3
-     ]
-    },
-    "cost_kind": "free-tier",
-    "mode": "normal",
-    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
-    "model_short": "other",
-    "fast_twin": null,
-    "bare_of": null,
-    "prereg": false,
-    "provenance": "later exploration",
-    "quota_usd_per_pass": null,
-    "winner_pick": null,
-    "winner_pricing": null,
-    "panel": "other",
-    "gate": null,
-    "coverage_note": "15 problem/task groups; 15 attempts",
-    "complete_marker": null,
-    "key": "main/inkling2mini-default@partial ladder"
-   },
-   {
-    "id": "main/inkling2mini-medium16k",
-    "source": "main",
-    "config": "inkling2mini-medium16k",
-    "display": "inkling2mini-medium16k",
-    "family": "Inkling",
-    "category": "exploratory",
-    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, same model, medium effort, 16384-token cap: secondary retry of the tasks the primary run left capped",
-    "set": "partial ladder",
-    "derived": false,
-    "files": [
-     "results/2026-11-22-inkling-retry-function.jsonl"
-    ],
-    "model": "Inkling-2-Mini-IQ4_NL.gguf",
-    "effort": "medium",
-    "service_tier": null,
-    "passes": 5,
-    "n": 8,
-    "pass_rate": 0.625,
-    "ci95": [
-     0.25,
-     1.0
-    ],
-    "groups": 8,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 8,
-    "median_s_raw": 3327.5381200364936,
-    "median_s": 3327.54,
-    "p25_s": 2114.05,
-    "p75_s": 4319.8,
-    "tokens_in_mean": 560,
-    "tokens_out_mean": 11804,
-    "tokens_cached_mean": 0,
-    "tokens_reasoning_mean": 0,
-    "input_floor": [
-     323,
-     0
-    ],
-    "p90_s": 4609.14,
-    "max_s": 4862.85,
-    "by_group": {
-     "p06_calc": {
-      "passes": 1,
-      "n": 1
-     },
-     "p09_k_machine_schedule": {
-      "passes": 1,
-      "n": 1
-     },
-     "p10_avoid_count": {
-      "passes": 1,
-      "n": 1
-     },
-     "p11_best_average": {
-      "passes": 0,
-      "n": 1
-     },
-     "p12_sheet": {
-      "passes": 0,
-      "n": 1
-     },
-     "p13_xor_ring": {
-      "passes": 1,
-      "n": 1
-     },
-     "p14_bounce_board": {
-      "passes": 1,
-      "n": 1
-     },
-     "p15_paint_erase": {
-      "passes": 0,
-      "n": 1
-     }
-    },
-    "misses": 3,
-    "ci95_plot": [
-     0.25,
-     1.0
-    ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
-    "rule": "function tests (reference + brute force)",
-    "by_rung": {
-     "L3": [
-      1,
-      1
-     ],
-     "L5": [
-      2,
-      2
-     ],
-     "L6": [
-      0,
-      2
-     ],
-     "L7": [
-      2,
-      3
-     ]
-    },
-    "cost_kind": "free-tier",
-    "mode": "normal",
-    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
-    "model_short": "other",
-    "fast_twin": null,
-    "bare_of": null,
-    "prereg": false,
-    "provenance": "later exploration",
-    "quota_usd_per_pass": null,
-    "winner_pick": null,
-    "winner_pricing": null,
-    "panel": "other",
-    "gate": null,
-    "coverage_note": "8 problem/task groups; 8 attempts",
-    "complete_marker": null,
-    "key": "main/inkling2mini-medium16k@partial ladder"
-   },
-   {
-    "id": "main/inkling2mini-low16k",
-    "source": "main",
-    "config": "inkling2mini-low16k",
-    "display": "inkling2mini-low16k",
-    "family": "Inkling",
-    "category": "exploratory",
-    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, same model, low effort, 16384-token cap: secondary retry of the tasks still capped",
-    "set": "partial ladder",
-    "derived": false,
-    "files": [
-     "results/2026-11-22-inkling-retry-function.jsonl"
-    ],
-    "model": "Inkling-2-Mini-IQ4_NL.gguf",
-    "effort": "low",
-    "service_tier": null,
-    "passes": 0,
-    "n": 2,
-    "pass_rate": 0.0,
-    "ci95": null,
-    "groups": 2,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 2,
-    "median_s_raw": 3391.524509647483,
-    "median_s": 3391.52,
-    "p25_s": 1281.98,
-    "p75_s": 5501.07,
-    "tokens_in_mean": 795,
-    "tokens_out_mean": 11398,
-    "tokens_cached_mean": 0,
-    "tokens_reasoning_mean": 0,
-    "input_floor": [
-     328,
-     0
-    ],
-    "p90_s": 4516.61,
-    "max_s": 4797.89,
-    "by_group": {
-     "p11_best_average": {
-      "passes": 0,
-      "n": 1
-     },
-     "p12_sheet": {
-      "passes": 0,
-      "n": 1
-     }
-    },
-    "misses": 2,
-    "ci95_plot": [
-     0.0,
-     0.0
-    ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
-    "rule": "function tests (reference + brute force)",
-    "by_rung": {
-     "L6": [
-      0,
-      2
-     ]
-    },
-    "cost_kind": "free-tier",
-    "mode": "normal",
-    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
-    "model_short": "other",
-    "fast_twin": null,
-    "bare_of": null,
-    "prereg": false,
-    "provenance": "later exploration",
-    "quota_usd_per_pass": null,
-    "winner_pick": null,
-    "winner_pricing": null,
-    "panel": "other",
-    "gate": null,
-    "coverage_note": "2 problem/task groups; 2 attempts",
-    "complete_marker": null,
-    "key": "main/inkling2mini-low16k@partial ladder"
-   },
-   {
-    "id": "main/inkling2mini-default24k",
-    "source": "main",
-    "config": "inkling2mini-default24k",
-    "display": "inkling2mini-default24k",
-    "family": "Inkling",
-    "category": "exploratory",
-    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, same model, default effort, 24576-token cap: secondary retry of the tasks still capped",
-    "set": "partial ladder",
-    "derived": false,
-    "files": [
-     "results/2026-11-22-inkling-retry-function.jsonl"
-    ],
-    "model": "Inkling-2-Mini-IQ4_NL.gguf",
-    "effort": "default",
-    "service_tier": null,
-    "passes": 1,
-    "n": 1,
-    "pass_rate": 1.0,
-    "ci95": null,
-    "groups": 1,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 1,
-    "median_s_raw": 6864.252247570985,
-    "median_s": 6864.25,
-    "p25_s": 6864.25,
-    "p75_s": 6864.25,
-    "tokens_in_mean": 328,
-    "tokens_out_mean": 21220,
-    "tokens_cached_mean": 0,
-    "tokens_reasoning_mean": 0,
-    "input_floor": [
-     328,
-     0
-    ],
-    "p90_s": 6864.25,
-    "max_s": 6864.25,
-    "by_group": {
-     "p11_best_average": {
-      "passes": 1,
-      "n": 1
-     }
-    },
-    "misses": 0,
-    "ci95_plot": [
-     0.05,
-     1.0
-    ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
-    "rule": "function tests (reference + brute force)",
-    "by_rung": {
-     "L6": [
-      1,
-      1
-     ]
-    },
-    "cost_kind": "free-tier",
-    "mode": "normal",
-    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
-    "model_short": "other",
-    "fast_twin": null,
-    "bare_of": null,
-    "prereg": false,
-    "provenance": "later exploration",
-    "quota_usd_per_pass": null,
-    "winner_pick": null,
-    "winner_pricing": null,
-    "panel": "other",
-    "gate": null,
-    "coverage_note": "1 problem/task groups; 1 attempts",
-    "complete_marker": null,
-    "key": "main/inkling2mini-default24k@partial ladder"
-   },
-   {
     "id": "main/haiku-high",
     "source": "main",
     "config": "haiku-high",
@@ -65760,456 +65310,6 @@
     "key": "main/hetzner-qwen38@all runs"
    },
    {
-    "id": "main/inkling2mini-default",
-    "source": "main",
-    "config": "inkling2mini-default",
-    "display": "inkling2mini-default",
-    "family": "Inkling",
-    "category": "exploratory",
-    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, Inkling 2 Mini IQ4_NL GGUF, default effort, 12288-token cap: the frozen primary run on p01–p15",
-    "set": "all runs",
-    "derived": false,
-    "files": [
-     "results/2026-11-22-inkling-function.jsonl"
-    ],
-    "model": "Inkling-2-Mini-IQ4_NL.gguf",
-    "effort": "default",
-    "service_tier": null,
-    "passes": 7,
-    "n": 15,
-    "pass_rate": 0.4667,
-    "ci95": [
-     0.2,
-     0.7333
-    ],
-    "groups": 15,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 15,
-    "median_s_raw": 2881.2752949399874,
-    "median_s": 2881.28,
-    "p25_s": 664.32,
-    "p75_s": 2936.24,
-    "tokens_in_mean": 530,
-    "tokens_out_mean": 8496,
-    "tokens_cached_mean": 0,
-    "tokens_reasoning_mean": 0,
-    "input_floor": [
-     320,
-     0
-    ],
-    "p90_s": 3028.47,
-    "max_s": 5493.14,
-    "by_group": {
-     "p01_overlap_minutes": {
-      "passes": 1,
-      "n": 1
-     },
-     "p02_squash": {
-      "passes": 1,
-      "n": 1
-     },
-     "p03_ledger": {
-      "passes": 1,
-      "n": 1
-     },
-     "p04_taller_within": {
-      "passes": 1,
-      "n": 1
-     },
-     "p05_pass_route": {
-      "passes": 1,
-      "n": 1
-     },
-     "p06_calc": {
-      "passes": 0,
-      "n": 1
-     },
-     "p07_weighted_distance_sums": {
-      "passes": 1,
-      "n": 1
-     },
-     "p08_recur": {
-      "passes": 1,
-      "n": 1
-     },
-     "p09_k_machine_schedule": {
-      "passes": 0,
-      "n": 1
-     },
-     "p10_avoid_count": {
-      "passes": 0,
-      "n": 1
-     },
-     "p11_best_average": {
-      "passes": 0,
-      "n": 1
-     },
-     "p12_sheet": {
-      "passes": 0,
-      "n": 1
-     },
-     "p13_xor_ring": {
-      "passes": 0,
-      "n": 1
-     },
-     "p14_bounce_board": {
-      "passes": 0,
-      "n": 1
-     },
-     "p15_paint_erase": {
-      "passes": 0,
-      "n": 1
-     }
-    },
-    "misses": 8,
-    "ci95_plot": [
-     0.2,
-     0.7333
-    ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
-    "rule": "function tests (reference + brute force)",
-    "by_rung": {
-     "L1": [
-      2,
-      2
-     ],
-     "L2": [
-      2,
-      2
-     ],
-     "L3": [
-      1,
-      2
-     ],
-     "L4": [
-      2,
-      2
-     ],
-     "L5": [
-      0,
-      2
-     ],
-     "L6": [
-      0,
-      2
-     ],
-     "L7": [
-      0,
-      3
-     ]
-    },
-    "cost_kind": "free-tier",
-    "mode": "normal",
-    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
-    "model_short": "other",
-    "fast_twin": null,
-    "bare_of": null,
-    "prereg": false,
-    "provenance": "later exploration",
-    "quota_usd_per_pass": null,
-    "winner_pick": null,
-    "winner_pricing": null,
-    "panel": "other",
-    "gate": null,
-    "coverage_note": "15 problem/task groups; 15 attempts",
-    "complete_marker": null,
-    "key": "main/inkling2mini-default@all runs"
-   },
-   {
-    "id": "main/inkling2mini-medium16k",
-    "source": "main",
-    "config": "inkling2mini-medium16k",
-    "display": "inkling2mini-medium16k",
-    "family": "Inkling",
-    "category": "exploratory",
-    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, same model, medium effort, 16384-token cap: secondary retry of the tasks the primary run left capped",
-    "set": "all runs",
-    "derived": false,
-    "files": [
-     "results/2026-11-22-inkling-retry-function.jsonl"
-    ],
-    "model": "Inkling-2-Mini-IQ4_NL.gguf",
-    "effort": "medium",
-    "service_tier": null,
-    "passes": 5,
-    "n": 8,
-    "pass_rate": 0.625,
-    "ci95": [
-     0.25,
-     1.0
-    ],
-    "groups": 8,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 8,
-    "median_s_raw": 3327.5381200364936,
-    "median_s": 3327.54,
-    "p25_s": 2114.05,
-    "p75_s": 4319.8,
-    "tokens_in_mean": 560,
-    "tokens_out_mean": 11804,
-    "tokens_cached_mean": 0,
-    "tokens_reasoning_mean": 0,
-    "input_floor": [
-     323,
-     0
-    ],
-    "p90_s": 4609.14,
-    "max_s": 4862.85,
-    "by_group": {
-     "p06_calc": {
-      "passes": 1,
-      "n": 1
-     },
-     "p09_k_machine_schedule": {
-      "passes": 1,
-      "n": 1
-     },
-     "p10_avoid_count": {
-      "passes": 1,
-      "n": 1
-     },
-     "p11_best_average": {
-      "passes": 0,
-      "n": 1
-     },
-     "p12_sheet": {
-      "passes": 0,
-      "n": 1
-     },
-     "p13_xor_ring": {
-      "passes": 1,
-      "n": 1
-     },
-     "p14_bounce_board": {
-      "passes": 1,
-      "n": 1
-     },
-     "p15_paint_erase": {
-      "passes": 0,
-      "n": 1
-     }
-    },
-    "misses": 3,
-    "ci95_plot": [
-     0.25,
-     1.0
-    ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
-    "rule": "function tests (reference + brute force)",
-    "by_rung": {
-     "L3": [
-      1,
-      1
-     ],
-     "L5": [
-      2,
-      2
-     ],
-     "L6": [
-      0,
-      2
-     ],
-     "L7": [
-      2,
-      3
-     ]
-    },
-    "cost_kind": "free-tier",
-    "mode": "normal",
-    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
-    "model_short": "other",
-    "fast_twin": null,
-    "bare_of": null,
-    "prereg": false,
-    "provenance": "later exploration",
-    "quota_usd_per_pass": null,
-    "winner_pick": null,
-    "winner_pricing": null,
-    "panel": "other",
-    "gate": null,
-    "coverage_note": "8 problem/task groups; 8 attempts",
-    "complete_marker": null,
-    "key": "main/inkling2mini-medium16k@all runs"
-   },
-   {
-    "id": "main/inkling2mini-low16k",
-    "source": "main",
-    "config": "inkling2mini-low16k",
-    "display": "inkling2mini-low16k",
-    "family": "Inkling",
-    "category": "exploratory",
-    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, same model, low effort, 16384-token cap: secondary retry of the tasks still capped",
-    "set": "all runs",
-    "derived": false,
-    "files": [
-     "results/2026-11-22-inkling-retry-function.jsonl"
-    ],
-    "model": "Inkling-2-Mini-IQ4_NL.gguf",
-    "effort": "low",
-    "service_tier": null,
-    "passes": 0,
-    "n": 2,
-    "pass_rate": 0.0,
-    "ci95": null,
-    "groups": 2,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 2,
-    "median_s_raw": 3391.524509647483,
-    "median_s": 3391.52,
-    "p25_s": 1281.98,
-    "p75_s": 5501.07,
-    "tokens_in_mean": 795,
-    "tokens_out_mean": 11398,
-    "tokens_cached_mean": 0,
-    "tokens_reasoning_mean": 0,
-    "input_floor": [
-     328,
-     0
-    ],
-    "p90_s": 4516.61,
-    "max_s": 4797.89,
-    "by_group": {
-     "p11_best_average": {
-      "passes": 0,
-      "n": 1
-     },
-     "p12_sheet": {
-      "passes": 0,
-      "n": 1
-     }
-    },
-    "misses": 2,
-    "ci95_plot": [
-     0.0,
-     0.0
-    ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
-    "rule": "function tests (reference + brute force)",
-    "by_rung": {
-     "L6": [
-      0,
-      2
-     ]
-    },
-    "cost_kind": "free-tier",
-    "mode": "normal",
-    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
-    "model_short": "other",
-    "fast_twin": null,
-    "bare_of": null,
-    "prereg": false,
-    "provenance": "later exploration",
-    "quota_usd_per_pass": null,
-    "winner_pick": null,
-    "winner_pricing": null,
-    "panel": "other",
-    "gate": null,
-    "coverage_note": "2 problem/task groups; 2 attempts",
-    "complete_marker": null,
-    "key": "main/inkling2mini-low16k@all runs"
-   },
-   {
-    "id": "main/inkling2mini-default24k",
-    "source": "main",
-    "config": "inkling2mini-default24k",
-    "display": "inkling2mini-default24k",
-    "family": "Inkling",
-    "category": "exploratory",
-    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, same model, default effort, 24576-token cap: secondary retry of the tasks still capped",
-    "set": "all runs",
-    "derived": false,
-    "files": [
-     "results/2026-11-22-inkling-retry-function.jsonl"
-    ],
-    "model": "Inkling-2-Mini-IQ4_NL.gguf",
-    "effort": "default",
-    "service_tier": null,
-    "passes": 1,
-    "n": 1,
-    "pass_rate": 1.0,
-    "ci95": null,
-    "groups": 1,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 1,
-    "median_s_raw": 6864.252247570985,
-    "median_s": 6864.25,
-    "p25_s": 6864.25,
-    "p75_s": 6864.25,
-    "tokens_in_mean": 328,
-    "tokens_out_mean": 21220,
-    "tokens_cached_mean": 0,
-    "tokens_reasoning_mean": 0,
-    "input_floor": [
-     328,
-     0
-    ],
-    "p90_s": 6864.25,
-    "max_s": 6864.25,
-    "by_group": {
-     "p11_best_average": {
-      "passes": 1,
-      "n": 1
-     }
-    },
-    "misses": 0,
-    "ci95_plot": [
-     0.05,
-     1.0
-    ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
-    "rule": "function tests (reference + brute force)",
-    "by_rung": {
-     "L6": [
-      1,
-      1
-     ]
-    },
-    "cost_kind": "free-tier",
-    "mode": "normal",
-    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
-    "model_short": "other",
-    "fast_twin": null,
-    "bare_of": null,
-    "prereg": false,
-    "provenance": "later exploration",
-    "quota_usd_per_pass": null,
-    "winner_pick": null,
-    "winner_pricing": null,
-    "panel": "other",
-    "gate": null,
-    "coverage_note": "1 problem/task groups; 1 attempts",
-    "complete_marker": null,
-    "key": "main/inkling2mini-default24k@all runs"
-   },
-   {
     "id": "main/sol61-high-fast",
     "source": "main",
     "config": "sol61-high-fast",
@@ -72079,456 +71179,6 @@
     "key": "main/terra61-low-fast@everything pooled"
    },
    {
-    "id": "main/inkling2mini-default",
-    "source": "main",
-    "config": "inkling2mini-default",
-    "display": "inkling2mini-default",
-    "family": "Inkling",
-    "category": "exploratory",
-    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, Inkling 2 Mini IQ4_NL GGUF, default effort, 12288-token cap: the frozen primary run on p01–p15",
-    "set": "everything pooled",
-    "derived": true,
-    "files": [
-     "results/2026-11-22-inkling-function.jsonl"
-    ],
-    "model": "Inkling-2-Mini-IQ4_NL.gguf",
-    "effort": "default",
-    "service_tier": null,
-    "passes": 7,
-    "n": 15,
-    "pass_rate": 0.4667,
-    "ci95": [
-     0.2,
-     0.7333
-    ],
-    "groups": 15,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 15,
-    "median_s_raw": 2881.2752949399874,
-    "median_s": 2881.28,
-    "p25_s": 664.32,
-    "p75_s": 2936.24,
-    "tokens_in_mean": 530,
-    "tokens_out_mean": 8496,
-    "tokens_cached_mean": 0,
-    "tokens_reasoning_mean": 0,
-    "input_floor": [
-     320,
-     0
-    ],
-    "p90_s": 3028.47,
-    "max_s": 5493.14,
-    "by_group": {
-     "p01_overlap_minutes": {
-      "passes": 1,
-      "n": 1
-     },
-     "p02_squash": {
-      "passes": 1,
-      "n": 1
-     },
-     "p03_ledger": {
-      "passes": 1,
-      "n": 1
-     },
-     "p04_taller_within": {
-      "passes": 1,
-      "n": 1
-     },
-     "p05_pass_route": {
-      "passes": 1,
-      "n": 1
-     },
-     "p06_calc": {
-      "passes": 0,
-      "n": 1
-     },
-     "p07_weighted_distance_sums": {
-      "passes": 1,
-      "n": 1
-     },
-     "p08_recur": {
-      "passes": 1,
-      "n": 1
-     },
-     "p09_k_machine_schedule": {
-      "passes": 0,
-      "n": 1
-     },
-     "p10_avoid_count": {
-      "passes": 0,
-      "n": 1
-     },
-     "p11_best_average": {
-      "passes": 0,
-      "n": 1
-     },
-     "p12_sheet": {
-      "passes": 0,
-      "n": 1
-     },
-     "p13_xor_ring": {
-      "passes": 0,
-      "n": 1
-     },
-     "p14_bounce_board": {
-      "passes": 0,
-      "n": 1
-     },
-     "p15_paint_erase": {
-      "passes": 0,
-      "n": 1
-     }
-    },
-    "misses": 8,
-    "ci95_plot": [
-     0.2,
-     0.7333
-    ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
-    "rule": "function tests (reference + brute force)",
-    "by_rung": {
-     "L1": [
-      2,
-      2
-     ],
-     "L2": [
-      2,
-      2
-     ],
-     "L3": [
-      1,
-      2
-     ],
-     "L4": [
-      2,
-      2
-     ],
-     "L5": [
-      0,
-      2
-     ],
-     "L6": [
-      0,
-      2
-     ],
-     "L7": [
-      0,
-      3
-     ]
-    },
-    "cost_kind": "free-tier",
-    "mode": "normal",
-    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
-    "model_short": "other",
-    "fast_twin": null,
-    "bare_of": null,
-    "prereg": false,
-    "provenance": "later exploration",
-    "quota_usd_per_pass": null,
-    "winner_pick": null,
-    "winner_pricing": null,
-    "panel": "other",
-    "gate": null,
-    "coverage_note": "15 problem/task groups; 15 attempts",
-    "complete_marker": null,
-    "key": "main/inkling2mini-default@everything pooled"
-   },
-   {
-    "id": "main/inkling2mini-medium16k",
-    "source": "main",
-    "config": "inkling2mini-medium16k",
-    "display": "inkling2mini-medium16k",
-    "family": "Inkling",
-    "category": "exploratory",
-    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, same model, medium effort, 16384-token cap: secondary retry of the tasks the primary run left capped",
-    "set": "everything pooled",
-    "derived": true,
-    "files": [
-     "results/2026-11-22-inkling-retry-function.jsonl"
-    ],
-    "model": "Inkling-2-Mini-IQ4_NL.gguf",
-    "effort": "medium",
-    "service_tier": null,
-    "passes": 5,
-    "n": 8,
-    "pass_rate": 0.625,
-    "ci95": [
-     0.25,
-     1.0
-    ],
-    "groups": 8,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 8,
-    "median_s_raw": 3327.5381200364936,
-    "median_s": 3327.54,
-    "p25_s": 2114.05,
-    "p75_s": 4319.8,
-    "tokens_in_mean": 560,
-    "tokens_out_mean": 11804,
-    "tokens_cached_mean": 0,
-    "tokens_reasoning_mean": 0,
-    "input_floor": [
-     323,
-     0
-    ],
-    "p90_s": 4609.14,
-    "max_s": 4862.85,
-    "by_group": {
-     "p06_calc": {
-      "passes": 1,
-      "n": 1
-     },
-     "p09_k_machine_schedule": {
-      "passes": 1,
-      "n": 1
-     },
-     "p10_avoid_count": {
-      "passes": 1,
-      "n": 1
-     },
-     "p11_best_average": {
-      "passes": 0,
-      "n": 1
-     },
-     "p12_sheet": {
-      "passes": 0,
-      "n": 1
-     },
-     "p13_xor_ring": {
-      "passes": 1,
-      "n": 1
-     },
-     "p14_bounce_board": {
-      "passes": 1,
-      "n": 1
-     },
-     "p15_paint_erase": {
-      "passes": 0,
-      "n": 1
-     }
-    },
-    "misses": 3,
-    "ci95_plot": [
-     0.25,
-     1.0
-    ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
-    "rule": "function tests (reference + brute force)",
-    "by_rung": {
-     "L3": [
-      1,
-      1
-     ],
-     "L5": [
-      2,
-      2
-     ],
-     "L6": [
-      0,
-      2
-     ],
-     "L7": [
-      2,
-      3
-     ]
-    },
-    "cost_kind": "free-tier",
-    "mode": "normal",
-    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
-    "model_short": "other",
-    "fast_twin": null,
-    "bare_of": null,
-    "prereg": false,
-    "provenance": "later exploration",
-    "quota_usd_per_pass": null,
-    "winner_pick": null,
-    "winner_pricing": null,
-    "panel": "other",
-    "gate": null,
-    "coverage_note": "8 problem/task groups; 8 attempts",
-    "complete_marker": null,
-    "key": "main/inkling2mini-medium16k@everything pooled"
-   },
-   {
-    "id": "main/inkling2mini-low16k",
-    "source": "main",
-    "config": "inkling2mini-low16k",
-    "display": "inkling2mini-low16k",
-    "family": "Inkling",
-    "category": "exploratory",
-    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, same model, low effort, 16384-token cap: secondary retry of the tasks still capped",
-    "set": "everything pooled",
-    "derived": true,
-    "files": [
-     "results/2026-11-22-inkling-retry-function.jsonl"
-    ],
-    "model": "Inkling-2-Mini-IQ4_NL.gguf",
-    "effort": "low",
-    "service_tier": null,
-    "passes": 0,
-    "n": 2,
-    "pass_rate": 0.0,
-    "ci95": null,
-    "groups": 2,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 2,
-    "median_s_raw": 3391.524509647483,
-    "median_s": 3391.52,
-    "p25_s": 1281.98,
-    "p75_s": 5501.07,
-    "tokens_in_mean": 795,
-    "tokens_out_mean": 11398,
-    "tokens_cached_mean": 0,
-    "tokens_reasoning_mean": 0,
-    "input_floor": [
-     328,
-     0
-    ],
-    "p90_s": 4516.61,
-    "max_s": 4797.89,
-    "by_group": {
-     "p11_best_average": {
-      "passes": 0,
-      "n": 1
-     },
-     "p12_sheet": {
-      "passes": 0,
-      "n": 1
-     }
-    },
-    "misses": 2,
-    "ci95_plot": [
-     0.0,
-     0.0
-    ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
-    "rule": "function tests (reference + brute force)",
-    "by_rung": {
-     "L6": [
-      0,
-      2
-     ]
-    },
-    "cost_kind": "free-tier",
-    "mode": "normal",
-    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
-    "model_short": "other",
-    "fast_twin": null,
-    "bare_of": null,
-    "prereg": false,
-    "provenance": "later exploration",
-    "quota_usd_per_pass": null,
-    "winner_pick": null,
-    "winner_pricing": null,
-    "panel": "other",
-    "gate": null,
-    "coverage_note": "2 problem/task groups; 2 attempts",
-    "complete_marker": null,
-    "key": "main/inkling2mini-low16k@everything pooled"
-   },
-   {
-    "id": "main/inkling2mini-default24k",
-    "source": "main",
-    "config": "inkling2mini-default24k",
-    "display": "inkling2mini-default24k",
-    "family": "Inkling",
-    "category": "exploratory",
-    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, same model, default effort, 24576-token cap: secondary retry of the tasks still capped",
-    "set": "everything pooled",
-    "derived": true,
-    "files": [
-     "results/2026-11-22-inkling-retry-function.jsonl"
-    ],
-    "model": "Inkling-2-Mini-IQ4_NL.gguf",
-    "effort": "default",
-    "service_tier": null,
-    "passes": 1,
-    "n": 1,
-    "pass_rate": 1.0,
-    "ci95": null,
-    "groups": 1,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 1,
-    "median_s_raw": 6864.252247570985,
-    "median_s": 6864.25,
-    "p25_s": 6864.25,
-    "p75_s": 6864.25,
-    "tokens_in_mean": 328,
-    "tokens_out_mean": 21220,
-    "tokens_cached_mean": 0,
-    "tokens_reasoning_mean": 0,
-    "input_floor": [
-     328,
-     0
-    ],
-    "p90_s": 6864.25,
-    "max_s": 6864.25,
-    "by_group": {
-     "p11_best_average": {
-      "passes": 1,
-      "n": 1
-     }
-    },
-    "misses": 0,
-    "ci95_plot": [
-     0.05,
-     1.0
-    ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
-    "rule": "function tests (reference + brute force)",
-    "by_rung": {
-     "L6": [
-      1,
-      1
-     ]
-    },
-    "cost_kind": "free-tier",
-    "mode": "normal",
-    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
-    "model_short": "other",
-    "fast_twin": null,
-    "bare_of": null,
-    "prereg": false,
-    "provenance": "later exploration",
-    "quota_usd_per_pass": null,
-    "winner_pick": null,
-    "winner_pricing": null,
-    "panel": "other",
-    "gate": null,
-    "coverage_note": "1 problem/task groups; 1 attempts",
-    "complete_marker": null,
-    "key": "main/inkling2mini-default24k@everything pooled"
-   },
-   {
     "id": "agentic/haiku-high",
     "source": "agentic",
     "config": "haiku-high",
@@ -78236,10 +76886,6 @@
      "main/devin16slow-default@partial ladder",
      "main/hetzner-qwen36@partial ladder",
      "main/hetzner-qwen38@partial ladder",
-     "main/inkling2mini-default@partial ladder",
-     "main/inkling2mini-medium16k@partial ladder",
-     "main/inkling2mini-low16k@partial ladder",
-     "main/inkling2mini-default24k@partial ladder",
      "main/sol61-high-fast@main ladder",
      "main/astra-medium-fast@main ladder",
      "main/terra61-low-fast@main ladder",
@@ -78258,12 +76904,12 @@
        ],
        "zero_lane": false,
        "pass_rate": [
-        0,
+        0.22,
         1.03
        ],
        "median_s": [
         0,
-        7687.960000000001
+        919.0496000000002
        ]
       },
       "front": {
@@ -78528,26 +77174,6 @@
          "beaten_by": []
         },
         "main/hetzner-qwen38@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
          "eligible": false,
          "on_frontier": false,
          "beaten_by": []
@@ -78975,55 +77601,6 @@
           "median_s": [
            0,
            13.630400000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.000798,
-           0.7333,
-           6.81
-          ],
-          [
-           0.00089,
-           0.7833,
-           8.24
-          ],
-          [
-           0.001049,
-           0.9167,
-           12.17
-          ],
-          [
-           0.001122,
-           0.95,
-           9.96
-          ],
-          [
-           0.00149,
-           0.9833,
-           13.04
-          ],
-          [
-           0.002822,
-           1.0,
-           14.74
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -79522,26 +78099,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -79854,40 +78411,6 @@
           "median_s": [
            0,
            13.630400000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.001049,
-           0.9167,
-           12.17
-          ],
-          [
-           0.001122,
-           0.95,
-           9.96
-          ],
-          [
-           0.010646,
-           1.0,
-           5.97
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -80394,126 +78917,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@main ladder",
-          "main/haiku-medium@main ladder",
-          "main/sonnet-medium@main ladder",
-          "main/luna-low@main ladder",
-          "main/luna-medium@main ladder",
-          "main/sol61-medium@main ladder",
-          "main/haiku-high@main ladder",
-          "main/luna-high@main ladder",
-          "main/luna56-low@main ladder",
-          "main/luna56-high@main ladder",
-          "main/sol56-high@main ladder",
-          "main/sol61-high@main ladder",
-          "main/astra-medium@main ladder",
-          "main/terra61-low@main ladder",
-          "main/terra61-high@main ladder",
-          "main/terra56-low@partial ladder",
-          "main/terra56-high@partial ladder",
-          "main/grok47-low@partial ladder",
-          "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
-          "main/grok47fast-low@partial ladder",
-          "main/devin16slow-default@partial ladder",
-          "main/sol61-high-fast@main ladder",
-          "main/astra-medium-fast@main ladder",
-          "main/terra61-low-fast@main ladder",
-          "main/terra61-high-fast@main ladder",
-          "main/sol61-xhigh@partial ladder",
-          "main/luna-low-bare@main ladder"
-         ]
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@main ladder",
-          "main/haiku-medium@main ladder",
-          "main/sonnet-medium@main ladder",
-          "main/luna-low@main ladder",
-          "main/luna-medium@main ladder",
-          "main/sol61-medium@main ladder",
-          "main/haiku-high@main ladder",
-          "main/luna-high@main ladder",
-          "main/luna56-low@main ladder",
-          "main/luna56-high@main ladder",
-          "main/sol56-high@main ladder",
-          "main/sol61-high@main ladder",
-          "main/astra-medium@main ladder",
-          "main/terra61-low@main ladder",
-          "main/terra61-high@main ladder",
-          "main/terra56-low@partial ladder",
-          "main/terra56-high@partial ladder",
-          "main/grok47-low@partial ladder",
-          "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
-          "main/grok47fast-low@partial ladder",
-          "main/sol61-high-fast@main ladder",
-          "main/astra-medium-fast@main ladder",
-          "main/terra61-low-fast@main ladder",
-          "main/terra61-high-fast@main ladder",
-          "main/sol61-xhigh@partial ladder",
-          "main/luna-low-bare@main ladder"
-         ]
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@main ladder",
-          "main/haiku-medium@main ladder",
-          "main/sonnet-medium@main ladder",
-          "main/luna-low@main ladder",
-          "main/luna-medium@main ladder",
-          "main/sol61-medium@main ladder",
-          "main/haiku-high@main ladder",
-          "main/luna-high@main ladder",
-          "main/luna56-low@main ladder",
-          "main/luna56-high@main ladder",
-          "main/sol56-high@main ladder",
-          "main/sol61-high@main ladder",
-          "main/astra-medium@main ladder",
-          "main/terra61-low@main ladder",
-          "main/terra61-high@main ladder",
-          "main/terra56-low@partial ladder",
-          "main/terra56-high@partial ladder",
-          "main/grok47-low@partial ladder",
-          "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
-          "main/grok47fast-low@partial ladder",
-          "main/devin16slow-default@partial ladder",
-          "main/inkling2mini-default@partial ladder",
-          "main/inkling2mini-medium16k@partial ladder",
-          "main/sol61-high-fast@main ladder",
-          "main/astra-medium-fast@main ladder",
-          "main/terra61-low-fast@main ladder",
-          "main/terra61-high-fast@main ladder",
-          "main/sol61-xhigh@partial ladder",
-          "main/luna-low-bare@main ladder"
-         ]
-        },
-        "main/inkling2mini-default24k@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/sonnet-medium@main ladder",
-          "main/haiku-high@main ladder",
-          "main/sol56-high@main ladder",
-          "main/sol61-high@main ladder",
-          "main/astra-medium@main ladder",
-          "main/terra61-low@main ladder",
-          "main/terra56-high@partial ladder",
-          "main/sol61-high-fast@main ladder",
-          "main/astra-medium-fast@main ladder",
-          "main/terra61-low-fast@main ladder",
-          "main/sol61-xhigh@partial ladder"
-         ]
-        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -80750,30 +79153,6 @@
           "median_s": [
            0,
            13.630400000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 4,
-         "staircase": [
-          [
-           0.010646,
-           1.0,
-           5.97
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -81147,26 +79526,6 @@
          "beaten_by": []
         },
         "main/hetzner-qwen38@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
          "eligible": false,
          "on_frontier": false,
          "beaten_by": []
@@ -81749,80 +80108,6 @@
           "median_s": [
            0,
            13.630400000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.000798,
-           0.7333,
-           6.81
-          ],
-          [
-           0.00089,
-           0.7833,
-           8.24
-          ],
-          [
-           0.000899,
-           0.7667,
-           7.22
-          ],
-          [
-           0.001049,
-           0.9167,
-           12.17
-          ],
-          [
-           0.001122,
-           0.95,
-           9.96
-          ],
-          [
-           0.00149,
-           0.9833,
-           13.04
-          ],
-          [
-           0.00218,
-           0.8,
-           9.16
-          ],
-          [
-           0.002822,
-           1.0,
-           14.74
-          ],
-          [
-           0.007918,
-           0.9667,
-           11.93
-          ],
-          [
-           0.010405,
-           1.0,
-           10.34
-          ],
-          [
-           0.010646,
-           1.0,
-           5.97
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -82450,26 +80735,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -83051,80 +81316,6 @@
           ]
          }
         },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.000798,
-           0.7333,
-           6.81
-          ],
-          [
-           0.00089,
-           0.7833,
-           8.24
-          ],
-          [
-           0.000899,
-           0.7667,
-           7.22
-          ],
-          [
-           0.001049,
-           0.9167,
-           12.17
-          ],
-          [
-           0.001122,
-           0.95,
-           9.96
-          ],
-          [
-           0.00149,
-           0.9833,
-           13.04
-          ],
-          [
-           0.00218,
-           0.8,
-           9.16
-          ],
-          [
-           0.002822,
-           1.0,
-           14.74
-          ],
-          [
-           0.007918,
-           0.9667,
-           11.93
-          ],
-          [
-           0.010405,
-           1.0,
-           10.34
-          ],
-          [
-           0.010646,
-           1.0,
-           5.97
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
-          ]
-         }
-        },
         "sol · 5.6": {
          "on_frontier": 0,
          "total": 1,
@@ -83521,12 +81712,12 @@
        ],
        "zero_lane": true,
        "pass_rate": [
-        0,
+        0.22,
         1.03
        ],
        "median_s": [
         0,
-        7687.960000000001
+        919.0496000000002
        ]
       },
       "front": {
@@ -83880,26 +82071,6 @@
          "beaten_by": []
         },
         "main/hetzner-qwen38@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
          "eligible": false,
          "on_frontier": false,
          "beaten_by": []
@@ -84416,70 +82587,6 @@
           "median_s": [
            0,
            13.630400000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           1.0,
-           14.47
-          ],
-          [
-           0.0,
-           1.0,
-           27.43
-          ],
-          [
-           0.0,
-           1.0,
-           20.92
-          ],
-          [
-           0.0,
-           1.0,
-           10.34
-          ],
-          [
-           0.0,
-           1.0,
-           17.52
-          ],
-          [
-           0.0,
-           1.0,
-           17.39
-          ],
-          [
-           0.0,
-           1.0,
-           9.9
-          ],
-          [
-           0.0,
-           1.0,
-           5.97
-          ],
-          [
-           0.0,
-           1.0,
-           44.28
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -85073,26 +83180,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -85324,30 +83411,6 @@
           "median_s": [
            0,
            13.630400000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           1.0,
-           5.97
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -85792,126 +83855,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@main ladder",
-          "main/haiku-medium@main ladder",
-          "main/sonnet-medium@main ladder",
-          "main/luna-low@main ladder",
-          "main/luna-medium@main ladder",
-          "main/sol61-medium@main ladder",
-          "main/haiku-high@main ladder",
-          "main/luna-high@main ladder",
-          "main/luna56-low@main ladder",
-          "main/luna56-high@main ladder",
-          "main/sol56-high@main ladder",
-          "main/sol61-high@main ladder",
-          "main/astra-medium@main ladder",
-          "main/terra61-low@main ladder",
-          "main/terra61-high@main ladder",
-          "main/terra56-low@partial ladder",
-          "main/terra56-high@partial ladder",
-          "main/grok47-low@partial ladder",
-          "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
-          "main/grok47fast-low@partial ladder",
-          "main/devin16slow-default@partial ladder",
-          "main/sol61-high-fast@main ladder",
-          "main/astra-medium-fast@main ladder",
-          "main/terra61-low-fast@main ladder",
-          "main/terra61-high-fast@main ladder",
-          "main/sol61-xhigh@partial ladder",
-          "main/luna-low-bare@main ladder"
-         ]
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@main ladder",
-          "main/haiku-medium@main ladder",
-          "main/sonnet-medium@main ladder",
-          "main/luna-low@main ladder",
-          "main/luna-medium@main ladder",
-          "main/sol61-medium@main ladder",
-          "main/haiku-high@main ladder",
-          "main/luna-high@main ladder",
-          "main/luna56-low@main ladder",
-          "main/luna56-high@main ladder",
-          "main/sol56-high@main ladder",
-          "main/sol61-high@main ladder",
-          "main/astra-medium@main ladder",
-          "main/terra61-low@main ladder",
-          "main/terra61-high@main ladder",
-          "main/terra56-low@partial ladder",
-          "main/terra56-high@partial ladder",
-          "main/grok47-low@partial ladder",
-          "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
-          "main/grok47fast-low@partial ladder",
-          "main/sol61-high-fast@main ladder",
-          "main/astra-medium-fast@main ladder",
-          "main/terra61-low-fast@main ladder",
-          "main/terra61-high-fast@main ladder",
-          "main/sol61-xhigh@partial ladder",
-          "main/luna-low-bare@main ladder"
-         ]
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@main ladder",
-          "main/haiku-medium@main ladder",
-          "main/sonnet-medium@main ladder",
-          "main/luna-low@main ladder",
-          "main/luna-medium@main ladder",
-          "main/sol61-medium@main ladder",
-          "main/haiku-high@main ladder",
-          "main/luna-high@main ladder",
-          "main/luna56-low@main ladder",
-          "main/luna56-high@main ladder",
-          "main/sol56-high@main ladder",
-          "main/sol61-high@main ladder",
-          "main/astra-medium@main ladder",
-          "main/terra61-low@main ladder",
-          "main/terra61-high@main ladder",
-          "main/terra56-low@partial ladder",
-          "main/terra56-high@partial ladder",
-          "main/grok47-low@partial ladder",
-          "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
-          "main/grok47fast-low@partial ladder",
-          "main/devin16slow-default@partial ladder",
-          "main/inkling2mini-default@partial ladder",
-          "main/inkling2mini-medium16k@partial ladder",
-          "main/sol61-high-fast@main ladder",
-          "main/astra-medium-fast@main ladder",
-          "main/terra61-low-fast@main ladder",
-          "main/terra61-high-fast@main ladder",
-          "main/sol61-xhigh@partial ladder",
-          "main/luna-low-bare@main ladder"
-         ]
-        },
-        "main/inkling2mini-default24k@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/sonnet-medium@main ladder",
-          "main/haiku-high@main ladder",
-          "main/sol56-high@main ladder",
-          "main/sol61-high@main ladder",
-          "main/astra-medium@main ladder",
-          "main/terra61-low@main ladder",
-          "main/terra56-high@partial ladder",
-          "main/sol61-high-fast@main ladder",
-          "main/astra-medium-fast@main ladder",
-          "main/terra61-low-fast@main ladder",
-          "main/sol61-xhigh@partial ladder"
-         ]
-        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -86139,30 +84082,6 @@
           "median_s": [
            0,
            13.630400000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 4,
-         "staircase": [
-          [
-           0.0,
-           1.0,
-           5.97
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -86575,26 +84494,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -86818,30 +84717,6 @@
           "median_s": [
            0,
            13.630400000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           1.0,
-           5.97
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -87254,26 +85129,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -87497,30 +85352,6 @@
           "median_s": [
            0,
            13.630400000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           1.0,
-           5.97
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -103232,10 +101063,6 @@
      "main/devin16slow-default@all runs",
      "main/hetzner-qwen36@all runs",
      "main/hetzner-qwen38@all runs",
-     "main/inkling2mini-default@all runs",
-     "main/inkling2mini-medium16k@all runs",
-     "main/inkling2mini-low16k@all runs",
-     "main/inkling2mini-default24k@all runs",
      "main/sol61-high-fast@all runs",
      "main/astra-medium-fast@all runs",
      "main/terra61-low-fast@all runs",
@@ -103254,12 +101081,12 @@
        ],
        "zero_lane": false,
        "pass_rate": [
-        0,
+        0.22,
         1.03
        ],
        "median_s": [
         0,
-        7687.960000000001
+        919.0496000000002
        ]
       },
       "front": {
@@ -103518,26 +101345,6 @@
          "beaten_by": []
         },
         "main/hetzner-qwen38@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@all runs": {
          "eligible": false,
          "on_frontier": false,
          "beaten_by": []
@@ -103924,50 +101731,6 @@
           "median_s": [
            0,
            14.873600000000001
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.000798,
-           0.7333,
-           6.81
-          ],
-          [
-           0.00089,
-           0.7833,
-           8.24
-          ],
-          [
-           0.001155,
-           0.9333,
-           13.28
-          ],
-          [
-           0.001762,
-           0.96,
-           14.75
-          ],
-          [
-           0.002931,
-           1.0,
-           17.14
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -104435,26 +102198,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-high-fast@all runs": {
          "eligible": true,
          "on_frontier": false,
@@ -104802,45 +102545,6 @@
           "median_s": [
            0,
            14.873600000000001
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.001155,
-           0.9333,
-           13.28
-          ],
-          [
-           0.001303,
-           0.9294,
-           11.3
-          ],
-          [
-           0.010405,
-           1.0,
-           10.34
-          ],
-          [
-           0.011453,
-           0.9867,
-           6.04
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -105354,124 +103058,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@all runs": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@all runs",
-          "main/haiku-medium@all runs",
-          "main/sonnet-medium@all runs",
-          "main/luna-low@all runs",
-          "main/luna-medium@all runs",
-          "main/sol61-medium@all runs",
-          "main/haiku-high@all runs",
-          "main/luna-high@all runs",
-          "main/luna56-low@all runs",
-          "main/luna56-high@all runs",
-          "main/sol56-high@all runs",
-          "main/sol61-high@all runs",
-          "main/astra-medium@all runs",
-          "main/terra61-low@all runs",
-          "main/terra61-high@all runs",
-          "main/terra56-low@all runs",
-          "main/terra56-high@all runs",
-          "main/grok47-low@all runs",
-          "main/grok47-medium@all runs",
-          "main/grok47-high@all runs",
-          "main/grok47fast-low@all runs",
-          "main/devin16slow-default@all runs",
-          "main/sol61-high-fast@all runs",
-          "main/astra-medium-fast@all runs",
-          "main/terra61-low-fast@all runs",
-          "main/terra61-high-fast@all runs",
-          "main/sol61-xhigh@all runs",
-          "main/luna-low-bare@all runs"
-         ]
-        },
-        "main/inkling2mini-medium16k@all runs": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@all runs",
-          "main/haiku-medium@all runs",
-          "main/sonnet-medium@all runs",
-          "main/luna-low@all runs",
-          "main/luna-medium@all runs",
-          "main/sol61-medium@all runs",
-          "main/haiku-high@all runs",
-          "main/luna-high@all runs",
-          "main/luna56-low@all runs",
-          "main/luna56-high@all runs",
-          "main/sol56-high@all runs",
-          "main/sol61-high@all runs",
-          "main/astra-medium@all runs",
-          "main/terra61-low@all runs",
-          "main/terra61-high@all runs",
-          "main/terra56-low@all runs",
-          "main/terra56-high@all runs",
-          "main/grok47-low@all runs",
-          "main/grok47-medium@all runs",
-          "main/grok47-high@all runs",
-          "main/grok47fast-low@all runs",
-          "main/sol61-high-fast@all runs",
-          "main/astra-medium-fast@all runs",
-          "main/terra61-low-fast@all runs",
-          "main/terra61-high-fast@all runs",
-          "main/sol61-xhigh@all runs",
-          "main/luna-low-bare@all runs"
-         ]
-        },
-        "main/inkling2mini-low16k@all runs": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@all runs",
-          "main/haiku-medium@all runs",
-          "main/sonnet-medium@all runs",
-          "main/luna-low@all runs",
-          "main/luna-medium@all runs",
-          "main/sol61-medium@all runs",
-          "main/haiku-high@all runs",
-          "main/luna-high@all runs",
-          "main/luna56-low@all runs",
-          "main/luna56-high@all runs",
-          "main/sol56-high@all runs",
-          "main/sol61-high@all runs",
-          "main/astra-medium@all runs",
-          "main/terra61-low@all runs",
-          "main/terra61-high@all runs",
-          "main/terra56-low@all runs",
-          "main/terra56-high@all runs",
-          "main/grok47-low@all runs",
-          "main/grok47-medium@all runs",
-          "main/grok47-high@all runs",
-          "main/grok47fast-low@all runs",
-          "main/devin16slow-default@all runs",
-          "main/inkling2mini-default@all runs",
-          "main/inkling2mini-medium16k@all runs",
-          "main/sol61-high-fast@all runs",
-          "main/astra-medium-fast@all runs",
-          "main/terra61-low-fast@all runs",
-          "main/terra61-high-fast@all runs",
-          "main/sol61-xhigh@all runs",
-          "main/luna-low-bare@all runs"
-         ]
-        },
-        "main/inkling2mini-default24k@all runs": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/sonnet-medium@all runs",
-          "main/haiku-high@all runs",
-          "main/sol61-high@all runs",
-          "main/astra-medium@all runs",
-          "main/terra61-low@all runs",
-          "main/terra56-high@all runs",
-          "main/sol61-high-fast@all runs",
-          "main/astra-medium-fast@all runs",
-          "main/sol61-xhigh@all runs"
-         ]
-        },
         "main/sol61-high-fast@all runs": {
          "eligible": true,
          "on_frontier": false,
@@ -105740,35 +103326,6 @@
           "median_s": [
            0,
            14.873600000000001
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 4,
-         "staircase": [
-          [
-           0.011453,
-           0.9867,
-           6.04
-          ],
-          [
-           0.010405,
-           1.0,
-           10.34
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -106162,26 +103719,6 @@
          "beaten_by": []
         },
         "main/hetzner-qwen38@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@all runs": {
          "eligible": false,
          "on_frontier": false,
          "beaten_by": []
@@ -106728,75 +104265,6 @@
           "median_s": [
            0,
            14.873600000000001
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.000798,
-           0.7333,
-           6.81
-          ],
-          [
-           0.00089,
-           0.7833,
-           8.24
-          ],
-          [
-           0.000899,
-           0.7667,
-           7.22
-          ],
-          [
-           0.001155,
-           0.9333,
-           13.28
-          ],
-          [
-           0.001303,
-           0.9294,
-           11.3
-          ],
-          [
-           0.001762,
-           0.96,
-           14.75
-          ],
-          [
-           0.002931,
-           1.0,
-           17.14
-          ],
-          [
-           0.007918,
-           0.9667,
-           11.93
-          ],
-          [
-           0.010405,
-           1.0,
-           10.34
-          ],
-          [
-           0.011453,
-           0.9867,
-           6.04
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -107394,26 +104862,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-high-fast@all runs": {
          "eligible": true,
          "on_frontier": false,
@@ -107959,75 +105407,6 @@
           ]
          }
         },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.000798,
-           0.7333,
-           6.81
-          ],
-          [
-           0.00089,
-           0.7833,
-           8.24
-          ],
-          [
-           0.000899,
-           0.7667,
-           7.22
-          ],
-          [
-           0.001155,
-           0.9333,
-           13.28
-          ],
-          [
-           0.001303,
-           0.9294,
-           11.3
-          ],
-          [
-           0.001762,
-           0.96,
-           14.75
-          ],
-          [
-           0.002931,
-           1.0,
-           17.14
-          ],
-          [
-           0.007918,
-           0.9667,
-           11.93
-          ],
-          [
-           0.010405,
-           1.0,
-           10.34
-          ],
-          [
-           0.011453,
-           0.9867,
-           6.04
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
-          ]
-         }
-        },
         "sol · 5.6": {
          "on_frontier": 0,
          "total": 1,
@@ -108399,12 +105778,12 @@
        ],
        "zero_lane": true,
        "pass_rate": [
-        0,
+        0.22,
         1.03
        ],
        "median_s": [
         0,
-        7687.960000000001
+        919.0496000000002
        ]
       },
       "front": {
@@ -108766,26 +106145,6 @@
          "beaten_by": []
         },
         "main/hetzner-qwen38@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@all runs": {
          "eligible": false,
          "on_frontier": false,
          "beaten_by": []
@@ -109241,60 +106600,6 @@
           "median_s": [
            0,
            14.873600000000001
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           1.0,
-           30.54
-          ],
-          [
-           0.0,
-           1.0,
-           22.68
-          ],
-          [
-           0.0,
-           1.0,
-           10.34
-          ],
-          [
-           0.0,
-           1.0,
-           17.52
-          ],
-          [
-           0.0,
-           1.0,
-           18.2
-          ],
-          [
-           0.0,
-           1.0,
-           10.67
-          ],
-          [
-           0.0,
-           1.0,
-           44.28
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -109822,26 +107127,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-high-fast@all runs": {
          "eligible": true,
          "on_frontier": false,
@@ -110072,30 +107357,6 @@
           "median_s": [
            0,
            14.873600000000001
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           0.9867,
-           6.04
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -110522,124 +107783,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@all runs": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@all runs",
-          "main/haiku-medium@all runs",
-          "main/sonnet-medium@all runs",
-          "main/luna-low@all runs",
-          "main/luna-medium@all runs",
-          "main/sol61-medium@all runs",
-          "main/haiku-high@all runs",
-          "main/luna-high@all runs",
-          "main/luna56-low@all runs",
-          "main/luna56-high@all runs",
-          "main/sol56-high@all runs",
-          "main/sol61-high@all runs",
-          "main/astra-medium@all runs",
-          "main/terra61-low@all runs",
-          "main/terra61-high@all runs",
-          "main/terra56-low@all runs",
-          "main/terra56-high@all runs",
-          "main/grok47-low@all runs",
-          "main/grok47-medium@all runs",
-          "main/grok47-high@all runs",
-          "main/grok47fast-low@all runs",
-          "main/devin16slow-default@all runs",
-          "main/sol61-high-fast@all runs",
-          "main/astra-medium-fast@all runs",
-          "main/terra61-low-fast@all runs",
-          "main/terra61-high-fast@all runs",
-          "main/sol61-xhigh@all runs",
-          "main/luna-low-bare@all runs"
-         ]
-        },
-        "main/inkling2mini-medium16k@all runs": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@all runs",
-          "main/haiku-medium@all runs",
-          "main/sonnet-medium@all runs",
-          "main/luna-low@all runs",
-          "main/luna-medium@all runs",
-          "main/sol61-medium@all runs",
-          "main/haiku-high@all runs",
-          "main/luna-high@all runs",
-          "main/luna56-low@all runs",
-          "main/luna56-high@all runs",
-          "main/sol56-high@all runs",
-          "main/sol61-high@all runs",
-          "main/astra-medium@all runs",
-          "main/terra61-low@all runs",
-          "main/terra61-high@all runs",
-          "main/terra56-low@all runs",
-          "main/terra56-high@all runs",
-          "main/grok47-low@all runs",
-          "main/grok47-medium@all runs",
-          "main/grok47-high@all runs",
-          "main/grok47fast-low@all runs",
-          "main/sol61-high-fast@all runs",
-          "main/astra-medium-fast@all runs",
-          "main/terra61-low-fast@all runs",
-          "main/terra61-high-fast@all runs",
-          "main/sol61-xhigh@all runs",
-          "main/luna-low-bare@all runs"
-         ]
-        },
-        "main/inkling2mini-low16k@all runs": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@all runs",
-          "main/haiku-medium@all runs",
-          "main/sonnet-medium@all runs",
-          "main/luna-low@all runs",
-          "main/luna-medium@all runs",
-          "main/sol61-medium@all runs",
-          "main/haiku-high@all runs",
-          "main/luna-high@all runs",
-          "main/luna56-low@all runs",
-          "main/luna56-high@all runs",
-          "main/sol56-high@all runs",
-          "main/sol61-high@all runs",
-          "main/astra-medium@all runs",
-          "main/terra61-low@all runs",
-          "main/terra61-high@all runs",
-          "main/terra56-low@all runs",
-          "main/terra56-high@all runs",
-          "main/grok47-low@all runs",
-          "main/grok47-medium@all runs",
-          "main/grok47-high@all runs",
-          "main/grok47fast-low@all runs",
-          "main/devin16slow-default@all runs",
-          "main/inkling2mini-default@all runs",
-          "main/inkling2mini-medium16k@all runs",
-          "main/sol61-high-fast@all runs",
-          "main/astra-medium-fast@all runs",
-          "main/terra61-low-fast@all runs",
-          "main/terra61-high-fast@all runs",
-          "main/sol61-xhigh@all runs",
-          "main/luna-low-bare@all runs"
-         ]
-        },
-        "main/inkling2mini-default24k@all runs": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/sonnet-medium@all runs",
-          "main/haiku-high@all runs",
-          "main/sol61-high@all runs",
-          "main/astra-medium@all runs",
-          "main/terra61-low@all runs",
-          "main/terra56-high@all runs",
-          "main/sol61-high-fast@all runs",
-          "main/astra-medium-fast@all runs",
-          "main/sol61-xhigh@all runs"
-         ]
-        },
         "main/sol61-high-fast@all runs": {
          "eligible": true,
          "on_frontier": false,
@@ -110899,35 +108042,6 @@
           "median_s": [
            0,
            14.873600000000001
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 4,
-         "staircase": [
-          [
-           0.0,
-           0.9867,
-           6.04
-          ],
-          [
-           0.0,
-           1.0,
-           10.34
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -111353,26 +108467,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-high-fast@all runs": {
          "eligible": true,
          "on_frontier": false,
@@ -111628,35 +108722,6 @@
           "median_s": [
            0,
            14.873600000000001
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           1.0,
-           10.34
-          ],
-          [
-           0.0,
-           0.9867,
-           6.04
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -112082,26 +109147,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@all runs": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-high-fast@all runs": {
          "eligible": true,
          "on_frontier": false,
@@ -112357,35 +109402,6 @@
           "median_s": [
            0,
            14.873600000000001
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           1.0,
-           10.34
-          ],
-          [
-           0.0,
-           0.9867,
-           6.04
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -113711,10 +110727,6 @@
      "main/hetzner-qwen36@everything pooled",
      "main/terra61-high-fast@everything pooled",
      "main/terra61-low-fast@everything pooled",
-     "main/inkling2mini-default@everything pooled",
-     "main/inkling2mini-medium16k@everything pooled",
-     "main/inkling2mini-low16k@everything pooled",
-     "main/inkling2mini-default24k@everything pooled",
      "agentic/haiku-high@everything pooled",
      "agentic/haiku-low@everything pooled",
      "agentic/sonnet-medium@everything pooled",
@@ -113790,12 +110802,12 @@
        ],
        "zero_lane": false,
        "pass_rate": [
-        0,
+        0.020000000000000004,
         1.03
        ],
        "median_s": [
         0,
-        7687.960000000001
+        919.0496000000002
        ]
       },
       "front": {
@@ -114836,26 +111848,6 @@
           "pilot-agentic/pipeline B@everything pooled",
           "harness-bias/haiku-low / Codex harness@everything pooled"
          ]
-        },
-        "main/inkling2mini-default@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
         },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
@@ -117004,30 +113996,6 @@
           ]
          }
         },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.000277,
-           1.0,
-           5.0
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
-          ]
-         }
-        },
         "pipeline: on fail": {
          "on_frontier": 0,
          "total": 4,
@@ -118095,26 +115063,6 @@
           "pilot/luna-high-prio@everything pooled",
           "pilot/luna-low-defa@everything pooled"
          ]
-        },
-        "main/inkling2mini-default@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
         },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
@@ -119816,35 +116764,6 @@
           ]
          }
         },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.000277,
-           1.0,
-           5.0
-          ],
-          [
-           0.000296,
-           1.0,
-           3.76
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
-          ]
-         }
-        },
         "pipeline: on fail": {
          "on_frontier": 0,
          "total": 4,
@@ -121508,357 +118427,6 @@
           "pilot/luna-high-prio@everything pooled",
           "pilot/codex-bare@everything pooled",
           "pilot/luna-low-defa@everything pooled"
-         ]
-        },
-        "main/inkling2mini-default@everything pooled": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@everything pooled",
-          "main/sol61-medium@everything pooled",
-          "main/sonnet-medium@everything pooled",
-          "main/haiku-medium@everything pooled",
-          "main/luna-low@everything pooled",
-          "main/luna-medium@everything pooled",
-          "main/luna-high@everything pooled",
-          "main/luna-low-bare@everything pooled",
-          "main/luna56-low@everything pooled",
-          "main/luna56-high@everything pooled",
-          "main/sol56-high@everything pooled",
-          "main/astra-medium@everything pooled",
-          "main/sol61-high@everything pooled",
-          "main/sol61-high-fast@everything pooled",
-          "main/sol61-xhigh@everything pooled",
-          "main/haiku-high@everything pooled",
-          "main/astra-medium-fast@everything pooled",
-          "main/grok47fast-low@everything pooled",
-          "main/grok47-low@everything pooled",
-          "main/grok47-high@everything pooled",
-          "main/grok47-medium@everything pooled",
-          "main/terra56-high@everything pooled",
-          "main/terra56-low@everything pooled",
-          "main/terra61-high@everything pooled",
-          "main/terra61-low@everything pooled",
-          "main/devin16slow-default@everything pooled",
-          "main/terra61-high-fast@everything pooled",
-          "main/terra61-low-fast@everything pooled",
-          "agentic/haiku-high@everything pooled",
-          "agentic/haiku-low@everything pooled",
-          "agentic/sonnet-medium@everything pooled",
-          "agentic/astra-medium@everything pooled",
-          "agentic/luna-low@everything pooled",
-          "agentic/sol61-high@everything pooled",
-          "agentic/sol61-medium@everything pooled",
-          "trim/luna/base@everything pooled",
-          "trim/luna/mininst@everything pooled",
-          "trim/luna/noctx@everything pooled",
-          "trim/luna/nodoc@everything pooled",
-          "trim/luna/nofeat@everything pooled",
-          "trim/luna/noshell@everything pooled",
-          "trim/terra/base@everything pooled",
-          "trim/terra/mininst@everything pooled",
-          "trim/terra/noctx@everything pooled",
-          "trim/terra/nodoc@everything pooled",
-          "trim/terra/nofeat@everything pooled",
-          "trim/terra/noshell@everything pooled",
-          "trim/haiku@everything pooled",
-          "pilot/haiku-low@everything pooled",
-          "pilot/sonnet-low@everything pooled",
-          "pilot/codex-low@everything pooled",
-          "pilot/haiku-medium@everything pooled",
-          "pilot/sonnet-medium@everything pooled",
-          "pilot/codex-medium@everything pooled",
-          "pilot/codex-low-lean@everything pooled",
-          "pilot/astra-low@everything pooled",
-          "pilot/luna-low@everything pooled",
-          "pilot/terra56-low-prio@everything pooled",
-          "pilot/sol6-low-prio@everything pooled",
-          "pilot/sol61-low-prio@everything pooled",
-          "pilot/sol61-low-defa@everything pooled",
-          "pilot/luna-high-prio@everything pooled",
-          "pilot/codex-bare@everything pooled",
-          "pilot/haiku-low-agent@everything pooled",
-          "pilot/sonnet-medium-agent@everything pooled",
-          "pilot/luna-low-defa@everything pooled",
-          "rescue/luna-low-noshell-B1@everything pooled",
-          "rescue/luna-low-noshell-B2@everything pooled",
-          "rescue/luna-low-selftest@everything pooled",
-          "rescue/luna-medium-bare@everything pooled",
-          "rescue/luna-high-bare@everything pooled",
-          "rescue/luna-low+haiku-low-repair@everything pooled",
-          "rescue/haiku-low-plan+luna-low@everything pooled",
-          "rescue/haiku-low-plan+luna-high-bare@everything pooled",
-          "rescue/luna-high-bare+haiku-on-fail@everything pooled",
-          "rescue/luna-high-bare+retry-on-fail@everything pooled",
-          "rescue/luna-low+haiku-on-fail@everything pooled",
-          "rescue/astra-medium+haiku-on-fail@everything pooled",
-          "rescue/sol61-high+haiku-on-fail@everything pooled",
-          "rescue/luna-high-bare+haiku-review-all@everything pooled",
-          "rescue/luna-low+haiku-review-all@everything pooled",
-          "pilot-agentic/pipeline C@everything pooled",
-          "pilot-agentic/pipeline B@everything pooled",
-          "pilot-agentic/pipeline A@everything pooled",
-          "harness-bias/haiku-low / Claude harness@everything pooled",
-          "harness-bias/luna-low / Claude harness@everything pooled",
-          "harness-bias/haiku-low / Codex harness@everything pooled",
-          "harness-bias/luna-low / Codex harness@everything pooled",
-          "harness-bias/sol61-medium / Codex harness@everything pooled",
-          "grok-repo/grok47-high@everything pooled",
-          "grok-repo/grok47-low@everything pooled"
-         ]
-        },
-        "main/inkling2mini-medium16k@everything pooled": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@everything pooled",
-          "main/sol61-medium@everything pooled",
-          "main/sonnet-medium@everything pooled",
-          "main/haiku-medium@everything pooled",
-          "main/luna-low@everything pooled",
-          "main/luna-medium@everything pooled",
-          "main/luna-high@everything pooled",
-          "main/luna-low-bare@everything pooled",
-          "main/luna56-low@everything pooled",
-          "main/luna56-high@everything pooled",
-          "main/sol56-high@everything pooled",
-          "main/astra-medium@everything pooled",
-          "main/sol61-high@everything pooled",
-          "main/sol61-high-fast@everything pooled",
-          "main/sol61-xhigh@everything pooled",
-          "main/haiku-high@everything pooled",
-          "main/astra-medium-fast@everything pooled",
-          "main/grok47fast-low@everything pooled",
-          "main/grok47-low@everything pooled",
-          "main/grok47-high@everything pooled",
-          "main/grok47-medium@everything pooled",
-          "main/terra56-high@everything pooled",
-          "main/terra56-low@everything pooled",
-          "main/terra61-high@everything pooled",
-          "main/terra61-low@everything pooled",
-          "main/terra61-high-fast@everything pooled",
-          "main/terra61-low-fast@everything pooled",
-          "agentic/haiku-high@everything pooled",
-          "agentic/haiku-low@everything pooled",
-          "agentic/sonnet-medium@everything pooled",
-          "agentic/astra-medium@everything pooled",
-          "agentic/sol61-high@everything pooled",
-          "agentic/sol61-medium@everything pooled",
-          "trim/luna/base@everything pooled",
-          "trim/luna/mininst@everything pooled",
-          "trim/luna/noctx@everything pooled",
-          "trim/luna/nodoc@everything pooled",
-          "trim/luna/nofeat@everything pooled",
-          "trim/luna/noshell@everything pooled",
-          "trim/terra/base@everything pooled",
-          "trim/terra/mininst@everything pooled",
-          "trim/terra/noctx@everything pooled",
-          "trim/terra/nodoc@everything pooled",
-          "trim/terra/nofeat@everything pooled",
-          "trim/terra/noshell@everything pooled",
-          "trim/haiku@everything pooled",
-          "pilot/haiku-low@everything pooled",
-          "pilot/sonnet-low@everything pooled",
-          "pilot/codex-low@everything pooled",
-          "pilot/haiku-medium@everything pooled",
-          "pilot/sonnet-medium@everything pooled",
-          "pilot/codex-medium@everything pooled",
-          "pilot/codex-low-lean@everything pooled",
-          "pilot/astra-low@everything pooled",
-          "pilot/luna-low@everything pooled",
-          "pilot/terra56-low-prio@everything pooled",
-          "pilot/sol6-low-prio@everything pooled",
-          "pilot/sol61-low-prio@everything pooled",
-          "pilot/sol61-low-defa@everything pooled",
-          "pilot/luna-high-prio@everything pooled",
-          "pilot/codex-bare@everything pooled",
-          "pilot/haiku-low-agent@everything pooled",
-          "pilot/sonnet-medium-agent@everything pooled",
-          "pilot/luna-low-defa@everything pooled",
-          "rescue/luna-low-noshell-B1@everything pooled",
-          "rescue/luna-low-selftest@everything pooled",
-          "rescue/luna-high-bare@everything pooled",
-          "rescue/luna-low+haiku-low-repair@everything pooled",
-          "rescue/haiku-low-plan+luna-low@everything pooled",
-          "rescue/haiku-low-plan+luna-high-bare@everything pooled",
-          "rescue/luna-high-bare+haiku-on-fail@everything pooled",
-          "rescue/luna-high-bare+retry-on-fail@everything pooled",
-          "rescue/luna-low+haiku-on-fail@everything pooled",
-          "rescue/astra-medium+haiku-on-fail@everything pooled",
-          "rescue/sol61-high+haiku-on-fail@everything pooled",
-          "rescue/luna-high-bare+haiku-review-all@everything pooled",
-          "rescue/luna-low+haiku-review-all@everything pooled",
-          "pilot-agentic/pipeline C@everything pooled",
-          "pilot-agentic/pipeline B@everything pooled",
-          "pilot-agentic/pipeline A@everything pooled",
-          "harness-bias/haiku-low / Claude harness@everything pooled",
-          "harness-bias/haiku-low / Codex harness@everything pooled",
-          "harness-bias/luna-low / Codex harness@everything pooled",
-          "harness-bias/sol61-medium / Codex harness@everything pooled",
-          "grok-repo/grok47-high@everything pooled",
-          "grok-repo/grok47-low@everything pooled"
-         ]
-        },
-        "main/inkling2mini-low16k@everything pooled": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@everything pooled",
-          "main/sol61-medium@everything pooled",
-          "main/sonnet-medium@everything pooled",
-          "main/haiku-medium@everything pooled",
-          "main/luna-low@everything pooled",
-          "main/luna-medium@everything pooled",
-          "main/luna-high@everything pooled",
-          "main/luna-low-bare@everything pooled",
-          "main/luna56-low@everything pooled",
-          "main/luna56-high@everything pooled",
-          "main/sol56-high@everything pooled",
-          "main/astra-medium@everything pooled",
-          "main/sol61-high@everything pooled",
-          "main/sol61-high-fast@everything pooled",
-          "main/sol61-xhigh@everything pooled",
-          "main/haiku-high@everything pooled",
-          "main/astra-medium-fast@everything pooled",
-          "main/grok47fast-low@everything pooled",
-          "main/grok47-low@everything pooled",
-          "main/grok47-high@everything pooled",
-          "main/grok47-medium@everything pooled",
-          "main/terra56-high@everything pooled",
-          "main/terra56-low@everything pooled",
-          "main/terra61-high@everything pooled",
-          "main/terra61-low@everything pooled",
-          "main/devin16slow-default@everything pooled",
-          "main/terra61-high-fast@everything pooled",
-          "main/terra61-low-fast@everything pooled",
-          "main/inkling2mini-default@everything pooled",
-          "main/inkling2mini-medium16k@everything pooled",
-          "agentic/haiku-high@everything pooled",
-          "agentic/haiku-low@everything pooled",
-          "agentic/sonnet-medium@everything pooled",
-          "agentic/astra-medium@everything pooled",
-          "agentic/luna-low@everything pooled",
-          "agentic/sol61-high@everything pooled",
-          "agentic/sol61-medium@everything pooled",
-          "trim/luna/base@everything pooled",
-          "trim/luna/mininst@everything pooled",
-          "trim/luna/noctx@everything pooled",
-          "trim/luna/nodoc@everything pooled",
-          "trim/luna/nofeat@everything pooled",
-          "trim/luna/noshell@everything pooled",
-          "trim/terra/base@everything pooled",
-          "trim/terra/mininst@everything pooled",
-          "trim/terra/noctx@everything pooled",
-          "trim/terra/nodoc@everything pooled",
-          "trim/terra/nofeat@everything pooled",
-          "trim/terra/noshell@everything pooled",
-          "trim/haiku@everything pooled",
-          "pilot/haiku-low@everything pooled",
-          "pilot/sonnet-low@everything pooled",
-          "pilot/codex-low@everything pooled",
-          "pilot/haiku-medium@everything pooled",
-          "pilot/sonnet-medium@everything pooled",
-          "pilot/codex-medium@everything pooled",
-          "pilot/codex-low-lean@everything pooled",
-          "pilot/astra-low@everything pooled",
-          "pilot/luna-low@everything pooled",
-          "pilot/terra56-low-prio@everything pooled",
-          "pilot/sol6-low-prio@everything pooled",
-          "pilot/sol61-low-prio@everything pooled",
-          "pilot/sol61-low-defa@everything pooled",
-          "pilot/luna-high-prio@everything pooled",
-          "pilot/codex-bare@everything pooled",
-          "pilot/haiku-low-agent@everything pooled",
-          "pilot/sonnet-medium-agent@everything pooled",
-          "pilot/luna-low-defa@everything pooled",
-          "rescue/luna-low-noshell-B1@everything pooled",
-          "rescue/luna-low-noshell-B2@everything pooled",
-          "rescue/luna-low-selftest@everything pooled",
-          "rescue/luna-medium-bare@everything pooled",
-          "rescue/luna-high-bare@everything pooled",
-          "rescue/luna-low+haiku-low-repair@everything pooled",
-          "rescue/haiku-low-plan+luna-low@everything pooled",
-          "rescue/haiku-low-plan+luna-high-bare@everything pooled",
-          "rescue/luna-high-bare+haiku-on-fail@everything pooled",
-          "rescue/luna-high-bare+retry-on-fail@everything pooled",
-          "rescue/luna-low+haiku-on-fail@everything pooled",
-          "rescue/astra-medium+haiku-on-fail@everything pooled",
-          "rescue/sol61-high+haiku-on-fail@everything pooled",
-          "rescue/luna-high-bare+haiku-review-all@everything pooled",
-          "rescue/luna-low+haiku-review-all@everything pooled",
-          "pilot-agentic/pipeline C@everything pooled",
-          "pilot-agentic/pipeline B@everything pooled",
-          "pilot-agentic/pipeline A@everything pooled",
-          "harness-bias/haiku-low / Claude harness@everything pooled",
-          "harness-bias/luna-low / Claude harness@everything pooled",
-          "harness-bias/haiku-low / Codex harness@everything pooled",
-          "harness-bias/luna-low / Codex harness@everything pooled",
-          "harness-bias/sol61-medium / Codex harness@everything pooled",
-          "grok-repo/grok47-high@everything pooled",
-          "grok-repo/grok47-low@everything pooled"
-         ]
-        },
-        "main/inkling2mini-default24k@everything pooled": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/sonnet-medium@everything pooled",
-          "main/astra-medium@everything pooled",
-          "main/sol61-high@everything pooled",
-          "main/sol61-high-fast@everything pooled",
-          "main/sol61-xhigh@everything pooled",
-          "main/haiku-high@everything pooled",
-          "main/astra-medium-fast@everything pooled",
-          "main/terra56-high@everything pooled",
-          "main/terra61-low@everything pooled",
-          "agentic/haiku-high@everything pooled",
-          "agentic/haiku-low@everything pooled",
-          "agentic/sonnet-medium@everything pooled",
-          "agentic/astra-medium@everything pooled",
-          "agentic/sol61-high@everything pooled",
-          "agentic/sol61-medium@everything pooled",
-          "trim/luna/base@everything pooled",
-          "trim/luna/mininst@everything pooled",
-          "trim/luna/noctx@everything pooled",
-          "trim/luna/nodoc@everything pooled",
-          "trim/luna/nofeat@everything pooled",
-          "trim/luna/noshell@everything pooled",
-          "trim/terra/base@everything pooled",
-          "trim/terra/mininst@everything pooled",
-          "trim/terra/noctx@everything pooled",
-          "trim/terra/nodoc@everything pooled",
-          "trim/terra/nofeat@everything pooled",
-          "trim/terra/noshell@everything pooled",
-          "trim/haiku@everything pooled",
-          "pilot/haiku-low@everything pooled",
-          "pilot/sonnet-low@everything pooled",
-          "pilot/codex-low@everything pooled",
-          "pilot/haiku-medium@everything pooled",
-          "pilot/sonnet-medium@everything pooled",
-          "pilot/codex-medium@everything pooled",
-          "pilot/codex-low-lean@everything pooled",
-          "pilot/astra-low@everything pooled",
-          "pilot/luna-low@everything pooled",
-          "pilot/terra56-low-prio@everything pooled",
-          "pilot/sol6-low-prio@everything pooled",
-          "pilot/sol61-low-prio@everything pooled",
-          "pilot/sol61-low-defa@everything pooled",
-          "pilot/luna-high-prio@everything pooled",
-          "pilot/codex-bare@everything pooled",
-          "pilot/haiku-low-agent@everything pooled",
-          "pilot/sonnet-medium-agent@everything pooled",
-          "pilot/luna-low-defa@everything pooled",
-          "rescue/luna-low+haiku-low-repair@everything pooled",
-          "rescue/astra-medium+haiku-on-fail@everything pooled",
-          "rescue/sol61-high+haiku-on-fail@everything pooled",
-          "rescue/luna-high-bare+haiku-review-all@everything pooled",
-          "pilot-agentic/pipeline C@everything pooled",
-          "pilot-agentic/pipeline B@everything pooled",
-          "pilot-agentic/pipeline A@everything pooled",
-          "harness-bias/haiku-low / Codex harness@everything pooled",
-          "harness-bias/sol61-medium / Codex harness@everything pooled",
-          "grok-repo/grok47-high@everything pooled",
-          "grok-repo/grok47-low@everything pooled"
          ]
         },
         "agentic/haiku-high@everything pooled": {
@@ -124338,30 +120906,6 @@
           ]
          }
         },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 4,
-         "staircase": [
-          [
-           0.000296,
-           1.0,
-           3.76
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
-          ]
-         }
-        },
         "pipeline: on fail": {
          "on_frontier": 0,
          "total": 4,
@@ -125548,26 +122092,6 @@
           "pilot/luna-high-prio@everything pooled",
           "pilot/luna-low-defa@everything pooled"
          ]
-        },
-        "main/inkling2mini-default@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
         },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
@@ -127262,35 +123786,6 @@
           "median_s": [
            0,
            27.014400000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.000277,
-           1.0,
-           5.0
-          ],
-          [
-           0.000296,
-           1.0,
-           3.76
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -128536,26 +125031,6 @@
           "pilot/luna-low-defa@everything pooled"
          ]
         },
-        "main/inkling2mini-default@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
          "on_frontier": false,
@@ -130252,35 +126727,6 @@
           ]
          }
         },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.000277,
-           1.0,
-           5.0
-          ],
-          [
-           0.000296,
-           1.0,
-           3.76
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
-          ]
-         }
-        },
         "pipeline: on fail": {
          "on_frontier": 0,
          "total": 4,
@@ -130644,12 +127090,12 @@
        ],
        "zero_lane": true,
        "pass_rate": [
-        0,
+        0.020000000000000004,
         1.03
        ],
        "median_s": [
         0,
-        7687.960000000001
+        919.0496000000002
        ]
       },
       "front": {
@@ -131817,26 +128263,6 @@
           "rescue/sol61-high+haiku-on-fail@everything pooled",
           "harness-bias/sol61-medium / Codex harness@everything pooled"
          ]
-        },
-        "main/inkling2mini-default@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
         },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
@@ -135211,210 +131637,6 @@
           ]
          }
         },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           1.0,
-           22.68
-          ],
-          [
-           0.0,
-           1.0,
-           30.54
-          ],
-          [
-           0.0,
-           1.0,
-           18.2
-          ],
-          [
-           0.0,
-           1.0,
-           44.28
-          ],
-          [
-           0.0,
-           1.0,
-           10.67
-          ],
-          [
-           0.0,
-           1.0,
-           17.52
-          ],
-          [
-           0.0,
-           1.0,
-           10.34
-          ],
-          [
-           0.0,
-           1.0,
-           65.63
-          ],
-          [
-           0.0,
-           1.0,
-           117.93
-          ],
-          [
-           0.0,
-           1.0,
-           84.55
-          ],
-          [
-           0.0,
-           1.0,
-           4.23
-          ],
-          [
-           0.0,
-           1.0,
-           6.48
-          ],
-          [
-           0.0,
-           1.0,
-           7.0
-          ],
-          [
-           0.0,
-           1.0,
-           5.88
-          ],
-          [
-           0.0,
-           1.0,
-           4.41
-          ],
-          [
-           0.0,
-           1.0,
-           3.76
-          ],
-          [
-           0.0,
-           1.0,
-           5.65
-          ],
-          [
-           0.0,
-           1.0,
-           4.81
-          ],
-          [
-           0.0,
-           1.0,
-           5.13
-          ],
-          [
-           0.0,
-           1.0,
-           4.87
-          ],
-          [
-           0.0,
-           1.0,
-           5.18
-          ],
-          [
-           0.0,
-           1.0,
-           6.8
-          ],
-          [
-           0.0,
-           1.0,
-           4.71
-          ],
-          [
-           0.0,
-           1.0,
-           5.36
-          ],
-          [
-           0.0,
-           1.0,
-           6.96
-          ],
-          [
-           0.0,
-           1.0,
-           5.62
-          ],
-          [
-           0.0,
-           1.0,
-           4.36
-          ],
-          [
-           0.0,
-           1.0,
-           4.76
-          ],
-          [
-           0.0,
-           1.0,
-           4.78
-          ],
-          [
-           0.0,
-           1.0,
-           5.15
-          ],
-          [
-           0.0,
-           1.0,
-           7.43
-          ],
-          [
-           0.0,
-           1.0,
-           4.76
-          ],
-          [
-           0.0,
-           1.0,
-           5.4
-          ],
-          [
-           0.0,
-           1.0,
-           4.45
-          ],
-          [
-           0.0,
-           1.0,
-           21.35
-          ],
-          [
-           0.0,
-           1.0,
-           32.73
-          ],
-          [
-           0.0,
-           1.0,
-           57.85
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
-          ]
-         }
-        },
         "pipeline: on fail": {
          "on_frontier": 2,
          "total": 4,
@@ -138520,26 +134742,6 @@
           "pilot/luna-low-defa@everything pooled"
          ]
         },
-        "main/inkling2mini-default@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
          "on_frontier": false,
@@ -140495,30 +136697,6 @@
           ]
          }
         },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           1.0,
-           3.76
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
-          ]
-         }
-        },
         "pipeline: on fail": {
          "on_frontier": 0,
          "total": 4,
@@ -142111,357 +138289,6 @@
           "pilot/luna-low-defa@everything pooled"
          ]
         },
-        "main/inkling2mini-default@everything pooled": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@everything pooled",
-          "main/sol61-medium@everything pooled",
-          "main/sonnet-medium@everything pooled",
-          "main/haiku-medium@everything pooled",
-          "main/luna-low@everything pooled",
-          "main/luna-medium@everything pooled",
-          "main/luna-high@everything pooled",
-          "main/luna-low-bare@everything pooled",
-          "main/luna56-low@everything pooled",
-          "main/luna56-high@everything pooled",
-          "main/sol56-high@everything pooled",
-          "main/astra-medium@everything pooled",
-          "main/sol61-high@everything pooled",
-          "main/sol61-high-fast@everything pooled",
-          "main/sol61-xhigh@everything pooled",
-          "main/haiku-high@everything pooled",
-          "main/astra-medium-fast@everything pooled",
-          "main/grok47fast-low@everything pooled",
-          "main/grok47-low@everything pooled",
-          "main/grok47-high@everything pooled",
-          "main/grok47-medium@everything pooled",
-          "main/terra56-high@everything pooled",
-          "main/terra56-low@everything pooled",
-          "main/terra61-high@everything pooled",
-          "main/terra61-low@everything pooled",
-          "main/devin16slow-default@everything pooled",
-          "main/terra61-high-fast@everything pooled",
-          "main/terra61-low-fast@everything pooled",
-          "agentic/haiku-high@everything pooled",
-          "agentic/haiku-low@everything pooled",
-          "agentic/sonnet-medium@everything pooled",
-          "agentic/astra-medium@everything pooled",
-          "agentic/luna-low@everything pooled",
-          "agentic/sol61-high@everything pooled",
-          "agentic/sol61-medium@everything pooled",
-          "trim/luna/base@everything pooled",
-          "trim/luna/mininst@everything pooled",
-          "trim/luna/noctx@everything pooled",
-          "trim/luna/nodoc@everything pooled",
-          "trim/luna/nofeat@everything pooled",
-          "trim/luna/noshell@everything pooled",
-          "trim/terra/base@everything pooled",
-          "trim/terra/mininst@everything pooled",
-          "trim/terra/noctx@everything pooled",
-          "trim/terra/nodoc@everything pooled",
-          "trim/terra/nofeat@everything pooled",
-          "trim/terra/noshell@everything pooled",
-          "trim/haiku@everything pooled",
-          "pilot/haiku-low@everything pooled",
-          "pilot/sonnet-low@everything pooled",
-          "pilot/codex-low@everything pooled",
-          "pilot/haiku-medium@everything pooled",
-          "pilot/sonnet-medium@everything pooled",
-          "pilot/codex-medium@everything pooled",
-          "pilot/codex-low-lean@everything pooled",
-          "pilot/astra-low@everything pooled",
-          "pilot/luna-low@everything pooled",
-          "pilot/terra56-low-prio@everything pooled",
-          "pilot/sol6-low-prio@everything pooled",
-          "pilot/sol61-low-prio@everything pooled",
-          "pilot/sol61-low-defa@everything pooled",
-          "pilot/luna-high-prio@everything pooled",
-          "pilot/codex-bare@everything pooled",
-          "pilot/haiku-low-agent@everything pooled",
-          "pilot/sonnet-medium-agent@everything pooled",
-          "pilot/luna-low-defa@everything pooled",
-          "rescue/luna-low-noshell-B1@everything pooled",
-          "rescue/luna-low-noshell-B2@everything pooled",
-          "rescue/luna-low-selftest@everything pooled",
-          "rescue/luna-medium-bare@everything pooled",
-          "rescue/luna-high-bare@everything pooled",
-          "rescue/luna-low+haiku-low-repair@everything pooled",
-          "rescue/haiku-low-plan+luna-low@everything pooled",
-          "rescue/haiku-low-plan+luna-high-bare@everything pooled",
-          "rescue/luna-high-bare+haiku-on-fail@everything pooled",
-          "rescue/luna-high-bare+retry-on-fail@everything pooled",
-          "rescue/luna-low+haiku-on-fail@everything pooled",
-          "rescue/astra-medium+haiku-on-fail@everything pooled",
-          "rescue/sol61-high+haiku-on-fail@everything pooled",
-          "rescue/luna-high-bare+haiku-review-all@everything pooled",
-          "rescue/luna-low+haiku-review-all@everything pooled",
-          "pilot-agentic/pipeline C@everything pooled",
-          "pilot-agentic/pipeline B@everything pooled",
-          "pilot-agentic/pipeline A@everything pooled",
-          "harness-bias/haiku-low / Claude harness@everything pooled",
-          "harness-bias/luna-low / Claude harness@everything pooled",
-          "harness-bias/haiku-low / Codex harness@everything pooled",
-          "harness-bias/luna-low / Codex harness@everything pooled",
-          "harness-bias/sol61-medium / Codex harness@everything pooled",
-          "grok-repo/grok47-high@everything pooled",
-          "grok-repo/grok47-low@everything pooled"
-         ]
-        },
-        "main/inkling2mini-medium16k@everything pooled": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@everything pooled",
-          "main/sol61-medium@everything pooled",
-          "main/sonnet-medium@everything pooled",
-          "main/haiku-medium@everything pooled",
-          "main/luna-low@everything pooled",
-          "main/luna-medium@everything pooled",
-          "main/luna-high@everything pooled",
-          "main/luna-low-bare@everything pooled",
-          "main/luna56-low@everything pooled",
-          "main/luna56-high@everything pooled",
-          "main/sol56-high@everything pooled",
-          "main/astra-medium@everything pooled",
-          "main/sol61-high@everything pooled",
-          "main/sol61-high-fast@everything pooled",
-          "main/sol61-xhigh@everything pooled",
-          "main/haiku-high@everything pooled",
-          "main/astra-medium-fast@everything pooled",
-          "main/grok47fast-low@everything pooled",
-          "main/grok47-low@everything pooled",
-          "main/grok47-high@everything pooled",
-          "main/grok47-medium@everything pooled",
-          "main/terra56-high@everything pooled",
-          "main/terra56-low@everything pooled",
-          "main/terra61-high@everything pooled",
-          "main/terra61-low@everything pooled",
-          "main/terra61-high-fast@everything pooled",
-          "main/terra61-low-fast@everything pooled",
-          "agentic/haiku-high@everything pooled",
-          "agentic/haiku-low@everything pooled",
-          "agentic/sonnet-medium@everything pooled",
-          "agentic/astra-medium@everything pooled",
-          "agentic/sol61-high@everything pooled",
-          "agentic/sol61-medium@everything pooled",
-          "trim/luna/base@everything pooled",
-          "trim/luna/mininst@everything pooled",
-          "trim/luna/noctx@everything pooled",
-          "trim/luna/nodoc@everything pooled",
-          "trim/luna/nofeat@everything pooled",
-          "trim/luna/noshell@everything pooled",
-          "trim/terra/base@everything pooled",
-          "trim/terra/mininst@everything pooled",
-          "trim/terra/noctx@everything pooled",
-          "trim/terra/nodoc@everything pooled",
-          "trim/terra/nofeat@everything pooled",
-          "trim/terra/noshell@everything pooled",
-          "trim/haiku@everything pooled",
-          "pilot/haiku-low@everything pooled",
-          "pilot/sonnet-low@everything pooled",
-          "pilot/codex-low@everything pooled",
-          "pilot/haiku-medium@everything pooled",
-          "pilot/sonnet-medium@everything pooled",
-          "pilot/codex-medium@everything pooled",
-          "pilot/codex-low-lean@everything pooled",
-          "pilot/astra-low@everything pooled",
-          "pilot/luna-low@everything pooled",
-          "pilot/terra56-low-prio@everything pooled",
-          "pilot/sol6-low-prio@everything pooled",
-          "pilot/sol61-low-prio@everything pooled",
-          "pilot/sol61-low-defa@everything pooled",
-          "pilot/luna-high-prio@everything pooled",
-          "pilot/codex-bare@everything pooled",
-          "pilot/haiku-low-agent@everything pooled",
-          "pilot/sonnet-medium-agent@everything pooled",
-          "pilot/luna-low-defa@everything pooled",
-          "rescue/luna-low-noshell-B1@everything pooled",
-          "rescue/luna-low-selftest@everything pooled",
-          "rescue/luna-high-bare@everything pooled",
-          "rescue/luna-low+haiku-low-repair@everything pooled",
-          "rescue/haiku-low-plan+luna-low@everything pooled",
-          "rescue/haiku-low-plan+luna-high-bare@everything pooled",
-          "rescue/luna-high-bare+haiku-on-fail@everything pooled",
-          "rescue/luna-high-bare+retry-on-fail@everything pooled",
-          "rescue/luna-low+haiku-on-fail@everything pooled",
-          "rescue/astra-medium+haiku-on-fail@everything pooled",
-          "rescue/sol61-high+haiku-on-fail@everything pooled",
-          "rescue/luna-high-bare+haiku-review-all@everything pooled",
-          "rescue/luna-low+haiku-review-all@everything pooled",
-          "pilot-agentic/pipeline C@everything pooled",
-          "pilot-agentic/pipeline B@everything pooled",
-          "pilot-agentic/pipeline A@everything pooled",
-          "harness-bias/haiku-low / Claude harness@everything pooled",
-          "harness-bias/haiku-low / Codex harness@everything pooled",
-          "harness-bias/luna-low / Codex harness@everything pooled",
-          "harness-bias/sol61-medium / Codex harness@everything pooled",
-          "grok-repo/grok47-high@everything pooled",
-          "grok-repo/grok47-low@everything pooled"
-         ]
-        },
-        "main/inkling2mini-low16k@everything pooled": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/haiku-low@everything pooled",
-          "main/sol61-medium@everything pooled",
-          "main/sonnet-medium@everything pooled",
-          "main/haiku-medium@everything pooled",
-          "main/luna-low@everything pooled",
-          "main/luna-medium@everything pooled",
-          "main/luna-high@everything pooled",
-          "main/luna-low-bare@everything pooled",
-          "main/luna56-low@everything pooled",
-          "main/luna56-high@everything pooled",
-          "main/sol56-high@everything pooled",
-          "main/astra-medium@everything pooled",
-          "main/sol61-high@everything pooled",
-          "main/sol61-high-fast@everything pooled",
-          "main/sol61-xhigh@everything pooled",
-          "main/haiku-high@everything pooled",
-          "main/astra-medium-fast@everything pooled",
-          "main/grok47fast-low@everything pooled",
-          "main/grok47-low@everything pooled",
-          "main/grok47-high@everything pooled",
-          "main/grok47-medium@everything pooled",
-          "main/terra56-high@everything pooled",
-          "main/terra56-low@everything pooled",
-          "main/terra61-high@everything pooled",
-          "main/terra61-low@everything pooled",
-          "main/devin16slow-default@everything pooled",
-          "main/terra61-high-fast@everything pooled",
-          "main/terra61-low-fast@everything pooled",
-          "main/inkling2mini-default@everything pooled",
-          "main/inkling2mini-medium16k@everything pooled",
-          "agentic/haiku-high@everything pooled",
-          "agentic/haiku-low@everything pooled",
-          "agentic/sonnet-medium@everything pooled",
-          "agentic/astra-medium@everything pooled",
-          "agentic/luna-low@everything pooled",
-          "agentic/sol61-high@everything pooled",
-          "agentic/sol61-medium@everything pooled",
-          "trim/luna/base@everything pooled",
-          "trim/luna/mininst@everything pooled",
-          "trim/luna/noctx@everything pooled",
-          "trim/luna/nodoc@everything pooled",
-          "trim/luna/nofeat@everything pooled",
-          "trim/luna/noshell@everything pooled",
-          "trim/terra/base@everything pooled",
-          "trim/terra/mininst@everything pooled",
-          "trim/terra/noctx@everything pooled",
-          "trim/terra/nodoc@everything pooled",
-          "trim/terra/nofeat@everything pooled",
-          "trim/terra/noshell@everything pooled",
-          "trim/haiku@everything pooled",
-          "pilot/haiku-low@everything pooled",
-          "pilot/sonnet-low@everything pooled",
-          "pilot/codex-low@everything pooled",
-          "pilot/haiku-medium@everything pooled",
-          "pilot/sonnet-medium@everything pooled",
-          "pilot/codex-medium@everything pooled",
-          "pilot/codex-low-lean@everything pooled",
-          "pilot/astra-low@everything pooled",
-          "pilot/luna-low@everything pooled",
-          "pilot/terra56-low-prio@everything pooled",
-          "pilot/sol6-low-prio@everything pooled",
-          "pilot/sol61-low-prio@everything pooled",
-          "pilot/sol61-low-defa@everything pooled",
-          "pilot/luna-high-prio@everything pooled",
-          "pilot/codex-bare@everything pooled",
-          "pilot/haiku-low-agent@everything pooled",
-          "pilot/sonnet-medium-agent@everything pooled",
-          "pilot/luna-low-defa@everything pooled",
-          "rescue/luna-low-noshell-B1@everything pooled",
-          "rescue/luna-low-noshell-B2@everything pooled",
-          "rescue/luna-low-selftest@everything pooled",
-          "rescue/luna-medium-bare@everything pooled",
-          "rescue/luna-high-bare@everything pooled",
-          "rescue/luna-low+haiku-low-repair@everything pooled",
-          "rescue/haiku-low-plan+luna-low@everything pooled",
-          "rescue/haiku-low-plan+luna-high-bare@everything pooled",
-          "rescue/luna-high-bare+haiku-on-fail@everything pooled",
-          "rescue/luna-high-bare+retry-on-fail@everything pooled",
-          "rescue/luna-low+haiku-on-fail@everything pooled",
-          "rescue/astra-medium+haiku-on-fail@everything pooled",
-          "rescue/sol61-high+haiku-on-fail@everything pooled",
-          "rescue/luna-high-bare+haiku-review-all@everything pooled",
-          "rescue/luna-low+haiku-review-all@everything pooled",
-          "pilot-agentic/pipeline C@everything pooled",
-          "pilot-agentic/pipeline B@everything pooled",
-          "pilot-agentic/pipeline A@everything pooled",
-          "harness-bias/haiku-low / Claude harness@everything pooled",
-          "harness-bias/luna-low / Claude harness@everything pooled",
-          "harness-bias/haiku-low / Codex harness@everything pooled",
-          "harness-bias/luna-low / Codex harness@everything pooled",
-          "harness-bias/sol61-medium / Codex harness@everything pooled",
-          "grok-repo/grok47-high@everything pooled",
-          "grok-repo/grok47-low@everything pooled"
-         ]
-        },
-        "main/inkling2mini-default24k@everything pooled": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/sonnet-medium@everything pooled",
-          "main/astra-medium@everything pooled",
-          "main/sol61-high@everything pooled",
-          "main/sol61-high-fast@everything pooled",
-          "main/sol61-xhigh@everything pooled",
-          "main/haiku-high@everything pooled",
-          "main/astra-medium-fast@everything pooled",
-          "main/terra56-high@everything pooled",
-          "main/terra61-low@everything pooled",
-          "agentic/haiku-high@everything pooled",
-          "agentic/haiku-low@everything pooled",
-          "agentic/sonnet-medium@everything pooled",
-          "agentic/astra-medium@everything pooled",
-          "agentic/sol61-high@everything pooled",
-          "agentic/sol61-medium@everything pooled",
-          "trim/luna/base@everything pooled",
-          "trim/luna/mininst@everything pooled",
-          "trim/luna/noctx@everything pooled",
-          "trim/luna/nodoc@everything pooled",
-          "trim/luna/nofeat@everything pooled",
-          "trim/luna/noshell@everything pooled",
-          "trim/terra/base@everything pooled",
-          "trim/terra/mininst@everything pooled",
-          "trim/terra/noctx@everything pooled",
-          "trim/terra/nodoc@everything pooled",
-          "trim/terra/nofeat@everything pooled",
-          "trim/terra/noshell@everything pooled",
-          "trim/haiku@everything pooled",
-          "pilot/haiku-low@everything pooled",
-          "pilot/sonnet-low@everything pooled",
-          "pilot/codex-low@everything pooled",
-          "pilot/haiku-medium@everything pooled",
-          "pilot/sonnet-medium@everything pooled",
-          "pilot/codex-medium@everything pooled",
-          "pilot/codex-low-lean@everything pooled",
-          "pilot/astra-low@everything pooled",
-          "pilot/luna-low@everything pooled",
-          "pilot/terra56-low-prio@everything pooled",
-          "pilot/sol6-low-prio@everything pooled",
-          "pilot/sol61-low-prio@everything pooled",
-          "pilot/sol61-low-defa@everything pooled",
-          "pilot/luna-high-prio@everything pooled",
-          "pilot/codex-bare@everything pooled",
-          "pilot/haiku-low-agent@everything pooled",
-          "pilot/sonnet-medium-agent@everything pooled",
-          "pilot/luna-low-defa@everything pooled",
-          "rescue/luna-low+haiku-low-repair@everything pooled",
-          "rescue/astra-medium+haiku-on-fail@everything pooled",
-          "rescue/sol61-high+haiku-on-fail@everything pooled",
-          "rescue/luna-high-bare+haiku-review-all@everything pooled",
-          "pilot-agentic/pipeline C@everything pooled",
-          "pilot-agentic/pipeline B@everything pooled",
-          "pilot-agentic/pipeline A@everything pooled",
-          "harness-bias/haiku-low / Codex harness@everything pooled",
-          "harness-bias/sol61-medium / Codex harness@everything pooled",
-          "grok-repo/grok47-high@everything pooled",
-          "grok-repo/grok47-low@everything pooled"
-         ]
-        },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
          "on_frontier": false,
@@ -144927,30 +140754,6 @@
           "median_s": [
            0,
            27.014400000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 4,
-         "staircase": [
-          [
-           0.0,
-           1.0,
-           3.76
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -146305,26 +142108,6 @@
           "pilot/luna-low-defa@everything pooled"
          ]
         },
-        "main/inkling2mini-default@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
          "on_frontier": false,
@@ -148454,30 +144237,6 @@
           "median_s": [
            0,
            27.014400000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           1.0,
-           3.76
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -149832,26 +145591,6 @@
           "pilot/luna-low-defa@everything pooled"
          ]
         },
-        "main/inkling2mini-default@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@everything pooled": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
          "on_frontier": false,
@@ -151981,30 +147720,6 @@
           "median_s": [
            0,
            27.014400000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           1.0,
-           3.76
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -159527,10 +155242,6 @@
      "main/devin16slow-default@partial ladder",
      "main/hetzner-qwen36@partial ladder",
      "main/hetzner-qwen38@partial ladder",
-     "main/inkling2mini-default@partial ladder",
-     "main/inkling2mini-medium16k@partial ladder",
-     "main/inkling2mini-low16k@partial ladder",
-     "main/inkling2mini-default24k@partial ladder",
      "main/sol61-xhigh@partial ladder"
     ],
     "note": "",
@@ -159544,12 +155255,12 @@
        ],
        "zero_lane": false,
        "pass_rate": [
-        0,
+        0.22,
         1.03
        ],
        "median_s": [
         0,
-        7687.960000000001
+        919.0496000000002
        ]
       },
       "front": {
@@ -159612,26 +155323,6 @@
          "beaten_by": []
         },
         "main/hetzner-qwen38@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
          "eligible": false,
          "on_frontier": false,
          "beaten_by": []
@@ -159732,35 +155423,6 @@
           "median_s": [
            0,
            919.0496000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.017506,
-           0.75,
-           14.05
-          ],
-          [
-           0.018247,
-           1.0,
-           17.52
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -159883,26 +155545,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -159984,30 +155626,6 @@
           "median_s": [
            0,
            919.0496000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.018247,
-           1.0,
-           17.52
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -160126,57 +155744,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/terra56-low@partial ladder",
-          "main/terra56-high@partial ladder",
-          "main/grok47-low@partial ladder",
-          "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
-          "main/grok47fast-low@partial ladder",
-          "main/devin16slow-default@partial ladder",
-          "main/sol61-xhigh@partial ladder"
-         ]
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/terra56-low@partial ladder",
-          "main/terra56-high@partial ladder",
-          "main/grok47-low@partial ladder",
-          "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
-          "main/grok47fast-low@partial ladder",
-          "main/sol61-xhigh@partial ladder"
-         ]
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/terra56-low@partial ladder",
-          "main/terra56-high@partial ladder",
-          "main/grok47-low@partial ladder",
-          "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
-          "main/grok47fast-low@partial ladder",
-          "main/devin16slow-default@partial ladder",
-          "main/inkling2mini-default@partial ladder",
-          "main/inkling2mini-medium16k@partial ladder",
-          "main/sol61-xhigh@partial ladder"
-         ]
-        },
-        "main/inkling2mini-default24k@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/terra56-high@partial ladder",
-          "main/sol61-xhigh@partial ladder"
-         ]
-        },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -160288,40 +155855,6 @@
           "median_s": [
            0,
            919.0496000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 4,
-         "staircase": [
-          [
-           null,
-           0.5,
-           10.49
-          ],
-          [
-           0.017506,
-           0.75,
-           14.05
-          ],
-          [
-           0.018247,
-           1.0,
-           17.52
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -160460,26 +155993,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -160576,35 +156089,6 @@
           "median_s": [
            0,
            919.0496000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.017506,
-           0.75,
-           14.05
-          ],
-          [
-           0.018247,
-           1.0,
-           17.52
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -160733,26 +156217,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -160849,35 +156313,6 @@
           "median_s": [
            0,
            919.0496000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.017506,
-           0.75,
-           14.05
-          ],
-          [
-           0.018247,
-           1.0,
-           17.52
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -160956,12 +156391,12 @@
        ],
        "zero_lane": true,
        "pass_rate": [
-        0,
+        0.22,
         1.03
        ],
        "median_s": [
         0,
-        7687.960000000001
+        919.0496000000002
        ]
       },
       "front": {
@@ -161027,26 +156462,6 @@
          "beaten_by": []
         },
         "main/hetzner-qwen38@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
          "eligible": false,
          "on_frontier": false,
          "beaten_by": []
@@ -161145,35 +156560,6 @@
           "median_s": [
            0,
            919.0496000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           1.0,
-           17.52
-          ],
-          [
-           0.0,
-           1.0,
-           44.28
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -161290,26 +156676,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -161391,30 +156757,6 @@
           "median_s": [
            0,
            919.0496000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           1.0,
-           17.52
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -161527,57 +156869,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/terra56-low@partial ladder",
-          "main/terra56-high@partial ladder",
-          "main/grok47-low@partial ladder",
-          "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
-          "main/grok47fast-low@partial ladder",
-          "main/devin16slow-default@partial ladder",
-          "main/sol61-xhigh@partial ladder"
-         ]
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/terra56-low@partial ladder",
-          "main/terra56-high@partial ladder",
-          "main/grok47-low@partial ladder",
-          "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
-          "main/grok47fast-low@partial ladder",
-          "main/sol61-xhigh@partial ladder"
-         ]
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/terra56-low@partial ladder",
-          "main/terra56-high@partial ladder",
-          "main/grok47-low@partial ladder",
-          "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
-          "main/grok47fast-low@partial ladder",
-          "main/devin16slow-default@partial ladder",
-          "main/inkling2mini-default@partial ladder",
-          "main/inkling2mini-medium16k@partial ladder",
-          "main/sol61-xhigh@partial ladder"
-         ]
-        },
-        "main/inkling2mini-default24k@partial ladder": {
-         "eligible": true,
-         "on_frontier": false,
-         "beaten_by": [
-          "main/terra56-high@partial ladder",
-          "main/sol61-xhigh@partial ladder"
-         ]
-        },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -161689,40 +156980,6 @@
           "median_s": [
            0,
            919.0496000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 4,
-         "staircase": [
-          [
-           null,
-           0.5,
-           10.49
-          ],
-          [
-           0.0,
-           0.75,
-           14.05
-          ],
-          [
-           0.0,
-           1.0,
-           17.52
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -161855,26 +157112,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -161971,35 +157208,6 @@
           "median_s": [
            0,
            919.0496000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           0.75,
-           14.05
-          ],
-          [
-           0.0,
-           1.0,
-           17.52
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
@@ -162122,26 +157330,6 @@
          "on_frontier": false,
          "beaten_by": []
         },
-        "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-medium16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-low16k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
-        "main/inkling2mini-default24k@partial ladder": {
-         "eligible": false,
-         "on_frontier": false,
-         "beaten_by": []
-        },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -162238,35 +157426,6 @@
           "median_s": [
            0,
            919.0496000000002
-          ]
-         }
-        },
-        "other": {
-         "on_frontier": 0,
-         "total": 4,
-         "beaten": 0,
-         "staircase": [
-          [
-           0.0,
-           0.75,
-           14.05
-          ],
-          [
-           0.0,
-           1.0,
-           17.52
-          ]
-         ],
-         "extents": {
-          "cost": null,
-          "zero_lane": false,
-          "pass_rate": [
-           0,
-           1.03
-          ],
-          "median_s": [
-           0,
-           7687.960000000001
           ]
          }
         },
