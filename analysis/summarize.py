@@ -8,7 +8,7 @@ from collections import defaultdict
 
 from analysis.stats import hier_boot, paired_boot, p90
 from analysis.labels import DISP, plabel, pshort
-from analysis.configs import DEVIN_CONFIGS, HETZNER_CONFIGS, GROK_CONFIGS, GROK_PARTIAL, ONE_REPEAT, FIRST_GROK_FILE, SOURCES
+from analysis.configs import DEVIN_CONFIGS, HETZNER_CONFIGS, INKLING_CONFIGS, GROK_CONFIGS, GROK_PARTIAL, ONE_REPEAT, FIRST_GROK_FILE, SOURCES
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RES = os.path.join(ROOT, "results")
@@ -62,9 +62,14 @@ def function_rows():
     from bench import problems
     return [dict(row, phase="hard") if name == "2026-11-02-terra-l7-fast-function.jsonl" else row
             for name in SOURCES["main"] for row in _sourced(os.path.join(RES, name))
-            if name not in ("2026-11-02-terra-priority-function.jsonl", "2026-11-02-terra-l7-fast-function.jsonl")
+            if row["config"] not in INKLING_CONFIGS  # Inkling has its own block (inkling_rows), outside the per-config statistics
+            and name not in ("2026-11-02-terra-priority-function.jsonl", "2026-11-02-terra-l7-fast-function.jsonl")
             or (row["config"] in ("terra61-low-fast", "terra61-high-fast")
                 and row["problem"] in (problems.HARD if name == "2026-11-02-terra-l7-fast-function.jsonl" else problems.MAIN) and row["repeat"] in range(1, 6))]
+
+
+def inkling_rows():
+    return [r for name in SOURCES["main"] for r in _sourced(os.path.join(RES, name)) if r["config"] in INKLING_CONFIGS]
 
 
 def agentic_rows():
@@ -116,7 +121,7 @@ def list_cost(r):
         got = r.get("cost_usd") if r.get("cost_usd") is not None else r.get("total_cost_usd")
         # A Grok call killed at the 20-minute limit returns no bill. It counts as a failed attempt at $0, so Grok $ per pass is a floor by those calls.
         return 0.0 if got is None and r["cli"] == "grok" and r.get("is_error") else got
-    if r.get("is_error") or r["cli"] in ("devin", "hetzner"): return None  # free tiers have no published list price
+    if r.get("is_error") or r["cli"] in ("devin", "hetzner", "llama.cpp"): return None  # free tiers have no published list price
     p = PRICES[r["model"]]
     return ((r["in_tok"] - r["cached_tok"]) * p["input"] + r["cached_tok"] * p["cached_input"] + r["out_tok"] * p["output"]) / 1e6
 
@@ -129,7 +134,7 @@ def cost_uncached(r):
 def _uncached(r):
     if measured(r):
         return list_cost(r)
-    if r.get("is_error") or r["cli"] in ("devin", "hetzner"): return None
+    if r.get("is_error") or r["cli"] in ("devin", "hetzner", "llama.cpp"): return None
     p = PRICES[r["model"]]
     return (r["in_tok"] * p["input"] + r["out_tok"] * p["output"]) / 1e6
 
@@ -170,6 +175,25 @@ def cells(rows, rungs=None):
         if rungs is None or r["rung"] in rungs:
             c[r["problem"]].append(1 if r["passed"] else 0)
     return dict(c)
+
+
+def inkling_block(rows):
+    """Inkling 2 Mini: the frozen primary run and the labelled secondary retry ladder, from the rows alone (no per-config statistics: stages are 1 to 15 tasks)."""
+    by = {c: {r["problem"]: r for r in rows if r["config"] == c} for c in INKLING_CONFIGS}
+    prim = by[INKLING_CONFIGS[0]]
+    if not prim: return {}
+    tasks = sorted(prim)
+    stages = [{"config": c, "effort": next(iter(by[c].values()))["effort"], "max_tokens": next(iter(by[c].values()))["max_tokens"],
+               "passes": sum(r["passed"] for r in by[c].values()), "n": len(by[c]), "wall_s": round(sum(r["wall_s"] for r in by[c].values()), 1),
+               "tasks": {p: {"passed": r["passed"], "outcome": r["outcome"], "wall_s": round(r["wall_s"], 1)} for p, r in sorted(by[c].items())}}
+              for c in INKLING_CONFIGS[1:] if by[c]]
+    final = {p: any(by[c][p]["passed"] for c in INKLING_CONFIGS if p in by[c]) for p in tasks}
+    return {"n": len(tasks), "primary": {"passes": sum(r["passed"] for r in prim.values()), "wall_s": round(sum(r["wall_s"] for r in prim.values()), 1),
+            "max_tokens": prim[tasks[0]]["max_tokens"], "effort": prim[tasks[0]]["effort"], "model": prim[tasks[0]]["model"], "cli_version": prim[tasks[0]]["cli_version"],
+            "tasks": {p: {"passed": r["passed"], "outcome": r["outcome"], "wall_s": round(r["wall_s"], 1), "out_tok": r["out_tok"], "finish_reason": r.get("finish_reason"),
+                          "gen_tok_per_s": r.get("gen_tok_per_s")} for p, r in prim.items()}},
+            "stages": stages, "ladder": {"passes": sum(final.values()), "tasks": final,
+            "wall_s": round(sum(r["wall_s"] for c in INKLING_CONFIGS for r in by[c].values()), 1)}}
 
 
 def config_block(rows):
@@ -380,7 +404,7 @@ def build():
                 blk = config_block(rr)
                 blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}
                 s["grok_first"][c] = blk
-    xr = [r for r in rows if (r["phase"] == "exploratory" and r["config"] not in GROK_CONFIGS)
+    xr = [r for r in rows if (r["phase"] == "exploratory" and r["config"] not in GROK_CONFIGS + INKLING_CONFIGS)
           or (r["phase"] == "calibration" and r["config"] in HETZNER_CONFIGS)]
     s["exploratory"] = {}
     s["hetzner"] = {}
@@ -397,6 +421,7 @@ def build():
         blk["usd_per_pass_uncached"] = usd(map(cost_uncached, rr), len(er))
         blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}  # heatmap columns
         (s["hetzner"] if c in HETZNER_CONFIGS else s["exploratory"])[c] = blk
+    s["inkling"] = inkling_block(inkling_rows())
     hr = [r for r in rows if r["phase"] == "hard"]
     s["hard"] = {}
     for c in sorted({r["config"] for r in hr}, key=lambda c: (-sum(r["passed"] for r in hr if r["config"] == c), c)):

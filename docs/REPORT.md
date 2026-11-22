@@ -38,7 +38,7 @@ The main run was on 2026-10-22; the runs on this page span 2026-10-22 to 2026-11
 | hetzner-qwen36 † | 83% (10/12) | 58%–100% | 341.5 | 736.8 | free tier | free tier | free-tier |
 | hetzner-qwen38 † | 75% (9/12) | 50%–100% | 820.6 | 1768.9 | free tier | free tier | free-tier |
 
-Function track: 12 problems × 5 attempts for most configs (exceptions: terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); hetzner-qwen36 12 calls (one repeat); hetzner-qwen38 12 calls (one repeat); sol61-xhigh 35 calls (a partial ladder)). Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
+Function track: 12 problems × 5 attempts for most configs (exceptions: terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); hetzner-qwen36 12 calls (one repeat); hetzner-qwen38 12 calls (one repeat); inkling2mini-default 15 calls (a partial ladder); inkling2mini-medium16k 8 calls (a partial ladder); inkling2mini-low16k 2 calls (a partial ladder); inkling2mini-default24k 1 calls (a partial ladder); sol61-xhigh 35 calls (a partial ladder)). Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
 
 ## Grok
 
@@ -351,6 +351,30 @@ Operator note (results/2026-11-01-hetzner-notes.json): the first non-streaming a
 Exploratory calibration: one repeat only (n=12, not 60 in the 5-repeat main grid), a thin comparison. Not extended: medians are 341.5 s (Qwen3.6) and 820.6 s (Qwen3.8) per call, versus 7.2–22.6 s in the main grid. Qwen3.8 had 2 of its 3 misses hit the 1800 s wall cap.
 
 Verdict: usable but slow, below the Claude and Codex sol61 middle tiers. Qwen3.8's nearest main-grid pass-rate comparison is luna-low (77%). Not recommended for the dispatch route. Off dollar charts, the Winner and the frontier.
+
+## Inkling 2 Mini on a local CPU (exploratory)
+
+Inkling 2 Mini (Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600) ran on this host's CPU, so it costs nothing and has no list price. Primary result: 7/15 on p01–p15 at default effort with a 12,288-token cap, frozen before the full run, 9.01 h of wall time. Secondary result, labelled as a retry ladder: 13/15 after re-running the tasks the cap cut off (medium effort at 16,384 tokens passed 5/8; low effort at 16,384 tokens passed 0/2; default effort at 24,576 tokens passed 1/1), 11.07 h more wall time.
+
+| task | primary (12,288 cap) | primary minutes | retry stages | ladder |
+|---|---|---|---|---|
+| p01 | pass | 6.1 | – | pass |
+| p02 | pass | 3.8 | – | pass |
+| p03 | pass | 21.5 | – | pass |
+| p04 | pass | 11.1 | – | pass |
+| p05 | pass | 9.3 | – | pass |
+| p06 | no_code | 48.7 | medium @ 16,384: pass | pass |
+| p07 | pass | 11.3 | – | pass |
+| p08 | pass | 43.0 | – | pass |
+| p09 | no_code | 48.0 | medium @ 16,384: pass | pass |
+| p10 | no_code | 48.3 | medium @ 16,384: pass | pass |
+| p11 | no_code | 50.1 | medium @ 16,384: no_code → low @ 16,384: no_code → default @ 24,576: pass | pass |
+| p12 | no_code | 50.7 | medium @ 16,384: no_code → low @ 16,384: crash | fail |
+| p13 | no_code | 48.9 | medium @ 16,384: pass | pass |
+| p14 | no_code | 48.2 | medium @ 16,384: pass | pass |
+| p15 | no_code | 91.6 | medium @ 16,384: wrong | fail |
+
+Latency is not comparable with the API lanes: this is one local CPU, one call at a time, with other work sometimes running on the host. The ladder numbers are not the primary result because the retry settings were chosen after seeing which tasks hit the cap. Off dollar charts, the Winner and the frontier. Primary: 7/15 (frozen settings). Retry ladder, secondary: 13/15. Total wall time 20.08 h.
 
 ## Code quality
 

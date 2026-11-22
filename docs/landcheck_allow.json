@@ -7,5 +7,10 @@
     "results | config / passed / $ per pass / Claude $ / median s / verdict | hetzner-qwen36 † | Claude $: '–'": "Hetzner uses no Claude step and has no published list price. Its own cost is labelled free tier; the Claude-cost dash follows the Devin free-tier row and does not invent a dollar figure.",
     "results | config / passed / $ per pass / Claude $ / median s / verdict | hetzner-qwen38 † | Claude $: '–'": "Hetzner uses no Claude step and has no published list price. Its own cost is labelled free tier; the Claude-cost dash follows the Devin free-tier row and does not invent a dollar figure."
   },
-  "groups": {}
+  "groups": {},
+  "removals": {
+    "page text: Not plotted, partial ladder: terra56-low, terra56-high, grok47-medium, sol61-xhigh. Not plotted, no cost: devin16slow-default, hetzner-qwen36, hetzner-qwen38. Every number is in Results.": "Inkling joins the no-cost list: it is a free local CPU model with no list price.",
+    "page text: devin16slow-default: cost unavailable. Use Speed × Pass. hetzner-qwen36: cost unavailable. Use Speed × Pass. hetzner-qwen38: cost unavailable. Use Speed × Pass.": "The cost-unavailable note now also lists the Inkling configs, which are free local CPU and have no list price.",
+    "page text: exploratory: 18 configs, ~$35.89 spent": "The exploratory config count rises by the four Inkling configs (primary and three retry stages)."
+  }
 }

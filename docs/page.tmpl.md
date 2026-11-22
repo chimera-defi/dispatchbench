@@ -157,6 +157,13 @@
 <li>{{hetzner_scope}}</li>
 <li>{{hetzner_verdict}}</li>
 </ul>
+<h3 id="inkling">{{inkling_name}} on a local CPU</h3>
+<p>{{inkling_lead}}</p>
+{{table:inkling_summary}}
+<ul class="tight small">
+<li>{{inkling_scope}}</li>
+<li>Primary: {{inkling_primary}} (frozen settings). Retry ladder, secondary: {{inkling_ladder}}. Total wall time {{inkling_total_wall}}.</li>
+</ul>
 </section>
 <section class="extras" id="extras">
 <h2><span class="num"></span>Other measures</h2>
