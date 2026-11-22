@@ -1,0 +1,477 @@
+=== REASONING ===
+We need answer code only. Need think carefully. Problem details.
+
+We have board cells 0..n. Token starts on cell 0. Each turn roll fair die faces 1..m and move forward by roll. If that would pass cell n, token bounces: from cell p with roll r and p+r > n, lands on 2n - p - r. Need verify bounce formula: cell p, roll r moves forward to p+r. If exceeds n, it lands on 2n - p - r. Example n=2: p=1,r=2 => p+r=3>2, land 4-1-2=1 yes. p=0,r=2? n=2 roll 2 ends game? Wait if p+r > n? For p=0,r=2, p+r=2 not > n, so lands at 2 = n game ends. Example expected_turns(2,2,[]): roll 2 ends; roll 1 reaches cell1, from which a 1 ends it and a 2 bounces back to cell 1. yes.
+
+Jumps list pairs [a,b]. When token lands on cell a, moves to cell b straight away in same turn. If b is also start of a jump, keeps moving until lands on cell that starts no jump. These moves do not take extra turns.
+
+Need expected number of turns until game ends. If positive probability never ends, return None.
+
+We need implement exact fraction [p,q] lowest terms q>=1. n<=80,m<=80. Need handle infinite probability.
+
+We need model process. Important: game ends when token rests on cell n. But what about jumps? When token lands on cell n, game ends immediately, no jump from n? Jump starts are a in 1..n-1, so n not start. Good.
+
+At each turn: current cell c (after previous turn's jump settling? token rests on a cell that starts no jump, or n? Actually after turn, token moves forward/bounce to landing cell x. If x == n, game ends. Else if x has jump, redirect along jump chain to final y (cell starts no jump) possibly n? Jump has b between 0 and n; following jumps never loops forever. Could final y be n? Jump starts distinct and a != b, b can equal n? Constraint b <= n. If b is also the start of a jump? Jump starts are 1..n-1, so n not a jump start. Following jumps never loops forever. It says When token lands on cell a, it moves to cell b straight away. If b is also the start of a jump, it keeps moving, until it lands on a cell that starts no jump. If b == n, then n starts no jump, so rest on n -> game ends? Does game end when token rests on cell n; after jump cascade, token rests on n, so yes game ends in same turn. Need consider. Example expected_turns(3,3,[[2,0]]) returns [3,1]. Let's test: n=3,m=3, jumps [[2,0]]. Start cell0. Turn: roll r.
+- r=1: p+r=1, no bounce. land 1 (no jump) rest -> turn1 cell1.
+- r=2: land2 -> jump to 0. rest cell0. (after turn1 still? turn count increments at end of turn) cell0.
+- r=3: land3 -> game ends turn1.
+Expected from cell0? Let E0. From cell1: roll1 -> land2 -> jump to0; roll2 -> land3 end; roll3 -> p+r=4>3 bounce to 2n -1 -3 =6-1-3=2; land2 -> jump to0. So E1 = 1 + (1/3) E0 + (1/3)*0? Wait if roll2 lands on n=3 game ends, so no additional E. roll3 lands on2 -> jump to0. E1=1+(1/3)E0+(1/3)*0+(1/3)E0 =1+2/3 E0. From cell0: roll1 -> land1 no jump: E1; roll2 -> land2 jump to0: E0; roll3 -> end. E0=1+(1/3)E1+(1/3)E0+(1/3)*0 =1+1/3 E1+1/3 E0. Solve: E0 -1/3E0 =1+1/3E1 => (2/3)E0=1+1/3E1 =>2E0=3+E1. E1=1+2/3E0. Substitute: 2E0=3+1+2/3E0 => (4/3)E0=4 => E0=3. E1=1+2=3. [3,1]. Yes. So jumps to n can end game. Good.
+
+Need compute expected turns until absorption at n. Process finite Markov chain over cells 0..n? But jumps can move within same turn, deterministic chain to settled cell. Need define transition for after a turn: Given current settled cell p (not a jump start? could be n? game over). We roll r. Landing raw x = p+r if p+r <= n else 2n-p-r. Need ensure x in [0,n]. Let's analyze bounce range: p in [0,n]. r in [1,m]. m<=n. If p+r>n, x=2n-p-r. Since p+r>n and p+r <= p+m <= n+n =2n (because p<=n,r<=m<=n) => x=2n-(p+r) between 0 and n-1? If p+r>n, then 2n-p-r < n. If p+r can equal 2n (p=n? but current settled p maybe n game over; p<=n-1 for active; r<=n; p+r<=2n-1 if p<=n-1,r<=n? p+r max (n-1)+n=2n-1, so x>=1? Actually if p=n-1,r=n, p+r=2n-1, x=1. If p=0,r=m? but p=0 current start; r can equal n, p+r=n not > n, land n game ends. If r<n maybe no bounce. For active p in 0..n-1, p+r max 2n-1, x min 1. But what about p=0,r=n? land n game ends. Fine. Bounce x can be 0? Need p+r=2n, impossible for active p<=n-1,r<=n? p=n-1,r=n gives 2n-1, x=1. p=n? game over. So x>=1. But what about n=1: active p=0 only, r=1? p+r=1=n game ends. No bounce. okay.
+
+Then from raw landing x, follow jumps deterministically: while x in jump_map: x = jump_map[x]; if x==n? while x in map; n not in map, stop. If jump chain reaches cell with jump to n etc. It never loops forever. Final settled cell y = x after cascade. If y==n, game ends (absorbing). Else new current cell y. Note if x==n initially, we should not follow jumps (n not jump start anyway). y=n end.
+
+We need expected turns starting at cell 0. But cell 0 could be a jump start? Constraints jumps a >=1, so 0 no jump. Good.
+
+We can set up linear equations for active cells 0..n-1 (non-absorbing). E_i expected turns to hit n (after jumps). For i=0..n-1 (active; cell i might have jump? Current settled cells should be non-jump starts? Starting cell 0 non-jump. After a turn, final y could be a cell that starts a jump? No by looping until no jump, final y starts no jump by definition (unless y=n? n no jump). So active states are cells with no outgoing jump? But careful: raw landing x may be a jump start a; chain redirected to y non-jump. So the set of possible current cells are non-jump-start cells in 0..n-1, plus n absorbing. But jump_map keys are distinct and a in 1..n-1. Values b in 0..n. After cascade, y can equal any cell including a jump start? No loop ensures not jump start; could equal 0, etc. Also y could equal n (absorbing). So only need E for non-jump-start cells. However if a jump chain final y is a cell that starts a jump due to inconsistent? It says if b is also the start of a jump, keeps moving until it lands on a cell that starts no jump. So yes final no jump. Following jumps never loops forever.
+
+Alternative: We can solve linear system for all cells 0..n with E_n=0 and for i<n, E_i = 1 + average over r of F_i(r) where F_i(r) = 0 if settled y==n else E_y. But for i in jump_map (start cells), would they ever be current? Not if settled. But equations can still be defined; starting at 0 and transitions land settle to non-jump cells or n, so E_jump-start never used? However if final y is a cell with jump? not. If final y = 0, okay. We can restrict to all i<n; E for jump-start cells irrelevant but system may have equations for them and could be unconstrained/nonexistent? Better restrict to non-jump-start cells and absorbing n. But careful: jump target can be a jump start eventually settles to a non-jump cell, so transition function can be computed by following jumps. The set of active states = cells 0..n-1 not in jump_map? Are there cells with jump_map key but also reachable as final settled? no. Are there cells without jump_map key but reachable as raw landing? yes final. Good.
+
+But wait: Current token might be on cell a that has jump at start of turn? Starting cell 0 no. After previous turn, jumps are resolved immediately, so not. Good.
+
+If cell 0? jump starts distinct, 0 not key. fine.
+
+Expected turns finite iff probability of absorption is 1. With finite Markov chain (active states finite) and absorbing state n, if there is a positive probability never ends, return None. Equivalently the spectral radius of transient submatrix <1? If substochastic matrix has row sums <1 for all rows? Not necessarily: positive probability never ends iff substochastic matrix Q has spectral radius =1 (i.e., there exists a closed communicating class wholly in transient states). Since finite Markov chain, if largest eigenvalue of Q ==1 (with irreducible classes), then positive probability absorption never. Need detect positive probability of never ending. Could compute expected values via solving linear equations; if no finite solution, positive probability never ends. But due to possible rational arithmetic, need exact. Could also check for closed recurrent classes among transient states (non-n cells) reachable from 0. That is robust: Build full transition probabilities among transient states (non-jump-start active cells). Determine if any recurrent communicating class does not include absorbing n. Since finite Markov chain, positive probability never ends iff from start state there is a path to a closed communicating class (no exit to absorbing n) within transient states. Alternatively compute absorption probability via linear equations with exact fractions; if some E infinite then None. But solving rational linear equations exactly via fractions could be okay with n<=80. But need account for singular system. Could use Gaussian elimination with Fraction for exact p,q; if pivot zero and RHS nonzero -> no finite expectation? Need classify None. Could also use structural reachability.
+
+Need be precise: Expected number of turns until game ends. If probability of never ends >0, return None. This includes cases where from start there is a closed class not containing n reachable (positive probability) but also maybe guaranteed absorption? If reachable closed class not n, positive probability to remain forever from start, so None. What if the start cell 0 is itself in a closed transient class (e.g. every roll sends token back to 0) => None. Example 3: jumps [[1,0],[2,0]]. Cell0. Roll1 -> raw1 -> jump to0 (settle) -> cell0. Roll2 -> raw2 -> jump to0 -> settle0. Roll3? n=3,m=2 actually m=2. only rolls1,2. All to cell0; never ends -> None. Good.
+
+Need exact fraction. We can use linear equations for finite expectation or detect None structurally.
+
+Let's design algorithm:
+
+Input n,m,jumps.
+- Build jump_to = {} for (a,b) in jumps. a distinct. Since constraints ensure distinct. Note if jump list contains a? no a<n and a>=1.
+- Function settle(x): while x in jump_to: x = jump_to[x]; return x. Need avoid infinite loop? constraints say never loops forever. But maybe if b has jump, follow; no loop.
+- transient_states = [i for i in range(0,n) if i not in jump_to]  (since n absorbing, 0 not jump key; include 0). Should we include cells that are jump starts as transient? No. But wait if b equals a jump start and chain ends at y non-jump; fine. What about jump_to values equal n and n no jump; settle returns n. Good.
+- For each transient state p, compute prob_to_end = sum over r of (1/m) where settle(raw(p,r))==n. And transitions dict y -> probability sum.
+  For each roll r in 1..m:
+    raw = p+r if p+r<=n else 2*n-p-r
+    final = settle(raw)
+    if final == n: prob_end += 1/m
+    else: probs[final]+=1/m
+- Need ensure q = prob_end + sum_y probs[y] =1. It should.
+- If no transient states? n could be 1 with m=1, jumps empty. transient_states=[0] (0 not jump), from 0 roll1 raw=1=n -> end prob1, no transitions. E0=1. Good.
+- Need solve E_i = 1 + sum_y P_{i,y} E_y for i in transient. Or use expected turns including final settle. If final n, no E_n.
+
+Detect None: In finite absorbing chain, expected finite iff absorption probability 1 from start. Conditions: from start transient state, all reachable classes? Simpler: Compute reachability of n (absorbing) in state graph with edges for positive transitions. If every transient state in the set reachable from start can reach n? That's not sufficient? Actually positive probability never ends iff there exists a closed recurrent class within reachable transient states. In finite Markov chain, a transient state set has positive probability of never reaching absorption iff it contains a nonempty closed communicating class reachable from start. Equivalent: after removing absorbing n, the directed graph of transient states has a strongly connected component with no outgoing edge to any state (other transient or n) but positive probability stay within? Need account positive probabilities not just graph edges. Since all edges probabilities positive. Let R = set of transient states reachable from start via positive transitions (within transients, including maybe final n? reachability to n means absorption possible). If there exists a nonempty subset S of R that is closed under positive transitions (i.e., for every i in S, all states j reachable from i have positive P_ij with j in S? More precisely no positive probability edge from S to complement of S within transient states; edges to n count as exit). Then positive probability starting in S to remain forever (if S is closed transient) => None. But if a transient state has no path to n, then following positive transitions eventually enters closed class; there is positive probability? Starting at that state, each step has positive probability to remain? Need positive probability never ends. If S reachable and closed, from any state in R that can reach S, positive probability remains in S forever. So None.
+
+Alternatively compute absorption probability via linear equations for probability of eventual absorption A_i = q_i_end + sum P_ij A_j. This is same as solving A = q_end + P A. Since q_end positive. If A_start == 1 exactly rational, finite expectation likely; if <1, None. This detection can also be done by exact linear solve. But solving linear equations for E may be singular when None. Need handle robustly.
+
+Simpler structural detection:
+- Build adjacency of transient states with positive probability. Find all strongly connected components (SCC) of the directed graph with vertices transient states; edge i->j if P_ij>0. If any SCC (other than maybe single state with self-loop) has no outgoing edge from any member to outside the SCC, then it's closed (in transient graph) and cannot reach n. Since n is absorbing not a vertex, an edge to n counts as outgoing (exit) from SCC; if any member has edge to n, then SCC is not closed. Closed SCC = set of states in same SCC such that all outgoing edges (including to n) from any member? Wait if an SCC has an edge from member i to n, does that count as outgoing from the SCC? For absorption probability from i <1, yes positive probability may not occur, but the SCC as a set has an exit edge to n, so the Markov chain starting in the SCC has positive probability to leave (to n) each step, but could still fail to hit n forever with positive probability? Important: A closed class must have all positive transitions from states in the class stay within the class forever. If there is any positive transition from a state in the SCC to n, then the chain within the class may still never hit n with positive probability? In a finite Markov chain, if a communicating class is not closed (has outgoing transition to absorbing), it is transient, and absorption probability starting in it is 1 (unless there is a different closed class reachable?). Let's analyze: Suppose SCC S has exit probability ε to absorbing n, and otherwise stays in S. Starting in S, each visit to exit state may exit with positive prob; since finite, eventually exits almost surely? If the SCC is strongly connected and has at least one exit, the expected number of visits to the exit states before absorption is finite, so absorption probability=1. Yes not closed. It could still have positive probability never ends if within S there is a closed subset? But SCC maximal strongly connected; if it has no internal transitions to an outside closed class? It could go to another transient SCC T (not n) with positive probability; then S is not closed, and there is risk to enter T. If T is closed, then from S positive probability never ends (via T). So detecting "any closed SCC reachable" works. Need identify closed SCCs: SCC with no edges to other transient SCCs and no edges to n. If start can reach such an SCC, None. That is exact and simple.
+
+But is it necessary for positive probability never ends that there is a closed SCC reachable? In finite Markov chain, if absorption (n) not reached with positive probability, then the process never hits n on a positive-probability event. The set of transient states visited infinitely often on that event must form a recurrent class; since finite and no absorbing, by pigeonhole it stays in some finite subset forever with probability positive? There is a positive probability event of never hitting n; on that event, the process takes infinitely many steps among finitely many transient states, so there exists a state visited infinitely often. By regenerative/Markov property, there is a recurrent communicating class reachable on that event. Standard. So yes.
+
+Alternatively, solve exact equations for E and detect None by checking if the linear system has a solution. Structural detection is cleaner but must ensure finite expectation. We still need compute E via linear equations given no closed SCC reachable. If no closed SCC reachable from start, absorption probability=1, expected finite. Then solve rational linear equations.
+
+Need decide how to solve linear equations exactly. n<=80, transient states <=79. Use Fraction Gaussian elimination. E_i = 1 + sum_j P_ij E_j. Rearranged: E_i - sum_j P_ij E_j = 1. This is (I - P)x = 1. If chain is absorbing (no closed transient class reachable), (I-P) is invertible? For finite absorbing chain (all states transient, absorption certain) yes I-Q is invertible. From start reachable but maybe some transient states unreachable from start with closed class? We can restrict to reachable set from start for computation and detection. Unreachable states irrelevant. If there is a closed SCC not reachable from start, ignoring is fine; start absorption certain. Good.
+
+Set R = states reachable from start (including start) via positive transitions among transient states (i->j). (We don't need include n in reachability). For each r in R? Detection of None: if any closed SCC within R, return None. Also if start has prob_end? fine.
+
+Then restrict equations to R. But careful: For a state in R, its transitions may go to transient states not in R? By definition R is closure under positive transitions, so if i in R and edge i->j positive, j in R. Good. Edges to n excluded. So system over R.
+
+Compute probabilities exactly: use Fraction(1,m) for each roll. Transitions dict with Fraction. For each state p in R, let trans[p]=Fraction(0), p_end=Fraction(0), transitions = defaultdict(Fraction). For r in range(1,m+1): raw..., final=settle(raw); if final==n: p_end += Fraction(1,m) else transitions[final]+=Fraction(1,m). Since R reachable, all final in R. We can compute for all non-jump states or only R. Start=0.
+
+Then SCC detection. Build directed graph among R. Use Tarjan or simple reachability to test closed SCC? Since n small, can do all subsets? Better use Tarjan. Or use condition: A nonempty set S closed if for every i in S, every outgoing edge j is in S and no edge to n. But closed SCC must be strongly connected. We can find SCCs via Kosaraju/Tarjan. Need implement carefully.
+
+Simpler due to small n: Compute for each state i in R, the set Reach[i] of transient states reachable (including i) via positive transitions. Let n_reach[i] = Reach[i] excluding n. If for all i in R, n is reachable from i? Does that guarantee absorption probability=1? If every reachable transient state can reach n, then no closed SCC reachable (because closed SCC states couldn't reach n). Conversely, if all reachable transient states can reach n, could there still be positive probability never ends via a closed SCC reachable from some state but not itself? If a closed SCC T reachable from start, then any state i in T cannot reach n, so not all i can reach n. Thus detection reduces to: for every i in R, is n reachable from i via positive probabilities (with edges to n considered reachable)? More precisely define can_reach_n[i] = True if p_end[i]>0 (direct to n) or exists j with transitions[i][j]>0 and can_reach_n[j]. This is a least fixed point on finite graph with possible cycles. That's equivalent to strong connectivity? We can compute via iterating or graph reachability on transient graph plus n. For each i, compute reachable set including n. If all reachable transient states can reach n (direct or via transients), then no closed SCC. Then expected finite. This is even simpler and sufficient.
+
+But wait: Does "every reachable transient state can reach n" guarantee expected finite? Finite Markov chain with absorption from every state in reachable set: yes absorption probability =1 (finite graph; need prove: If absorption probability were <1 from some i, then with positive probability never absorb. On never-absorb event, process stays in finite set R forever; there is a state visited infinitely often. Some cycle in transient graph; following cycle without absorbing has positive probability? Since cycle states strongly connected and no exits to n? Let's trust standard theorem: If every state can reach absorbing state, then absorption is certain. In finite Markov chain, yes because the set of states that cannot reach absorbing is closed (no edges to states that can reach? Let's define bad states = cannot reach n. If i bad, all its transitions must be bad (else would reach n), so bad set closed; starting at bad, never absorb with positive? From i, following bad transitions forever has probability at least? In finite bad set with Markovian transitions and no absorption, there is positive probability to stay forever; in fact absorption probability 0? Actually starting at i, the process within bad set never hits n with probability 1? No, it cannot reach n, so absorption probability 0. Yes if i cannot reach n, then with probability 1 (over sequences? each step stays in bad set, finite but could eventually hit n with probability zero if no path? If no path, no sequence of steps reaches n, so absorption probability=0). Thus if start can reach n but some state reachable cannot reach n, then positive probability to reach bad state then never absorb = None. So requiring all reachable transient states can reach n is correct and equivalent.
+
+We can compute reachability to n:
+- Define graph_up: For each transient i, neighbors = [j for j,prob in transitions[i].items() if prob>0] plus special n if p_end[i]>0.
+- reachable_n = set of states from which n is reachable. Reverse graph: build rev[i] = list of predecessors; mark rev[n]? Simpler compute can_reach_n array via SCC or fixed point:
+Initialize can_reach_n[i] = (p_end[i] > 0) for all i in R. Repeat for all i in R: can_reach_n[i] = can_reach_n[i] or any(can_reach_n[j] for j in neighbors[i]). Since finite, iterate at most |R| times. This yields exact Boolean. Or compute SCCs. Iteration simple.
+- If start not in can_reach_n, None. If any state i in R has not can_reach_n[i], then None (because reachable start can reach i and then never absorb). Actually if start can_reach_n but some other reachable state cannot, start reaches that state with positive probability, then absorption probability 0 -> positive probability never ends. So None. Thus if all i in R can_reach_n, finite. We can check start only? No need all; easier all.
+Could simply compute can_reach_n, then if not can_reach_n[0] return None? Is that sufficient? Suppose start can reach n, but reachable state i cannot reach n. Then there is positive probability from start to reach i. Once at i, probability never ends =1? If i cannot reach n, absorption probability=0 exactly (no path to n). So never ends probability at least P(start->i)>0 -> None. Thus can_reach_n[start] true does NOT imply finite expectation, because start may still have positive chance to hit a dead closed class before n. Right. Need all reachable states can reach n. Example start 0 -> roll1 to bad state A (cannot reach n), roll2 to n. Start can reach n, but positive probability never ends. None. So need all R can_reach_n. Good.
+
+Then solve linear system over R. Need exact Fractions. Let states = R (list). Index map. Unknown variables x_i for i in R. Matrix A = I - P where P_ij for i,j in R. RHS = 1 (Fraction(1)). Solve. If all can reach n, invertible. Use Gaussian elimination with Fraction partial pivoting. Since n<=80, fine.
+
+Then expected = x_0. Answer [p,q] = (num,den) in lowest terms q positive. Fraction automatic. We must ensure [p, q] list ints. Fraction( p, q ) lowest terms with q>=1. Return [f.numerator, f.denominator].
+
+Need verify with examples manually.
+
+Example n=1,m=1,jumps []: transient [0], from 0 raw=1 = n -> p_end=1, no transitions. R=[0]. can_reach_n[0] true. Solve x=1 => [1,1]. good.
+
+Example n=2,m=2,jumps []: active transient [0,1] (1 not jump). State0: roll1 raw1 settle1 (no jump) prob1/2 -> state1; roll2 raw2=n end prob1/2. E0=1+0.5 E1. State1: roll1 raw2=n end; roll2 raw3>2 bounce to 4-1-2=1 (cell1) settle1. E1=1+0.5*0+0.5 E1 => 0.5 E1 =1 => E1=2. E0=1+1=2. [2,1]. good.
+
+Example n=3,m=2,jumps [[1,0],[2,0]]: jump_to {1:0,2:0}; transient [0] (cells 1,2 excluded). State0: roll1 raw1 settle0 (via jump) -> transitions to 0 prob1/2; roll2 raw2 settle0 prob1/2. p_end=0. can_reach_n[0]? neighbors [0], no end -> false; None. good.
+
+Example n=3,m=3,jumps [[2,0]]: jump_to {2:0}; transient [0,1] (cell2 excluded). State0: roll1 raw1 -> state1 prob1/3; roll2 raw2 settle0 prob1/3; roll3 raw3=n end prob1/3. State1: roll1 raw2 settle0 prob1/3; roll2 raw3=n end prob1/3; roll3 raw4>3 bounce 6-1-3=2 settle0 prob1/3. can_reach_n[1]=true (end direct). State0 reachable end -> true. Solve: E0=1+1/3 E1+1/3 E0; E1=1+1/3 E0+1/3 E0? Wait E1=1+ transitions to0 (two rolls each 1/3) =1+2/3 E0, end prob1/3. Equations: E0=1+1/3E1+1/3E0; E1=1+2/3E0. solved E0=3. good.
+
+Need consider jump chains to cells that are jump starts then final maybe 0; we settle. Good.
+
+Need consider raw landing x = n and jump chain? n cannot be jump start (constraints), so settle(n)=n. fine.
+
+Need consider jump_to mapping with duplicate keys? Constraints distinct; ignore. Could maybe have [a,b] where a==b? constraint a != b; ignore.
+
+Need consider following jumps never loops forever means settle recursion could still hit a cycle if input violates constraints; not responsible. But maybe no infinite due to constraints. We'll not handle.
+
+Now exact fraction Gaussian elimination. Let's design function solve_linear(A, b) with Fraction. Use list of rows. Need ensure indexing. For states list size k. Build matrix as list of dict? For k up to 80, dense Fraction list length k*k okay.
+- A=[[Fraction(0) for _ in range(k)] for __ in range(k)]
+- for i,p in enumerate(states): for j in states: A[i][j] = Fraction(-1)*transitions[p].get(j, Fraction(0)); A[i][i] += 1; RHS[i]=Fraction(1)
+Because equation: E_i - sum P_ij E_j =1. At i, -P_ii. Good.
+- Gaussian elimination: forward for col in range(k): pivot row among col..k-1 with A[row][col]!=0. If none, raise. Swap. Then eliminate below/above. Back substitution. Since no None if all can reach n, no pivot failure. Use partial pivot by nonzero (first) to keep exact. Could choose largest by abs numerator? Fraction comparable for abs? abs(Fraction) works. Partial pivot largest magnitude for stability, but exact arithmetic no stability needed; still fine. Choose row with nonzero pivot (the first) to keep simple. If no nonzero, None? But if all can reach n, should never happen. Still handle by returning None? But we already returned None due to reachability if bad. Need not. But robust: if singular, return None. Returning None in singular case could mask legitimate? If all reachable states can reach n, matrix invertible. But if start only? we use all R. okay.
+- Return x[0].
+
+Need ensure RHS = 1 or 1? Expected turns until ends. Each turn always takes one turn, even if game ends in that turn. So E_i = 1 + sum over rolls final not n E_final. Correct. If final jump settles to same state p (e.g. roll1 from cell0 settles to0), E0 includes E0 term. good.
+
+Need construct R as reachable states from 0 including states entered via transitions. But if jump_to has cycle? constraints no loops. settle terminates. Good.
+
+Reachability to n function:
+R = [0] + BFS. Start=0. adjacency transitions built for all non-jump states? We can build transitions only for transient states; compute all first then BFS from 0 using transitions. For unvisited state, settle maybe? We only need for states reachable. But building for all non-jump states O(n*m*jumpchain) fine (80*80). Let's compute transition data for all cells 0..n-1 not in jump_to. Then BFS from 0 using transitions. Since settle(raw) for any state yields final either n or non-jump state. Good.
+- Note settle(raw) can return a jump-start cell? No. But if jump_to maps a -> b and b is jump start; while loop continues. It terminates at no-jump cell. Good.
+- Transitions for state p: final may be n (absorbing), final in transient (not jump start). It will not produce a jump-start final. good.
+
+BFS: seen=[False]*(n) (or use set). seen[0]=True; queue=[0]; R=[]; while q: p=pop; R.append(p); for j,prob in trans[p].items(): if prob>0 and not seen[j]: seen[j]=True; q.append(j). Need include j in R exactly. Since trans has dict only positive. Good. Do not include n in R. Then can_reach_n dict initialized: for p in R, can_reach_n[p] = (end_prob[p] > 0). Then iterate: changed=True; while changed: changed=False; for p in R: if not can_reach_n[p]: if end_prob[p]>0 or any(can_reach_n[j] for j,prob in trans[p].items()): can_reach_n[p]=True; changed=True. Actually initial end>0 enough; then relaxation. Or compute in reverse topologically with SCCs; iteration fine. Need note initial can_reach_n[p]=end_prob>0 may be false; then in loop set true if any neighbor true. This computes least fixed point. Complexity O(k^2) fine.
+- If any p in R with not can_reach_n[p]: return None.
+- Then solve over R.
+
+Need be careful: if R empty? Start=0 always in transient? Since 0 not jump key, yes R contains 0. If n=1, cell0 in transient. fine.
+
+Potential issue: We exclude jump-start cells from transient states. But start=0 is not jump start due constraints. Good.
+
+Potential issue: jump target b can be n and also maybe has jump? n cannot be jump start. settle returns n; treat absorbing. Good.
+
+Potential issue: jump chain final cell = 0 (jump start? no) and 0 is state. Good.
+
+Now exact fraction: E_0 = x. Fraction reduction automatic, denominator positive for finite. If E maybe Fraction(0)? no, expected >=1. fine.
+
+Time constraints trivial.
+
+Need implement exactly function top-level no class. Only code block.
+
+Let's think if there is another subtlety: Die roll move and bounce. When p+r > n, lands on 2n - p - r. This is equivalent to reflecting the landing point around n? Example n=3,p=1,r=3: raw=4 (one beyond n=3); bounce to 6-1-3=2. Yes. For p=0,r=3,n? raw=3, not pass if equal n. good. m<=n ensures max roll m <= n, but p can be n-1; p+r max 2n-1; bounce min? 2n-(2n-1)=1. So bounce never lands 0 for active cell. But for p=0,r=n? not > n. So raw final cell could be 0 only via jumps or bounce? bounce cannot land 0 when active p<=n-1? Wait if m=n and p=n? game over. p=0,r=m=n -> raw=n equal n, not >. bounce x=2n-0-n=n not used. So x bounce >=1 as above. But if p=0 and m=n? no bounce. Good. Jump target can be 0.
+
+Also if p=0,r=m<n, x=r in 1..n-1 maybe jump start; settle may loop. good.
+
+Need double check expected_turns examples values [3,1] from problem; match.
+
+Now, exact linear solve: Need be robust to 2D matrix if states R length k. Implementation:
+```
+def solve_system(states, trans, end_prob):
+    k=len(states)
+    idx={s:i for i,s in enumerate(states)}
+    A=[[Fraction(0) for _ in range(k)] for __ in range(k)]
+    rhs=[Fraction(1) for _ in range(k)]
+    for i,s in enumerate(states):
+        A[i][i] = Fraction(1)
+        for j,prob in trans[s].items():
+            A[i][idx[j]] -= prob
+    # gaussian elimination
+    M=[row[:] + [rhs[i]] for i,row in enumerate(A)]
+    for col in range(k):
+        piv=None
+        max_abs=Fraction(0)
+        for r in range(col,k):
+            if M[r][col] != 0 and abs(M[r][col]) > max_abs:
+                max_abs=abs(M[r][col]); piv=r
+        if piv is None: return None
+        if piv != col: M[col],M[piv]=M[piv],M[col]
+        pv=M[col][col]
+        # eliminate all other rows? Gauss-Jordan for direct inverse maybe
+        for r in range(k):
+            if r == col: continue
+            factor = M[r][col] / pv
+            if factor == 0: continue
+            for c in range(col, k+1):
+                M[r][c] -= factor * M[col][c]
+    x=[Fraction(0) for _ in range(k)]
+    for i in range(k):
+        x[i] = M[i][k] / M[i][i]
+    return x
+```
+Gauss-Jordan eliminates all rows; since diagonal maybe nonzero pivots, then x. It doesn't normalize pivot, but back/forward: after loop, equations have zeros off-diagonal at each pivot, but may have off-diagonal in columns > i for row i? In Gauss-Jordan, for each pivot col, we eliminate that col from all other rows, but we do not normalize row col or eliminate below current? In the loop over r all rows not col, includes rows above. At the end, matrix diagonal (or upper?) Let's verify: For col=0, eliminate col0 from all other rows; row0 has pivot in col0 and arbitrary in cols1..k (and rhs). For col=1, rows other than col include row0; we eliminate col1 from row0 using row1 pivot. Good. At end, each row i has only col i nonzero among columns0..k maybe? For row0, at col1, factor M[0][1]/M[1][1]; subtract from row0 cols1..k; diagonal col0 remains? subtract factor*M[1][0] (which is zero by induction) so col0 unchanged, good. At end diagonal. So x_i=M[i][k]/M[i][i]. Fine. However if we eliminate row above during later col, we modify M[0][cols > col], which includes rhs and maybe columns between; okay.
+But note factor for rows not yet processed (r>col) and rows already processed (r<col). We eliminate col from all r != col. Good. At the end, for row i, all cols <i are zero, col i diagonal, cols >i should be zero? Wait Gauss-Jordan eliminates column col from all other rows, but it does not eliminate columns > col from row col after later pivots? Later pivot j>col: when processing col=j, for row i < j, factor=M[i][j]/M[j][j]; subtract factor*M[j][j:] from row i. This includes columns >j and rhs. It zeros M[i][j] but may modify M[i][cols >j], including col? no col<j; includes columns i? no since cols>i? For row i, 0..i-1 zero by induction, col i diagonal (maybe not modified? In later j>i, M[j][i]=0 by induction, factor*zero =0, so diag unchanged; but M[i][j] becomes zero; good). For row i, columns >i: j from i+1 until k; when processed later, zeroed. rhs updated. At end row i has M[i][i] diagonal, others zero (cols !=i,0..k-1). rhs = M[i][k]. Good.
+
+Alternatively simple forward+back substitution with pivot nonzero. Gauss-Jordan easy.
+
+But efficiency: Fractions can have huge numerators? Exact arithmetic with n=80 and probabilities denominators powers of m, denominators could blow up but manageable. n<=80.
+
+Potential issue: end_prob dict includes direct to n. In matrix we set RHS=1; for direct end, no negative term; equation E_i=1+sum_j P_ij E_j because contribution from end is 0, but the "1 +" already accounts turn. Good.
+
+Potential issue: if there are states in R that have end_prob=0 and no outgoing transitions? Then can_reach_n false; return None. Good. If there are states reachable in cycles all reaching n eventually (e.g. cell1 can reach n via direct sometimes), matrix invertible. Good.
+
+Let's test with a cycle that reaches n: states A,B. A rolls: to B prob1, to n prob0? If no end, A cannot reach n -> None. If A->B and B->A and B->n, then all can reach n; finite; equations E_A=1+E_B; E_B=1+0.5E_A? solve finite. good.
+
+Now, possible positive probability never ends even if all reachable states can reach n? As discussed no. Let's prove bad set closure: states cannot reach n. If i cannot reach n, then for all transitions i->j positive, j cannot reach n (otherwise i reaches n), and end_prob[i]=0? If end_prob[i]>0, i reaches n directly. So all transitions remain bad. Thus if start can reach a bad state, never ends positive. We check all R. good.
+
+Need return `None` if positive probability never ends. Good.
+
+Let's consider jumps with b=n: state has jump? a in 1..n-1, b=n. settle from raw a -> n final. This counts in end. Good. Example [[2,0]] had settle raw2 ->0, not end.
+
+Now, maybe a jump can land on a cell a that is a jump start and following jumps "never loops forever" but in input, jumps might have e.g. [1,2],[2,3], where 3 is not a start (n maybe 4) and 2 is start. Settle from1 ->2 ->3. good. If b=n and n also start? constraint not.
+
+Potential ambiguity: "When the token lands on cell a, it moves to cell b straight away, in the same turn." Does that include after bounce landing? Yes, token lands on a; if a is start, redirect. Does it include initial cell 0 if it has jump? constraints no. If b is start, cascade. final cell starts no jump. Good.
+
+Potential ambiguity: When token lands on n via jump cascade (e.g. a->n). The game ends when token rests on cell n; after cascade token rests on n, so game ends. Yes.
+
+Potential ambiguity: If b == n and n is also start? Not allowed. If b == n, game ends same turn. good.
+
+Potential ambiguity: What if jump chain final cell = n but n is start? constraints no.
+
+Now code. Need only output code block, no explanations. Use `from fractions import Fraction` maybe top-level. Function signature exactly. Type hints: `list[list[int]] | None` available py3. Use list[list[int]]. Ensure no classes. Need maybe use `collections.deque` or list as stack. Fine.
+
+Implementation details:
+
+```
+from fractions import Fraction
+
+def expected_turns(n, m, jumps):
+    jump_to = {}
+    for a,b in jumps:
+        jump_to[a] = b
+    def settle(x):
+        while x in jump_to:
+            x = jump_to[x]
+        return x
+    end_prob = {}
+    trans = {}
+    for p in range(0, n):
+        if p in jump_to:
+            continue
+        end = Fraction(0)
+        tr = {}
+        for r in range(1, m+1):
+            nxt = p + r
+            if nxt > n:
+                nxt = 2*n - p - r
+            final = settle(nxt)
+            if final == n:
+                end += Fraction(1, m)
+            else:
+                tr[final] = tr.get(final, Fraction(0)) + Fraction(1, m)
+        end_prob[p] = end
+        trans[p] = tr
+    # BFS
+    seen = {0}
+    stack = [0]
+    order = [0]
+    while stack:
+        p = stack.pop()
+        for j, prob in trans[p].items():
+            if prob > 0 and j not in seen:
+                seen.add(j)
+                stack.append(j)
+                order.append(j)
+    R = order
+    # reachability to n
+    can = {p: (end_prob[p] > 0) for p in R}
+    changed = True
+    while changed:
+        changed = False
+        for p in R:
+            if can[p]: continue
+            # if direct end already handled, but can remain false if end=0
+            # check neighbors
+            for j, prob in trans[p].items():
+                if prob > 0 and can.get(j, False):
+                    can[p] = True
+                    changed = True
+                    break
+    if any(not can[p] for p in R):
+        return None
+    # solve
+    ... 
+```
+Need careful: In BFS, trans[0] may include final states that are jump-start? settle should never final jump-start, so okay. If final from settle is 0, j=0 seen already. If final= n handled. No final outside [0,n-1] nonjump. Good.
+But wait: `seen` initially {0}; stack pops 0. It appends order=[0]. If j=0 seen, skip. Good.
+
+Reachability iteration can be simpler with fixed point; while changed with `not can[p]`. Since can[p] initialized end_prob>0. If p's neighbor j is set can[j]=True after processing later, next pass sets. Fine. Complexity O(|R|^2). Good. Use `can.get(j, False)` though j in seen/R. all final in seen. fine.
+
+But note `can[p] = (end_prob[p] > 0)`: this treats direct end as reachable. good.
+
+Solving:
+```
+    k=len(R)
+    idx={p:i for i,p in enumerate(R)}
+    M=[]
+    rhs=[]
+    for i,p in enumerate(R):
+        row=[Fraction(0) for _ in range(k)]
+        row[i]=Fraction(1)
+        for j,prob in trans[p].items():
+            row[idx[j]] -= prob
+        M.append(row + [Fraction(1)])
+    for col in range(k):
+        piv=-1; best=Fraction(0)
+        for r in range(col,k):
+            v=M[r][col]
+            if v != 0 and (piv == -1 or abs(v) > best):
+                piv=r; best=abs(v)
+        if piv == -1:
+            return None
+        if piv != col:
+            M[col], M[piv] = M[piv], M[col]
+        pv=M[col][col]
+        for r in range(k):
+            if r == col: continue
+            f = M[r][col] / pv
+            if f == 0: continue
+            for c in range(col, k+1):
+                M[r][c] -= f * M[col][c]
+    # back solve or direct
+    x=[Fraction(0) for _ in range(k)]
+    for i in range(k):
+        if M[i][i] == 0: return None # should not happen
+        x[i]=M[i][k]/M[i][i]
+    return [x[idx[0]].numerator, x[idx[0]].denominator]
+```
+At the end after Gauss-Jordan, row i diagonal? Let's check again: In Gauss-Jordan loop, for pivot col, we eliminate column col in all rows r != col, including rows r > col that will be processed later and r < col already processed. That is okay. At end of col=0, row0 pivot, row1..k-1 col0=0. For col=1, pivot row1 (maybe row0? no pivot search starts at col=1 so row0 not candidate; but row0 can be modified by elimination with factor M[0][1]). Good. After all pivots, for row i, columns <i zero, col i nonzero, columns >i zero? For row0, col1 elimination zeroed M[0][1], col2 elimination zeroed M[0][2], ..., colm k-1 elimination zeroed M[0][k-1]. Good. For row i, when pivot j>i, elimination zeroed j. When pivot col? For cols >i, yes. diag col i: not eliminated by later pivots because later row j has col i = 0 (since i<j and after col=i elimination, all rows !=i have col i=0; rows with col <i? for col i, rows >i zeroed; later pivot j>i uses row j with col i? row j was processed after col i? For row j and col i<j, at col i we eliminated all rows !=i, including row j, so M[j][i]=0. Thus later elimination doesn't touch diag. Good.
+Then x_i = M[i][k]/M[i][i]. For Gauss-Jordan, row i has all off-diag 0; rhs equals sum over? correct.
+However with pivot search `best=abs(v)` and then after pivot, M[col][c] not normalized. We use f for other rows. At end row i: diag M[i][i]=pv (not normalized), M[i][k] is updated rhs. Good.
+
+Need note we mutated rhs into matrix rows. `M.append(row + [Fraction(1)])`; row length k; adding rhs. Good.
+
+Edge: If R has one state and direct end=1, matrix row [1] + [1], fine.
+
+Return type: list[int]. Use Fraction. `f.numerator` and `.denominator` are ints.
+
+Need no explanations. Use only code block. Final answer only code. But before final, let's further scrutinize potential pitfalls.
+
+Potential pitfalls with `m` vs n in transitions: Since p+r > n. If p+r == n? no bounce. If p+r < n? land. If p+r > n, formula. What about p+r=n+1 and n maybe 1? p=0,r=2? m<=n=1 no. okay.
+Need compute `2*n - p - r` in same turn after jump? We only compute raw landing before jumps. Then settle. Good.
+
+Potential pitfalls with jumps that start at cell n? Constraints no. Jump starts distinct. If duplicate [a,b] same a with different b? constraints distinct, but our dict overwrites. Not issue.
+
+Potential pitfalls with `q >=1`: Fraction denominator positive always. Good.
+
+Potential pitfalls with expected turns when state reaches n via jumps but n maybe in jump_to? no.
+
+Let's consider a nasty example to ensure SCC/reachability detection works:
+n=3,m=2,jumps=[[1,2]] (a=1→2). Active states transient: cell0 (no jump) only? cell1? jump start excluded, cell2? cell2 starts no jump? jump_to has key1 only, so cell2 active. But settle from cell0 roll? transitions may settle to cell2? Start reachable R includes 2. Suppose from cell0 roll1 raw1 -> jump to2; roll2 raw2 -> no jump (cell2 active). Endpoint maybe. From cell2: roll1 raw3 end; roll2 raw4>3 bounce 6-2-2=2 (cell2) . So cell2 can reach n; all can reach n; solve finite. good. Active state 2 includes itself, works.
+
+Example where state reachable only via jumps: n=5,m=2, jumps [[1,2]]. Active cells excluding 1: 0,2,3,4. Start 0. Roll1 raw1 -> jump to2 (active). Roll2 raw2 (active). Both can reach? maybe. If a roll3? m=2. fine.
+
+Need consider current cell p that has a jump but is also reachable as final? no. But what if jump_to contains key equal to final cell? Impossible. But what if jump chain from a cell ends at b and b has a jump that leads to a, cycle? constraints no loops forever. okay.
+
+Let's think about exact expected fractions. Linear system over R; if all can reach n, solution finite. Are there cases where start reachable, all reachable states can reach n but expected still infinite due to long loops with high probability? In finite absorbing Markov chain (all states transient), expected hitting time finite. Yes, because absorption probability 1 and finite state, but could expected be infinite if absorption probability=1? For finite state Markov chain with absorbing state reached with probability 1, expected absorption time is finite. Proof: there is a maximum number of steps? no, but return to n has no tails heavier than geometric-ish? Finite chain with absorption probability 1 from every reachable state; the expected absorption time solves finite linear equations and is finite. Is it possible absorption probability=1 but expected time infinite in finite state Markov chain? I recall in finite Markov chains, if absorbing state is reached almost surely, expected absorption time is finite? Let's verify. Finite number of transient states N. Let Q substochastic spectral radius <1 if absorption certain. Then E=(I-Q)^-1 1 finite. Yes.
+
+Now detection via all can reach n: If all states in R can reach n, Q (transient transitions) has spectral radius <1. If absorption occurs with probability 1? Suppose a transient cycle in R that can reach n, e.g. A<->B with B->n small. Q spectral radius <1 (yes). good.
+
+Potential pitfall: We use `stack` as LIFO for BFS; order not important. Seen initialized {0}; stack [0], order [0]. fine.
+
+Potential pitfall: If n=0? constraints n>=1. no.
+
+Potential pitfall: `jumps` may include [a,b] where a not distinct? no. `jump_to` overwrite. fine.
+
+Potential issue with reachability iteration: It relies on `can[j]` for j that are in R. Since j in trans[p] items and trans built only for p in all transient states; BFS seen includes final j. all trans final j not seen? BFS expands all neighbors immediately, so any j in trans[p] for p in R is seen and in order. Good.
+
+Could simplify by using direct recursive depth? constraints no loops. While loop okay.
+
+Need ensure function uses exact `Fraction` for probabilities; no floats.
+
+Now final response with only code block. No extra text. Ensure no markdown beyond code block. Good.
+
+Let's formulate code cleanly. Maybe include `from fractions import Fraction` outside function. It says implement exactly this function; importing outside okay. Use type hints.
+
+Potential issue: return `[x[0?]]`. idx[0]=0 since order[0]=0. yes.
+
+Potential issue: If there are states in R that cannot reach n, return None even if start can reach n; as discussed. Good. Example start can reach n and dead A; we return None. Correct? Let's manually reason positive probability never ends. Start rolls A with prob .5, A never reaches n (e.g. loops A). Then never ends with .5; None. yes.
+
+Potential issue: What if A cannot reach n but absorption probability from start still 1 because A is not on the path? But A is reachable from start by definition if in R. so positive probability. good.
+
+Potential issue: We check all p in R for can_reach_n. Since R includes states reachable from start. Fine.
+
+Now final code.
+=== CONTENT ===
+```python
+from fractions import Fraction
+
+def expected_turns(n: int, m: int, jumps: list[list[int]]) -> list[int] | None:
+    jump_to = {}
+    for a, b in jumps:
+        jump_to[a] = b
+
+    def settle(x):
+        while x in jump_to:
+            x = jump_to[x]
+        return x
+
+    end_prob = {}
+    trans = {}
+    for p in range(0, n):
+        if p in jump_to:
+            continue
+        end = Fraction(0)
+        tr = {}
+        for r in range(1, m + 1):
+            nxt = p + r
+            if nxt > n:
+                nxt = 2 * n - p - r
+            final = settle(nxt)
+            if final == n:
+                end += Fraction(1, m)
+            else:
+                tr[final] = tr.get(final, Fraction(0)) + Fraction(1, m)
+        end_prob[p] = end
+        trans[p] = tr
+
+    seen = {0}
+    stack = [0]
+    reachable = [0]
+    while stack:
+        p = stack.pop()
+        for j, prob in trans[p].items():
+            if prob > 0 and j not in seen:
+                seen.add(j)
+                stack.append(j)
+                reachable.append(j)
+
+    can_reach_end = {p: end_prob[p] > 0 for p in reachable}
+    changed = True
+    while changed:
+        changed = False
+        for p in reachable:
+            if can_reach_end[p]:
+                continue
+            for j, prob in trans[p].items():
+                if prob > 0 and can_reach_end.get(j, False):
+                    can_reach_end[p] = True
+                    changed = True
+                    break
+
+    if any(not can_reach_end[p] for p in reachable):
+        return None
+
+    k = len(reachable)
+    idx = {p: i for i, p in enumerate(reachable)}
+    mat = []
+    for i, p in enumerate(reachable):
+        row = [Fraction(0) for _ in range(k)]
+        row[i] = Fraction(1)
+        for j, prob in trans[p].items():
+            row[idx[j]] -= prob
+        mat.append(row + [Fraction(1)])
+
+    for col in range(k):
+        pivot = -1
+        best = Fraction(0)
+        for r in range(col, k):
+            v = mat[r][col]
+            if v != 0 and (pivot == -1 or abs(v) > best):
+                pivot = r
+                best = abs(v)
+        if pivot == -1:
+            return None
+        if pivot != col:
+            mat[col], mat[pivot] = mat[pivot], mat[col]
+        pv = mat[col][col]
+        for r in range(k):
+            if r == col:
+                continue
+            f = mat[r][col] / pv
+            if f == 0:
+                continue
+            for c in range(col, k + 1):
+                mat[r][c] -= f * mat[col][c]
+
+    x = [Fraction(0) for _ in range(k)]
+    for i in range(k):
+        if mat[i][i] == 0:
+            return None
+        x[i] = mat[i][k] / mat[i][i]
+
+    ans = x[idx[0]]
+    return [ans.numerator, ans.denominator]
+```

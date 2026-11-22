@@ -1,0 +1,553 @@
+=== REASONING ===
+We need solve problem in Python 3. Need final only code in a single python block. Need provide correct algorithm.
+
+We need solve: given array length n up to 1e5, elements nonnegative up to 1e9, k>=1. Among all contiguous subarrays with length >= k, find max average sum/len. Return exact fraction [p,q] lowest terms q>=1.
+
+We need think carefully. This is maximum average over subarrays of length >= k. Since elements nonnegative, longer subarrays containing high average perhaps help. Need exact.
+
+Naive over O(n^2) impossible. Need algorithm O(n log n) or O(n). Since elements nonnegative. Need find maximum slope over segments length>=k of cumulative sums: average for segment [i,j] = (S_{j+1}-S_i)/(j+1-i). We need max over i<j with length>=k. This is like maximum of (S_b - S_a)/(b-a) subject to b-a>=k. Points (i, S_i) for i=0..n. Need upper hull? The max average over segments length at least k. This is maximum slope between points with horizontal distance >= k. Need exact fraction.
+
+n=1e5, elements nonnegative. Naive O(n^2) too high. Need efficient.
+
+Because elements nonnegative, cumulative sums strictly increasing? Not strictly if zeros; nondecreasing. There could be equal S at zero-run. For segment average, numerator nonnegative. If all elements zero, slopes zero. Fine.
+
+Maximum slope between points with dx>=k. There may be simple answer? Since length >= k, perhaps optimal segment either length k? Let's test. Adding nonnegative elements to segment: new average = (s + x)/(m+1) where old avg a=s/m, x>=0. New avg >= old avg iff (s+x)/(m+1) >= s/m -> m s + m x >= (m+1) s -> m x >= s -> x >= s/m = old avg. If element less than old avg, adding lowers average; but you could remove some prefix/suffix instead. Segment longer than k can improve by including high elements. Need general.
+
+Let's explore structure. For fixed start i, as end extends, average changes. Need max over ends with length>=k. Could do for each i scan? O(n^2). Need smarter.
+
+Known problem: maximum average subarray (any length) can be solved by comparing slopes, but with length constraint. There is no convexity if elements arbitrary, but nonnegative? Cumulative sums are convex? No arbitrary increments.
+
+We need exact fraction. Constraints moderate. There may be known algorithm using SMAWK / convex hull trick? Need derive.
+
+Maximum slope between cumulative sum points with distance>=k. Since points have x=i increasing 0..n, y=S_i nondecreasing. We want max over pairs with dx>=k of slope. This is a large deviation / maximum slope over all points. Could sort? x fixed.
+
+Observation: For a candidate slope λ, condition segment average >= λ means for all? existence of segment length>=k with sum >= λ*length. Let f_i = S_i - λ i (for i=0..n). Segment [i,j) average >= λ iff (S_j-S_i)/(j-i) >= λ iff (S_j - λ j) >= (S_i - λ i) and j-i>=k. Let g_i = S_i - λ i. Need i<j, j-i>=k, g_j >= g_i. Actually for max average we can binary search λ exact? But exact fraction comparisons with rationals. We can find maximum by parameter λ and checking existence of pair i<j with dx>=k and g_j >= g_i (since slope=(g_j-g_i)/(j-i)? Let's define g_i = S_i - λ i; slope between i and j = (S_j-S_i)/(j-i) = λ + (g_j-g_i)/(j-i). slope>=λ iff g_j>=g_i.) For fixed λ, to check if there exists pair length>=k with g_j>=g_i, can compute? Since i ranges 0..n-k and j ranges i+k..n. Need any i<j-k? Let h_x = max? We need pair distance>=k with same/higher g. If global max g occurs at position j, and there exists i<=j-k with g_i <= g_j, then yes. But also if global min at i, exists j>=i+k with g_j>=g_i. Equivalent: there exists i with g_i <= max_{j>=i+k} g_j? Actually for fixed i, max later g. Since g_j >= global? We can precompute suffix max M[i]=max_{j>=i} g_j. Then segment starting at i length>=k exists iff M[i+k] >= g_i? Because choose j>=i+k with g_j>=g_i, exists iff suffix max from i+k >= g_i. Yes. Then check λ feasible iff exists i in 0..n-k such that M[i+k] >= g_i. Since M nondecreasing? suffix max as i increases is nonincreasing? M[i] = max_{j>=i} g_j, as i increases, set smaller, M[i] <= M[i-1]. So condition decreases? For λ increasing, g_i = S_i - λ i decreases at different rates; M[j] = max suffix (S_j' - λ j') also decreases but not uniformly. Need decide. Could binary search rational λ. But exact fraction answer needs precise. Could implement exact comparisons with Fraction and binary search? Need terminate exactly? We need find max exactly. Could use ternary? Not exact.
+
+Alternative: candidate slopes are averages of subarrays, many. Need compute max exactly.
+
+Maybe there is simpler due to nonnegative elements and k constraint. Let's examine. Since elements nonnegative, the maximum average over length>=k might simply be max over: (1) best average over length exactly k? (2) best average over length k+1? Hmm adding elements can improve. Let's reason.
+
+Let b be optimal subarray with length m>=k, avg A. If m>k, can we extend by one element to higher average? Not necessarily. But perhaps optimal subarray can be assumed maximal in sense cannot remove an endpoint and improve (local optimality). There may be algorithms via segment tree and convex hull. Need exact.
+
+Let's search memory: Problem "Among all contiguous subarrays of a with at least k elements, find the largest average" perhaps known as maximum average subarray with minimum length. Constraints n=1e5. There is an algorithm using maximum subarray via binary search on average with O(n log n) using data structure. Need exact output as fraction. We can binary search λ over interval [min avg, max avg] to enough precision? But exact answer compared. We can derive exact by maintaining candidates maybe.
+
+Option: Use parametric search to find max λ exactly. For a given λ (rational), check feasibility exactly in O(n): compute suffix max of g_i exactly using Fraction or integer arithmetic. Since λ rational p/q or maybe λ = x/y. Feasibility O(n). If we can binary search to exact breakpoint. The maximum λ is a rational (average of subarray) with denominator <=n. We need output. We can use exact binary search to recover candidate? Could perform search over possible denominators? Too many.
+
+But n=1e5, a_i<=1e9, sums <=1e14, denominators<=1e5. Exact comparisons are feasible. We can use Fraction in feasibility; O(n) per lambda, binary search ~60 iterations, O(6e6) Fraction ops heavy but maybe okay? But need exact final, not approximate. We can binary search for λ to very close then identify. But exact lowest terms risky due floating. Need robust.
+
+Alternative use fractional programming: maximum over pairs with dx>=k of (y_j-y_i)/(x_j-x_i). This is max slope with chord distance>=k. There are known algorithms using convex hull of points and for each i? O(n log n). Since y nondecreasing, maybe use upper/lower envelope. Let's analyze.
+
+We need max slope between points P_i=(i,S_i) (i=0..n), with horizontal separation at least k. Note P_i x distinct increasing. The maximum slope among all pairs with dx>=k. Since slopes positive (nondecreasing y; if zero slopes possible). The chord with maximal slope will have both endpoints being extreme points in some sense (vertices of upper/lower convex hull?) For ordinary unconstrained maximum slope between points with x increasing, the optimal segment endpoints are vertices on convex hull (upper hull?) Let's recall: Max slope between any two points = max over pairs (y_j-y_i)/(x_j-x_i) for x_j>x_i. This can be computed by considering lower? For slope high, points with low y at left and high y at right. But not simply upper hull; all pairs on the upper convex hull? Example points (0,0),(1,100),(2,101). Max slope between (0,0)-(1,100)=100 vs (0,0)-(2,101)=50.5; endpoints are (0,0),(1,100), both on upper hull? Upper hull of points is (0,0)->(1,100)->(2,101) if slope (100)->(1), for upper hull we keep points that make hull above? Let's define upper hull (maximizing y for given x) from leftmost to rightmost: slopes should decrease? Points: slopes 100,1; upper hull includes (1,100) because it is above line (0,0)-(2,101) (line y=50.5x, at x=1 y=50.5, point 100 above), yes. Max slope between upper hull vertices? Chords among upper hull vertices can have slopes decreasing? For upper hull, slopes between consecutive vertices strictly decrease? Points (0,0),(1,100),(2,101): consecutive slopes 100,1 (decrease). Chord slope (0,0)-(2,101)=50.5. Max over chords of slopes between vertices occurs between earliest? Not necessarily: with points (0,0),(1,100),(2,49),(3,50). Need check. Known result: maximum slope between any two points equals maximum slope among adjacent vertices of the upper convex hull? Let's test. For ordinary unconstrained max slope (j>i), any point in interior of chord will be below or on chord? If endpoints i,j, for any intermediate point r, if it lies above the chord, then the max slope between i and r or r and j is greater? Let's derive: If intermediate point P_r above chord between P_i,P_j, then slope(i,r) > slope(i,j) and slope(r,j) > slope(i,j)? Since chord above line? Let chord line L. If P_r above L, left part slope = (y_r-y_i)/(r-i). The chord slope = L at x_i to x_j. P_r above line means y_r > y_i + m (r-i) -> left slope > m. Right slope = (y_j-y_r)/(j-r); y_r > y_i + m rdist? Compare y_j? Since P_r above line between i,j, y_j - y_r < y_j - (y_i + m rdist) = m(j-r), right slope < m. Actually if above line, right slope < m. So left slope > m. Thus if r above chord, slope(i,r)>m, so optimal endpoints need not be hull vertices? But if r is after i before j, slope(i,r)>m; then segment i..r is better. This means optimal segment has no interior point above chord. Therefore the segment endpoints form a chord such that all intermediate points lie on or below chord. That is exactly an edge of the upper convex hull? The upper convex hull from leftmost to rightmost with all intermediate points below (or on) consecutive chords. Yes, for maximum slope (no distance constraint), the best segment is between adjacent vertices of the upper hull (where hull is formed by points (i,S_i), with all points on or below chords between consecutive hull vertices). Is that true with equal points/horizontal? Yes, for upper convex hull, consecutive chords have decreasing slopes, and all points lie below. Need maximize chord slope; among upper hull edges, slopes are strictly decreasing as move right? Then maximum is the first edge? Wait consecutive upper hull slopes decrease (left-to-right) if all points lie below. Example (0,0),(1,100),(2,101): upper hull edges slopes 100 then 1; max first edge segment length 1. Is that correct? Segment (0,101) length 2 avg 50.5, less than 100. yes. But what about segment (1,101)? length1 avg1. yes.
+
+But with minimum length k, even if upper hull first edge has length < k, we need longer segments. We cannot just take first upper hull edge. Need consider chords between non-adjacent upper hull vertices with dx>=k. Candidate slopes over all pairs of upper hull vertices? If segment endpoints form chord with all intermediate points below, but if length>=k and not maximal? For any segment with no interior point above chord, endpoints are on upper hull vertices (not necessarily adjacent). Its slope is a chord slope between hull vertices. The maximum such slope with dx>=k over all pairs of upper hull vertices perhaps candidate. Is every optimal segment chord has all intermediate points below the chord? Suppose optimal segment i..j: if there is intermediate r above chord, then slope(i,r)>slope(i,j), but segment (i,r) length r-i may be < k; if it's shorter than k, cannot use. Ah! Length constraint. If r-i>=k, then better segment found. If r-i<k, cannot choose. Similarly if j-r>=k, segment(r,j) has larger? right slope maybe less than chord, not necessarily better. But left side if above chord gives larger average; if enough length, contradiction. If r-i<k, we cannot use (i,r), but cannot necessarily improve. So optimal segment may have a point above chord within first k-1 positions from left, preventing decomposition. Need handle.
+
+Need consider all segments length>=k. Could use geometric algorithm on upper hull and enforce length. Since chord with all intermediates below and length>=k; but optimal may have interior points above chord only within distance<k from endpoints. Hmm.
+
+Maybe because all a[i]>=0, cumulative sums are increasing (or equal), upper hull points are sparse (lower hull? let's see). But need algorithm.
+
+Let's derive systematically.
+
+Define P_i=(i, S_i), i=0..n. Since a>=0, S nondecreasing, y_i nondecreasing. Slopes between points >=0. The maximum average over length>=k is max_{i, j: j-i>=k} (y_j-y_i)/(j-i). This exactly is a discrete version of maximum slope with minimum horizontal separation. n only 1e5. Need efficient exact algorithm.
+
+Potential approaches:
+
+1. Binary search over rational λ with feasibility O(n). Use exact Fraction; find exact max by candidate search. Since result is one of O(n^2) averages, but we can exploit binary search + exact verification to identify candidate. For a threshold λ, feasibility check O(n): exists i with suffix max g_j >= g_i (for j>=i+k). Feasibility is monotonic in λ: For high λ maybe impossible, low possible. We need maximum λ. If we binary search over Fraction to exact? We can do parametric search to find minimal infeasible etc. But output exact fraction; using binary search with Fraction until width < something could identify candidate by comparing candidates.
+
+Could find max by considering candidate averages and binary search. However exact comparison with Fraction is fine; number of iterations maybe 100-200, O(n*iterations) = 2e7 worst with Fraction operations (expensive). n=1e5, maybe okay in Python? 200*1e5=2e7 Fraction arithmetic likely too slow (Fractions allocate many). Need optimize with integer arithmetic: For λ as rational A/B (B>0), check feasibility with integer S_i and i. For segment average >= A/B: B*(S_j-S_i) >= A*(j-i). Rearr. (B*S_j - A*j) >= (B*S_i - A*i). Let g_i = B*S_i - A*i (integer). Feasible iff exists i (0<=i<=n-k) with max_{j>=i+k} g_j >= g_i. O(n) with integers. Great. We can binary search over λ=A/B but unbounded denominators. Need exact. We could use bisection on rational with increasing denominator? Another approach: find maximum via λ threshold and exact candidate using known candidate averages. Since n=1e5, maybe candidate averages can be generated from upper hull edges or local optima. Need not binary search.
+
+Observe feasibility check with λ=A/B is O(n). We can find maximum λ by evaluating at midpoints of intervals of rational averages. If we use interval [low,high] where low=minimum subarray avg (>=0) and high=maximum subarray avg. Minimum maybe 0? Since nonnegative, averages in [0, M] where M = max a_i? Actually max subarray avg <= max element? Since average of nonnegative elements <= max element in segment <= global max. Minimum >=0. So λ in [0,max_a]. But max average of length>=k could be as high as max_a, e.g. array [5,5], k=1 avg5. low maybe 0 feasible? λ=0: check exists segment avg>=0, yes (any). λ=max_a: feasible iff there is subarray all equal max_a? Because avg >= max element implies all elements=max_a. Easy check. Bisection over [0,max_a] with Fraction ~60 iterations and O(n) integer per iter = 6e6 integer ops, feasible. But exact output? We can binary search to width < e.g. 1e-12 and then find candidate average within that. But tests have averages differ less than 1e-9; need exact, not approximate. We must be exact. However once we narrow λ, we can compute candidate segment ending? Need exact.
+
+We can use feasibility to reconstruct optimal segment exactly by binary searching λ down to zero width? There is finite set of candidates; binary search exact rational is possible if we know endpoints or use Dirichlet? Another robust exact method: use binary search over candidate slopes generated from upper hull/endpoints maybe. Or perform bisection until interval width smaller than minimum gap between distinct averages, then round to nearest candidate? Need compute min gap? Distinct averages can be extremely close (less than 1e-9 per tests). Minimum gap may be tiny? Averages are fractions with denominators <=n and numerators <=1e14. Difference between two distinct fractions p/q and r/s can be as small as 1/(q s) ~1/n^2 ~1e-10 (or with numerator differences scaled maybe even smaller? Fractions in lowest terms p/q,r/s with q,s<=n; difference = |ps-rq|/(qs) >=1/(n^2) if positive numerator at least 1. Denominators after reduction <=n, so gap >=1/n^2 = 1e-10. Tests differ less than 1e-9; 1/n^2 =1e-10, compatible. Need guarantee distinguish gap ~1/n^2 ~1e-10. If binary search width < 1/(2 n^2) and compare? Could then identify which candidate max? But we don't have list candidates. We can use feasibility threshold to identify exact by reconstructing segment at λ near optimal: If λ < optimal and feasible, any segment found has avg >= λ. But need exact avg. If λ sufficiently close below optimal, the segment found may have avg = optimal? Let's see.
+
+Feasibility check at λ can return a segment (i,j) satisfying avg>=λ. If we choose λ just below optimum (e.g. λ=opt - ε), a feasible segment returned might have average ≥λ but could be lower than opt (e.g. opt-ε/2). But if ε < min gap/2, any segment with avg≥λ must be opt (since next avg <= opt - gap; choose λ > next avg). We can pick λ close enough to opt from below. But need know opt. Binary search can find interval [low_feasible, high_infeasible] converging to opt. At the end, low < opt <= high (if monotone). If high-low < gap/2, then opt is unique in interval? Actually opt is the boundary (supremum of feasible λ). If low feasible (< opt or equal), high infeasible (> opt). If width < gap, there cannot be two distinct averages in [low,high]; but opt could equal one of averages and another avg in interval? The boundary opt equals some candidate average. low<opt<high. There is no average strictly between? There might be candidate avg within (low,opt)?? if opt is max average, no larger than opt. There could be next-lower candidate within (low,opt) if interval width > gap. If width < gap, next-lower candidate < opt - gap <= low, so no other candidate in interval. Then opt=high? no, opt between low and high; only candidate in interval is opt. We could then set λ to something and find segment with avg>=λ; if λ in (next_avg,opt) and feasible, segment found must have avg=opt. Need ensure. We can binary search until high-low < 1/(2 n^2) (or maybe smaller), then for λ = midpoint, find/recompute a feasible segment using feasibility check (returns i,j), which has avg >= midpoint > next candidate, so avg=opt. Then reduce fraction. This is robust but uses integer arithmetic. Need be careful min gap. Distinct averages of subarrays: numerators integer and denominators integer n. Difference of two distinct fractions = |p/q-r/s| = |ps-rq|/(qs). But p,q may not be reduced; denominators q,s in lowest terms <=n? If using reduced fractions, q,s<=n, ps-rq is integer? p,q coprime; ps-rq integer; if fractions distinct, numerator ps-rq nonzero? If p/q != r/s, ps != rq, so |ps-rq|>=1. qs <= n^2. Gap >=1/n^2. Yes. Good.
+
+But binary search over exact Fraction λ and integer feasibility: Need produce optimal segment. Could binary search over rational λ = A/B with B maybe large. Simpler: Use floats to locate interval then refine with exact rational? But exact output demands no mistakes. We can perform integer binary search on scaled values. Represent λ as Fraction? Could use low = Fraction(0,1), high = Fraction(max_a,1) maybe. At each iteration mid = (low+high)/2 (Fraction). Feasibility check with mid numerator/denominator. After ~80 iterations, width? Initial width max_a <=1e9. After 80 iterations width ~1e9/2^80 <1e-15? That's overkill. But Fraction arithmetic with huge denominators after 80 iterations may be heavy (denominator up to 2^80). Instead binary search over integer numerator when denominator fixed? Or use floating binary search to narrow, then exact search. Need robust.
+
+Alternative: Use exact binary search on average as Fraction but maintain low/high as Fraction with bounded denominators? Could use low=Fraction(0), high=Fraction(max_a). The mid denominators grow exponentially (LCM denominators powers of 2), after 60 it's huge but manageable? Fractions with denominator 2^60 and huge numerator ~1e9*2^60 ~2e27, Python int okay, but operations O(n) with big ints (60-bit? actually numerator 90 bits, fine). Denominator up to 2^60 (60 bits), numerator up to 1e9*2^60 ~2^90, Python ints small. Actually Fractions can handle. After 100 iterations denominator 2^100, numerator ~2^130, still fine. 2e7 feasibility integer operations? Each feasibility computes g_i = B*S_i - A*i for all i and suffix max. That's multiplication of big ints by Python ints, O(100 bits), okay. 100 iterations *1e5 =1e7 big-int operations maybe okay in Python? likely ~2-5 seconds, maybe okay but memory fine. But we can do better.
+
+Need design final code only. Must be correct and not too slow. We can exploit monotonicity to do fewer iterations. Initial interval [0,max_a] width up to 1e9. Needed width <1/n^2 ~1e-10. Number iterations log2(width/1e-10)=log2(1e19)=63. So ~64 iterations if exact. Good. Fraction denominators after 64 iterations ~2^64, numerator ~1e9*2^64 ~2^94. Python int fine. 64*1e5=6.4e6, fine. Then reconstruct.
+
+But do we even need binary search? Maybe there is a simpler exact formula via upper hull and length constraint. Let's explore to avoid approximation risks.
+
+Potential exact algorithm with convex hull + segment tree: Let's investigate. Max slope with dx>=k. We can build upper hull H of points (i,S_i). For any segment i..j optimal, all intermediate points must be below chord? Not exactly if points above chord are within distance<k from left? But maybe we can use hull edges only. Let's examine deeply.
+
+The ordinary unconstrained maximum slope (j>i) is maximum slope among edges of upper hull? I think yes: If endpoints i,j not hull adjacent, then there is at least one hull vertex r between them on chord? For points below chord, the upper hull from i to j includes intermediate vertices. If a hull vertex r lies above the chord, then slope(i,r)>chord, so chord not optimal unless length(i,r)<k or maybe length constraint. If all intermediate points lie below or on chord, then i and j are consecutive on the upper hull? Need definition of upper hull: It is the boundary of convex hull of points; all points lie below or on it. Consecutive hull vertices have all points below chord, but nonconsecutive hull vertices chord also has all points below? If points are on upper hull (convex), chords between nonconsecutive hull vertices lie above all intermediate points? For a convex function (upper hull slopes decreasing), chord between two hull vertices lies above the hull polyline in between (since convex curve lies above its chord? Wait convex function lies below chord? Let's recall: For convex f, f((1-t)x+ty) <= (1-t)f(x)+t f(y): function lies below chord. The upper hull (boundary above points) should be a concave function? Let's settle.
+
+Points (0,0),(1,100),(2,101): The region of points below the upper envelope? We want boundary such that all points lie on or below it. Slopes between consecutive vertices must decrease (from high to low) or increase? For points (0,0),(1,100),(2,101), slopes 100,1 decrease; chord from (0,0) to (2,101) line y=50.5x; at x=1 y=50.5; point (1,100) lies above line, so chord between outer points is NOT above all points; it cuts below point (1,100). So outer chord cannot be upper envelope; the actual upper envelope is (0,0)->(1,100)->(2,101). Consecutive chords have decreasing slopes. Thus for nonconsecutive hull vertices (0,0) and (2,101), the chord is below intermediate point (1,100), so not valid as an upper hull edge. For maximum slope, segment (0,0)->(2,101) slope 50.5, but slope(0,0)->(1,100)=100 better. If length constraint prevented (0,1) (length1<k), then maybe outer chord with length2 is candidate, even though intermediate point above chord. Example k=2, points as above: segment (0,2) length2 avg50.5; no length<k segment? k=2, segment length>=2: (0,2) avg50.5 is optimal. Consecutive upper hull edge length1 is ineligible. So optimal segment can be nonconsecutive hull vertices and have intermediate point above chord. Thus hull alone not enough without length. Need handle length constraint by considering longer chords maybe. But candidate optimal segment likely between hull vertices? For (0,0),(1,100),(2,101), k=2, optimal (0,2), endpoints are hull vertices, good. In general, optimal segment (i,j) with length>=k. Let intermediate points P_r. If there is intermediate r above chord, then slope(i,r)>chord, but r-i may be <k (not allowed). Could be near left. Example points (0,0),(1,100),(2,101), k=2: r=1, r-i=1<k, allowed. If there were r above chord with r-i>=k, then better segment (i,r), contradiction. Thus for optimal segment, any intermediate r above chord must be within k-1 of i. Points below/on chord don't matter for improving. This structure can be exploited maybe.
+
+Also if there is intermediate r below chord, no issue. Chord with some high points near left but distance to left<k. Since k can be large (up to n), r within k-1 may be many. But maybe we can still enumerate hull vertices and use segment tree over hull positions to find max slope among chords with dx>=k. Number of upper hull vertices may be O(n), but can be much smaller? In worst case (increasing linearly) hull vertices are all points (slopes constant? upper hull with decreasing slopes; linear slopes equal; hull includes all points? If slopes equal, points on same line; for upper hull we can collapse collinear points; but endpoints can be any points. Need enumerate candidates maybe O(n^2). Not good.
+
+But nonnegative elements and cumulative sums: Slopes between consecutive points are a_{i+1}>=0. Upper hull construction standard uses points (i,S_i) with slope decreasing (>=?); if slopes equal, keep leftmost? For maximum slope, collinear points same average; keeping one endpoint maybe okay but length>=k may need endpoints among collinear. Need handle carefully.
+
+Binary search approach is straightforward and robust; likely best. Need ensure exact output and no mistakes due to floating. Use integer feasibility and bisection. Let's formulate precisely.
+
+Let n=len(a). S = [0]*(n+1); S[i+1]=S[i]+a[i]. max_avg = max(S[n]? no). Upper bound for average: max(a) (since average <= max element). Since a[i]>=0, low=0 feasible? Check λ=0: exists segment with avg>=0; yes all segments. But feasibility requires segment length>=k; check at i with i<=n-k. For λ=0, g_i=S_i. Suffix max from i+k to n. Need suffix max >= g_i. Is this always true for some i? Choose i=0, suffix max from k to n >= S_k? Need >= S_0=0 yes. Since S nondecreasing, suffix max >= S_k>=0? yes. Good. Feasible.
+
+Upper bound high = max(a) (if max=0 all zeros; high=0 equals low; output [0,1]). At λ=high, check if exists segment avg>=max element. Since every element<=max, segment avg>=max iff all elements in segment=max. If yes feasible; if no infeasible. We can binary search between low and high with invariant low feasible, high maybe feasible or not. If high feasible (i.e. exists all-max segment length>=k), then optimum high; return [max,1]? Need not binary search. But binary search invariant can still handle: low feasible, high feasible (not helpful). We can set high=max_a; if feasible(high), answer [max_a,1]. Else high infeasible. Also lower bound maybe min? low=0 feasible. If max_a==0, answer [0,1].
+
+Binary search: We want maximum feasible λ? Domain λ>=0. Feasibility monotonic: if λ1<=λ2, feasible(λ2) subset feasible(λ1) (because higher threshold harder). Actually feasible(high)=false, feasible(low)=true. We can maintain lo=0 (feasible), hi=max_a (infeasible). While hi-lo > eps? Exact: We want converge to optimum. Since λ is rational, we can do exact binary search up to width < gap_min. But if output via segment reconstruction, maybe we can stop when width < gap_min/2. Then set threshold=lo? Let's reason.
+
+Gap_min = 1/(n*n) (lower bound on distinct average difference). If width < gap_min, and [lo,hi] contains the optimum boundary? Let opt = max feasible λ (actual average). invariant lo<=opt<=hi? lo feasible => lo<=opt (because opt is max feasible). hi infeasible => hi>opt. Good. Width<gap_min. Since opt is a candidate average and any other candidate average differs >=gap_min. Therefore the only candidate average in [lo,hi] is opt (if lo/hi within width less gap from opt; next lower candidate <= opt-gap < lo? Need check: next lower candidate could be within [lo,opt] if gap_min? opt - next >= gap_min. If hi-lo<gap_min and lo<=opt<=hi, then next lower <= opt-gap_min. Since hi >= opt, could next lower >= lo? It would be > opt - gap_min. Since hi<lo+gap_min<=opt+gap_min? Wait hi<lo+gap_min, and lo<=opt, so hi<opt+gap_min. Not enough. Need show next lower <= lo maybe. Since hi>opt? If hi infeasible, hi>opt. lo>=? Need lo close to opt. Not guaranteed until width small and lo maybe much lower than opt. If width small but lo could be opt - 0.9 gap_min, next lower opt-gap_min < lo, yes because width<gap_min and lo>hi-width > opt-gap_min (since hi>opt). Thus lo>opt-gap_min. next lower <= opt-gap_min < lo, so outside. next higher >opt not in interval. Good. So width<gap_min suffices to isolate opt. Also if opt at lo? lo feasible might equal opt (because opt feasible), then next lower <lo? next lower <=opt-gap_min<lo, interval contains opt only. Good.
+
+At end, choose threshold = (lo+hi)/2 (or lo) and find a feasible segment via check. Since width<gap_min, threshold > next lower (because threshold > lo > opt-gap_min >= next lower? Need next lower <= opt-gap_min < lo < threshold. yes) and <=opt? threshold<=hi but could exceed opt; if threshold<=opt, feasible and any feasible segment has avg>=threshold>next lower, so avg=opt (since max average opt). If threshold>opt, check would be infeasible; but threshold=(lo+hi)/2 with hi>opt and lo<=opt. If width<gap_min, threshold may be less or greater than opt. If threshold>opt, infeasible, bad. Choose threshold=lo (feasible if lo feasible). lo<opt or equal; lo > opt-gap_min; so any feasible segment has avg>=lo>opt-gap_min. Its avg is a candidate average >=lo; the only candidate average >=lo and <=opt is opt? Candidate averages near: next lower <lo, opt>=lo. So avg=opt. Good. Use lo. But lo may be low initially, after convergence fine. Use feasibility check returning segment. At lo (feasible) it will find some segment. Because lo > opt - gap_min, the returned segment's average must be opt? Need ensure check's returned segment has avg>=lo and <=opt. Since opt is max average, avg<=opt. Since avg>=lo and next candidate lower<lo, avg cannot be lower candidate. Must be opt. Yes.
+
+Then reduce fraction.
+
+Implementation of feasibility returning segment: Function feasible(A,B): compute g_i = B*S[i] - A*i for i=0..n (Python int). Need suffix max from i+k to n for all i. Simpler compute suffix max array suf_max_g[i] = max(g[i], suf_max_g[i+1]) for i=n down to 0. Then find first/any i in [0,n-k] such that suf_max_g[i+k] >= g_i. Here segment [i,j) with j>=i+k and g_j>=g_i. For that i, choose j = arg? We can reconstruct by scanning i and finding j>=i+k with g_j == suf_max_g[i+k]? Simpler in feasibility loop, as we scan i from 0..n-k, maintain suffix_max_over_future? If we don't precompute suffix, we can compute suffix max then for each i check; if check passes, need recover j. We can maintain array best_j[i] = index of maximum g in [i,n] maybe. Compute suffix_max_vals[i]=max(g[i:]) and suffix_arg[i]=argmax. Then for i from 0..n-k: if suffix_max_vals[i+k] >= g_i: j=suffix_arg[i+k]; if g_j >=g_i, return (i,j). But suffix_arg gives j with max from i+k to n. If equal values, any. Since condition suffix_max_vals[i+k] >=g_i ensures g_j >=g_i. Good. Need ensure length j-i>=k; since j>=i+k. Great.
+
+O(n) per iteration, with two arrays. Use precomputed S. To avoid storing suf_arg? okay.
+
+Feasible check exact with A,B positive. lo=0, hi maybe integer max_a. Represent mid Fraction; can avoid fractions by maintaining numerator/denominator as integers. But simple use Fraction(lo,hi), mid.numerator/mid.denominator. Invariant lo feasible, hi infeasible. If high (max_a) feasible, answer directly. If max_a=0, output [0,1]. Otherwise hi=Fraction(max_a,1) infeasible. Low=Fraction(0,1) feasible. Number iterations: while hi - lo > threshold_gap? In exact arithmetic, hi-lo is Fraction. Compute gap_min = Fraction(1, n*n). Width < gap_min/2 maybe. Use while hi-lo > gap_min/2: mid=(lo+hi)/2; if feasible(mid.numerator,mid.denominator): lo=mid else hi=mid. Then answer segment feasible(lo.numerator, lo.denominator). But after loop, width<gap_min/2, stronger. Good.
+
+Potential issue initial hi=max_a might still be feasible but we handled. If a has max_a, high infeasible. low=0 feasible. Good.
+
+But invariant and binary search with width < gap_min/2 might end extremely quickly if gap_min tiny? gap_min =1/(1e5^2)=1e-10. Width initial up to 1e9; ratio 1e19; 64 iterations. Good.
+
+The feasibility check at lo: lo may be 0 for first iterations; for after many iterations lo rational. Numerator/denominator possibly huge (denominator up to 2^64, numerator up to 1e9*2^64 ~1e30? Wait 1e9*2^64 ≈2e27, Python int ~93 bits). g_i = B*S_i - A*i. B~2^64, S_i up to sum=1e14, product ~2^64*1e14=1e30, A*i up to (max_a*2^64)*1e5=1e9*2^64*1e5=2^64*1e14=1e30. Python big ints ~100 bits. n=1e5*64=6.4e6 big-int ops; fine but Python might be ~2-5 sec. Could optimize by stopping when width < 1/(2*n*n) but also after candidate rounding? Good.
+
+Can we reduce binary search iterations by using exact candidate bounds from averaging? Maybe not needed. Need produce final code only, no explanation. Ensure function returns list of ints [p,q], lowest terms, q>=1. For zeros, sum=0 => fraction [0,1].
+
+Let's verify with examples manually.
+
+Example1: a=[1,12,0,6,50,3], k=5. Segment positions 0..4 avg (12+0+6+50+3)=71/5=14.2; segment length5 only one. Return [71,5]. Binary search should find.
+
+Example2 [5,5], k=1 max=5 feasible high? All elements=5, segment [0,2) avg5 >=5, feasible. Direct return [5,1]. Good.
+
+Example3 [0,0,0], max=0 direct [0,1]. Feasible high=0 (all elements=0) but direct returns.
+
+Important: Direct return if high feasible. For [5,5], max=5; segment all elements=5 feasible; output [5,1]. Good. For [0,0,0], max=0; direct output [0,1]. We could handle max_a==0 first. For max_a>0, if feasible(max_a) (i.e. all-max segment length>=k), output [max_a,1]. No binary search.
+
+Subtract? Need consider max average could be 0 for nonzero? If max_a=0 only all zeros because a nonnegative. Fine.
+
+Feasibility with high=max_a: g_i = B*S_i - A*i. If max=5, segment all 5s length>=k means there are >=k consecutive max elements. g_j-g_i = B(sum) - A length = B*5*m - 5*m? Since A=5,B=1: g_j-g_i=5m-5m=0; exists if all elements=5. Good.
+
+Now exact fraction reduction: given segment [i,j), length m=j-i; total=S[j]-S[i]; fraction = Fraction(total,m) or use gcd. Return [num,den]. Use math.gcd. Denominator positive. For zeros, num=0,gcd(0,m)=m; Fraction(0,m)? Easier if m=0 impossible. num=total, den=m; g=gcd(num,den); if g==0 (num=0,den>0 gcd(0,den)=den) actually math.gcd(0,5)=5, num=0,den=1. Good. Code: g = gcd(num, den) if num else den; maybe gcd(0,den) returns den. den_reduced=den//g; num_reduced=num//g. If num=0, g=den; num_red=0, den_red=1. Good.
+
+Feasibility function implementation details:
+- Precompute S list length n+1.
+- Function check(num, den): if den==0? no. Compute g list length n+1. suffix_max=[0]*(n+1); suffix_argmax maybe? We need for found i recover j. Could avoid storing argmax by two-pass: compute suffix max array m[i] for i=n down to 0. Then loop i=0..n-k; if i+k<=n and m[i+k] >= g[i]: Then we need choose j>=i+k with g[j] >= g[i]. Since m[i+k]>=g[i], but finding j by scanning from i+k to n could be O(n^2) if we scan in worst case. Need recover efficiently. Options: precompute suffix argmax too. suffix_arg[i] = j in [i,n] achieving max g; O(n). Then if m[i+k] >= g[i]: j=arg[i+k]; if g[j]>=g[i] return (i,j). Since m[i+k]=g[arg[i+k]] by construction. Good. Need store suffix_arg. Memory 2*(n+1) ints okay.
+
+But note suffix argmax should be the largest or smallest j achieving max? Any j>=i+k. If equal to g[i], okay. If suffix max achieved at j<i+k? No, suffix_arg[i+k] is in [i+k,n]. Good.
+
+However if g_i is very negative and suffix max from i+k is equal to some j maybe before i+k? no. Good.
+
+Could there be i in loop such that suffix max >=g_i, but arg at i+k is a j with j-i>=k yes. Good.
+
+Efficiency: In each check, compute g and suffix arrays. That allocates two big lists of length n. n=1e5, 64 iterations -> allocation 6.4e6 ints, maybe okay but could be somewhat heavy. Could optimize by not storing suffix_arg; only first feasible i and then scanning to find j once. But in first feasible i early, scanning from i+k to n could be O(n) once per iteration (we do this only if found). Worst case first i is around n-k? Then scan length k maybe okay; worst-case check returns at i=0 and suffix max at j=n, scanning O(n) once per iteration, still O(n). Actually once condition true, we can scan j from i+k to n for first g[j]>=g_i. Worst O(n); but total per check O(n) for g and suffix? We can avoid suffix arrays entirely: compute all g; we need know if exists i with suffix max>=g_i. Without suffix max, scanning i forward and maintaining max future? We could compute suffix max in-place: array suff_max length n+1; init -inf; traverse i=n down to 0: suff_max[i]=max(g[i], suff_max[i+1]). No need argmax during checking. To reconstruct, after finding first i with suff_max[i+k]>=g[i], scan j from i+k to n for g[j]>=g[i]. This is O(n) once. Total per check O(n), memory one array (plus g). That's good. But condition loop i uses suff_max[i+k]; if i+k<=n. For i=n-k..? i+k<=n. Good.
+
+But in binary search, when check infeasible, we traverse all i 0..n-k and compute suff_max, O(n). Good.
+
+Can reduce memory by computing suffix max from right in one pass after g computed. Implementation:
+```
+def segment_for(num, den):
+    g=[0]*(n+1)
+    for idx in range(n+1):
+        g[idx]=den*S[idx] - num*idx
+    suff=[0]*(n+2) # maybe index n+1 unused
+    m=0  # initialize as -10**? but values can be negative large; use None
+    # compute suffix max from right
+    suff_max=[None]*(n+1)
+    cur=None; arg? no
+    for idx in range(n,-1,-1):
+        val=g[idx]
+        if cur is None or val>cur: cur=val
+        suff_max[idx]=cur
+    for i in range(0, n-k+1):
+        if suff_max[i+k] >= g[i]:
+            j=i+k
+            # find j
+            val=g[i]
+            while j<=n and g[j] < val: j+=1
+            if j<=n and g[j] >= val:
+                return i,j
+            # Should not happen because suff_max says exists; but due to bug fallback:
+            return i, n #? 
+    return None
+```
+Potential issue if suff_max[i+k] >= g[i] but g[j] for all j>=i+k <g[i] impossible. The while scan will find j. Good. Use g[j] = den*S[j] - num*j; S[n] maybe. Note segment [i,j) corresponds points i and j, length j-i. g_j>=g_i iff slope>=num/den. Good.
+
+But checking condition i from 0 to n-k: any i feasible. If found i, return. Minimal i; fine.
+
+However suffix_max[i+k] >= g[i] uses suff max over j>=i+k. If i+k<=n. Since i range 0..n-k, i+k<=n. good.
+
+For infeasible, returns None.
+
+Now binary search exact:
+```
+def best_average(a,k):
+    n=len(a)
+    S=[0]*(n+1)
+    for idx,x in enumerate(a): S[idx+1]=S[idx]+x
+    max_a=max(a)
+    if max_a==0: return [0,1]
+    if segment_for(max_a,1) is not None:
+        return [max_a,1]
+    lo_num,lo_den=0,1  # feasible (0th threshold)
+    hi_num,hi_den=max_a,1 # infeasible
+    gap=Fraction(1, n*n) # 1/(n^2)
+    # Need exact hi-lo; represent as Fraction for width.
+    from fractions import Fraction
+    lo=Fraction(0,1); hi=Fraction(max_a,1)
+    target=Fraction(1, (n*n)*2) # half min gap? use width<1/(n^2*2)
+    while hi-lo > target:
+        mid=(lo+hi)/2
+        seg=segment_for(mid.numerator, mid.denominator)
+        if seg is not None: lo=mid
+        else: hi=mid
+    seg=segment_for(lo.numerator, lo.denominator)
+    # seg should exist; if not, fallback? maybe use mid.
+    if seg is None:
+        # shouldn't happen; use hi? but hi infeasible; use [0,1]? avoid
+        seg=(0, k) # not correct. Better use lo midpoint? 
+    i,j=seg
+    total=S[j]-S[i]; length=j-i
+    g=math.gcd(total, length)
+    return [total//g, length//g]
+```
+But wait: lo feasible means segment_for(lo) returns segment. If binary search ends because width target reached, lo is feasible and maybe very close to opt. Then seg=segment_for(lo). As argued, segment average=opt. But need prove if lo=0 (initial) before loop? Loop runs at least once. After 64 iterations lo is high. Fine. If target is very small (1/(n^2*2)), while condition may still execute; after loop lo width<target. Good.
+
+Let's estimate number iterations: initial width max_a<=1e9. Target ≈5e-11 (n=1e5,n^2=1e10,2=2e10, target=5e-11). Ratio =2e19; log2≈64.5. Good. Fraction lo denominator up to 2^65, numerator up to max_a*2^65 ~4e28? Wait max_a*2^65 ≈1e9*3.7e19=3.7e28 (~95 bits). Fine.
+
+However Fraction(mid) from lo/hi with numerators/denominators powers of 2: mid=(lo+hi)/2. Fraction reduces automatically. After 64 iterations, denominators could be up to 2^64 (not powers times odd? hi numerator max_a maybe odd, denominator1; lo denominator 1; sum has denominator2, numerator=max_a*? maybe? Let's see binary search on Fraction [0,M]. If M odd, after one midpoint denominator2 numerator M; after more, denominator maybe not growing monotonically? It can be up to 2^i. Fine.
+
+Could make binary search with integer scaled bisection instead to avoid Fractions and huge numerators. Alternative: compute exact optimum via candidate slopes from a small set? Let's revisit to see if there is a simpler exact algorithm suited for coding. Maybe using binary search over rational with integer check and final reconstruct is acceptable for an algorithm contest problem. Need ensure no time limit concerns. n=1e5, 64 iterations, each segment_for allocates a list of length n+1 and suffix max maybe; 128 allocations of ~1e5 big ints = manageable (12.8MB per iter? Actually 1e5*28 bytes =2.8MB per list, two lists =5.6MB, per iter 3.5MB? 64*5.6=358MB allocation churn, but garbage collected; okay). Could optimize check to avoid storing suff_max and argmax: compute g once, compute suffix max in-place? Need if reconstruct find j once; could avoid storing suff_max by computing max from right but still needs per i check. We can store suff max only. g and suff max: two lists. Could compute suff_max array (int) then loop i; need g_i for all i; could store g. Good.
+
+Alternative: Use binary search on integer average value with fixed denominator n!? Not.
+
+Maybe we can find exact optimum more directly with upper hull and segment tree. Let's explore in case binary search deemed not elegant but correct. For a programming problem, binary search + feasibility is standard for maximum average with constraints. Exact output with low terms via reduction; final segment. This is valid.
+
+Let's verify monotonicity and gap. Distinct averages denominators after reducing <=n. Minimum positive difference between reduced fractions p/q and r/s: |ps-rq|/(qs). q,s<=n; ps-rq is integer; if distinct, not zero. Could it be zero? no. >=1. Denominator qs<=n^2. Good. But note candidate averages in segment [i,j) with length m>=k: numerator total may be same, denominator m. Distinct averages maybe exactly same fraction; only candidate value opt; no issue. Gap bound applies to any two distinct candidate fractions. Good.
+
+Need careful: We binary search threshold λ; if λ is exactly a candidate average (e.g. opt), feasibility true (segment with avg=λ). In loop, if mid exactly opt, lo=mid. Then width shrinks. At end, lo may equal opt (if reached), good. If opt is feasible and lo becomes opt, loop may continue until width<target; lo cannot decrease; hi lower bound. Fine.
+
+At final, seg=segment_for(lo). If lo=opt and there are multiple segments with avg=opt, fine. If lo<opt, seg average could be opt (as argued) because lo>opt-gap. Let's prove: after loop, width<target=gap_min/2? Actually hi-lo<gap_min/2. Since hi>opt (if not high feasible; high infeasible) and lo<=opt. Then lo>hi-gap_min/2>opt-gap_min/2. Next lower candidate <=opt-gap_min. Since gap_min/2<gap_min, lo>opt-gap_min/2>opt-gap_min. So next lower<lo. Good. So seg avg>=lo>next lower, hence =opt. Good.
+
+If high feasible direct return; if max_a==0 direct. If k? k=len(a) maybe suffix scan i=0..0? n-k+1=1. Works.
+
+Potential issue direct high feasible check with num=max_a den=1. segment_for computes g_i=S_i - max_a*i. For segment average>=max_a, all elements=max_a. Exists iff suffix max condition. Good.
+
+Now output list [p,q] not tuple. Good.
+
+Let's consider negative? a nonnegative, k valid. Good.
+
+Could there be subarrays with length>=k but k>n? constraints k<=len(a). no.
+
+Now code exact with fractions. Need import math.gcd and Fraction. final only code block.
+
+But ensure only code in single ```python block, no text. Good.
+
+Let's maybe optimize segment_for function definition nested to close over S,n,k. Use local variables for speed. Use while loops.
+
+```
+def best_average(a: list[int], k: int) -> list[int]:
+    from fractions import Fraction
+    import math
+    n=len(a)
+    S=[0]*(n+1)
+    total=0
+    max_a=0
+    for i,x in enumerate(a):
+        total += x
+        S[i+1]=total
+        if x>max_a: max_a=x
+    if max_a==0:
+        return [0,1]
+    def seg(num, den):
+        # gcd? no need reduce num/den because feasibility uses unreduced; but use den>0
+        g=[0]*(n+1)
+        mul_den=den
+        for i in range(n+1):
+            g[i]=mul_den*S[i] - num*i
+        suff=[0]*(n+1)
+        cur=None
+        for i in range(n,-1,-1):
+            val=g[i]
+            if cur is None or val>cur:
+                cur=val
+            suff[i]=cur
+        max_start=n-k
+        for i in range(max_start+1):
+            if suff[i+k] >= g[i]:
+                # find j
+                val=g[i]
+                j=i+k
+                # scan
+                # since suff says exists, j found
+                while j<n and g[j] < val:
+                    j+=1
+                # if while ended at n+? Let's handle: j from i+k to n inclusive. If all g[j]<val until n, no j; impossible. But scan can end j==n? Need g[n] perhaps <val and loop stops at j==n? I wrote while j<n and g[j]<val: j+=1. If g[n]<val, loop condition j<n becomes false at j==n, returns i,n even though g[n]<val -> wrong. Need ensure j<=n and check g[j]. Better while True: if j>n: return None; if g[j]>=val:return i,j; j+=1. Use direct.
+```
+Let's write scan properly:
+```
+                j=i+k
+                while j<=n:
+                    if g[j] >= val:
+                        return (i,j)
+                    j += 1
+                # fallback impossible; return (i,n) as safety? no, but avoid false.
+                continue? 
+```
+But if due to some bug fallback, continuing may loop through i; better if found i=... impossible. Use return (i,n) only when it happens? Might return wrong. Let's trust suff. But note g as list has index n; loop j<=n inclusive. while j<=n and g[j] < val: j +=1. At the end j is first j in [i+k,n+1] with g[j]>=val or j=n+1. If j<=n return. Good. I should not use j<n. Then if j==n+1, return None (shouldn't happen). But using return None inside found-i could lead binary search invariant issue if miscalculated. It won't happen if suff correct.
+
+Wait if g[i] equals very high and suffix max at i+k occurs at j=i+k (>= val), good.
+
+Suff computation: `cur=None`; for i in range(n,-1,-1): val=g[i]; if cur is None or val>cur: cur=val; suff[i]=cur. n+1 entries. Good. Alternatively cur=-10**30? But values can be negative less than that; use None.
+
+Binary search: Need exact threshold width. Use Fraction. `min_gap = Fraction(1, n*n)`. But n=1e5, Fraction denominator1e10. Good. `target = min_gap / 2` (Fraction). `mid = (lo+hi)/2` exact.
+
+At final after while, `seg_found = seg(lo.numerator, lo.denominator)`. If `seg_found is None` due to any bug, fallback to `seg((lo+hi)/2...)`? Hmm. We trust lo feasible. But note binary search invariant: lo feasible. Initially lo=0 feasible. When mid feasible, set lo=mid. When mid infeasible, set hi=mid. So lo remains feasible. Good. Target width doesn't affect. Final `seg` should find. We can include assert? For production, avoid assert maybe okay. If seg_found None, return [max_a? no]. Not needed.
+
+But: `seg(0,1)`? Does binary search ever call with num=0? Only if mid=0, possible if lo=0 and hi tiny? hi>lo? Initially hi=M>0; mid>0. After iterations hi may approach lo but remains >lo? Since M>0 and lo increases. If lo=0, mid=M/2>0. lo becomes>0 after first feasible mid. Good.
+
+What about target and hi-lo exact: For M up to1e9, target5e-11. hi-lo after iterations is Fraction; using > target exact. It will stop after ~65 iterations. Good.
+
+Now check segment for average=0 (lo=0) if max_a==0? direct. If max_a>0 but due to k=n? feasible. Good.
+
+Need output [p,q] with q>=1. For [0,1] direct. For direct high max_a, return [max_a,1].
+
+Let's test mentally with [1,12,0,6,50,3], k=5. Feasible high=max_a=50? Segment avg>=50 none (no 5 consecutive 50), infeasible. Binary search target5e-11; final lo approx14.2. seg(lo) finds i=1? Wait max segment [1..6) length5 (indices 1 to5? a indices: 0:1,1:12,2:0,3:6,4:50,5:3). k=5, only segment i=0? length>=5: possible segments length5: i=0 j=5, i=1 j=6; length6: i=0 j=6. Averages: length5 [0:5]=(1+12+0+6+50)=69/5=13.8; [1:6]=71/5=14.2; length6=(74)/6=12.333. Max=71/5. Feasibility segment_for at lo≈14.2. Need find first i with suffix max>=g_i. i from 0: i=0, suffix max over j>=5: g[5],g[6]. Need >=g[0]. For λ≈14, g_i=S_i-λi. g[0]=0. Suffix max? S values: S0=0,S1=1,S2=13,S3=13,S4=19,S5=69,S6=74. g1≈1-14=-13,g2≈13-28=-15,g3=13-42=-29,g4=19-56=-37,g5=69-70=-1,g6=74-84=-10. suff from5: max(g5,g6)=-1 >= g0=0? false. i=1: i+k=6, suff[6]=g6=-10; g1≈1-14=-13; -10>=-13 true. j=6; segment i=1 j=6 avg71/5. Good.
+
+Direct high feasible for [5,5] returns [5,1], no issue.
+
+Now, is binary search perhaps too slow in Python due to 64 iterations and O(n) with big ints? Let's estimate. n=1e5; each g loop computes den*S[i] - num*i. num,den after many iterations have 90-bit numerators, S up to1e14 (47 bits), product ~130 bits; num*i with num~ (1e9*2^64≈2^94) and i~2^17 =>111 bits. Good. n operations maybe ~1e-2? Actually Python nested loop 1e5 per iteration, 64 =6.4e6 iterations outer plus inner while for each i up to n-k maybe. The suff computation is another 1e5. The scan of start loop max_start=99999, each check compares; if infeasible loop goes through all 1e5; if feasible returns early maybe often early after convergence. Per iteration: ~3 loops of length1e5 =3e5 Python iterations; 64 =1.92e7 iterations; okay. But big int multiplication maybe ~0.2 µs? Actually Python int multiplication ~50ns-100ns for small; 2e7* maybe0.5s-2s. Good. But list allocation each iteration: g,suff each 1e5 of Python objects; 64*2*1e5=12.8e6 Python object references (8 bytes) =102MB transient per iter? No, each iteration allocates 2 lists ~0.8MB refs? Actually 1e5*8=0.8MB each; times2=1.6MB per check, fine. It also allocates Python int objects for g and suff; most ints unique, so per check 2e5 int objects (~28 bytes) =5.6MB; 64=358MB over life, but garbage collected. Fine.
+
+Potential optimization: We can reduce binary search iterations by setting target to e.g. 1/(n*n*4) or 1/(n*n*10) and still reconstruct by candidate? Need safe. Good.
+
+Alternative: Since tests have gaps less than 1e-9, maybe n*n gap=1e-10; binary search width target5e-11 should be enough. Good.
+
+Potential issue min gap bound uses q,s <= n. Averages after reduction denominator <= length <=n, yes. Good.
+
+Now what if two distinct candidate averages equal but separated by numerator differences? Distinct values have denominator <=n; bound holds. Good.
+
+Let's think if max_a=0 direct. direct high feasible uses seg(max_a,1) with max_a=0. If all zeros, returns [0,1]; if max_a=0 also all elements zero (nonnegative), fine. Could avoid high feasible direct by including in binary search? high=0 and low=0 width0; binary search while hi-lo>target (0>target false) final seg(0) returns segment, reduce gives [0,1]. So direct not required but okay. Direct high feasible for max_a>0 returns even if segment average=max_a and segment length>=k, exactly [max_a,1]. Good.
+
+One subtle point: In direct high feasible check, if a segment average>=max_a exists, because every element <=max_a, average=max_a and all elements in segment=max_a. Output [max_a,1]. Good.
+
+Potential issue: The function signature uses list[int] in Python 3.9+; okay.
+
+Let's perhaps include shebang? no.
+
+Need final exactly code block. Do not include examples. Good.
+
+Let's ensure code block contains only code. Use import inside function to keep top-level? Function top-level. Imports can be inside. Fine.
+
+Let's craft code cleanly:
+```
+import math
+from fractions import Fraction
+
+def best_average(a: list[int], k: int) -> list[int]:
+    n = len(a)
+    S = [0]*(n+1)
+    m = 0
+    max_a = 0
+    for i, x in enumerate(a):
+        m += x
+        S[i+1] = m
+        if x > max_a:
+            max_a = x
+
+    def find_segment(num: int, den: int):
+        g = [0]*(n+1)
+        # den and num are int; no need reduce
+        for i in range(n+1):
+            g[i] = den * S[i] - num * i
+        suff = [0]*(n+1)
+        cur = None
+        for i in range(n, -1, -1):
+            v = g[i]
+            if cur is None or v > cur:
+                cur = v
+            suff[i] = cur
+        end_start = n - k
+        for i in range(end_start + 1):
+            if suff[i+k] >= g[i]:
+                v = g[i]
+                j = i + k
+                while j <= n:
+                    if g[j] >= v:
+                        return i, j
+                    j += 1
+                return None  # should not happen
+        return None
+
+    if max_a == 0:
+        return [0,1]
+    seg = find_segment(max_a, 1)
+    if seg is not None:
+        return [max_a, 1]
+    lo = Fraction(0,1)
+    hi = Fraction(max_a,1)
+    target = Fraction(1, n*n*2)
+    while hi - lo > target:
+        mid = (lo + hi) / 2
+        seg = find_segment(mid.numerator, mid.denominator)
+        if seg is not None:
+            lo = mid
+        else:
+            hi = mid
+    seg = find_segment(lo.numerator, lo.denominator)
+    if seg is None:
+        # fallback, should not occur
+        return [0, 1]
+    i, j = seg
+    total = S[j] - S[i]
+    length = j - i
+    g = math.gcd(total, length)
+    return [total // g, length // g]
+```
+Concern: fallback return [0,1] if seg None is wrong. But should not happen. For safety maybe raise. In production, better if seg None, continue? Let's think if seg could be None at final lo due to bug or if lo=0 and hi=0? max_a>0 ensures. lo feasible. `find_segment(lo)` must find. If not due to numerical? Exact no. Fine. We can assert seg is not None, but assert may fail in production; better to handle gracefully by computing best by direct scan? Maybe not needed.
+
+One subtle bug: `suff[i+k]` for i in range(n-k+1). For n-k maybe negative? k<=n, so n-k>=0. Good.
+
+`target=Fraction(1, n*n*2)` where n*n*2 could be a Python int; denominator max n^2*2 =2e10 < 2^63, fine.
+
+Let's verify binary search invariant: `find_segment(max_a,1)` in direct high feasible; if returns None, hi=max_a infeasible. But is it possible that max_a feasible yet we returned? yes handled. Else hi infeasible. Low feasible=0. Good. If max_a>0 but high infeasible; target small. Good.
+
+Now, could initial high = max_a be less than true optimum? True optimum <= max_a (average of elements <= max_a). Yes. In infeasible direct check, hi>opt? If hi not feasible, it means no segment avg>=hi, so opt<hi. Good. In feasible direct, opt=hi. Good.
+
+Now direct high feasible check returns max_a if segment avg=max_a; but what if there is segment avg>=max_a with average > max_a? impossible. Fine.
+
+Potential precision: `mid = (lo+hi)/2` with Fractions. Fine.
+
+Now let's consider if k is large and n-k+1 maybe >? okay.
+
+Complexity of find_segment called with num/den maybe after many binary search iterations. Fraction's numerator/denominator after 64 iterations may have denominator not power of two? Let's simulate quickly conceptually: lo=0=0/1, hi=M=M/1. mid=(M/2)/1? Actually lo+hi = M/1 (Fraction); /2 = M/2. If feasible, lo=M/2. Next lo=M/2, hi=M; sum=3M/2 /2=3M/4; denominator4? Fraction(3M,4) if M not? Reduces depending on gcd with 4. For M odd, denominators remain powers of two and numerators odd*M maybe. For M even, reducible. Numerators can be ~M *2^r/ reduced? after r iterations denomin <=2^r, numerator roughly M*2^r / gcd? fine.
+
+Could we avoid Fraction by storing lo,hi as Fractions but maybe denominator huge and numerator with gcd? okay.
+
+Let's also consider another exact method: use `Fraction` for lo/hi and segment_for with num/den. Good.
+
+Now the problem statement: "Among all contiguous subarrays of a with at least k elements, find the largest average (sum divided by length).
+
+Return it as an exact fraction [p, q] in lowest terms with q >= 1.
+
+Examples... Implement exactly this function". Code should return list. Good.
+
+Let's ensure q>=1. Direct [0,1]. gcd with total=0: math.gcd(0,length)=length, length//length=1, total//length=0. good. For max_a direct denominator1.
+
+Potential pitfall: `math.gcd(total, length)` if total=0 returns length (for length>0). Good.
+
+Now let's think if maybe binary search unnecessary and could be simplified by direct candidate with max average length>=k but nonnegative. Let's see whether direct scanning for all lengths using max subarray for each length m>=k? O(n*(n-k+1)) no. There may be an O(n log n) algorithm via upper hull + segment tree. But final code with binary search is acceptable; however problem statement likely from programming contest? It may require exact fraction and tests with close averages. Binary search with gap and exact final segment is robust. Good.
+
+Let's further test binary search reconstruction with a more complex example: a=[1,100,1,100,1,100], k=2. Max average? length2 segments: [1,100] avg50.5,[100,1]50.5,[1,100]50.5,[100,1]50.5,[1,100]50.5; length3: [1,100,1]=34,[100,1,100]=67,[1,100,1]=34,[100,1,100]? indices2..4=[1,100,1]=34? Let's index: [0]=1,[1]=100,[2]=1,[3]=100,[4]=1,[5]=100. length>=2 segments: i=0 j=2 avg101/2=50.5; i=0 j=3 avg102/3=34; i=0 j=4 avg103/4=25.75; i=0 j=5 avg203? sum=1+100+1+100+1=203/5=40.6; i=0 j=6 sum=303? [1,100,1,100,1,100]=303/6=50.5; max maybe i=1 length4 avg (100+1+100+1)/4=25.5? no. Max 67? length? [1..4) indices1..3 =100+1+100=201/3=67 yes segment i=1 j=4 length3 avg67. Also [3? indices3..5 =100+1+100=201 /3=67. So opt67. Gap distinct 50.5 to67 =16.5. Binary search. Feasible λ around67; segment_for finds i=1 (first? i=0 maybe suffix condition? for λ=67, g0=0; suffix max from i+k=2 includes g[2]=? S: S0=0,S1=1,S2=101,S3=102,S4=202,S5=203,S6=303. g=S_i -67i: [0,1-67=-66,101-134=-33,102-201=-99,202-268=-66,203-335=-132,303-402=-99]. Suffix max from2 = max(g2,g3,g4,g5,g6)= max(-33,-99,-66,-132,-99)=-33. g0=0, false. i=1: suffix from3 = max(-99,-66,-132,-99)=-66; g1=-66 true; j? scanning j=3: g3=-99<v false, j=4 g4=-66>=v -> segment [1,4) length3 sum202? Wait S4=202, S1=1, total201, length3 avg67. Good.
+
+Gap_min bound 1e-10; binary search stops. Good.
+
+Now let's consider all elements equal m, k<=len. max_a=m, direct high feasible -> [m,1], even though there are averages equal m; good.
+
+Now exact fraction lowest terms: If segment total=0,length>0, gcd=length; denominator1. Good.
+
+Potential code style: The return type list[int] requires Python 3.9+. Use `math.gcd`.
+
+Now could we include fallback for direct high feasible using `find_segment(max_a,1)` but after a 64-iteration binary search? Not needed.
+
+Let's think about tests with averages differ less than 1e-9: Since our binary search width target =1/(2 n^2) with n=1e5 =5e-11, well below 1e-9. Even with n smaller, fine. If n=1? k=1. n*n*2=2, target=0.5. Distinct averages in one-element array: only one average; gap irrelevant. Binary search to width0.5; initial width max_a. If max_a>0 and high infeasible? But high=max_a feasible always for one element (segment [0,1) length1=k), so direct returns. If k=1 and n>1, distinct gap bound maybe conservative. Fine.
+
+If n=2,n*n*2=8 target=0.125; if two possible averages differ by <0.125? Could happen e.g. elements [1,2], k=1: averages 1 and2 diff1. okay. [1,100], k=1 diff99. Fine. Maybe n=2 with values [6,7]? averages diff1. Distinct fractions gap bound>=1/4, target0.125 safe. Good.
+
+If n=1, n*n*2=2, target0.5; no distinct. Direct high feasible. Good.
+
+Now let's contemplate if hi=max_a infeasible but true optimal could be exactly hi? No, if true optimal=hi, then hi feasible (segment avg=hi). Contradiction. So hi>opt. Good.
+
+Potential issue with direct `find_segment(max_a,1)` for max_a=0? We return [0,1] before. If max_a=0 but not all zeros? impossible since nonnegative. Good.
+
+Let's think about exact `target` and while loop: If initial width M-0 is already <=target (small arrays/values), while may not run. Then lo=0, target? final seg(lo=0) returns segment. For n small, target can be 0.125; M=0.5 (not integer? max_a integer) M=0 or1. max_a=1 target0.125, M>target, one iteration. Good. If M=1 and n=1, direct; n=2 target0.125. Good. For M=0 direct. For M=1,n=2 target0.125, run. Fine.
+
+What about max_a=1,k=2,n=2 target0.125, hi=1 infeasible? Array [0,1], k=2. length2 avg0.5. max_a=1 high infeasible (no segment avg>=1). lo=0 feasible. binary: mid=0.5 feasible -> lo0.5; width0.5>0.125; mid=0.75 infeasible -> hi0.75; width0.25>0.125; mid=0.625? feasible? avg>=0.625 no -> hi0.625; width0.125? exact 0.125? Actually lo=0.5, hi=0.75 width0.25; mid=0.625 infeasible -> hi0.625; width0.125; while hi-lo > target (0.125 >0.125 false) stop; seg(lo=0.5) returns total1,length2 [1,2]. Good.
+
+If average has denominator2 and gap maybe? fine.
+
+Now, is it possible that find_segment(lo) at final returns an arbitrary segment with average>=lo but less than opt yet still above lo because next lower candidate is less than lo but maybe there are two feasible averages between lo and opt (one =opt, one lower) but width target ensures no. Good.
+
+Now one more thought: The minimum distinct average gap bound 1/(n*n) may be false when fractions are not reduced? Suppose two segments have different lengths m1,m2 and sums t1,t2, with distinct rational values p/q (q reduced) q,m? reduced denominator divides m? Actually reduced denominator q divides actual denominator m (m = q*r where r may share? Let's verify: actual fraction total/length; reduced denominator q = length / gcd(total,length). q divides length, and length<=n, so q<=n. Yes. Difference of distinct fractions = |p1*q2 - p2*q1|/(q1 q2). Numerator is nonzero integer? p1*q2 and p2*q1 are integers. If fractions distinct, p1 q2 != p2 q1. >=1. Denom <=n^2. Good.
+
+Now, could k not equal length? constraints okay.
+
+Let's produce final with imports outside. Use only function and imports. No explanation. Good.
+
+Need ensure final channel only. Done.
+
+Wait, let's consider direct `find_segment(max_a, 1)` before binary search could be expensive but only one. fine.
+
+Let's think about exact binary search maybe not needed for small values; if max_a <=1 and n large, target tiny, width maybe <=? M=1, target5e-11, needs 34? Actually log2(1/5e-11)=34. Good.
+
+Could we stop binary search when `hi-lo < 1/(n*n)` and then compute segment with `(lo+hi)/2`? If width<gap, only one candidate in interval, but if segment_for(mid) returns infeasible (mid>opt) bad. So use lo. Good.
+
+Now perhaps there is an even better exact method: once binary search identifies near-opt, instead of using lo and find_segment, we could reconstruct j from global suffix at threshold and verify; okay.
+
+Let's check final code for `return None` inside find_segment: If the `while j <= n` loop finds no j, it returns None. That can happen only if `suff[i+k] >= g[i]` but g array inconsistent? Let's ensure `suff[i+k]` is max of g[i+k:n+1], where `i+k` maybe = n+? Since i<=n-k, i+k<=n. Good. If suff[i+k] = g[j] for some j>=i+k. Then scan will find j. If multiple j, scan finds first. Thus no return None. But if `suff[i+k] >= g[i]` and `g[i]` is extremely high such that suff max equals maybe g[i] at position <i+k? no suffix starts at i+k. Fine. `return None` unreachable; if due to bug, binary search may treat infeasible at feasible lo causing issues. To mitigate, maybe omit return None but structure ensures return; if scan exits, use `return i, n`? That would return segment with average maybe lower but still length>=k? It would have length n-i; if i<=n-k then n-i>=k, yes length>=k. But average may not be>=lo. However returning wrong is worse. Not needed.
+
+Potential issue in `find_segment`: `suff=[0]*(n+1)` initialization zeros could make suff[i+k]>=g[i] even if all future g values are negative? Initialization not used because cur None until i=n, then suff[i]=cur computed immediately. For i=n, val=g[n]; cur=val; suff[n]=g[n]. No zero. Good.
+
+Now, final code. Need no markdown explanation.
+
+Let's maybe add comment? Code can include comments; okay. But user says only code in single python block. Comments inside code are still code. Fine. Keep concise.
+
+Let's ensure no accidental use of `m` variable conflict. Use `running_sum`.
+
+Final code now.
+=== CONTENT ===
+```python
+import math
+from fractions import Fraction
+
+def best_average(a: list[int], k: int) -> list[int]:
+    n = len(a)
+    S = [0] * (n + 1)
+    running = 0
+    max_a = 0
+    for i, x in enumerate(a):
+        running += x
+        S[i + 1] = running
+        if x > max_a:
+            max_a = x
+
+    def find_segment(num: int, den: int):
+        g = [0] * (n + 1)
+        for i in range(n + 1):
+            g[i] = den * S[i] - num * i
+        suff = [0] * (n + 1)
+        cur = None
+        for i in range(n, -1, -1):
+            v = g[i]
+            if cur is None or v > cur:
+                cur = v
+            suff[i] = cur
+        for i in range(n - k + 1):
+            if suff[i + k] >= g[i]:
+                v = g[i]
+                j = i + k
+                while j <= n:
+                    if g[j] >= v:
+                        return i, j
+                    j += 1
+                return None
+        return None
+
+    if max_a == 0:
+        return [0, 1]
+
+    seg = find_segment(max_a, 1)
+    if seg is not None:
+        return [max_a, 1]
+
+    lo = Fraction(0, 1)
+    hi = Fraction(max_a, 1)
+    target = Fraction(1, n * n * 2)
+
+    while hi - lo > target:
+        mid = (lo + hi) / 2
+        seg = find_segment(mid.numerator, mid.denominator)
+        if seg is not None:
+            lo = mid
+        else:
+            hi = mid
+
+    seg = find_segment(lo.numerator, lo.denominator)
+    i, j = seg
+    total = S[j] - S[i]
+    length = j - i
+    g = math.gcd(total, length)
+    return [total // g, length // g]
+```

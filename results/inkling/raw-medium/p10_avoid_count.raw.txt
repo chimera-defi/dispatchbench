@@ -1,0 +1,429 @@
+=== REASONING ===
+We need answer only code block with solution. Need reason carefully.
+
+We need solve counting strings length n over alphabet (size k 2-4) avoiding set of banned substrings. Total length banned <=20, banned may duplicates, strings contain other banned strings. n up to 1e18. Need modulo 1e9+7.
+
+Standard automaton over Aho-Corasick / KMP. Since total length small (<=20) and alphabet small. Need dynamic count with matrix exponentiation or linear recurrence.
+
+Approach: Build trie of banned patterns (dedupe? Actually duplicates fine. Strings containing other banned strings: If a banned string contains another banned string, then any occurrence of longer banned string implies occurrence of shorter banned string, so only minimal banned strings matter. For avoiding set, any banned string occurrence forbidden; if string contains another banned substring, forbidden occurrences of longer automatically forbidden by shorter. We can remove any banned string that contains another banned string as substring. Because if banned string x contains y, then strings avoiding y cannot contain x either? Wait if avoid y (no y substring), can still contain x as substring without containing y? If x contains y as substring, then any occurrence of x contains y, so contains y. Thus avoiding y implies avoiding x. So x is redundant (x cannot appear in safe strings). Remove longer strings whose substring is another banned string? More generally keep minimal by substring relation (minimal strings not containing another banned string). If two banned strings identical duplicates, keep one. But minimal by string containment: remove x if there exists y != x such that y is substring of x? If y is substring of x, any occurrence of x contains y, so x redundant. Remove x. Keep strings that are not superstrings of any other banned string. Yes.
+
+Then build automaton states representing longest suffix of current string that is prefix of some banned string (minimal set maybe full set). Need avoid accepting states (where a banned string ends). Because after removing redundant, automaton with minimal banned patterns suffices.
+
+n can be huge (1e18), number states small (<= total chars <=20 plus root, maybe <=21). We can do DP matrix exponentiation or linear recurrence via polynomial. k small.
+
+Simplest: build transitions for automaton including absorbing bad state. States = nodes in prefix trie of minimal banned strings, plus bad absorbing state. But count safe strings length n. Since banned total <=20, states <= maybe 21 (including root) plus bad. Transitions: from state representing prefix p (longest suffix that is prefix of any banned string), for each char c, new_suffix = longest suffix of p+c that is prefix of banned or empty; if p+c ends with banned string (i.e., state = node of banned string?) then bad. Need handle duplicates and multiple patterns. Use Aho-Corasick failure links to compute transitions efficiently for n huge not needed (transitions computed once). Then count paths of length n from root to non-bad states. Build adjacency matrix (states x states) where safe states transitions to safe states; bad omitted or to bad removed. Then matrix exponentiation with n up to 1e18: matrix size ~22, exponent ~60 iterations, fine. Need modulo. Alternatively use linear recurrence O(states^3 log n) or Berlekamp; matrix easier.
+
+Need ensure correctness with empty n returns 1.
+
+Implementation details:
+- alphabet distinct chars length k 2..4. Could pass alphabet as string with distinct chars.
+- banned list may contain empty strings? Problem says every banned string non-empty. But maybe trust. If empty banned, then avoid_count returns 0 for n? Empty substring occurs in every string; count 0 for all n? For n=0 empty string: contains empty string? Usually empty substring contained, so count 0. But empty banned excluded. Not handle maybe.
+- Remove duplicates: set banned. Then remove any pattern that contains another pattern as substring. Need consider minimal by containment; a pattern may contain another banned pattern not necessarily as exact substring? We check substring for all pairs. If len(x) > len(y) and y in x, remove x. That's enough. If equal duplicates removed by set. If pattern x contains pattern y and y contains another z? y redundant if contains z, so removal iterative; check after duplicates. Use loop: changed True; for x in list, for y in list: if x is not y and y in x: remove x. Since y in x implies len(y)<=len(x); if equal duplicates removed already, so strict. One pass suffices? If x contains y and x contains z, remove x. If y contains z, remove y too in same pass; x removal independent. We can mark x invalid if any other banned string is substring of x (and x != y). Remove all x with any y substring. That handles x containing y. Good.
+
+But is it sufficient to use only minimal banned strings in automaton? If we removed long string x because it contains y, any safe string (no y) cannot contain x. So safe strings from minimal automaton equal original safe. Good.
+
+- Build trie of minimal banned patterns. Nodes (prefixes). Use dictionaries for trie and transitions. Could use Aho-Corasick for transition function.
+
+Let's design automaton states as integer IDs for prefix nodes:
+root = 0, node id for each prefix of banned patterns. For each node, its depth = length. Root state 0 (empty suffix). For each node, for each char in alphabet, compute candidate v = node+char. Then find longest suffix of v that is either root or a trie node. Also need know if v ends with a banned string (i.e., v itself is a banned pattern (after minimal) or maybe v ends with a banned pattern that is longer? Wait if candidate = prefix + char; since current node is longest suffix prefix, candidate can be longer than max pattern? Depth <= maxlen. If current depth < maxlen, candidate depth <= maxlen. If candidate equals a banned pattern string exactly, then bad. But what if candidate contains a banned string as suffix that is not prefix? E.g. banned ["ab","abc"] minimal removes "abc" (contains "ab"), so no. Minimal set: no banned string contains another, but candidate (suffix length <= maxlen) could end with a banned pattern not equal candidate, e.g. banned ["aab"]? candidate suffix could be "aa"? no banned not prefix? Need bad test: When appending char to current string, a banned occurrence is detected if the new string ends with some banned pattern (from minimal set). The longest suffix of current node+char that is a prefix of any banned string is computed; but badness should be determined by existence of a banned pattern that is a suffix of candidate. In Aho-Corasick, output at node = set of banned patterns ending at that node (i.e., patterns whose prefix? Actually states are prefixes of banned strings; if candidate is a string s (length <= maxlen), safe if no banned pattern is suffix of s. Since all banned patterns length <= maxlen and s length <= maxlen. We can check for each minimal banned pattern b, if len(b) <= len(s) and s.endswith(b): bad. That's simple, states small. Alternatively use Aho failure. Simple O(states*k*m*L) precompute fine (<=22*4*2*20). We can precompute for each state and char.
+
+State = prefix string. Transition: s = state + char. Determine next state = longest suffix of s that is in prefix_set (including empty string root) and if no banned suffix then this state; else bad. But careful: longest suffix of s that is prefix of banned OR empty. If s has banned suffix, then bad regardless. If no banned suffix, find longest suffix prefix; transition to that. This yields automaton whose states are prefixes of banned strings. Because safe strings' longest suffix that is prefix of banned is in prefix set. Correct.
+
+Potential issue if candidate s is itself a prefix of a banned string and also has banned suffix? Example banned ["aa"], alphabet a,b. Root suffix state "". From root char a: s="a", contains banned suffix? "aa" no, no banned suffix. longest suffix prefix: "a" (prefix of banned). next state "a". From state "a", char a: s="aa", contains banned suffix "aa" -> bad. Good.
+
+From state "a", char b: s="ab", banned suffix? "aa" no. longest suffix prefix of banned set {"a","aa"}: suffixes of "ab": "ab" not prefix; "b" no; "" empty -> root. transitions to root. Good.
+
+After minimal removal, banned strings don't contain another banned string, but we still need detect banned suffixes for safe states. Fine.
+
+Then build transition matrix over safe states (prefix set). Let states list = sorted? Keep [""] + all unique prefixes of minimal banned strings? However states that are not reachable maybe include prefix of banned string that leads to bad immediately; still needed. Build dict prefix_to_id for all prefixes of minimal banned strings plus "". That includes node at banned pattern length. But if state equals a banned pattern exactly, it should be considered bad (since safe strings never reach it). We can exclude banned pattern nodes as states entirely, or include but ensure no safe transitions to them; initial root; transitions to bad excluded. Simpler: states = all proper prefixes of any banned pattern (including ""), i.e., prefixes with length < len(pattern) for some pattern. If banned pattern of length 1, then only "" state. Since entering banned pattern means bad. This avoids bad node. For any prefix p that is full banned pattern (length equals some banned pattern), not a safe state. But note if a prefix equals another banned pattern? after minimal removal, no banned pattern contains another banned pattern, but they can be equal removed; distinct banned strings can share prefixes but not identical. A proper prefix of banned string x might equal banned string y? That would mean y is prefix of x, i.e., y is substring (prefix) of x. Then y is banned and contained in x, so x would be removed; minimal banned set cannot contain x if it contains y. So in minimal set, no banned string is a prefix of another. Good: proper prefixes of banned strings are not banned strings. They may coincide as proper prefix of multiple patterns; include once.
+
+States = {""} union {p: for b in minimal, for i in 1..len(b)-1: b[:i]}. This excludes banned pattern length nodes. Good.
+
+Transition from state s (proper prefix) on char c:
+new = s + c
+if any banned b in minimal: len(b) <= len(new) and new.endswith(b): return None (bad)
+else:
+   # longest suffix of new that is a state (proper prefix incl "")
+   best_len = 0
+   for L in range(len(new), -1, -1):
+      suffix = new[-L:] if L>0 else ""
+      if suffix in state_set: best_len=L; break
+   return best_len (or new[-best_len:])
+But if new length could equal maxlen and contains bad? we check first. If no banned suffix and suffix state exists. Note suffix could be full banned pattern? But we excluded banned pattern states; if suffix is a full banned pattern, then new.endswith(suffix) means new ends with banned pattern -> bad. So if bad not triggered, no banned suffix; suffix state as proper prefix/empty won't be banned pattern. Good.
+
+Could simply check endings against minimal banned patterns. Fine.
+
+Then DP/fast exponentiation. Number states m <= total length <=20? Actually proper prefixes total <= sum(len(b)-1) <= 20 (if empty? banned nonempty; each length >=1, so <=19? plus root <=20). Good.
+
+Now matrix exponentiation. m small. Define adjacency matrix A[i][j] = number of chars c such that transition(state_i,c)=state_j. Since each char gives one transition, A_ij equals count of letters leading to j. Then result = sum_{i in safe states} (A^n)[0][i]? Wait starting at root, after n chars, ending in any safe state. Sum over states of (A^n)[root][j]. Since A has row sums k for each safe state? For each state and each char, exactly one transition: either bad or safe. Row sum <= k (number of chars that avoid). Good.
+
+Alternatively track vector over safe states: v_{i}; start v[root]=1. Repeatedly multiply by A n times via exponentiation by squaring with vectors? Matrix-vector exponentiation is better: v_{t+1} = A^T? Actually safe count = sum_j v_n[j]. Use matrix exponentiation with vector multiplication O(m^2 log n). Precompute A. Then exponentiate A to power n with vector: while exp>0: if exp&1: v = v * M (where M[i][j] weighted transitions); exp >>=1; M = M*M. But we don't need final full matrix except for squarings; still m~21, 60 iterations, matrix multiply 21^3*~60 ≈ 2.8M, fine. Or use matrix^n times initial vector via binary exponentiation: v = initial vector; for each bit of n, if bit: v = v * M; M = M*M. Since n up to 1e18 (60 bits), good. But need M squared 60 times too. Fine. Alternatively use exponentiation of transition matrix by pow with repeated squaring; memory small.
+
+Simpler code:
+```
+def mat_mul(A,B):
+    m=len(A)
+    C=[[0]*m for _ in range(m)]
+    for i in range(m):
+        Ai=A[i]
+        Ci=C[i]
+        for k in range(m):
+            a=Ai[k]
+            if a==0: continue
+            Bk=B[k]
+            for j in range(m):
+                Ci[j]=(Ci[j]+a*Bk[j])%MOD
+    return C
+
+def mat_pow(A,n):
+    m=len(A); R=identity; while n: if n&1: R=mat_mul(R,A); A=mat_mul(A,A); n//=2; return R
+```
+Then result = sum(mat_pow(A,n)[0]) % MOD.
+This is O(m^3 log n) ~ 21^3*60 = 1.3 million? Actually 27,000*60 = 1.6M? Wait m^3=9261? no 21^3=9261; *2 squarings? 60* (mul ~ 9261 9-? ) = ~1.5M, actually fine. But worst total length 20, proper prefixes maybe <= 20. Good.
+
+But is matrix with row vector initial [1,0,...]; final = row_sum of first row of M^n? Starting vector e0; e0*M^n = first row of M^n. Sum = sum_j R[0][j]. Yes.
+
+Potential precision/modulo: use MOD=1_000_000_007.
+
+Edge cases:
+- n=0: return 1 even if banned empty? If banned nonempty, count empty string =1. If all banned patterns nonempty, no safe length 0 issue. If banned empty (excluded), bad.
+- banned may be empty list: no banned patterns; states = {root}; transitions all chars to root; m=1; A=[[k]] where k=len(alphabet). M^n = [[k^n]]. result = k^n % MOD. Good.
+- If all transitions from root bad for n=1? e.g banned includes all one-letter strings over alphabet (but alphabet size up to 4, total length <=20). Minimal banned set could include length-1 patterns. Then proper prefixes = {root}; m=1. From root, any char c: new=c; check banned suffix length1: if c in banned -> bad; all chars banned -> no safe transitions. A=[[0]] (since root to no safe states). n>=1: M^n = [[0]]; sum=0. For n=0: result = sum of row0 of identity =1. Good. Note A=[[0]] matrix power for n=0 = identity [[1]], result 1. Good.
+- If minimal banned set empty after removals? no, empty banned list or all? If banned list has duplicates only? set leaves 1; minimal not empty. If banned list empty: states {root}; A=[[k]]. result k^n. Good.
+
+Potential subtlety: banned strings that contain other banned strings should not be needed, but what about duplicate strings with different char cases? exact strings; set fine.
+
+Potential subtlety: Minimal removal: Suppose banned [x,y] where x is substring of y and y is substring of x -> x=y (same length) duplicates removed. OK.
+
+Now think about total length limit. Alphabet 2-4 distinct. We can trust. We should include only code block. The final answer must only code block. No explanation.
+
+Implementation using list[str] type hint; Python 3.9? In Python 3.9 list[str] works only from 3.9? Actually built-in generic types list[str] introduced Python 3.9. Fine.
+
+Need ensure top-level function exactly. Could include helper functions top-level? User says implement exactly this function (a top-level function, not a class). It doesn't forbid helpers but "exactly this function" maybe means don't alter signature; helper functions okay. To be safe, we can nest helper inside avoid_count closure, or include small local functions. Single function with nested helpers. That ensures exactly one top-level def. Good.
+
+Code:
+```
+def avoid_count(n: int, alphabet: str, banned: list[str]) -> int:
+    MOD = 1_000_000_007
+    # dedupe and remove banned strings containing another banned string
+    patterns = list(set(banned))
+    if not patterns:
+        # no banned strings
+        m = 1
+        # result len(alphabet)^n mod MOD
+        return pow(len(alphabet), n, MOD)
+    # But the code path below also handles empty patterns: states {root}, A=[[k]]; no need special. However pow avoids matrix; fine. More uniform not special.
+
+    minimal = []
+    for p in patterns:
+        redundant = False
+        for q in patterns:
+            if q is p: continue
+            if q != p and q in p:
+                redundant = True
+                break
+        if not redundant:
+            minimal.append(p)
+```
+Need be careful `q in p` with p length? If q == p duplicates removed by set, so q != p. But `q is p` might be True only for same object? set of strings; in loop, p from minimal... q from patterns. `q != p` sufficient. Use `if q != p and q in p`. For p length equals q? Then q in p means p==q since same length, q!=p false, so not duplicate; fine.
+
+But what if q appears as substring in p and q is a sub-prefix? yes.
+
+Now states:
+```
+    state_set = {""}
+    for p in minimal:
+        for i in range(1, len(p)):
+            state_set.add(p[:i])
+    states = list(state_set)  # arbitrary order
+    idx = {s:i for i,s in enumerate(states)}
+    m = len(states)
+    # transitions
+    A = [[0]*m for _ in range(m)]
+    for i,s in enumerate(states):
+        for c in alphabet:
+            s2 = s + c
+            bad = False
+            for p in minimal:
+                if len(p) <= len(s2) and s2.endswith(p):
+                    bad = True
+                    break
+            if bad: continue
+            # find longest suffix of s2 that is in state_set
+            best = -1
+            best_len = 0
+            L = len(s2)
+            while L > 0:
+                suf = s2[-L:]
+                if suf in idx:
+                    best_len = L
+                    break
+                L -= 1
+            # best_len=0 default root
+            j = idx[s2[-best_len:]] if best_len>0 else 0? 
+```
+Problem: idx[""]=root index, but states list arbitrary order. We can compute suffix state directly by idx. If best_len=0, suffix = "", j=idx[""]. If best_len>0, suffix = s2[-best_len:], j=idx[suffix]. We can simply do `j = idx[s2[len(s2)-best_len:]]` always: for best_len=0, suffix = s2[len(s2):] = "" good. Nice. Then A[i][j] = (A[i][j]+1)%MOD.
+
+Should we mark bad for full banned pattern states? We never include full patterns in states, so if s2 is full banned pattern, it will be bad via endswith. Good. If s2 contains a longer banned pattern as suffix, bad via endswith. Good.
+
+But note if s2 is proper prefix of a banned string and also has a banned suffix (one-letter banned string at the end), bad. Good.
+
+Could there be an empty banned pattern? excluded; if present, any string contains it, so all transitions bad, states {root}? minimal remove? Empty q in p for all p? q="" is substring of every p, so all patterns redundant, minimal = []? Let's see: patterns includes "" (nonempty excluded but if present). For every p, q="" != p and q in p true -> redundant=True; minimal empty. States={root}; transitions: for each char, s2=c; for p in minimal none; no bad; best suffix proper prefix length 0 ("") or maybe? states {root} only; best_len=0; A[0][0]=k. Then result k^n, wrong for banned empty string. But empty banned excluded by problem; don't need. Could handle just for robustness: if any banned pattern len==0 return 0 (even n=0? empty string contains empty pattern, so 0). But constraints non-empty; leaving as is may accidentally produce wrong if grader violates; adding robust check harmless? But if empty banned pattern and n=0, what is correct? It contains empty substring, so 0. If banned empty and n? all strings contain it. return 0. Could add. Not necessary but fine. However user says empty string counts as 1 for n=0 (when no banned? maybe even with banned? They clarify empty string (n=0) counts as 1. That implies with nonempty banned strings, n=0 counts 1; with banned empty string maybe contradiction? They exclude empty banned. I'll add early if any b=="" return 0? Hmm could conflict with examples? Not relevant. Better to not add unsupported behavior? We can include early return for empty banned pattern as 0; harmless. But then for n=0 and nonempty banned returns 1 via matrix identity. Fine.
+
+Now matrix exponentiation nested.
+```
+    def mul(X,Y):
+        nn=len(X)
+        Z=[[0]*nn for _ in range(nn)]
+        for i in range(nn):
+            Xi=X[i]; Zi=Z[i]
+            for k in range(nn):
+                x=Xi[k]
+                if x:
+                    Yk=Y[k]
+                    for j in range(nn):
+                        Zi[j]=(Zi[j]+x*Yk[j])%MOD
+        return Z
+    def mat_pow(X,e):
+        nn=len(X)
+        R=[[1 if i==j else 0 for j in range(nn)] for i in range(nn)]
+        while e:
+            if e&1: R=mul(R,X)
+            e >>=1
+            if e: X=mul(X,X)  # can do after shift
+        return R
+```
+Note if e becomes 0 after shift, avoid needless squaring. Fine. But for n=0, R identity; result sum row0. For n up to 1e18, 60 bits.
+Then `res = 0; M = mat_pow(A,n); for v in M[0]: res += v; return res % MOD`.
+Alternative more efficient vector-matrix exponentiation O(m^2 log n) but matrix easier; m small.
+
+Potential issue: `alphaset` duplicates? alphabet distinct. Use alphabet string; chars may be unicode; fine. We don't need set(alphabet); len(alphabet)=k. But if alphabet has duplicates contrary, transitions would count duplicates as different chars? It says distinct. Fine.
+
+Now verify examples mentally:
+Example avoid_count(3,"ab",["aa"]): minimal ["aa"]. states proper prefixes: "a" only plus "" => states ["", "a"] m=2. Transitions:
+state "": char a -> s2="a"; no banned suffix ("aa" no); best suffix "a"; A[0][1]=1. char b -> s2="b"; no banned; suffix ""; A[0][0]=1. Row0=[1,1].
+state "a": char a -> s2="aa"; bad -> skip (A[1][?] =0). char b -> s2="ab"; no banned suffix; suffix? "ab" no, "b" no, "" yes; A[1][0]=1. Row1=[1,0]. A=[[1,1],[1,0]]. This is Fibonacci; M^3 row0? Fibonacci: counts avoiding aa = 5 total. A^1 row0=[1,1] sum2; A^2 row0 = row0*A = [1*1+1*1, 1*1+1*0]=[2,1] sum3; A^3 row0 = [2*1+1*1,2*1+1*0]=[3,2] sum5. good.
+
+Example avoid_count(2,"abc",["abc"]): minimal ["abc"], states proper prefixes "a","ab" plus "". m=3. Transitions: root: a->"a", b->root? state "b" suffix empty? Wait state "" char b: s2="b", no banned suffix, longest suffix prefix: suffixes "b","" -> "" root (since "b" not prefix of "abc"). A[root][root]=1 (char b). char c -> root. a->state "a". From state "a": char a -> s2="aa"; suffix? "a" prefix; no banned suffix (not abc); A["a"]["a"]=1. char b -> s2="ab"; suffix "ab" state; A["a"]["ab"]=1. char c -> s2="ac"; suffix "c"? no, "" root; A["a"][root]=1. From state "ab": char a -> s2="aba"; suffix? "aba" no, "ba" no, "a" state -> A["ab"]["a"]=1. char b -> s2="abb"; suffix? "bb" no, "b" no, root -> A["ab"][root]=1. char c -> s2="abc"; banned suffix yes bad -> skip. Rows total root 3 chars, state a 3 chars, state ab 2 chars. M^2 root row: sum? total safe strings length2: all 9 except "abc"; length2 has no "abc"; should be 9. Compute row0 A: root [a->a,b->root,c->root] = [1 char b,1 char c for root =2, for a=1,ab=0] = [2,1,0] sum3. row0*A = ?
+[2,1,0] * A:
+col root: 2*A[root][root]=2*2? Wait A[root][root]=2 (b,c), A[a][root]=1, A[ab][root]=1 => 2*2 +1*1 =5.
+col a: 2*A[root][a](1)=2 +1*A[a][a](1)=1 +0=3.
+col ab: 2*A[root][ab](0)+1*A[a][ab](1)=1+0=1. sum9. good.
+
+Example avoid_count(1e18,"ab",["a"]): minimal ["a"]. states proper prefixes: for p="a", i in 1..0 none; states {""}; m=1. Transitions: state "" char a: s2="a"; banned suffix yes bad skip. char b: s2="b"; no banned suffix; longest suffix prefix in {""}: "" root. A[0][0]=1 (only b). total length n safe strings = only b repeated =>1. M^n row0 = [1]. good.
+
+Now maybe the alphabet can be like "abcd" and banned strings total length<=20 but number of states could be <=20. Good.
+
+Need be careful about modulo in `A[i][j] = (A[i][j]+1) % MOD`: A[i][j] can be at most k<=4, no need mod. Keep simple.
+
+Matrix exponentiation implementation details: 
+```
+        while e:
+            if e & 1:
+                R = mul(R, X)
+            e >>= 1
+            if e:
+                X = mul(X, X)
+```
+Let's check this order. Standard:
+```
+while e:
+    if e&1: R=R*X
+    X=X*X
+    e>>=1
+```
+If we skip final squaring if e becomes 0 after shift, it's okay. For n=1: e=1, R=I*X, e=0, skip squaring, return X. good. For n=2: e=2, e&1=0, e=1, X=X^2; loop e=1, R=I*X^2, e=0, return. good. For n=3: e=3 R=X, e=1, X=X^2; loop e=1 R=X*X^2=X^3, e=0. good. Return. Fine.
+
+Alternatively vector method could be more efficient but matrix fine. Since m maybe 21 and bits 60, worst matrix mul ~3.7M inner iterations? Let's calculate 60 bits * (squaring + maybe multiply R) * m^3 average. m=21. m^3=9261. Inner with k skip maybe. 60*2*9261*? ~1.1 million? Wait 9261*60*2 = 1.1M? No 9261*120 =1,111? 9261*120=1,111,320. yes fine.
+
+We need ensure no problem with Python recursion etc. fine.
+
+Now final answer should only contain code block. No explanation.
+
+One more thought: Minimal removal should perhaps keep strings that are suffix/prefix? Redundancy condition: remove x if there exists y such that y is a substring of x. Yes. If x and y are same string duplicates removed by set. Good. If y is equal substring as x, duplicates removed. Fine.
+
+Could duplicates in banned list contain same string but also strings related by containment; removal okay.
+
+Now code style:
+```
+def avoid_count(n: int, alphabet: str, banned: list[str]) -> int:
+    MOD = 1_000_000_007
+    if any(b == "" for b in banned):
+        return 0
+    patterns = list(set(banned))
+    minimal = []
+    for p in patterns:
+        redundant = False
+        for q in patterns:
+            if q != p and q in p:
+                redundant = True
+                break
+        if not redundant:
+            minimal.append(p)
+
+    state_set = {""}
+    for p in minimal:
+        for i in range(1, len(p)):
+            state_set.add(p[:i])
+    states = list(state_set)
+    idx = {s:i for i,s in enumerate(states)}
+    m = len(states)
+    A = [[0]*m for _ in range(m)]
+    for i, s0 in enumerate(states):
+        for c in alphabet:
+            cur = s0 + c
+            bad = False
+            for p in minimal:
+                if len(p) <= len(cur) and cur.endswith(p):
+                    bad = True
+                    break
+            if bad:
+                continue
+            # find longest suffix of cur that is a proper-prefix state
+            L = len(cur)
+            best = ""
+            while L > 0:
+                suf = cur[len(cur)-L:]
+                if suf in idx:
+                    best = suf
+                    break
+                L -= 1
+            # best may be "" even if L=0
+            A[i][idx[best]] += 1
+```
+When L reaches 0 without suf empty check? empty suffix always idx[""] exists, but loop L from len(cur) down to 1; suffixes nonempty. If none found, best remains "" -> idx[""] root. Good. Note if cur is nonempty and first suffix is found, best=suf. Good.
+    if not minimal:
+        A = [[len(alphabet)]]  # states {""}; transitions all to root
+```
+Actually if minimal empty (because no banned patterns OR all redundant). But if all redundant due to containment, minimal empty. Example banned ["aa","aaa"]? minimal: q="aa" in p="aaa" so "aaa" redundant; "aa" no other substring (itself removed) -> minimal=["aa"]. Not empty. If banned ["a","aa"] minimal=["a"]. Fine. If banned empty -> minimal empty. If banned contains "" we returned. So minimal empty only for banned empty. The generic transition code with minimal empty and states {""} gives A[0][0]=len(alphabet) automatically. Good no special.
+
+But the state_set for minimal empty: {""}; m=1; transitions: for c, cur=c; no minimal bad; L=1 suf=c not in idx (only ""), L-- ->0; best=""; A[0][0]=k. Good.
+
+Then helper mat_mul nested. Use local MOD.
+```
+    def mat_mul(X,Y):
+        Z=[[0]*m for _ in range(m)]
+        for i in range(m):
+            Xi=X[i]; Zi=Z[i]
+            for j in range(m):  # compute row-wise? choose loop i,k,j with Xi[k]
+                pass
+        ...
+```
+Better choose i,k,j for cache; with m small fine.
+```
+        for i in range(m):
+            Xi=X[i]; Zi=Z[i]
+            for k in range(m):
+                x = Xi[k]
+                if x == 0: continue
+                Yk = Y[k]
+                for j in range(m):
+                    Z[i][j] = (Zi[j] + x*Yk[j]) % MOD
+```
+Need use Zi[j] but after assignment Zi=Z[i]; fine.
+Then `def mat_pow(X,e):`.
+```
+        res_mat = identity
+        while e > 0:
+            if e & 1:
+                res_mat = mat_mul(res_mat, X)
+            e >>= 1
+            if e:
+                X = mat_mul(X, X)
+        return res_mat
+```
+Check e=0: returns identity. R first row all? identity first row [1,0,...] sum=1. good.
+```
+        res_mat = mat_pow(A,n)
+        total=0
+        for v in res_mat[0]:
+            total += v
+        return total % MOD
+```
+Since res_mat values already mod, total < m*MOD < 21e9; no overflow in Python. fine.
+
+Potential issue: Matrix A row sum maybe less than k; identity fine.
+
+Could also implement vectorized DP for small total length using polynomial; not needed.
+
+Need ensure exactly this function top-level. We'll place only def avoid_count. Nested helpers inside. Good.
+
+Let's craft final code carefully. No extra prose.
+=== CONTENT ===
+```python
+def avoid_count(n: int, alphabet: str, banned: list[str]) -> int:
+    MOD = 1_000_000_007
+
+    if any(b == "" for b in banned):
+        return 0
+
+    patterns = list(set(banned))
+    minimal = []
+    for p in patterns:
+        redundant = False
+        for q in patterns:
+            if q != p and q in p:
+                redundant = True
+                break
+        if not redundant:
+            minimal.append(p)
+
+    state_set = {""}
+    for p in minimal:
+        for i in range(1, len(p)):
+            state_set.add(p[:i])
+
+    states = list(state_set)
+    idx = {s: i for i, s in enumerate(states)}
+    m = len(states)
+
+    A = [[0] * m for _ in range(m)]
+    for i, s0 in enumerate(states):
+        for c in alphabet:
+            cur = s0 + c
+            bad = False
+            for p in minimal:
+                if len(p) <= len(cur) and cur.endswith(p):
+                    bad = True
+                    break
+            if bad:
+                continue
+
+            best = ""
+            L = len(cur)
+            while L > 0:
+                suf = cur[len(cur) - L:]
+                if suf in idx:
+                    best = suf
+                    break
+                L -= 1
+
+            A[i][idx[best]] += 1
+
+    def mat_mul(X, Y):
+        Z = [[0] * m for _ in range(m)]
+        for i in range(m):
+            Xi = X[i]
+            Zi = Z[i]
+            for k in range(m):
+                x = Xi[k]
+                if x == 0:
+                    continue
+                Yk = Y[k]
+                for j in range(m):
+                    Zi[j] = (Zi[j] + x * Yk[j]) % MOD
+        return Z
+
+    def mat_pow(X, e):
+        R = [[1 if i == j else 0 for j in range(m)] for i in range(m)]
+        while e:
+            if e & 1:
+                R = mat_mul(R, X)
+            e >>= 1
+            if e:
+                X = mat_mul(X, X)
+        return R
+
+    M = mat_pow(A, n)
+    return sum(M[0]) % MOD
+```

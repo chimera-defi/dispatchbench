@@ -1,0 +1,562 @@
+=== REASONING ===
+We need answer with only code block. Need solve algorithm.
+
+We need parse problem carefully. We have strip cells 1..n. Ops in order. Operations:
+- [1,l,r,c]: paints cells l..r inclusive with colour c. A cell that already holds a colour greater than c keeps it; any other cell, blank or not, takes colour c.
+Interpretation: For each cell in range, if current color > c, remains current; else set to c (including blank=0 and lesser/equal? "greater than c keeps it"; blank maybe treated? blank not color; any other cell, blank or not, takes colour c. If current c equal, takes colour c (same). So condition keep if current > c, else set c. Blank set c.
+- [0,l,r]: erases cells l..r: become blank, whatever colour they held.
+
+Need final counts by colour >0. n up to 1e9, ops up to 1e5. Need efficient interval dynamic.
+
+Naive per op ranges huge. Need clever. This problem resembles interval painting with maximum color threshold and erases. Need compute final counts of colors over n. Need exact.
+
+Let's analyze data structures.
+
+Final state can be represented as disjoint intervals with constant color after processing ops? Each op is range set/erase with threshold. n huge but ops m=1e5. We can maintain list of intervals (constant color) separated by boundaries. Applying paint with threshold c: For each interval overlapping [l,r], if interval.color > c, it remains, but split at boundaries; part outside unchanged. Need split/clip intervals and set/keep. Complexity O(k log k) if we maintain balanced tree of intervals and split repeatedly. m=1e5, intervals can grow O(m) maybe O(2m). Each op splits at most 2 boundaries and modifies overlapping intervals. But paint may need iterate over all overlapping intervals and decide to replace each. Worst-case overlapping intervals could be O(m) per op -> O(m^2). Need more efficient.
+
+Alternative: process operations and maintain contributions? Since final colors are among input c (<=1e5 maybe distinct). Counts can be computed via segment tree over colors? Need constraints with range operations and thresholds. Need design correct.
+
+Important: Paint operation with threshold c: cells with current color < c or blank become c; cells with color > c unchanged. This is like max-plus? Erases reset to 0.
+
+We can maybe process operations in reverse. Reverse operation: state after op i. If paint op [1,l,r,c], given state after (S_after) and before? Reverse: We know S_after. Want S_before such that painting S_before yields S_after. For cells in [l,r]: in S_after color c can come from before if before was <= c (or blank) and after set to c. Or before was >c? no then after remains >c not c. Cells with after color > c in [l,r]: must have been same >c. Cells with after color = c: before could be blank, any color <= c within? Actually if before color x <= c -> after c; if before x > c -> after x (not c). If before x = c -> after c. So after c corresponds before x <= c (including blank? blank -> c) within range. Reverse cannot uniquely determine before colors among distinct values <=c. But for final counts, maybe only after all ops matter? Could track counts? Reverse for count might be easier? We need final state, forward.
+
+Alternative reverse for count of each color? Hmm.
+
+Need exact counts at end. This is a range operation with threshold and overwrite. Since m=1e5 and n huge, likely intended with interval set + something. Let's explore.
+
+Paint rule: current color v > c unchanged; else set to c. Equivalently range chmin? No, set to max(v, c)? Wait if current v <= c -> set c. If v > c keep v. That's after = max(v, c)? Since if v<=c, max=v? no max(v,c)=c yes; if v>c, max=v. Yes! Paint cell with c sets cell to max(old, c), where blank treated as 0. Nice! Because blank=0 <= c, max=c. Great. So paint op is range assign max with c. Erase sets to 0.
+
+Thus process sequence of operations: erase sets to 0 over interval; paint sets cell to max(current, c). Need final counts of colors. This is manageable with interval map and segment tree.
+
+Operations are range max and range reset-to-zero. We need counts by color. Range max with constant c, range assign zero (set blank) over interval. m=1e5, n huge. Distinct colors <=1e5. Need O(m log m) maybe.
+
+Represent strip as ordered list of intervals with uniform color (constant), plus maybe an auxiliary structure for colors frequencies. Operations:
+- Erase [l,r]: iterate over overlapping intervals, split at boundaries, set covered parts color 0. We need maintain list sorted by position and counts. If each erase splits O(k) intervals. Could degrade O(m^2) if many intervals each erase? Actually erases can split intervals and then reset. But erase covers intervals overlapping; after erase, those intervals become color 0 (can merge with adjacent blank intervals). Number of intervals can grow due to splits; total maybe O(m^2)? Let's bound. Each paint op splits at most two boundary positions (l,r) unless it modifies many intervals? Actually applying range paint max(c): since all cells in range get max(old,c). If an interval overlapping range has uniform color v. If v > c, the part of interval inside range remains v (not set); outside unchanged. Need split interval if partially overlapped: only if v>c (keep color) and it straddles boundary. If v <= c, whole overlapping part inside [l,r] becomes c; but since uniform interval v<=c, entire interval (whether partially overlapped? Wait inside range if v<=c -> set to c. Outside range remains v. So if interval straddles boundary and v<=c, the inside part becomes c, outside remains v: need split and change one sub-interval to c. If v==c and straddles, inside c outside v equal same, but boundaries from operation are irrelevant and could keep as one interval? Operation boundaries need not become new boundaries if neighboring outside color same as inside. But for simplicity can split.
+If an interval is fully inside range and v<=c: set to c. If v>c: unchanged. If interval fully inside and v==c unchanged. So paint may need to inspect all intervals fully inside [l,r] to set those with v<c to c. That could be O(number of overlapping intervals). Number overlapping intervals can be large (e.g. alternating colors across strip). Could lead O(m^2). Need avoid scanning all.
+
+We need an efficient data structure for range max assignment with constant c over interval with current arbitrary constant segments. This is like maintaining histogram over disjoint intervals, supporting:
+- reset-to-0 over [l,r]
+- set-to-max(c) over [l,r]
+and final frequency of values.
+n huge. Need O((m+q) log m). n not in memory. Need exploit that c values are colors; only distinct c ~m.
+
+Potential approach: use segment tree over coordinate positions? n up to 1e9; but m 1e5, boundaries distinct O(2m), use coordinate compression of all operation endpoints. Since operations only change cells between endpoints? Cell values between consecutive boundaries are constant throughout? Erases/paints with endpoints at l/r split intervals at l/r or may keep colors across? Wait ranges can split at l and r; these are operation endpoints. If we create all possible segment boundaries (points 1..n+1 from endpoints), any interval with constant color can be refined to pieces at these endpoints. Number of distinct boundaries = O(2m). n huge but segments O(m). However operations can create boundary at l/r and then set color; painting over many subsegments may require changing many. But maybe we can maintain a segment tree over O(m) compressed intervals, storing current color of each segment (uniform), and support range max/reset-to-zero. Query final counts. This is similar to range assign/max with arbitrary values: segment tree with lazy propagation. Since number of compressed segments N ~ O(m) (between endpoints). n not needed for counts except segment lengths. We can compress coordinates at l,r,r+1. Boundary positions set: {1, n+1} ∪ {l, r+1 for ops}. This ensures every operation range is union of whole elementary segments between consecutive boundaries. Because l and r are endpoints. Good. There are O(m) elementary segments (at most 2m+1). Each elementary segment has length and current color (or blank 0). Need support:
+- erase [l,r]: set all elementary segments fully inside range to 0.
+- paint [l,r,c]: set all elementary segments fully inside range to max(current,c).
+At end count colors weighted by lengths.
+
+This is a classic segment tree over N elementary segments with range assign 0 (reset) and range max with c (set to max old,c). N=O(m). Need implement lazy propagation for range max and range assign zero. Colors up to 1e9; blank=0. Need efficient.
+
+Let's design segment tree with lazy. Values: current color per elementary segment (uniform). Operations:
+1) range reset to 0: assign 0 to range. This is constant assign.
+2) range max with c: for each position p, new=max(old,c). If we apply lazy "max with c" to a node: need push down. If node has pending assign 0 (override) vs pending max? Order of lazy operations matters. Need combine lazy tags.
+
+We have two types of lazy tags: assign value v over node, and max with c over node. Order: applying assign v after a max tag: new tags? If node has pending max tag m (meaning old -> max(old,m)) and then assign v, then for node after both, current values = v (assign after), so pending max is overwritten/irrelevant for future (but for push-down if partial? We can set node tag to assign v and clear max; since node's entire value becomes v, no need retain max). If node has pending assign v and then max with c, after max, values = max(v,c), which is a constant if v known (v fixed): node tag could be assign max(v,c)? Wait tag max means operation on current tree node. Suppose node currently has lazy assign v not pushed. All positions in node conceptually have value v (after previous assign). Then apply range max with c to this node (fully inside operation). New value for node = max(v,c) (constant). So we can convert to assign tag max(v,c). Nice. If node has pending max tag m (all positions in node have value max(original value, m)? but not necessarily constant if previous tags not pushed? Within node maybe mixed due to previous operations? Need invariant with lazy propagation: A segment tree node with no pushed children may have mixed values in children, and a pending tag that describes how to update all positions in the node. For assign tag, positions in node are constant (after tag) but children have stale values; push only when needed. For max tag, positions in node are unknown? Actually if pending max tag m on node, that means operation max(m) has been applied to the node's current state but not pushed. The current state (before tag) could be mixed and stored in children/node; after applying max tag, all leaves in node should have values max(old_value,m), which is not constant unless old all equal. But tag semantics are applied on push. So for a node with tag max(m), its stored aggregate must account? We can maintain node.lazy as a list/tag. Need combine tags.
+
+We need a lazy scheme supporting two operations. Approach: assign tag (set constant) and max tag (apply max with c). For a node, define a lazy operation as a pure function on values. If pending assign a: node-value = a (function f(x)=a). If pending max cm: f(x)=max(x,c). Composition:
+- If node has no lazy, apply.
+- If node has assign a, and we apply max(c) fully to node: new function f(x)=max(a,c) = constant assign max(a,c). So set lazy to assign max(a,c), clear old.
+- If node has max(m), and we apply assign a fully: new function f(x)=a (assign after), clear old max, set assign a. Because the assign overwrites everything.
+- If node has max(m), and apply max(c): new function f(x)=max(max(x,m),c)=max(x,max(m,c)). So set max tag with max(m,c) (since both max operations commutative/associative). Nice.
+- If node has assign a, and apply assign b: set assign b.
+- If no lazy, set tag.
+This is simple. But need maintain aggregate counts? At end only; we can apply final tree to compute counts. Need ensure values propagate correctly.
+
+For range operations, standard segment tree with pushdown. We don't need aggregate for query, only final. But if we never query, we can still maintain tree values. At the end, traverse and compute counts by length. Simpler: after all ops, traverse segment tree to push all tags and collect counts. But better implement a function `apply(node, range, type, val)` and `final_collect`.
+
+Need implement with N elementary segments maybe up to 2m+1 = 200001. n up to 1e9; lengths ints. N=O(2m). Python feasible.
+
+However, do we even need n? Boundary set: We need lengths of elementary segments between compressed coordinates. Let coords sorted unique of {1,n+1?} Actually cells 1..n. Operations specify l,r. We create boundaries: start=1, end=n+1 (exclusive). For each op [1,l,r,c] or [0,l,r] create points l and r+1. Add to sorted set. Also include 1 and n+1. Then elementary segments between consecutive points. For segment [a,b) length b-a, current color. Since [l,r] inclusive corresponds [l,r+1). Operation l=1 maps to boundary start. Good.
+
+Segment tree over N elementary segments. Need implement iterative or recursive. m up to 1e5, N up to maybe 200001, recursion depth in segment tree O(log N) fine (not per element). But applying range update recursive O(log N) (actually O(log N) or O(4 log N)). Good.
+
+However, need to be careful: We compress coordinate set based on endpoints; the operations may extend ranges but all within [1,n]. There are O(m) points; elementary segments count up to O(m) (actually ≤2m+1 unique points). Good.
+
+Segment tree details:
+N = number of elementary segments (maybe up to 200001). Arrays:
+- seg_len[i] = right-left (b-a)
+- seg_color[i]? We can store current color in leaves? For final collect, easier to store `val[node]`? But lazy tags maybe enough. Need current color of nodes? For max lazy, value may not be constant in node if mixed; but leaves after applying all tags have constant values. For final collect, we can traverse and push lazy, then read leaves. But if we only read leaves, no need store val. For each node, pending tag; pushing is needed to finalize leaf values. We can make `collect()` recursively push tags and sum counts. But tags not stored in leaf? Each leaf has no children; pending tag can be stored in leaf too if range fully covers leaf. In collect, when reaching leaf with tag assign v, use v; with tag max m, use max(old leaf's stored base?) Hmm leaves with pending max tag need know old leaf value. If we push all pending tags down, leaf values become final. Simpler: maintain leaf color `cur[i]` for elementary segment and internal nodes have no values (except lazy). During range update, when fully covering node, apply tag at node; don't change children. When recursing to partial overlap, push node's tag to children before recurse, then recurse, then maybe no need recompute node aggregates (we don't need). For final collect, recursively push tags to leaves, read cur[leaf]. This is standard.
+
+But range paint with max on a node fully inside: apply max tag. If node has pending assign a, combine as assign max(a,c). Good.
+Erase fully inside: apply assign 0. If node has assign a, set assign 0 (assign after). If node has max m, set assign 0 (assign after). Good.
+
+Partial operation: push pending tag on node to children. How to push a tag to children and update their cur? Approach:
+Node node covers segment. Pending tags either assign v or max c. Need push to children before recursion. For assign v: set left/right children tag assign v? Or directly if child segment fully covered by node? Since node is partially overlapped by current operation; children may be fully inside or outside operation. We should propagate tag to children. For child fully covered by node? We'll define `push(v)` for node: if lazy[v] is assign x: apply assign x to children (including leaf children). if lazy[v] is max y: apply max y to children. Then lazy[v]=None.
+`apply_child(child, tag)`: if child is leaf? Could set child leaf `cur=...`; but if child is internal, set lazy[child] = combine(lazy[child], tag). For leaf, set cur[leaf] = function(cur[leaf], tag). Similarly internal lazy combine:
+Given existing lazy tag e and new tag t, after new operation then future when pushing, the combined function from e then t? Let's define tags as operations to apply to node's current state. Existing lazy e means current state of node's leaves will be transformed by e before any later use? We want combine(existing, new) to produce tag for node representing transformations from before existing (old state) to after new. If existing tag e: old state → e(state). New tag t applied after e: final = t(e(state)). For function composition. If existing=assign a: state'=a. new=max c: final=max(a,c) constant -> assign max(a,c). new=assign b: final=b -> assign b. If existing=max m: state'=max(old,m). new=max c: final=max(old,m,c)=max(old,max(m,c)) -> max tag max(m,c). new=assign b: final=b -> assign b. If existing=None: final=new. Good. When pushing e to children, children may have existing tags. Need apply e to child: combined=combine(child_lazy, e). For leaf child (elementary segment), need transform cur[leaf] by e: if e=assign x: cur=x. if e=max y: cur=max(cur,y). But if child also has existing lazy (if internal) combine handles. For leaf child, there shouldn't be existing lazy? Could be leaf with tag? In our recursion, leaves are nodes too; range updates can fully cover a leaf, so leaf may get a pending tag if we store tags for leaves. Better treat leaves as nodes with lazy tag too, and not set cur until leaf? Need consistency.
+
+Simplest robust: segment tree nodes all have `lazy[node]` tag (None, ('assign',v), or ('max',c)). Leaf values are stored in `leaf_val[node]`? But if a leaf gets tag, do we update leaf_val or store only tag? Easier for final collect: tags all pushed eventually. We can have leaf_val[node] for elementary segment (initial 0) and also allow lazy tag at leaf. `apply(node,...)` if node leaf fully inside operation: set lazy[node]=combine(lazy[node], tag). Do not update leaf_val. But for push, to apply tag to leaf, we can transform leaf_val. If leaf has pending tag, push would transform leaf_val? But leaf has no children. If we push a tag to a leaf, we need then combine leaf tag? We can simplify by never storing tags on leaf nodes: In `apply` for leaf node fully inside operation, directly set leaf_val[leaf]=function(leaf_val[leaf], tag). That handles all. For internal node fully inside, set lazy[node]. For partial, push node (propagate tags to children), then recurse, no aggregate update. This is standard and manageable.
+
+Need be careful with partial operation and push: If a node has lazy tag, and operation partially overlaps it, we need push tag so that children (some outside operation) reflect transformation. `push(node)` for internal node with tag t: if t assign v: apply_assign_to_children(node,v); if t max c: apply_max_to_children(node,c). set lazy[node]=None. apply_assign_to_children: for child in children: if child leaf: leaf_val = v (because assign overwrites leaf_val; any child's pending leaf? no pending leaf tag if leaf_val direct). If internal child: lazy[child]=combine(lazy[child], assign v). For max similarly: if child leaf: leaf_val=max(leaf_val,c). If internal child: lazy[child]=combine(lazy[child], max c). Good.
+
+For internal node fully inside operation, set lazy[node]=combine(lazy[node], new_tag); do not modify children/leaf_val. This is correct because after operation, node represents function. But wait if existing lazy= assign a, new= max c -> combined= assign max(a,c). Suppose actual current leaf values inside node are not v (children stale, maybe all old? The node tag assign a means leaves are conceptually v; but children might have pending tags etc. On push later, we combine assign a with child lazy: e.g. child had max tag m; child combine(existing max m, new assign a) = assign a. But actual semantics: old state old; existing assign a after old -> state a; new max? Actually combine(existing, new) = function final. If existing assign a and new max c, final constant max(a,c). But when we later push combined assign max(a,c) to child, we set child tag assign max(a,c), overwriting existing child's lazy m. Actual should: before combined operation, after existing assign a, leaves inside node are a; children stale, child lazy m maybe was part of old state? Wait children within node had existing tags before node got new tag. Existing node lazy assign a was applied after those child tags? Let's carefully track invariant.
+
+Segment tree invariant with lazy propagation: A node's lazy tag represents all operations applied to the node's full interval since the children were last brought up to date (i.e., before the tag was applied). Children may have stale values/tags. The parent's lazy tag must be applied to children when pushing to children or when reading leaf values. If node gets an additional tag on full node, existing lazy e (not pushed) and new tag t compose: final function on old state = t(e(old)). But note the children still represent old state? They may have their own tags from previous operations before e? No: e was applied to the node previously, after children were brought current? Let's recall standard segment tree: When we apply assign to a node fully, we set lazy[node]=assign val, and do nothing to children. Later when we need children (partial recurse), push lazy[node] to children: children's pending tags represent operations after e? They were created at different times. Actually before e was applied to node, the children may have had existing tags (unpushed) representing operations since node last pushed. Then e was applied as a node-level tag after those child tags. The invariant for children: their local state (after all node-level operations? hmm) is not simply old because node tag e has been applied to the entire node after child tags, so any child tags remain valid as operations applied before e? If child had tag m (max) before node got assign v: sequence old state -> child tag m (for child segment) -> node tag assign v (entire node). For a leaf in child, actual after both = assign v after max m => v (assign overrides). But when we push node assign v to children, we set child.lazy=assign v, overwriting child's old lazy m. That yields final v. Good. If instead node got max tag c after child tag m: sequence old -> child max m -> node max c => for leaf, max(max(old,m),c)=max(old,max(m,c)). When we push node max c to child, child existed with lazy max m; combined via combine(existing, new) = max max(m,c), correct. It overwrites semantics by setting child tag max max(m,c), which is equivalent. Good.
+
+Thus combine works with children representing operations before node tag; parent tag applied after. Good.
+
+When pushing parent tag assign v to internal child, we combine child_lazy e with assign v: final = assign v (overrides e), so child.lazy=assign v. This overwrites any child_lazy. For max: combine child_lazy e with max c; if e=None -> max c; if e=assign a -> assign max(a,c) (correct: sequence old -> assign a -> max c = max(a,c)); if e=max m -> max max(m,c). Good.
+
+Now final counts after operations: We need push all tags down to leaves. Could traverse recursively from root pushing tags; since N=O(m), total recursion O(N log?) maybe fine but pushing could set many internal lazy tags? Each push operation moves tag down; if we traverse entire tree and push tags, each internal node visited once, tags cleared. O(N). Leaves sum lengths where leaf_val counted. Good. Need avoid recursion limit for segment tree recursion when visiting N nodes? Standard segment tree recursion depth O(log N) for updates; collect recursion over all nodes can be O(N) recursion depth if implemented recursively in a simple traversal? We can implement collect iteratively with stack to avoid recursion depth (N up to 2e5, recursion depth could be N if naive preorder? Actually if we recursively push and visit all nodes, the call stack depth is about log N if we follow divide and conquer depth? But recursion visits children sequentially; max depth = height (~18), not N, because recursion stack depth equals depth of tree, not number nodes. Yes recursion calls children sequentially, depth O(height). Good. For updates, recursion depth O(height) too. Fine.
+
+Implementation detail: N is number of elementary segments. We'll use segment tree as lists of size 4*N maybe. But we can avoid explicit tree arrays for children using recursive indices; simpler with size 4*N and arrays `lazy=[None]*(4*n)`? n=N. Since N can be 0? Constraints n>=1, ops>=1 so segments>=? coords include 1 and n+1, so at least 1. Good.
+
+Alternative simpler algorithm not requiring segment tree: Because operations are range max and range reset, and final counts only. Maybe use interval map with lazy max? But segment tree is fine.
+
+Need ensure operations applied in order. We need collect counts. The operations are provided as list; we parse each op. Constraints c >=1, but paint c could equal existing; max handles. Erase reset to 0. Good.
+
+Memory: 4*N up to 800k; Python lists of ints/None maybe okay (800k * references). Lazy list of tuples maybe heavy but fine. N ~2e5 -> 4N ~8e5; list of None ~6.4MB, plus leaf_val 2e5, len etc. Fine.
+
+Let's verify examples:
+Example 1: n=10, ops paint 1..5 c3, paint 4..8 c2. Coordinates: points 1,2? Let's list: op1 [1,1,5,3]: add 1,6. op2 [1,4,8,2]: add 4,9. boundaries sorted [1,4,6,9,11]? with n+1=11: [1,4,6,9,11]. Segments [1,4) len3 (cells1-3), [4,6) len2 (4-5), [6,9) len3 (6-8), [9,11) len2 (9-10). Initial all 0. Paint op1 range cells1-5 => [1,6): segments 0 and1 fully inside. Segment0 cur0 max3 ->3; segment1 cur0 max3 ->3. Erase none. Paint op2 range cells4-8 => [4,9): segments 1 ([4,6)) fully inside, segment2 ([6,9)) fully inside. For seg1 color3 max with2 => max(3,2)=3. seg2 color0 max2=>2. Final counts: c2 cells6-8 length3; c3 cells1-5 length5? cells1-5: seg0 len3 (1-3), seg1 len2 (4-5): total5; c2 len3. Output sorted by colour: [[2,3],[3,5]]. match.
+Example 2: paint all 1..10 c7; erase 3..4; paint 1..6 c5. Coordinates: op1 add1,11; op2 add3,5; op3 add1,7. points [1,3,5,7,11]. segments: [1,3) len2 (1-2), [3,5) len2 (3-4), [5,7) len2 (5-6), [7,11) len4 (7-10). Initial0. Paint all c7: all cur7. Erase 3..4: cells3-4 => [3,5): segment1 cur0 (reset). Other segments remain7. Paint 1..6: [1,7): segments0,1,2. seg0 max(7,5)=7 -> remains7; seg1 max(0,5)=5; seg2 max(7,5)=7. Final: cells1-2 c7 len2; cells3-4 c5 len2; cells5-6 c7 len2; cells7-10 c7 len4 => c7 total8, c5 len2. matches [[5,2],[7,8]]. Example3 erase all: final counts none.
+
+Good.
+
+Now, subtle: Paint operation [1,l,r,c] with c maybe greater than current. Range [l,r] inclusive. Segment tree range maps to [l,r+1). We compress points; range query with segment indices: find idx of l and idx of r+1. Since points include l,r+1. Use bisect. Update range [i,j) over segment indices.
+
+Implementation of segment tree:
+- coords sorted list, maybe use bisect_left.
+- N = len(coords)-1.
+- seg_len = [coords[i+1]-coords[i] for i in range(N)]
+- seg_start maybe not needed after update. Need map cell coordinate to segment index: idx_l = bisect_left(coords, l); idx_r = bisect_left(coords, r+1) (since r+1 is a coordinate). For l/r possibly equal? l<=r. r+1 <= n+1. Good.
+- Initial leaf_val = [0]*N; lazy = [None]*(4*N). `tree_size=4*N`. For N=1, recursive calls with node=1, node_left=1,node_right=2 (empty). Fine. Use 4*N maybe. But if N is large, 4N ~2e5*4=8e5, okay.
+- recursive update functions:
+```
+def apply_assign(v, val, l, r):
+    if r < l: return
+```
+with node, node_l, node_r indexes. We need N segment indices. Let `build()` none. Update:
+```
+def range_max(node, nl, nr, ql, qr, c):
+    if qr <= nl or nr <= ql: return
+    if ql <= nl and nr <= qr:
+        lazy[node] = combine(lazy[node], ('max',c)); return
+    push(node, nl, nr)
+    mid=(nl+nr)//2
+    range_max(node*2+1, nl, mid, ql, qr,c)
+    range_max(node*2+2, mid, nr, ql, qr,c)
+```
+Need push(node) when nl != nr and lazy[node] not None; if leaf no push.
+But if N=1, node=1 covers [0,1), nr=1; push checks nl==nr -> return (leaf).
+`combine(old, new)`: if new is assign or max. Represent new as tuple `(type,val)`.
+```
+def combine(old, new):
+    if old is None: return new
+    if new[0]=='assign':
+        return new  # always overwrite
+    if old[0]=='assign':
+        return ('assign', max(old[1], new[1]))
+    # old max new max
+    return ('max', max(old[1], new[1]))
+```
+Wait if new assign, return assign regardless old, yes. If old assign and new max, assign max. If old max and new max, max max. Good. For erase assign 0 works: new assign 0, return assign 0. This means once a range is erased, previous pending max is gone; correct.
+
+`push(node, nl, nr)`: tag=lazy[node]; if tag None or nl==nr: return. lazy[node]=None. If tag[0]=='assign': val=tag[1]; apply_assign(left, val); apply_assign(right, val). else: c=tag[1]; apply_max(left,c); apply_max(right,c). Where apply_assign/max to child: if child segment leaf (nr_child-nl_child==1): leaf_val[child_index?]??? Careful: child node index not equal leaf index. Need map node to segment segment indices. For leaf child, we know its segment index = nl_child (or nr_child-1). For leaf child's node index = ... but we can use segment index to set leaf_val[segment_index]. For internal child, set lazy[child]=combine(lazy[child], tag). Good.
+```
+def push_child(child_node, child_nl, child_nr, tag):
+    if child_nl == child_nr-1:  # leaf, segment index = child_nl
+        if tag[0]=='assign': leaf_val[child_nl] = tag[1]
+        else: leaf_val[child_nl] = max(leaf_val[child_nl], tag[1])
+    else:
+        lazy[child_node] = combine(lazy[child_node], tag)
+```
+But if child_node is internal and already has a tag, combine with new tag; correct. If child is leaf and has existing pending tag? We never store tag on leaf; leaf_val direct. Good.
+
+For recursive update, at partial case we push node then recurse left and right. But note after push, lazy[node]=None. Good. We don't need to update anything after recursion.
+
+Final collect: Need traverse segment tree pushing all lazy tags, then sum leaf_val lengths. We can implement recursive `collect(node, nl, nr)`:
+```
+if lazy[node] is not None and nl<nr: push(node,nl,nr)
+if nl == nr-1: add leaf_val[nl] * seg_len[nl]
+else: collect(left); collect(right)
+```
+Careful: after push(node), children may have lazy tags; recursion pushes them. Good. But `push(node,nl,nr)` expects node covers (nl,nr) with N segments. If node leaf, lazy should be None; we can just count. Good.
+Alternatively after all updates, traverse leaves and push all tags via stack. Simpler recursive with depth O(log N), okay. It will visit O(N) nodes. Sum counts. N up to 2e5; recursion depth ~18 but total calls ~4N; fine.
+
+Need ensure final counts sorted by colour. Use dict counts from leaf segments. Then list(dict.items()) sorted by colour, output [[c,cnt], ...]. Blank not reported since leaf_val=0 ignored.
+
+Edge cases: N maybe equals number of elementary segments; if no color, output [].
+
+Need maybe avoid Python recursion limit but okay. N=2e5, recursion calls 4N=8e5, depth ~18, fine. Updates recursive each op O(logN) with function calls maybe 4*logN ~100 calls; m=1e5 -> 1e7 calls? Hmm in Python, recursive segment tree update with m=1e5 and logN~18, maybe okay (around 2e6 to 6e6 calls). Should be fine within 1s? Not sure. We can optimize with iterative segment tree? Let's consider speed.
+
+Standard recursive segment tree `update(node,l,r,ql,qr)` for range assign/max uses ~4*logN calls per op if implemented with half and full tests. For m=1e5, N=2e5, log2N~18; calls maybe up to ~72 per op =7.2M, okay in Python maybe borderline but acceptable typically. We can implement iterative lazy segment tree with arrays and stack? Simpler function recursion likely fine for problem.
+
+Potential issue: N maybe 2*m+1 = 200001; recursive `collect` visits 2N leaves, total nodes in segment tree 4N (~800k), fine.
+
+Alternative: use sorted list of intervals with lazy max but avoid segment tree? Segment tree is safe.
+
+Let's think if compressed coordinate range updates fully cover elementary segment. Because operations have endpoints l,r that are added to coords. If multiple ops same l/r, set unique. Segment boundaries include l and r+1. Operation range [l,r] corresponds segments between coords l and r+1. Since r+1 in coords (added). Good. If r=n, r+1=n+1 in coords. If l=1, 1 in coords. Good.
+
+Need include current state for each elementary segment as leaf_val. Initial all blank 0. `blank` = 0; but colors are >=1, so 0 means blank. Paints with c>=1. Erase ->0. Counts exclude 0.
+
+Let's produce final answer code only.
+
+Need ensure function name `paint`. Reply only code in single python block, no explanations.
+
+Let's craft code cleanly. Implement helper `combine_lazy(old, new)`. Use `bisect_left`. Actually need segment index for l: use `bisect_left(coords, l)`; for r+1: `bisect_left(coords, r+1)`. Since r+1 in coords, returns index. `ql=li`, `qr=ri`.
+
+Potential recursion for update in function defined inside paint capturing coords/N/leaf_val/lazy. Closure over lists. We must be careful with recursion performance and Python variable. Use `sys.setrecursionlimit(1_000_000)` maybe.
+
+Detailed code:
+
+```
+import sys
+from bisect import bisect_left
+
+def paint(n, ops):
+    points={1,n+1}
+    for op in ops:
+        l=op[1]; r=op[2]
+        points.add(l); points.add(r+1)
+    coords=sorted(points)
+    m=len(coords)-1
+    seg_len=[coords[i+1]-coords[i] for i in range(m)]
+    leaf_val=[0]*m
+    lazy=[None]*(4*m) if m>0 else []
+    sys.setrecursionlimit(1_000_000)
+
+    def combine(old,new):
+        if new[0]=='assign': return new
+        if old is None: return new
+        if old[0]=='assign': return ('assign', old[1] if old[1]>new[1] else new[1]) # max
+        # old max new max
+        return ('max', old[1] if old[1]>new[1] else new[1])
+
+    def apply_tag_to_node(node, nl, nr, tag):
+        # full coverage
+        lazy[node]=combine(lazy[node], tag)
+
+    def push(node, nl, nr):
+        tag=lazy[node]
+        if tag is None or nl==nr-1: return
+        lazy[node]=None
+        mid=(nl+nr)//2
+        if tag[0]=='assign':
+            val=tag[1]
+            # left child
+            if mid-nl==1: leaf_val[nl]=val
+            else: lazy[node*2+1]=combine(lazy[node*2+1], ('assign',val))
+            # right child
+            if nr-mid==1: leaf_val[mid]=val
+            else: lazy[node*2+2]=combine(lazy[node*2+2], ('assign',val))
+        else:
+            c=tag[1]
+            if mid-nl==1:
+                v=leaf_val[nl]
+                if v<c: v=c
+                leaf_val[nl]=v
+            else:
+                lazy[node*2+1]=combine(lazy[node*2+1], ('max',c))
+            if nr-mid==1:
+                v=leaf_val[mid]
+                if v<c: v=c
+                leaf_val[mid]=v
+            else:
+                lazy[node*2+2]=combine(lazy[node*2+2], ('max',c))
+```
+But wait: In push, if tag is assign val, applying to leaf child sets leaf_val=val. If child internal, combine(lazy child, assign val) = assign val. Good. If tag max c, applying to internal child combine with max. Good.
+
+But there's a subtlety: In `push`, after clearing lazy[node] and before recursing, if left child segment is leaf, set leaf_val; if right child leaf set leaf_val. Fine.
+
+Update functions:
+```
+    def update(node, nl, nr, ql, qr, tag):
+        if nr <= ql or qr <= nl: return
+        if ql <= nl and nr <= qr:
+            lazy[node]=combine(lazy[node], tag)
+            return
+        push(node,nl,nr)
+        mid=(nl+nr)//2
+        update(node*2+1, nl, mid, ql, qr, tag)
+        update(node*2+2, mid, nr, ql, qr, tag)
+```
+Need check recursion indexing leaf: Node covers [nl,nr). `push` if nl==nr-1 returns; in partial case, nl==nr-1 means node leaf; but partial case cannot happen for leaf? If ql<nl or nr<qr cannot partial since leaf covers one segment and if overlap then full or no overlap; so no recursion into leaf partial. Good.
+
+Collect:
+```
+    def collect(node, nl, nr, counts):
+        if nl != nr-1 and lazy[node] is not None:
+            push(node,nl,nr)
+        if nl == nr-1:
+            c=leaf_val[nl]
+            if c: counts[c]=counts.get(c,0)+seg_len[nl]
+        else:
+            mid=(nl+nr)//2
+            collect(node*2+1, nl, mid, counts)
+            collect(node*2+2, mid, nr, counts)
+```
+Need call collect(1,0,m,counts). Since leaves maybe m=0? But m>=1. If lazy on root, push then recurse; good.
+Wait in collect, after push(root), it clears root lazy. If root had assign, children get tags; recursion pushes appropriately. Good.
+
+Operations processing:
+```
+for op in ops:
+    if op[0]==1:
+        l=op[1]; r=op[2]; c=op[3]
+        ql=bisect_left(coords,l); qr=bisect_left(coords,r+1)
+        update(1,0,m,ql,qr,('max',c))
+    else:
+        l=op[1]; r=op[2]
+        ql=bisect_left(coords,l); qr=bisect_left(coords,r+1)
+        update(1,0,m,ql,qr,('assign',0))
+```
+Note op[0]==0 for erase; op[0]==1 for paint. If there are other op types? no.
+
+Then `counts={}; collect(1,0,m,counts)`. Sort keys. Build output `[[c, counts[c]] for c in sorted(counts)]`.
+
+Concern: In `push`, `lazy[node*2+1]` indexing for internal child: If m==1, node=1 covers [0,1), push returns early (leaf). In update partial, never reaches push for leaf. Good. If m==2, node=1 covers [0,2), mid=1; children nodes 3? node*2+1=3/4? Actually node index 1; leaves segment 0 node 3? Wait standard indexing: node 1 covers entire [0,m). Node 2 covers left [0,mid), node3 covers right [mid,m). In recursive update, we call `node*2+1`; that is wrong for usual indexing if root index=1 (children should be 2 and 3, not 3 and 4). I used `node*2+1` and `node*2+2`, which gives children 3 and 4 for root. That's fine as long as size 4*m suffices and no overlap. But for m=1, node=1 children would be 3,4 unused. Fine. But collect calls node*2+1; consistent. However standard recursive with root index 1 and children 2/3 is more memory efficient; if use 4*m and children node*2+1, max node index? For m=1, 1 only. m=2, root 1 children 3,4. m=4, root1 children3,4; children 3 children 7,8; etc. Max node index ~? Could exceed 4m? Let's check. Standard indexing with root=1, children 2*node+1 leads node indices up to roughly 3? For a segment tree with N leaves, number nodes =2N-1; with this indexing, max index could be 3*(2^h-1)? Actually root=1; level0 idx1; level1 idx3,4; level2 idx7,8,9,10; level3 idx15... So max index can be ~6N? Let's derive: It's equivalent to mapping segment tree with root 0 but shifted; node indices grow. Need size large enough. Better use standard children node*2 and node*2+1 with root=1, size 4N. That's standard and safe. Let's use that. `node*2` left, `node*2+1` right. Then push child leaf indices no direct node. Good. Size 4*m is standard and enough (standard uses 4N for this scheme). Good.
+
+Need reconsider push code with node*2 and node*2+1.
+
+Also if N=1, update with node=1, nl=0,nr=1; full coverage if ql==0,qr==1. Good.
+
+Let's verify combine tag for `assign` in update: When full coverage and tag assign, set lazy[node]=combine(lazy[node], ('assign',val)) = ('assign',val). Correct. For erase after previous paint, previous max overridden. Good.
+
+Need think about stale children and pending tags in push: Suppose node has tag max c. Operation partially overlaps node. `push` transforms node tag to children. For internal child with existing lazy e, combine(e, new). As above. For leaf child, set leaf_val. But wait: if leaf child itself may have been fully assigned in a previous operation that was stored at the leaf as direct leaf_val, yes we update leaf_val. If leaf child also has a pending tag? We never store pending tag on leaf; all leaf-level changes are applied directly to leaf_val in update and push. Good. Internal children may have pending tags; combine sets child lazy. Good.
+
+One nuance: When push applies max tag to internal child with existing lazy assign a: combine(assign a, max c) = assign max(a,c). This sets child lazy to assign max(a,c), discarding node's max tag info equivalent. Good. When push later, child assign tag propagates. Fine.
+
+Final collect pushes root and descends. For node that is internal but has lazy tag and operation? no updates. Good. If node leaf, we count direct leaf_val; no tag. Good.
+
+Now maybe there is an even simpler final count without collect by maintaining per-operation counts? Segment tree is fine.
+
+Let's consider worst-case speed more. `update` partial: if operation range covers many segments but not all, recursion visits O(logN) nodes plus O(logN)? Actually range update on segment tree visits O(logN) nodes to fully cover plus O(logN) boundary partial nodes; recursion calls O(logN). Fine. `collect` total nodes visited O(2N) with recursion; total recursive calls ~2N? For binary segment tree with N leaves, number nodes visited in a full traversal = 2N-1 (internal+leaves), not 4N. We allocate 4N but traversal only 2N? Good.
+
+Recursion depth for update = height ~19; for collect traversal = height too. Good. But collect function visiting leaves recursively sequentially: depth at most height (not N). Good.
+
+Set recursionlimit high anyway.
+
+Potential issue with recursion in Python for `collect` when N=200k and height=18: fine.
+
+Let's think of alternative iterative segment tree to avoid recursive combine? Not needed.
+
+Let's consider whether painting with c and max semantics is exactly right for blank. Blank=0. Paint [1,l,r,c]: For each cell x in range, if current > c keep; else set c. Current blank=0, c>=1, so set c. max(0,c)=c. Equal current c -> max(c,c)=c. Good.
+
+Let's produce final answer code only. No comments? Code can include minimal comments. Reply only block. Done.
+
+Double-check code with examples manually mentally maybe. No need run. But ensure no syntax errors.
+
+Let's write final code carefully.
+
+Potential micro-optimizations: Use local variables in functions. Good enough.
+
+Let's craft:
+
+```
+def paint(n: int, ops: list[list[int]]) -> list[list[int]]:
+    pts={1,n+1}
+    for op in ops:
+        if op[0] == 1:
+            _, l, r, c = op
+        else:
+            _, l, r = op
+        pts.add(l); pts.add(r+1)
+    coords=sorted(pts)
+    N=len(coords)-1
+    seg_len=[coords[i+1]-coords[i] for i in range(N)]
+    leaf_val=[0]*N
+    lazy=[None]*(4*N)
+    sys.setrecursionlimit(1000000)
+    def combine(old,new):
+        if new[0]=='assign':
+            return new
+        if old is None:
+            return new
+        if old[0]=='assign':
+            v=old[1]
+            if new[1] > v: v=new[1]
+            return ('assign', v)
+        v=old[1]
+        if new[1] > v: v=new[1]
+        return ('max', v)
+    def push(node,nl,nr):
+        tag=lazy[node]
+        if tag is None or nl+1==nr: return
+        lazy[node]=None
+        mid=(nl+nr)//2
+        tag_type=tag[0]
+        if tag_type=='assign':
+            val=tag[1]
+            if mid-nl==1:
+                leaf_val[nl]=val
+            else:
+                lazy[node*2]=combine(lazy[node*2], tag)
+            if nr-mid==1:
+                leaf_val[mid]=val
+            else:
+                lazy[node*2+1]=combine(lazy[node*2+1], tag)
+        else:
+            c=tag[1]
+            if mid-nl==1:
+                v=leaf_val[nl]
+                if v<c: v=c
+                leaf_val[nl]=v
+            else:
+                lazy[node*2]=combine(lazy[node*2], tag)
+            if nr-mid==1:
+                v=leaf_val[mid]
+                if v<c: v=c
+                leaf_val[mid]=v
+            else:
+                lazy[node*2+1]=combine(lazy[node*2+1], tag)
+```
+Wait in push for assign, passing same tag object to internal child and combine(old,new) returns new (assign val), which equals ('assign', val). Good. For max, passing same tag new=('max',c); combine returns max(old,c). Good.
+
+`update`:
+```
+    def update(node,nl,nr,ql,qr,tag):
+        if qr<=nl or nr<=ql: return
+        if ql<=nl and nr<=qr:
+            lazy[node]=combine(lazy[node],tag); return
+        push(node,nl,nr)
+        mid=(nl+nr)//2
+        update(node*2,nl,mid,ql,qr,tag)
+        update(node*2+1,mid,nr,ql,qr,tag)
+```
+Note lazy for leaf nodes not used; but node=1 when N=1 full. Good.
+
+collect:
+```
+    def collect(node,nl,nr,counts):
+        if nl+1 != nr:
+            push(node,nl,nr)
+        if nl+1 == nr:
+            v=leaf_val[nl]
+            if v:
+                counts[v]=counts.get(v,0)+seg_len[nl]
+            return
+        mid=(nl+nr)//2
+        collect(node*2,nl,mid,counts)
+        collect(node*2+1,mid,nr,counts)
+```
+If root internal and has lazy, push clears root and distributes. If node internal with no tag no-op. Good. Note after push, root lazy None; then recursion. If root internal but no lazy, still push returns. Fine.
+
+Potential issue: push(node) when node internal but has tag; after pushing, node lazy=None; children internal may get tags. In collect, when recursing to child, if child internal, we call push(child) at top; good. If child leaf, count direct. Good.
+
+Operations:
+```
+    for op in ops:
+        if op[0]==1:
+            _,l,r,c=op
+            tag=('max',c)
+        else:
+            _,l,r=op
+            tag=('assign',0)
+        ql=bisect_left(coords,l)
+        qr=bisect_left(coords,r+1)
+        update(1,0,N,ql,qr,tag)
+    counts={}
+    collect(1,0,N,counts)
+    return [[c,counts[c]] for c in sorted(counts)]
+```
+Need import sys? setrecursionlimit from sys. Either `import sys` or `from sys import setrecursionlimit`. Use `import sys` and bisect. Code should have imports. Since only function needed, imports okay top-level. "Implement exactly this function" maybe only function definition and supporting helper; imports top-level okay. They said top-level function not class. Good.
+
+Need no extra prints.
+
+Let's think if using coordinate compression for n=1e9 and m=1e5 leads N=200001; `4*N` ~800004. OK.
+
+Potential edge: ops length=1, paint and erase same coords? Points maybe only 3? fine.
+
+Now final with only code block. Ensure no explanatory text.
+
+One more thought: Are there possible duplicate colors? counts dict stores numeric lengths. Sorted sorted(counts) by keys. Good.
+
+Let's ensure operation op indexing: op has [0,l,r] len3 or [1,l,r,c] len4. Good.
+
+Proceed.
+=== CONTENT ===
+```python
+import sys
+from bisect import bisect_left
+
+def paint(n: int, ops: list[list[int]]) -> list[list[int]]:
+    sys.setrecursionlimit(1_000_000)
+    pts = {1, n + 1}
+    for op in ops:
+        l, r = op[1], op[2]
+        pts.add(l)
+        pts.add(r + 1)
+    coords = sorted(pts)
+    N = len(coords) - 1
+    seg_len = [coords[i + 1] - coords[i] for i in range(N)]
+    leaf_val = [0] * N
+    lazy = [None] * (4 * N)
+
+    def combine(old, new):
+        if new[0] == 'assign':
+            return new
+        if old is None:
+            return new
+        if old[0] == 'assign':
+            return ('assign', max(old[1], new[1]))
+        return ('max', max(old[1], new[1]))
+
+    def push(node, nl, nr):
+        tag = lazy[node]
+        if tag is None or nl + 1 == nr:
+            return
+        lazy[node] = None
+        mid = (nl + nr) // 2
+        if tag[0] == 'assign':
+            val = tag[1]
+            if mid - nl == 1:
+                leaf_val[nl] = val
+            else:
+                lazy[node * 2] = combine(lazy[node * 2], tag)
+            if nr - mid == 1:
+                leaf_val[mid] = val
+            else:
+                lazy[node * 2 + 1] = combine(lazy[node * 2 + 1], tag)
+        else:
+            c = tag[1]
+            if mid - nl == 1:
+                v = leaf_val[nl]
+                if v < c:
+                    v = c
+                leaf_val[nl] = v
+            else:
+                lazy[node * 2] = combine(lazy[node * 2], tag)
+            if nr - mid == 1:
+                v = leaf_val[mid]
+                if v < c:
+                    v = c
+                leaf_val[mid] = v
+            else:
+                lazy[node * 2 + 1] = combine(lazy[node * 2 + 1], tag)
+
+    def update(node, nl, nr, ql, qr, tag):
+        if qr <= nl or nr <= ql:
+            return
+        if ql <= nl and nr <= qr:
+            lazy[node] = combine(lazy[node], tag)
+            return
+        push(node, nl, nr)
+        mid = (nl + nr) // 2
+        update(node * 2, nl, mid, ql, qr, tag)
+        update(node * 2 + 1, mid, nr, ql, qr, tag)
+
+    def collect(node, nl, nr, counts):
+        if nl + 1 != nr:
+            push(node, nl, nr)
+            mid = (nl + nr) // 2
+            collect(node * 2, nl, mid, counts)
+            collect(node * 2 + 1, mid, nr, counts)
+            return
+        v = leaf_val[nl]
+        if v:
+            counts[v] = counts.get(v, 0) + seg_len[nl]
+
+    for op in ops:
+        l, r = op[1], op[2]
+        ql = bisect_left(coords, l)
+        qr = bisect_left(coords, r + 1)
+        if op[0] == 1:
+            update(1, 0, N, ql, qr, ('max', op[3]))
+        else:
+            update(1, 0, N, ql, qr, ('assign', 0))
+
+    counts = {}
+    collect(1, 0, N, counts)
+    return [[c, counts[c]] for c in sorted(counts)]
+```
