@@ -55,8 +55,11 @@ def main(prim, retry_root=None):
         with open(os.path.join(RES, RETRY_OUT), "w") as f:
             for x in allr: f.write(json.dumps(x) + "\n")
         best = {x["problem"]: x for x in a}
-        for _, rr in stages:  # a later stage only ran because the earlier one was capped, so the last row per task is the end of the ladder
-            best.update({x["problem"]: x for x in rr})
+        for k, rr in stages:  # a later stage only ran because the earlier one was capped, so the last row per task is the end of the ladder
+            for x in rr:
+                prev = best[x["problem"]]
+                assert prev["outcome"] == "no_code" and prev["finish_reason"] == "length", f"{x['problem']} reached stage {k} without being capped before"
+                best[x["problem"]] = x
         pb = sum(x["passed"] for x in best.values()); tr = sum(x["wall_s"] for x in allr)
         md += ["## Secondary: retry ladder on the tasks that were capped at 12288 (labelled; the primary above stays the headline)",
                "The operator asked for a retry of the capped tasks. Stage 1: thinking effort medium (0.7, `chat_template_kwargs.reasoning_effort`) at max_tokens 16384 on every capped task. Stage 2: effort low (0.2) at 16384 on the tasks still capped. Stage 3: default effort at 24576 on the task still capped. A task moves to the next stage only if it ended `no_code` at the cap; a wrong or crashing answer ends the ladder for that task. Same server flags, sampling and grader as the primary. Host load at task start was 5.7-14.8 during these runs (3.0-4.5 tok/s, slower than the primary), so times are inflated by other host processes.", "",
