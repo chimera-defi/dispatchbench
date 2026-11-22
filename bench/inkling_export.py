@@ -1,16 +1,15 @@
 """Turn local Inkling 2 Mini runner output (pNN.result.json, results/inkling/runner.py) into DispatchBench rows and a report.
-Offline, no model calls. Usage: python3 -m bench.inkling_export <primary_run_dir> [<secondary_run_dir>]"""
+Offline, no model calls. Usage: python3 -m bench.inkling_export <primary_run_dir>"""
 import datetime, hashlib, json, os, shutil, sys
 from bench import run as R
 
 RES = os.path.join(R.ROOT, "results")
-RUNS = {"primary": ("inkling2mini-default", 12288, "2026-11-22-inkling-function.jsonl"),
-        "secondary": ("inkling2mini-n24576", 24576, "2026-11-22-inkling-n24576-function.jsonl")}
+RUNS = {"primary": ("inkling2mini-default", 12288, "2026-11-22-inkling-function.jsonl")}  # retries (lower effort, larger cap) land in a follow-up with their own config names
 
 
 def rows_for(kind, d):
     config, cap, out = RUNS[kind]; rows = []
-    flags = ["llama-server b12600", "--jinja", "-c", "32768", "-t", "6", "-np", "1", "--temp", "1.0", "--top-k", "50", "--top-p", "1.0", "--min-p", "0", f"max_tokens={cap}"]
+    flags = ["llama-server b12600", "--jinja", "-c", "32768", "-t", "6", "-tb", "6", "-np", "1", "--temp", "1.0", "--top-k", "50", "--top-p", "1.0", "--min-p", "0", f"max_tokens={cap}"]
     rawdir = os.path.join(RES, "inkling", "raw-" + kind); os.makedirs(rawdir, exist_ok=True)
     for pid in sorted(f[:-12] for f in os.listdir(d) if f.endswith(".result.json") and f.startswith("p")):
         r = json.load(open(f"{d}/{pid}.result.json")); v = r.get("verdict") or {}; prompt = R.prompt_for(pid)
@@ -33,22 +32,19 @@ def hms(s): return f"{int(s//3600)}h{int(s%3600//60):02d}m"
 
 
 def table(rows):
-    t = ["| problem | rung | outcome | wall | out tok | gen tok/s | peak RSS GiB | load avg |", "|---|---|---|---|---|---|---|---|"]
+    t = ["| problem | rung | outcome | wall | out tok | gen tok/s | server peak RSS so far GiB (VmHWM, cumulative, includes mapped weights) | load avg |", "|---|---|---|---|---|---|---|---|"]
     for x in rows:
         t.append(f"| {x['problem']} | L{x['rung']} | {'pass' if x['passed'] else x['outcome'] + ' (' + str(x['finish_reason']) + ')'} | {x['wall_s']/60:.1f} min | {x['out_tok']} | {x['gen_tok_per_s']:.1f} | {(x['peak_rss_kib'] or 0)/1048576:.1f} | {x['loadavg_start'][0]} |")
     return "\n".join(t)
 
 
-def main(prim, sec=None):
-    a = rows_for("primary", prim); b = rows_for("secondary", sec) if sec and os.path.isdir(sec) else []
+def main(prim):
+    a = rows_for("primary", prim)
     pa = sum(x["passed"] for x in a); ta = sum(x["wall_s"] for x in a)
     md = ["# Inkling 2 Mini on DispatchBench p01-p15 (2026-11-22)", "",
           "Free local CPU model (i7-8700 6C/12T, ~63 GiB RAM, no GPU), llama.cpp b12600, IQ4_NL GGUF. **Not comparable on latency** with the API lanes; no price (cost 0).",
-          "Settings (frozen after p01 tuning, sources in `inkling/SETTINGS_NOTES.md`; tuning in `inkling/TUNING_LOG.md`): `llama-server --jinja -c 32768 -t 6 -tb 6 -np 1`, temp 1.0, top_k 50, top_p 1.0, min_p 0, default thinking effort (high, 0.9). One repeat, tasks run sequentially, frozen grader.", "",
+          "Settings (frozen after p01 tuning, sources in `inkling/SETTINGS_NOTES.md`; tuning in `inkling/TUNING_LOG.md`): `llama-server --jinja -c 32768 -t 6 -tb 6 -np 1`, temp 1.0, top_k 50, top_p 1.0, min_p 0, default thinking effort (high, 0.9). One repeat, tasks run sequentially, frozen grader. Each task is capped at 12288 generated tokens, which the API lanes are not; every `no_code (length)` row below means the model was still thinking at the cap and wrote no final code, so those are token-budget failures, not wrong answers. One server process served all tasks, so the memory column is a running high-water mark. The load column is the 1-minute load average at task start; other host processes pushed it to 12-25 during p15 (2.2 tok/s vs 4-5 elsewhere), so p15's time is inflated.", "",
           f"## Primary result (max_tokens 12288): **{pa}/{len(a)}**", f"Total generation wall time {hms(ta)} ({ta/3600:.2f} h); median {sorted(x['wall_s'] for x in a)[len(a)//2]/60:.1f} min per task.", "", table(a), ""]
-    if b:
-        merged = {x["problem"]: x for x in a}; merged.update({x["problem"]: x for x in b}); pm = sum(x["passed"] for x in merged.values()); tb = sum(x["wall_s"] for x in b)
-        md += [f"## Secondary run (max_tokens 24576): reruns of the tasks that ended `no_code` at the 12288 cap", f"Passes {sum(x['passed'] for x in b)}/{len(b)} of the rerun tasks; combined with the primary passes: **{pm}/{len(merged)}** (secondary, labelled; the primary {pa}/{len(a)} stays the headline). Rerun wall time {hms(tb)}; both runs {hms(ta+tb)}.", "", table(b), ""]
     open(os.path.join(RES, "inkling-mini.md"), "w").write("\n".join(md) + "\n"); print("\n".join(md[:8]))
 
 

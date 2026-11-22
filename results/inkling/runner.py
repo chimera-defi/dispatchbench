@@ -32,15 +32,15 @@ def main():
         body=json.dumps(req).encode()
         t0=time.monotonic(); peak=0; err=None; resp={}
         import threading
-        stop=False; pk=[0]
+        stop=threading.Event(); pk=[0]
         def mon():
             pass
-            while not stop:
+            while not stop.is_set():
                 pk[0]=max(pk[0],rss(srv.pid).get('VmHWM',0)); time.sleep(5)
         th=threading.Thread(target=mon,daemon=True); th.start()
         try: resp=json.load(urllib.request.urlopen(urllib.request.Request(f'http://127.0.0.1:{PORT}/v1/chat/completions',body,{'Content-Type':'application/json'}),timeout=4*3600))
         except Exception as e: err=repr(e)
-        stop=True; wall=time.monotonic()-t0
+        stop.set(); wall=time.monotonic()-t0
         m=(resp.get('choices') or [{}])[0]; msg=m.get('message',{}); content=msg.get('content') or ''; think=msg.get('reasoning_content') or ''
         tm=resp.get('timings',{}); us=resp.get('usage',{})
         blocks=re.findall(r'```(?:python)?\s*\n(.*?)```',content,re.S|re.I); code=blocks[-1].strip() if blocks else ''

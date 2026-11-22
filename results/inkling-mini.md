@@ -1,12 +1,12 @@
 # Inkling 2 Mini on DispatchBench p01-p15 (2026-11-22)
 
 Free local CPU model (i7-8700 6C/12T, ~63 GiB RAM, no GPU), llama.cpp b12600, IQ4_NL GGUF. **Not comparable on latency** with the API lanes; no price (cost 0).
-Settings (frozen after p01 tuning, sources in `inkling/SETTINGS_NOTES.md`; tuning in `inkling/TUNING_LOG.md`): `llama-server --jinja -c 32768 -t 6 -tb 6 -np 1`, temp 1.0, top_k 50, top_p 1.0, min_p 0, default thinking effort (high, 0.9). One repeat, tasks run sequentially, frozen grader.
+Settings (frozen after p01 tuning, sources in `inkling/SETTINGS_NOTES.md`; tuning in `inkling/TUNING_LOG.md`): `llama-server --jinja -c 32768 -t 6 -tb 6 -np 1`, temp 1.0, top_k 50, top_p 1.0, min_p 0, default thinking effort (high, 0.9). One repeat, tasks run sequentially, frozen grader. Each task is capped at 12288 generated tokens, which the API lanes are not; every `no_code (length)` row below means the model was still thinking at the cap and wrote no final code, so those are token-budget failures, not wrong answers. One server process served all tasks, so the memory column is a running high-water mark. The load column is the 1-minute load average at task start; other host processes pushed it to 12-25 during p15 (2.2 tok/s vs 4-5 elsewhere), so p15's time is inflated.
 
 ## Primary result (max_tokens 12288): **7/15**
 Total generation wall time 9h00m (9.01 h); median 48.0 min per task.
 
-| problem | rung | outcome | wall | out tok | gen tok/s | peak RSS GiB | load avg |
+| problem | rung | outcome | wall | out tok | gen tok/s | server peak RSS so far GiB (VmHWM, cumulative, includes mapped weights) | load avg |
 |---|---|---|---|---|---|---|---|
 | p01_overlap_minutes | L1 | pass | 6.1 min | 1821 | 5.2 | 28.8 | 3.58 |
 | p02_squash | L1 | pass | 3.8 min | 1134 | 5.3 | 29.1 | 6.64 |

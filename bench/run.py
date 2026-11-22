@@ -58,7 +58,6 @@ CONFIGS["hetzner-qwen36"] = ("hetzner", "Qwen/Qwen3.6-35B-A3B-FP8", "default")
 CONFIGS["hetzner-qwen38"] = ("hetzner", "Qwen/Qwen3.8-27B", "default")
 # 2026-11-22, operator request: free local CPU model on llama.cpp b12600 (not comparable on latency); runner results/inkling/runner.py, rows via bench/inkling_export.py
 CONFIGS["inkling2mini-default"] = ("llama.cpp", "Inkling-2-Mini-IQ4_NL.gguf", "default")  # primary run, max_tokens 12288
-CONFIGS["inkling2mini-n24576"] = ("llama.cpp", "Inkling-2-Mini-IQ4_NL.gguf", "default")  # secondary rerun of the no_code-at-cap tasks, max_tokens 24576
 
 
 def codex_flags(config, portable=False):
