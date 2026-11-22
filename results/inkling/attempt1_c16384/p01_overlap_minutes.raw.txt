@@ -1,0 +1,66 @@
+=== REASONING ===
+We need answer only code in single python block. Need solve. Let's reason fully here.
+
+Problem: Given intervals [start,end), count total minutes during which at least k meetings in progress at same time. Minute timestamps are integer; meetings cover minutes start up to end-1. Need compute sum over minutes m with coverage >= k of 1. Equivalently sum over integer minute points. Constraints len up to 1e5, timestamps up to 1e9. Need efficient O(n log n) or O(n).
+
+Approach: Events on interval endpoints. For each meeting with start<end, event at start +1, at end -1. Need count measure (in minutes) where active count >= k. Standard sweep with difference array and events. Since timestamps large but n small, use dict for delta and process sorted unique event positions. For each segment between consecutive event positions, active count constant; duration = next_pos - pos; if active >= k add duration. But careful with integer minutes coverage vs continuous measure. Since intervals are [start,end) over minute timestamps and count minutes m such that start <= m < end. This equals measure of union over continuous interval [start,end) in real x with measure d if m? For integer endpoints, set of minutes m satisfying all is exactly union over [start,end) as continuous? The total minutes with active>=k equals integral over x from global_min to global_max of indicator(active x >= k) dx? For half-open intervals with integer endpoints and k threshold, yes: indicator active over real x, measure equals integer total number of minutes. Because endpoints are integers, no partial minute boundary weirdness. Sum active>=k over real line duration equals sum over minute points. Example [0,10],[5,15], k=2: active=2 from 5 to10, duration5. minutes 5..9 =5. Good. [1,4] active1 minute1,2,3; [2,3], [2,6] active? k=1: union [1,6) duration5. Good. [0,5],[5,10] k=2: active=1 never >=2 duration0. Good.
+
+Implementation details: Need include meetings with start==end ignored. For all meetings, if start<end, schedule delta[start] +=1; delta[end] -=1. Then sorted keys. Initialize active=0; prev=None maybe. Iterate over sorted_keys. At key pos, if prev is not None and active>=k: add (pos - prev). But after processing events at pos? Need order at same timestamp: events at pos include start increments and end decrements. For half-open intervals, at x=end, active just before end includes meeting, just after excludes. At x=start, just after includes. Sweep intervals [pos_i, pos_{i+1}) with active after applying deltas at pos_i. Need if prev is not None, segment [prev,pos) uses active value after events at prev, which is equal to current active before applying events at pos if we add segment between prev and pos using active_before? Let's design.
+
+sorted_positions = sorted(delta)
+active=0
+prev=None
+total=0
+for pos in sorted_positions:
+    if prev is not None:
+        # segment [prev,pos) spans [prev,pos). active should be count after processing pos? Wait active currently after processing all events with pos < current pos (including prev). Yes at start of iteration for pos, active represents after events at prev and after any earlier pos, but before events at current pos. Segment [prev,pos) uses that active. Good. Add if active>=k.
+        if active >= k: total += pos - prev
+    # apply delta at pos
+    active += delta[pos]
+    prev = pos
+return total
+
+But need also consider from first position to last? This covers all segments between unique event positions from first to last; outside all intervals? First event pos is min start among nonempty intervals; before min start no active; after last event (max end) no active. Good.
+
+Check [0,5],[5,10], k=2: delta {0:1,5:-1,5:1,10:-1}; delta dict sums {0:1,5:0,10:-1}; sorted [0,5,10]. active0, prev0 None; pos0 active=0; active=1 prev0; pos5 active currently1; add segment [0,5) if1>=2 no; active += delta[5]=0 -> active1? Wait delta[5] = -1+1=0, active remains1; prev5; pos10: segment [5,10) active=1; if>=2 no; active=0. total0. Good. Note active at [5,10) is 1 (second meeting) yes.
+
+Check [0,10],[5,15], k=2: delta {0:1,5:1,10:-1,15:-1}. iterations: pos0 active0; active1 prev0; pos5 segment[0,5) active1 no; active2 prev5; pos10 segment[5,10) active2 add5; active1 prev10; pos15 segment[10,15) active1 no; active0. total5. Good.
+
+Check [1,4],[2,3],[2,6], k=1: delta {1:1,2:2,3:-1,4:-1,6:-1}. pos1 active0; active1; pos2 segment[1,2) active1 add1; active3; pos3 segment[2,3) active3 add1; active2; pos4 segment[3,4) active2 add1; active1; pos6 segment[4,6) active1 add2; active0. total5. Good.
+
+Need code exactly top-level function. Reply only code. Use list[list[int]] type annotation, okay in Python3. No other text. Single python block only.
+
+Need ensure no comments? Fine.
+
+Potential issue type hint with list[list[int]] requires py3.9+, okay.
+
+Complexity O(n log n). Constraints maybe n=0. delta empty; total 0.
+
+Could use array? Dict okay.
+
+Need final only code. No extra explanation. Ensure exactly function.
+
+Let's craft concise code. Could import nothing. Use dict delta. In loop, when prev is not None and active>=k add pos-prev. But one subtle point: sorted_positions includes duplicate positions? Dict keys unique. Good.
+
+Let's final.
+=== CONTENT ===
+```python
+def overlap_minutes(meetings: list[list[int]], k: int) -> int:
+    delta = {}
+    for start, end in meetings:
+        if start < end:
+            delta[start] = delta.get(start, 0) + 1
+            delta[end] = delta.get(end, 0) - 1
+
+    active = 0
+    prev = None
+    total = 0
+
+    for pos in sorted(delta):
+        if prev is not None and active >= k:
+            total += pos - prev
+        active += delta[pos]
+        prev = pos
+
+    return total
+```

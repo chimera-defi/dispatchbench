@@ -1,0 +1,30 @@
+{
+ "pid": "p01_overlap_minutes",
+ "wall_s": 331.4596175189945,
+ "loadavg_start": [
+  "0.93",
+  "0.96",
+  "0.92"
+ ],
+ "finish_reason": "stop",
+ "prompt_tok": 342,
+ "out_tok": 1664,
+ "gen_tps": 5.266513865982042,
+ "prompt_tps": 21.840020445324402,
+ "peak_rss_kib": 0,
+ "rss_end": {
+  "VmHWM": 29661252,
+  "VmRSS": 29661252,
+  "RssAnon": 12438336,
+  "RssFile": 17222916
+ },
+ "memavail_gib_end": 37.780887603759766,
+ "reasoning_chars": 5211,
+ "verdict": {
+  "outcome": "pass",
+  "cases": 311,
+  "worst_time_frac": 0.05
+ },
+ "error": null,
+ "code_lines": 18
+}

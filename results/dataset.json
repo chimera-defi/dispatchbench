@@ -153,6 +153,14 @@
    "used": false
   },
   {
+   "path": "results/2026-11-22-inkling-function.jsonl",
+   "sha256": "cc5fc83fcb2a878a6001b96ace5be2db5548e51e15e88ed93cbfcf94dea54000",
+   "rows": 15,
+   "date": "2026-11-22",
+   "lanes": "llama.cpp",
+   "used": false
+  },
+  {
    "path": "results/appendix/codex_harness.jsonl",
    "sha256": "5bf8288a66bf2efa931316c1834e82ec5fb0ffa8019cf49f816bdf75d9b1752e",
    "rows": 138,

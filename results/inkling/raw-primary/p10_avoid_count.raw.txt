@@ -1,0 +1,355 @@
+=== REASONING ===
+We need solve problem and output only code block. Need think carefully. We need provide implementation exactly function. Need no explanation. Let's analyze.
+
+Need count strings length n over alphabet size k (2..4) avoiding substrings in banned list. total length banned <=20. n up to 1e18, modulo 1e9+7.
+
+Standard automaton: build Aho-Corasick over banned strings. Since total length <=20, number states <=21 (plus root) small. For each position 0..n-1, transition over alphabet; ban if reaching a state with terminal banned. Count = sum of counts after n steps over non-absorbing states (states with no banned string ending at prefix). But careful: banned may contain duplicates/strings containing other banned strings. We can mark terminal states for any banned string suffix; reaching any terminal means forbidden. If banned strings contain each other, we still mark all terminal states; avoiding shortest banned string automatically avoids longer? Actually if a banned string contains another banned string as substring, any string containing the longer also contains shorter, so forbidding shorter suffices. Marking all terminals fine.
+
+Need compute efficiently for n large. k small, states small (<=21). Use matrix exponentiation or linear recurrence with exponentiation by squaring modulo. Since total length banned <=20, Aho states m <= total_length +1 <=21. Transition to failure/terminal. But we only need transitions among safe states. We can build DFA for each position: from safe state (a prefix of a banned string, no banned suffix), on char c, compute next state = Aho goto. If that next state is terminal (corresponds to a banned string suffix ending at current position), then this transition is forbidden for a string of length n >? Then counting safe strings length n: start at root after 0 chars, for each char update counts for safe states, discard transitions to terminal. At the end sum counts. Since banned strings nonempty, root not terminal. Good.
+
+But note: Aho state represents longest suffix of processed prefix that is prefix of some banned string. When appending c, the new state is that longest suffix. If new state is terminal, then the newly appended char ends a banned substring (possibly a banned string that is a suffix of current processed string). However, Aho failure transitions can lead to a state terminal that has no relation? Standard automaton: state = longest suffix that is prefix of a pattern. Transition to q = follow(state,c), the longest suffix of path+c that is a prefix of pattern. If q is terminal (a pattern suffix), then the path+c contains pattern as suffix. Forbidden. Yes.
+
+We need compute counts after n steps. m<=21, k<=4. Matrix size m x m (only safe states). Initialize vector counts[root]=1. Apply exponent n via binary exponentiation. O(log n * k? matrix multiplication O(logn * m^3)). n<=1e18 log ~60, m<=21, m^3~9261, times 60 ~555k operations, fine. Actually transitions can be generated from safe state by k. Build transition for all states including terminal. Safe states = states with no banned string ending exactly at that state. Could include terminal? root terminal if banned empty, but banned nonempty, so root safe. m<=21.
+
+Modulo 1_000_000_007.
+
+Need handle n=0 returns 1. Empty banned list? constraints: banned may contain duplicates/strings containing other banned strings. Is banned possibly empty? Problem says strings that contain none of the strings in banned. It doesn't explicitly say banned non-empty. Constraints: every banned string non-empty. Could banned be empty list? Maybe. Need handle. If banned empty, count = k^n modulo. n can be huge; use pow(k,n,mod). But our automaton with no patterns: m=1 state root safe; transition root->root for each char. Matrix exponent yields k^n. Works. Total length=0. Good. n=0 count 1, not k^0=1 same. Empty alphabet? alphabet has 2 to 4 distinct chars, so k>=2. Distinct. Need use alphabet string; distinct characters guaranteed distinct? It says alphabet has 2 to 4 distinct characters. Good. banned strings use chars from alphabet.
+
+Potential subtlety: banned strings can contain other banned strings. Marking terminals: for each banned string, at end state set terminal. If a longer banned string contains a shorter banned string, then the shorter is a terminal state too. Aho goto might return terminal state for shorter even if current path also ends in longer? We don't care. But there is nuance: If state is safe (not terminal) and transition to a state q that is prefix of a banned string and also terminal because it corresponds to another banned string. Actually Aho state q is prefix of pattern; if q equals a banned string itself, then q terminal. If q is terminal, forbidden. If q is safe but by following from q further can reach terminal. Good.
+
+But Aho automaton with fail links and terminal marks: In standard Aho, when computing follow(q,c), if there is transition q--c-->r, return r; else follow(fail(q),c). Need ensure if r is terminal, return r; if no transition, follow(root,c) maybe terminal? root transition to a length1 prefix; if length1 banned string, terminal. Good.
+
+Build trie. total lengths <=20. Let patterns = sorted(set(banned))? Duplicates can remain but total length <=20 includes duplicates? It says total length of all banned strings at most 20. Duplicates count toward total? likely yes. We can dedup to unique strings; total unique length <= total. Fine.
+
+Trie nodes: children dict char->node, fail, terminal bool, maybe output. We need automaton transitions. Approach: build trie of unique banned strings. Assign node IDs. For each node, children dict, fail int, out bool (True if any banned string ends here? Since if multiple patterns end at same node only duplicates, unique; one pattern path can end at node. Also if one banned string is prefix of another, node for shorter is terminal and still has children. We must not stop expansion at terminal nodes. Good. Mark terminal True at node for each unique banned string.
+
+Number nodes = total unique length +1 <=21.
+
+Build failure links via BFS. For root children: if child node is terminal (banned length1), its fail = root. For each child, set fail. For deeper nodes: starting from BFS. For node depth d>0 with parent p and char c: if p.children[c]=node. Let f=p.fail. While f and f.children.get(c) is None: f=f.fail. if f? Actually standard: fail(node) = transition(fail(parent), c), where transition(f,c) = f.children.get(c) or fail(f)... Need compute. Let's implement recursive get_transition(state, char) with memoization instead of building fails; simpler given tiny size. Need avoid infinite loops. Could build automaton transitions iteratively using trie children and fail links.
+
+Simplest: Build fail links for all nodes. Then transitions can be computed on demand with memo dict[(state,char)] -> state. Since tiny, fine.
+
+Build fails:
+from collections import deque
+root=0; children=[{}]; fail=[0]; terminal=[False]
+for pat in set(banned):
+  u=0
+  for ch in pat:
+    v=children[u].get(ch)
+    if v is None: create node; children[u][ch]=v; fail[v]=0; terminal[v]=False
+    u=v
+  terminal[u]=True
+# root fail=0, fail[child] = root (if child not terminal? fail root=0 works; root terminal false)
+BFS over trie nodes.
+Queue initially root children? For each char, child=children[0].get(ch); if child: fail[child]=0 (root) and append child. For node n with parent p, for each char ch in children[n].keys(): child=children[n][ch]; f=fail[n]; # fail[n] is node representing longest proper suffix of path(n) that is prefix; need find transition f for ch
+  # compute f = transition(f, ch)
+  While f and ch not in children[f]: f=fail[f]
+  if f: fail[child]=children[f][ch]
+  else: fail[child]=0
+  queue.append(child)
+Wait if f=0 (root), root children maybe. Transition(0,ch): return children[0].get(ch,0). But root may have child with terminal mark; fail[child]=children[0].get(ch,0). That can be a terminal state if there is a shorter banned string whose prefix equals the length1 char? Let's test patterns ["aa","a"] unique; trie: root->a (node1 terminal True) ->a (node2 terminal True). BFS initialize node1 fail=0; node2? It is child of node1. For node1, ch='a', child=node2. f=fail[node1]=0. While f and ch not in children[f]: root has child node1 for 'a', so f=0 and not in while; fail[node2]=children[0]['a'] = node1 (terminal). Good: path "aa" suffix "a" is prefix and terminal. Transition(node2,'a') maybe? memo: children[node2].get('a') none; f=fail[node2]=node1; while f and ch not in children[f]: node1 has child node2, so f=node1; fail? Actually transition(node2,'a') = children[node2].get('a') or transition(fail[node2],'a') = transition(node1,'a') = node2. So appending 'a' to path "aa" gives suffix "aaa"? longest prefix suffix = node2 (aa) terminal (pattern "aa") yes.
+
+Terminal states: node1 terminal True (pattern "a"), node2 terminal True (pattern "aa"). Good.
+
+Memo transition function:
+@lru_cache(None) def go(state, ch):
+  v=children[state].get(ch)
+  if v is not None: return v
+  f=fail[state]
+  while f != 0:
+    v=children[f].get(ch)
+    if v is not None: return v
+    f=fail[f]
+  return children[0].get(ch,0)? Or 0? Important: If root has child on ch, then transition from any state that fails to root should go to that child, because suffix may be prefix "a" after fail. Standard automaton ensures fail links point such that transition(fail_state,ch) gives proper longest suffix. For transition(state,ch) where state has no direct child, do: f=fail[state]; while f: if ch in children[f]: return children[f][ch]; f=fail[f]. Then if f==0: return children[0].get(ch,0)? Wait after while f==0, we haven't checked root's child. But in standard Aho, root is a state with fail itself (0) and transition root for ch = child if exists else root (dead). The loop while f: checks non-root fails; root is not checked. Need handle root after loop: return children[0].get(ch,0). But is that correct with fail links? Let's test. Suppose patterns ["bc"] only, root child b, node2 for bc. start root. transition(state=node_b, ch='c') direct node_bc. Now state=node_bc terminal irrelevant. Transition(root,'a') children[root].get('a') = None -> return 0. Good.
+
+Suppose patterns ["ab","b"]? trie root->a node1 (pattern ab) ->b node2; root->b node3 (pattern b). Fail links: node1 fail=0; node3 fail=0. For node1 (a) with child b -> node2. f=fail[node1]=0. While f: no. After while, return children[0].get('b') = node3 (terminal). fail[node2]=node3. Correct suffix of "ab" that is prefix: "b" (node3). Good. Then transition(node1,'b') direct node2 (terminal? node2 pattern ab yes terminal). Wait transition root? For string "ab" state node2 terminal. For string "abc" state? from node2, ch c: direct none; f=fail[node2]=node3; loop while f (node3 !=0): children[node3].get('c')? none; f=fail[node3]=0; after loop return children[0].get('c') = None -> return 0. Good.
+
+But memoization: Since fail links set correctly, transition(node2,'c') with f=node3, children[node3].get('c') none, f=0, after while return children[0].get('c') = None -> 0. Good. However, memo function cannot use lru_cache if children mutable? We build before memo; fine. But @lru_cache with state,ch where ch maybe str; okay. Or precompute all transitions for safe states and terminal. Since tiny, no need lru? But recursion depth small. We can precompute transitions for all nodes for each alphabet char. Use memo dict.
+
+Safe states: nodes with not terminal[state]. But is that all we need? We discard transitions to terminal. Need include root safe. If a banned string length? nonempty. Good.
+
+Counting: counts vector length m over safe states. start root. We can process n by binary decomposition. Need represent matrix or vector update. Given k maybe 4 and m<=21, O(log n * m*k) if we can exponentiate transformation more efficiently. Simplest matrix exponentiation: build transition matrix M[to_safe][from_safe]? We need apply T to vector. Could use exponentiation by squaring with matrices: M[t][s] = number of alphabet chars leading from safe state s to safe state t (i.e. for each char transition, add 1). Since from a state, there are k possible chars; if transition leads to terminal, omitted. For safe state s, sum_t M[t][s] = k - (# forbidden transitions). Then counts_new[t] = sum_s M[t][s]*counts[s]. Initial counts[root]=1. Need compute counts_after_n = M^n * initial. Then sum.
+
+M size m (#safe) <=21. Matrix multiplication O(logn*m^3) = ~60*9261=556k, okay. Modular. Or use exponentiation by repeated squaring of vector? Could use binary lifting with affine transformations? Not necessary. But we can also exploit small state and alphabet: since m<=21, k<=4, total transitions <=84. Matrix multiplication with sparse maybe fine. Binary lifting of transition function with m small: At each step, apply current matrix to vector, and square current matrix. Standard.
+
+Implementation details:
+- Function avoid_count(n, alphabet, banned):
+  mod=1000000007
+  letters=list(alphabet) (distinct). Maybe preserve; no need set. k=len(letters). If n==0 return 1? Matrix exponent can handle; initial vector sum=1. But n=0 should return 1. It will: result vector initial, sum=1. We can still handle.
+  Build patterns unique = set(banned). Total length<=20. If banned has empty strings? constraints say nonempty; ignore. If not, terminal root would mark? Avoid: if any empty banned string, every nonempty string contains it? Empty string is contiguous substring of any string, so count 1 if n==0 else 0? But not needed. Could handle robustly: if any(p == '' for p in banned): return 1 if n==0 else 0. But banned nonempty. However, adding could be safe. But if we dedup with empty string, code terminal root; then safe states exclude root; counts root discarded? Might fail. Better handle early. Not necessary but can.
+  if not banned: return pow(k,n,mod) (handles all). But if n=0, pow=1. Good. Should we still build automaton? Simplest early for empty.
+  Build trie as above.
+  safe_indices: list of nodes where not terminal[node]. Assign sidx = {node:i}. m=len(safe_indices). Need transitions for safe nodes. For each safe node u, for each ch in letters: v=go(u,ch); if not terminal[v]: M[sidx[v]][sidx[u]] = (M[...] + 1) % mod; if terminal[v], no transition. But wait: go(u,ch) may return a terminal node v. Since v terminal, transition disallowed. Correct. Could go(u,ch) return a root? terminal[0] false; include if root safe.
+  Build M as list of lists zeros m x m. M[to][from].
+  Then vector counts length m with counts[sidx[root]]=1.
+  Actually use exponentiation:
+  def mat_mul(A,B): result = [[0]*m for _ in range(m)]; for i in range(m): Ai=A[i]; for k in range(m): aik=Ai[k]; if aik: Bk = B[k]? Need orientation. Let's define M[to][from]. Applying to vector c[from]: new_c[to]=sum_from M[to][from]*c[from]. Matrix multiplication orientation: (A@B)[to][from] = sum_mid A[to][mid]*B[mid][from]. Good. Multiplication mod.
+  Result=identity? Standard binary lifting:
+  res = identity matrix (m x m). cur=M. while n>0: if n&1: res=mat_mul(cur,res)? Need orientation carefully. If vector row? Let's choose column vectors. We want after n steps: counts = M^n * counts0. Binary exponentiation stores result matrix R (representing current product of matrices applied) and cur M^(2^j). Starting R=I (M^0), cur=M. If bit set, R = cur * R? Because current product of bits processed: Suppose bits low to high. We maintain R representing product of cur matrices for set bits, in order from high? Need get orientation right with matrices representing transitions left-to-right.
+
+Let vector v_t = M^t v_0. If we have matrices for bits, final M^n = product over bits set of M^(2^i), in chronological order. Matrix multiplication applied to column vector: M^a * M^b * v = (M^a M^b) v; this applies M^b first then M^a. In binary lifting, if we process bits low->high and maintain res as product of matrices for processed set bits in reverse order? Simpler: maintain result_vector? Another easy method: process bits from low to high: at each bit, if bit set, counts = cur_matrix * counts(?) and square cur. But cur_matrix for bit i should be M^(2^i). If n binary has bits, we can do:
+  result = identity
+  base = M
+  exp=n
+  while exp:
+    if exp &1: result = mat_mul(base, result)  # Need verify.
+    base = mat_mul(base, base)
+    exp >>=1
+If result should represent M^n (product). Suppose n=1: loop i0 bit1: result = base * I = M. Good.
+ n=2: i0 bit0: no result; base=M^2; i1 bit1: result = base(M^2) * I = M^2. Good.
+ n=3: i0 bit1: result = M * I = M. base=M^2. i1 bit1: result = base(M^2) * result(M) = M^2 M = M^3. Good! So result = base * result works: new bit (higher power) applied after previously processed lower bits? For column vector, earlier lower bits are applied first. M^2 * M applied to v means M applied first then M^2, total M^3. Correct. Good. Or use vector accumulating with bits high to low: v=counts0; powM=M; for bits low to high: if bit: v=powM*v? Not correct for large powers? If processing low bit first, v = M^(2^i)*v would apply after lower bits; need v=powM*v gives total M^(higher)*M^(lower) = M^n (higher power applied later) which equals total n but total product should M^n; for noncommuting matrices, order matters. M powers are same matrix actually commute, but use correct.
+Since all matrices are powers of same M, they commute; order not a big issue, but matrix multiplication generic. Correct above.
+
+Alternatively avoid matrix orientation complexity by iterating bits high to low:
+  cur = M # represents matrix for bit place? Hmm standard exponentiation with column vector:
+  def apply_pow(mat, exp, v):
+    # mat represents base; return base^exp v
+    # process bits low to high with result=I as above.
+We'll implement identity and mat_mul generic. m small.
+
+But check result after while: result represents M^n. Counts = apply result to initial vector. Or avoid storing final matrix and then multiply. Simpler:
+  id_mat = identity
+  res=id_mat
+  base=M
+  e=n
+  while e:
+    if e&1:
+      res = mat_mul(base, res)
+    base = mat_mul(base, base)
+    e >>=1
+  total=0
+  # apply res to initial vector. Since res is m x m.
+  counts=[0]*m; counts[root_i]=1
+  for col? Wait counts = M^n counts0. If res[to][from] = coefficient, then new_counts[to]=sum_from res[to][from]*counts[from].
+  total = sum(new_counts) % mod.
+But for n=0: res=identity; counts initial; total=1. Good.
+
+Potential issue with binary exponentiation result orientation: We use mat_mul(base,res), where base=M^(2^i), res=product of previous (lower) set bits. For n=3: base=M^2 (i=1), res=M (from i=0). res=base*res=M^2*M. Applied to initial vector: (M^2 M)v0 = M^2(M v0). Chronologically: start v0; step1? Binary n=3 = 2+1. Steps order: first lower bit (1) corresponds first char? Not necessarily, but total exponent 3; product M^2 M = M^3. Good.
+
+Potential optimization: Since M is m x m but m might be 1. identity okay.
+
+Complexity: mat_mul called O(logn) ~60 times, each m^3 = 21^3≈9261, ~556k modular multiplications, very fine. But mat_mul identity with m=1 maybe. Good.
+
+Need ensure modulo with nonnegative. Use (a+b)%MOD.
+
+Alternative: Use linear recurrence via exponentiation? no.
+
+Now important subtlety: Aho automaton state represents longest suffix that is prefix of banned strings. Safe state set = states with no banned string ending at current position. But if a banned string ends at a state and that state is also prefix of another banned string (e.g. banned ["aa","aaa"]): node "aa" terminal and node "aaa" terminal. We discard transitions into terminal states (e.g. from safe node "a" append 'a' -> state "aa" terminal). This means strings containing "aa" forbidden. But it also means we never reach state "aa" even though strings containing "aaa" are also forbidden. Good.
+
+What if a banned string contains another banned string as substring but is longer: banned ["aa","aaa"]. Marking node2 terminal; disallows aa, so strings with aaa forbidden. Good.
+
+What if alphabet characters order affects automaton? no.
+
+What if banned total length <=20 but duplicate patterns count toward length. set reduces nodes. Fine.
+
+Need ensure build fail links correctly and terminal root. Let's test manually.
+
+Build fail BFS:
+from collections import deque
+children=[dict()]
+fail=[0]
+terminal=[False]
+for p in set(banned):
+  if not p: continue
+  u=0
+  for ch in p:
+    v=children[u].get(ch)
+    if v is None:
+      v=len(children); children[u][ch]=v; children.append(dict()); fail.append(0); terminal.append(False)
+    u=v
+  terminal[u]=True
+# BFS initialize fail for root children
+q=deque()
+for ch,v in children[0].items():
+  fail[v]=0
+  q.append(v)
+while q:
+  u=q.popleft()
+  for ch,v in children[u].items():
+    f=fail[u]
+    # find transition from f on ch
+    while f and ch not in children[f]:
+      f=fail[f]
+    # now either f=0 or ch in children[f]
+    if f==0:
+      # root's children?
+      fail[v]=children[0].get(ch,0)
+    else:
+      fail[v]=children[f][ch]
+    q.append(v)
+Wait after while f and ch not in children[f], if f becomes 0, we haven't checked root's children. We can simply set fail[v]=children[0].get(ch,0) when f==0. But what if f is a nonroot state and loop exits because f==0; yes. What if f is nonroot and loop exits because ch in children[f]; fail[v]=children[f][ch]. Correct. However, could loop exit because f has child ch but that child is a descendant? fail links are proper suffixes; children[f][ch] may be a node that is terminal/safe; fine. We must not set fail[v] to v itself? Because f is proper suffix of path(u). If ch in children[f], node child of f. Is it possible child of f equals v? No, child of proper suffix path has length depth(f)+1 < depth(u)+1, while v length depth(u)+1. distinct. Good.
+But initialize root children: fail[v]=0. Is fail[v]=root always for root child? If a banned string starting with char c has another banned string ending? For root child representing prefix length1, proper suffix of length1? Proper nonempty suffix of length1 is itself length1? For length1, longest proper suffix that is prefix is root (length0), because a length1 string has suffix length1 = itself not proper. So fail=root. Good.
+Then fail for node u: standard BFS works if fail[u] computed and its fail chain eventually root. We need compute fail for children in BFS order; yes.
+
+Memo transition `go(u,ch)`: direct=children[u].get(ch); if direct is not None return direct. f=fail[u]; while f: child=children[f].get(ch); if child is not None: return child; f=fail[f]; # f now 0
+return children[0].get(ch,0)
+But after while f becomes 0, should we check children[0].get(ch) as described? Yes. However, maybe the initial while f before loop can stop at f=0; then after the while, we check root. But in fail construction we used root separately. For consistency, the memo transition should include root transition. Let's test with pattern ["b"] (root child b terminal) and u=root (safe? root terminal false). go(root,'b') direct=children[0]['b']=node1 -> return node1. good. u=root,'a' -> direct None; f=fail[root]=0; while f false; return children[0].get('a',0) = 0. good.
+Pattern ["ab","b"] from earlier. Compute fail: root children: a node1, b node3. initialize fail[node1]=0, fail[node3]=0. BFS u=node1 (a): ch='b', v=node2. f=fail[node1]=0; while f false; after while return children[0].get('b')=node3. fail[node2]=node3. Good. u later node3 (b): no children.
+Memo go(node2,'c'): direct None; f=fail[node2]=node3; while f: child=children[node3].get('c') None; f=fail[node3]=0; after while return children[0].get('c',0) = 0. Good. go(node2,'b'): direct None; f=node3; while f: child=children[node3].get('b') None; f=0; after return children[0].get('b')=node3. Wait string path "ab" + "b" = "abb". Longest suffix that is prefix among {"ab","b"} is "b"? Suffix of "abb" is "b"? yes (last char b); also "abb" length3 not prefix; suffix "bb" no; length1 "b" yes. Good.
+Memo go(node2,'a'): direct None; f=node3; while f: children[node3].get('a') None; f=0; after return children[0].get('a') = node1. Suffix of "aba": length1 "a" prefix yes; length2 "ba" no; length3 "aba" no. node1. good.
+
+Memo recursion without explicit fail for root? okay. Use lru_cache maybe. But if patterns include duplicates; set. Alphabet order maybe. Need use list(set(alphabet))? Distinct characters, but order irrelevant. Use list(alphabet) to preserve. For each state, we loop over letters. Alphabet has 2 to 4 distinct characters, so k small.
+
+Potential bug: `children[f].get(ch)` in memo after while f==0. But for root with child ch, we return node with terminal status. Good. We don't need to handle terminal root.
+
+Safe states: terminal[u] false. Do we need to include states that are terminal but are necessary as failure link intermediates? No, transitions into terminal forbidden, so no need compute transitions from terminal states. We never process them. Memo go can return them. Good.
+
+Now, is discarding transition to terminal sufficient for n=0? Yes.
+
+Now let's verify examples manually.
+Example1 avoid_count(3, "ab", ["aa"]) returns 5. Alphabet a,b. banned aa. Trie nodes: root0, a1 terminal? node1 for "a" is not banned (only aa), child a2 terminal. fail[1]=0; for node1 ch a child node2: f=0; fail[2]=children[0].get('a')=node1 (safe). Safe states {0,1}. Initial counts root=1.
+M: from root: 'a' -> node1 safe (cost1), 'b' -> root (because go(root,'b') direct None; f=0; after while children[0].get('b',0)=0 -> root) so M[root][root]=1 for 'b'; M[1][root]=1 for 'a'. From node1 (prefix a): 'a' -> node2 terminal, omit; 'b' -> go(node1,'b'): direct None; f=0; return children[0].get('b')=0 -> root. M[root][1]=1; M[1][1]=0. Initial v=(1,0). After 1: v1[root]=1, v1[node1]=1. Strings: root: b; node1: a. length1 safe: b,a. After 2: root= root*1 + node1*1 =2? v2[root]=v1[root]*1 + v1[node1]*1 =1+1=2 (ba,ab?) node1= v1[root]*1 =1 (aa forbidden not included; let's compute transitions: strings length2 safe: ab,bb? Also? Earlier list for n=3. Let's trust). After 3 sum=5 likely. Good.
+
+Need check example2 avoid_count(2, "abc", ["abc"]) returns 9. Alphabet a,b,c; banned abc. Safe states: root (empty), node a, node ab (prefixes). Node abc terminal omitted. n=2. Count all 3^2=9; forbidden only strings length2 exactly? none (only length3 banned), so 9. Our automaton: root transitions to node a (a), root via b? For string "b", go(root,'b') direct None; return children[0].get('b',0)=0. via c root. node a transitions: 'b' -> node ab safe; 'a' -> go(node_a,'a'): direct? children[node_a].get('a') none; f=0; return children[0].get('a') = node_a; so from node a on 'a' -> node a (because suffix of "aa" is "a"). 'c' -> go(node_a,'c'): direct none; f=0; return children[0].get('c',0)=0. node ab transitions at length2 not needed for count? For n=2, after 2 steps, states after 2 length: root for strings ending? Let's compute initial (root=1). Step1: root gets? transitions to root from b,c; node_a from a. v1 root=2 (b,c), node_a=1(a). Step2: to root: from root on b,c -> each root count2*2=4; from node_a on c -> root count1; maybe node? total root=5? to node_a: from root on a ->2; from node_a on a ->1; total node_a=3. to node_ab: from node_a on b ->1. sum=9. Good.
+
+Example3 n=1e18, alphabet ab, banned ["a"] returns 1. Only b^n. Automaton safe states? banned "a": root0, node1 terminal. Safe only root. M[0][0]: transitions: a -> node1 terminal omitted; b -> root. So count=1. Good.
+
+Now implement with n possibly 0 and alphabet string. Need avoid variable name `list[str]`? Python3 okay. The requested function signature uses `list[str]`, requiring py3.9+. Fine.
+
+Now, the prompt says "Implement exactly this function (a top-level function...)" and "Reply with only the code in a single python block". So final answer only code block. No explanatory text. Need ensure code block contains only function? It can include imports? They said implement exactly this function; likely okay to include imports and constants inside. Code in single python block. We should not print or define helper classes. Helper top-level functions? It says implement exactly this function; maybe only function. We can include local nested helper definitions. Avoid additional top-level functions to be safe. Use imports inside? Could put `from collections import deque` inside function. But total length small. Let's craft a single function with inner helpers or local code. Simpler with nested functions. But `@lru_cache` inside function? Could just precompute transitions with memo dict.
+
+Let's design code cleanly:
+
+MOD = 1_000_000_007
+
+def avoid_count(n: int, alphabet: str, banned: list[str]) -> int:
+    if n == 0:
+        return 1
+    letters = list(alphabet)
+    k = len(letters)
+    # If empty banned, quick (not required but okay)
+    banned = [p for p in banned if p]
+    if not banned:
+        return pow(k, n, MOD)
+    # build trie
+    children = [dict()]
+    fail = [0]
+    terminal = [False]
+    for p in set(banned):
+        u = 0
+        for ch in p:
+            v = children[u].get(ch)
+            if v is None:
+                v = len(children)
+                children.append({})
+                fail.append(0)
+                terminal.append(False)
+                children[u][ch] = v
+            u = v
+        terminal[u] = True
+    from collections import deque
+    dq = deque()
+    for ch, v in children[0].items():
+        fail[v] = 0
+        dq.append(v)
+    while dq:
+        u = dq.popleft()
+        for ch, v in children[u].items():
+            f = fail[u]
+            while f and ch not in children[f]:
+                f = fail[f]
+            if f:
+                fail[v] = children[f][ch]
+            else:
+                fail[v] = children[0].get(ch, 0)
+            dq.append(v)
+    # transitions
+    memo = {}
+    def go(u, ch):
+        key = (u, ch)
+        res = memo.get(key)
+        if res is not None: return res
+        v = children[u].get(ch)
+        if v is not None:
+            memo[key]=v; return v
+        f = fail[u]
+        while f:
+            v = children[f].get(ch)
+            if v is not None:
+                memo[key]=v; return v
+            f = fail[f]
+        v = children[0].get(ch, 0)
+        memo[key]=v; return v
+    safe = [u for u in range(len(children)) if not terminal[u]]
+    sidx = {u:i for i,u in enumerate(safe)}
+    m = len(safe)
+    mat = [[0]*m for _ in range(m)]
+    for u in safe:
+        i = sidx[u]
+        for ch in letters:
+            v = go(u, ch)
+            if not terminal[v]:
+                j = sidx[v]
+                mat[j][i] = (mat[j][i] + 1) % MOD
+    # exponentiate
+    def mat_mul(A, B):
+        # (A@B)[i][j] = sum_k A[i][k]*B[k][j]
+        n_ = len(A)
+        R = [[0]*n_ for _ in range(n_)]
+        for i in range(n_):
+            Ai = A[i]
+            Ri = R[i]
+            for k in range(n_):
+                aik = Ai[k]
+                if aik:
+                    Bk = B[k]
+                    # local vars for speed
+                    for j in range(n_):
+                        bjk = Bk[j]
+                        if bjk:
+                            Ri[j] = (Ri[j] + aik * bjk) % MOD
+        return R
+    res = [[1 if i == j else 0 for j in range(m)] for i in range(m)]
+    base = mat
+    e = n
+    while e:
+        if e & 1:
+            res = mat_mul(base, res)
+        e >>= 1
+        if e:
+            base = mat_mul(base, base)
+Wait we square base every iteration including after last bit; standard. If skip when e==0 then base not needed; okay but not needed. But if we square only when e nonzero after shift, correct. Need be careful: if while e and then e >>=1, e becomes 0; we can skip square. But we can also square every loop; extra one mat_mul. Fine. Simpler standard:
+    while e:
+      if e & 1: res = mat_mul(base, res)
+      e >>=1
+      if e: base = mat_mul(base, base)
+This avoids needless squaring on last bit? Actually after last bit e becomes 0, skip. Good. But is base still needed for current bit? yes square after using current bit. Standard uses base^(2) for next bit, so square before shift or after? Let's check. Standard binary lifting: while exp: if exp&1: result=mat_mul(matrix, result); matrix=mat_mul(matrix,matrix); exp >>=1. This squares matrix even after processing last bit (unnecessary) but okay. We can keep standard; extra square negligible. However, if e becomes 0 after shift, we need not square. We'll keep standard for simplicity. No correctness issue.
+    counts=[0]*m; counts[sidx[0]]=1
+    for i in range(m):
+        s=0
+        R=res[i]
+        for j in range(m):
+            coeff=R[j]
+            if coeff and counts[j]:
+                s=(s+coeff*counts[j])%MOD
+        counts[i]=s # not needed; instead compute total
+    total=0
+    for i in range(m): ... But mat_mul result already computed; can compute total as sum_i sum_j res[i][j]*counts[j]. Counts root initial; no need update.
+    return sum(sum(res[i][j] * counts[j] for j in range(m)) % MOD for i in range(m)) % MOD
+But counts initial vector length m. Count root j= sidx[0]. Good.
+Simplify total after res identity: sum res[i][root]. For n=0 returns 1.
+Need ensure `res` represents M^n with same `mat` orientation. For n=1, res=mat (mat[i][j]=transitions from j to i). total = sum_i sum_j mat[i][j]*counts[j]. Good.
+For n=2, loop e=2: bit0=0; res=I; base=M^2; e=1. i: bit=1; res=mat_mul(base,I)=M^2. Good. total=sum over all states M^2[i][0]. good.
+For n=3: e=3: i0 bit1 res=M; base=M^2; e=1; i1 bit1 res=mat_mul(M^2, M)=M^3. total sum M^3[i][0]. Good.
+For n=4: e=4: i0 bit0; base=M^2; e=2; i1 bit0; base=M^4; e=1; i2 bit1; res=mat_mul(M^4,I)=M^4. good.
+
+Potential issue with `mat_mul` skipping multiplication when aik or bjk zero. Fine.
+
+Potential issue: `go` memo uses fail[f] and while f; for root fail=0, okay. For root with child terminal, returns terminal; we omit. Good.
+
+Early if banned empty: if n=0 returns 1 already; pow(k,n) returns 1. We can still keep. For empty banned and n huge, pow efficient. Good. If `banned` includes empty string (not allowed) we filter it out; then empty banned -> pow k^n, wrong (empty string forbidden means only n=0). Better handle empty patterns explicitly:
+    if any(p == "" for p in banned): return 1 if n == 0 else 0
+Then filter/unique nonempty. Good. Since constraints nonempty, this is safe.
+
+Potential issue with duplicate banned strings: set. total length of all banned strings at most 20; set dedup less; okay. We should preserve terminal marking duplicates. Good.
+
+Potential issue with alphabet contains repeated characters? It says distinct. If not distinct, k=len(letters) could exceed distinct; but no. Could use sorted(set(alphabet)) to be robust. But if alphabet order expected? no. Use `letters = list(set(alphabet))`? Distinct but order arbitrary; count independent. Use `sorted(set(alphabet))` maybe stable. But the result independent of order. Use list(set()). Fine. If alphabet has chars like unicode, okay. total length <=20.
+
+Memory: children list etc.
+
+Now, let's consider if automaton safe states should exclude not only nodes with terminal True but any node whose path contains a banned string. In Aho construction, if a shorter banned string is prefix of a longer banned string, the node at end of shorter is terminal (contains shorter). Any extension along path from that node is also terminal? Actually longer banned string path extends through a terminal node (end of shorter) to longer terminal. Safe states along extension? Node for prefix of longer banned string that contains a shorter banned string as suffix? Wait, a node in Aho trie represents longest suffix that is prefix of banned. Important: The trie node itself may be terminal even if its path does NOT contain a banned string? It represents a pattern ending at that node, so path contains banned string ending at current position. Thus terminal. But there may be a nonterminal trie node whose path contains a shorter banned string as a nonsuffix substring. Example banned strings: "ab" and "abc"? trie root a1, ab2 (terminal ab), abc3 (terminal abc). Node for prefix "a" (node a1) path "a" no banned. safe. Node for "ab" terminal. There is no nonterminal node whose path contains banned string as substring. Example banned ["ab","c"] with trie branching: root a1 -> b2 terminal; root c3 terminal; root? safe. Good. Example banned ["ab","bb"]? trie root a1->b2 terminal (ab); root b4->b5 terminal (bb). Path "b" node4 terminal? root->b node4 terminal yes. Good. In general, any path ending at a trie node that has a banned substring not ending at current position will also have a trie node for the longest suffix containing prefix; but the shorter banned string may be a suffix ending before current node. For example banned ["aab"] and ["ab"]? trie root a1 -> a2 -> b3 (contains aab terminal at node3; also ab ends at node3? path aab suffix ab yes terminal). Shorter? terminal node3. Path "aa" node2 not terminal? path "aa" does not end at banned string; contains no banned string. But would a string "aa" be safe? It cannot contain banned "ab" or "aab" because no b. safe. Good. Example banned ["ab","abc","b"]? trie root a1->b? Wait root a1->b2? banned ab ends at node2; banned abc extends to node3; banned b root b4 terminal. Path "a" node1 safe. Path "ab" node2 terminal (contains ab). Path "abc" node3 terminal. Path "b" node4 terminal. Safe root,node1. What about string "ab" contains ab banned; forbidden. Good. What about string "aba": path a1, ab2 terminal. Forbidden after second char. Good.
+But is there a case where path contains a banned substring but the current state node (longest suffix prefix) is safe? Suppose banned strings ["ab", "bc"]. Trie root a1->b2 (ab terminal at node2). root b3->c4 (bc terminal at node4). String "abbc": prefixes: a state1 safe; "ab" state2 terminal forbidden. no.
+String "bcc": prefixes: b state3 terminal forbidden.
+String "a..." can't avoid reaching terminal if contains ab or bc anywhere? Once any banned string appears, the final node after processing it is terminal in Aho state (ends with that banned string). Because the banned string is suffix of the processed prefix at that moment; the Aho state after processing that moment is at least that banned-string node (or a longer prefix of some banned string that is suffix). Since that state is terminal? Need verify: If banned string is suffix of path, then the longest suffix of path that is prefix of banned includes this banned string (unless a longer prefix of a banned string is suffix too, which would also be terminal? Longer suffix that is prefix of some banned string might not itself be a banned string? It is a prefix of a banned string, but a prefix of a banned string may not be a banned string; terminal marks only full banned strings. What if longest suffix is a proper prefix of a banned string longer than banned string? It is still terminal? Not necessarily. Example banned strings: "ab" and "abcd". Suppose path "ab" (banned ab). Longest suffix that is prefix of banned: "ab" (node terminal for ab) and also "abcd"? length4 no. node2 terminal. Good. Example banned ["aab","abcab"]? path "ab" (banned? no banned ab) not relevant.
+Need prove: If path contains a banned string as a suffix, Aho state after path = longest suffix that is prefix of any banned string. It includes the banned string (length L) as suffix. Could longest suffix be longer than banned string and not terminal. Example banned ["ab","abc"] (prefix of longer). Path "abc": banned ab suffix length2; also prefix "abc" length3 (prefix of banned abc? actually "abc" is a banned string too). terminal. Example banned ["ab","abcd"] path "abc": banned? "ab" suffix length2 yes; longer prefix "abc" length3 is prefix of banned "abcd"; Aho state=node3 (prefix abc of abcd) which is not terminal (abcd not complete). Path contains banned "ab" as suffix (chars 2-3), but current Aho state after processing "abc" is node3, which is safe (prefix of abcd, not terminal because abcd not ended). Aha! This is critical! Our approach of only discarding transitions into terminal states is WRONG if a banned string is a substring
+=== CONTENT ===

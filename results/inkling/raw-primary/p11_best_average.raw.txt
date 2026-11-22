@@ -1,0 +1,223 @@
+=== REASONING ===
+We need to find contiguous subarrays of length >= k maximizing average (sum/length). Constraints n up to 1e5, a[i] nonnegative between 0 and 1e9. Need exact fraction.
+
+Classic approach: For each length? n up to 1e5, can't do O(n^2). Standard solution: binary search on average x; check if there exists subarray with average >= x, i.e., sum - x*length >= 0. Using prefix sums: find minimal prefix sum S_j - x*j? Actually condition: exists i<j with sum(i..j-1)/(j-i) >= x ⟺ exists i<j with (S_j - S_i) - x*(j - i) >= 0 ⟺ (S_j - x*j) >= (S_i - x*i) for some i<j. Need j-i >= k.
+
+Check with two pointers / divide and conquer. Standard: compute feasible(x): scan prefix sums, maintain minimum of S_i - x*i among i <= j-k (i from 0 to j-k), then check if exists j with (S_j - x*j) >= min. O(n). Binary search to precision, then exact fraction? But comparisons require exact. The problem warns: averages differ by less than 1e-9, so floating binary search may mis-rank. Need exact.
+
+Better: parametric search exact via sorting? Alternative exact algorithm: maximum average subarray with length >= k.
+
+Known approach: For maximum average subarray (any length), exact via convex hull / divide and conquer. For length >= k, we can consider each length l? n up to 1e5, lengths up to n, can't.
+
+Let me think: maximum average over subarrays of length >= k. Equivalent to maximize over i<j, j-i>=k of (S_j - S_i)/(j - i). This is a classic "max average subarray with minimum length". 
+
+Approach: binary search on value x with exact rational comparisons, and at the end, find exact best by rational candidate enumeration? Could use binary search on x with exact arithmetic and then reconstruct subarray, but need exact fraction in lowest terms. We could do binary search with fractions until interval tiny and then compute best exactly? The issue: comparing two candidates differing by <1e-9, need exact.
+
+Exact method: the optimum is max of rational values, each fraction with numerator <= 1e14-ish, denominator <= 1e5. Binary search to enough precision (say 60 bits) then identify candidates with average within epsilon? Since gap may be smaller than 1e-9, need exact enumeration. But we can compute candidate averages from subarrays that attain near-optimal? Hmm.
+
+Alternative exact algorithm with convex hull trick:
+
+For each left endpoint i, consider right j: average = (S_j - S_i)/(j-i). Not easy.
+
+Better approach: parametric search with exact rational arithmetic and monotonicity to "converge" not numeric but exact. There's a known approach: The maximum average A*. We can do binary search on x over rationals; maintain lower bound (best found) and upper bound (best possible). Actually, feasible(x) tells whether there exists subarray with average >= x. This is a monotone predicate: feasible(x) true iff x <= A*. So we can find A* exactly by tracking:
+
+- lo = any achievable average (e.g., max over all lengths of average of best subarray? computing exact A* via enumerating...). Hmm.
+
+Simplest robust approach: Use floating binary search to find a bracket [lo, hi] around A* of width < 1e-12, then enumerate... but "some tests differ by less than 1e-9" — the max will be unique value; we just need the exact fraction. If we bracket width < 1e-15 and also know the max is attained by some subarray, we can find a subarray achieving near-max average using standard method, and then... but there could be two subarrays with averages bracketing? No — we just need the exact A*. With bracket width tiny, there are finitely many candidate fractions in the bracket? Fractions with denominator <= n=1e5 and numerator <= 1e9*1e5 = 1e14: in an interval of width w, expected number ~ w * (n^2) * 1e5? Actually number of distinct fractions p/q in interval of width w: sum over q<=n of w*q? For each q, numerator must be in [q*lo, q*hi], giving ~ w*q possibilities. Sum q up to n: w * n^2/2 ~ w*5e9. For w=1e-12, ~5. Hmm manageable but requires bounded search.
+
+Alternative exact approach: parametric search with the structure. Let's think more carefully.
+
+Actually, a clean exact method: candidate optimum A* = max over j of (max over i <= j-k) (S_j - S_i)/(j - i). For fixed j, consider lines? For fixed j, as function of i (prefix index): f(i) = (S_j - S_i)/(j - i) over i <= j-k, i in [0, j-k]. Maximize over i. Let d = j - i (length >= k). f = (S_j - S_{j-d})/d. As function of d... not linear.
+
+Alternative: classic trick for max average subarray of length >= k: binary search on x and check. To get exact value, we can do binary search on x using only comparisons and at the end reconstruct. To get exact rational, perhaps use the "Newton's method / selection" approach.
+
+Alternative: Since a[i] >= 0, average lies in [0, 1e9]. Precision needed: exact answer. Approach: binary search with high precision floating, then within final bracket, enumerate all fractions p/q with q <= n? Too large (n^2 q values). But bracket tiny ~1e-16 means few candidates. However float binary search can't guarantee 1e-16 bracket for values ~1e9 (float epsilon ~ 1e-7 relative for 1e9! double has 53-bit mantissa, ~1e-16 relative, absolute ~1e-7 at 1e9). So can't bracket below ~1e-7 with doubles. But problem says differences can be < 1e-9, so float bracketing insufficient.
+
+Exact arithmetic approach: represent x as Fraction. Binary search with Fractions: maintain bracket [lo, hi] where lo is an achievable average (best found so far), hi is something that is infeasible. Initially lo = 0 (achievable? avg of whole array positive maybe 0; 0 achievable only if all zeros... 0 is average of any all-zero subarray; but not necessarily achievable. Actually averages >= 0 always since a>=0, and whole array average achievable. Set lo = average of whole array? But that's length n >= k, valid subarray. lo = S_n/n. hi = 1e9 (since max element <=1e9, any average <= max element <= 1e9; but can't assume hi infeasible? hi = 1e9 is infeasible unless all elements = 1e9... if all elements = 1e9, average = 1e9 achievable. Use hi = 1e9 then feasible; instead set hi = something definitely infeasible, like max element? Max average = max subarray average; is hi = max(a) always feasible? The subarray [max element] has average = max element, and length 1 < k possibly. If k > 1, not valid. Hmm.
+
+Set lo = average of whole array (valid, achievable). hi = max(a) maybe equal lo (if all equal). Need infeasible hi: e.g., hi = max(a) + 1 (average can't exceed max(a) <= 1e9, so hi = max(a)+1 infeasible). Good.
+
+Then binary search: mid = (lo+hi)/2 as Fraction; if feasible(mid): lo = mid else hi = mid. Each iteration O(n). Number iterations to converge: We want exact. Instead of converge numerically, track exact: since lo is an achievable average (a fraction), and feasible region x <= A*. When feasible(mid) true, lo=mid; feasible(mid) means exists subarray with avg >= mid. We want to narrow hi to something infeasible. As iterations proceed, lo approaches A* from below within achievable averages, hi approaches from above. We need to stop exactly when lo is the true max. 
+
+Alternative exact: once lo is an achievable average and we can test "feasible(lo? )" trivially true. The stopping criterion: hi <= next achievable average above lo? Hard.
+
+Different approach: Use the monotonic predicate to find A* exactly via "binary search on Fraction + reconstruct candidate". Actually there's a neat approach: the max average is one of the averages of valid subarrays. Those averages are fractions p/q with q <= n. We could binary search to a width smaller than the minimal gap between distinct achievable fractions — minimal gap between two fractions p/q and p'/q' (q,q'<=n) with q different is at least 1/(q q') >= 1/n^2 ~ 1e-10. Wait: |p/q - p'/q'| = |p q' - p' q|/(q q') >= 1/(q q') >= 1/n^2 = 1e-10. That's bigger than 1e-9? No, 1e-10 < 1e-9! So minimal gap could be 1e-10, less than the 1e-9 mentioned. So binary search to width < 1e-10 then evaluate achievable averages in bracket — too many.
+
+Better exact algorithm:
+
+Let's think structurally. Define S prefix. A* = max over i<j, j-i>=k of (S_j - S_i)/(j-i).
+
+For each j, define best over i <= j-k. Let’s define m_j = max over i<=j-k of (S_j - S_i)/(j - i). Then A* = max_j m_j.
+
+Alternative: for fixed i, as j increases, average is (S_j - S_i)/(j - i). Hmm.
+
+Known technique: maximum average subarray with lower bound on length — can be solved by binary search, and exact via using "slope trick". Let me think about feasible(x) exactly and the maximum.
+
+Feasibility check: exists i<j, j-i>=k, with S_j - x*j >= S_i - x*i. Let's define prefix transformed value t_i = S_i - x*i (i=0..n). Need exists i<j, j-i>=k with t_j >= t_i. Check O(n): maintain min of t_i for i <= j-k; standard scan.
+
+Now exact A*: Feasible(x) is monotone (decreasing). We want the threshold. Exact binary search on x where we maintain lo (feasible) and hi (infeasible). This is like 30-40 iterations with Fractions, and the gap shrinks. To terminate exactly, we can note: when hi is infeasible and lo feasible, and hi - lo is smaller than... no.
+
+Alternative: Use the fact that A* is achievable; run binary search until hi - lo < some bound, then find all valid subarrays with average in [lo, hi] (i.e., >= lo) and pick max exactly. Since lo was a feasible mid (an average of some subarray), but subarrays with average >= lo might be numerous. However if bracket is small enough (width < min gap 1e-10), at most one achievable average inside — but finding subarrays with avg >= lo via "feasible(lo)" scan gives one witness, and the max witness would be... we don't control which witness the check returns. We could enumerate all subarrays with avg >= lo to find max; could be many.
+
+Better: track the best achievable average directly alongside feasible check. Hmm.
+
+Alternative: Do exact parametric search with a smarter method: The optimum A* is attained at some subarray (i,j). At optimum, it's the max. There's known O(n log n) algorithms for maximum average subarray (without min length) using divide and conquer. With min length constraint, maybe use SMAWK-like? Let's think.
+
+Define for each i, as function of j (i<j): line in slope space? Average (S_j - S_i)/(j-i). Multiply: we want max over i<=j-k.
+
+Rewrite: avg = (S_j - S_i)/(j-i). Consider as function of i with j fixed: numerator -S_i + const (decreases as S_i increases), denominator (j - i) increases as i decreases... Let's just do divide and conquer over j? Standard: for max average subarray, divide over midpoint, find best i left, j right via "upper envelope" with Knuth optimization? Actually the classic problem "maximum average subarray" can be solved with divide & conquer + convex hull per side. With length >= k constraint it's a bit more complex but maybe feasible.
+
+Simpler: exploit that answer = max over valid subarrays; there are O(n^2) but we need O(n log n) or O(n log precision).
+
+Binary-search-with-exact-reconstruction: Let’s do binary search on x to determine hi and lo where hi is infeasible, lo is feasible, and lo is an achievable average. We want to output lo (the actual max average) but lo only equals A* if we know... Actually note A* is achieved by some subarray; binary search lo starts at S_n/n (whole array). It increases over iterations; hi decreases. If we run enough iterations, lo is some achievable average close to (but maybe below) A*. The true A* = max over feasible x. lo after iterations is max of all mids that were feasible — each mid feasible means some subarray achieves avg >= mid; but lo itself is a mid, not necessarily an achievable average! Feasible(mid) means exists subarray with avg >= mid, not equal. So lo (as a mid) is not necessarily achievable. The actual max achievable A* >= lo, and hi > A*. If we get lo and hi arbitrarily close, the true answer lies in [lo, hi]. We then need to find exact achievable max.
+
+Plan: run binary search until bracket width < 1e-18 (as Fraction, exact). Then enumerate candidate achievable averages within bracket? Number of fractions in bracket: sum over q<=n of q * width, huge unless width tiny. Width 1e-18 * n^2/2 (per unit) = 1e-18 * 5e9 = 5e-9? Wait expected number = sum_q (width*q) = width * n^2/2 = 1e-18 * 5e9 = 5e-9. So at most 0 or maybe 1 fraction in bracket; but we need to find it. We know one achievable average (witness from feasible scan). So scan for the maximum achievable average with avg >= lo via... hmm.
+
+Alternative final step: compute exact maximum achievable average by a dedicated exact algorithm. Let's think again.
+
+Actually, simpler: once we know a tight bracket [lo, hi] with width < 1e-12 (say), the number of "distinct achievable averages" in [lo, hi] is at most... as computed, width 1e-12 gives expected 5e-3? width * n^2/2 = 1e-12*5e9=5e-3?? That can't be right dimensionally. Sum_q width*q over q=1..n = width * n(n+1)/2 ≈ 1e-12 * 5e9 = 5e-3. So typically 0 fractions?? But lo itself is an achievable? No, lo is not known achievable. Hmm, but true A* is in bracket, so at least 1 fraction in bracket — the counting expected value is misleading since A* is there by construction.
+
+Let's instead directly compute achievable subarray with maximal average using scanning with exact "best so far"? Wait, perhaps there's a simpler exact approach: For each j (right end), find best i. Use the structure: maximize (S_j - S_i)/(j - i) over i in [0, j-k]. Take derivative wrt i conceptually: f(i) = (S_j - S_i)/(j - i). f(i+1) vs f(i): difference = (S_j - S_{i+1})/(j - i - 1) - (S_j - S_i)/(j - i). Let N = S_j - S_i, d = j - i. f(i) = N/d. f(i+1) = (N - a[i])/(d-1) where i is prefix index, a[i] is element at index i (since S_{i+1} = S_i + a[i]). Hmm.
+
+Set g(i) = (S_j - S_i)/(j - i). Compare g(i) vs g(i+1):
+g(i) = (S_j - S_i)/(j - i). g(i+1) = (S_j - S_{i+1})/(j - i - 1) = (S_j - S_i - a_i)/(j - i - 1).
+Cross multiply (positive denominators):
+(S_j - S_i)(j - i - 1) ? vs (S_j - S_i - a_i)(j - i).
+Let N = S_j - S_i, d = j - i.
+LHS = N(d-1) = N d - N. RHS = (N - a_i) d = N d - a_i d. LHS < RHS ⟺ -N < -a_i d ⟺ N > a_i d ⟺ (S_j - S_i) > a_i (j - i) ⟺ average of subarray i..j-1 > a_i ⟺ a_i < average over (i..j-1). Interesting. Not sure it gives simple convexity.
+
+Alternative: this is known as "maximum average subarray with size constraint" solvable via binary search. For exactness, we can combine binary search with tracking the best witness by... Hmm.
+
+Honest approach: Since a[i] are integers, sums are integers. The max average A* = max over valid subarrays of S/d. Let's find it exactly via binary search on Fraction but stop when bracket contains exactly one valid average... we don't know gap. But we can do the standard binary search and then, having bracket tiny (width < 1e-18), enumerate all fractions p/q in bracket with q <= n? Expected tiny but worst-case? Worst case number in bracket given that A* in bracket: there could be others within width. Minimal gap between distinct fractions with denominators <= n is 1/(n(n-1))? Actually two distinct fractions p/q and p'/q' with q,q' <= n: |p/q - p'/q'| = |p q' - p' q|/(q q') >= 1/(q q') >= 1/n^2 since numerator >= 1 in absolute integer. So min gap >= 1/n^2 = 1e-10 (for n=1e5; actually 1/(1e5*1e5)=1e-10). If bracket width < 1e-10, at most... two fractions could still fit if gap ~1e-10 and interval width < 1e-10: they need span >= gap, so at most one fraction if width < gap. Since gap >= 1e-10 > width, at most one fraction in bracket. But enumerating all fractions in bracket is impossible (1e14 of them). However we know exactly one exists (the true A*), and we can find it by checking: candidate fractions? We don't know candidates.
+
+Alternative: do binary search until width < 1/n^2 (i.e., < 1e-10). Then the bracket contains exactly one achievable average A*. We know the witness from feasible(lo)? That gives some subarray with avg >= lo but its average might be A* or higher? Any subarray with avg >= lo has avg <= A* <= hi. Since bracket width < 1e-10 and there's at most one achievable average in the bracket, the witness's average is the unique achievable average in [lo, hi], so it IS A* (since A* in [lo, hi] and any subarray with avg >= lo is in [lo, hi]). Wait: witness avg >= lo (feasible), witness avg <= A* <= hi. So witness avg ∈ [lo, hi]. And A* ∈ [lo, hi]. Unique fraction in bracket ⟹ witness avg = A*. 
+
+So algorithm:
+1. lo = S_n / n (whole array average, achievable). hi = max(a) + 1 (infeasible, since any subarray avg <= max(a)). Actually if all a equal, average = max(a) < hi. Good. lo <= A* always? Whole array avg <= A*, yes. lo is achievable fraction.
+2. While hi - lo > 1/(n*n) (or something small): mid = (lo+hi)/2; if feasible(mid): lo = mid else hi = mid. Use Fraction arithmetic — expensive but manageable? n=1e5, iterations ~ log2((1e9)/1e-10) = log2(1e19) ≈ 63 iterations. Fraction arithmetic with denominators growing... mid = (lo+hi)/2 with lo,hi Fractions; denominators double each iteration, up to 2^63 * denominator. Fractions with numerator up to 1e14 * 2^63 ~ 2^83, denominator 2^63. Python bigints fine. Each feasible check O(n) with Fraction arithmetic — n=1e5, 63 iterations => 6.3e6 Fraction ops. Fractions with huge numerator/denominator; each arithmetic op could be O(len) ~ 200-bit numbers; should be okay-ish but might be slow in Python (6.3e6 * maybe 100ns..1us each => seconds). Could be borderline but let's optimize: Instead of exact Fraction mids, we can binary search on a scaled integer! Scale values: averages = p/q; binary search via bounds on a rational. Use integer arithmetic by fixing scale: we want bracket width < 1e-10 but bounded numerator range. Multiply by LCM? Simpler: binary search on numerator with fixed denominator? Alternative: do the feasible check using comparison S_j - S_i >= x*(j - i). With x rational p/q, cross-multiply: q*(S_j - S_i) >= p*(j - i). We can represent x as integer numerator/denominator.
+
+Practical approach: implement binary search on x as float but verify... no, exactness needed.
+
+Alternative simpler: implement feasible(x: Fraction) using integer prefix sums, computing t_j = S_j - x*j = (S_j*q - p*j)/q which has common denominator q; so compare t_j >= t_i via integer comparisons. Since we only need sign comparisons, represent value = S_j*q - p*j (integers), compare those. Also feasibility scan: need min over i<=j-k of u_i where u_i = S_i*q - p*i over i in window; then check u_j >= min. Use a deque sliding window minimum. O(n) with integer ops. 
+
+Binary search 70 iterations, each O(n) with sliding window min using ints — fine.
+
+Stopping condition: width = hi - lo < 1/(n*n) i.e., choose width < 1e-10? n up to 1e5, n^2 = 1e10, so width < 1e-10. Actually need strict: at most one fraction in [lo, hi]? With width < min gap, interval can contain at most one distinct fraction. Distinct achievable fractions are distinct fractions p/q, gap >= 1/(q q') >= 1/n^2. If width < 1/n^2, at most one. Use width < 1/(n*n) * ... let's use width < 1e-10 maybe conservative; better: width < 1/(n*n) where n = len(a). But note fractions could have denominators up to n, gap >= 1/(n*n) exactly (when q=q'=n and numerators differ by 1). So width < 1/(n^2) ensures at most one. Good. But floating? We use exact Fraction, fine.
+
+However binary search iterations: initial width hi - lo <= max(a)+1 - S_n/n <= 1e9. Need width < 1/1e10. Reduction factor 2 each iteration: from 1e9 to 1e-10 is factor 1e19 = 2^63. So ~63 iterations. Each check is O(n) integer operations with sliding window — about 63*1e5 = 6.3e6 operations, fine in Python? Each iteration does deque ops and big-int arithmetic (S_i up to 1e9*1e5 = 1e14; q can get huge: q = 2^iterations * original denominators? lo = S_n/n has denom n; mids have denom 2*n*... after 60 iterations denom ~ 2^60 * 1e5 ~ 1.1e24 — big ints ~ 80 bits, fine). 6.3e6 iterations of Python loop each with a few bigint multiplications — maybe 10-30 seconds? Hmm. Each feasible call: loop over j=0..n, maintain deque of candidates; each step does O(1) deque ops + arithmetic. Sliding window minimum is standard. Let's estimate: 1e5 * 63 = 6.3e6 steps; each step maybe ~0.5us-2us => 3-12s. Might be too slow but typical judges allow? Let's optimize.
+
+Optimization: We can avoid sliding-window min with deque by using a simpler O(n) method? Feasibility: need min over i in [0, j-k] of u_i (u_i = S_i*q - p*i). Sliding window min — yes.
+
+Alternatively use Dijkstra-like different method: Hmm.
+
+Alternative smarter exact algorithm: Since we know answer is max of fractions, do binary search on a fixed grid: Instead of exact Fraction mids, maintain lo (best achievable? Actually let's maintain lo as best feasible mid — but we don't get witness avg directly). Hmm.
+
+Actually simpler and exact: compute best average via "feasible" with exact arithmetic but also track witness. At the end, witness from last feasible check with final lo. Fine.
+
+But performance: 63 iterations × 1e5 = 6.3e6; Python might handle in ~5-10s. Let's reduce iterations: we can stop binary search once width < 1e-10 but note lo is guaranteed feasible-mid which is <= A*, hi >= A*? Actually invariants: lo < A*? Feasible(mid) returns exists avg >= mid; lo is a mid feasible; hi is infeasible (no subarray avg >= hi). A* >= lo (A* is max so avg_A* >= lo). And A* < hi (since no subarray with avg >= hi, A* < hi). Good. We could stop when width small enough (< 1/(n^2)), but also we could stop earlier with a different reconstruction? Alternatively after reaching tiny width, witness found in final feasible check. That's exact.
+
+But we can reduce iterations using a better initial bracket: hi = max(a) (which is achievable? Not necessarily with length>=k; max(a) subarray length 1; if k==1, achievable; else max average might be <= max(a)). Actually any subarray average <= max(a), so A* <= max(a). If k==1, A* = max(a) exactly, known. Else hi = max(a) works (feasible maybe, but we need infeasible for binary search semantics... if A* == max(a) possible? Only if subarray of length>=k all equal to max(a). E.g., a=[5,5], k=2, max=5, average=5. So hi=max(a) may be feasible. Use hi = max(a)+1 to be safe, width ~1e9, still 60 iterations. Also lower initial: hi = max over valid subarrays with length >= k? Hmm.
+
+Alternatively, track witnesses throughout and compute exact max by evaluating final witness and comparing? No—we proved witness from final feasible check = A*. Good.
+
+To reduce iterations, could use Fibonacci search? Eh, ~40 iterations with exact arithmetic if precision requirement is 1e-10... log2(2*1e19) ~ 64. Not drastically less.
+
+Alternatively, use a better exact strategy: since we know gap >= 1/(n*n) (in units of 1), we can binary search on the numerator with a fixed denominator scale? Let's instead think about direct exact algorithm via convex/hull? Let me consider the divide-and-conquer / convex-hull approach for "max average with length >= k", which is O(n log n) exact:
+
+For fixed left index i (0<=i<n), define f_i(j) for j>i+k-1: (S_j - S_i)/(j - i). We want max over i,j. Equivalently, for each j, max over i<=j-k of (S_j - S_i)/(j-i). Let's compute per j the maximizing i using SMAWK or a "convex hull" structure? Define F_j(i) = (S_j - S_i)/(j - i). Let me analyze which i maximizes.
+
+Alternative known result: maximum avg subarray (no constraint) can be found via convex hull of prefix points (i, S_i): max over i<j of (S_j - S_i)/(j-i) is the max slope between two points. This is the classic: the maximum slope between any two points on the polyline! Because average = slope between points (i, S_i) and (j, S_j). Yes! Average = (S_j - S_i)/(j - i) = slope of segment between (i, S_i) and (j, S_j). So the problem = max slope of any secant between two points with horizontal distance >= k.
+
+Max slope over all pairs = max over each j of max over i<j of slope. That's a known "maximum slope between points" problem solved by "tangent from above" etc. With distance >= k constraint: for each j, only i <= j-k allowed. As j increases, the allowed set shrinks. Hmm.
+
+Alternative: for each i, the best j > i + k - 1 is: maximize (S_j - S_i)/(j - i) over j in [i+k, n]. This is max slope from point (i, S_i) to later points with horizontal distance >= k. 
+
+Observation: For each j, among i in [0, j-k], the max slope is a "upper hull" computation over prefix? Let's think: points (i, S_i). For each j, we want i minimizing... slope = (S_j - S_i)/(j - i). For j fixed, as function of i: increasing S_i decreases numerator; increasing i decreases denominator... messy.
+
+Actually the full problem = max slope over all pairs with distance>=k. Without constraint, the maximum slope between any two points is found by a simple algorithm: the max slope is attained at points on the convex hull. For each j, slope from j to i is maximized at i being the extreme point of upper convex hull relevant... Standard result: maximum slope over all pairs = max over pairs of adjacent points in the "upper hull"? No — max slope is attained between two vertices of the convex hull of points with... Actually classic: given points, max slope over any pair (i<j) equals max over each pair of adjacent vertices in the convex hull of the upper envelope? Let me recall: To find maximum slope (max (S_j - S_i)/(j - i) over all i<j), you need the convex hull of the points. Claim: maximum slope is achieved by some pair of points on the upper convex hull? Hmm, slope from j to i: consider rotating a line through j until it hits the farthest point below? The max slope is achieved at the point i that minimizes the "angle". Standard approach: For the maximum slope, iterate over j, maintain upper hull of points (i, S_i) for i<j (with i increasing). For each j, find slope max = max over i of (S_j - S_i)/(j - i). For fixed j, the function (S_j - S_i)/(j - i) as i varies... Let me rewrite: (S_j - S_i)/(j - i) = (S_j - S_i - something)... Let D = j - i > 0. S_j - S_i. Hmm.
+
+There's known approach: maximum average subarray O(n log n) via convex hull trick: compute upper convex hull of prefix sum points; the maximum slope between any two points is max over adjacent hull pairs? Not exactly: max slope overall = max over all pairs; but the max slope pair consists of two points that are both on the convex hull of the whole set, and they're adjacent on that hull? I recall that the maximum slope between any two points equals the maximum slope between adjacent points on the convex hull (either upper or lower hull) of the point set, PROVIDED we consider all pairs i<=j? Let me verify: Points on the upper convex hull (maxima). For two points A, B on the hull, any point C between them is below the segment AB (if on upper hull? "upper hull" = points that maximize... ). Slope changes as function... Let me recall the known result for "maximum slope": the answer is achieved on the convex hull, specifically between adjacent vertices of the upper hull of the points ordered by x? Hmm.
+
+Simple known algorithm for maximum average subarray (any length): compute upper convex hull of (i, S_i) points, then check adjacent pairs in hull? No wait, average subarray max is max slope over all pairs i<j — and the maximum is achieved by adjacent points on the *upper* convex hull? Consider points (0,0), (1,100), (2,101). Slopes: 0->1: 100; 1->2: 1; 0->2: 50.5. Max is 100 between adjacent hull points? Hull of points: (0,0),(1,100),(2,101): all points on hull? (2,101): slope from (1,100) to (2,101) = 1; slope from (0,0) to (2,101)=50.5. Hull upper: from left to right, upper hull consists of points where slopes decrease: hull of these three points as upper: (0,0),(1,100),(2,101)? Upper hull: a point is on upper hull if the line through... the upper hull from (0,0) with clockwise... Let me not get lost.
+
+The min-k constraint makes this harder anyway (need |j-i|>=k). Let's stick with exact binary search + witness. Performance should be OK if optimized.
+
+Let me now write efficient feasible(q, p): given x = p/q (p,q positive ints, p/q >= 0), check exists i<j, j-i>=k with S_j - S_i >= x*(j - i). Multiply by q: q*(S_j - S_i) >= p*(j - i) ⟺ (q*S_j - p*j) >= (q*S_i - p*i) ⟺ u_j >= u_i, where u_i = q*S_i - p*i. Wait: q*(S_j - S_i) >= p*(j-i) ⟺ q*S_j - q*S_i >= p*j - p*i ⟺ q*S_j - p*j >= q*S_i - p*i ⟺ u_j >= u_i where u_i = q*S_i - p*i. Yes.
+
+Scan j from 0..n. We need i <= j-k (i >= 0) with u_i <= u_j. Maintain sliding window min of u_i over i in [0, j-k]?? Actually i ranges [max(0, j-?)] — i in [0, j-k], j-k >= 0. As j increases, the window of i's changes: i <= j-k grows. So maintain min of u_i for i <= j-k (prefix min from 0)? Wait, we need min over i in [i_lo, j-k] where i_lo = 0? i can be 0..j-k. But also we need j-i>=k exactly. i in [0, j-k]. Window: 0 <= i <= j-k — that's a growing window (prefix), not sliding-with-drop. So maintain running minimum of u_i over all i from 0 to j-k. Since prefix window only grows (j increases => j-k increases), we can just keep running min! But wait — as j increases, i ranges over [0, j-k], growing. So maintain min over prefix. So scan j from k to n: first, add i = j-k to the min set (before checking). Then if u_j >= prefix_min_up_to(j-k), return True. That's O(1) per step, O(n) total. 
+
+Even simpler: maintain cur_min over i <= j-k. Let's index carefully: i in prefix indices 0..n (S_0=0, u_0 = 0). We need 0 <= i < j and j-i >= k ⟹ i <= j-k, with 0<=i<=n. For j >= k. At step j, first add i = j-k to the running min (for j-k>=0, i from 0). Start j=0: we can pre-add nothing. Implementation:
+
+```python
+def feasible(p, q):
+    u = [q*S[i] - p*i for i in range(n+1)]  # could compute incrementally
+    cur_min = None
+    added = 0  # i added so far, i.e., all i < added
+    for j in range(n+1):
+        # ensure all i <= j-k are added
+        while added <= j-k and added <= n:
+            ui = q*S[added] - p*added
+            cur_min = ui if cur_min is None else min(cur_min, ui)
+            added += 1
+        if j >= k and u_j >= cur_min:
+            return True
+    return False
+```
+Hmm but u_j computed inside; fine.
+
+Complexity O(n) per check, with big ints. 60 checks * 1e5 = 6M iterations — each iteration doing q*S[added] (bigint ~ 120-bit * 24-bit... p,q can be large: p/q approximates up to 1e9; denominators after 60 iterations ~ 2^60 ~ 1e18, p ~ 1e9*1e18 = 1e27 — big ints with ~90 bits, fine, small). Actually compute u incrementally: u_i = q*S_i - p*i; q*S_i each iteration: q has ~60 bits, S_i ~ 47 bits, product ~107 bits — cheap.
+
+But we can reduce: don't rebuild u array; maintain S prefix (int). Precompute prefix sums S. Binary search iterations: ~63. Total 6.3M iterations of the loop with a few bigint ops — Python ~ 6-15s. Hmm, might be too slow for time limit. Let's optimize with smarter arithmetic and iteration count.
+
+Alternative: instead of Fraction mids, binary search on scaled integers with a fixed precision? But exactness requires the final answer as reduced fraction; we don't need mids to be fractions — we just need the final bracket [lo, hi] with width < 1/n^2 where hi/lo are fractions, plus a witness. We could represent the bracket using integer pairs (numerator, denominator) with denominators bounded... but mids double denominator each iteration — inherent.
+
+Better: use floating binary search coarsely, then... no.
+
+Alternative: avoid Fraction by binary searching directly on the answer as a rational via "best feasible witness + candidate threshold"? Hmm.
+
+Alternative approach: direct exact algorithm — compute A* by finding, for the relevant j, best i using convex hull, O(n log n). Let me explore more carefully; it might be the cleanest performant approach, though more intricate with the k constraint.
+
+Problem: max slope between points (i,S_i), (j,S_j) with j-i>=k. 
+
+Observation: The global max slope (any pair) is achieved at two points on the convex hull of the point set (upper hull). With the distance constraint, the max slope for given j is over i <= j-k.
+
+Alternative: iterate over i; for fixed i, we want j >= i+k maximizing (S_j - S_i)/(j - i). This is a classic "maximum slope ray from a point among later points with horizontal distance >= k". Hmm, k >= 1. Note when j = i+k exactly is the closest; as j increases, slope varies in complex way. Actually slope as function of j: slope(j) = (S_j - S_i)/(j - i). derivative w.r.t. j (continuous): [a_j (j - i) - (S_j - S_i)]/(j-i)^2 where a_j = S_{j+1}-S_j approx. Sign depends. Not unimodal necessarily. But integer; computing for each i over all j is O(n^2).
+
+Convex hull approach for each i: For fixed i, we want max over j >= i+k of slope to (j, S_j). Consider the upper convex hull of points (j, S_j) for j > i. The max slope from (i,S_i) to points on the set is attained at the point where the line through (i,S_i) pivots. Since slope increases as we rotate line up... For fixed (i, S_i), the max slope to any point (j,S_j) with j >= i+k is attained at a vertex of the upper hull of points with j >= i+k, but hull changes with i. Could maintain as we sweep i? Complex due to k window.
+
+Simplest robust: binary search. Let's just optimize implementation. Number of iterations: instead of halving to 1/n^2, note initial width hi-lo <= max(a)+1-lo where lo = S_n/n >= 0. Width <= 1e9+1. Target width < 1/(n*n) = 1e-10. That's log2(1e19) ≈ 63. Hmm but we can stop earlier based on the distinctness argument differently: Once hi - lo < 1/(q*q')... we know denominators of achievable averages <= n; gap >= 1/n^2. So 63 iterations needed only to guarantee width < 1e-10. But we can alternatively stop when bracket contains exactly one candidate *witness* by computing the best witness in bracket? Since we have witnesses (subarrays with avg >= lo), maybe evaluate witness avgs each iteration — if all witnesses... no, a single witness avg equals A* iff bracket width < gap. We don't know gap; but we know any achievable avg in [lo, hi] with width < 1/n^2 is unique. So stop at width < 1/n^2. 63 iterations.
+
+Performance estimate: each iteration, feasible() loops j=0..n (1e5) plus inner "while added <= j-k" adds exactly one i per j on average. Operations: computing u_j = q*S_j - p*j: S_j is int up to 1e14, q is up to ~2^63? Let's track denominator growth: S_n/n has denom n=1e5 (<2^17). Mids: denom doubles each iteration: after i iterations denom ~ 2^17 * 2^i. After 63 iterations denom ~ 2^80. p = 1e9 * denom ~ 2^80 * 2^30 = 2^110. q*S_j: 2^80 * 2^47 = 2^127. That's a 127-bit integer — still small (2 machine words), arithmetic ~ fast (CPython small bigints). So each step few bigint ops. 6.3M steps with ~1us each => ~7s. Could be OK. But we can reduce iterations by better initial bracket:
+
+Set lo = max over i of prefix averages? Simplest lo = S_n/n (whole array). Could also set lo = max over all prefix-suffix... Let's just also compute the max average over all subarrays of length >= k... that's the problem itself. Use whole array as lo; fine.
+
+Alternative: reduce iterations using golden-ratio/Fibonacci? Not needed.
+
+Alternatively, smarter: we don't need width < 1/n^2. Because we have witness: after binary search, if we run iterations until lo equals some witness average? Hmm.
+
+Alternative final approach: after binary search to width < 1e-12 (like 40 iterations), the bracket [lo,hi] has at most one achievable average within... width 1e-12 < gap? No, gap could be as low as 1e-10. So no.
+
+OK let's just do ~63 iterations but optimize by reducing per-iteration cost: Only loop j from k to n (n iterations) — needed. The "added <= j-k" loop adds n+1 total. Actually total while-adds = n+1 per call. So each call ~2n iterations = 2e5, total 1.26e7. Hmm.
+
+Alternatively, maintain u_i in a list computed once per iteration (O(n)) then loop j. Fine.
+
+Alternative algorithm to reduce binary search iterations: use the structure — once lo is close to A*, we can compute witness and then verify/check? Not needed.
+
+Alternatively use numpy? Not allowed presumably (pure python). Keep it simple.
+
+Let me consider correctness of witness extraction: after loop, do one more feasible check with lo: returns witness subarray (i,j) with avg >= lo. But we need A* exactly, and witness avg = A* only if bracket < gap. Ensure width < 1/(n*n). With width < 1/n^2, bracket [lo,hi] contains at most one achievable average (all achievable averages are fractions with denominator <= n, distinct ones differ >= 1/n^2). Since A* in bracket and witness avg in bracket, witness avg = A*. Good. Note lo itself might not be achievable, doesn't matter.
+
+Edge: n < ... k <= n. Also bracket width check 1/(n*n): n=1e5 -> 1e-10. Good.
+
+Now reduce iterations: start lo=0? lo must be feasible (achievable or <= A*). 0 is <= A* (a>=0, average >=0). lo=0, hi=max(a)+1 <= 1e9+1. Width ~1e9, same as before. Whole array avg gives a better lo but same iteration count roughly (need ~63 reductions). Can't avoid; it's inherent (need log2(1e19)=63). Could reduce by using larger steps? We could do ternary search? Monotone predicate → binary is optimal. 63 iterations fine.
+
+Alternative: reduce to ~45 iterations by tightening bracket: lo = average of whole array, hi = max over valid subarrays of length >=k? can't compute quickly. Alternatively, hi = max(a) (infeasible if no length->=k run of max). Use hi = max(a) if feasible(max(a)) is False else hi = max(a)+1? If feasible(max(a)) true, then A* = max(a) exactly (since no average exceeds max(a)). Actually feasible(max(a)) means some subarray avg >= max(a), but avg <= max(a) always, so avg == max(a). Then A* = max(a) — directly answer. So: if feasible(max(a)): return Fraction(max(a)). Else hi = max(a) (infeasible). That still has width <= max(a) - lo <= 1e9, same.
+
+Iteration count: log2(1e9/1e-10) = log2(1e19) = 63. Fine.
+
+Actually, we can stop binary search when hi - lo < 1/(n*n). Fraction arithmetic: maintain lo and hi as Fraction. Use integers p,q for hi,lo? Represent lo as Fraction. mid = (lo+hi)//2 as Fraction = (lo_num*hi_den + hi_num*lo_den)/(2*lo_den*hi_den)... Fractions auto-reduce (gcd) — that adds cost but small denominators? Denominators double each iteration (after reduction, maybe keep smaller). Use fractions.Fraction; it computes gcd each time — potentially slow. Instead keep as tuple (num, den) without reduction: lo = (lnum, lden), hi = (hnum, hden). mid = (lnum*hden + hnum*lden, 2*lden*hden). No gcd. Manageable. feasible(p,q) uses p (mid numerator) and q. q grows: denominator doubles each iteration; 63 iterations => q ~ 2^63 * n? Let's see: lo initial = (S_n, n): num S_n (~1e14), den n (~1e5). mid denom = 2*lden*hden. Hmm, that's product of denominators which double each iteration — denominator grows doubly exponentially! Bad.
+
+Fix: normalize mids. Better to keep mids as Fraction with gcd reduction. Python Fraction auto-reduces. Denominator growth: after reduction maybe doesn't double. Let's think: lo=(S_n/n) denom n. mid1 = (S_n/n + (max+1))/2. Numerator = S_n*(max+1) + (max+1)*n... Actually Fraction handles it. Denominators could blow up to 2^63 after 63 iterations regardless; reduced fractions may reduce them though. It's fine with Fraction.
+
+Alternatively — and this might be better — binary search on a scaled integer x in fixed-point: We need final exact answer, but the *iteration* doesn
+=== CONTENT ===

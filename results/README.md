@@ -13,6 +13,8 @@ Path | what | produced by | read by. Cache (`cache/`, 15 MB) holds raw call tran
 - `2026-10-28-devin-function.jsonl` Devin function track (one repeat, free tier, no dollars) | devin runner | summarize, dataset
 - `2026-11-01-hetzner-function.jsonl` Hetzner streaming calibration (24 graded rows: two configs, one repeat on 12 problems; measured input/output tokens, free experimental tier with no published list price) | bench runner | summarize, dataset
 - `2026-11-01-hetzner-notes.json` operator-supplied gateway observation and service note; the first non-streaming attempt is not in the repo cache | operator run note | dataset (sourced prose; separate from measured streaming rows)
+- `2026-11-22-inkling-function.jsonl` Inkling 2 Mini (free local CPU model, llama.cpp b12600, IQ4_NL), p01-p15, one repeat, max_tokens 12288: the primary result; latency is not comparable with the API lanes | `results/inkling/runner.py` + `bench/inkling_export.py` | not on the page yet (listed unused in dataset.json)
+- `inkling-mini.md` readable results (aggregate, per-task time, tokens/s, memory, load) for that run and its labelled retries; `inkling/` holds the runner, the settings sources (`SETTINGS_NOTES.md`), the tuning log, the p01 attempt-1 record and raw model outputs (`raw-*`) | bench/inkling_export.py | humans
 - `2026-10-22b-trim.jsonl` Codex harness trim probe | [bench/trim_probe.py](https://github.com/chimera-defi/dispatchbench/blob/b9fc17b/bench/trim_probe.py) | summarize, dataset
 - `2026-10-22-pilot.jsonl`, `2026-10-22-pilot-agentic.jsonl` early pilot | bench runner | dataset, report appendix
 - `quality.jsonl`, `quality_meta.json` readability grades | quality step | report.quality_table

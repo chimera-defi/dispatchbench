@@ -1,0 +1,163 @@
+=== REASONING ===
+We need to solve this problem. Let me think carefully.
+
+We have a graph with n stops, edges with cost and zone (zone -1 or 0..Z-1 where Z = len(prices)).
+
+Stations: [stop, z]. At stop, can buy pass for zone z at price prices[z]. Once bought, every ride with that zone free for the rest of trip. Pass bought at most once. Multiple stations may list same zone? stations can contain [stop, z] pairs; buying pass at any listed stop of zone z.
+
+Goal: minimum total cost from stop 0 to stop n-1.
+
+Z <= 4, n <= 2000, edges <= 10000.
+
+State: (node, mask of bought passes). mask bits for zones bought. Dijkstra over (node, mask) where mask in 0..(2^Z -1). Initial: at stop 0, no passes bought. When at node with mask, for each station [s, z] at node with z not in mask, we can buy pass z: cost prices[z], mask | bit. Also take edges: cost reduced (0 if zone bought). Dijkstra with up to n * 2^Z = 2000 * 16 = 32000 nodes, edges each up to... fine.
+
+But careful: buying a pass at a stop—can buy only once, and "while standing at a stop listed in stations". So the decision is made when at that stop. In Dijkstra, when we pop (node, mask) with cost d, we can:
+- If node has stations, for each (stop, z) with stop == node and z not in mask: relax (node, mask|bit) with d + prices[z].
+- For each edge (node, next, cost, zone): effective cost = 0 if zone != -1 and (mask >> zone) & 1 else cost. relax (next, mask) with d + effective.
+
+Actually the buying can also be done at start (stop 0 might have a station). Yes, the pop handles that.
+
+Initial distance: (0, 0) = 0. But also, buying pass at stop 0: handled by pop loop.
+
+Answer: min over mask of dist[(n-1, mask)]. If unreachable, -1.
+
+Edge case: zone -1 rides never free. Multiple stations same stop same zone—just process each; buying twice is prevented.
+
+Dijkstra with dist dict and heap. Complexity: 32000 states, each edge relax. Use adjacency list.
+
+Number of masks: len(prices) <= 4, so 2^4 = 16.
+
+Implementation:
+
+```python
+import heapq
+
+def pass_route(n, edges, stations, prices):
+    Z = len(prices)
+    adj = [[] for _ in range(n)]
+    for u, v, c, zone in edges:
+        adj[u].append((v, c, zone))
+        adj[v].append((u, c, zone))
+    stations_by_stop = {}
+    for stop, z in stations:
+        stations_by_stop.setdefault(stop, []).append(z)
+    
+    from heapq import heappush, heappop
+    INF = float('inf')
+    max_mask = (1 << Z) - 1
+    dist = {}
+    dist[(0, 0)] = 0
+    pq = [(0, 0, 0)]
+    best = INF
+    # We'll track answer as we pop final node.
+    while pq:
+        d, node, mask = heappop(pq)
+        if d > dist.get((node, mask), INF):
+            continue
+        if node == n - 1:
+            # first time popping node n-1 gives min? Dijkstra pops in increasing order, so d is minimal over all masks? Not exactly—pop order is increasing d globally, so first pop of any (n-1, mask) gives the global minimum.
+            return d
+        # buy passes
+        for z in stations_by_stop.get(node, ()):
+            bit = 1 << z
+            if not (mask & bit):
+                m2 = mask | bit
+                nd = d + prices[z]
+                if nd < dist.get((node, m2), INF):
+                    dist[(node, m2)] = nd
+                    heappush(pq, (nd, node, m2))
+        for nb, c, zone in adj[node]:
+            if zone != -1 and (mask >> zone) & 1:
+                eff = 0
+            else:
+                eff = c
+            nd = d + eff
+            if nd < dist.get((nb, mask), INF):
+                dist[(nb, mask)] = nd
+                heappush(pq, (nd, nb, mask))
+    return -1
+```
+
+Wait: returning d at first pop of node n-1—since Dijkstra processes in order of increasing distance, the first time we pop any state with node == n-1, d is the smallest total cost. Correct, because every pop is a global min over unsettled states. Yes.
+
+But there's subtlety: buying pass should possibly be done before a ride, and could be done multiple times along path? Only once per zone. Handled by mask.
+
+Also can buy pass at stop and then ride, etc. Fine.
+
+One consideration: distances equal zero (cost 0 edges, price 0). Dijkstra works with nonneg weights.
+
+Potential issue: stations at node with mask already containing zone: skip.
+
+Note initial state (0, 0) where buying at stop 0 is handled on pop. Good.
+
+The problem statement says return -1 if cannot reach. The while loop ends with -1.
+
+Answer format: just code block.
+
+Let me check example: n=4, edges..., stations [[1,0]], prices [30]. From 0 -> 1 cost 5, pop (0,0) d=0: stations none (stop 0? no). edges: (1,5,-1), (3,250,-1). push (1,0)=5, (3,0)=250. pop (1,0) d=5: station z=0, buy: (1, mask=1) = 35. edge 1->2 cost 100 zone 0: mask 0 no: push (2,0)=105. pop (3,0) d=250: node 3 is target -> return 250? Wait, pop order: heap contains (5,1,0),(250,3,0). Pop (1,0) d=5 first. Then push (2,0)=105, and (1,1)=35. Pop (1,1) d=35: station already bought (skip), edge 1->2 zone 0 mask has bit -> eff 0: push (2,1)=35. Pop (2,0) d=105: mask 0, edge 2->3 cost 100 zone 0: push (3,0)=205? 105+100=205 < 250, so dist[(3,0)]=205, push (3,0)=205. Pop (2,1) d=35: edge 2->3 zone 0, mask has bit -> push (3,1)=35. Pop (3,0) d=205: node==3 -> return 205? Wait but we also have (3,1)=35 in queue. Heap order: (35,2,1) popped before? Let's re-order: after popping (1,0): heap = [(250,3,0), (105,2,0), (35,1,1)]. Pop (35,1,1): push (2,1)=35. Heap = [(250,3,0),(105,2,0),(35,2,1)]. Pop (35,2,1): edge 2->3 free: push (3,1)=35. Heap = [(250,3,0),(105,2,0),(35,3,1)]. Pop (35,3,1): node == 3 -> return 35. 
+
+But wait, before that, did we pop (105,2,0)? Heap ordering by d: (35,...) < (105,...) so no. Good, returns 35.
+
+Note the early return when popping target is valid since Dijkstra guarantees first pop of target across all masks is minimal.
+
+Hmm, but is it? Pop (35,3,1) before (105,2,0) — yes because heap sorted by d. First target pop is (35,3,1). Correct.
+
+Now the "if node == n-1: return d" optimization—fine.
+
+But subtle: the same (node, mask) may be in heap with stale larger distance; we skip via check. Good.
+
+Complexity fine.
+
+One more consideration: stations might list zone that's already in prices; z in 0..len(prices)-1 guaranteed presumably.
+
+Also we could potentially buy pass multiple times at different stops; allowed (pass at most once per zone — "A pass can be bought at most once" — meaning each pass type at most once). Mask handles it.
+
+Let me write the final code cleanly.
+
+Need to use `list[list[int]]` type hints. Python 3.9+ fine.
+
+Final answer: only code block.
+=== CONTENT ===
+```python
+import heapq
+
+def pass_route(n: int, edges: list[list[int]], stations: list[list[int]], prices: list[int]) -> int:
+    Z = len(prices)
+    adj = [[] for _ in range(n)]
+    for u, v, c, zone in edges:
+        adj[u].append((v, c, zone))
+        adj[v].append((u, c, zone))
+
+    stations_by_stop = {}
+    for stop, z in stations:
+        stations_by_stop.setdefault(stop, []).append(z)
+
+    INF = float('inf')
+    dist = {(0, 0): 0}
+    pq = [(0, 0, 0)]  # (cost, node, mask)
+
+    while pq:
+        d, node, mask = heapq.heappop(pq)
+        if d > dist.get((node, mask), INF):
+            continue
+        if node == n - 1:
+            return d
+
+        for z in stations_by_stop.get(node, ()):
+            bit = 1 << z
+            if not (mask & bit):
+                m2 = mask | bit
+                nd = d + prices[z]
+                if nd < dist.get((node, m2), INF):
+                    dist[(node, m2)] = nd
+                    heapq.heappush(pq, (nd, node, m2))
+
+        for nb, c, zone in adj[node]:
+            eff = 0 if (zone != -1 and (mask >> zone) & 1) else c
+            nd = d + eff
+            if nd < dist.get((nb, mask), INF):
+                dist[(nb, mask)] = nd
+                heapq.heappush(pq, (nd, nb, mask))
+
+    return -1
+```
