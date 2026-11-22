@@ -293,7 +293,7 @@ def rung_chart(s, ds=None):
     by = {r["config"]: r["by_rung"] for r in ds["rows"] if r["source"] == "main" and r["set"] == "main ladder"}
     cfg = {c: {g: tuple(v) for g, v in by[c].items()} for c in keep}
     for r in ds["rows"]:  # free-tier exploratory lanes: one repeat, shown for pass rates, never for $
-        if r["source"] == "main" and r["set"] in ("partial ladder", "calibration") and r["config"] in configs.FREE_TIER_CONFIGS:
+        if r["source"] == "main" and r["set"] in ("partial ladder", "calibration") and r["config"] in configs.FREE_TIER_CONFIGS and r["config"] not in configs.INKLING_CONFIGS:  # Inkling ran p01–p15, shown in its own section
             cfg[r["config"]] = {g: tuple(v) for g, v in r["by_rung"].items()}
     rungs = sorted({g for r in cfg.values() for g in r}, key=lambda g: int(g[1:]))
     names = sorted(cfg, key=lambda c: ORDER.index(c) if c in ORDER else len(ORDER))  # Devin last: it is not in ORDER

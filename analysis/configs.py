@@ -44,7 +44,8 @@ NOTATION = {
 
 SOURCES = {  # source id -> files under results/ that hold its rows
     "main": ["2026-10-22b-function.jsonl", "2026-10-26-grok-function.jsonl", "2026-10-28-grok-spectrum-function.jsonl",
-             "2026-10-28-terra-function.jsonl", "2026-10-28-devin-function.jsonl", "2026-11-01-hetzner-function.jsonl", "2026-11-02-terra-priority-function.jsonl", "2026-11-02-terra-l7-fast-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
+             "2026-10-28-terra-function.jsonl", "2026-10-28-devin-function.jsonl", "2026-11-01-hetzner-function.jsonl", "2026-11-02-terra-priority-function.jsonl", "2026-11-02-terra-l7-fast-function.jsonl",
+             "2026-11-22-inkling-function.jsonl", "2026-11-22-inkling-retry-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
     "rescue": ["appendix/luna_rescue.jsonl"], "pilot": ["2026-10-22-pilot.jsonl"], "pilot-agentic": ["2026-10-22-pilot-agentic.jsonl"],
     "harness-bias": ["appendix/harness_bias.jsonl", "appendix/codex_harness.jsonl"]}  # the last two land with the codex-own-harness branch
 CATEGORIES = ["main ladder", "exploratory", "fast mode and xhigh", "rescue pipeline", "repo tasks", "trim", "pilot", "harness-bias", "low context"]
@@ -85,7 +86,15 @@ add("main", "exploratory", *((c,
     "Hetzner " + model + "; OpenAI-compatible streaming API, measured input/output tokens; free experimental tier, no published list price; "
     "exploratory calibration, function track p01–p12, 1 repeat (2026-11-01)")
     for c, model in zip(HETZNER_CONFIGS, ("Qwen/Qwen3.6-35B-A3B-FP8", "Qwen/Qwen3.8-27B"))))
-FREE_TIER_CONFIGS = DEVIN_CONFIGS + HETZNER_CONFIGS  # no published $ comparison: off all $ charts, Winner and frontier
+INKLING_CONFIGS = ("inkling2mini-default", "inkling2mini-medium16k", "inkling2mini-low16k", "inkling2mini-default24k")
+INKLING_RUNS = {c: w for c, w in zip(INKLING_CONFIGS, (
+    "Inkling 2 Mini IQ4_NL GGUF, default effort, 12288-token cap: the frozen primary run on p01–p15",
+    "same model, medium effort, 16384-token cap: secondary retry of the tasks the primary run left capped",
+    "same model, low effort, 16384-token cap: secondary retry of the tasks still capped",
+    "same model, default effort, 24576-token cap: secondary retry of the tasks still capped"))}
+add("main", "exploratory", *((c, "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, "
+    + INKLING_RUNS[c]) for c in INKLING_CONFIGS))
+FREE_TIER_CONFIGS = DEVIN_CONFIGS + HETZNER_CONFIGS + INKLING_CONFIGS  # no published $ comparison: off all $ charts, Winner and frontier
 CHART_HIDDEN = CHART_HIDDEN + FREE_TIER_CONFIGS
 HETZNER_NOTE = "exploratory calibration, 1 repeat, free tier, measured tokens"
 DEVIN_NOTE = "1 repeat, free tier, no token data"
@@ -192,6 +201,7 @@ def family(name):
     if name.startswith("grok"): return "Grok"
     if name.startswith("devin"): return "Devin"
     if name.startswith("hetzner"): return "Hetzner"
+    if name.startswith("inkling"): return "Inkling"
     return "Claude" if name.split("-")[0] in ("haiku", "sonnet") or name.startswith("pipeline C") else "Codex"
 
 

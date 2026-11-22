@@ -101,6 +101,8 @@ def _rows(include_grok_repo=False):
         add("main", c, st, r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
         if c not in configs.GROK_CONFIGS and r["problem"] in PIDS and r["phase"] in ("main", "exploratory", "fastmode") and r["repeat"] <= REPEATS:  # the same rows again, as the rescue-set baseline
             add("main", c, "rescue set", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
+    for r in summarize.inkling_rows():  # free local CPU lane: p01–p15, outside the ladder statistics, listed as partial-ladder rows
+        add("main", r["config"], "partial ladder", r, r["passed"], r["wall_s"], r["problem"], None, r["in_tok"], r["out_tok"])
     for r in summarize.agentic_rows():
         done = bool(r.get("task_complete", r["visible_pass"] and r["hidden_pass"]))  # the headline repo-task rule: hidden and the run's own visible suite both green
         add("agentic", r["config"], "repo tasks", r, done, r["wall_s"], r["task"], _usd(r, "agentic"), r["in_tok"], r["out_tok"], tc=done, hid=bool(r["hidden_pass"]))
@@ -179,7 +181,7 @@ def _row(src, name, st, rr):
             "usd_saved_per_pass": round((spend - sc - sg) / k, 6) if k and complete else None,
             "usd_per_1k_tokens": (1000 * round(spend / n, 6) / (round(statistics.mean(x["in"] or 0 for x in rr)) + round(statistics.mean(x["out"] or 0 for x in rr)))) if complete and any((x["in"] or 0) + (x["out"] or 0) for x in rr) else None,
             **_rule_fields(src, rr),
-            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "free-tier" if rr[0]["cli"] == "hetzner" else "unmetered" if rr[0]["cli"] == "devin" else "measured" if summarize.measured(rr[0]) else "proxy"}
+            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "free-tier" if rr[0]["cli"] in ("hetzner", "llama.cpp") else "unmetered" if rr[0]["cli"] == "devin" else "measured" if summarize.measured(rr[0]) else "proxy"}
 
 
 def _base():
@@ -439,7 +441,7 @@ def _facts(s, arms):
     # Models and versions: one CLI version per vendor across the function track.
     by_cli = defaultdict(set)
     for r in rows:
-        if r["config"] not in configs.GROK_CONFIGS and not r["config"].startswith("terra") and r["cli"] not in ("devin", "hetzner"): by_cli[r["cli"], r["cli_version"]].add(r["model"])
+        if r["config"] not in configs.GROK_CONFIGS and not r["config"].startswith("terra") and r["cli"] not in ("devin", "hetzner", "llama.cpp"): by_cli[r["cli"], r["cli_version"]].add(r["model"])
     need(len({cli for cli, _ in by_cli}) == len(by_cli) == 2, "one CLI version per vendor")
     vers = dict(by_cli)
     F["versions_claude"] = next(f"Main bench, Claude Code {v}: {', '.join(sorted(m))}." for (c, v), m in vers.items() if c == "claude")
@@ -1821,6 +1823,7 @@ def build(summary=None):
         [[r["display"], r["what"]] for r in catalog_rows(ds) if r["config"] in configs.GROK_CONFIGS])
     _devin(ds, s)
     _hetzner(ds, s)
+    _inkling(ds, s)
     _equivalents(ds)
     _interesting(ds)
     method_appendix(ds)
@@ -1932,6 +1935,36 @@ def _hetzner(ds, s):
     ds["tables"]["hetzner_summary"] = md_table(["config", "model", f"pass n/{len(s['problems'])}", "median wall s", "output tokens (total)"], table)
 
 
+def _inkling(ds, s):
+    """Inkling 2 Mini on a local CPU: the frozen primary run and the labelled retry ladder, each a separate fact; every number comes from the rows."""
+    F, k = ds["facts"], s["inkling"]
+    p, st, lad = k["primary"], k["stages"], k["ladder"]
+    need(k["n"] == 15 and [x["config"] for x in st] == list(configs.INKLING_CONFIGS[1:]), "Inkling: 15 tasks and the three retry stages in ladder order")
+    need(all(not p["tasks"][t]["passed"] and p["tasks"][t]["finish_reason"] == "length" for x in st[:1] for t in x["tasks"]),
+         "Inkling: the first retry stage holds only tasks the primary run left at its token cap")
+    hours = lambda sec: f"{sec / 3600:.2f} h"
+    F["inkling_name"] = "Inkling 2 Mini"
+    F["inkling_primary"] = f"{p['passes']}/{k['n']}"
+    F["inkling_ladder"] = f"{lad['passes']}/{k['n']}"
+    F["inkling_cap"] = n(p["max_tokens"])
+    F["inkling_primary_wall"] = hours(p["wall_s"])
+    F["inkling_retry_wall"] = hours(lad["wall_s"] - p["wall_s"])
+    F["inkling_total_wall"] = hours(lad["wall_s"])
+    F["inkling_stage_line"] = "; ".join(f"{x['effort']} effort at {n(x['max_tokens'])} tokens passed {x['passes']}/{x['n']}" for x in st)
+    F["inkling_lead"] = (f"{F['inkling_name']} ({p['model']}, llama.cpp {p['cli_version']}) ran on this host's CPU, so it costs nothing and has no list price. "
+                         f"Primary result: {F['inkling_primary']} on p01–p{k['n']} at default effort with a {F['inkling_cap']}-token cap, frozen before the full run, {F['inkling_primary_wall']} of wall time. "
+                         f"Secondary result, labelled as a retry ladder: {F['inkling_ladder']} after re-running the tasks the cap cut off ({F['inkling_stage_line']}), {F['inkling_retry_wall']} more wall time.")
+    F["inkling_scope"] = ("Latency is not comparable with the API lanes: this is one local CPU, one call at a time, with other work sometimes running on the host. "
+                          "The ladder numbers are not the primary result because the retry settings were chosen after seeing which tasks hit the cap. Off dollar charts, the Winner and the frontier.")
+    short = lambda t: t.split("_")[0]
+    rows = []
+    for t, v in p["tasks"].items():
+        later = [(x["effort"], x["max_tokens"], x["tasks"][t]) for x in st if t in x["tasks"]]
+        retry = " → ".join(f"{e} @ {n(m)}: {r['outcome']}" for e, m, r in later) or "–"
+        rows.append([short(t), "pass" if v["passed"] else v["outcome"], f"{v['wall_s'] / 60:.1f}", retry, "pass" if lad["tasks"][t] else "fail"])
+    ds["tables"]["inkling_summary"] = md_table(["task", f"primary ({F['inkling_cap']} cap)", "primary minutes", "retry stages", "ladder"], rows)
+
+
 def view(ds):
     """Cached report-shaped projections of the canonical config/set rows."""
     return {**ds["report"], "rescue": ds["rescue"], "facts": ds["facts"], "explorer": ds["explorer"]}
@@ -1945,6 +1978,7 @@ FACT_SOURCES = (
     ("d_", None), ("t1v2_", "results/2026-10-28-t1-hidden-v2-regrade.jsonl (bench/regrade_t1.py)"), ("audit_", "audit session forensics (stage2b/FORENSICS.md), pending results/annotations.json"),
     ("grok_cli_", "results/*grok*.jsonl, CLI-reported cost"), ("ag_", "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"),
     ("grok_", "results/2026-10-26-grok-function.jsonl + results/2026-10-28-grok-spectrum-function.jsonl + results/2026-10-27-grok-agentic.jsonl"),
+    ("inkling_", "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"),
     ("hetzner_gateway_", "results/2026-11-01-hetzner-notes.json (operator observation; first-attempt rows not cached)"),
     ("hetzner_", "results/2026-11-01-hetzner-function.jsonl + results/2026-11-01-hetzner-notes.json; main-grid comparisons: results/2026-10-22b-function.jsonl"),
     ("devin_", "results/2026-10-28-devin-function.jsonl"), ("fm_", "rows main/*-fast and their default-tier twins (results/2026-10-22b-function.jsonl)"),

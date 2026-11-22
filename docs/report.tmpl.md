@@ -137,6 +137,14 @@ Endpoint: {{hetzner_endpoint}} (OpenAI-compatible). {{hetzner_lead}}
 
 {{hetzner_verdict}}
 
+## {{inkling_name}} on a local CPU (exploratory)
+
+{{inkling_lead}}
+
+{{table:inkling_summary}}
+
+{{inkling_scope}} Primary: {{inkling_primary}} (frozen settings). Retry ladder, secondary: {{inkling_ladder}}. Total wall time {{inkling_total_wall}}.
+
 ## Code quality
 
 Pass/fail stays the headline. These columns describe the passing solutions only, measured by `make quality` with no model calls; every solution is on disk under [results/solutions/](results/solutions/README.md) ({{n_solutions}} files, one table per problem with links), so each number can be checked by hand. The factors and how they are measured are in PLAN.md (deviation 17). None of them is folded into a single score.
