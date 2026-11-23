@@ -139,11 +139,24 @@ Endpoint: {{hetzner_endpoint}} (OpenAI-compatible). {{hetzner_lead}}
 
 ## {{inkling_name}} on a local CPU (exploratory)
 
-{{inkling_lead}}
+{{inkling_for}}
+
+{{inkling_answer}}
+
+- {{inkling_b1}}
+- {{inkling_b2}}
+- {{inkling_b3}}
 
 {{table:inkling_summary}}
 
-{{inkling_scope}} Primary: {{inkling_primary}} (frozen settings). Retry ladder, secondary: {{inkling_ladder}}. Total wall time {{inkling_total_wall}}.
+- {{inkling_model}}
+- {{inkling_settings}}
+- {{inkling_stage_a}}
+- {{inkling_stage_b}}
+- {{inkling_stage_c}}
+- {{inkling_retry_time}}
+- {{inkling_caveat}}
+- {{inkling_host}}
 
 ## Code quality
 
