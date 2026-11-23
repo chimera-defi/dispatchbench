@@ -39258,22 +39258,82 @@
    "display": "20.08 h",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
-  "inkling_stage_line": {
-   "value": "medium effort at 16,384 tokens passed 5/8; low effort at 16,384 tokens passed 0/2; default effort at 24,576 tokens passed 1/1",
+  "inkling_stage_a": {
+   "value": "Medium effort at 16,384 tokens passed 5/8.",
    "unit": "text",
-   "display": "medium effort at 16,384 tokens passed 5/8; low effort at 16,384 tokens passed 0/2; default effort at 24,576 tokens passed 1/1",
+   "display": "Medium effort at 16,384 tokens passed 5/8.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
-  "inkling_lead": {
-   "value": "Inkling 2 Mini (Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600) ran on this host's CPU, so it costs nothing and has no list price. Primary result: 7/15 on p01–p15 at default effort with a 12,288-token cap, frozen before the full run, 9.01 h of wall time. Secondary result, labelled as a retry ladder: 13/15 after re-running the tasks the cap cut off (medium effort at 16,384 tokens passed 5/8; low effort at 16,384 tokens passed 0/2; default effort at 24,576 tokens passed 1/1), 11.07 h more wall time.",
+  "inkling_stage_b": {
+   "value": "Low effort at 16,384 tokens passed 0/2.",
    "unit": "text",
-   "display": "Inkling 2 Mini (Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600) ran on this host's CPU, so it costs nothing and has no list price. Primary result: 7/15 on p01–p15 at default effort with a 12,288-token cap, frozen before the full run, 9.01 h of wall time. Secondary result, labelled as a retry ladder: 13/15 after re-running the tasks the cap cut off (medium effort at 16,384 tokens passed 5/8; low effort at 16,384 tokens passed 0/2; default effort at 24,576 tokens passed 1/1), 11.07 h more wall time.",
+   "display": "Low effort at 16,384 tokens passed 0/2.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
-  "inkling_scope": {
-   "value": "Latency is not comparable with the API lanes: this is one local CPU, one call at a time, with other work sometimes running on the host. The ladder numbers are not the primary result because the retry settings were chosen after seeing which tasks hit the cap. Off dollar charts, the Winner and the frontier.",
+  "inkling_stage_c": {
+   "value": "Default effort at 24,576 tokens passed 1/1.",
    "unit": "text",
-   "display": "Latency is not comparable with the API lanes: this is one local CPU, one call at a time, with other work sometimes running on the host. The ladder numbers are not the primary result because the retry settings were chosen after seeing which tasks hit the cap. Off dollar charts, the Winner and the frontier.",
+   "display": "Default effort at 24,576 tokens passed 1/1.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_for": {
+   "value": "For anyone weighing a free local model for coding tasks.",
+   "unit": "text",
+   "display": "For anyone weighing a free local model for coding tasks.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_answer": {
+   "value": "The frozen run passed 7/15, the retry ladder 13/15, on a free local CPU, so latency is not comparable.",
+   "unit": "text",
+   "display": "The frozen run passed 7/15, the retry ladder 13/15, on a free local CPU, so latency is not comparable.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_b1": {
+   "value": "Primary, frozen before the full run: 7/15, in 9.01 h.",
+   "unit": "text",
+   "display": "Primary, frozen before the full run: 7/15, in 9.01 h.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_b2": {
+   "value": "Retry ladder, secondary: 13/15 after re-running the tasks the cap cut off.",
+   "unit": "text",
+   "display": "Retry ladder, secondary: 13/15 after re-running the tasks the cap cut off.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_b3": {
+   "value": "Latency is not comparable with API lanes: one local CPU, one call at a time.",
+   "unit": "text",
+   "display": "Latency is not comparable with API lanes: one local CPU, one call at a time.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_model": {
+   "value": "Model: Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600, on this host's CPU. It has no list price.",
+   "unit": "text",
+   "display": "Model: Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600, on this host's CPU. It has no list price.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_settings": {
+   "value": "Primary settings: tasks p01–p15, default effort, 12,288-token cap.",
+   "unit": "text",
+   "display": "Primary settings: tasks p01–p15, default effort, 12,288-token cap.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_retry_time": {
+   "value": "The retry added 11.07 h, 20.08 h in all.",
+   "unit": "text",
+   "display": "The retry added 11.07 h, 20.08 h in all.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_caveat": {
+   "value": "The retry settings were chosen after seeing which tasks hit the cap.",
+   "unit": "text",
+   "display": "The retry settings were chosen after seeing which tasks hit the cap.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_host": {
+   "value": "Other work sometimes ran on the host. Off dollar charts, the Winner and the frontier.",
+   "unit": "text",
+   "display": "Other work sometimes ran on the host. Off dollar charts, the Winner and the frontier.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "equiv_fastest": {

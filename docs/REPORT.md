@@ -354,7 +354,13 @@ Verdict: usable but slow, below the Claude and Codex sol61 middle tiers. Qwen3.8
 
 ## Inkling 2 Mini on a local CPU (exploratory)
 
-Inkling 2 Mini (Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600) ran on this host's CPU, so it costs nothing and has no list price. Primary result: 7/15 on p01–p15 at default effort with a 12,288-token cap, frozen before the full run, 9.01 h of wall time. Secondary result, labelled as a retry ladder: 13/15 after re-running the tasks the cap cut off (medium effort at 16,384 tokens passed 5/8; low effort at 16,384 tokens passed 0/2; default effort at 24,576 tokens passed 1/1), 11.07 h more wall time.
+For anyone weighing a free local model for coding tasks.
+
+The frozen run passed 7/15, the retry ladder 13/15, on a free local CPU, so latency is not comparable.
+
+- Primary, frozen before the full run: 7/15, in 9.01 h.
+- Retry ladder, secondary: 13/15 after re-running the tasks the cap cut off.
+- Latency is not comparable with API lanes: one local CPU, one call at a time.
 
 | task | primary (12,288 cap) | primary minutes | retry stages | ladder |
 |---|---|---|---|---|
@@ -374,7 +380,14 @@ Inkling 2 Mini (Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600) ran on this host's
 | p14 | no_code | 48.2 | medium @ 16,384: pass | pass |
 | p15 | no_code | 91.6 | medium @ 16,384: wrong | fail |
 
-Latency is not comparable with the API lanes: this is one local CPU, one call at a time, with other work sometimes running on the host. The ladder numbers are not the primary result because the retry settings were chosen after seeing which tasks hit the cap. Off dollar charts, the Winner and the frontier. Primary: 7/15 (frozen settings). Retry ladder, secondary: 13/15. Total wall time 20.08 h.
+- Model: Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600, on this host's CPU. It has no list price.
+- Primary settings: tasks p01–p15, default effort, 12,288-token cap.
+- Medium effort at 16,384 tokens passed 5/8.
+- Low effort at 16,384 tokens passed 0/2.
+- Default effort at 24,576 tokens passed 1/1.
+- The retry added 11.07 h, 20.08 h in all.
+- The retry settings were chosen after seeing which tasks hit the cap.
+- Other work sometimes ran on the host. Off dollar charts, the Winner and the frontier.
 
 ## Code quality
 

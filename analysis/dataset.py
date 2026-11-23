@@ -1951,12 +1951,19 @@ def _inkling(ds, s):
     F["inkling_primary_wall"] = hours(p["wall_s"])
     F["inkling_retry_wall"] = hours(lad["wall_s"] - p["wall_s"])
     F["inkling_total_wall"] = hours(lad["wall_s"])
-    F["inkling_stage_line"] = "; ".join(f"{x['effort']} effort at {n(x['max_tokens'])} tokens passed {x['passes']}/{x['n']}" for x in st)
-    F["inkling_lead"] = (f"{F['inkling_name']} ({p['model']}, llama.cpp {p['cli_version']}) ran on this host's CPU, so it costs nothing and has no list price. "
-                         f"Primary result: {F['inkling_primary']} on p01–p{k['n']} at default effort with a {F['inkling_cap']}-token cap, frozen before the full run, {F['inkling_primary_wall']} of wall time. "
-                         f"Secondary result, labelled as a retry ladder: {F['inkling_ladder']} after re-running the tasks the cap cut off ({F['inkling_stage_line']}), {F['inkling_retry_wall']} more wall time.")
-    F["inkling_scope"] = ("Latency is not comparable with the API lanes: this is one local CPU, one call at a time, with other work sometimes running on the host. "
-                          "The ladder numbers are not the primary result because the retry settings were chosen after seeing which tasks hit the cap. Off dollar charts, the Winner and the frontier.")
+    stage = lambda x: f"{x['effort'].capitalize()} effort at {n(x['max_tokens'])} tokens passed {x['passes']}/{x['n']}."
+    need(len(st) == 3, "Inkling: three retry stages")
+    F["inkling_stage_a"], F["inkling_stage_b"], F["inkling_stage_c"] = (stage(x) for x in st)
+    F["inkling_for"] = "For anyone weighing a free local model for coding tasks."
+    F["inkling_answer"] = f"The frozen run passed {F['inkling_primary']}, the retry ladder {F['inkling_ladder']}, on a free local CPU, so latency is not comparable."
+    F["inkling_b1"] = f"Primary, frozen before the full run: {F['inkling_primary']}, in {F['inkling_primary_wall']}."
+    F["inkling_b2"] = f"Retry ladder, secondary: {F['inkling_ladder']} after re-running the tasks the cap cut off."
+    F["inkling_b3"] = "Latency is not comparable with API lanes: one local CPU, one call at a time."
+    F["inkling_model"] = f"Model: {p['model']}, llama.cpp {p['cli_version']}, on this host's CPU. It has no list price."
+    F["inkling_settings"] = f"Primary settings: tasks p01–p{k['n']}, default effort, {F['inkling_cap']}-token cap."
+    F["inkling_retry_time"] = f"The retry added {F['inkling_retry_wall']}, {F['inkling_total_wall']} in all."
+    F["inkling_caveat"] = "The retry settings were chosen after seeing which tasks hit the cap."
+    F["inkling_host"] = "Other work sometimes ran on the host. Off dollar charts, the Winner and the frontier."
     short = lambda t: t.split("_")[0]
     rows = []
     for t, v in p["tasks"].items():

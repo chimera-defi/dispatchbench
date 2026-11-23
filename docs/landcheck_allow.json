@@ -9,6 +9,16 @@
   },
   "groups": {},
   "removals": {
-    "page text: LeetCode-style problems, written fresh for this bench. All calls ran 2026-10-22 to 2026-11-02.": "The run-date line now spans the Inkling runs (2026-11-22), which the date calculation previously skipped."
+    "page text: LeetCode-style problems, written fresh for this bench. All calls ran 2026-10-22 to 2026-11-02.": "The run-date line now spans the Inkling runs (2026-11-22), which the date calculation previously skipped.",
+    "page text: Inkling 2 Mini (Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600) ran on this host's CPU, so it costs nothing and has no list price. Primary result: 7/15 on p01–p15 at default effort with a 12,288-token cap, frozen before the full run, 9.01 h of wall time. Secondary result, labelled as a retry ladder: 13/15 after re-running the tasks the cap cut off (medium effort at 16,384 tokens passed 5/8; low effort at 16,384 tokens passed 0/2; default effort at 24,576 tokens passed 1/1), 11.07 h more wall time.": "The Inkling section was rewritten to open with who it is for and the answer (Wren Shape rules); the old paragraph and bullets are now split across the lede, three bullets and a details block, with every number kept.",
+    "page text: Latency is not comparable with the API lanes: this is one local CPU, one call at a time, with other work sometimes running on the host. The ladder numbers are not the primary result because the retry settings were chosen after seeing which tasks hit the cap. Off dollar charts, the Winner and the frontier.": "The Inkling section was rewritten to open with who it is for and the answer (Wren Shape rules); the old paragraph and bullets are now split across the lede, three bullets and a details block, with every number kept.",
+    "page text: Primary: 7/15 (frozen settings). Retry ladder, secondary: 13/15. Total wall time 20.08 h.": "The Inkling section was rewritten to open with who it is for and the answer (Wren Shape rules); the old paragraph and bullets are now split across the lede, three bullets and a details block, with every number kept."
+  },
+  "dropped_facts": {
+    "inkling_lead": "Replaced by the split facts inkling_for, inkling_answer, inkling_b1 to inkling_b3 and inkling_model (Shape rewrite); no number dropped.",
+    "inkling_scope": "Replaced by inkling_b3, inkling_caveat and inkling_host (Shape rewrite); no claim dropped.",
+    "inkling_primary": "Its value (7/15) is now composed into inkling_answer and inkling_b1 rather than cited as its own template fact.",
+    "inkling_ladder": "Its value (13/15) is now composed into inkling_answer and inkling_b2 rather than cited as its own template fact.",
+    "inkling_total_wall": "Its value (20.08 h) is now composed into inkling_retry_time rather than cited as its own template fact."
   }
 }

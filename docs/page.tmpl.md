@@ -158,12 +158,26 @@
 <li>{{hetzner_verdict}}</li>
 </ul>
 <h3 id="inkling">{{inkling_name}} on a local CPU</h3>
-<p>{{inkling_lead}}</p>
+<p>{{inkling_for}}</p>
+<p>{{inkling_answer}}</p>
+<ul class="tight">
+<li>{{inkling_b1}}</li>
+<li>{{inkling_b2}}</li>
+<li>{{inkling_b3}}</li>
+</ul>
+<details><summary>Per-task results and run details</summary>
 {{table:inkling_summary}}
 <ul class="tight small">
-<li>{{inkling_scope}}</li>
-<li>Primary: {{inkling_primary}} (frozen settings). Retry ladder, secondary: {{inkling_ladder}}. Total wall time {{inkling_total_wall}}.</li>
+<li>{{inkling_model}}</li>
+<li>{{inkling_settings}}</li>
+<li>{{inkling_stage_a}}</li>
+<li>{{inkling_stage_b}}</li>
+<li>{{inkling_stage_c}}</li>
+<li>{{inkling_retry_time}}</li>
+<li>{{inkling_caveat}}</li>
+<li>{{inkling_host}}</li>
 </ul>
+</details>
 </section>
 <section class="extras" id="extras">
 <h2><span class="num"></span>Other measures</h2>
