@@ -121,6 +121,8 @@
 "inkling_host",
 "inkling_model",
 "inkling_name",
+"inkling_pp_ladder",
+"inkling_pp_primary",
 "inkling_price",
 "inkling_price_pp",
 "inkling_retry_time",

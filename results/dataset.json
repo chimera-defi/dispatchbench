@@ -8225,11 +8225,11 @@
    "groups": 15,
    "usd_per_pass": 0.128738,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.128738,
+   "codex_usd_per_pass": 0.0,
    "usd_per_call": 0.060078,
    "spend": 0.901163,
    "spend_claude": 0.0,
-   "spend_codex": 0.901163,
+   "spend_codex": 0.0,
    "unknown_usd": 0,
    "median_s_raw": 2881.2752949399874,
    "median_s": 2881.28,
@@ -8312,7 +8312,7 @@
     0.2,
     0.7333
    ],
-   "usd_saved_per_pass": 0.128738,
+   "usd_saved_per_pass": 0.0,
    "usd_per_1k_tokens": 0.006656104586749391,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
@@ -8358,7 +8358,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -8387,11 +8387,11 @@
    "groups": 8,
    "usd_per_pass": 0.145541,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.145541,
+   "codex_usd_per_pass": 0.0,
    "usd_per_call": 0.090963,
    "spend": 0.727705,
    "spend_claude": 0.0,
-   "spend_codex": 0.727705,
+   "spend_codex": 0.0,
    "unknown_usd": 0,
    "median_s_raw": 3327.5381200364936,
    "median_s": 3327.54,
@@ -8446,7 +8446,7 @@
     0.25,
     1.0
    ],
-   "usd_saved_per_pass": 0.145541,
+   "usd_saved_per_pass": 0.0,
    "usd_per_1k_tokens": 0.0073570850857327735,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
@@ -8480,7 +8480,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -8510,7 +8510,7 @@
    "usd_per_call": 0.094209,
    "spend": 0.188418,
    "spend_claude": 0.0,
-   "spend_codex": 0.188418,
+   "spend_codex": 0.0,
    "unknown_usd": 0,
    "median_s_raw": 3391.524509647483,
    "median_s": 3391.52,
@@ -8563,7 +8563,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -8589,11 +8589,11 @@
    "groups": 1,
    "usd_per_pass": 0.190674,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.190674,
+   "codex_usd_per_pass": 0.0,
    "usd_per_call": 0.190674,
    "spend": 0.190674,
    "spend_claude": 0.0,
-   "spend_codex": 0.190674,
+   "spend_codex": 0.0,
    "unknown_usd": 0,
    "median_s_raw": 6864.252247570985,
    "median_s": 6864.25,
@@ -8620,7 +8620,7 @@
     0.05,
     1.0
    ],
-   "usd_saved_per_pass": 0.190674,
+   "usd_saved_per_pass": 0.0,
    "usd_per_1k_tokens": 0.008848802673101912,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
@@ -8642,7 +8642,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -8671,11 +8671,11 @@
    "groups": 15,
    "usd_per_pass": 0.154458,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.154458,
+   "codex_usd_per_pass": 0.0,
    "usd_per_call": 0.133864,
    "spend": 2.00796,
    "spend_claude": 0.0,
-   "spend_codex": 2.00796,
+   "spend_codex": 0.0,
    "unknown_usd": 0,
    "median_s_raw": 4630.444647055003,
    "median_s": 4630.44,
@@ -8758,7 +8758,7 @@
     0.6667,
     1.0
    ],
-   "usd_saved_per_pass": 0.154458,
+   "usd_saved_per_pass": 0.0,
    "usd_per_1k_tokens": 0.007165016325001338,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
@@ -8804,7 +8804,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -22209,11 +22209,11 @@
    "groups": 15,
    "usd_per_pass": 0.128738,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.128738,
+   "codex_usd_per_pass": 0.0,
    "usd_per_call": 0.060078,
    "spend": 0.901163,
    "spend_claude": 0.0,
-   "spend_codex": 0.901163,
+   "spend_codex": 0.0,
    "unknown_usd": 0,
    "median_s_raw": 2881.2752949399874,
    "median_s": 2881.28,
@@ -22296,7 +22296,7 @@
     0.2,
     0.7333
    ],
-   "usd_saved_per_pass": 0.128738,
+   "usd_saved_per_pass": 0.0,
    "usd_per_1k_tokens": 0.006656104586749391,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
@@ -22342,7 +22342,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -22371,11 +22371,11 @@
    "groups": 8,
    "usd_per_pass": 0.145541,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.145541,
+   "codex_usd_per_pass": 0.0,
    "usd_per_call": 0.090963,
    "spend": 0.727705,
    "spend_claude": 0.0,
-   "spend_codex": 0.727705,
+   "spend_codex": 0.0,
    "unknown_usd": 0,
    "median_s_raw": 3327.5381200364936,
    "median_s": 3327.54,
@@ -22430,7 +22430,7 @@
     0.25,
     1.0
    ],
-   "usd_saved_per_pass": 0.145541,
+   "usd_saved_per_pass": 0.0,
    "usd_per_1k_tokens": 0.0073570850857327735,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
@@ -22464,7 +22464,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -22494,7 +22494,7 @@
    "usd_per_call": 0.094209,
    "spend": 0.188418,
    "spend_claude": 0.0,
-   "spend_codex": 0.188418,
+   "spend_codex": 0.0,
    "unknown_usd": 0,
    "median_s_raw": 3391.524509647483,
    "median_s": 3391.52,
@@ -22547,7 +22547,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -22573,11 +22573,11 @@
    "groups": 1,
    "usd_per_pass": 0.190674,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.190674,
+   "codex_usd_per_pass": 0.0,
    "usd_per_call": 0.190674,
    "spend": 0.190674,
    "spend_claude": 0.0,
-   "spend_codex": 0.190674,
+   "spend_codex": 0.0,
    "unknown_usd": 0,
    "median_s_raw": 6864.252247570985,
    "median_s": 6864.25,
@@ -22604,7 +22604,7 @@
     0.05,
     1.0
    ],
-   "usd_saved_per_pass": 0.190674,
+   "usd_saved_per_pass": 0.0,
    "usd_per_1k_tokens": 0.008848802673101912,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
@@ -22626,7 +22626,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -22655,11 +22655,11 @@
    "groups": 15,
    "usd_per_pass": 0.154458,
    "claude_usd_per_pass": 0.0,
-   "codex_usd_per_pass": 0.154458,
+   "codex_usd_per_pass": 0.0,
    "usd_per_call": 0.133864,
    "spend": 2.00796,
    "spend_claude": 0.0,
-   "spend_codex": 2.00796,
+   "spend_codex": 0.0,
    "unknown_usd": 0,
    "median_s_raw": 4630.444647055003,
    "median_s": 4630.44,
@@ -22742,7 +22742,7 @@
     0.6667,
     1.0
    ],
-   "usd_saved_per_pass": 0.154458,
+   "usd_saved_per_pass": 0.0,
    "usd_per_1k_tokens": 0.007165016325001338,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
@@ -22788,7 +22788,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -25162,7 +25162,7 @@
   },
   "exploratory": {
    "n_configs": 23,
-   "spend": 39.90222
+   "spend": 35.8863
   },
   "fast mode and xhigh": {
    "n_configs": 5,
@@ -39699,6 +39699,18 @@
    "display": "Cost is estimated from box-hours at an assumed $0.10 an hour.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
+  "inkling_pp_primary": {
+   "value": 0.13,
+   "unit": "usd",
+   "display": "$0.13",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_pp_ladder": {
+   "value": 0.15,
+   "unit": "usd",
+   "display": "$0.15",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
   "inkling_price_pp": {
    "value": "Estimated per pass: $0.13 primary, $0.15 ladder.",
    "unit": "text",
@@ -39706,9 +39718,9 @@
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_hetzner": {
-   "value": "Hetzner is a free hosted API with no price, so it has no cost to compare.",
+   "value": "Hetzner is a free hosted API, so it has no price.",
    "unit": "text",
-   "display": "Hetzner is a free hosted API with no price, so it has no cost to compare.",
+   "display": "Hetzner is a free hosted API, so it has no price.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_sec_a": {
@@ -52381,11 +52393,11 @@
     "groups": 15,
     "usd_per_pass": 0.128738,
     "claude_usd_per_pass": 0.0,
-    "codex_usd_per_pass": 0.128738,
+    "codex_usd_per_pass": 0.0,
     "usd_per_call": 0.060078,
     "spend": 0.901163,
     "spend_claude": 0.0,
-    "spend_codex": 0.901163,
+    "spend_codex": 0.0,
     "unknown_usd": 0,
     "median_s_raw": 2881.2752949399874,
     "median_s": 2881.28,
@@ -52468,7 +52480,7 @@
      0.2,
      0.7333
     ],
-    "usd_saved_per_pass": 0.128738,
+    "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.006656104586749391,
     "rule": "function tests (reference + brute force)",
     "by_rung": {
@@ -52514,7 +52526,7 @@
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
+    "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
     "complete_marker": null,
     "key": "main/inkling2mini-default@partial ladder"
    },
@@ -52544,11 +52556,11 @@
     "groups": 15,
     "usd_per_pass": 0.154458,
     "claude_usd_per_pass": 0.0,
-    "codex_usd_per_pass": 0.154458,
+    "codex_usd_per_pass": 0.0,
     "usd_per_call": 0.133864,
     "spend": 2.00796,
     "spend_claude": 0.0,
-    "spend_codex": 2.00796,
+    "spend_codex": 0.0,
     "unknown_usd": 0,
     "median_s_raw": 4630.444647055003,
     "median_s": 4630.44,
@@ -52631,7 +52643,7 @@
      0.6667,
      1.0
     ],
-    "usd_saved_per_pass": 0.154458,
+    "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.007165016325001338,
     "rule": "function tests (reference + brute force)",
     "by_rung": {
@@ -52677,7 +52689,7 @@
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
+    "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
     "complete_marker": null,
     "key": "main/inkling2mini-ladder@partial ladder"
    },
@@ -66195,11 +66207,11 @@
     "groups": 15,
     "usd_per_pass": 0.128738,
     "claude_usd_per_pass": 0.0,
-    "codex_usd_per_pass": 0.128738,
+    "codex_usd_per_pass": 0.0,
     "usd_per_call": 0.060078,
     "spend": 0.901163,
     "spend_claude": 0.0,
-    "spend_codex": 0.901163,
+    "spend_codex": 0.0,
     "unknown_usd": 0,
     "median_s_raw": 2881.2752949399874,
     "median_s": 2881.28,
@@ -66282,7 +66294,7 @@
      0.2,
      0.7333
     ],
-    "usd_saved_per_pass": 0.128738,
+    "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.006656104586749391,
     "rule": "function tests (reference + brute force)",
     "by_rung": {
@@ -66328,7 +66340,7 @@
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
+    "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
     "complete_marker": null,
     "key": "main/inkling2mini-default@all runs"
    },
@@ -66358,11 +66370,11 @@
     "groups": 15,
     "usd_per_pass": 0.154458,
     "claude_usd_per_pass": 0.0,
-    "codex_usd_per_pass": 0.154458,
+    "codex_usd_per_pass": 0.0,
     "usd_per_call": 0.133864,
     "spend": 2.00796,
     "spend_claude": 0.0,
-    "spend_codex": 2.00796,
+    "spend_codex": 0.0,
     "unknown_usd": 0,
     "median_s_raw": 4630.444647055003,
     "median_s": 4630.44,
@@ -66445,7 +66457,7 @@
      0.6667,
      1.0
     ],
-    "usd_saved_per_pass": 0.154458,
+    "usd_saved_per_pass": 0.0,
     "usd_per_1k_tokens": 0.007165016325001338,
     "rule": "function tests (reference + brute force)",
     "by_rung": {
@@ -66491,7 +66503,7 @@
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
+    "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
     "complete_marker": null,
     "key": "main/inkling2mini-ladder@all runs"
    },

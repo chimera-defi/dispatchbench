@@ -147,6 +147,7 @@ def _rule_fields(src, rr):
 
 
 def _row(src, name, st, rr):
+    boxed = rr[0]["cli"] == "llama.cpp"  # Inkling's cost is a box-hour estimate: no Codex spend, no money spent
     k = sum(x["ok"] for x in rr); n = len(rr); known = [x["usd"] for x in rr if x["usd"] is not None]
     cl = [x["claude"] for x in rr if x["claude"] is not None]; secs = [x["sec"] for x in rr]
     complete = len(known) == n; e = configs.entry(src, name) if (src, name) in configs.REGISTRY else {"id": f"{src}/{name}", "display": configs.display(name), "family": configs.family(name), "category": "?", "files": [], "what": ""}
@@ -166,8 +167,8 @@ def _row(src, name, st, rr):
             "service_tier": next((x["service_tier"] for x in rr if x.get("service_tier")), None),
             "passes": k, "n": n, "pass_rate": round(k / n, 4), "ci95": ci, "groups": len(cells),
             "usd_per_pass": round(spend / k, 6) if k and complete else None, "claude_usd_per_pass": round(sc / k, 6) if k and complete else None,
-            "codex_usd_per_pass": round((spend - sc - sg) / k, 6) if k and complete else None, "usd_per_call": round(spend / n, 6) if complete else None,
-            "spend": round(spend, 6), "spend_claude": round(sc, 6), "spend_codex": round(spend - sc - sg, 6), "unknown_usd": n - len(known),
+            "codex_usd_per_pass": 0.0 if boxed and k else round((spend - sc - sg) / k, 6) if k and complete else None, "usd_per_call": round(spend / n, 6) if complete else None,
+            "spend": round(spend, 6), "spend_claude": round(sc, 6), "spend_codex": 0.0 if boxed else round(spend - sc - sg, 6), "unknown_usd": n - len(known),
             **({"spend_grok": round(sg, 6)} if rr[0]["cli"] == "grok" else {}),
             "median_s_raw": statistics.median(secs),
             "median_s": round(statistics.median(secs), 2), "p25_s": round(p25, 2), "p75_s": round(p75, 2),
@@ -178,7 +179,7 @@ def _row(src, name, st, rr):
             "p90_s": round(stats.p90(secs), 2), "max_s": round(max(secs), 2),
             "by_group": {g: {"passes": sum(v), "n": len(v)} for g, v in cells.items()},
             "misses": n - k, "ci95_plot": ci or ([0.05 ** (1 / len(cells)), 1.0] if k == n else [0.0, 0.0]),
-            "usd_saved_per_pass": round((spend - sc - sg) / k, 6) if k and complete else None,
+            "usd_saved_per_pass": 0.0 if boxed and k else round((spend - sc - sg) / k, 6) if k and complete else None,
             "usd_per_1k_tokens": (1000 * round(spend / n, 6) / (round(statistics.mean(x["in"] or 0 for x in rr)) + round(statistics.mean(x["out"] or 0 for x in rr)))) if complete and any((x["in"] or 0) + (x["out"] or 0) for x in rr) else None,
             **_rule_fields(src, rr),
             "by_rung": dict(sorted(by_rung.items())), "cost_kind": "free-tier" if rr[0]["cli"] == "hetzner" else "box-hours" if rr[0]["cli"] == "llama.cpp" else "unmetered" if rr[0]["cli"] == "devin" else "measured" if summarize.measured(rr[0]) else "proxy"}
@@ -1768,7 +1769,7 @@ def build(summary=None):
                     "xor_time_bound": re.search(r"0 <= t <= ([^`]+)", xor_statement).group(1).replace("**", "^"),
                     "usd_ticks": _currency_ticks([v["usd_per_pass"] for v in {**s["configs"], **s["exploratory"]}.values() if v["usd_per_pass"] is not None])}
     s["design"] = ds["design"]
-    ds["categories"] = {cat: {"n_configs": len(rr), "spend": sum(r["spend"] for r in rr)}
+    ds["categories"] = {cat: {"n_configs": len(rr), "spend": sum(r["spend"] for r in rr if r["cost_kind"] != "box-hours")}
                         for cat in configs.CATEGORIES
                         if (rr := [r for r in catalog_rows(ds) if r["category"] == cat])}
     ds["report"] = s
@@ -1979,9 +1980,10 @@ def _inkling(ds, s):
     F["inkling_slowest"] = f"Slowest on the ladder: {slow.split('_')[0]}, {mins(lad['task_wall_s'][slow])}."
     F["inkling_host"] = "Other work sometimes ran on the host, so times vary."
     ib = _inkling_blocks()
-    F["inkling_price"] = "Cost is estimated from box-hours at an assumed $0.10 an hour."
+    F["inkling_price"] = f"Cost is estimated from box-hours at an assumed ${configs.BOX_USD_PER_HOUR:.2f} an hour."
+    F["inkling_pp_primary"], F["inkling_pp_ladder"] = (usd(ib[c]["usd_per_pass"]) for c in (configs.INKLING_PRIMARY, configs.INKLING_LADDER))
     F["inkling_price_pp"] = "Estimated per pass: " + ", ".join(f"{usd(ib[c]['usd_per_pass'])} {w}" for c, w in ((configs.INKLING_PRIMARY, 'primary'), (configs.INKLING_LADDER, 'ladder'))) + "."
-    F["inkling_hetzner"] = "Hetzner is a free hosted API with no price, so it has no cost to compare."
+    F["inkling_hetzner"] = "Hetzner is a free hosted API, so it has no price."
     free = {}  # the free lanes side by side: the Hetzner Qwen calls (1 try per task) and the two Inkling lanes
     for src, name, st_, x in _rows():
         if name in configs.HETZNER_CONFIGS: free.setdefault(name, []).append(x["sec"])

@@ -375,7 +375,7 @@ It is a free local CPU model, so its times do not match API lanes.
 | Inkling 2 Mini primary (frozen) | 7/15 | 48.0 | 36.0 | 9.01 h |
 | Inkling 2 Mini retry ladder (secondary) | 13/15 | 77.2 | 80.3 | 20.08 h |
 
-Cost is estimated from box-hours at an assumed $0.10 an hour. Estimated per pass: $0.13 primary, $0.15 ladder. Hetzner is a free hosted API with no price, so it has no cost to compare.
+Cost is estimated from box-hours at an assumed $0.10 an hour. Estimated per pass: $0.13 primary, $0.15 ladder. Hetzner is a free hosted API, so it has no price.
 
 | task | primary (12,288 cap) | primary minutes | retry stages | ladder |
 |---|---|---|---|---|

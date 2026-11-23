@@ -42,7 +42,8 @@
     "page text: exploratory: 23 configs, ~$35.89 spent": "The exploratory table shows the Inkling rows' estimated box-hour cost labels; the dollar total is unchanged.",
     "page text: free lane": "The lanes table header is now 'lane', with median and mean minutes per task.",
     "page text: median s per task": "The lanes table header is now median and mean minutes per task.",
-    "table header: free lane | passed (function tests) | median s per task | total wall": "The lanes table header is now 'lane', with median and mean minutes per task."
+    "table header: free lane | passed (function tests) | median s per task | total wall": "The lanes table header is now 'lane', with median and mean minutes per task.",
+    "page text: local, no price": "The Results table's Inkling cost label now reads 'est. $ from box-hours' instead of 'local, no price'."
   },
   "dropped_facts": {
     "inkling_lead": "Replaced by the split facts inkling_for, inkling_answer, inkling_b1 to inkling_b3, inkling_model, inkling_settings, inkling_stage_a to inkling_stage_c and inkling_retry_time (Shape rewrite); no number dropped.",
