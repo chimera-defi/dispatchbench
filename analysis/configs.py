@@ -94,7 +94,13 @@ INKLING_RUNS = {c: w for c, w in zip(INKLING_CONFIGS, (
     "same model, default effort, 24576-token cap: secondary retry of the tasks still capped"))}
 add("main", "exploratory", *((c, "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, "
     + INKLING_RUNS[c]) for c in INKLING_CONFIGS))
-FREE_TIER_CONFIGS = DEVIN_CONFIGS + HETZNER_CONFIGS + INKLING_CONFIGS  # no published $ comparison: off all $ charts, Winner and frontier
+INKLING_LADDER = "inkling2mini-ladder"  # the secondary retry ladder as one lane: a task passes if any stage passed it, its time adds the stages' time
+add("main", "exploratory", (INKLING_LADDER, "Inkling 2 Mini retry ladder, secondary: the primary run, then medium 16384, low 16384 and default 24576 retries of the tasks it left capped; "
+    "a task passes if any stage passed it and its time is the sum over the stages; llama.cpp b12600 on a local CPU, free, no list price; exploratory"))
+INKLING_PRIMARY = INKLING_CONFIGS[0]
+INKLING_STAGES = INKLING_CONFIGS[1:]  # raw retry stages: shown only through the ladder lane
+INKLING_SHOWN = (INKLING_PRIMARY, INKLING_LADDER)  # the two Inkling lanes that join tables and charts, like the Hetzner lanes
+FREE_TIER_CONFIGS = DEVIN_CONFIGS + HETZNER_CONFIGS + INKLING_CONFIGS + (INKLING_LADDER,)  # no published $ comparison: off all $ charts, Winner and frontier
 CHART_HIDDEN = CHART_HIDDEN + FREE_TIER_CONFIGS
 HETZNER_NOTE = "exploratory calibration, 1 repeat, free tier, measured tokens"
 DEVIN_NOTE = "1 repeat, free tier, no token data"
@@ -240,7 +246,7 @@ def _seen(text, name):
 def where(e, rest, chart_bodies):
     """Where the page shows this config outside the section, decided by source: main-run names are searched in the page text, repo-task
     names in the repo-task chart, rescue arms by their page label. Pilot, trim and harness-bias configs are never claimed elsewhere."""
-    if e["config"] in INKLING_CONFIGS: return "Inkling section (#inkling)"  # its own section; the config names are not in the page text
+    if e["config"] in INKLING_CONFIGS + (INKLING_LADDER,): return "Inkling section (#inkling)"  # its own section; the config names are not in the page text
     if e["source"] == "main" and _seen(rest, e["config"]): return "charts and tables"
     if e["source"] == "agentic":
         repo = re.search(r'<div class="compact-bars" id="repo-chart">.*?</details>', rest, re.S)  # the page's repo-task bars and table

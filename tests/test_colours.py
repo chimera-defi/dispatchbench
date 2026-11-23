@@ -19,7 +19,7 @@ spec.loader.exec_module(colours)
 @pytest.mark.parametrize('automatic', [False, True])
 def test_family_tokens_are_pairwise_distinct(mode, automatic):
     values = contrast.theme_values((ROOT / 'docs/page/tokens.css').read_text(), mode, automatic=automatic)
-    tokens = ('claude', 'sonnet', 'codex', 'codex56', 'grok', 'devin', 'hetzner', 'pipeline')
+    tokens = ('claude', 'sonnet', 'codex', 'codex56', 'grok', 'devin', 'hetzner', 'inkling', 'pipeline')
     resolved = [contrast.rgb('--' + t, values, None) for t in tokens]
     assert len(set(resolved)) == len(tokens), dict(zip(tokens, resolved))
 

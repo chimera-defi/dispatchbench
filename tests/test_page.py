@@ -54,7 +54,7 @@ class Charts(HTMLParser):
     VOID = {'input', 'meta', 'link', 'br', 'hr', 'img', 'wbr'}
 
     def __init__(self):
-        super().__init__(); self.stack = []; self.charts = 0; self.xfig = False; self.hero = False; self.explorer = False
+        super().__init__(); self.stack = []; self.charts = 0; self.xfig = False; self.explorer = False; self.explorer_pareto = False
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
@@ -63,8 +63,7 @@ class Charts(HTMLParser):
         closed = any(t == 'details' for t, _ in self.stack)
         if tag == 'svg' and 'hero-wide' in a.get('class', '') and a.get('role') == 'img' and 'pareto' in ids and not closed:
             self.charts += 1
-        if a.get('id') == 'hero' and tag == 'figure' and a.get('class') == 'hero-chart' and 'pareto' in ids: self.hero = True
-        if a.get('id') == 'ex-chart' and 'extras' in ids and not closed: self.explorer = True
+        if a.get('id') == 'ex-chart' and 'pareto' in ids and not closed: self.explorer = True
         if tag == 'figure' and a.get('id') == 'xfig' and 'extras' in ids: self.xfig = True
 
     def handle_endtag(self, tag):
@@ -75,7 +74,7 @@ class Charts(HTMLParser):
 
 def test_charts_visible_with_details_closed_and_xfig_present():
     p = Charts(); p.feed(HTML)
-    assert p.charts == 1 and p.hero and p.explorer and p.xfig
+    assert p.explorer and p.xfig
     for frag in ('<button type="button" id="pair-speed-preset" aria-pressed="true" aria-controls="pair-speed">Speed vs $ per pass</button>',
                  '<div id="pair-speed" class="chart">', '<div id="pair-custom" hidden>', '<p id="speed-vs-per-pass" class="ctl pair-presets"',
                  '<details open><summary>Explore tokens, reasoning, and latency</summary>'):
@@ -166,7 +165,7 @@ def test_grok_section_bytes_pinned():
 def test_every_config_family_appears_on_the_page():
     rows = dataset.read()['rows']
     families = {r['family'] for r in rows}
-    assert {'Claude', 'Codex', 'Grok', 'Devin', 'Hetzner'} <= families
+    assert {'Claude', 'Codex', 'Grok', 'Devin', 'Hetzner', 'Inkling'} <= families
     for family in sorted(families):
         assert family in HTML, family
     for name in {r['display'] for r in rows}:
@@ -174,7 +173,7 @@ def test_every_config_family_appears_on_the_page():
 
 
 def hero_svgs():
-    fig = re.search(r'<figure class="hero-chart" id="hero">.*?</figure>', HTML, re.S)[0]
+    fig = page.hero(dataset.view(dataset.read()))  # the static drawing is no longer on the page; it still feeds the share card
     return re.findall(r'<svg\b.*?</svg>', fig, re.S)
 
 
@@ -257,3 +256,14 @@ def test_results_short_tables_split_old_rows_once():
     a, b = config_rows(first), config_rows(more)
     combined = a + b
     assert a and b and len(combined) == len(set(combined))
+
+
+def test_top_cost_chart_keeps_frontier_line_and_controls():
+    """Regression guard (f2087a5 moved the explorer out of #pareto and left a static chart with no frontier or controls)."""
+    sec = re.search(r'<section id="pareto".*?</section>', HTML, re.S)[0]
+    for needle in ('id="ex-chart"', 'id="ex-set"', 'id="ex-floor"', 'id="ex-all"', 'id="ex-none"', 'id="ex-reset"', 'id="ex-config-list"',
+                   'id="ex-show"', 'id="ex-show-all"', 'id="ex-show-none"', 'id="ex-show-reset"', 'data-view="front"', 'data-view="side"'):
+        assert needle in sec, needle
+    assert 'data-family="Inkling"' in sec or '>Inkling<' in sec
+    assert 'class="ex-front"' in HTML  # the dashed staircase the explorer draws; pareto_runtime.cjs checks it renders
+    assert sec.index('id="ex-chart"') < sec.index('id="ex-config-list"')

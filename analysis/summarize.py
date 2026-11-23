@@ -8,7 +8,7 @@ from collections import defaultdict
 
 from analysis.stats import hier_boot, paired_boot, p90
 from analysis.labels import DISP, plabel, pshort
-from analysis.configs import DEVIN_CONFIGS, HETZNER_CONFIGS, INKLING_CONFIGS, GROK_CONFIGS, GROK_PARTIAL, ONE_REPEAT, FIRST_GROK_FILE, SOURCES
+from analysis.configs import INKLING_LADDER, DEVIN_CONFIGS, HETZNER_CONFIGS, INKLING_CONFIGS, GROK_CONFIGS, GROK_PARTIAL, ONE_REPEAT, FIRST_GROK_FILE, SOURCES
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RES = os.path.join(ROOT, "results")
@@ -70,6 +70,20 @@ def function_rows():
 
 def inkling_rows():
     return [r for name in SOURCES["main"] for r in _sourced(os.path.join(RES, name)) if r["config"] in INKLING_CONFIGS]
+
+
+def inkling_ladder_rows(rows=None):
+    """The retry ladder as one lane, one row per task: it passes if any stage passed, and its time is the sum over the stages that ran it."""
+    rows = inkling_rows() if rows is None else rows
+    by = {}
+    for r in rows: by.setdefault(r["problem"], []).append(r)
+    out = []
+    for p, rr in sorted(by.items()):
+        prim = next(r for r in rr if r["config"] == INKLING_CONFIGS[0])
+        out.append(dict(prim, config=INKLING_LADDER, passed=any(r["passed"] for r in rr), wall_s=sum(r["wall_s"] for r in rr),
+                        in_tok=sum(r["in_tok"] for r in rr), out_tok=sum(r["out_tok"] for r in rr), outcome="pass" if any(r["passed"] for r in rr) else prim["outcome"],
+                        max_tokens=None))
+    return out
 
 
 def agentic_rows():
@@ -188,11 +202,13 @@ def inkling_block(rows):
                "tasks": {p: {"passed": r["passed"], "outcome": r["outcome"], "wall_s": r["wall_s"]} for p, r in sorted(by[c].items())}}
               for c in INKLING_CONFIGS[1:] if by[c]]
     final = {p: any(by[c][p]["passed"] for c in INKLING_CONFIGS if p in by[c]) for p in tasks}
+    cum = {p: sum(by[c][p]["wall_s"] for c in INKLING_CONFIGS if p in by[c]) for p in tasks}  # a task's time on the ladder: every stage that ran it
     return {"n": len(tasks), "primary": {"passes": sum(r["passed"] for r in prim.values()), "wall_s": round(sum(r["wall_s"] for r in prim.values()), 1),
+            "median_s": statistics.median(r["wall_s"] for r in prim.values()), "max_s": max(r["wall_s"] for r in prim.values()),
             "max_tokens": prim[tasks[0]]["max_tokens"], "effort": prim[tasks[0]]["effort"], "model": prim[tasks[0]]["model"], "cli_version": prim[tasks[0]]["cli_version"],
             "tasks": {p: {"passed": r["passed"], "outcome": r["outcome"], "wall_s": r["wall_s"], "out_tok": r["out_tok"], "finish_reason": r.get("finish_reason"),
                           "gen_tok_per_s": r.get("gen_tok_per_s")} for p, r in prim.items()}},
-            "stages": stages, "ladder": {"passes": sum(final.values()), "tasks": final,
+            "stages": stages, "ladder": {"passes": sum(final.values()), "tasks": final, "task_wall_s": cum, "median_s": statistics.median(cum.values()), "max_s": max(cum.values()),
             "wall_s": round(sum(r["wall_s"] for c in INKLING_CONFIGS for r in by[c].values()), 1)}}
 
 

@@ -81,6 +81,18 @@ h.st.prereg=true;h.render();assert(!element('ex-chart').innerHTML.includes('devi
 h.st.prereg=false;h.st.facets.add('family:Codex');h.render();assert(!element('ex-chart').innerHTML.includes('main/terra61-low@'));
 // Drive the shipped wheel handler around haiku-high across the label threshold.
 // Predict the visible domain from pre-zoom coordinates, independently of geometry().
+// Regression guard: the top chart keeps its dashed frontier line, and a family toggle changes the points (Inkling is a family).
+h.st.view='front';h.st.set=exp.default_set;h.st.quota=false;h.st.minPass=0;h.st.facets.clear();h.st.off.clear();h.render();
+assert(element('ex-chart').innerHTML.includes('class="ex-front"'),'frontier line missing from the top chart');
+const allPts=(element('ex-chart').innerHTML.match(/class="ex-point/g)||[]).length;
+h.st.facets.add('family:Claude');h.render();
+const claudePts=(element('ex-chart').innerHTML.match(/class="ex-point/g)||[]).length;
+assert(claudePts>0&&claudePts<allPts,'family toggle must change the visible points');
+h.st.facets.clear();h.render();assert.equal((element('ex-chart').innerHTML.match(/class="ex-point/g)||[]).length,allPts,'reset restores every point');
+h.st.view='side';h.st.facets.clear();h.render();
+assert(element('ex-chart').innerHTML.includes('inkling2mini-default')&&element('ex-chart').innerHTML.includes('inkling2mini-ladder'),'Inkling lanes missing from Speed x Pass');
+h.st.facets.add('family:Inkling');h.render();assert(!element('ex-chart').innerHTML.includes('inkling2mini-default'),'hiding the Inkling family removes its lanes');
+h.st.facets.clear();h.st.view='front';
 h.st.facets.clear();h.st.sel=h.st.hover=null;
 const originalQuery=root.querySelector,svg=new Element();
 root.querySelector=s=>s==='#ex-chart svg'?svg:element(s.slice(1));

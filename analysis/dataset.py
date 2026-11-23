@@ -101,7 +101,7 @@ def _rows(include_grok_repo=False):
         add("main", c, st, r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
         if c not in configs.GROK_CONFIGS and r["problem"] in PIDS and r["phase"] in ("main", "exploratory", "fastmode") and r["repeat"] <= REPEATS:  # the same rows again, as the rescue-set baseline
             add("main", c, "rescue set", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
-    for r in summarize.inkling_rows():  # free local CPU lane: p01–p15, outside the ladder statistics, listed as partial-ladder rows
+    for r in summarize.inkling_rows() + summarize.inkling_ladder_rows():  # free local CPU lane (primary, retry stages, and the ladder as one lane): p01–p15, outside the ladder statistics, listed as partial-ladder rows
         add("main", r["config"], "partial ladder", r, r["passed"], r["wall_s"], r["problem"], None, r["in_tok"], r["out_tok"])
     for r in summarize.agentic_rows():
         done = bool(r.get("task_complete", r["visible_pass"] and r["hidden_pass"]))  # the headline repo-task rule: hidden and the run's own visible suite both green
@@ -1640,7 +1640,7 @@ def explorer_frontier(rows, view, quota=False, floor=0):
     spec = EXPLORER_VIEWS[view]; objectives = spec["objectives"]
     eligible = [dict(r, cost=r["quota_usd_per_pass"] if quota else r["usd_per_pass"]) for r in rows
                 if r["pass_rate"] >= max(floor, spec.get("min_pass", 0))
-                and r["config"] not in configs.HETZNER_CONFIGS
+                and r["config"] not in configs.HETZNER_CONFIGS + configs.INKLING_SHOWN  # free lanes: off the frontier
                 and (not any(k == "cost" for k, _ in objectives) or r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None)]
     beaten = {r["key"]: [a["key"] for a in eligible if strict_dominates(a, r, objectives)] for r in eligible}
     return {r["key"]: {"eligible": r["key"] in beaten, "on_frontier": r["key"] in beaten and not beaten[r["key"]],
@@ -1654,7 +1654,7 @@ def explorer_extents(rows, quota=False):
     times = [r["median_s"] for r in rows]
     return {"cost": [min(paid) / 1.5, max(paid) * 1.5] if paid else None,
             "zero_lane": 0 in costs, "pass_rate": [max(0, min(rates) - .03), 1.03] if rates else None,
-            "median_s": [0, max(times) * 1.12] if times and max(times) else None}
+            "median_s": [min(times) / 1.5, max(times) * 1.12] if times and min(times) > 0 else None}
 
 
 def explorer_data(ds):
@@ -1664,7 +1664,7 @@ def explorer_data(ds):
     rates, and never count rescue slices or all-runs aggregates a second time).
     """
     for r in ds["rows"]: r.update(explorer_facets(r))
-    rows = [dict(r, key=r["id"] + "@" + r["set"]) for r in ds["rows"] if r["config"] not in configs.INKLING_CONFIGS]  # Inkling: own page section, CPU latency not comparable
+    rows = [dict(r, key=r["id"] + "@" + r["set"]) for r in ds["rows"] if r["config"] not in configs.INKLING_STAGES]  # Inkling: the primary and the ladder lanes plot like the Hetzner lanes; raw retry stages only inside the ladder
     for c, arm in ds["rescue"].items():
         if not arm.get("derived_from"): continue
         ref = arm["derived_from"]
@@ -1675,7 +1675,7 @@ def explorer_data(ds):
     pooled = defaultdict(list)
     repo = defaultdict(list)
     for src, name, st, r in _rows(include_grok_repo=True):
-        if name in configs.INKLING_CONFIGS: continue
+        if name in configs.INKLING_CONFIGS + (configs.INKLING_LADDER,): continue  # 15 tasks, one repeat: not pooled with the other sets
         if st not in DERIVED: pooled[(src, name)].append(r)
         if src == "grok-repo": repo[name].append(r)
     for name, rr in repo.items():
@@ -1768,7 +1768,7 @@ def build(summary=None):
     # Per-config call counts: most configs ran the nominal grid; the exceptions are named from the data, never typed.
     fr = [r for r in ds["rows"] if r["source"] == "main" and r["set"] in ("main ladder", "partial ladder")]
     nominal = get(ds, "haiku-low", "main ladder")["n"]
-    odd = [r for r in fr if r["n"] != nominal and r["config"] not in configs.INKLING_CONFIGS]  # Inkling ran p01–p15: described in its own section
+    odd = [r for r in fr if r["n"] != nominal and r["config"] not in configs.INKLING_CONFIGS + (configs.INKLING_LADDER,)]  # Inkling ran p01–p15: described in its own section
     ds["facts"]["calls_exceptions"] = "; ".join(f"{r['config']} {r['n']} calls" for r in odd)
     ds["facts"]["calls_exceptions_why"] = "; ".join(f"{r['config']} {r['n']} calls ({'p01–p06 only' if r['config'] == 'grok47-medium' else 'one repeat' if r['n'] == int(ds['facts']['n_problems']) else 'a partial ladder'})" for r in odd)
     ds["facts"]["n_configs_all"] = str(len({r["config"] for r in fr if r["config"] not in configs.FREE_TIER_CONFIGS}))  # model-and-effort configs; the Devin lane runs its default
@@ -1958,12 +1958,23 @@ def _inkling(ds, s):
     F["inkling_answer"] = f"{F['inkling_name']} passed {F['inkling_primary']} frozen and {F['inkling_ladder']} with retries."
     F["inkling_b1"] = f"Primary, frozen before the full run: {F['inkling_primary']}, in {F['inkling_primary_wall']} of wall time."
     F["inkling_b2"] = f"Retry ladder, secondary: {F['inkling_ladder']} after re-running the tasks the cap cut off."
-    F["inkling_b3"] = "It is a free local CPU model, so latency is not comparable with API lanes."
+    mins = lambda sec: f"{sec / 60:.0f} min"
+    F["inkling_b3"] = f"Median time per task: {mins(p['median_s'])} primary, {mins(lad['median_s'])} ladder."
+    F["inkling_cpu"] = "It is a free local CPU model, so its times do not match API lanes."
     F["inkling_model"] = f"Model: {p['model']}, llama.cpp {p['cli_version']}, run on p01–p{k['n']} on this host's CPU, one call at a time. It has no list price."
     F["inkling_settings"] = f"Primary settings: default effort, {F['inkling_cap']}-token cap."
     F["inkling_retry_time"] = f"The retry added {F['inkling_retry_wall']} of wall time, {F['inkling_total_wall']} in all."
     F["inkling_caveat"] = "The ladder is secondary because its settings were chosen after seeing which tasks hit the cap."
+    slow = max(lad["task_wall_s"], key=lad["task_wall_s"].get)
+    F["inkling_slowest"] = f"Slowest task {slow.split('_')[0]}: {mins(p['tasks'][slow]['wall_s'])} primary, {mins(lad['task_wall_s'][slow])} on the ladder."
     F["inkling_host"] = "Other work sometimes ran on the host, so times vary. Off dollar charts, the Winner and the frontier."
+    free = {}  # the free lanes side by side: the Hetzner Qwen calls (1 try per task) and the two Inkling lanes
+    for src, name, st_, x in _rows():
+        if name in configs.HETZNER_CONFIGS: free.setdefault(name, []).append(x["sec"])
+    lanes = [(DISP(c), s["hetzner"][c]["passes"], s["hetzner"][c]["n"], statistics.median(free[c]), sum(free[c])) for c in configs.HETZNER_CONFIGS if c in free]
+    lanes += [(f"{F['inkling_name']} primary (frozen)", p["passes"], k["n"], p["median_s"], p["wall_s"]), (f"{F['inkling_name']} retry ladder (secondary)", lad["passes"], k["n"], lad["median_s"], lad["wall_s"])]
+    ds["tables"]["inkling_lanes"] = md_table(["free lane", "passed", "median s per task", "total wall"],
+                                             [[a, f"{b}/{c}", f"{d:,.0f}", hours(e)] for a, b, c, d, e in sorted(lanes, key=lambda r: r[3])])
     short = lambda t: t.split("_")[0]
     rows = []
     for t, v in p["tasks"].items():

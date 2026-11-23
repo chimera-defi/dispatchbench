@@ -147,6 +147,10 @@ Endpoint: {{hetzner_endpoint}} (OpenAI-compatible). {{hetzner_lead}}
 - {{inkling_b2}}
 - {{inkling_b3}}
 
+{{inkling_cpu}}
+
+{{table:inkling_lanes}}
+
 {{table:inkling_summary}}
 
 - {{inkling_model}}
@@ -155,6 +159,7 @@ Endpoint: {{hetzner_endpoint}} (OpenAI-compatible). {{hetzner_lead}}
 - {{inkling_stage_b}}
 - {{inkling_stage_c}}
 - {{inkling_retry_time}}
+- {{inkling_slowest}}
 - {{inkling_caveat}}
 - {{inkling_host}}
 

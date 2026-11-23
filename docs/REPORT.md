@@ -360,7 +360,16 @@ Inkling 2 Mini passed 7/15 frozen and 13/15 with retries.
 
 - Primary, frozen before the full run: 7/15, in 9.01 h of wall time.
 - Retry ladder, secondary: 13/15 after re-running the tasks the cap cut off.
-- It is a free local CPU model, so latency is not comparable with API lanes.
+- Median time per task: 48 min primary, 77 min ladder.
+
+It is a free local CPU model, so its times do not match API lanes.
+
+| free lane | passed (function tests) | median s per task | total wall |
+|---|---|---|---|
+| hetzner-qwen36 | 10/12 | 341 | 1.33 h |
+| hetzner-qwen38 | 9/12 | 821 | 2.98 h |
+| Inkling 2 Mini primary (frozen) | 7/15 | 2,881 | 9.01 h |
+| Inkling 2 Mini retry ladder (secondary) | 13/15 | 4,630 | 20.08 h |
 
 | task | primary (12,288 cap) | primary minutes | retry stages | ladder |
 |---|---|---|---|---|
@@ -386,6 +395,7 @@ Inkling 2 Mini passed 7/15 frozen and 13/15 with retries.
 - Low effort at 16,384 tokens passed 0/2.
 - Default effort at 24,576 tokens passed 1/1.
 - The retry added 11.07 h of wall time, 20.08 h in all.
+- Slowest task p11: 50 min primary, 326 min on the ladder.
 - The ladder is secondary because its settings were chosen after seeing which tasks hit the cap.
 - Other work sometimes ran on the host, so times vary. Off dollar charts, the Winner and the frontier.
 

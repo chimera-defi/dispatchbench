@@ -28,8 +28,8 @@
 <section id="pareto">
 <h2><span class="num"></span>Cost vs accuracy</h2>
 <p class="small">The cheapest luna configs cost less but miss about {{cheap_miss_words}}.</p>
-{{w_hero}}
-<p class="small"><a href="#explore">Explore every config: other views, problem sets and prices</a></p>
+<span id="explore"></span>
+{{w_explorer}}
 </section>
 <section id="results">
 <h2><span class="num"></span>Results</h2>
@@ -165,6 +165,8 @@
 <li>{{inkling_b2}}</li>
 <li>{{inkling_b3}}</li>
 </ul>
+<p>{{inkling_cpu}}</p>
+{{table:inkling_lanes}}
 <details><summary>Per-task results and run details</summary>
 {{table:inkling_summary}}
 <ul class="tight small">
@@ -174,6 +176,7 @@
 <li>{{inkling_stage_b}}</li>
 <li>{{inkling_stage_c}}</li>
 <li>{{inkling_retry_time}}</li>
+<li>{{inkling_slowest}}</li>
 <li>{{inkling_caveat}}</li>
 <li>{{inkling_host}}</li>
 </ul>
@@ -198,8 +201,6 @@
 {{table:t1_regrade}}
 <p class="small"><b>Correction, 2026-10-28.</b> A reader pointed out that "passed every hidden test" hid luna-low's visible-test misses. The headline is now task complete, with the hidden-suite count beside it.</p>
 </details>
-<h3 id="explore">Explore every config</h3>
-{{w_explorer}}
 <details open><summary>Explore tokens, reasoning, and latency</summary>
 {{w_any_pair}}
 </details>
