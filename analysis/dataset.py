@@ -181,7 +181,7 @@ def _row(src, name, st, rr):
             "usd_saved_per_pass": round((spend - sc - sg) / k, 6) if k and complete else None,
             "usd_per_1k_tokens": (1000 * round(spend / n, 6) / (round(statistics.mean(x["in"] or 0 for x in rr)) + round(statistics.mean(x["out"] or 0 for x in rr)))) if complete and any((x["in"] or 0) + (x["out"] or 0) for x in rr) else None,
             **_rule_fields(src, rr),
-            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "free-tier" if rr[0]["cli"] in ("hetzner", "llama.cpp") else "unmetered" if rr[0]["cli"] == "devin" else "measured" if summarize.measured(rr[0]) else "proxy"}
+            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "free-tier" if rr[0]["cli"] == "hetzner" else "local" if rr[0]["cli"] == "llama.cpp" else "unmetered" if rr[0]["cli"] == "devin" else "measured" if summarize.measured(rr[0]) else "proxy"}
 
 
 def _base():
@@ -254,7 +254,7 @@ def median_seconds(v):
 
 def price_text(row, value):
     """Free experimental access is a label, never a published zero-dollar price."""
-    return "free tier" if row["cost_kind"] == "free-tier" else usd(value)
+    return "local, no price" if row["cost_kind"] == "local" else "free tier" if row["cost_kind"] == "free-tier" else usd(value)
 
 
 def p1(d):
@@ -460,7 +460,7 @@ def _facts(s, arms):
     need(set(extra) == {"claude", "codex"}, "Codex-built bench used other CLI builds on both sides")
     F["versions_extra"] = (f"Whose bench? also used Codex CLI {', '.join(sorted(extra['codex']))}"
                            f" and Claude Code {', '.join(sorted(extra['claude']))}.")
-    dated = rows + agent + [r for source, paths in configs.SOURCES.items() if source not in ("main", "agentic")
+    dated = rows + agent + summarize.inkling_rows() + [r for source, paths in configs.SOURCES.items() if source not in ("main", "agentic")
                             for path in paths for r in load(os.path.join(RES, path))]
     days = sorted(r["ts"][:10] for r in dated if r.get("ts"))
     F["run_dates"] = f"All calls ran {days[0]} to {days[-1]}."
@@ -818,7 +818,7 @@ def _facts(s, arms):
     F["codex_rerun_date"] = max(r["ts"] for r in rerun_rows)[:10] if rerun_rows else ""
     F["terra_dates"] = " and ".join(sorted({r["ts"][:10] for r in terra_rows}))
     need(abs(sum(map(cost, orig_rows)) + sum(map(cost, rerun_rows)) + sum(map(cost, terra_rows)) + nu + ffu + sp['codex_fastmode_usd'] - sp['codex_proxy_usd']) < 1e-3, "the Codex spend buckets sum to the Codex total")
-    F["date_last"] = max(r["ts"] for r in rows + agent)[:10]
+    F["date_last"] = max(r["ts"] for r in rows + agent + summarize.inkling_rows())[:10]
     import glob as _glob
     gk = [r for f in sorted(_glob.glob(os.path.join(RES, "*grok*.jsonl"))) for r in load(f) if r.get("cli") == "grok"]
     F["grok_cli_usd"] = usd(sum(map(cost, gk)))
@@ -1212,7 +1212,7 @@ def _project(ds, summary):
             r.update({k: v[k] for k in ("cli", "model", "effort", "outcomes", "breaking_point") if k in v})
             v.update({"n": r["n"], "passes": r["passes"], "pass_at_1": r["pass_rate"], "misses": r["misses"],
                       "ci95": r["ci95"] or [r["pass_rate"], r["pass_rate"]], "ci95_plot": r["ci95_plot"],
-                      "usd_per_pass": r["usd_per_pass"], "usd_text": price_text(r, r["usd_per_pass"]), "usd_per_call": r["usd_per_call"], "usd_total": None if r["cost_kind"] in ("unmetered", "free-tier") else r["spend"],
+                      "usd_per_pass": r["usd_per_pass"], "usd_text": price_text(r, r["usd_per_pass"]), "usd_per_call": r["usd_per_call"], "usd_total": None if r["cost_kind"] in ("unmetered", "free-tier", "local") else r["spend"],
                       "claude_usd_per_pass": r["claude_usd_per_pass"], "usd_saved_per_pass": r["usd_saved_per_pass"],
                       "usd_per_1k_tokens": r["usd_per_1k_tokens"], "by_group": r["by_group"],
                       "input_floor": r["input_floor"], "cost_kind": r["cost_kind"],
@@ -1768,7 +1768,7 @@ def build(summary=None):
     # Per-config call counts: most configs ran the nominal grid; the exceptions are named from the data, never typed.
     fr = [r for r in ds["rows"] if r["source"] == "main" and r["set"] in ("main ladder", "partial ladder")]
     nominal = get(ds, "haiku-low", "main ladder")["n"]
-    odd = [r for r in fr if r["n"] != nominal]
+    odd = [r for r in fr if r["n"] != nominal and r["config"] not in configs.INKLING_CONFIGS]  # Inkling ran p01–p15: described in its own section
     ds["facts"]["calls_exceptions"] = "; ".join(f"{r['config']} {r['n']} calls" for r in odd)
     ds["facts"]["calls_exceptions_why"] = "; ".join(f"{r['config']} {r['n']} calls ({'p01–p06 only' if r['config'] == 'grok47-medium' else 'one repeat' if r['n'] == int(ds['facts']['n_problems']) else 'a partial ladder'})" for r in odd)
     ds["facts"]["n_configs_all"] = str(len({r["config"] for r in fr if r["config"] not in configs.FREE_TIER_CONFIGS}))  # model-and-effort configs; the Devin lane runs its default

@@ -8345,7 +8345,7 @@
      3
     ]
    },
-   "cost_kind": "free-tier",
+   "cost_kind": "local",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -8467,7 +8467,7 @@
      3
     ]
    },
-   "cost_kind": "free-tier",
+   "cost_kind": "local",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -8550,7 +8550,7 @@
      2
     ]
    },
-   "cost_kind": "free-tier",
+   "cost_kind": "local",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -8629,7 +8629,7 @@
      1
     ]
    },
-   "cost_kind": "free-tier",
+   "cost_kind": "local",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -22167,7 +22167,7 @@
      3
     ]
    },
-   "cost_kind": "free-tier",
+   "cost_kind": "local",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -22289,7 +22289,7 @@
      3
     ]
    },
-   "cost_kind": "free-tier",
+   "cost_kind": "local",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -22372,7 +22372,7 @@
      2
     ]
    },
-   "cost_kind": "free-tier",
+   "cost_kind": "local",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -22451,7 +22451,7 @@
      1
     ]
    },
-   "cost_kind": "free-tier",
+   "cost_kind": "local",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -29966,7 +29966,7 @@
      "p01_overlap_minutes": {
       "passed": true,
       "outcome": "pass",
-      "wall_s": 365.5,
+      "wall_s": 365.52446711200173,
       "out_tok": 1821,
       "finish_reason": "stop",
       "gen_tok_per_s": 5.209260114732351
@@ -29974,7 +29974,7 @@
      "p02_squash": {
       "passed": true,
       "outcome": "pass",
-      "wall_s": 230.0,
+      "wall_s": 230.00624438401428,
       "out_tok": 1134,
       "finish_reason": "stop",
       "gen_tok_per_s": 5.317764495913897
@@ -29982,7 +29982,7 @@
      "p03_ledger": {
       "passed": true,
       "outcome": "pass",
-      "wall_s": 1287.6,
+      "wall_s": 1287.618827400991,
       "out_tok": 5745,
       "finish_reason": "stop",
       "gen_tok_per_s": 4.658358769811825
@@ -29990,7 +29990,7 @@
      "p04_taller_within": {
       "passed": true,
       "outcome": "pass",
-      "wall_s": 664.3,
+      "wall_s": 664.3248053349962,
       "out_tok": 3291,
       "finish_reason": "stop",
       "gen_tok_per_s": 5.100205125289453
@@ -29998,7 +29998,7 @@
      "p05_pass_route": {
       "passed": true,
       "outcome": "pass",
-      "wall_s": 558.3,
+      "wall_s": 558.3299510669895,
       "out_tok": 2726,
       "finish_reason": "stop",
       "gen_tok_per_s": 5.099351717451272
@@ -30006,7 +30006,7 @@
      "p06_calc": {
       "passed": false,
       "outcome": "no_code",
-      "wall_s": 2921.3,
+      "wall_s": 2921.297923330014,
       "out_tok": 12288,
       "finish_reason": "length",
       "gen_tok_per_s": 4.253835013243706
@@ -30014,7 +30014,7 @@
      "p07_weighted_distance_sums": {
       "passed": true,
       "outcome": "pass",
-      "wall_s": 681.0,
+      "wall_s": 681.0161546899762,
       "out_tok": 3397,
       "finish_reason": "stop",
       "gen_tok_per_s": 5.095791693098773
@@ -30022,7 +30022,7 @@
      "p08_recur": {
       "passed": true,
       "outcome": "pass",
-      "wall_s": 2582.5,
+      "wall_s": 2582.5278939550044,
       "out_tok": 11021,
       "finish_reason": "stop",
       "gen_tok_per_s": 4.332809874986722
@@ -30030,7 +30030,7 @@
      "p09_k_machine_schedule": {
       "passed": false,
       "outcome": "no_code",
-      "wall_s": 2881.3,
+      "wall_s": 2881.2752949399874,
       "out_tok": 12288,
       "finish_reason": "length",
       "gen_tok_per_s": 4.289203288207477
@@ -30038,7 +30038,7 @@
      "p10_avoid_count": {
       "passed": false,
       "outcome": "no_code",
-      "wall_s": 2899.3,
+      "wall_s": 2899.3105877140188,
       "out_tok": 12288,
       "finish_reason": "length",
       "gen_tok_per_s": 4.259220179207533
@@ -30046,7 +30046,7 @@
      "p11_best_average": {
       "passed": false,
       "outcome": "no_code",
-      "wall_s": 3005.3,
+      "wall_s": 3005.314344790997,
       "out_tok": 12288,
       "finish_reason": "length",
       "gen_tok_per_s": 4.115846507060566
@@ -30054,7 +30054,7 @@
      "p12_sheet": {
       "passed": false,
       "outcome": "no_code",
-      "wall_s": 3043.9,
+      "wall_s": 3043.914469664014,
       "out_tok": 12288,
       "finish_reason": "length",
       "gen_tok_per_s": 4.119912609179575
@@ -30062,7 +30062,7 @@
      "p13_xor_ring": {
       "passed": false,
       "outcome": "no_code",
-      "wall_s": 2936.2,
+      "wall_s": 2936.2397262159793,
       "out_tok": 12288,
       "finish_reason": "length",
       "gen_tok_per_s": 4.21406582999558
@@ -30070,7 +30070,7 @@
      "p14_bounce_board": {
       "passed": false,
       "outcome": "no_code",
-      "wall_s": 2892.0,
+      "wall_s": 2892.043151706981,
       "out_tok": 12288,
       "finish_reason": "length",
       "gen_tok_per_s": 4.287766302117579
@@ -30078,7 +30078,7 @@
      "p15_paint_erase": {
       "passed": false,
       "outcome": "no_code",
-      "wall_s": 5493.1,
+      "wall_s": 5493.135922673013,
       "out_tok": 12288,
       "finish_reason": "length",
       "gen_tok_per_s": 2.245552832021199
@@ -30097,42 +30097,42 @@
       "p06_calc": {
        "passed": true,
        "outcome": "pass",
-       "wall_s": 2749.8
+       "wall_s": 2749.7625124769984
       },
       "p09_k_machine_schedule": {
        "passed": true,
        "outcome": "pass",
-       "wall_s": 1749.2
+       "wall_s": 1749.1693521150155
       },
       "p10_avoid_count": {
        "passed": true,
        "outcome": "pass",
-       "wall_s": 2933.1
+       "wall_s": 2933.1488446609874
       },
       "p11_best_average": {
        "passed": false,
        "outcome": "no_code",
-       "wall_s": 4862.8
+       "wall_s": 4862.847318333021
       },
       "p12_sheet": {
        "passed": false,
        "outcome": "no_code",
-       "wall_s": 4500.4
+       "wall_s": 4500.4062105390185
       },
       "p13_xor_ring": {
        "passed": true,
        "outcome": "pass",
-       "wall_s": 1902.1
+       "wall_s": 1902.148285977979
       },
       "p14_bounce_board": {
        "passed": true,
        "outcome": "pass",
-       "wall_s": 3778.0
+       "wall_s": 3777.9853908150108
       },
       "p15_paint_erase": {
        "passed": false,
        "outcome": "wrong",
-       "wall_s": 3721.9
+       "wall_s": 3721.927395412
       }
      }
     },
@@ -30147,12 +30147,12 @@
       "p11_best_average": {
        "passed": false,
        "outcome": "no_code",
-       "wall_s": 4797.9
+       "wall_s": 4797.885483320977
       },
       "p12_sheet": {
        "passed": false,
        "outcome": "crash",
-       "wall_s": 1985.2
+       "wall_s": 1985.1635359739885
       }
      }
     },
@@ -30167,7 +30167,7 @@
       "p11_best_average": {
        "passed": true,
        "outcome": "pass",
-       "wall_s": 6864.3
+       "wall_s": 6864.252247570985
       }
      }
     }
@@ -35241,9 +35241,9 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "run_dates": {
-   "value": "All calls ran 2026-10-22 to 2026-11-02.",
+   "value": "All calls ran 2026-10-22 to 2026-11-22.",
    "unit": "text",
-   "display": "All calls ran 2026-10-22 to 2026-11-02.",
+   "display": "All calls ran 2026-10-22 to 2026-11-22.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "cite": {
@@ -38181,9 +38181,9 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "date_last": {
-   "value": "2026-11-02",
+   "value": "2026-11-22",
    "unit": "text",
-   "display": "2026-11-02",
+   "display": "2026-11-22",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "grok_cli_usd": {
@@ -38875,15 +38875,15 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "calls_exceptions": {
-   "value": "terra56-low 12 calls; terra56-high 12 calls; grok47-medium 21 calls; devin16slow-default 12 calls; hetzner-qwen36 12 calls; hetzner-qwen38 12 calls; inkling2mini-default 15 calls; inkling2mini-medium16k 8 calls; inkling2mini-low16k 2 calls; inkling2mini-default24k 1 calls; sol61-xhigh 35 calls",
+   "value": "terra56-low 12 calls; terra56-high 12 calls; grok47-medium 21 calls; devin16slow-default 12 calls; hetzner-qwen36 12 calls; hetzner-qwen38 12 calls; sol61-xhigh 35 calls",
    "unit": "text",
-   "display": "terra56-low 12 calls; terra56-high 12 calls; grok47-medium 21 calls; devin16slow-default 12 calls; hetzner-qwen36 12 calls; hetzner-qwen38 12 calls; inkling2mini-default 15 calls; inkling2mini-medium16k 8 calls; inkling2mini-low16k 2 calls; inkling2mini-default24k 1 calls; sol61-xhigh 35 calls",
+   "display": "terra56-low 12 calls; terra56-high 12 calls; grok47-medium 21 calls; devin16slow-default 12 calls; hetzner-qwen36 12 calls; hetzner-qwen38 12 calls; sol61-xhigh 35 calls",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "calls_exceptions_why": {
-   "value": "terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); hetzner-qwen36 12 calls (one repeat); hetzner-qwen38 12 calls (one repeat); inkling2mini-default 15 calls (a partial ladder); inkling2mini-medium16k 8 calls (a partial ladder); inkling2mini-low16k 2 calls (a partial ladder); inkling2mini-default24k 1 calls (a partial ladder); sol61-xhigh 35 calls (a partial ladder)",
+   "value": "terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); hetzner-qwen36 12 calls (one repeat); hetzner-qwen38 12 calls (one repeat); sol61-xhigh 35 calls (a partial ladder)",
    "unit": "text",
-   "display": "terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); hetzner-qwen36 12 calls (one repeat); hetzner-qwen38 12 calls (one repeat); inkling2mini-default 15 calls (a partial ladder); inkling2mini-medium16k 8 calls (a partial ladder); inkling2mini-low16k 2 calls (a partial ladder); inkling2mini-default24k 1 calls (a partial ladder); sol61-xhigh 35 calls (a partial ladder)",
+   "display": "terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); hetzner-qwen36 12 calls (one repeat); hetzner-qwen38 12 calls (one repeat); sol61-xhigh 35 calls (a partial ladder)",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "n_configs_all": {
@@ -38893,9 +38893,9 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "calls_exceptions_page": {
-   "value": "terra56-low 12 calls; terra56-high 12 calls; devin16slow-default 12 calls; hetzner-qwen36 12 calls; hetzner-qwen38 12 calls; inkling2mini-default 15 calls; inkling2mini-medium16k 8 calls; inkling2mini-low16k 2 calls; inkling2mini-default24k 1 calls; sol61-xhigh 35 calls; the Grok configs are counted in the Grok section",
+   "value": "terra56-low 12 calls; terra56-high 12 calls; devin16slow-default 12 calls; hetzner-qwen36 12 calls; hetzner-qwen38 12 calls; sol61-xhigh 35 calls; the Grok configs are counted in the Grok section",
    "unit": "text",
-   "display": "terra56-low 12 calls; terra56-high 12 calls; devin16slow-default 12 calls; hetzner-qwen36 12 calls; hetzner-qwen38 12 calls; inkling2mini-default 15 calls; inkling2mini-medium16k 8 calls; inkling2mini-low16k 2 calls; inkling2mini-default24k 1 calls; sol61-xhigh 35 calls; the Grok configs are counted in the Grok section",
+   "display": "terra56-low 12 calls; terra56-high 12 calls; devin16slow-default 12 calls; hetzner-qwen36 12 calls; hetzner-qwen38 12 calls; sol61-xhigh 35 calls; the Grok configs are counted in the Grok section",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "hm_all_k": {
@@ -42108,7 +42108,7 @@
     [
      "p07",
      "pass",
-     "11.3",
+     "11.4",
      "–",
      "pass"
     ],
