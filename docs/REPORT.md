@@ -356,11 +356,11 @@ Verdict: usable but slow, below the Claude and Codex sol61 middle tiers. Qwen3.8
 
 For anyone weighing a free local model for coding tasks.
 
-The frozen run passed 7/15, the retry ladder 13/15, on a free local CPU, so latency is not comparable.
+Inkling 2 Mini passed 7/15 frozen and 13/15 with retries.
 
-- Primary, frozen before the full run: 7/15, in 9.01 h.
+- Primary, frozen before the full run: 7/15, in 9.01 h of wall time.
 - Retry ladder, secondary: 13/15 after re-running the tasks the cap cut off.
-- Latency is not comparable with API lanes: one local CPU, one call at a time.
+- It is a free local CPU model, so latency is not comparable with API lanes.
 
 | task | primary (12,288 cap) | primary minutes | retry stages | ladder |
 |---|---|---|---|---|
@@ -380,14 +380,14 @@ The frozen run passed 7/15, the retry ladder 13/15, on a free local CPU, so late
 | p14 | no_code | 48.2 | medium @ 16,384: pass | pass |
 | p15 | no_code | 91.6 | medium @ 16,384: wrong | fail |
 
-- Model: Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600, on this host's CPU. It has no list price.
-- Primary settings: tasks p01–p15, default effort, 12,288-token cap.
+- Model: Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600, run on p01–p15 on this host's CPU, one call at a time. It has no list price.
+- Primary settings: default effort, 12,288-token cap.
 - Medium effort at 16,384 tokens passed 5/8.
 - Low effort at 16,384 tokens passed 0/2.
 - Default effort at 24,576 tokens passed 1/1.
-- The retry added 11.07 h, 20.08 h in all.
-- The retry settings were chosen after seeing which tasks hit the cap.
-- Other work sometimes ran on the host. Off dollar charts, the Winner and the frontier.
+- The retry added 11.07 h of wall time, 20.08 h in all.
+- The ladder is secondary because its settings were chosen after seeing which tasks hit the cap.
+- Other work sometimes ran on the host, so times vary. Off dollar charts, the Winner and the frontier.
 
 ## Code quality
 

@@ -15,8 +15,8 @@
     "page text: Primary: 7/15 (frozen settings). Retry ladder, secondary: 13/15. Total wall time 20.08 h.": "The Inkling section was rewritten to open with who it is for and the answer (Wren Shape rules); the old paragraph and bullets are now split across the lede, three bullets and a details block, with every number kept."
   },
   "dropped_facts": {
-    "inkling_lead": "Replaced by the split facts inkling_for, inkling_answer, inkling_b1 to inkling_b3 and inkling_model (Shape rewrite); no number dropped.",
-    "inkling_scope": "Replaced by inkling_b3, inkling_caveat and inkling_host (Shape rewrite); no claim dropped.",
+    "inkling_lead": "Replaced by the split facts inkling_for, inkling_answer, inkling_b1 to inkling_b3, inkling_model, inkling_settings, inkling_stage_a to inkling_stage_c and inkling_retry_time (Shape rewrite); no number dropped.",
+    "inkling_scope": "Replaced by inkling_b3, inkling_caveat and inkling_host (Shape rewrite); the because-link and the host-load note are kept in those sentences.",
     "inkling_primary": "Its value (7/15) is now composed into inkling_answer and inkling_b1 rather than cited as its own template fact.",
     "inkling_ladder": "Its value (13/15) is now composed into inkling_answer and inkling_b2 rather than cited as its own template fact.",
     "inkling_total_wall": "Its value (20.08 h) is now composed into inkling_retry_time rather than cited as its own template fact."

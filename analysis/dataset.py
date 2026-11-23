@@ -1955,15 +1955,15 @@ def _inkling(ds, s):
     need(len(st) == 3, "Inkling: three retry stages")
     F["inkling_stage_a"], F["inkling_stage_b"], F["inkling_stage_c"] = (stage(x) for x in st)
     F["inkling_for"] = "For anyone weighing a free local model for coding tasks."
-    F["inkling_answer"] = f"The frozen run passed {F['inkling_primary']}, the retry ladder {F['inkling_ladder']}, on a free local CPU, so latency is not comparable."
-    F["inkling_b1"] = f"Primary, frozen before the full run: {F['inkling_primary']}, in {F['inkling_primary_wall']}."
+    F["inkling_answer"] = f"{F['inkling_name']} passed {F['inkling_primary']} frozen and {F['inkling_ladder']} with retries."
+    F["inkling_b1"] = f"Primary, frozen before the full run: {F['inkling_primary']}, in {F['inkling_primary_wall']} of wall time."
     F["inkling_b2"] = f"Retry ladder, secondary: {F['inkling_ladder']} after re-running the tasks the cap cut off."
-    F["inkling_b3"] = "Latency is not comparable with API lanes: one local CPU, one call at a time."
-    F["inkling_model"] = f"Model: {p['model']}, llama.cpp {p['cli_version']}, on this host's CPU. It has no list price."
-    F["inkling_settings"] = f"Primary settings: tasks p01–p{k['n']}, default effort, {F['inkling_cap']}-token cap."
-    F["inkling_retry_time"] = f"The retry added {F['inkling_retry_wall']}, {F['inkling_total_wall']} in all."
-    F["inkling_caveat"] = "The retry settings were chosen after seeing which tasks hit the cap."
-    F["inkling_host"] = "Other work sometimes ran on the host. Off dollar charts, the Winner and the frontier."
+    F["inkling_b3"] = "It is a free local CPU model, so latency is not comparable with API lanes."
+    F["inkling_model"] = f"Model: {p['model']}, llama.cpp {p['cli_version']}, run on p01–p{k['n']} on this host's CPU, one call at a time. It has no list price."
+    F["inkling_settings"] = f"Primary settings: default effort, {F['inkling_cap']}-token cap."
+    F["inkling_retry_time"] = f"The retry added {F['inkling_retry_wall']} of wall time, {F['inkling_total_wall']} in all."
+    F["inkling_caveat"] = "The ladder is secondary because its settings were chosen after seeing which tasks hit the cap."
+    F["inkling_host"] = "Other work sometimes ran on the host, so times vary. Off dollar charts, the Winner and the frontier."
     short = lambda t: t.split("_")[0]
     rows = []
     for t, v in p["tasks"].items():
