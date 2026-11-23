@@ -143,7 +143,7 @@ def deep_links(body):
 def SHAPE(c):
     if c.startswith("grok"): return "hexagon"
     if c.startswith("devin"): return "plus"
-    if c.startswith("hetzner"): return "pentagon"
+    if c.startswith(("hetzner", "inkling")): return "pentagon"
     if c.startswith("terra"): return "pentagon"
     if "luna" in c:
         return "triangle-down" if "high" in c else "triangle-right" if "medium" in c else "triangle"
@@ -594,18 +594,21 @@ def rescue_arms(ds=None):
 def grid(s, grok=None):
     """Problems (rows, by rung) × configs (columns); each cell is passes out of the attempts at that problem.
     grok maps each Grok config to {problem: [passes, attempts]}; a config that skipped a problem shows a dash there."""
-    grok = grok or {}; cols = ORDER + [c for c in GROK_ORDER if c in grok] + list(configs.DEVIN_CONFIGS) + list(hetzner(s))
+    grok = grok or {}; ink = s.get("inkling") or {}
+    inkling = {configs.INKLING_PRIMARY: {p: x["passed"] for p, x in ink["primary"]["tasks"].items()}, configs.INKLING_LADDER: ink["ladder"]["tasks"]} if ink else {}  # 1 try per task, like the Hetzner lanes
+    cols = ORDER + [c for c in GROK_ORDER if c in grok] + list(configs.DEVIN_CONFIGS) + list(hetzner(s)) + list(inkling)
     E = {**every(s), **devin(s), **hetzner(s)}; probs = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
     main = set(probs)
     hard = sorted({p for v in s["hard"].values() for p in v["by_problem"]})
     def cell(p, c):
         if c in grok:
             k, n = grok[c].get(p, (None, None)); return (k, n)
+        if c in inkling: return (int(inkling[c][p]), 1) if p in inkling[c] else (None, None)
         v = E.get(c) if p in main else s["hard"].get(c)
         cell = v["by_group"].get(p) if v else None
         return (cell["passes"], cell["n"]) if cell else (None, None)
     out = [f'<div class="grid" style="--n:{len(cols)};grid-template-columns:minmax(150px,auto) repeat({len(cols)},minmax(40px,1fr))">', '<div class="h m">problem</div>']
-    out += [f'<div style="color:{FAM(c)}" class="h{" fast" if c.endswith("-fast") else " devin" if c in configs.DEVIN_CONFIGS else " hetzner" if c in configs.HETZNER_CONFIGS else ""}"'
+    out += [f'<div style="color:{FAM(c)}" class="h{" fast" if c.endswith("-fast") else " devin" if c in configs.DEVIN_CONFIGS else " hetzner" if c in configs.HETZNER_CONFIGS else " inkling" if c in inkling else ""}"'
             + (f' title="{esc(s["facts"]["devin_group"])}"' if c in configs.DEVIN_CONFIGS else f' title="{esc(configs.HETZNER_NOTE)}"' if c in configs.HETZNER_CONFIGS else "") + f'>{esc(DISP(c))}</div>' for c in cols]
     for p in probs + hard:
         if p == hard[0]: out.append(f'<div class="set-separator" style="grid-column:1 / -1">L7 set</div>')
@@ -795,9 +798,9 @@ def explorer(s):
         "__CHIPS__": "".join(f'<li><b>{i}</b>'+button(r)+"</li>" for i,r in enumerate(fr,1)),
         "__DETAIL__": detail,
         "__CONFIG_BUTTONS__": "".join(f'<button class="btn" data-config="{esc(r["key"])}" aria-pressed="true">{esc(r["display"])} · {charts.explorer_cost_label(r)}</button>' for r in rows),
+        "__FAMILY_BUTTONS__": "".join(f'<button class="btn" data-facet="family:{esc(f)}" aria-pressed="true">{esc(f)}</button>' for f in sorted({r["family"] for r in exp["rows"]})),
         "__FACET_BUTTONS__": "".join(f'<button class="btn" data-facet="{esc(k)}" aria-pressed="true">{esc(label)}</button>'
-                                   for k,label in [("family:"+f,f) for f in sorted({r["family"] for r in exp["rows"]})]
-                                   + [("mode:"+m,m) for m in ("normal","fast","bare","pipeline")]
+                                   for k,label in [("mode:"+m,m) for m in ("normal","fast","bare","pipeline")]
                                    + [("generation:5.6","gpt-5.6")]) + '<button class="btn" data-facet="prereg" aria-pressed="false">Pre-registered only</button>',
     }
     body = open(os.path.join(os.path.dirname(__file__), "..", "docs", "page", "explorer.html")).read()
@@ -910,6 +913,11 @@ def short_table(s, need):
     hetzner_rows = [(c, row(DISP(c) + " †", FAM(c), v["passes"], v["n"], None, None, dataset.median_seconds(v),
                     "usable but slow; not recommended", derived=configs.HETZNER_NOTE,
                     rate=v["pass_at_1"], key=s["facts"]["verdict_key"], cost_label="free tier")) for c, v in hz.items()]
+    ink = s.get("inkling") or {}  # free local CPU lane: the frozen primary and the secondary ladder, each its own row
+    ink_rows = [row(DISP(c), FAM(c), b["passes"], ink["n"], None, None, b["median_s"], verdict, rate=b["passes"] / ink["n"], key=s["facts"]["verdict_key"],
+                    cost_label="local, no price", set_name=name)
+                for c, b, name, verdict in ((configs.INKLING_PRIMARY, ink.get("primary"), "primary, frozen", "primary, no retries"),
+                                            (configs.INKLING_LADDER, ink.get("ladder"), "retry ladder, secondary", "secondary")) if b]
     problems = sorted(s["problems"])
     def group(label, rows, source, extra=""):
         regular = "".join(body for c, body in rows if not configs.low_context(c, source))
@@ -926,6 +934,7 @@ def short_table(s, need):
     n_grok_part = grok_part.count("<tr") - grok_part.count('class="grp"')
     more = []
     if hetzner_rows: more.append(f"Hetzner free tier ({len(hetzner_rows)})")
+    if ink_rows: more.append(f"Inkling local CPU ({len(ink_rows)})")
     if n_grok_part: more.append(f"Grok partial ladder ({n_grok_part})")
     if hard: more.append(f"{configs.set_label('rescue set')} ({len(hard)})")
     if dv_rows: more.append(f"Devin ({len(dv_rows)})")
@@ -933,9 +942,10 @@ def short_table(s, need):
     wrap = lambda body: '<div class="tablewrap"><table class="sortable">' + head + body + '</table></div>'
     hetzner_group = ('<tbody><tr class="grp"><th colspan="6">' + esc("Main ladder: Hetzner " + configs.HETZNER_NOTE)
                      + '</th></tr>' + "".join(body for _, body in hetzner_rows) + '</tbody>') if hetzner_rows else ""
+    inkling_group = (f'<tbody><tr class="grp"><th colspan="6">Inkling 2 Mini on a local CPU: {ink["n"]} tasks, 1 try each, free, no list price</th></tr>' + "".join(ink_rows) + '</tbody>') if ink_rows else ""
     return (wrap(group(ladder_label, top, "main") + grok_main + low_group)
             + '<details class="more-rows"><summary>' + esc("More rows: " + ", ".join(more)) + '</summary>'
-            + wrap(hetzner_group + grok_part + group(subset_label, hard, "rescue", extra=devin_rows))
+            + wrap(hetzner_group + inkling_group + grok_part + group(subset_label, hard, "rescue", extra=devin_rows))
             + '</details>')
 
 
