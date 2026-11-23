@@ -9,7 +9,6 @@
   },
   "groups": {},
   "removals": {
-    "page text: exploratory: 18 configs, ~$35.89 spent": "The exploratory config count rises by the four Inkling configs (primary and three retry stages).",
     "page text: LeetCode-style problems, written fresh for this bench. All calls ran 2026-10-22 to 2026-11-02.": "The run-date line now spans the Inkling runs (2026-11-22), which the date calculation previously skipped."
   }
 }
