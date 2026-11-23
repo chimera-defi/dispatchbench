@@ -915,7 +915,7 @@ def short_table(s, need):
                     rate=v["pass_at_1"], key=s["facts"]["verdict_key"], cost_label="free tier")) for c, v in hz.items()]
     ink = s.get("inkling") or {}  # free local CPU lane: the frozen primary and the secondary ladder, each its own row
     ink_rows = [row(DISP(c), FAM(c), b["passes"], ink["n"], None, None, b["median_s"], verdict, rate=b["passes"] / ink["n"], key=s["facts"]["verdict_key"],
-                    cost_label="local, no price", set_name=name)
+                    cost_label=f"est. {s['facts']['inkling_pp_primary' if c == configs.INKLING_PRIMARY else 'inkling_pp_ladder']} from box-hours", set_name=name)
                 for c, b, name, verdict in ((configs.INKLING_PRIMARY, ink.get("primary"), "primary, frozen", "primary, no retries"),
                                             (configs.INKLING_LADDER, ink.get("ladder"), "retry ladder, secondary", "secondary")) if b]
     problems = sorted(s["problems"])

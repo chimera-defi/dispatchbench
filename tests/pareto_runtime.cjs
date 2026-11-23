@@ -88,7 +88,9 @@ const allPts=(element('ex-chart').innerHTML.match(/class="ex-point/g)||[]).lengt
 h.st.facets.add('family:Claude');h.render();
 const claudePts=(element('ex-chart').innerHTML.match(/class="ex-point/g)||[]).length;
 assert(claudePts>0&&claudePts<allPts,'family toggle must change the visible points');
+h.st.facets.add('family:Claude');h.render();assert(/data-config="[^"]*haiku-low[^"]*" aria-pressed="false"/.test(element('ex-config-list').innerHTML),'a config hidden by its family must not look on');
 h.st.facets.clear();h.render();assert.equal((element('ex-chart').innerHTML.match(/class="ex-point/g)||[]).length,allPts,'reset restores every point');
+h.st.view='front';h.st.facets.clear();h.render();assert(element('ex-chart').innerHTML.includes('inkling2mini-ladder'),'Inkling is priced on Cost x Pass');
 h.st.view='side';h.st.facets.clear();h.render();
 assert(element('ex-chart').innerHTML.includes('inkling2mini-default')&&element('ex-chart').innerHTML.includes('inkling2mini-ladder'),'Inkling lanes missing from Speed x Pass');
 h.st.facets.add('family:Inkling');h.render();assert(!element('ex-chart').innerHTML.includes('inkling2mini-default'),'hiding the Inkling family removes its lanes');

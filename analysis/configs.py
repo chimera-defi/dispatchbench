@@ -99,8 +99,10 @@ add("main", "exploratory", (INKLING_LADDER, "Inkling 2 Mini retry ladder, second
     "a task passes if any stage passed it and its time is the sum over the stages; llama.cpp b12600 on a local CPU, free, no list price; exploratory"))
 INKLING_PRIMARY = INKLING_CONFIGS[0]
 INKLING_STAGES = INKLING_CONFIGS[1:]  # raw retry stages: shown only through the ladder lane
+BOX_USD_PER_HOUR = 0.10  # assumption, not a measurement: about EUR 65 a month for a rented i7-8700 class box (one unverified auction listing), over a 730-hour month
+BOX_NOTE = f"Estimated from box-hours: wall time at an assumed ${BOX_USD_PER_HOUR:.2f} an hour. The rate is an assumption, not a measurement."
 INKLING_SHOWN = (INKLING_PRIMARY, INKLING_LADDER)  # the two Inkling lanes that join tables and charts, like the Hetzner lanes
-FREE_TIER_CONFIGS = DEVIN_CONFIGS + HETZNER_CONFIGS + INKLING_CONFIGS + (INKLING_LADDER,)  # no published $ comparison: off all $ charts, Winner and frontier
+FREE_TIER_CONFIGS = DEVIN_CONFIGS + HETZNER_CONFIGS + INKLING_CONFIGS + (INKLING_LADDER,)  # Inkling's box-hour estimate is not a list price: it is priced only in the explorer. Others: no published $ comparison: off all $ charts, Winner and frontier
 CHART_HIDDEN = CHART_HIDDEN + FREE_TIER_CONFIGS
 HETZNER_NOTE = "exploratory calibration, 1 repeat, free tier, measured tokens"
 DEVIN_NOTE = "1 repeat, free tier, no token data"
@@ -281,7 +283,7 @@ def section(rest, ds, root, chart_bodies=None, grok_only=False, entries=None):
         head = "".join(f"<th>{h}</th>" for h in ("name", "task complete (hidden in brackets)" if complete else "pass",
                                                "$ per complete task" if complete else "$ per pass", "median s", "spend", "where it appears"))
         label = "Low context (prompt or tool text trimmed)" if cat == "low context" else set_label(cat)
-        totals = {"n_configs": len(es), "spend": sum(e["spend"] for e in es)}
+        totals = {"n_configs": len(es), "spend": sum(e["spend"] for e in es if e["cost_kind"] != "box-hours")}
         out.append(f"<details><summary>{html.escape(label)}: {totals['n_configs']} configs, {'~' if any(e['cost_kind'] == 'proxy' for e in es) else ''}{money(totals['spend'])} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
         for e in es:
             spend = None if e["unknown_usd"] else e["spend"]
