@@ -546,7 +546,7 @@ def main():
 
 
 def explorer_cost_label(r):
-    return {"measured": "measured", "proxy": "token-estimate", "unmetered": "unmetered", "free-tier": "free tier"}[r["cost_kind"]]
+    return {"measured": "measured", "proxy": "token-estimate", "unmetered": "unmetered", "free-tier": "free tier", "local": "local, no price"}[r["cost_kind"]]
 
 
 def explorer_colour(r):

@@ -185,12 +185,12 @@ def inkling_block(rows):
     tasks = sorted(prim)
     stages = [{"config": c, "effort": next(iter(by[c].values()))["effort"], "max_tokens": next(iter(by[c].values()))["max_tokens"],
                "passes": sum(r["passed"] for r in by[c].values()), "n": len(by[c]), "wall_s": round(sum(r["wall_s"] for r in by[c].values()), 1),
-               "tasks": {p: {"passed": r["passed"], "outcome": r["outcome"], "wall_s": round(r["wall_s"], 1)} for p, r in sorted(by[c].items())}}
+               "tasks": {p: {"passed": r["passed"], "outcome": r["outcome"], "wall_s": r["wall_s"]} for p, r in sorted(by[c].items())}}
               for c in INKLING_CONFIGS[1:] if by[c]]
     final = {p: any(by[c][p]["passed"] for c in INKLING_CONFIGS if p in by[c]) for p in tasks}
     return {"n": len(tasks), "primary": {"passes": sum(r["passed"] for r in prim.values()), "wall_s": round(sum(r["wall_s"] for r in prim.values()), 1),
             "max_tokens": prim[tasks[0]]["max_tokens"], "effort": prim[tasks[0]]["effort"], "model": prim[tasks[0]]["model"], "cli_version": prim[tasks[0]]["cli_version"],
-            "tasks": {p: {"passed": r["passed"], "outcome": r["outcome"], "wall_s": round(r["wall_s"], 1), "out_tok": r["out_tok"], "finish_reason": r.get("finish_reason"),
+            "tasks": {p: {"passed": r["passed"], "outcome": r["outcome"], "wall_s": r["wall_s"], "out_tok": r["out_tok"], "finish_reason": r.get("finish_reason"),
                           "gen_tok_per_s": r.get("gen_tok_per_s")} for p, r in prim.items()}},
             "stages": stages, "ladder": {"passes": sum(final.values()), "tasks": final,
             "wall_s": round(sum(r["wall_s"] for c in INKLING_CONFIGS for r in by[c].values()), 1)}}
