@@ -102,7 +102,7 @@ def _rows(include_grok_repo=False):
         if c not in configs.GROK_CONFIGS and r["problem"] in PIDS and r["phase"] in ("main", "exploratory", "fastmode") and r["repeat"] <= REPEATS:  # the same rows again, as the rescue-set baseline
             add("main", c, "rescue set", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
     for r in summarize.inkling_rows() + summarize.inkling_ladder_rows():  # free local CPU lane (primary, retry stages, and the ladder as one lane): p01–p15, outside the ladder statistics, listed as partial-ladder rows
-        add("main", r["config"], "partial ladder", r, r["passed"], r["wall_s"], r["problem"], None, r["in_tok"], r["out_tok"])
+        add("main", r["config"], "partial ladder", r, r["passed"], r["wall_s"], r["problem"], r["wall_s"] / 3600 * configs.BOX_USD_PER_HOUR, r["in_tok"], r["out_tok"])  # estimated from box-hours
     for r in summarize.agentic_rows():
         done = bool(r.get("task_complete", r["visible_pass"] and r["hidden_pass"]))  # the headline repo-task rule: hidden and the run's own visible suite both green
         add("agentic", r["config"], "repo tasks", r, done, r["wall_s"], r["task"], _usd(r, "agentic"), r["in_tok"], r["out_tok"], tc=done, hid=bool(r["hidden_pass"]))
@@ -181,7 +181,7 @@ def _row(src, name, st, rr):
             "usd_saved_per_pass": round((spend - sc - sg) / k, 6) if k and complete else None,
             "usd_per_1k_tokens": (1000 * round(spend / n, 6) / (round(statistics.mean(x["in"] or 0 for x in rr)) + round(statistics.mean(x["out"] or 0 for x in rr)))) if complete and any((x["in"] or 0) + (x["out"] or 0) for x in rr) else None,
             **_rule_fields(src, rr),
-            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "free-tier" if rr[0]["cli"] == "hetzner" else "local" if rr[0]["cli"] == "llama.cpp" else "unmetered" if rr[0]["cli"] == "devin" else "measured" if summarize.measured(rr[0]) else "proxy"}
+            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "free-tier" if rr[0]["cli"] == "hetzner" else "box-hours" if rr[0]["cli"] == "llama.cpp" else "unmetered" if rr[0]["cli"] == "devin" else "measured" if summarize.measured(rr[0]) else "proxy"}
 
 
 def _base():
@@ -254,7 +254,7 @@ def median_seconds(v):
 
 def price_text(row, value):
     """Free experimental access is a label, never a published zero-dollar price."""
-    return "local, no price" if row["cost_kind"] == "local" else "free tier" if row["cost_kind"] == "free-tier" else usd(value)
+    return "est. " + usd(value) + " from box-hours" if row["cost_kind"] == "box-hours" and value is not None else "local, no price" if row["cost_kind"] == "local" else "free tier" if row["cost_kind"] == "free-tier" else usd(value)
 
 
 def p1(d):
@@ -1012,7 +1012,11 @@ def audit_footnote(ds_rows_red):
 def _inkling_blocks():
     """The two Inkling lanes as summary blocks, so the Results, detail and token tables list them like the Hetzner free lanes."""
     prim = [r for r in summarize.inkling_rows() if r["config"] == configs.INKLING_PRIMARY]
-    return {c: {**summarize.config_block(rr), "cost_kind": "free-tier", "usd_per_1k_tokens": None} for c, rr in ((configs.INKLING_PRIMARY, prim), (configs.INKLING_LADDER, summarize.inkling_ladder_rows()))}
+    out = {}
+    for c, rr in ((configs.INKLING_PRIMARY, prim), (configs.INKLING_LADDER, summarize.inkling_ladder_rows())):
+        b = summarize.config_block(rr); total = sum(r["wall_s"] for r in rr) / 3600 * configs.BOX_USD_PER_HOUR  # estimated from box-hours
+        out[c] = {**b, "cost_kind": "box-hours", "usd_per_1k_tokens": None, "usd_total": round(total, 4), "usd_per_call": round(total / len(rr), 6), "usd_per_pass": round(total / b["passes"], 6) if b["passes"] else None}
+    return out
 
 
 def _tables(s, arms):
@@ -1629,7 +1633,7 @@ def explorer_facets(r):
                c.split("-noshell")[0] if "-noshell" in c else
                c.removesuffix("-lean") if c.endswith("-lean") else None) if mode == "bare" else None
     if c == "codex-bare": bare_of = "codex-low"
-    quota = None if r["cost_kind"] == "unmetered" or r["usd_per_pass"] is None else round(r["usd_per_pass"] - r["codex_usd_per_pass"], 6)
+    quota = None if r["cost_kind"] == "unmetered" or r["usd_per_pass"] is None else r["usd_per_pass"] if r["cost_kind"] == "box-hours" else round(r["usd_per_pass"] - r["codex_usd_per_pass"], 6)
     gate = ("plan" if "-plan+" in c else "retry" if "retry" in c else "review all" if "review-all" in c or "repair" in c
             else "on fail" if "on-fail" in c else "pilot") if pipeline else None
     return {"mode": mode, "generation": generation, "model_short": model, "effort": effort,
@@ -1637,7 +1641,7 @@ def explorer_facets(r):
             "prereg": explorer_provenance(r) == "pre-registered", "provenance": explorer_provenance(r),
             "quota_usd_per_pass": quota, "winner_pick": WINNER_PICKS.get(c), "winner_pricing": "list price" if c in WINNER_PICKS else None,
             "panel": "pipeline: " + gate if pipeline else model + (" · " + generation if r["family"] == "Codex" else ""),
-            "gate": gate, "coverage_note": (configs.HETZNER_NOTE if r["config"] in configs.HETZNER_CONFIGS else "Devin probe: " + configs.DEVIN_NOTE if r["cost_kind"] == "unmetered" else
+            "gate": gate, "coverage_note": (configs.HETZNER_NOTE if r["config"] in configs.HETZNER_CONFIGS else configs.BOX_NOTE if r["cost_kind"] == "box-hours" else "Devin probe: " + configs.DEVIN_NOTE if r["cost_kind"] == "unmetered" else
                 f"{r['groups']} problem/task groups; {r['n']} attempts"),
             "complete_marker": f"{r['task_complete']}/{r['n']} complete ({r['hidden_pass']}/{r['n']} hidden)" if "task_complete" in r else None}
 
@@ -1646,7 +1650,7 @@ def explorer_frontier(rows, view, quota=False, floor=0):
     spec = EXPLORER_VIEWS[view]; objectives = spec["objectives"]
     eligible = [dict(r, cost=r["quota_usd_per_pass"] if quota else r["usd_per_pass"]) for r in rows
                 if r["pass_rate"] >= max(floor, spec.get("min_pass", 0))
-                and r["config"] not in configs.HETZNER_CONFIGS + configs.INKLING_SHOWN  # free lanes: off the frontier
+                and r["config"] not in configs.HETZNER_CONFIGS  # free lanes: off the frontier; Inkling joins it on its estimated box-hour cost
                 and (not any(k == "cost" for k, _ in objectives) or r["cost_kind"] != "unmetered" and r["usd_per_pass"] is not None)]
     beaten = {r["key"]: [a["key"] for a in eligible if strict_dominates(a, r, objectives)] for r in eligible}
     return {r["key"]: {"eligible": r["key"] in beaten, "on_frontier": r["key"] in beaten and not beaten[r["key"]],
@@ -1967,20 +1971,26 @@ def _inkling(ds, s):
     mins = lambda sec: f"{sec / 60:.0f} min"
     F["inkling_b3"] = f"Median time per task: {mins(p['median_s'])} primary, {mins(lad['median_s'])} ladder."
     F["inkling_cpu"] = "It is a free local CPU model, so its times do not match API lanes."
-    F["inkling_model"] = f"Model: {p['model']}, llama.cpp {p['cli_version']}, run on p01–p{k['n']} on this host's CPU, one call at a time. It has no list price."
+    F["inkling_model"] = f"Model: {p['model']}, llama.cpp {p['cli_version']}, run on p01–p{k['n']} on this host's CPU, one call at a time. It has no list price; cost is estimated from box-hours."
     F["inkling_settings"] = f"Primary settings: default effort, {F['inkling_cap']}-token cap."
     F["inkling_retry_time"] = f"The retry added {F['inkling_retry_wall']} of wall time, {F['inkling_total_wall']} in all."
     F["inkling_caveat"] = "The ladder is secondary because its settings were chosen after seeing which tasks hit the cap."
     slow = max(lad["task_wall_s"], key=lad["task_wall_s"].get)
     F["inkling_slowest"] = f"Slowest on the ladder: {slow.split('_')[0]}, {mins(lad['task_wall_s'][slow])}."
-    F["inkling_host"] = "Other work sometimes ran on the host, so times vary. Off dollar charts, the Winner and the frontier."
+    F["inkling_host"] = "Other work sometimes ran on the host, so times vary."
+    ib = _inkling_blocks()
+    F["inkling_price"] = "Cost is estimated from box-hours at an assumed $0.10 an hour."
+    F["inkling_price_pp"] = "Estimated per pass: " + ", ".join(f"{usd(ib[c]['usd_per_pass'])} {w}" for c, w in ((configs.INKLING_PRIMARY, 'primary'), (configs.INKLING_LADDER, 'ladder'))) + "."
+    F["inkling_hetzner"] = "Hetzner is a free hosted API with no price, so it has no cost to compare."
     free = {}  # the free lanes side by side: the Hetzner Qwen calls (1 try per task) and the two Inkling lanes
     for src, name, st_, x in _rows():
         if name in configs.HETZNER_CONFIGS: free.setdefault(name, []).append(x["sec"])
     lanes = [(DISP(c), s["hetzner"][c]["passes"], s["hetzner"][c]["n"], statistics.median(free[c]), sum(free[c])) for c in configs.HETZNER_CONFIGS if c in free]
     lanes += [(f"{F['inkling_name']} primary (frozen)", p["passes"], k["n"], p["median_s"], p["wall_s"]), (f"{F['inkling_name']} retry ladder (secondary)", lad["passes"], k["n"], lad["median_s"], lad["wall_s"])]
-    ds["tables"]["inkling_lanes"] = md_table(["free lane", "passed", "median s per task", "total wall"],
-                                             [[a, f"{b}/{c}", f"{d:,.0f}", hours(e)] for a, b, c, d, e in sorted(lanes, key=lambda r: r[3])])
+    ds["tables"]["inkling_lanes"] = md_table(["lane", "passed", "median min per task", "mean min per task", "total wall"],
+                                             [[a, f"{b}/{c}", f"{d / 60:.1f}", f"{e / c / 60:.1f}", hours(e)] for a, b, c, d, e in sorted(lanes, key=lambda r: r[3])])
+    F["inkling_sec_a"] = f"Primary seconds per task: median {p['median_s']:,.0f}, mean {p['wall_s'] / k['n']:,.0f}."
+    F["inkling_sec_b"] = f"Ladder seconds per task: median {lad['median_s']:,.0f}, mean {lad['wall_s'] / k['n']:,.0f}."
     short = lambda t: t.split("_")[0]
     rows = []
     for t, v in p["tasks"].items():

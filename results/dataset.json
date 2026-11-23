@@ -8223,14 +8223,14 @@
     0.7333
    ],
    "groups": 15,
-   "usd_per_pass": null,
-   "claude_usd_per_pass": null,
-   "codex_usd_per_pass": null,
-   "usd_per_call": null,
-   "spend": 0,
-   "spend_claude": 0,
-   "spend_codex": 0,
-   "unknown_usd": 15,
+   "usd_per_pass": 0.128738,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.128738,
+   "usd_per_call": 0.060078,
+   "spend": 0.901163,
+   "spend_claude": 0.0,
+   "spend_codex": 0.901163,
+   "unknown_usd": 0,
    "median_s_raw": 2881.2752949399874,
    "median_s": 2881.28,
    "p25_s": 664.32,
@@ -8312,8 +8312,8 @@
     0.2,
     0.7333
    ],
-   "usd_saved_per_pass": null,
-   "usd_per_1k_tokens": null,
+   "usd_saved_per_pass": 0.128738,
+   "usd_per_1k_tokens": 0.006656104586749391,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L1": [
@@ -8345,7 +8345,7 @@
      3
     ]
    },
-   "cost_kind": "local",
+   "cost_kind": "box-hours",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -8353,12 +8353,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": null,
+   "quota_usd_per_pass": 0.128738,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "15 problem/task groups; 15 attempts",
+   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -8385,14 +8385,14 @@
     1.0
    ],
    "groups": 8,
-   "usd_per_pass": null,
-   "claude_usd_per_pass": null,
-   "codex_usd_per_pass": null,
-   "usd_per_call": null,
-   "spend": 0,
-   "spend_claude": 0,
-   "spend_codex": 0,
-   "unknown_usd": 8,
+   "usd_per_pass": 0.145541,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.145541,
+   "usd_per_call": 0.090963,
+   "spend": 0.727705,
+   "spend_claude": 0.0,
+   "spend_codex": 0.727705,
+   "unknown_usd": 0,
    "median_s_raw": 3327.5381200364936,
    "median_s": 3327.54,
    "p25_s": 2114.05,
@@ -8446,8 +8446,8 @@
     0.25,
     1.0
    ],
-   "usd_saved_per_pass": null,
-   "usd_per_1k_tokens": null,
+   "usd_saved_per_pass": 0.145541,
+   "usd_per_1k_tokens": 0.0073570850857327735,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L3": [
@@ -8467,7 +8467,7 @@
      3
     ]
    },
-   "cost_kind": "local",
+   "cost_kind": "box-hours",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -8475,12 +8475,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": null,
+   "quota_usd_per_pass": 0.145541,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "8 problem/task groups; 8 attempts",
+   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -8507,11 +8507,11 @@
    "usd_per_pass": null,
    "claude_usd_per_pass": null,
    "codex_usd_per_pass": null,
-   "usd_per_call": null,
-   "spend": 0,
-   "spend_claude": 0,
-   "spend_codex": 0,
-   "unknown_usd": 2,
+   "usd_per_call": 0.094209,
+   "spend": 0.188418,
+   "spend_claude": 0.0,
+   "spend_codex": 0.188418,
+   "unknown_usd": 0,
    "median_s_raw": 3391.524509647483,
    "median_s": 3391.52,
    "p25_s": 1281.98,
@@ -8542,7 +8542,7 @@
     0.0
    ],
    "usd_saved_per_pass": null,
-   "usd_per_1k_tokens": null,
+   "usd_per_1k_tokens": 0.007726482407938982,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L6": [
@@ -8550,7 +8550,7 @@
      2
     ]
    },
-   "cost_kind": "local",
+   "cost_kind": "box-hours",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -8563,7 +8563,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "2 problem/task groups; 2 attempts",
+   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -8587,14 +8587,14 @@
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 1,
-   "usd_per_pass": null,
-   "claude_usd_per_pass": null,
-   "codex_usd_per_pass": null,
-   "usd_per_call": null,
-   "spend": 0,
-   "spend_claude": 0,
-   "spend_codex": 0,
-   "unknown_usd": 1,
+   "usd_per_pass": 0.190674,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.190674,
+   "usd_per_call": 0.190674,
+   "spend": 0.190674,
+   "spend_claude": 0.0,
+   "spend_codex": 0.190674,
+   "unknown_usd": 0,
    "median_s_raw": 6864.252247570985,
    "median_s": 6864.25,
    "p25_s": 6864.25,
@@ -8620,8 +8620,8 @@
     0.05,
     1.0
    ],
-   "usd_saved_per_pass": null,
-   "usd_per_1k_tokens": null,
+   "usd_saved_per_pass": 0.190674,
+   "usd_per_1k_tokens": 0.008848802673101912,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L6": [
@@ -8629,7 +8629,7 @@
      1
     ]
    },
-   "cost_kind": "local",
+   "cost_kind": "box-hours",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -8637,12 +8637,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": null,
+   "quota_usd_per_pass": 0.190674,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "1 problem/task groups; 1 attempts",
+   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -8669,14 +8669,14 @@
     1.0
    ],
    "groups": 15,
-   "usd_per_pass": null,
-   "claude_usd_per_pass": null,
-   "codex_usd_per_pass": null,
-   "usd_per_call": null,
-   "spend": 0,
-   "spend_claude": 0,
-   "spend_codex": 0,
-   "unknown_usd": 15,
+   "usd_per_pass": 0.154458,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.154458,
+   "usd_per_call": 0.133864,
+   "spend": 2.00796,
+   "spend_claude": 0.0,
+   "spend_codex": 2.00796,
+   "unknown_usd": 0,
    "median_s_raw": 4630.444647055003,
    "median_s": 4630.44,
    "p25_s": 664.32,
@@ -8758,8 +8758,8 @@
     0.6667,
     1.0
    ],
-   "usd_saved_per_pass": null,
-   "usd_per_1k_tokens": null,
+   "usd_saved_per_pass": 0.154458,
+   "usd_per_1k_tokens": 0.007165016325001338,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L1": [
@@ -8791,7 +8791,7 @@
      3
     ]
    },
-   "cost_kind": "local",
+   "cost_kind": "box-hours",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -8799,12 +8799,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": null,
+   "quota_usd_per_pass": 0.154458,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "15 problem/task groups; 15 attempts",
+   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -22207,14 +22207,14 @@
     0.7333
    ],
    "groups": 15,
-   "usd_per_pass": null,
-   "claude_usd_per_pass": null,
-   "codex_usd_per_pass": null,
-   "usd_per_call": null,
-   "spend": 0,
-   "spend_claude": 0,
-   "spend_codex": 0,
-   "unknown_usd": 15,
+   "usd_per_pass": 0.128738,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.128738,
+   "usd_per_call": 0.060078,
+   "spend": 0.901163,
+   "spend_claude": 0.0,
+   "spend_codex": 0.901163,
+   "unknown_usd": 0,
    "median_s_raw": 2881.2752949399874,
    "median_s": 2881.28,
    "p25_s": 664.32,
@@ -22296,8 +22296,8 @@
     0.2,
     0.7333
    ],
-   "usd_saved_per_pass": null,
-   "usd_per_1k_tokens": null,
+   "usd_saved_per_pass": 0.128738,
+   "usd_per_1k_tokens": 0.006656104586749391,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L1": [
@@ -22329,7 +22329,7 @@
      3
     ]
    },
-   "cost_kind": "local",
+   "cost_kind": "box-hours",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -22337,12 +22337,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": null,
+   "quota_usd_per_pass": 0.128738,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "15 problem/task groups; 15 attempts",
+   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -22369,14 +22369,14 @@
     1.0
    ],
    "groups": 8,
-   "usd_per_pass": null,
-   "claude_usd_per_pass": null,
-   "codex_usd_per_pass": null,
-   "usd_per_call": null,
-   "spend": 0,
-   "spend_claude": 0,
-   "spend_codex": 0,
-   "unknown_usd": 8,
+   "usd_per_pass": 0.145541,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.145541,
+   "usd_per_call": 0.090963,
+   "spend": 0.727705,
+   "spend_claude": 0.0,
+   "spend_codex": 0.727705,
+   "unknown_usd": 0,
    "median_s_raw": 3327.5381200364936,
    "median_s": 3327.54,
    "p25_s": 2114.05,
@@ -22430,8 +22430,8 @@
     0.25,
     1.0
    ],
-   "usd_saved_per_pass": null,
-   "usd_per_1k_tokens": null,
+   "usd_saved_per_pass": 0.145541,
+   "usd_per_1k_tokens": 0.0073570850857327735,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L3": [
@@ -22451,7 +22451,7 @@
      3
     ]
    },
-   "cost_kind": "local",
+   "cost_kind": "box-hours",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -22459,12 +22459,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": null,
+   "quota_usd_per_pass": 0.145541,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "8 problem/task groups; 8 attempts",
+   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -22491,11 +22491,11 @@
    "usd_per_pass": null,
    "claude_usd_per_pass": null,
    "codex_usd_per_pass": null,
-   "usd_per_call": null,
-   "spend": 0,
-   "spend_claude": 0,
-   "spend_codex": 0,
-   "unknown_usd": 2,
+   "usd_per_call": 0.094209,
+   "spend": 0.188418,
+   "spend_claude": 0.0,
+   "spend_codex": 0.188418,
+   "unknown_usd": 0,
    "median_s_raw": 3391.524509647483,
    "median_s": 3391.52,
    "p25_s": 1281.98,
@@ -22526,7 +22526,7 @@
     0.0
    ],
    "usd_saved_per_pass": null,
-   "usd_per_1k_tokens": null,
+   "usd_per_1k_tokens": 0.007726482407938982,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L6": [
@@ -22534,7 +22534,7 @@
      2
     ]
    },
-   "cost_kind": "local",
+   "cost_kind": "box-hours",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -22547,7 +22547,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "2 problem/task groups; 2 attempts",
+   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -22571,14 +22571,14 @@
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 1,
-   "usd_per_pass": null,
-   "claude_usd_per_pass": null,
-   "codex_usd_per_pass": null,
-   "usd_per_call": null,
-   "spend": 0,
-   "spend_claude": 0,
-   "spend_codex": 0,
-   "unknown_usd": 1,
+   "usd_per_pass": 0.190674,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.190674,
+   "usd_per_call": 0.190674,
+   "spend": 0.190674,
+   "spend_claude": 0.0,
+   "spend_codex": 0.190674,
+   "unknown_usd": 0,
    "median_s_raw": 6864.252247570985,
    "median_s": 6864.25,
    "p25_s": 6864.25,
@@ -22604,8 +22604,8 @@
     0.05,
     1.0
    ],
-   "usd_saved_per_pass": null,
-   "usd_per_1k_tokens": null,
+   "usd_saved_per_pass": 0.190674,
+   "usd_per_1k_tokens": 0.008848802673101912,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L6": [
@@ -22613,7 +22613,7 @@
      1
     ]
    },
-   "cost_kind": "local",
+   "cost_kind": "box-hours",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -22621,12 +22621,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": null,
+   "quota_usd_per_pass": 0.190674,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "1 problem/task groups; 1 attempts",
+   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -22653,14 +22653,14 @@
     1.0
    ],
    "groups": 15,
-   "usd_per_pass": null,
-   "claude_usd_per_pass": null,
-   "codex_usd_per_pass": null,
-   "usd_per_call": null,
-   "spend": 0,
-   "spend_claude": 0,
-   "spend_codex": 0,
-   "unknown_usd": 15,
+   "usd_per_pass": 0.154458,
+   "claude_usd_per_pass": 0.0,
+   "codex_usd_per_pass": 0.154458,
+   "usd_per_call": 0.133864,
+   "spend": 2.00796,
+   "spend_claude": 0.0,
+   "spend_codex": 2.00796,
+   "unknown_usd": 0,
    "median_s_raw": 4630.444647055003,
    "median_s": 4630.44,
    "p25_s": 664.32,
@@ -22742,8 +22742,8 @@
     0.6667,
     1.0
    ],
-   "usd_saved_per_pass": null,
-   "usd_per_1k_tokens": null,
+   "usd_saved_per_pass": 0.154458,
+   "usd_per_1k_tokens": 0.007165016325001338,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L1": [
@@ -22775,7 +22775,7 @@
      3
     ]
    },
-   "cost_kind": "local",
+   "cost_kind": "box-hours",
    "mode": "normal",
    "generation": "Inkling-2-Mini-IQ4_NL.gguf",
    "model_short": "other",
@@ -22783,12 +22783,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": null,
+   "quota_usd_per_pass": 0.154458,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "15 problem/task groups; 15 attempts",
+   "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
    "complete_marker": null
   },
   {
@@ -25162,7 +25162,7 @@
   },
   "exploratory": {
    "n_configs": 23,
-   "spend": 35.8863
+   "spend": 39.90222
   },
   "fast mode and xhigh": {
    "n_configs": 5,
@@ -39658,9 +39658,9 @@
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_model": {
-   "value": "Model: Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600, run on p01–p15 on this host's CPU, one call at a time. It has no list price.",
+   "value": "Model: Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600, run on p01–p15 on this host's CPU, one call at a time. It has no list price; cost is estimated from box-hours.",
    "unit": "text",
-   "display": "Model: Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600, run on p01–p15 on this host's CPU, one call at a time. It has no list price.",
+   "display": "Model: Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600, run on p01–p15 on this host's CPU, one call at a time. It has no list price; cost is estimated from box-hours.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_settings": {
@@ -39688,9 +39688,39 @@
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_host": {
-   "value": "Other work sometimes ran on the host, so times vary. Off dollar charts, the Winner and the frontier.",
+   "value": "Other work sometimes ran on the host, so times vary.",
    "unit": "text",
-   "display": "Other work sometimes ran on the host, so times vary. Off dollar charts, the Winner and the frontier.",
+   "display": "Other work sometimes ran on the host, so times vary.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_price": {
+   "value": "Cost is estimated from box-hours at an assumed $0.10 an hour.",
+   "unit": "text",
+   "display": "Cost is estimated from box-hours at an assumed $0.10 an hour.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_price_pp": {
+   "value": "Estimated per pass: $0.13 primary, $0.15 ladder.",
+   "unit": "text",
+   "display": "Estimated per pass: $0.13 primary, $0.15 ladder.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_hetzner": {
+   "value": "Hetzner is a free hosted API with no price, so it has no cost to compare.",
+   "unit": "text",
+   "display": "Hetzner is a free hosted API with no price, so it has no cost to compare.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_sec_a": {
+   "value": "Primary seconds per task: median 2,881, mean 2,163.",
+   "unit": "text",
+   "display": "Primary seconds per task: median 2,881, mean 2,163.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_sec_b": {
+   "value": "Ladder seconds per task: median 4,630, mean 4,819.",
+   "unit": "text",
+   "display": "Ladder seconds per task: median 4,630, mean 4,819.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "equiv_fastest": {
@@ -40170,9 +40200,9 @@
      "20%–73%",
      "2881.3",
      "3028.5",
-     "free tier",
-     "free tier",
-     "free-tier"
+     "est. $0.13 from box-hours",
+     "est. $0.90 from box-hours",
+     "box-hours"
     ],
     [
      "inkling2mini-ladder †",
@@ -40180,9 +40210,9 @@
      "67%–100%",
      "4630.4",
      "9403.7",
-     "free tier",
-     "free tier",
-     "free-tier"
+     "est. $0.15 from box-hours",
+     "est. $2.01 from box-hours",
+     "box-hours"
     ]
    ]
   },
@@ -40342,13 +40372,13 @@
      "inkling2mini-default †",
      "20%–73%",
      "3028.5",
-     "free tier"
+     "est. $0.90 from box-hours"
     ],
     [
      "inkling2mini-ladder †",
      "67%–100%",
      "9403.7",
-     "free tier"
+     "est. $2.01 from box-hours"
     ],
     [
      "luna-low-bare †",
@@ -40574,7 +40604,7 @@
      "0",
      "8,496",
      "0",
-     "free tier"
+     "–"
     ],
     [
      "inkling2mini-ladder †",
@@ -40582,7 +40612,7 @@
      "0",
      "17,726",
      "0",
-     "free tier"
+     "–"
     ]
    ]
   },
@@ -42521,34 +42551,39 @@
   },
   "inkling_lanes": {
    "head": [
-    "free lane",
+    "lane",
     "passed (function tests)",
-    "median s per task",
+    "median min per task",
+    "mean min per task",
     "total wall"
    ],
    "rows": [
     [
      "hetzner-qwen36",
      "10/12",
-     "341",
+     "5.7",
+     "6.7",
      "1.33 h"
     ],
     [
      "hetzner-qwen38",
      "9/12",
-     "821",
+     "13.7",
+     "14.9",
      "2.98 h"
     ],
     [
      "Inkling 2 Mini primary (frozen)",
      "7/15",
-     "2,881",
+     "48.0",
+     "36.0",
      "9.01 h"
     ],
     [
      "Inkling 2 Mini retry ladder (secondary)",
      "13/15",
-     "4,630",
+     "77.2",
+     "80.3",
      "20.08 h"
     ]
    ]
@@ -52344,14 +52379,14 @@
      0.7333
     ],
     "groups": 15,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 15,
+    "usd_per_pass": 0.128738,
+    "claude_usd_per_pass": 0.0,
+    "codex_usd_per_pass": 0.128738,
+    "usd_per_call": 0.060078,
+    "spend": 0.901163,
+    "spend_claude": 0.0,
+    "spend_codex": 0.901163,
+    "unknown_usd": 0,
     "median_s_raw": 2881.2752949399874,
     "median_s": 2881.28,
     "p25_s": 664.32,
@@ -52433,8 +52468,8 @@
      0.2,
      0.7333
     ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
+    "usd_saved_per_pass": 0.128738,
+    "usd_per_1k_tokens": 0.006656104586749391,
     "rule": "function tests (reference + brute force)",
     "by_rung": {
      "L1": [
@@ -52466,7 +52501,7 @@
       3
      ]
     },
-    "cost_kind": "local",
+    "cost_kind": "box-hours",
     "mode": "normal",
     "generation": "Inkling-2-Mini-IQ4_NL.gguf",
     "model_short": "other",
@@ -52474,12 +52509,12 @@
     "bare_of": null,
     "prereg": false,
     "provenance": "later exploration",
-    "quota_usd_per_pass": null,
+    "quota_usd_per_pass": 0.128738,
     "winner_pick": null,
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "15 problem/task groups; 15 attempts",
+    "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
     "complete_marker": null,
     "key": "main/inkling2mini-default@partial ladder"
    },
@@ -52507,14 +52542,14 @@
      1.0
     ],
     "groups": 15,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 15,
+    "usd_per_pass": 0.154458,
+    "claude_usd_per_pass": 0.0,
+    "codex_usd_per_pass": 0.154458,
+    "usd_per_call": 0.133864,
+    "spend": 2.00796,
+    "spend_claude": 0.0,
+    "spend_codex": 2.00796,
+    "unknown_usd": 0,
     "median_s_raw": 4630.444647055003,
     "median_s": 4630.44,
     "p25_s": 664.32,
@@ -52596,8 +52631,8 @@
      0.6667,
      1.0
     ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
+    "usd_saved_per_pass": 0.154458,
+    "usd_per_1k_tokens": 0.007165016325001338,
     "rule": "function tests (reference + brute force)",
     "by_rung": {
      "L1": [
@@ -52629,7 +52664,7 @@
       3
      ]
     },
-    "cost_kind": "local",
+    "cost_kind": "box-hours",
     "mode": "normal",
     "generation": "Inkling-2-Mini-IQ4_NL.gguf",
     "model_short": "other",
@@ -52637,12 +52672,12 @@
     "bare_of": null,
     "prereg": false,
     "provenance": "later exploration",
-    "quota_usd_per_pass": null,
+    "quota_usd_per_pass": 0.154458,
     "winner_pick": null,
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "15 problem/task groups; 15 attempts",
+    "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
     "complete_marker": null,
     "key": "main/inkling2mini-ladder@partial ladder"
    },
@@ -66158,14 +66193,14 @@
      0.7333
     ],
     "groups": 15,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 15,
+    "usd_per_pass": 0.128738,
+    "claude_usd_per_pass": 0.0,
+    "codex_usd_per_pass": 0.128738,
+    "usd_per_call": 0.060078,
+    "spend": 0.901163,
+    "spend_claude": 0.0,
+    "spend_codex": 0.901163,
+    "unknown_usd": 0,
     "median_s_raw": 2881.2752949399874,
     "median_s": 2881.28,
     "p25_s": 664.32,
@@ -66247,8 +66282,8 @@
      0.2,
      0.7333
     ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
+    "usd_saved_per_pass": 0.128738,
+    "usd_per_1k_tokens": 0.006656104586749391,
     "rule": "function tests (reference + brute force)",
     "by_rung": {
      "L1": [
@@ -66280,7 +66315,7 @@
       3
      ]
     },
-    "cost_kind": "local",
+    "cost_kind": "box-hours",
     "mode": "normal",
     "generation": "Inkling-2-Mini-IQ4_NL.gguf",
     "model_short": "other",
@@ -66288,12 +66323,12 @@
     "bare_of": null,
     "prereg": false,
     "provenance": "later exploration",
-    "quota_usd_per_pass": null,
+    "quota_usd_per_pass": 0.128738,
     "winner_pick": null,
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "15 problem/task groups; 15 attempts",
+    "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
     "complete_marker": null,
     "key": "main/inkling2mini-default@all runs"
    },
@@ -66321,14 +66356,14 @@
      1.0
     ],
     "groups": 15,
-    "usd_per_pass": null,
-    "claude_usd_per_pass": null,
-    "codex_usd_per_pass": null,
-    "usd_per_call": null,
-    "spend": 0,
-    "spend_claude": 0,
-    "spend_codex": 0,
-    "unknown_usd": 15,
+    "usd_per_pass": 0.154458,
+    "claude_usd_per_pass": 0.0,
+    "codex_usd_per_pass": 0.154458,
+    "usd_per_call": 0.133864,
+    "spend": 2.00796,
+    "spend_claude": 0.0,
+    "spend_codex": 2.00796,
+    "unknown_usd": 0,
     "median_s_raw": 4630.444647055003,
     "median_s": 4630.44,
     "p25_s": 664.32,
@@ -66410,8 +66445,8 @@
      0.6667,
      1.0
     ],
-    "usd_saved_per_pass": null,
-    "usd_per_1k_tokens": null,
+    "usd_saved_per_pass": 0.154458,
+    "usd_per_1k_tokens": 0.007165016325001338,
     "rule": "function tests (reference + brute force)",
     "by_rung": {
      "L1": [
@@ -66443,7 +66478,7 @@
       3
      ]
     },
-    "cost_kind": "local",
+    "cost_kind": "box-hours",
     "mode": "normal",
     "generation": "Inkling-2-Mini-IQ4_NL.gguf",
     "model_short": "other",
@@ -66451,12 +66486,12 @@
     "bare_of": null,
     "prereg": false,
     "provenance": "later exploration",
-    "quota_usd_per_pass": null,
+    "quota_usd_per_pass": 0.154458,
     "winner_pick": null,
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "15 problem/task groups; 15 attempts",
+    "coverage_note": "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement.",
     "complete_marker": null,
     "key": "main/inkling2mini-ladder@all runs"
    },
@@ -78309,6 +78344,7 @@
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
           "main/grok47-high@partial ladder",
+          "main/inkling2mini-ladder@partial ladder",
           "main/sol61-high-fast@main ladder",
           "main/astra-medium-fast@main ladder",
           "main/terra61-low-fast@main ladder",
@@ -78332,14 +78368,61 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/luna-low@main ladder",
+          "main/luna-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-low@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder",
+          "main/luna-low-bare@main ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
@@ -78770,7 +78853,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.000798,
@@ -78804,7 +78887,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -79658,7 +79744,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -80174,14 +80263,65 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/luna-low@main ladder",
+          "main/luna-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-low@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/grok47fast-low@partial ladder",
+          "main/devin16slow-default@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder",
+          "main/luna-low-bare@main ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
@@ -80425,7 +80565,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.010646,
@@ -80434,7 +80574,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -80821,14 +80964,61 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/luna-low@main ladder",
+          "main/luna-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-low@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder",
+          "main/luna-low-bare@main ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
@@ -81414,7 +81604,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.000798,
@@ -81473,7 +81663,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -82110,14 +82303,61 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/luna-low@main ladder",
+          "main/luna-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-low@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder",
+          "main/luna-low-bare@main ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
@@ -82703,7 +82943,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.000798,
@@ -82762,7 +83002,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -83511,6 +83754,7 @@
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
           "main/grok47-high@partial ladder",
+          "main/inkling2mini-ladder@partial ladder",
           "main/sol61-high-fast@main ladder",
           "main/astra-medium-fast@main ladder",
           "main/terra61-low-fast@main ladder",
@@ -83534,14 +83778,62 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/luna-low@main ladder",
+          "main/luna-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-low@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder",
+          "main/luna-low-bare@main ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
@@ -84061,7 +84353,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -84110,7 +84402,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -84968,7 +85263,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -85422,14 +85720,65 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/luna-low@main ladder",
+          "main/luna-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-low@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/grok47fast-low@partial ladder",
+          "main/devin16slow-default@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder",
+          "main/luna-low-bare@main ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
@@ -85664,7 +86013,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -85673,7 +86022,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -86095,14 +86447,62 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/luna-low@main ladder",
+          "main/luna-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-low@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder",
+          "main/luna-low-bare@main ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
@@ -86333,7 +86733,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -86342,7 +86742,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -86764,14 +87167,62 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/luna-low@main ladder",
+          "main/luna-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-low@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder",
+          "main/luna-low-bare@main ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/sol61-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/sol61-high@main ladder",
+          "main/astra-medium@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-high-fast@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
@@ -87002,7 +87453,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -87011,7 +87462,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -102997,6 +103451,7 @@
           "main/grok47-low@all runs",
           "main/grok47-medium@all runs",
           "main/grok47-high@all runs",
+          "main/inkling2mini-ladder@all runs",
           "main/sol61-high-fast@all runs",
           "main/astra-medium-fast@all runs",
           "main/terra61-low-fast@all runs",
@@ -103020,14 +103475,60 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/luna-low@all runs",
+          "main/luna-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-low@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-low@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs",
+          "main/luna-low-bare@all runs"
+         ]
         },
         "main/inkling2mini-ladder@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/grok47-high@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs"
+         ]
         },
         "main/sol61-high-fast@all runs": {
          "eligible": true,
@@ -103417,7 +103918,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.000798,
@@ -103446,7 +103947,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -104309,7 +104813,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -104832,14 +105339,65 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/luna-low@all runs",
+          "main/luna-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-low@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-low@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/grok47-high@all runs",
+          "main/grok47fast-low@all runs",
+          "main/devin16slow-default@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/astra-medium-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs",
+          "main/luna-low-bare@all runs"
+         ]
         },
         "main/inkling2mini-ladder@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/grok47-high@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/astra-medium-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs"
+         ]
         },
         "main/sol61-high-fast@all runs": {
          "eligible": true,
@@ -105115,7 +105673,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.011453,
@@ -105129,7 +105687,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -105536,14 +106097,60 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/luna-low@all runs",
+          "main/luna-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-low@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-low@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs",
+          "main/luna-low-bare@all runs"
+         ]
         },
         "main/inkling2mini-ladder@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/grok47-high@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs"
+         ]
         },
         "main/sol61-high-fast@all runs": {
          "eligible": true,
@@ -106093,7 +106700,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.000798,
@@ -106147,7 +106754,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -106754,14 +107364,60 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/luna-low@all runs",
+          "main/luna-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-low@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-low@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs",
+          "main/luna-low-bare@all runs"
+         ]
         },
         "main/inkling2mini-ladder@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/grok47-high@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs"
+         ]
         },
         "main/sol61-high-fast@all runs": {
          "eligible": true,
@@ -107311,7 +107967,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.000798,
@@ -107365,7 +108021,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -108097,6 +108756,7 @@
           "main/grok47-low@all runs",
           "main/grok47-medium@all runs",
           "main/grok47-high@all runs",
+          "main/inkling2mini-ladder@all runs",
           "main/sol61-high-fast@all runs",
           "main/astra-medium-fast@all runs",
           "main/terra61-low-fast@all runs",
@@ -108120,14 +108780,62 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/luna-low@all runs",
+          "main/luna-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-low@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-low@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/astra-medium-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs",
+          "main/luna-low-bare@all runs"
+         ]
         },
         "main/inkling2mini-ladder@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/grok47-high@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/astra-medium-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs"
+         ]
         },
         "main/sol61-high-fast@all runs": {
          "eligible": true,
@@ -108586,7 +109294,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -108625,7 +109333,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -109416,7 +110127,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -109852,14 +110566,65 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/luna-low@all runs",
+          "main/luna-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-low@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-low@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/grok47-high@all runs",
+          "main/grok47fast-low@all runs",
+          "main/devin16slow-default@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/astra-medium-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs",
+          "main/luna-low-bare@all runs"
+         ]
         },
         "main/inkling2mini-ladder@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/grok47-high@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/astra-medium-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs"
+         ]
         },
         "main/sol61-high-fast@all runs": {
          "eligible": true,
@@ -110126,7 +110891,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -110140,7 +110905,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -110575,14 +111343,62 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/luna-low@all runs",
+          "main/luna-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-low@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-low@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/astra-medium-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs",
+          "main/luna-low-bare@all runs"
+         ]
         },
         "main/inkling2mini-ladder@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/grok47-high@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/astra-medium-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs"
+         ]
         },
         "main/sol61-high-fast@all runs": {
          "eligible": true,
@@ -110845,7 +111661,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -110859,7 +111675,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -111294,14 +112113,62 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/luna-low@all runs",
+          "main/luna-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-low@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-low@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/astra-medium-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs",
+          "main/luna-low-bare@all runs"
+         ]
         },
         "main/inkling2mini-ladder@all runs": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/sol61-medium@all runs",
+          "main/haiku-high@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-high@all runs",
+          "main/sol56-high@all runs",
+          "main/sol61-high@all runs",
+          "main/astra-medium@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/terra56-high@all runs",
+          "main/grok47-low@all runs",
+          "main/grok47-medium@all runs",
+          "main/grok47-high@all runs",
+          "main/sol61-high-fast@all runs",
+          "main/astra-medium-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs",
+          "main/sol61-xhigh@all runs"
+         ]
         },
         "main/sol61-high-fast@all runs": {
          "eligible": true,
@@ -111564,7 +112431,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -111578,7 +112445,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -157496,6 +158366,7 @@
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
           "main/grok47-high@partial ladder",
+          "main/inkling2mini-ladder@partial ladder",
           "main/sol61-xhigh@partial ladder"
          ]
         },
@@ -157515,14 +158386,26 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
@@ -157626,7 +158509,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.017506,
@@ -157640,7 +158523,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -157877,7 +158763,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -158005,14 +158894,29 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/grok47fast-low@partial ladder",
+          "main/devin16slow-default@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
@@ -158131,7 +159035,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            null,
@@ -158150,7 +159054,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -158298,14 +159205,26 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
@@ -158409,7 +159328,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.017506,
@@ -158423,7 +159342,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -158561,14 +159483,26 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
@@ -158672,7 +159606,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.017506,
@@ -158686,7 +159620,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -158830,6 +159767,7 @@
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
           "main/grok47-high@partial ladder",
+          "main/inkling2mini-ladder@partial ladder",
           "main/sol61-xhigh@partial ladder"
          ]
         },
@@ -158849,14 +159787,26 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
@@ -158958,7 +159908,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -158972,7 +159922,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -159203,7 +160156,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -159325,14 +160281,29 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/grok47fast-low@partial ladder",
+          "main/devin16slow-default@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
@@ -159451,7 +160422,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            null,
@@ -159470,7 +160441,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -159612,14 +160586,26 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
@@ -159723,7 +160709,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -159737,7 +160723,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,
@@ -159869,14 +160858,26 @@
          "beaten_by": []
         },
         "main/inkling2mini-default@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-low@partial ladder",
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/inkling2mini-ladder@partial ladder": {
-         "eligible": false,
+         "eligible": true,
          "on_frontier": false,
-         "beaten_by": []
+         "beaten_by": [
+          "main/terra56-high@partial ladder",
+          "main/grok47-low@partial ladder",
+          "main/grok47-medium@partial ladder",
+          "main/grok47-high@partial ladder",
+          "main/sol61-xhigh@partial ladder"
+         ]
         },
         "main/sol61-xhigh@partial ladder": {
          "eligible": true,
@@ -159980,7 +160981,7 @@
         "other": {
          "on_frontier": 0,
          "total": 2,
-         "beaten": 0,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -159994,7 +160995,10 @@
           ]
          ],
          "extents": {
-          "cost": null,
+          "cost": [
+           0.08582533333333332,
+           0.23168700000000003
+          ],
           "zero_lane": false,
           "pass_rate": [
            0.17,

@@ -37,8 +37,8 @@ The main run was on 2026-10-22; the runs on this page span 2026-10-22 to 2026-11
 | terra61-low ⚡ † | 100% (60/60) | ≥78% (all passed) | 6.0 | 8.2 | $0.011 | $0.64 | proxy |
 | hetzner-qwen36 † | 83% (10/12) | 58%–100% | 341.5 | 736.8 | free tier | free tier | free-tier |
 | hetzner-qwen38 † | 75% (9/12) | 50%–100% | 820.6 | 1768.9 | free tier | free tier | free-tier |
-| inkling2mini-default † | 47% (7/15) | 20%–73% | 2881.3 | 3028.5 | free tier | free tier | free-tier |
-| inkling2mini-ladder † | 87% (13/15) | 67%–100% | 4630.4 | 9403.7 | free tier | free tier | free-tier |
+| inkling2mini-default † | 47% (7/15) | 20%–73% | 2881.3 | 3028.5 | est. $0.13 from box-hours | est. $0.90 from box-hours | box-hours |
+| inkling2mini-ladder † | 87% (13/15) | 67%–100% | 4630.4 | 9403.7 | est. $0.15 from box-hours | est. $2.01 from box-hours | box-hours |
 
 Function track: 12 problems × 5 attempts for most configs (exceptions: terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); hetzner-qwen36 12 calls (one repeat); hetzner-qwen38 12 calls (one repeat); sol61-xhigh 35 calls (a partial ladder)). Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
 
@@ -318,8 +318,8 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 | terra61-low ⚡ † | 14,067 | 11,957 | 523 | 19 | $0.00073 |
 | hetzner-qwen36 † | 489 | 0 | 27,543 | 26,699 | free tier |
 | hetzner-qwen38 † | 409 | 0 | 17,562 | 17,068 | free tier |
-| inkling2mini-default † | 530 | 0 | 8,496 | 0 | free tier |
-| inkling2mini-ladder † | 957 | 0 | 17,726 | 0 | free tier |
+| inkling2mini-default † | 530 | 0 | 8,496 | 0 | – |
+| inkling2mini-ladder † | 957 | 0 | 17,726 | 0 | – |
 
 ![Pass rate by difficulty rung, 10 attempts per rung per config.](../results/report/charts/pass_by_rung.svg)
 
@@ -368,12 +368,14 @@ Inkling 2 Mini passed 7/15 frozen and 13/15 with retries.
 
 It is a free local CPU model, so its times do not match API lanes.
 
-| free lane | passed (function tests) | median s per task | total wall |
-|---|---|---|---|
-| hetzner-qwen36 | 10/12 | 341 | 1.33 h |
-| hetzner-qwen38 | 9/12 | 821 | 2.98 h |
-| Inkling 2 Mini primary (frozen) | 7/15 | 2,881 | 9.01 h |
-| Inkling 2 Mini retry ladder (secondary) | 13/15 | 4,630 | 20.08 h |
+| lane | passed (function tests) | median min per task | mean min per task | total wall |
+|---|---|---|---|---|
+| hetzner-qwen36 | 10/12 | 5.7 | 6.7 | 1.33 h |
+| hetzner-qwen38 | 9/12 | 13.7 | 14.9 | 2.98 h |
+| Inkling 2 Mini primary (frozen) | 7/15 | 48.0 | 36.0 | 9.01 h |
+| Inkling 2 Mini retry ladder (secondary) | 13/15 | 77.2 | 80.3 | 20.08 h |
+
+Cost is estimated from box-hours at an assumed $0.10 an hour. Estimated per pass: $0.13 primary, $0.15 ladder. Hetzner is a free hosted API with no price, so it has no cost to compare.
 
 | task | primary (12,288 cap) | primary minutes | retry stages | ladder |
 |---|---|---|---|---|
@@ -393,15 +395,17 @@ It is a free local CPU model, so its times do not match API lanes.
 | p14 | no_code | 48.2 | medium @ 16,384: pass | pass |
 | p15 | no_code | 91.6 | medium @ 16,384: wrong | fail |
 
-- Model: Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600, run on p01–p15 on this host's CPU, one call at a time. It has no list price.
+- Model: Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600, run on p01–p15 on this host's CPU, one call at a time. It has no list price; cost is estimated from box-hours.
 - Primary settings: default effort, 12,288-token cap.
 - Medium effort at 16,384 tokens passed 5/8.
 - Low effort at 16,384 tokens passed 0/2.
 - Default effort at 24,576 tokens passed 1/1.
 - The retry added 11.07 h of wall time, 20.08 h in all.
+- Primary seconds per task: median 2,881, mean 2,163.
+- Ladder seconds per task: median 4,630, mean 4,819.
 - Slowest on the ladder: p11, 326 min.
 - The ladder is secondary because its settings were chosen after seeing which tasks hit the cap.
-- Other work sometimes ran on the host, so times vary. Off dollar charts, the Winner and the frontier.
+- Other work sometimes ran on the host, so times vary.
 
 ## Code quality
 

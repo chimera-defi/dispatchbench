@@ -99,8 +99,10 @@ add("main", "exploratory", (INKLING_LADDER, "Inkling 2 Mini retry ladder, second
     "a task passes if any stage passed it and its time is the sum over the stages; llama.cpp b12600 on a local CPU, free, no list price; exploratory"))
 INKLING_PRIMARY = INKLING_CONFIGS[0]
 INKLING_STAGES = INKLING_CONFIGS[1:]  # raw retry stages: shown only through the ladder lane
+BOX_USD_PER_HOUR = 0.10  # assumption, not a measurement: about EUR 65 a month for a rented i7-8700 class box (one unverified auction listing), over a 730-hour month
+BOX_NOTE = "Estimated from box-hours: wall hours x an assumed $0.10 an hour for an i7-8700 class box. The rate is an assumption, not a measurement."
 INKLING_SHOWN = (INKLING_PRIMARY, INKLING_LADDER)  # the two Inkling lanes that join tables and charts, like the Hetzner lanes
-FREE_TIER_CONFIGS = DEVIN_CONFIGS + HETZNER_CONFIGS + INKLING_CONFIGS + (INKLING_LADDER,)  # no published $ comparison: off all $ charts, Winner and frontier
+FREE_TIER_CONFIGS = DEVIN_CONFIGS + HETZNER_CONFIGS + INKLING_CONFIGS + (INKLING_LADDER,)  # Inkling's box-hour estimate is not a list price: it is priced only in the explorer. Others: no published $ comparison: off all $ charts, Winner and frontier
 CHART_HIDDEN = CHART_HIDDEN + FREE_TIER_CONFIGS
 HETZNER_NOTE = "exploratory calibration, 1 repeat, free tier, measured tokens"
 DEVIN_NOTE = "1 repeat, free tier, no token data"

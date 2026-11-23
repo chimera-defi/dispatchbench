@@ -151,6 +151,8 @@ Endpoint: {{hetzner_endpoint}} (OpenAI-compatible). {{hetzner_lead}}
 
 {{table:inkling_lanes}}
 
+{{inkling_price}} {{inkling_price_pp}} {{inkling_hetzner}}
+
 {{table:inkling_summary}}
 
 - {{inkling_model}}
@@ -159,6 +161,8 @@ Endpoint: {{hetzner_endpoint}} (OpenAI-compatible). {{hetzner_lead}}
 - {{inkling_stage_b}}
 - {{inkling_stage_c}}
 - {{inkling_retry_time}}
+- {{inkling_sec_a}}
+- {{inkling_sec_b}}
 - {{inkling_slowest}}
 - {{inkling_caveat}}
 - {{inkling_host}}
