@@ -336,7 +336,8 @@ def heatmap(s):
     cols = [(c, {p: v[c] for p, v in s["problems"].items()}, False) for c in s["configs"]] + [(c, v["by_problem"], True) for c, v in ex.items()] \
         + [(c, v["by_problem"], True) for c, v in dv.items()]
     ink = s.get("inkling") or {}  # p13–p15 are not in this p01–p12 grid
-    cols += [(c, {p: int(ok) for p, ok in tasks.items()}, True) for c, tasks in ((configs.INKLING_PRIMARY, {p: x["passed"] for p, x in ink["primary"]["tasks"].items()}), (configs.INKLING_LADDER, ink["ladder"]["tasks"])) if ink]
+    if ink:
+        cols += [(c, {p: int(ok) for p, ok in tasks.items()}, True) for c, tasks in ((configs.INKLING_PRIMARY, {p: x["passed"] for p, x in ink["primary"]["tasks"].items()}), (configs.INKLING_LADDER, ink["ladder"]["tasks"]))]
     dv = {**dv, **{c: None for c in (configs.INKLING_PRIMARY, configs.INKLING_LADDER)}}
     probs = sorted(s["problems"], key=lambda q: (s["problems"][q]["rung"], q)); cw, ch, L, T, gap = 50, 24, 250, 130, 14
     X = lambda j: L + j * cw + (gap if cols[j][2] else 0)

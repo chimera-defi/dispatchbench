@@ -39682,9 +39682,9 @@
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_slowest": {
-   "value": "Slowest task p11: 50 min primary, 326 min on the ladder.",
+   "value": "Slowest on the ladder: p11, 326 min.",
    "unit": "text",
-   "display": "Slowest task p11: 50 min primary, 326 min on the ladder.",
+   "display": "Slowest on the ladder: p11, 326 min.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_host": {
@@ -40163,6 +40163,26 @@
      "free tier",
      "free tier",
      "free-tier"
+    ],
+    [
+     "inkling2mini-default †",
+     "47% (7/15)",
+     "20%–73%",
+     "2881.3",
+     "3028.5",
+     "free tier",
+     "free tier",
+     "free-tier"
+    ],
+    [
+     "inkling2mini-ladder †",
+     "87% (13/15)",
+     "67%–100%",
+     "4630.4",
+     "9403.7",
+     "free tier",
+     "free tier",
+     "free-tier"
     ]
    ]
   },
@@ -40316,6 +40336,18 @@
      "hetzner-qwen38 †",
      "50%–100%",
      "1768.9",
+     "free tier"
+    ],
+    [
+     "inkling2mini-default †",
+     "20%–73%",
+     "3028.5",
+     "free tier"
+    ],
+    [
+     "inkling2mini-ladder †",
+     "67%–100%",
+     "9403.7",
      "free tier"
     ],
     [
@@ -40534,6 +40566,22 @@
      "0",
      "17,562",
      "17,068",
+     "free tier"
+    ],
+    [
+     "inkling2mini-default †",
+     "530",
+     "0",
+     "8,496",
+     "0",
+     "free tier"
+    ],
+    [
+     "inkling2mini-ladder †",
+     "957",
+     "0",
+     "17,726",
+     "0",
      "free tier"
     ]
    ]

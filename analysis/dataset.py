@@ -1009,8 +1009,14 @@ def audit_footnote(ds_rows_red):
     return text
 
 
+def _inkling_blocks():
+    """The two Inkling lanes as summary blocks, so the Results, detail and token tables list them like the Hetzner free lanes."""
+    prim = [r for r in summarize.inkling_rows() if r["config"] == configs.INKLING_PRIMARY]
+    return {c: {**summarize.config_block(rr), "cost_kind": "free-tier", "usd_per_1k_tokens": None} for c, rr in ((configs.INKLING_PRIMARY, prim), (configs.INKLING_LADDER, summarize.inkling_ladder_rows()))}
+
+
 def _tables(s, arms):
-    T = {}; cfg, ex = s["configs"], {**s["exploratory"], **s.get("hetzner", {})}; nprob = len(s["problems"])
+    T = {}; cfg, ex = s["configs"], {**s["exploratory"], **s.get("hetzner", {}), **_inkling_blocks()}; nprob = len(s["problems"])
     if s.get("grok"):
         T["grok"] = md_table(["config", "coverage", "passed", "$ per pass", "total $ (CLI-measured)", "median s"],
             [[DISP(c), f'{len(v["by_problem"])} of {nprob} problems', f'{pct(v["pass_at_1"])} ({v["passes"]}/{v["n"]})',
@@ -1966,7 +1972,7 @@ def _inkling(ds, s):
     F["inkling_retry_time"] = f"The retry added {F['inkling_retry_wall']} of wall time, {F['inkling_total_wall']} in all."
     F["inkling_caveat"] = "The ladder is secondary because its settings were chosen after seeing which tasks hit the cap."
     slow = max(lad["task_wall_s"], key=lad["task_wall_s"].get)
-    F["inkling_slowest"] = f"Slowest task {slow.split('_')[0]}: {mins(p['tasks'][slow]['wall_s'])} primary, {mins(lad['task_wall_s'][slow])} on the ladder."
+    F["inkling_slowest"] = f"Slowest on the ladder: {slow.split('_')[0]}, {mins(lad['task_wall_s'][slow])}."
     F["inkling_host"] = "Other work sometimes ran on the host, so times vary. Off dollar charts, the Winner and the frontier."
     free = {}  # the free lanes side by side: the Hetzner Qwen calls (1 try per task) and the two Inkling lanes
     for src, name, st_, x in _rows():
