@@ -50,7 +50,9 @@
     "page text: est. $0.19 from box-hours": "Inkling cost now uses the billed Hetzner eth2-3 rate (EUR 52.17 a month, ECB 1.0939), replacing the assumed $0.10 an hour; the estimated dollar figures and notes change with it.",
     "page text: est. $0.73 from box-hours": "Inkling cost now uses the billed Hetzner eth2-3 rate (EUR 52.17 a month, ECB 1.0939), replacing the assumed $0.10 an hour; the estimated dollar figures and notes change with it.",
     "page text: est. $0.90 from box-hours": "Inkling cost now uses the billed Hetzner eth2-3 rate (EUR 52.17 a month, ECB 1.0939), replacing the assumed $0.10 an hour; the estimated dollar figures and notes change with it.",
-    "page text: est. $2.01 from box-hours": "Inkling cost now uses the billed Hetzner eth2-3 rate (EUR 52.17 a month, ECB 1.0939), replacing the assumed $0.10 an hour; the estimated dollar figures and notes change with it."
+    "page text: est. $2.01 from box-hours": "Inkling cost now uses the billed Hetzner eth2-3 rate (EUR 52.17 a month, ECB 1.0939), replacing the assumed $0.10 an hour; the estimated dollar figures and notes change with it.",
+    "page text: For anyone weighing a free local model for coding tasks.": "Wording fix after review: Inkling is a local model with an estimated box cost, so it is no longer called free.",
+    "page text: It is a free local CPU model, so its times do not match API lanes.": "Wording fix after review: Inkling is a local model with an estimated box cost, so it is no longer called free."
   },
   "dropped_facts": {
     "inkling_lead": "Replaced by the split facts inkling_for, inkling_answer, inkling_b1 to inkling_b3, inkling_model, inkling_settings, inkling_stage_a to inkling_stage_c and inkling_retry_time (Shape rewrite); no number dropped.",

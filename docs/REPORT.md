@@ -358,7 +358,7 @@ Verdict: usable but slow, below the Claude and Codex sol61 middle tiers. Qwen3.8
 
 ## Inkling 2 Mini on a local CPU (exploratory)
 
-For anyone weighing a free local model for coding tasks.
+For anyone weighing a local model for coding tasks.
 
 Inkling 2 Mini passed 7/15 frozen and 13/15 with retries.
 
@@ -366,7 +366,7 @@ Inkling 2 Mini passed 7/15 frozen and 13/15 with retries.
 - Retry ladder, secondary: 13/15 after re-running the tasks the cap cut off.
 - Median time per task: 48 min primary, 77 min ladder.
 
-It is a free local CPU model, so its times do not match API lanes.
+It is a local CPU model, so its times do not match API lanes.
 
 | lane | passed (function tests) | median min per task | mean min per task | total wall |
 |---|---|---|---|---|
@@ -375,7 +375,7 @@ It is a free local CPU model, so its times do not match API lanes.
 | Inkling 2 Mini primary (frozen) | 7/15 | 48.0 | 36.0 | 9.01 h |
 | Inkling 2 Mini retry ladder (secondary) | 13/15 | 77.2 | 80.3 | 20.08 h |
 
-Cost is estimated from box-hours on Hetzner auction box eth2-3, EUR 52.17 a month. That box costs EUR 0.0701 an hour, or $0.0767 an hour. The rate is 1.0939 dollars per euro, from the ECB on 2026-11-23. Estimated per pass: $0.099 primary, $0.12 ladder. Hetzner is a free hosted API, so it has no price.
+Cost is estimated from box-hours on Hetzner auction box eth2-3, EUR 52.17 a month. That box costs EUR 0.0701 an hour, or $0.0767 an hour. The exchange rate is 1.0939 dollars per euro, from the ECB on 2026-11-23. Estimated per pass: $0.099 primary, $0.12 ladder. The Hetzner API lanes are free, so they have no price.
 
 | task | primary (12,288 cap) | primary minutes | retry stages | ladder |
 |---|---|---|---|---|

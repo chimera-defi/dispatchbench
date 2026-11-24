@@ -8358,7 +8358,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, the billed rate of Hetzner auction box eth2-3.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -8480,7 +8480,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, the billed rate of Hetzner auction box eth2-3.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -8563,7 +8563,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, the billed rate of Hetzner auction box eth2-3.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -8642,7 +8642,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, the billed rate of Hetzner auction box eth2-3.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -8804,7 +8804,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, the billed rate of Hetzner auction box eth2-3.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -22342,7 +22342,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, the billed rate of Hetzner auction box eth2-3.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -22464,7 +22464,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, the billed rate of Hetzner auction box eth2-3.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -22547,7 +22547,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, the billed rate of Hetzner auction box eth2-3.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -22626,7 +22626,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, the billed rate of Hetzner auction box eth2-3.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -22788,7 +22788,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, the billed rate of Hetzner auction box eth2-3.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -39622,9 +39622,9 @@
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_for": {
-   "value": "For anyone weighing a free local model for coding tasks.",
+   "value": "For anyone weighing a local model for coding tasks.",
    "unit": "text",
-   "display": "For anyone weighing a free local model for coding tasks.",
+   "display": "For anyone weighing a local model for coding tasks.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_answer": {
@@ -39652,9 +39652,9 @@
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_cpu": {
-   "value": "It is a free local CPU model, so its times do not match API lanes.",
+   "value": "It is a local CPU model, so its times do not match API lanes.",
    "unit": "text",
-   "display": "It is a free local CPU model, so its times do not match API lanes.",
+   "display": "It is a local CPU model, so its times do not match API lanes.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_model": {
@@ -39706,9 +39706,9 @@
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_fx": {
-   "value": "The rate is 1.0939 dollars per euro, from the ECB on 2026-11-23.",
+   "value": "The exchange rate is 1.0939 dollars per euro, from the ECB on 2026-11-23.",
    "unit": "text",
-   "display": "The rate is 1.0939 dollars per euro, from the ECB on 2026-11-23.",
+   "display": "The exchange rate is 1.0939 dollars per euro, from the ECB on 2026-11-23.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_pp_primary": {
@@ -39730,9 +39730,9 @@
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_hetzner": {
-   "value": "Hetzner is a free hosted API, so it has no price.",
+   "value": "The Hetzner API lanes are free, so they have no price.",
    "unit": "text",
-   "display": "Hetzner is a free hosted API, so it has no price.",
+   "display": "The Hetzner API lanes are free, so they have no price.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_sec_a": {
@@ -52538,7 +52538,7 @@
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, the billed rate of Hetzner auction box eth2-3.",
+    "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
     "complete_marker": null,
     "key": "main/inkling2mini-default@partial ladder"
    },
@@ -52701,7 +52701,7 @@
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, the billed rate of Hetzner auction box eth2-3.",
+    "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
     "complete_marker": null,
     "key": "main/inkling2mini-ladder@partial ladder"
    },
@@ -66352,7 +66352,7 @@
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, the billed rate of Hetzner auction box eth2-3.",
+    "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
     "complete_marker": null,
     "key": "main/inkling2mini-default@all runs"
    },
@@ -66515,7 +66515,7 @@
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, the billed rate of Hetzner auction box eth2-3.",
+    "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
     "complete_marker": null,
     "key": "main/inkling2mini-ladder@all runs"
    },
