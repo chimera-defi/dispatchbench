@@ -151,7 +151,7 @@ Endpoint: {{hetzner_endpoint}} (OpenAI-compatible). {{hetzner_lead}}
 
 {{table:inkling_lanes}}
 
-{{inkling_price}} {{inkling_price_pp}} {{inkling_hetzner}}
+{{inkling_price}} {{inkling_rate}} {{inkling_fx}} {{inkling_price_pp}} {{inkling_hetzner}}
 
 {{table:inkling_summary}}
 

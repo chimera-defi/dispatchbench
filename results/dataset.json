@@ -8223,11 +8223,11 @@
     0.7333
    ],
    "groups": 15,
-   "usd_per_pass": 0.128738,
+   "usd_per_pass": 0.098719,
    "claude_usd_per_pass": 0.0,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.060078,
-   "spend": 0.901163,
+   "usd_per_call": 0.046069,
+   "spend": 0.691034,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
@@ -8313,7 +8313,7 @@
     0.7333
    ],
    "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.006656104586749391,
+   "usd_per_1k_tokens": 0.005104032794150232,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L1": [
@@ -8353,12 +8353,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": 0.128738,
+   "quota_usd_per_pass": 0.098719,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -8385,11 +8385,11 @@
     1.0
    ],
    "groups": 8,
-   "usd_per_pass": 0.145541,
+   "usd_per_pass": 0.111604,
    "claude_usd_per_pass": 0.0,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.090963,
-   "spend": 0.727705,
+   "usd_per_call": 0.069753,
+   "spend": 0.558022,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
@@ -8447,7 +8447,7 @@
     1.0
    ],
    "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.0073570850857327735,
+   "usd_per_1k_tokens": 0.005641620834681333,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L3": [
@@ -8475,12 +8475,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": 0.145541,
+   "quota_usd_per_pass": 0.111604,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -8507,8 +8507,8 @@
    "usd_per_pass": null,
    "claude_usd_per_pass": null,
    "codex_usd_per_pass": null,
-   "usd_per_call": 0.094209,
-   "spend": 0.188418,
+   "usd_per_call": 0.072242,
+   "spend": 0.144483,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
@@ -8542,7 +8542,7 @@
     0.0
    ],
    "usd_saved_per_pass": null,
-   "usd_per_1k_tokens": 0.007726482407938982,
+   "usd_per_1k_tokens": 0.005924874928237514,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L6": [
@@ -8563,7 +8563,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -8587,11 +8587,11 @@
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 1,
-   "usd_per_pass": 0.190674,
+   "usd_per_pass": 0.146213,
    "claude_usd_per_pass": 0.0,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.190674,
-   "spend": 0.190674,
+   "usd_per_call": 0.146213,
+   "spend": 0.146213,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
@@ -8621,7 +8621,7 @@
     1.0
    ],
    "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.008848802673101912,
+   "usd_per_1k_tokens": 0.006785455726749583,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L6": [
@@ -8637,12 +8637,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": 0.190674,
+   "quota_usd_per_pass": 0.146213,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -8669,11 +8669,11 @@
     1.0
    ],
    "groups": 15,
-   "usd_per_pass": 0.154458,
+   "usd_per_pass": 0.118442,
    "claude_usd_per_pass": 0.0,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.133864,
-   "spend": 2.00796,
+   "usd_per_call": 0.10265,
+   "spend": 1.539752,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
@@ -8759,7 +8759,7 @@
     1.0
    ],
    "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.007165016325001338,
+   "usd_per_1k_tokens": 0.005494299630680298,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L1": [
@@ -8799,12 +8799,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": 0.154458,
+   "quota_usd_per_pass": 0.118442,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -22207,11 +22207,11 @@
     0.7333
    ],
    "groups": 15,
-   "usd_per_pass": 0.128738,
+   "usd_per_pass": 0.098719,
    "claude_usd_per_pass": 0.0,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.060078,
-   "spend": 0.901163,
+   "usd_per_call": 0.046069,
+   "spend": 0.691034,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
@@ -22297,7 +22297,7 @@
     0.7333
    ],
    "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.006656104586749391,
+   "usd_per_1k_tokens": 0.005104032794150232,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L1": [
@@ -22337,12 +22337,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": 0.128738,
+   "quota_usd_per_pass": 0.098719,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -22369,11 +22369,11 @@
     1.0
    ],
    "groups": 8,
-   "usd_per_pass": 0.145541,
+   "usd_per_pass": 0.111604,
    "claude_usd_per_pass": 0.0,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.090963,
-   "spend": 0.727705,
+   "usd_per_call": 0.069753,
+   "spend": 0.558022,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
@@ -22431,7 +22431,7 @@
     1.0
    ],
    "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.0073570850857327735,
+   "usd_per_1k_tokens": 0.005641620834681333,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L3": [
@@ -22459,12 +22459,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": 0.145541,
+   "quota_usd_per_pass": 0.111604,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -22491,8 +22491,8 @@
    "usd_per_pass": null,
    "claude_usd_per_pass": null,
    "codex_usd_per_pass": null,
-   "usd_per_call": 0.094209,
-   "spend": 0.188418,
+   "usd_per_call": 0.072242,
+   "spend": 0.144483,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
@@ -22526,7 +22526,7 @@
     0.0
    ],
    "usd_saved_per_pass": null,
-   "usd_per_1k_tokens": 0.007726482407938982,
+   "usd_per_1k_tokens": 0.005924874928237514,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L6": [
@@ -22547,7 +22547,7 @@
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -22571,11 +22571,11 @@
    "pass_rate": 1.0,
    "ci95": null,
    "groups": 1,
-   "usd_per_pass": 0.190674,
+   "usd_per_pass": 0.146213,
    "claude_usd_per_pass": 0.0,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.190674,
-   "spend": 0.190674,
+   "usd_per_call": 0.146213,
+   "spend": 0.146213,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
@@ -22605,7 +22605,7 @@
     1.0
    ],
    "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.008848802673101912,
+   "usd_per_1k_tokens": 0.006785455726749583,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L6": [
@@ -22621,12 +22621,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": 0.190674,
+   "quota_usd_per_pass": 0.146213,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -22653,11 +22653,11 @@
     1.0
    ],
    "groups": 15,
-   "usd_per_pass": 0.154458,
+   "usd_per_pass": 0.118442,
    "claude_usd_per_pass": 0.0,
    "codex_usd_per_pass": 0.0,
-   "usd_per_call": 0.133864,
-   "spend": 2.00796,
+   "usd_per_call": 0.10265,
+   "spend": 1.539752,
    "spend_claude": 0.0,
    "spend_codex": 0.0,
    "unknown_usd": 0,
@@ -22743,7 +22743,7 @@
     1.0
    ],
    "usd_saved_per_pass": 0.0,
-   "usd_per_1k_tokens": 0.007165016325001338,
+   "usd_per_1k_tokens": 0.005494299630680298,
    "rule": "function tests (reference + brute force)",
    "by_rung": {
     "L1": [
@@ -22783,12 +22783,12 @@
    "bare_of": null,
    "prereg": false,
    "provenance": "later exploration",
-   "quota_usd_per_pass": 0.154458,
+   "quota_usd_per_pass": 0.118442,
    "winner_pick": null,
    "winner_pricing": null,
    "panel": "other",
    "gate": null,
-   "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
+   "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
    "complete_marker": null
   },
   {
@@ -39622,9 +39622,9 @@
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_for": {
-   "value": "For anyone weighing a free local model for coding tasks.",
+   "value": "For anyone weighing a local model for coding tasks.",
    "unit": "text",
-   "display": "For anyone weighing a free local model for coding tasks.",
+   "display": "For anyone weighing a local model for coding tasks.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_answer": {
@@ -39652,9 +39652,9 @@
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_cpu": {
-   "value": "It is a free local CPU model, so its times do not match API lanes.",
+   "value": "It is a local CPU model, so its times do not match API lanes.",
    "unit": "text",
-   "display": "It is a free local CPU model, so its times do not match API lanes.",
+   "display": "It is a local CPU model, so its times do not match API lanes.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_model": {
@@ -39694,33 +39694,45 @@
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_price": {
-   "value": "Cost is estimated from box-hours at an assumed $0.10 an hour.",
+   "value": "Cost is estimated from box-hours on Hetzner auction box eth2-3, EUR 52.17 a month.",
    "unit": "text",
-   "display": "Cost is estimated from box-hours at an assumed $0.10 an hour.",
+   "display": "Cost is estimated from box-hours on Hetzner auction box eth2-3, EUR 52.17 a month.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_rate": {
+   "value": "That box costs EUR 0.0701 an hour, or $0.0767 an hour.",
+   "unit": "text",
+   "display": "That box costs EUR 0.0701 an hour, or $0.0767 an hour.",
+   "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
+  },
+  "inkling_fx": {
+   "value": "The exchange rate is 1.0939 dollars per euro, from the ECB on 2026-11-23.",
+   "unit": "text",
+   "display": "The exchange rate is 1.0939 dollars per euro, from the ECB on 2026-11-23.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_pp_primary": {
-   "value": 0.13,
+   "value": 0.099,
    "unit": "usd",
-   "display": "$0.13",
+   "display": "$0.099",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_pp_ladder": {
-   "value": 0.15,
+   "value": 0.12,
    "unit": "usd",
-   "display": "$0.15",
+   "display": "$0.12",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_price_pp": {
-   "value": "Estimated per pass: $0.13 primary, $0.15 ladder.",
+   "value": "Estimated per pass: $0.099 primary, $0.12 ladder.",
    "unit": "text",
-   "display": "Estimated per pass: $0.13 primary, $0.15 ladder.",
+   "display": "Estimated per pass: $0.099 primary, $0.12 ladder.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_hetzner": {
-   "value": "Hetzner is a free hosted API, so it has no price.",
+   "value": "The Hetzner API lanes are free, so they have no price.",
    "unit": "text",
-   "display": "Hetzner is a free hosted API, so it has no price.",
+   "display": "The Hetzner API lanes are free, so they have no price.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_sec_a": {
@@ -40212,8 +40224,8 @@
      "20%–73%",
      "2881.3",
      "3028.5",
-     "est. $0.13 from box-hours",
-     "est. $0.90 from box-hours",
+     "est. $0.099 from box-hours",
+     "est. $0.69 from box-hours",
      "box-hours"
     ],
     [
@@ -40222,8 +40234,8 @@
      "67%–100%",
      "4630.4",
      "9403.7",
-     "est. $0.15 from box-hours",
-     "est. $2.01 from box-hours",
+     "est. $0.12 from box-hours",
+     "est. $1.54 from box-hours",
      "box-hours"
     ]
    ]
@@ -40384,13 +40396,13 @@
      "inkling2mini-default †",
      "20%–73%",
      "3028.5",
-     "est. $0.90 from box-hours"
+     "est. $0.69 from box-hours"
     ],
     [
      "inkling2mini-ladder †",
      "67%–100%",
      "9403.7",
-     "est. $2.01 from box-hours"
+     "est. $1.54 from box-hours"
     ],
     [
      "luna-low-bare †",
@@ -52391,11 +52403,11 @@
      0.7333
     ],
     "groups": 15,
-    "usd_per_pass": 0.128738,
+    "usd_per_pass": 0.098719,
     "claude_usd_per_pass": 0.0,
     "codex_usd_per_pass": 0.0,
-    "usd_per_call": 0.060078,
-    "spend": 0.901163,
+    "usd_per_call": 0.046069,
+    "spend": 0.691034,
     "spend_claude": 0.0,
     "spend_codex": 0.0,
     "unknown_usd": 0,
@@ -52481,7 +52493,7 @@
      0.7333
     ],
     "usd_saved_per_pass": 0.0,
-    "usd_per_1k_tokens": 0.006656104586749391,
+    "usd_per_1k_tokens": 0.005104032794150232,
     "rule": "function tests (reference + brute force)",
     "by_rung": {
      "L1": [
@@ -52521,12 +52533,12 @@
     "bare_of": null,
     "prereg": false,
     "provenance": "later exploration",
-    "quota_usd_per_pass": 0.128738,
+    "quota_usd_per_pass": 0.098719,
     "winner_pick": null,
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
+    "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
     "complete_marker": null,
     "key": "main/inkling2mini-default@partial ladder"
    },
@@ -52554,11 +52566,11 @@
      1.0
     ],
     "groups": 15,
-    "usd_per_pass": 0.154458,
+    "usd_per_pass": 0.118442,
     "claude_usd_per_pass": 0.0,
     "codex_usd_per_pass": 0.0,
-    "usd_per_call": 0.133864,
-    "spend": 2.00796,
+    "usd_per_call": 0.10265,
+    "spend": 1.539752,
     "spend_claude": 0.0,
     "spend_codex": 0.0,
     "unknown_usd": 0,
@@ -52644,7 +52656,7 @@
      1.0
     ],
     "usd_saved_per_pass": 0.0,
-    "usd_per_1k_tokens": 0.007165016325001338,
+    "usd_per_1k_tokens": 0.005494299630680298,
     "rule": "function tests (reference + brute force)",
     "by_rung": {
      "L1": [
@@ -52684,12 +52696,12 @@
     "bare_of": null,
     "prereg": false,
     "provenance": "later exploration",
-    "quota_usd_per_pass": 0.154458,
+    "quota_usd_per_pass": 0.118442,
     "winner_pick": null,
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
+    "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
     "complete_marker": null,
     "key": "main/inkling2mini-ladder@partial ladder"
    },
@@ -66205,11 +66217,11 @@
      0.7333
     ],
     "groups": 15,
-    "usd_per_pass": 0.128738,
+    "usd_per_pass": 0.098719,
     "claude_usd_per_pass": 0.0,
     "codex_usd_per_pass": 0.0,
-    "usd_per_call": 0.060078,
-    "spend": 0.901163,
+    "usd_per_call": 0.046069,
+    "spend": 0.691034,
     "spend_claude": 0.0,
     "spend_codex": 0.0,
     "unknown_usd": 0,
@@ -66295,7 +66307,7 @@
      0.7333
     ],
     "usd_saved_per_pass": 0.0,
-    "usd_per_1k_tokens": 0.006656104586749391,
+    "usd_per_1k_tokens": 0.005104032794150232,
     "rule": "function tests (reference + brute force)",
     "by_rung": {
      "L1": [
@@ -66335,12 +66347,12 @@
     "bare_of": null,
     "prereg": false,
     "provenance": "later exploration",
-    "quota_usd_per_pass": 0.128738,
+    "quota_usd_per_pass": 0.098719,
     "winner_pick": null,
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
+    "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
     "complete_marker": null,
     "key": "main/inkling2mini-default@all runs"
    },
@@ -66368,11 +66380,11 @@
      1.0
     ],
     "groups": 15,
-    "usd_per_pass": 0.154458,
+    "usd_per_pass": 0.118442,
     "claude_usd_per_pass": 0.0,
     "codex_usd_per_pass": 0.0,
-    "usd_per_call": 0.133864,
-    "spend": 2.00796,
+    "usd_per_call": 0.10265,
+    "spend": 1.539752,
     "spend_claude": 0.0,
     "spend_codex": 0.0,
     "unknown_usd": 0,
@@ -66458,7 +66470,7 @@
      1.0
     ],
     "usd_saved_per_pass": 0.0,
-    "usd_per_1k_tokens": 0.007165016325001338,
+    "usd_per_1k_tokens": 0.005494299630680298,
     "rule": "function tests (reference + brute force)",
     "by_rung": {
      "L1": [
@@ -66498,12 +66510,12 @@
     "bare_of": null,
     "prereg": false,
     "provenance": "later exploration",
-    "quota_usd_per_pass": 0.154458,
+    "quota_usd_per_pass": 0.118442,
     "winner_pick": null,
     "winner_pricing": null,
     "panel": "other",
     "gate": null,
-    "coverage_note": "Estimated from box-hours: wall time at an assumed $0.10 an hour. The rate is an assumption, not a measurement.",
+    "coverage_note": "Estimated from box-hours: wall time at $0.0767 an hour, from the eth2-3 bill.",
     "complete_marker": null,
     "key": "main/inkling2mini-ladder@all runs"
    },
@@ -78428,9 +78440,7 @@
           "main/terra56-high@partial ladder",
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
           "main/sol61-high-fast@main ladder",
-          "main/astra-medium-fast@main ladder",
           "main/terra61-low-fast@main ladder",
           "main/terra61-high-fast@main ladder",
           "main/sol61-xhigh@partial ladder"
@@ -78900,8 +78910,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -79757,8 +79767,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -80587,8 +80597,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -81024,9 +81034,7 @@
           "main/terra56-high@partial ladder",
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
           "main/sol61-high-fast@main ladder",
-          "main/astra-medium-fast@main ladder",
           "main/terra61-low-fast@main ladder",
           "main/terra61-high-fast@main ladder",
           "main/sol61-xhigh@partial ladder"
@@ -81676,8 +81684,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -82363,9 +82371,7 @@
           "main/terra56-high@partial ladder",
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
           "main/sol61-high-fast@main ladder",
-          "main/astra-medium-fast@main ladder",
           "main/terra61-low-fast@main ladder",
           "main/terra61-high-fast@main ladder",
           "main/sol61-xhigh@partial ladder"
@@ -83015,8 +83021,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -83839,7 +83845,6 @@
           "main/terra56-high@partial ladder",
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
           "main/sol61-high-fast@main ladder",
           "main/astra-medium-fast@main ladder",
           "main/terra61-low-fast@main ladder",
@@ -84415,8 +84420,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -85276,8 +85281,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -86035,8 +86040,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -86508,7 +86513,6 @@
           "main/terra56-high@partial ladder",
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
           "main/sol61-high-fast@main ladder",
           "main/astra-medium-fast@main ladder",
           "main/terra61-low-fast@main ladder",
@@ -86755,8 +86759,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -87228,7 +87232,6 @@
           "main/terra56-high@partial ladder",
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
           "main/sol61-high-fast@main ladder",
           "main/astra-medium-fast@main ladder",
           "main/terra61-low-fast@main ladder",
@@ -87475,8 +87478,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -103535,7 +103538,6 @@
           "main/terra56-high@all runs",
           "main/grok47-low@all runs",
           "main/grok47-medium@all runs",
-          "main/grok47-high@all runs",
           "main/sol61-high-fast@all runs",
           "main/terra61-low-fast@all runs",
           "main/terra61-high-fast@all runs",
@@ -103960,8 +103962,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -104826,8 +104828,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -105700,8 +105702,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -106157,7 +106159,6 @@
           "main/terra56-high@all runs",
           "main/grok47-low@all runs",
           "main/grok47-medium@all runs",
-          "main/grok47-high@all runs",
           "main/sol61-high-fast@all runs",
           "main/terra61-low-fast@all runs",
           "main/terra61-high-fast@all runs",
@@ -106767,8 +106768,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -107424,7 +107425,6 @@
           "main/terra56-high@all runs",
           "main/grok47-low@all runs",
           "main/grok47-medium@all runs",
-          "main/grok47-high@all runs",
           "main/sol61-high-fast@all runs",
           "main/terra61-low-fast@all runs",
           "main/terra61-high-fast@all runs",
@@ -108034,8 +108034,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -108841,7 +108841,6 @@
           "main/terra56-high@all runs",
           "main/grok47-low@all runs",
           "main/grok47-medium@all runs",
-          "main/grok47-high@all runs",
           "main/sol61-high-fast@all runs",
           "main/astra-medium-fast@all runs",
           "main/terra61-low-fast@all runs",
@@ -109346,8 +109345,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -110140,8 +110139,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -110918,8 +110917,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -111404,7 +111403,6 @@
           "main/terra56-high@all runs",
           "main/grok47-low@all runs",
           "main/grok47-medium@all runs",
-          "main/grok47-high@all runs",
           "main/sol61-high-fast@all runs",
           "main/astra-medium-fast@all runs",
           "main/terra61-low-fast@all runs",
@@ -111688,8 +111686,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -112174,7 +112172,6 @@
           "main/terra56-high@all runs",
           "main/grok47-low@all runs",
           "main/grok47-medium@all runs",
-          "main/grok47-high@all runs",
           "main/sol61-high-fast@all runs",
           "main/astra-medium-fast@all runs",
           "main/terra61-low-fast@all runs",
@@ -112458,8 +112455,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -158415,7 +158412,6 @@
           "main/terra56-high@partial ladder",
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
           "main/sol61-xhigh@partial ladder"
          ]
         },
@@ -158536,8 +158532,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -158776,8 +158772,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -159067,8 +159063,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -159234,7 +159230,6 @@
           "main/terra56-high@partial ladder",
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
           "main/sol61-xhigh@partial ladder"
          ]
         },
@@ -159355,8 +159350,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -159512,7 +159507,6 @@
           "main/terra56-high@partial ladder",
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
           "main/sol61-xhigh@partial ladder"
          ]
         },
@@ -159633,8 +159627,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -159816,7 +159810,6 @@
           "main/terra56-high@partial ladder",
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
           "main/sol61-xhigh@partial ladder"
          ]
         },
@@ -159935,8 +159928,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -160169,8 +160162,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -160454,8 +160447,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -160615,7 +160608,6 @@
           "main/terra56-high@partial ladder",
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
           "main/sol61-xhigh@partial ladder"
          ]
         },
@@ -160736,8 +160728,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [
@@ -160887,7 +160879,6 @@
           "main/terra56-high@partial ladder",
           "main/grok47-low@partial ladder",
           "main/grok47-medium@partial ladder",
-          "main/grok47-high@partial ladder",
           "main/sol61-xhigh@partial ladder"
          ]
         },
@@ -161008,8 +160999,8 @@
          ],
          "extents": {
           "cost": [
-           0.08582533333333332,
-           0.23168700000000003
+           0.06581266666666667,
+           0.17766300000000002
           ],
           "zero_lane": false,
           "pass_rate": [

@@ -37,8 +37,8 @@ The main run was on 2026-10-22; the runs on this page span 2026-10-22 to 2026-11
 | terra61-low ⚡ † | 100% (60/60) | ≥78% (all passed) | 6.0 | 8.2 | $0.011 | $0.64 | proxy |
 | hetzner-qwen36 † | 83% (10/12) | 58%–100% | 341.5 | 736.8 | free tier | free tier | free-tier |
 | hetzner-qwen38 † | 75% (9/12) | 50%–100% | 820.6 | 1768.9 | free tier | free tier | free-tier |
-| inkling2mini-default † | 47% (7/15) | 20%–73% | 2881.3 | 3028.5 | est. $0.13 from box-hours | est. $0.90 from box-hours | box-hours |
-| inkling2mini-ladder † | 87% (13/15) | 67%–100% | 4630.4 | 9403.7 | est. $0.15 from box-hours | est. $2.01 from box-hours | box-hours |
+| inkling2mini-default † | 47% (7/15) | 20%–73% | 2881.3 | 3028.5 | est. $0.099 from box-hours | est. $0.69 from box-hours | box-hours |
+| inkling2mini-ladder † | 87% (13/15) | 67%–100% | 4630.4 | 9403.7 | est. $0.12 from box-hours | est. $1.54 from box-hours | box-hours |
 
 Function track: 12 problems × 5 attempts for most configs (exceptions: terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); hetzner-qwen36 12 calls (one repeat); hetzner-qwen38 12 calls (one repeat); sol61-xhigh 35 calls (a partial ladder)). Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
 
@@ -358,7 +358,7 @@ Verdict: usable but slow, below the Claude and Codex sol61 middle tiers. Qwen3.8
 
 ## Inkling 2 Mini on a local CPU (exploratory)
 
-For anyone weighing a free local model for coding tasks.
+For anyone weighing a local model for coding tasks.
 
 Inkling 2 Mini passed 7/15 frozen and 13/15 with retries.
 
@@ -366,7 +366,7 @@ Inkling 2 Mini passed 7/15 frozen and 13/15 with retries.
 - Retry ladder, secondary: 13/15 after re-running the tasks the cap cut off.
 - Median time per task: 48 min primary, 77 min ladder.
 
-It is a free local CPU model, so its times do not match API lanes.
+It is a local CPU model, so its times do not match API lanes.
 
 | lane | passed (function tests) | median min per task | mean min per task | total wall |
 |---|---|---|---|---|
@@ -375,7 +375,7 @@ It is a free local CPU model, so its times do not match API lanes.
 | Inkling 2 Mini primary (frozen) | 7/15 | 48.0 | 36.0 | 9.01 h |
 | Inkling 2 Mini retry ladder (secondary) | 13/15 | 77.2 | 80.3 | 20.08 h |
 
-Cost is estimated from box-hours at an assumed $0.10 an hour. Estimated per pass: $0.13 primary, $0.15 ladder. Hetzner is a free hosted API, so it has no price.
+Cost is estimated from box-hours on Hetzner auction box eth2-3, EUR 52.17 a month. That box costs EUR 0.0701 an hour, or $0.0767 an hour. The exchange rate is 1.0939 dollars per euro, from the ECB on 2026-11-23. Estimated per pass: $0.099 primary, $0.12 ladder. The Hetzner API lanes are free, so they have no price.
 
 | task | primary (12,288 cap) | primary minutes | retry stages | ladder |
 |---|---|---|---|---|

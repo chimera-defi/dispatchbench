@@ -99,8 +99,13 @@ add("main", "exploratory", (INKLING_LADDER, "Inkling 2 Mini retry ladder, second
     "a task passes if any stage passed it and its time is the sum over the stages; llama.cpp b12600 on a local CPU, free, no list price; exploratory"))
 INKLING_PRIMARY = INKLING_CONFIGS[0]
 INKLING_STAGES = INKLING_CONFIGS[1:]  # raw retry stages: shown only through the ladder lane
-BOX_USD_PER_HOUR = 0.10  # assumption, not a measurement: about EUR 65 a month for a rented i7-8700 class box (one unverified auction listing), over a 730-hour month
-BOX_NOTE = f"Estimated from box-hours: wall time at an assumed ${BOX_USD_PER_HOUR:.2f} an hour. The rate is an assumption, not a measurement."
+BOX_EUR_PER_MONTH = 52.17  # Hetzner Oct 2026 invoice, auction box eth2-3 (the i7-8700): EUR 50.47 server plus EUR 1.70 primary IPv4
+BOX_HOURS_PER_MONTH = 744  # 31 days
+BOX_EUR_PER_HOUR = round(BOX_EUR_PER_MONTH / BOX_HOURS_PER_MONTH, 4)  # 0.0701
+EUR_USD = 1.0939  # ECB euro foreign exchange reference rate, 2026-11-23 (https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml)
+EUR_USD_DATE = "2026-11-23"
+BOX_USD_PER_HOUR = BOX_EUR_PER_HOUR * EUR_USD  # about 0.0767
+BOX_NOTE = f"Estimated from box-hours: wall time at ${BOX_USD_PER_HOUR:.4f} an hour, from the eth2-3 bill."
 INKLING_SHOWN = (INKLING_PRIMARY, INKLING_LADDER)  # the two Inkling lanes that join tables and charts, like the Hetzner lanes
 FREE_TIER_CONFIGS = DEVIN_CONFIGS + HETZNER_CONFIGS + INKLING_CONFIGS + (INKLING_LADDER,)  # Inkling's box-hour estimate is not a list price: it is priced only in the explorer. Others: no published $ comparison: off all $ charts, Winner and frontier
 CHART_HIDDEN = CHART_HIDDEN + FREE_TIER_CONFIGS

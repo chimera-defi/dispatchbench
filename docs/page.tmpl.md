@@ -167,7 +167,7 @@
 </ul>
 <p>{{inkling_cpu}}</p>
 {{table:inkling_lanes}}
-<p>{{inkling_price}} {{inkling_price_pp}} {{inkling_hetzner}}</p>
+<p>{{inkling_price}} {{inkling_rate}} {{inkling_fx}} {{inkling_price_pp}} {{inkling_hetzner}}</p>
 <details><summary>Per-task results and run details</summary>
 {{table:inkling_summary}}
 <ul class="tight small">

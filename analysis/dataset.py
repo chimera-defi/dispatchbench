@@ -1965,13 +1965,13 @@ def _inkling(ds, s):
     stage = lambda x: f"{x['effort'].capitalize()} effort at {n(x['max_tokens'])} tokens passed {x['passes']}/{x['n']}."
     need(len(st) == 3, "Inkling: three retry stages")
     F["inkling_stage_a"], F["inkling_stage_b"], F["inkling_stage_c"] = (stage(x) for x in st)
-    F["inkling_for"] = "For anyone weighing a free local model for coding tasks."
+    F["inkling_for"] = "For anyone weighing a local model for coding tasks."
     F["inkling_answer"] = f"{F['inkling_name']} passed {F['inkling_primary']} frozen and {F['inkling_ladder']} with retries."
     F["inkling_b1"] = f"Primary, frozen before the full run: {F['inkling_primary']}, in {F['inkling_primary_wall']} of wall time."
     F["inkling_b2"] = f"Retry ladder, secondary: {F['inkling_ladder']} after re-running the tasks the cap cut off."
     mins = lambda sec: f"{sec / 60:.0f} min"
     F["inkling_b3"] = f"Median time per task: {mins(p['median_s'])} primary, {mins(lad['median_s'])} ladder."
-    F["inkling_cpu"] = "It is a free local CPU model, so its times do not match API lanes."
+    F["inkling_cpu"] = "It is a local CPU model, so its times do not match API lanes."
     F["inkling_model"] = f"Model: {p['model']}, llama.cpp {p['cli_version']}, run on p01–p{k['n']} on this host's CPU, one call at a time. It has no list price; cost is estimated from box-hours."
     F["inkling_settings"] = f"Primary settings: default effort, {F['inkling_cap']}-token cap."
     F["inkling_retry_time"] = f"The retry added {F['inkling_retry_wall']} of wall time, {F['inkling_total_wall']} in all."
@@ -1980,10 +1980,12 @@ def _inkling(ds, s):
     F["inkling_slowest"] = f"Slowest on the ladder: {slow.split('_')[0]}, {mins(lad['task_wall_s'][slow])}."
     F["inkling_host"] = "Other work sometimes ran on the host, so times vary."
     ib = _inkling_blocks()
-    F["inkling_price"] = f"Cost is estimated from box-hours at an assumed ${configs.BOX_USD_PER_HOUR:.2f} an hour."
+    F["inkling_price"] = f"Cost is estimated from box-hours on Hetzner auction box eth2-3, EUR {configs.BOX_EUR_PER_MONTH:.2f} a month."
+    F["inkling_rate"] = f"That box costs EUR {configs.BOX_EUR_PER_HOUR:.4f} an hour, or ${configs.BOX_USD_PER_HOUR:.4f} an hour."
+    F["inkling_fx"] = f"The exchange rate is {configs.EUR_USD} dollars per euro, from the ECB on {configs.EUR_USD_DATE}."
     F["inkling_pp_primary"], F["inkling_pp_ladder"] = (usd(ib[c]["usd_per_pass"]) for c in (configs.INKLING_PRIMARY, configs.INKLING_LADDER))
     F["inkling_price_pp"] = "Estimated per pass: " + ", ".join(f"{usd(ib[c]['usd_per_pass'])} {w}" for c, w in ((configs.INKLING_PRIMARY, 'primary'), (configs.INKLING_LADDER, 'ladder'))) + "."
-    F["inkling_hetzner"] = "Hetzner is a free hosted API, so it has no price."
+    F["inkling_hetzner"] = "The Hetzner API lanes are free, so they have no price."
     free = {}  # the free lanes side by side: the Hetzner Qwen calls (1 try per task) and the two Inkling lanes
     for src, name, st_, x in _rows():
         if name in configs.HETZNER_CONFIGS: free.setdefault(name, []).append(x["sec"])
