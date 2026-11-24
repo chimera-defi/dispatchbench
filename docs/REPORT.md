@@ -375,7 +375,7 @@ It is a free local CPU model, so its times do not match API lanes.
 | Inkling 2 Mini primary (frozen) | 7/15 | 48.0 | 36.0 | 9.01 h |
 | Inkling 2 Mini retry ladder (secondary) | 13/15 | 77.2 | 80.3 | 20.08 h |
 
-Cost is estimated from box-hours on Hetzner auction box eth2-3, EUR 52.17 a month. That box costs EUR 0.0701 an hour, or $0.0767. The rate is 1.0939 dollars per euro, from the ECB on 2026-11-23. Estimated per pass: $0.099 primary, $0.12 ladder. Hetzner is a free hosted API, so it has no price.
+Cost is estimated from box-hours on Hetzner auction box eth2-3, EUR 52.17 a month. That box costs EUR 0.0701 an hour, or $0.0767 an hour. The rate is 1.0939 dollars per euro, from the ECB on 2026-11-23. Estimated per pass: $0.099 primary, $0.12 ladder. Hetzner is a free hosted API, so it has no price.
 
 | task | primary (12,288 cap) | primary minutes | retry stages | ladder |
 |---|---|---|---|---|

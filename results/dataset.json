@@ -39700,9 +39700,9 @@
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_rate": {
-   "value": "That box costs EUR 0.0701 an hour, or $0.0767.",
+   "value": "That box costs EUR 0.0701 an hour, or $0.0767 an hour.",
    "unit": "text",
-   "display": "That box costs EUR 0.0701 an hour, or $0.0767.",
+   "display": "That box costs EUR 0.0701 an hour, or $0.0767 an hour.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_fx": {
