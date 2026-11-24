@@ -1980,7 +1980,9 @@ def _inkling(ds, s):
     F["inkling_slowest"] = f"Slowest on the ladder: {slow.split('_')[0]}, {mins(lad['task_wall_s'][slow])}."
     F["inkling_host"] = "Other work sometimes ran on the host, so times vary."
     ib = _inkling_blocks()
-    F["inkling_price"] = f"Cost is estimated from box-hours at an assumed ${configs.BOX_USD_PER_HOUR:.2f} an hour."
+    F["inkling_price"] = f"Cost is estimated from box-hours on Hetzner auction box eth2-3, EUR {configs.BOX_EUR_PER_MONTH:.2f} a month."
+    F["inkling_rate"] = f"That box costs EUR {configs.BOX_EUR_PER_HOUR:.4f} an hour, or ${configs.BOX_USD_PER_HOUR:.4f}."
+    F["inkling_fx"] = f"The rate is {configs.EUR_USD} dollars per euro, from the ECB on {configs.EUR_USD_DATE}."
     F["inkling_pp_primary"], F["inkling_pp_ladder"] = (usd(ib[c]["usd_per_pass"]) for c in (configs.INKLING_PRIMARY, configs.INKLING_LADDER))
     F["inkling_price_pp"] = "Estimated per pass: " + ", ".join(f"{usd(ib[c]['usd_per_pass'])} {w}" for c, w in ((configs.INKLING_PRIMARY, 'primary'), (configs.INKLING_LADDER, 'ladder'))) + "."
     F["inkling_hetzner"] = "Hetzner is a free hosted API, so it has no price."
