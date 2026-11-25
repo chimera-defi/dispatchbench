@@ -1642,7 +1642,7 @@ def explorer_facets(r):
             "prereg": explorer_provenance(r) == "pre-registered", "provenance": explorer_provenance(r),
             "quota_usd_per_pass": quota, "winner_pick": WINNER_PICKS.get(c), "winner_pricing": "list price" if c in WINNER_PICKS else None,
             "panel": "pipeline: " + gate if pipeline else model + (" · " + generation if r["family"] == "Codex" else ""),
-            "gate": gate, "coverage_note": (configs.HETZNER_NOTE if r["config"] in configs.HETZNER_CONFIGS else configs.BOX_NOTE if r["cost_kind"] == "box-hours" else "Devin probe: " + configs.DEVIN_NOTE if r["cost_kind"] == "unmetered" else
+            "gate": gate, "coverage_note": (configs.HETZNER_NOTE if r["config"] in configs.HETZNER_CONFIGS else configs.BOX_NOTE if r["cost_kind"] == "box-hours" else ("Devin probe: " + (configs.DEVIN_FLASH_NOTE if r["config"] in configs.DEVIN_FLASH else configs.DEVIN_NOTE)) if r["cost_kind"] == "unmetered" else
                 f"{r['groups']} problem/task groups; {r['n']} attempts"),
             "complete_marker": f"{r['task_complete']}/{r['n']} complete ({r['hidden_pass']}/{r['n']} hidden)" if "task_complete" in r else None}
 

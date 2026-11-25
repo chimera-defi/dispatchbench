@@ -51,3 +51,5 @@ Each move needs its readers rewritten, then `make report`, `python3 -m analysis.
 
 summary.json is gone: the summary is computed in memory and folded into dataset.json. Add a config to `analysis/configs.py` when a new run lands; audit enforces it.
 - `2026-11-02-terra-priority-function.jsonl`, `2026-11-02-terra-noise-function.jsonl`, `2026-11-02-terra-priority-repo.jsonl` gpt-6.1-terra priority tier, noise check, repo track (PLAN.md deviation 25) | bench runners | analysis/terra_priority.py (appendix only; not in the page)
+- `2026-11-25-devin-flash-function.jsonl` Devin swe-2-flash-medium (Free tier), function track p01-p12 x 5, devinflash-medium, exploratory (PLAN.md deviation 28; SWE-2.1 itself is refused on the Free plan, so no swe-2-1 rows) | bench runner (Devin caller restored locally, not committed) | analysis/summarize.py, dataset
+- `devin-2-1.md`, `devin/` the Devin access map, comparison table and three real-task receipts (diffs, outputs, times) | by hand from the run | not in the page

@@ -1,0 +1,23 @@
+{
+ "key": "a2a2eb715bc939bc4c1129c4169fc197514ae1e5c555a4a48bcd2a8b2fc63f41",
+ "ts": "2026-11-25T01:02:56+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p08_recur",
+ "repeat": 2,
+ "lanes": 1,
+ "prompt_sha": "a11a8a333669",
+ "wall_s": 16.488438506028615,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nfrom datetime import date, timedelta\nimport calendar\n\nWEEKDAYS = {\"MO\": 0, \"TU\": 1, \"WE\": 2, \"TH\": 3, \"FR\": 4, \"SA\": 5, \"SU\": 6}\nWEEKDAY_NAMES = [\"MO\", \"TU\", \"WE\", \"TH\", \"FR\", \"SA\", \"SU\"]\n\n\ndef _nth_weekday(year, month, wd, n):\n    days = [d for d in range(1, calendar.monthrange(year, month)[1] + 1)\n            if date(year, month, d).weekday() == wd]\n    if n == -1:\n        return days[-1] if days else None\n    return days[n - 1] if 0 < n <= len(days) else None\n\n\ndef recur(start: str, rule: str, count: int) -> list[str]:\n    s = date.fromisoformat(start)\n    parts = rule.split()\n    kind = parts[0]\n    K = int(parts[1])\n    out = []\n    limit = date(2999, 12, 31)\n\n    if kind == \"DAILY\":\n        d = s\n        while len(out) < count:\n            if d > limit:\n                break\n            out.append(d.isoformat())\n            d += timedelta(days=K)\n\n    elif kind == \"WEEKLY\":\n        days = sorted({WEEKDAYS[x] for x in parts[3].split(\",\")})\n        week0_mon = s - timedelta(days=s.weekday())\n        w = 0\n        while len(out) < count:\n            wk_start = week0_mon + timedelta(weeks=w * K)\n            if wk_start > limit + timedelta(days=6):\n                break\n            for wd in days:\n                d = wk_start + timedelta(days=wd)\n                if d >= s and d <= limit:\n                    out.append(d.isoformat())\n            if len(out) >= count:\n                break\n            w += 1\n        out.sort()\n        out = out[:count]\n\n    elif kind == \"MONTHLY\":\n        if len(parts) == 3:\n            d_val = int(parts[2])\n            mi = 0\n            while len(out) < count:\n                total = s.year * 12 + (s.month - 1) + mi * K\n                y, m = divmod(total, 12)\n                m += 1\n                if date(y, m, 1) > limit:\n                    break\n                if d_val == -1:\n                    day = calendar.monthrange(y, m)[1]\n                elif d_val <= calendar.monthrange(y, m)[1]:\n                    day = d_val\n                else:\n                    day = None\n                if day is not None:\n                    d = date(y, m, day)\n                    if d >= s and d <= limit:\n                        out.append(d.isoformat())\n                mi += 1\n        else:\n            n = int(parts[2])\n            wd = WEEKDAYS[parts[3]]\n            mi = 0\n            while len(out) < count:\n                total = s.year * 12 + (s.month - 1) + mi * K\n                y, m = divmod(total, 12)\n                m += 1\n                if date(y, m, 1) > limit:\n                    break\n                day = _nth_weekday(y, m, wd, n)\n                if day is not None:\n                    d = date(y, m, day)\n                    if d >= s and d <= limit:\n                        out.append(d.isoformat())\n                mi += 1\n\n    elif kind == \"YEARLY\":\n        mm, dd = map(int, parts[2].split(\"-\"))\n        yi = 0\n        while len(out) < count:\n            y = s.year + yi * K\n            if y > 2999:\n                break\n            try:\n                d = date(y, mm, dd)\n            except ValueError:\n                d = None\n            if d is not None and d >= s:\n                out.append(d.isoformat())\n            yi += 1\n\n    return out[:count]\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

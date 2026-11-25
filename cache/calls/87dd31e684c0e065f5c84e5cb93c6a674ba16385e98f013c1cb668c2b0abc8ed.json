@@ -1,0 +1,23 @@
+{
+ "key": "87dd31e684c0e065f5c84e5cb93c6a674ba16385e98f013c1cb668c2b0abc8ed",
+ "ts": "2026-11-25T01:31:10+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p11_best_average",
+ "repeat": 4,
+ "lanes": 1,
+ "prompt_sha": "2183e22bdc23",
+ "wall_s": 362.2560513220378,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nfrom math import gcd\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    pref = [0] * (n + 1)\n    total = 0\n    for i, v in enumerate(a):\n        total += v\n        pref[i + 1] = total\n\n    if k == n:\n        g = gcd(total, n)\n        return [total // g, n // g]\n\n    ws = sum(a[:k])\n    best_k = ws\n    for i in range(k, n):\n        ws += a[i] - a[i - k]\n        if ws > best_k:\n            best_k = ws\n\n    if best_k * n >= total * k:\n        lb_p, lb_q = best_k, k\n    else:\n        lb_p, lb_q = total, n\n\n    Q = n * n + 1\n    lo = -((-lb_p * Q) // lb_q) - 1\n    hi = max(a) * Q + 1\n\n    U = [Q * p for p in pref]\n    cnt = n - k + 1\n    cand = U[:cnt]\n    end = U[k:n + 1]\n\n    def probe(m):\n        mi = 0\n        mj = m * k\n        best = None\n        bi = 0\n        for i, (cu, eu) in enumerate(zip(cand, end)):\n            ti = cu - mi\n            if best is None or ti < best:\n                best = ti\n                bi = i\n            if eu - mj > best:\n                return bi, i + k\n            mi += m\n            mj += m\n        return None\n\n    while hi - lo > 1:\n        mid = (lo + hi) // 2\n        if probe(mid) is None:\n            hi = mid\n        else:\n            lo = mid\n\n    bi, j = probe(lo)\n    num = pref[j] - pref[bi]\n    den = j - bi\n    g = gcd(num, den)\n    return [num // g, den // g]\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

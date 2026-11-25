@@ -1,0 +1,23 @@
+{
+ "key": "94f90648cdfef39e2c438191c4eaefdd9c4a9268111181f590ff5561bd5a30b5",
+ "ts": "2026-11-25T01:38:01+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p07_weighted_distance_sums",
+ "repeat": 5,
+ "lanes": 1,
+ "prompt_sha": "d98e731ec858",
+ "wall_s": 9.564100055024028,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef weighted_distance_sums(n: int, edges: list[list[int]], w: list[int]) -> list[int]:\n    if n == 1:\n        return [0]\n\n    adj = [[] for _ in range(n)]\n    for a, b in edges:\n        adj[a].append(b)\n        adj[b].append(a)\n\n    parent = [-1] * n\n    order = []\n    parent[0] = 0\n    stack = [0]\n    while stack:\n        v = stack.pop()\n        order.append(v)\n        for u in adj[v]:\n            if u != parent[v]:\n                parent[u] = v\n                stack.append(u)\n\n    # post-order: sub_w[v] = sum of w in subtree of v (rooted at 0)\n    # dp[v] = sum over u in subtree(v) of w[u]*dist(u, v)\n    sub_w = [0] * n\n    dp = [0] * n\n    for v in reversed(order):\n        sw = w[v]\n        s = 0\n        for u in adj[v]:\n            if u != parent[v]:\n                sw += sub_w[u]\n                s += dp[u] + sub_w[u]\n        sub_w[v] = sw\n        dp[v] = s\n\n    total_w = sub_w[0]\n    ans = [0] * n\n    ans[0] = dp[0]\n    for v in order[1:]:\n        p = parent[v]\n        ans[v] = ans[p] + total_w - 2 * sub_w[v]\n    return ans\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

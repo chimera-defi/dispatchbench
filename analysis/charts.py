@@ -343,7 +343,7 @@ def heatmap(s):
     X = lambda j: L + j * cw + (gap if cols[j][2] else 0)
     W, H = X(len(cols) - 1) + cw + 20, T + ch * len(probs) + 40
     b = [text(12, 24, "Passes out of 5 per problem and config", 14, weight="600"),
-         text(12, 42, "Main ladder, p01–p12, rungs L1–L6 (2 per rung). Left: main run. Right, family colours: exploratory configs; ⚡ = fast mode. Last columns: Devin, Hetzner and Inkling, exploratory, 1 try per problem (0 or 1).", 11, fill=MUTED)]
+         text(12, 42, "Main ladder, p01–p12, rungs L1–L6 (2 per rung). Left: main run. Right, family colours: exploratory configs; ⚡ = fast mode. Last columns: Devin, Hetzner and Inkling, exploratory, 1 try per problem (0 or 1), except devinflash-medium (5).", 11, fill=MUTED)]
     for j, (c, _, x) in enumerate(cols):  # rotated headers so every config fits
         b.append(text(X(j) + cw / 2 + 4, T - 8, DISP(c), 11, "start", FAMILY(c), rotate=-55))
     for i, p in enumerate(probs):
@@ -353,7 +353,7 @@ def heatmap(s):
             k = bp.get(p)
             if k is None:
                 b.append(text(X(j) + cw / 2, y + ch / 2 + 4, "–", 11, "middle", MUTED)); continue
-            top = 1 if c in dv else 5  # Devin's single try is a full-strength cell
+            top = 1 if c in dv and c not in configs.DEVIN_FLASH else 5  # Devin's single try is a full-strength cell; swe-2-flash-medium has 5
             fill, op = ("var(--bad)", 0.35) if k == 0 else ("var(--good)", 0.1 + 0.09 * k * 5 / top)
             b.append(f"<rect x='{X(j) + 1}' y='{y + 1}' width='{cw - 2}' height='{ch - 2}' fill='{fill}' opacity='{op:.2f}'/>")
             b.append(text(X(j) + cw / 2, y + ch / 2 + 4, k, 11, "middle", INK))
@@ -467,7 +467,7 @@ def all_configs(s):
 def ladder(ds, s, set_="main ladder"):
     """[(config, dataset row, hollow)] for one set: the 12-problem x 5-repeat configs. Hollow = fast mode."""
     order = [c for c, _, _ in all_configs(s)]  # page order, until the registry owns it
-    rows = [(r["config"], r, "-fast" in r["config"]) for r in ds["rows"] if r["source"] == "main" and r["set"] == set_]
+    rows = [(r["config"], r, "-fast" in r["config"]) for r in ds["rows"] if r["source"] == "main" and r["set"] == set_ and r["config"] not in configs.FREE_TIER_CONFIGS]
     return sorted(rows, key=lambda x: (configs.low_context(x[0]), order.index(x[0])))
 
 

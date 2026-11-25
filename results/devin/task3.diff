@@ -1,0 +1,12 @@
+diff --git a/README.md b/README.md
+index 0b237fb..cfc9aa3 100644
+--- a/README.md
++++ b/README.md
+@@ -16,6 +16,7 @@ crss ls                                   # name, status, version, conversation
+ crss wait my-lane                         # until it is idle; crss peek my-lane shows its screen
+ crss restart --all --wait-idle            # onto a new claude binary, same conversations
+ crss reap my-lane                         # keeps any worktree with unpushed or uncommitted work
++crss adopt SID NAME [DIR]                 # run such a transcript as crss session NAME (SID or its first 8+ characters); refused while a running claude has it or it was written to under 2 minutes ago
+ ```
+ 
+ Commands, receipts and safety rules: [`SKILL.md`](SKILL.md).

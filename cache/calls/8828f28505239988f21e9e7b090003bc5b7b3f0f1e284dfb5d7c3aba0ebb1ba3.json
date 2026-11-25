@@ -1,0 +1,23 @@
+{
+ "key": "8828f28505239988f21e9e7b090003bc5b7b3f0f1e284dfb5d7c3aba0ebb1ba3",
+ "ts": "2026-11-25T01:19:54+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p03_ledger",
+ "repeat": 4,
+ "lanes": 1,
+ "prompt_sha": "4f7943020618",
+ "wall_s": 5.264458379009739,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef ledger(ops: list[str]) -> tuple[dict[str, int], list[int]]:\n    balances = {}\n    frozen = {}\n    history = []  # stack of revert callbacks / inverse actions\n    rejected = []\n\n    def digits(s):\n        return s.isdigit()\n\n    for i, op in enumerate(ops):\n        t = op.split(\" \")\n        verb = t[0] if t else \"\"\n\n        if verb == \"open\":\n            if len(t) != 3 or not digits(t[2]) or not t[2]:\n                rejected.append(i); continue\n            n = int(t[2])\n            if t[1] in balances:\n                rejected.append(i); continue\n            balances[t[1]] = n\n            frozen[t[1]] = False\n            a = t[1]\n            def revert_open(a=a):\n                del balances[a]; del frozen[a]\n            history.append(revert_open)\n\n        elif verb == \"deposit\":\n            if len(t) != 3 or not t[2].isdigit():\n                rejected.append(i); continue\n            n = int(t[2])\n            a = t[1]\n            if n <= 0 or a not in balances:\n                rejected.append(i); continue\n            balances[a] += n\n            def revert_dep(a=a, n=n):\n                balances[a] -= n\n            history.append(revert_dep)\n\n        elif verb == \"withdraw\":\n            if len(t) != 3 or not t[2].isdigit():\n                rejected.append(i); continue\n            n = int(t[2])\n            a = t[1]\n            if n <= 0 or a not in balances or frozen[a] or balances[a] < n:\n                rejected.append(i); continue\n            balances[a] -= n\n            def revert_wd(a=a, n=n):\n                balances[a] += n\n            history.append(revert_wd)\n\n        elif verb == \"transfer\":\n            if len(t) != 4 or not t[3].isdigit():\n                rejected.append(i); continue\n            n = int(t[3]); a, b = t[1], t[2]\n            if (n <= 0 or a == b or a not in balances or b not in balances\n                    or frozen[a] or balances[a] < n):\n                rejected.append(i); continue\n            balances[a] -= n; balances[b] += n\n            def revert_tr(a=a, b=b, n=n):\n                balances[a] += n; balances[b] -= n\n            history.append(revert_tr)\n\n        elif verb == \"freeze\":\n            if len(t) != 2:\n                rejected.append(i); continue\n            a = t[1]\n            if a not in balances or frozen[a]:\n                rejected.append(i); continue\n            frozen[a] = True\n            def revert_fr(a=a):\n                frozen[a] = False\n            history.append(revert_fr)\n\n        elif verb == \"unfreeze\":\n            if len(t) != 2:\n                rejected.append(i); continue\n            a = t[1]\n            if a not in balances or not frozen[a]:\n                rejected.append(i); continue\n            frozen[a] = False\n            def revert_uf(a=a):\n                frozen[a] = True\n            history.append(revert_uf)\n\n        elif verb == \"undo\":\n            if len(t) != 1 or not history:\n                rejected.append(i); continue\n            history.pop()()\n\n        else:\n            rejected.append(i)\n\n    return balances, rejected\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

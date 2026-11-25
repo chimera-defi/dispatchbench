@@ -1,0 +1,23 @@
+{
+ "key": "a076d9fb5750000a3c208faa5e4f9b417245e7c1def98acbd50fa5e8f57710b4",
+ "ts": "2026-11-25T01:20:50+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p06_calc",
+ "repeat": 4,
+ "lanes": 1,
+ "prompt_sha": "d79d580c7384",
+ "wall_s": 11.854954805981833,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nimport sys\n\ndef calc(expr: str) -> int | str:\n    sys.setrecursionlimit(100000)\n    s = expr\n    n = len(s)\n    i = 0\n\n    class Error(Exception):\n        pass\n\n    def skip():\n        nonlocal i\n        while i < n and s[i] == ' ':\n            i += 1\n\n    def peek():\n        skip()\n        return s[i] if i < n else ''\n\n    def parse_atom():\n        nonlocal i\n        c = peek()\n        if c == '(':\n            i += 1\n            v = parse_expr()\n            if peek() == ')':\n                i += 1\n            return v\n        start = i\n        while i < n and s[i].isdigit():\n            i += 1\n        return int(s[start:i])\n\n    def parse_power():\n        nonlocal i\n        base = parse_atom()\n        if peek() == '^':\n            i += 1\n            exp = parse_unary()\n            if exp < 0:\n                raise Error()\n            base = base ** exp\n        return base\n\n    def parse_unary():\n        nonlocal i\n        neg = False\n        while peek() == '-':\n            i += 1\n            neg = not neg\n        v = parse_power()\n        return -v if neg else v\n\n    def parse_term():\n        nonlocal i\n        v = parse_unary()\n        while True:\n            c = peek()\n            if c == '*':\n                i += 1\n                v *= parse_unary()\n            elif c == '/':\n                i += 1\n                b = parse_unary()\n                if b == 0:\n                    raise Error()\n                q = abs(v) // abs(b)\n                if (v < 0) != (b < 0):\n                    q = -q\n                v = q\n            elif c == '%':\n                i += 1\n                b = parse_unary()\n                if b == 0:\n                    raise Error()\n                q = abs(v) // abs(b)\n                if (v < 0) != (b < 0):\n                    q = -q\n                v = v - b * q\n            else:\n                return v\n\n    def parse_expr():\n        nonlocal i\n        v = parse_term()\n        while True:\n            c = peek()\n            if c == '+':\n                i += 1\n                v += parse_term()\n            elif c == '-':\n                i += 1\n                v -= parse_term()\n            else:\n                return v\n\n    try:\n        skip()\n        return parse_expr()\n    except Error:\n        return \"error\"\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

@@ -1,0 +1,23 @@
+{
+ "key": "5ac0c0f5ebf57d1cf6f8ae006e8b337086884d5721e0f9fc09a4a40f575a19ac",
+ "ts": "2026-11-25T01:02:11+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p03_ledger",
+ "repeat": 2,
+ "lanes": 1,
+ "prompt_sha": "4f7943020618",
+ "wall_s": 10.947728087019641,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef ledger(ops: list[str]) -> tuple[dict[str, int], list[int]]:\n    balances: dict[str, int] = {}\n    frozen: set[str] = set()\n    # Each entry is a closure that undoes a successful operation.\n    undo_stack: list = []\n    rejected: list[int] = []\n\n    def parse_amount(tok: str) -> int | None:\n        if tok == \"\" or not tok.isdigit():\n            return None\n        return int(tok)\n\n    for i, op in enumerate(ops):\n        parts = op.split(\" \")\n        verb = parts[0] if parts else \"\"\n        ok = False\n        undo_fn = None\n\n        if verb == \"open\" and len(parts) == 3:\n            a, n = parts[1], parse_amount(parts[2])\n            if n is not None and n >= 0 and a not in balances:\n                balances[a] = n\n                undo_fn = lambda a=a: (balances.pop(a, None), frozen.discard(a))\n                ok = True\n\n        elif verb == \"deposit\" and len(parts) == 3:\n            a, n = parts[1], parse_amount(parts[2])\n            if n is not None and n > 0 and a in balances:\n                balances[a] += n\n                undo_fn = lambda a=a, n=n: balances.__setitem__(a, balances[a] - n)\n                ok = True\n\n        elif verb == \"withdraw\" and len(parts) == 3:\n            a, n = parts[1], parse_amount(parts[2])\n            if n is not None and n > 0 and a in balances and a not in frozen and balances[a] >= n:\n                balances[a] -= n\n                undo_fn = lambda a=a, n=n: balances.__setitem__(a, balances[a] + n)\n                ok = True\n\n        elif verb == \"transfer\" and len(parts) == 4:\n            a, b, n = parts[1], parts[2], parse_amount(parts[3])\n            if (n is not None and n > 0 and a != b and a in balances and b in balances\n                    and a not in frozen and balances[a] >= n):\n                balances[a] -= n\n                balances[b] += n\n                undo_fn = lambda a=a, b=b, n=n: (\n                    balances.__setitem__(a, balances[a] + n),\n                    balances.__setitem__(b, balances[b] - n),\n                )\n                ok = True\n\n        elif verb == \"freeze\" and len(parts) == 2:\n            a = parts[1]\n            if a in balances and a not in frozen:\n                frozen.add(a)\n                undo_fn = lambda a=a: frozen.discard(a)\n                ok = True\n\n        elif verb == \"unfreeze\" and len(parts) == 2:\n            a = parts[1]\n            if a in balances and a in frozen:\n                frozen.discard(a)\n                undo_fn = lambda a=a: frozen.add(a)\n                ok = True\n\n        elif verb == \"undo\" and len(parts) == 1:\n            if undo_stack:\n                undo_stack.pop()()\n                ok = True\n\n        if ok:\n            if verb != \"undo\" and undo_fn is not None:\n                undo_stack.append(undo_fn)\n        else:\n            rejected.append(i)\n\n    return balances, rejected\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

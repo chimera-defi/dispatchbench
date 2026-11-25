@@ -1,0 +1,23 @@
+{
+ "key": "e4ad8cb1464c68bf5a31bbf824532e5871be2a04acd4324d4622c8c4f80d4998",
+ "ts": "2026-11-25T01:09:33+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p05_pass_route",
+ "repeat": 3,
+ "lanes": 1,
+ "prompt_sha": "a9070ce4e2ec",
+ "wall_s": 67.45251507300418,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nimport heapq\n\n\ndef pass_route(n: int, edges: list[list[int]], stations: list[list[int]], prices: list[int]) -> int:\n    zone_count = len(prices)\n    state_count = 1 << zone_count\n\n    adj = [[] for _ in range(n)]\n    for u, v, cost, zone in edges:\n        adj[u].append((v, cost, zone))\n        adj[v].append((u, cost, zone))\n\n    sales = [[] for _ in range(n)]\n    for stop, zone in stations:\n        if 0 <= zone < zone_count and zone not in sales[stop]:\n            sales[stop].append(zone)\n\n    inf = float(\"inf\")\n    dist = [[inf] * state_count for _ in range(n)]\n    dist[0][0] = 0\n    pq = [(0, 0, 0)]\n\n    while pq:\n        cost_so_far, u, mask = heapq.heappop(pq)\n        if cost_so_far != dist[u][mask]:\n            continue\n        if u == n - 1:\n            return cost_so_far\n\n        for v, cost, zone in adj[u]:\n            ride_cost = 0 if zone >= 0 and (mask >> zone) & 1 else cost\n            new_cost = cost_so_far + ride_cost\n            if new_cost < dist[v][mask]:\n                dist[v][mask] = new_cost\n                heapq.heappush(pq, (new_cost, v, mask))\n\n        for zone in sales[u]:\n            if not (mask >> zone) & 1:\n                new_mask = mask | (1 << zone)\n                new_cost = cost_so_far + prices[zone]\n                if new_cost < dist[u][new_mask]:\n                    dist[u][new_mask] = new_cost\n                    heapq.heappush(pq, (new_cost, u, new_mask))\n\n    return -1\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

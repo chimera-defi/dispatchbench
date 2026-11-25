@@ -1,0 +1,7 @@
+Now I'll write the test file.Done. Created `tests/test_ci_text.py` covering all three cases:
+
+- `test_ci_text_all_passed` — `ci_text(5, 5, (1.0, 1.0), 10)` starts with `≥` and contains `(all passed)` (exercises the `0.05 ** (1/clusters)` bound branch at [summarize.py:181-183](file:///tmp/claude-1000/-home-agents-workspace-dispatchbench/91bc1e86-b747-42c2-96a3-f3cc7eeb1da3/scratchpad/t2/analysis/summarize.py))
+- `test_ci_text_bootstrap_range` — non-all-passed output equals `pct(ci[0])–pct(ci[1])`
+- `test_ci_text_empty` — `n == 0` still renders the CI range, not the all-passed branch
+
+All 3 tests pass. No other files changed.

@@ -1,0 +1,23 @@
+{
+ "key": "fe4673d6e6bdf5886eb26c644f7bd2304b1512e18d6f9296987e1a4cf55d9dfb",
+ "ts": "2026-11-25T01:10:13+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p07_weighted_distance_sums",
+ "repeat": 3,
+ "lanes": 1,
+ "prompt_sha": "d98e731ec858",
+ "wall_s": 7.895917806017678,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef weighted_distance_sums(n: int, edges: list[list[int]], w: list[int]) -> list[int]:\n    adj = [[] for _ in range(n)]\n    for a, b in edges:\n        adj[a].append(b)\n        adj[b].append(a)\n\n    # Iterative DFS from node 0, producing parent, order (preorder).\n    parent = [-1] * n\n    order = []\n    stack = [0]\n    parent[0] = 0\n    while stack:\n        v = stack.pop()\n        order.append(v)\n        for u in adj[v]:\n            if u != parent[v]:\n                parent[u] = v\n                stack.append(u)\n\n    # Post-order accumulation:\n    # subW[v]  = sum of w in v's subtree\n    # subD[v]  = sum of w[u]*dist(u,v) over u in subtree (relative to v)\n    subW = w[:]\n    subD = [0] * n\n    for v in reversed(order):\n        p = parent[v]\n        if p == v:\n            continue\n        subW[p] += subW[v]\n        # dist(u, p) = dist(u, v) + 1 for u in subtree of v\n        subD[p] += subD[v] + subW[v]\n\n    totalW = sum(w)\n    S = [0] * n\n    S[0] = subD[0]\n\n    # Reroot: for edge parent p -> child v,\n    # nodes in v's subtree get 1 closer, all others get 1 farther.\n    for v in order:\n        if v == 0:\n            continue\n        p = parent[v]\n        S[v] = S[p] - subW[v] + (totalW - subW[v])\n    return S\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

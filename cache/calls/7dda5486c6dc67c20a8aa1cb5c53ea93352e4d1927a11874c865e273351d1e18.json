@@ -1,0 +1,23 @@
+{
+ "key": "7dda5486c6dc67c20a8aa1cb5c53ea93352e4d1927a11874c865e273351d1e18",
+ "ts": "2026-11-25T00:55:46+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p11_best_average",
+ "repeat": 1,
+ "lanes": 1,
+ "prompt_sha": "2183e22bdc23",
+ "wall_s": 170.91266524302773,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nfrom math import gcd\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    T = 40\n    P = [0] * (n + 1)\n    for i, v in enumerate(a):\n        P[i + 1] = P[i] + v\n    PS = [p << T for p in P]\n\n    mx = max(a)\n    lo = 0\n    hi = (mx << T) + 1\n    NEG = -(1 << 300)\n\n    def scan(X):\n        # max over subarrays (i, j] with j - i >= k of\n        # (P[j] - P[i]) * 2^T - X * (j - i); also track argmax\n        minB = PS[0]\n        argi = 0\n        xm = 0\n        xj = X * k\n        bestv = NEG\n        bi = bj = 0\n        for j in range(k, n + 1):\n            m = j - k\n            bm = PS[m] - xm\n            if bm < minB:\n                minB = bm\n                argi = m\n            v = PS[j] - xj - minB\n            if v > bestv:\n                bestv = v\n                bi = argi\n                bj = j\n            xm += X\n            xj += X\n        return bestv, bi, bj\n\n    while lo < hi:\n        mid = (lo + hi + 1) >> 1\n        if scan(mid)[0] >= 0:\n            lo = mid\n        else:\n            hi = mid - 1\n\n    _, bi, bj = scan(lo)\n    num = P[bj] - P[bi]\n    den = bj - bi\n    g = gcd(num, den)\n    return [num // g, den // g]\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

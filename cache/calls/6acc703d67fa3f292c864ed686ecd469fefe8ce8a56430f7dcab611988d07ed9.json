@@ -1,0 +1,23 @@
+{
+ "key": "6acc703d67fa3f292c864ed686ecd469fefe8ce8a56430f7dcab611988d07ed9",
+ "ts": "2026-11-25T01:38:44+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p09_k_machine_schedule",
+ "repeat": 5,
+ "lanes": 1,
+ "prompt_sha": "cfc0b4d177d5",
+ "wall_s": 35.450683076982386,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef k_machine_schedule(jobs: list[list[int]], k: int) -> int:\n    if not jobs:\n        return 0\n\n    times = sorted({t for s, e, _ in jobs for t in (s, e)})\n    n = len(times)\n    idx = {t: i for i, t in enumerate(times)}\n\n    # Min-cost flow: k units of flow travel along the timeline.\n    # Idle edges between consecutive time points have capacity k, cost 0.\n    # Each job is an edge start->end with capacity 1, cost -pay.\n    g = [[] for _ in range(n)]\n\n    def add(u, v, cap, cost):\n        g[u].append([v, cap, cost, len(g[v])])\n        g[v].append([u, 0, -cost, len(g[u]) - 1])\n\n    for i in range(n - 1):\n        add(i, i + 1, k, 0)\n    for s, e, p in jobs:\n        add(idx[s], idx[e], 1, -p)\n\n    src, dst = 0, n - 1\n    total_cost = 0\n    flow = 0\n\n    # Successive shortest augmenting paths (Bellman-Ford / SPFA each round).\n    while flow < k:\n        dist = [float(\"inf\")] * n\n        prev = [None] * n\n        dist[src] = 0\n        inq = [False] * n\n        q = [src]\n        inq[src] = True\n        qi = 0\n        while qi < len(q):\n            u = q[qi]\n            qi += 1\n            inq[u] = False\n            for ei, (v, cap, cost, _) in enumerate(g[u]):\n                if cap > 0 and dist[u] + cost < dist[v]:\n                    dist[v] = dist[u] + cost\n                    prev[v] = (u, ei)\n                    if not inq[v]:\n                        inq[v] = True\n                        q.append(v)\n        if prev[dst] is None:\n            break\n        # Bottleneck is always >= 1; augment as much as possible.\n        addf = k - flow\n        v = dst\n        while v != src:\n            u, ei = prev[v]\n            addf = min(addf, g[u][ei][1])\n            v = u\n        v = dst\n        while v != src:\n            u, ei = prev[v]\n            g[u][ei][1] -= addf\n            rev = g[u][ei][3]\n            g[v][rev][1] += addf\n            v = u\n        total_cost += dist[dst] * addf\n        flow += addf\n\n    return -total_cost\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}
