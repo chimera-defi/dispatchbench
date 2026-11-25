@@ -14,7 +14,7 @@ Runs on Free: `swe-2-flash-medium` and `swe-1-6-slow`. The 12 x 5 exploratory ru
 | haiku-low | 95% (57/60) | 85%-100% | 10.0 | 16.0 | $0.0011 |
 | sol61-medium | 97% (58/60) | 87%-100% | 22.6 | 36.2 | $0.014 |
 
-Paired vs haiku-low: -15.0 pts (-33.3 to +0.0). By rung L1 10/10, L2 9/10, L3 8/10, L4 6/10, L5 7/10, L6 8/10. Per problem: p08_recur 1/5 (IndexError on a small case); p10 3/5; the rest 4-5/5. All 60 calls ran; no cap, quota or upgrade message appeared. Slow tail: p10-p12 took 170-360 s on several calls (p90 222.7 s), against about 20 s for the others. Not a test of the $20 plan.
+Paired vs haiku-low: -15.0 pts (-33.3 to +0.0). By rung L1 10/10, L2 9/10, L3 8/10, L4 6/10, L5 7/10, L6 8/10. Per problem: p08_recur 1/5 (IndexError on a small case); p10 3/5; the rest 4-5/5. All 60 calls ran; no cap, quota or upgrade message appeared. Slow tail: 11 of 60 calls took over 100 s (129-362 s; p09, p10, p11 and p12), p90 222.7 s, against a median of 16.4 s. Not a test of the $20 plan.
 
 ## Three real tasks (disposable git worktrees; I read each diff and ran the check)
 
@@ -29,4 +29,4 @@ Paired vs haiku-low: -15.0 pts (-33.3 to +0.0). By rung L1 10/10, L2 9/10, L3 8/
 
 Fault in the first three: the wrapper passes `--permission-mode auto`, which in `-p` mode rejects edits ("warning: rejected a tool call that requires confirmation"). Repair: call `devin` with `accept-edits` (or `smart` when the task runs a command); the wrapper has no passthrough. Cost: not reported by the free tier (no tokens, no dollars). Which model ran is not named by the CLI for the default (no `--model`).
 
-Raw outputs and diffs: results/devin/.
+Raw outputs, stderr and diffs: results/devin/ (the three FAIL receipts are in attempt1-receipt.txt; task*-attempt2.err.txt is stderr from the passing reruns).

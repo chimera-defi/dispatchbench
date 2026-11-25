@@ -6476,7 +6476,7 @@
    "winner_pricing": null,
    "panel": "devin",
    "gate": null,
-   "coverage_note": "Devin probe: 1 repeat, free tier, no token data",
+   "coverage_note": "Devin probe: 5 repeats, free tier, no token data",
    "complete_marker": null
   },
   {
@@ -10551,7 +10551,7 @@
    "winner_pricing": null,
    "panel": "devin",
    "gate": null,
-   "coverage_note": "Devin probe: 1 repeat, free tier, no token data",
+   "coverage_note": "Devin probe: 5 repeats, free tier, no token data",
    "complete_marker": null
   },
   {
@@ -22399,7 +22399,7 @@
    "winner_pricing": null,
    "panel": "devin",
    "gate": null,
-   "coverage_note": "Devin probe: 1 repeat, free tier, no token data",
+   "coverage_note": "Devin probe: 5 repeats, free tier, no token data",
    "complete_marker": null
   },
   {
@@ -51358,7 +51358,7 @@
     "winner_pricing": null,
     "panel": "devin",
     "gate": null,
-    "coverage_note": "Devin probe: 1 repeat, free tier, no token data",
+    "coverage_note": "Devin probe: 5 repeats, free tier, no token data",
     "complete_marker": null,
     "key": "main/devinflash-medium@main ladder"
    },
@@ -55173,7 +55173,7 @@
     "winner_pricing": null,
     "panel": "devin",
     "gate": null,
-    "coverage_note": "Devin probe: 1 repeat, free tier, no token data",
+    "coverage_note": "Devin probe: 5 repeats, free tier, no token data",
     "complete_marker": null,
     "key": "main/devinflash-medium@rescue set"
    },
@@ -67120,7 +67120,7 @@
     "winner_pricing": null,
     "panel": "devin",
     "gate": null,
-    "coverage_note": "Devin probe: 1 repeat, free tier, no token data",
+    "coverage_note": "Devin probe: 5 repeats, free tier, no token data",
     "complete_marker": null,
     "key": "main/devinflash-medium@all runs"
    },
@@ -73756,7 +73756,7 @@
     "winner_pricing": null,
     "panel": "devin",
     "gate": null,
-    "coverage_note": "Devin probe: 1 repeat, free tier, no token data",
+    "coverage_note": "Devin probe: 5 repeats, free tier, no token data",
     "complete_marker": null,
     "key": "main/devinflash-medium@everything pooled"
    },

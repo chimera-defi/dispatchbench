@@ -115,6 +115,7 @@ FREE_TIER_CONFIGS = DEVIN_CONFIGS + DEVIN_FLASH + HETZNER_CONFIGS + INKLING_CONF
 CHART_HIDDEN = CHART_HIDDEN + FREE_TIER_CONFIGS
 HETZNER_NOTE = "exploratory calibration, 1 repeat, free tier, measured tokens"
 DEVIN_NOTE = "1 repeat, free tier, no token data"
+DEVIN_FLASH_NOTE = "5 repeats, free tier, no token data"
 DEVIN_GROUP = "Devin (free tier, 1 repeat)"  # legend group, table group heading and grid column title
 DEVIN_UPGRADE_ERROR = "Error: Upgrade to Pro to access this model (https://devin.ai/pricing)"  # verbatim from PLAN.md deviation 24
 DEVIN_STAGE2_MIN = 9  # PLAN.md deviation 24: stage 2 (repeats 2-5) runs only if stage 1 passes at least 9 of 12
