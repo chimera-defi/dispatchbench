@@ -46739,9 +46739,9 @@
    "source": "results/2026-11-01-hetzner-function.jsonl + results/2026-11-01-hetzner-notes.json; main-grid comparisons: results/2026-10-22b-function.jsonl"
   },
   "agy_lead": {
-   "value": "Google Gemini through the Antigravity CLI (agy) on one Google AI Pro subscription: 26.99 a month, 30.50 for the first month in the Canada store (prices as the operator gave them; the currency was not checked against a bill). agy reports tokens and no dollars, so these rows have no price per pass; the cost shown is the share of the account's Gemini quota each 12 calls used, from the /usage screen read between batches (the 100% start before the first batch was assumed, not read).",
+   "value": "Google Gemini through the Antigravity CLI (agy) on one Google AI Pro subscription, billed in the Canada store: CA$26.99 a month, CA$30.50 for the first month. agy reports tokens and no dollars, so these rows have no price per pass; the cost shown is the share of the account's Gemini quota each 12 calls used, from the /usage screen read between batches (the 100% start before the first batch was assumed, not read).",
    "unit": "text",
-   "display": "Google Gemini through the Antigravity CLI (agy) on one Google AI Pro subscription: 26.99 a month, 30.50 for the first month in the Canada store (prices as the operator gave them; the currency was not checked against a bill). agy reports tokens and no dollars, so these rows have no price per pass; the cost shown is the share of the account's Gemini quota each 12 calls used, from the /usage screen read between batches (the 100% start before the first batch was assumed, not read).",
+   "display": "Google Gemini through the Antigravity CLI (agy) on one Google AI Pro subscription, billed in the Canada store: CA$26.99 a month, CA$30.50 for the first month. agy reports tokens and no dollars, so these rows have no price per pass; the cost shown is the share of the account's Gemini quota each 12 calls used, from the /usage screen read between batches (the 100% start before the first batch was assumed, not read).",
    "source": "results/2026-11-25-agy-function.jsonl + results/2026-11-25-agy-quota.json (/usage readings); references: results/2026-10-22b-function.jsonl"
   },
   "agy_scope": {
@@ -50096,7 +50096,7 @@
      "9.3",
      "0.6 (shared batch)",
      "2.3 (shared batch)",
-     "plan, 26.99 a month"
+     "plan, CA$26.99 a month"
     ],
     [
      "hydrogen-low",
@@ -50104,7 +50104,7 @@
      "9.7",
      "0.6 (shared batch)",
      "2.3 (shared batch)",
-     "plan, 26.99 a month"
+     "plan, CA$26.99 a month"
     ],
     [
      "hydrogen-medium",
@@ -50112,7 +50112,7 @@
      "16.3",
      "0.6 (shared batch)",
      "2.3 (shared batch)",
-     "plan, 26.99 a month"
+     "plan, CA$26.99 a month"
     ],
     [
      "hydrogen-high",
@@ -50120,7 +50120,7 @@
      "25.6",
      "0.6 (shared batch)",
      "2.3 (shared batch)",
-     "plan, 26.99 a month"
+     "plan, CA$26.99 a month"
     ],
     [
      "neon-medium",
@@ -50128,7 +50128,7 @@
      "37.4",
      "1.4",
      "4.6",
-     "plan, 26.99 a month"
+     "plan, CA$26.99 a month"
     ],
     [
      "neon-high",
@@ -50136,7 +50136,7 @@
      "61.8",
      "1.3",
      "7.3",
-     "plan, 26.99 a month"
+     "plan, CA$26.99 a month"
     ],
     [
      "haiku-low",

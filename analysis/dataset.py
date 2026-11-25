@@ -1962,7 +1962,7 @@ def _agy(ds, s):
         h = (rd[b["before"]]["five_hour"] - rd[b["after"]]["five_hour"]) * 12 / b["calls"]
         for c in b["configs"]: per[c] = (w, h, len(b["configs"]) > 1)
     order = ["gemini38flash-low", "hydrogen-low", "hydrogen-medium", "hydrogen-high", "neon-medium", "neon-high"]
-    plan = q["plan"]; price = f"plan, {plan['renewal']:.2f} a month"
+    plan = q["plan"]; price = f"plan, {plan['currency']}{plan['renewal']:.2f} a month"
     table, got = [], {}
     for c in order:
         r = get(ds, c, "partial ladder"); got[c] = r; w, h, shared = per[c]
@@ -1975,7 +1975,7 @@ def _agy(ds, s):
     need(nm["pass_rate"] == 1 and nh["pass_rate"] == 1 and median_seconds(nm) > 3 * median_seconds(got["terra61-low"]),
          "both Neon rows pass every try and Neon medium is more than three times slower than terra61-low")
     need(all(abs(median_seconds(got[c]) - median_seconds(got["terra61-low"])) < 2 for c in ("hydrogen-low", "gemini38flash-low", "haiku-low")), "Hydrogen low, 3.8 Flash, haiku-low and terra61-low all take about the same time per call")
-    F["agy_lead"] = (f"Google Gemini through the Antigravity CLI (agy) on one {plan['name']} subscription: {plan['renewal']:.2f} a month, {plan['first_month']:.2f} for the first month in the Canada store (prices as the operator gave them; the currency was not checked against a bill). "
+    F["agy_lead"] = (f"Google Gemini through the Antigravity CLI (agy) on one {plan['name']} subscription, billed in the Canada store: {plan['currency']}{plan['renewal']:.2f} a month, {plan['currency']}{plan['first_month']:.2f} for the first month. "
                      "agy reports tokens and no dollars, so these rows have no price per pass; the cost shown is the share of the account's Gemini quota each 12 calls used, from the /usage screen read between batches (the 100% start before the first batch was assumed, not read).")
     tries = {c: got[c]["n"] for c in order}; nprob = len(s["problems"])
     need(got["hydrogen-high"]["n"] % nprob != 0 and got["neon-high"]["n"] % nprob == 0, "Hydrogen high is the one row with a partial repeat")
