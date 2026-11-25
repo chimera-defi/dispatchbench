@@ -19,7 +19,7 @@ The main run was on 2026-10-22; the runs on this page span 2026-10-22 to 2026-11
 | luna-medium | 78% (47/60) | 57%–97% | 8.2 | 11.8 | $0.00089 | $0.042 | proxy |
 | sol61-medium | 97% (58/60) | 87%–100% | 22.6 | 36.2 | $0.015 | $0.87 | proxy |
 | agy-gptoss120b-medium † | 81% (17/21) | 57%–100% | 12.0 | 21.1 | – | – | unmetered |
-| agy-opus46-default † | 100% (6/6) | ≥78% (all passed) | 24.5 | 144.9 | – | – | unmetered |
+| agy-opus46-default † | 100% (6/6) | ≥61% (all passed) | 24.5 | 144.9 | – | – | unmetered |
 | agy-sonnet46-default † | 78% (7/9) | 44%–100% | 14.3 | 50.6 | – | – | unmetered |
 | astra-medium † | 100% (60/60) | ≥78% (all passed) | 20.9 | 35.6 | $0.075 | $4.52 | proxy |
 | astra-medium ⚡ † | 100% (60/60) | ≥78% (all passed) | 9.9 | 13.6 | $0.15 | $9.12 | proxy |
@@ -27,7 +27,7 @@ The main run was on 2026-10-22; the runs on this page span 2026-10-22 to 2026-11
 | devinflash-medium † | 80% (48/60) | 63%–93% | 16.4 | 222.7 | – | – | unmetered |
 | gemini38flash-low † | 78% (14/18) | 53%–95% | 7.4 | 10.7 | – | – | unmetered |
 | haiku-high † | 100% (60/60) | ≥78% (all passed) | 14.7 | 37.6 | $0.0028 | $0.17 | measured |
-| hydrogen-high † | 100% (6/6) | ≥78% (all passed) | 18.7 | 41.2 | – | – | unmetered |
+| hydrogen-high † | 100% (6/6) | ≥61% (all passed) | 18.7 | 41.2 | – | – | unmetered |
 | hydrogen-low † | 100% (16/16) | ≥78% (all passed) | 7.8 | 13.6 | – | – | unmetered |
 | hydrogen-medium † | 89% (8/9) | 67%–100% | 14.2 | 26.7 | – | – | unmetered |
 | luna-high † | 92% (55/60) | 82%–100% | 12.2 | 22.9 | $0.0010 | $0.058 | proxy |
