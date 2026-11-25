@@ -59,7 +59,7 @@ CONFIGS["grok47fast-low"] = ("grok", "grok-4.7-build-fast", "low")
 CONFIGS.update({f"hydrogen-{e}": ("agy", f"gemini-4-hydrogen-{e}", e) for e in ("low", "medium", "high")})
 CONFIGS["gemini38flash-low"] = ("agy", "gemini-3.8-flash-low", "low")
 CONFIGS.update({f"neon-{e}": ("agy", "gemini-4-neon", e) for e in ("medium", "high")})  # same login, after the account moved to Google AI Pro (2026-11-25)
-# Same CLI, other vendors' models (they hit the same 429 once the account quota ran out), no effort flag: the model id carries the setting.
+# Same CLI, other vendors' models (Claude and GPT-OSS share one limit pool apart from Gemini), no effort flag: the model id carries the setting.
 CONFIGS.update({"agy-sonnet46-default": ("agy", "claude-sonnet-4-6", "default"), "agy-opus46-default": ("agy", "claude-opus-4-6-thinking", "default"),
                 "agy-gptoss120b-medium": ("agy", "gpt-oss-120b-medium", "medium")})
 CONFIGS["devin16slow-default"] = ("devin", "swe-1-6-slow", "default")  # free tier model (2026-10-28; swe-2-flash-medium also runs on Free, 2026-11-25)

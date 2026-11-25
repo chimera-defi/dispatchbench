@@ -1974,14 +1974,19 @@ def _agy(ds, s):
     nm, nh = got["neon-medium"], got["neon-high"]
     need(nm["pass_rate"] == 1 and nh["pass_rate"] == 1 and median_seconds(nm) > 3 * median_seconds(got["terra61-low"]),
          "both Neon rows pass every try and Neon medium is more than three times slower than terra61-low")
+    need(all(abs(median_seconds(got[c]) - median_seconds(got["terra61-low"])) < 2 for c in ("hydrogen-low", "gemini38flash-low", "haiku-low")), "Hydrogen low, 3.8 Flash, haiku-low and terra61-low all take about the same time per call")
     F["agy_lead"] = (f"Google Gemini through the Antigravity CLI (agy) on one {plan['name']} subscription: ${plan['renewal_usd']:.2f} a month, ${plan['first_month_cad']:.2f} CAD for the first month. "
                      "agy reports tokens and no dollars, so these rows have no price per pass; the cost shown is the share of the account's Gemini quota each 12 calls used, read from its /usage screen between batches.")
-    F["agy_scope"] = ("First round, extend later. This is rough: one pass of 12 problems per repeat, 3 to 5 repeats (60 tries for 3.8 Flash, Neon medium and Hydrogen low and medium, 36 for Neon high, 43 for Hydrogen high), "
-                      "one day's quota readings that move by about a point between reads and include any other use of the account. Hydrogen and 3.8 Flash ran in one batch, so their quota figure is the batch average. "
-                      "The Claude, Codex and GPT-OSS models on the same login have their own limit pool and were not run again.")
+    tries = {c: got[c]["n"] for c in order}; nprob = len(s["problems"])
+    need(got["hydrogen-high"]["n"] % nprob != 0 and got["neon-high"]["n"] % nprob == 0, "Hydrogen high is the one row with a partial repeat")
+    F["agy_scope"] = ("First round, extend later. This is rough: one pass of 12 problems per repeat, and not the same number of repeats everywhere "
+                      f"({tries['gemini38flash-low']} tries for 3.8 Flash, Hydrogen low and Neon medium, {tries['neon-high']} for Neon high, {tries['hydrogen-high']} for Hydrogen high; Hydrogen medium {tries['hydrogen-medium']}). "
+                      "Quota figures come from one day's /usage readings that move by about a point between reads and include any other use of the account; the 100% start before the first batch was assumed, not read. "
+                      "Hydrogen and 3.8 Flash ran in one batch, so their quota figure is the batch average. Their rows mix agy 1.5.16 (before the plan change) and 1.5.17. "
+                      "The Claude and GPT-OSS models on the same login have their own limit pool and were not run again.")
     F["agy_verdict"] = (f"Neon passed every try ({nm['passes']}/{nm['n']} at medium, {nh['passes']}/{nh['n']} at high) but takes {median_seconds(nm):.0f} s and {median_seconds(nh):.0f} s a call, "
                         f"against {median_seconds(got['terra61-low']):.0f} s for terra61-low, which passed {got['terra61-low']['passes']}/{got['terra61-low']['n']}. "
-                        f"Hydrogen low and 3.8 Flash are as fast as the Codex and Claude rows but miss more ({got['hydrogen-low']['passes']}/{got['hydrogen-low']['n']} and {got['gemini38flash-low']['passes']}/{got['gemini38flash-low']['n']}).")
+                        f"Hydrogen low and 3.8 Flash take about {median_seconds(got['hydrogen-low']):.0f} and {median_seconds(got['gemini38flash-low']):.0f} s a call, like haiku-low and terra61-low, but miss more ({got['hydrogen-low']['passes']}/{got['hydrogen-low']['n']} and {got['gemini38flash-low']['passes']}/{got['gemini38flash-low']['n']}).")
 
 
 def _inkling(ds, s):

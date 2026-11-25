@@ -91,7 +91,7 @@ AGY_CONFIGS = GEMINI_CONFIGS + AGY_OTHER
 GEMINI_NOTE = "first round, extend later: n per cell shown; tokens reported, no dollars"
 AGY_NAMES = {"hydrogen": "Google Gemini 4 Hydrogen", "neon": "Google Gemini 4 Neon", "gemini38flash": "Google Gemini 3.8 Flash", "agy-sonnet46": "Claude Sonnet 4.6 (Thinking)", "agy-opus46": "Claude Opus 4.6 (Thinking)", "agy-gptoss120b": "GPT-OSS 120B"}
 add("main", "exploratory", *((c, f"{AGY_NAMES[c.rsplit('-', 1)[0]]}, {c.rsplit('-', 1)[1]} setting; Antigravity CLI (agy), headless, "
-    "signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)") for c in AGY_CONFIGS))
+    "signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)") for c in AGY_CONFIGS))
 HETZNER_CONFIGS = ("hetzner-qwen36", "hetzner-qwen38")
 add("main", "exploratory", *((c,
     "Hetzner " + model + "; OpenAI-compatible streaming API, measured input/output tokens; free experimental tier, no published list price; "

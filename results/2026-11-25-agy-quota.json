@@ -7,8 +7,9 @@
     "21:11Z": {"weekly": 84, "five_hour": 44},
     "22:01Z": {"weekly": 80, "five_hour": 22}
   },
+  "batch_note": "The Hydrogen and Flash batch counts the 174 calls made between the 18:55Z and 19:21Z readings (agy 1.5.17, after the move to Google AI Pro). The other 49 Hydrogen and Flash rows ran at 02:31-02:34Z on agy 1.5.16 before the first 429 and are not in that figure.",
   "batches": [
-    {"configs": ["hydrogen-low", "hydrogen-medium", "hydrogen-high", "gemini38flash-low"], "calls": 223, "before": "18:55Z", "after": "19:21Z"},
+    {"configs": ["hydrogen-low", "hydrogen-medium", "hydrogen-high", "gemini38flash-low"], "calls": 174, "before": "18:55Z", "after": "19:21Z"},
     {"configs": ["neon-medium"], "calls": 60, "before": "19:21Z", "after": "21:11Z"},
     {"configs": ["neon-high"], "calls": 36, "before": "21:11Z", "after": "22:01Z"}
   ]

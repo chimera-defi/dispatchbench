@@ -7995,7 +7995,7 @@
    "display": "hydrogen-low",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 4 Hydrogen, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 4 Hydrogen, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "partial ladder",
    "derived": false,
    "files": [
@@ -8244,7 +8244,7 @@
    "display": "hydrogen-medium",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 4 Hydrogen, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 4 Hydrogen, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "partial ladder",
    "derived": false,
    "files": [
@@ -8493,7 +8493,7 @@
    "display": "hydrogen-high",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 4 Hydrogen, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 4 Hydrogen, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "partial ladder",
    "derived": false,
    "files": [
@@ -8737,7 +8737,7 @@
    "display": "gemini38flash-low",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 3.8 Flash, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 3.8 Flash, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "partial ladder",
    "derived": false,
    "files": [
@@ -8988,7 +8988,7 @@
    "display": "neon-medium",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 4 Neon, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 4 Neon, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "partial ladder",
    "derived": false,
    "files": [
@@ -9232,7 +9232,7 @@
    "display": "neon-high",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 4 Neon, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 4 Neon, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "partial ladder",
    "derived": false,
    "files": [
@@ -9476,7 +9476,7 @@
    "display": "agy-sonnet46-default",
    "family": "Antigravity",
    "category": "exploratory",
-   "what": "Claude Sonnet 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Claude Sonnet 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "partial ladder",
    "derived": false,
    "files": [
@@ -9705,7 +9705,7 @@
    "display": "agy-opus46-default",
    "family": "Antigravity",
    "category": "exploratory",
-   "what": "Claude Opus 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Claude Opus 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "partial ladder",
    "derived": false,
    "files": [
@@ -9901,7 +9901,7 @@
    "display": "agy-gptoss120b-medium",
    "family": "Antigravity",
    "category": "exploratory",
-   "what": "GPT-OSS 120B, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "GPT-OSS 120B, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "partial ladder",
    "derived": false,
    "files": [
@@ -12894,7 +12894,7 @@
    "display": "hydrogen-low",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 4 Hydrogen, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 4 Hydrogen, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "rescue set",
    "derived": true,
    "files": [
@@ -13012,7 +13012,7 @@
    "display": "hydrogen-medium",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 4 Hydrogen, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 4 Hydrogen, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "rescue set",
    "derived": true,
    "files": [
@@ -13127,7 +13127,7 @@
    "display": "hydrogen-high",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 4 Hydrogen, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 4 Hydrogen, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "rescue set",
    "derived": true,
    "files": [
@@ -13242,7 +13242,7 @@
    "display": "gemini38flash-low",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 3.8 Flash, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 3.8 Flash, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "rescue set",
    "derived": true,
    "files": [
@@ -13360,7 +13360,7 @@
    "display": "neon-medium",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 4 Neon, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 4 Neon, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "rescue set",
    "derived": true,
    "files": [
@@ -13475,7 +13475,7 @@
    "display": "neon-high",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 4 Neon, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 4 Neon, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "rescue set",
    "derived": true,
    "files": [
@@ -13590,7 +13590,7 @@
    "display": "agy-sonnet46-default",
    "family": "Antigravity",
    "category": "exploratory",
-   "what": "Claude Sonnet 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Claude Sonnet 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "rescue set",
    "derived": true,
    "files": [
@@ -13692,7 +13692,7 @@
    "display": "agy-opus46-default",
    "family": "Antigravity",
    "category": "exploratory",
-   "what": "Claude Opus 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Claude Opus 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "rescue set",
    "derived": true,
    "files": [
@@ -13775,7 +13775,7 @@
    "display": "agy-gptoss120b-medium",
    "family": "Antigravity",
    "category": "exploratory",
-   "what": "GPT-OSS 120B, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "GPT-OSS 120B, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "rescue set",
    "derived": true,
    "files": [
@@ -25741,7 +25741,7 @@
    "display": "hydrogen-low",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 4 Hydrogen, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 4 Hydrogen, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -25887,7 +25887,7 @@
    "display": "hydrogen-medium",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 4 Hydrogen, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 4 Hydrogen, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -26033,7 +26033,7 @@
    "display": "hydrogen-high",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 4 Hydrogen, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 4 Hydrogen, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -26176,7 +26176,7 @@
    "display": "gemini38flash-low",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 3.8 Flash, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 3.8 Flash, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -26322,7 +26322,7 @@
    "display": "neon-medium",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 4 Neon, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 4 Neon, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -26465,7 +26465,7 @@
    "display": "neon-high",
    "family": "Gemini",
    "category": "exploratory",
-   "what": "Google Gemini 4 Neon, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Google Gemini 4 Neon, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -26608,7 +26608,7 @@
    "display": "agy-sonnet46-default",
    "family": "Antigravity",
    "category": "exploratory",
-   "what": "Claude Sonnet 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Claude Sonnet 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -26738,7 +26738,7 @@
    "display": "agy-opus46-default",
    "family": "Antigravity",
    "category": "exploratory",
-   "what": "Claude Opus 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "Claude Opus 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -26845,7 +26845,7 @@
    "display": "agy-gptoss120b-medium",
    "family": "Antigravity",
    "category": "exploratory",
-   "what": "GPT-OSS 120B, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+   "what": "GPT-OSS 120B, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -46745,15 +46745,15 @@
    "source": "results/2026-11-25-agy-function.jsonl + results/2026-11-25-agy-quota.json (/usage readings); references: results/2026-10-22b-function.jsonl"
   },
   "agy_scope": {
-   "value": "First round, extend later. This is rough: one pass of 12 problems per repeat, 3 to 5 repeats (60 tries for 3.8 Flash, Neon medium and Hydrogen low and medium, 36 for Neon high, 43 for Hydrogen high), one day's quota readings that move by about a point between reads and include any other use of the account. Hydrogen and 3.8 Flash ran in one batch, so their quota figure is the batch average. The Claude, Codex and GPT-OSS models on the same login have their own limit pool and were not run again.",
+   "value": "First round, extend later. This is rough: one pass of 12 problems per repeat, and not the same number of repeats everywhere (60 tries for 3.8 Flash, Hydrogen low and Neon medium, 36 for Neon high, 43 for Hydrogen high; Hydrogen medium 60). Quota figures come from one day's /usage readings that move by about a point between reads and include any other use of the account; the 100% start before the first batch was assumed, not read. Hydrogen and 3.8 Flash ran in one batch, so their quota figure is the batch average. Their rows mix agy 1.5.16 (before the plan change) and 1.5.17. The Claude and GPT-OSS models on the same login have their own limit pool and were not run again.",
    "unit": "text",
-   "display": "First round, extend later. This is rough: one pass of 12 problems per repeat, 3 to 5 repeats (60 tries for 3.8 Flash, Neon medium and Hydrogen low and medium, 36 for Neon high, 43 for Hydrogen high), one day's quota readings that move by about a point between reads and include any other use of the account. Hydrogen and 3.8 Flash ran in one batch, so their quota figure is the batch average. The Claude, Codex and GPT-OSS models on the same login have their own limit pool and were not run again.",
+   "display": "First round, extend later. This is rough: one pass of 12 problems per repeat, and not the same number of repeats everywhere (60 tries for 3.8 Flash, Hydrogen low and Neon medium, 36 for Neon high, 43 for Hydrogen high; Hydrogen medium 60). Quota figures come from one day's /usage readings that move by about a point between reads and include any other use of the account; the 100% start before the first batch was assumed, not read. Hydrogen and 3.8 Flash ran in one batch, so their quota figure is the batch average. Their rows mix agy 1.5.16 (before the plan change) and 1.5.17. The Claude and GPT-OSS models on the same login have their own limit pool and were not run again.",
    "source": "results/2026-11-25-agy-function.jsonl + results/2026-11-25-agy-quota.json (/usage readings); references: results/2026-10-22b-function.jsonl"
   },
   "agy_verdict": {
-   "value": "Neon passed every try (60/60 at medium, 36/36 at high) but takes 37 s and 62 s a call, against 10 s for terra61-low, which passed 60/60. Hydrogen low and 3.8 Flash are as fast as the Codex and Claude rows but miss more (56/60 and 50/60).",
+   "value": "Neon passed every try (60/60 at medium, 36/36 at high) but takes 37 s and 62 s a call, against 10 s for terra61-low, which passed 60/60. Hydrogen low and 3.8 Flash take about 10 and 9 s a call, like haiku-low and terra61-low, but miss more (56/60 and 50/60).",
    "unit": "text",
-   "display": "Neon passed every try (60/60 at medium, 36/36 at high) but takes 37 s and 62 s a call, against 10 s for terra61-low, which passed 60/60. Hydrogen low and 3.8 Flash are as fast as the Codex and Claude rows but miss more (56/60 and 50/60).",
+   "display": "Neon passed every try (60/60 at medium, 36/36 at high) but takes 37 s and 62 s a call, against 10 s for terra61-low, which passed 60/60. Hydrogen low and 3.8 Flash take about 10 and 9 s a call, like haiku-low and terra61-low, but miss more (56/60 and 50/60).",
    "source": "results/2026-11-25-agy-function.jsonl + results/2026-11-25-agy-quota.json (/usage readings); references: results/2026-10-22b-function.jsonl"
   },
   "inkling_name": {
@@ -50094,32 +50094,32 @@
      "gemini38flash-low",
      "50/60",
      "9.3",
-     "0.5 (shared batch)",
-     "1.8 (shared batch)",
+     "0.6 (shared batch)",
+     "2.3 (shared batch)",
      "plan, $26.99/month"
     ],
     [
      "hydrogen-low",
      "56/60",
      "9.7",
-     "0.5 (shared batch)",
-     "1.8 (shared batch)",
+     "0.6 (shared batch)",
+     "2.3 (shared batch)",
      "plan, $26.99/month"
     ],
     [
      "hydrogen-medium",
      "59/60",
      "16.3",
-     "0.5 (shared batch)",
-     "1.8 (shared batch)",
+     "0.6 (shared batch)",
+     "2.3 (shared batch)",
      "plan, $26.99/month"
     ],
     [
      "hydrogen-high",
      "43/43",
      "25.6",
-     "0.5 (shared batch)",
-     "1.8 (shared batch)",
+     "0.6 (shared batch)",
+     "2.3 (shared batch)",
      "plan, $26.99/month"
     ],
     [
@@ -59796,7 +59796,7 @@
     "display": "hydrogen-low",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Hydrogen, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Hydrogen, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "partial ladder",
     "derived": false,
     "files": [
@@ -60046,7 +60046,7 @@
     "display": "hydrogen-medium",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Hydrogen, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Hydrogen, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "partial ladder",
     "derived": false,
     "files": [
@@ -60296,7 +60296,7 @@
     "display": "hydrogen-high",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Hydrogen, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Hydrogen, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "partial ladder",
     "derived": false,
     "files": [
@@ -60541,7 +60541,7 @@
     "display": "gemini38flash-low",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 3.8 Flash, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 3.8 Flash, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "partial ladder",
     "derived": false,
     "files": [
@@ -60793,7 +60793,7 @@
     "display": "neon-medium",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Neon, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Neon, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "partial ladder",
     "derived": false,
     "files": [
@@ -61038,7 +61038,7 @@
     "display": "neon-high",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Neon, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Neon, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "partial ladder",
     "derived": false,
     "files": [
@@ -61283,7 +61283,7 @@
     "display": "agy-sonnet46-default",
     "family": "Antigravity",
     "category": "exploratory",
-    "what": "Claude Sonnet 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Claude Sonnet 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "partial ladder",
     "derived": false,
     "files": [
@@ -61513,7 +61513,7 @@
     "display": "agy-opus46-default",
     "family": "Antigravity",
     "category": "exploratory",
-    "what": "Claude Opus 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Claude Opus 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "partial ladder",
     "derived": false,
     "files": [
@@ -61710,7 +61710,7 @@
     "display": "agy-gptoss120b-medium",
     "family": "Antigravity",
     "category": "exploratory",
-    "what": "GPT-OSS 120B, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "GPT-OSS 120B, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "partial ladder",
     "derived": false,
     "files": [
@@ -64438,7 +64438,7 @@
     "display": "hydrogen-low",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Hydrogen, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Hydrogen, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "rescue set",
     "derived": true,
     "files": [
@@ -64557,7 +64557,7 @@
     "display": "hydrogen-medium",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Hydrogen, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Hydrogen, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "rescue set",
     "derived": true,
     "files": [
@@ -64673,7 +64673,7 @@
     "display": "hydrogen-high",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Hydrogen, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Hydrogen, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "rescue set",
     "derived": true,
     "files": [
@@ -64789,7 +64789,7 @@
     "display": "gemini38flash-low",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 3.8 Flash, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 3.8 Flash, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "rescue set",
     "derived": true,
     "files": [
@@ -64908,7 +64908,7 @@
     "display": "neon-medium",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Neon, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Neon, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "rescue set",
     "derived": true,
     "files": [
@@ -65024,7 +65024,7 @@
     "display": "neon-high",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Neon, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Neon, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "rescue set",
     "derived": true,
     "files": [
@@ -65140,7 +65140,7 @@
     "display": "agy-sonnet46-default",
     "family": "Antigravity",
     "category": "exploratory",
-    "what": "Claude Sonnet 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Claude Sonnet 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "rescue set",
     "derived": true,
     "files": [
@@ -65243,7 +65243,7 @@
     "display": "agy-opus46-default",
     "family": "Antigravity",
     "category": "exploratory",
-    "what": "Claude Opus 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Claude Opus 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "rescue set",
     "derived": true,
     "files": [
@@ -65327,7 +65327,7 @@
     "display": "agy-gptoss120b-medium",
     "family": "Antigravity",
     "category": "exploratory",
-    "what": "GPT-OSS 120B, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "GPT-OSS 120B, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "rescue set",
     "derived": true,
     "files": [
@@ -77393,7 +77393,7 @@
     "display": "hydrogen-low",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Hydrogen, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Hydrogen, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "all runs",
     "derived": false,
     "files": [
@@ -77540,7 +77540,7 @@
     "display": "hydrogen-medium",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Hydrogen, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Hydrogen, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "all runs",
     "derived": false,
     "files": [
@@ -77687,7 +77687,7 @@
     "display": "hydrogen-high",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Hydrogen, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Hydrogen, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "all runs",
     "derived": false,
     "files": [
@@ -77831,7 +77831,7 @@
     "display": "gemini38flash-low",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 3.8 Flash, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 3.8 Flash, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "all runs",
     "derived": false,
     "files": [
@@ -77978,7 +77978,7 @@
     "display": "neon-medium",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Neon, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Neon, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "all runs",
     "derived": false,
     "files": [
@@ -78122,7 +78122,7 @@
     "display": "neon-high",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Neon, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Neon, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "all runs",
     "derived": false,
     "files": [
@@ -78266,7 +78266,7 @@
     "display": "agy-sonnet46-default",
     "family": "Antigravity",
     "category": "exploratory",
-    "what": "Claude Sonnet 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Claude Sonnet 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "all runs",
     "derived": false,
     "files": [
@@ -78397,7 +78397,7 @@
     "display": "agy-opus46-default",
     "family": "Antigravity",
     "category": "exploratory",
-    "what": "Claude Opus 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Claude Opus 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "all runs",
     "derived": false,
     "files": [
@@ -78505,7 +78505,7 @@
     "display": "agy-gptoss120b-medium",
     "family": "Antigravity",
     "category": "exploratory",
-    "what": "GPT-OSS 120B, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "GPT-OSS 120B, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "all runs",
     "derived": false,
     "files": [
@@ -85304,7 +85304,7 @@
     "display": "gemini38flash-low",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 3.8 Flash, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 3.8 Flash, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "everything pooled",
     "derived": true,
     "files": [
@@ -85451,7 +85451,7 @@
     "display": "hydrogen-low",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Hydrogen, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Hydrogen, low setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "everything pooled",
     "derived": true,
     "files": [
@@ -85598,7 +85598,7 @@
     "display": "hydrogen-medium",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Hydrogen, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Hydrogen, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "everything pooled",
     "derived": true,
     "files": [
@@ -85745,7 +85745,7 @@
     "display": "hydrogen-high",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Hydrogen, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Hydrogen, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "everything pooled",
     "derived": true,
     "files": [
@@ -85889,7 +85889,7 @@
     "display": "agy-gptoss120b-medium",
     "family": "Antigravity",
     "category": "exploratory",
-    "what": "GPT-OSS 120B, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "GPT-OSS 120B, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "everything pooled",
     "derived": true,
     "files": [
@@ -86036,7 +86036,7 @@
     "display": "agy-opus46-default",
     "family": "Antigravity",
     "category": "exploratory",
-    "what": "Claude Opus 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Claude Opus 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "everything pooled",
     "derived": true,
     "files": [
@@ -86144,7 +86144,7 @@
     "display": "agy-sonnet46-default",
     "family": "Antigravity",
     "category": "exploratory",
-    "what": "Claude Sonnet 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Claude Sonnet 4.6 (Thinking), default setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "everything pooled",
     "derived": true,
     "files": [
@@ -86275,7 +86275,7 @@
     "display": "neon-medium",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Neon, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Neon, medium setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "everything pooled",
     "derived": true,
     "files": [
@@ -86419,7 +86419,7 @@
     "display": "neon-high",
     "family": "Gemini",
     "category": "exploratory",
-    "what": "Google Gemini 4 Neon, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: the run was cut by the account quota and by the operator (PLAN.md deviation 29)",
+    "what": "Google Gemini 4 Neon, high setting; Antigravity CLI (agy), headless, signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)",
     "set": "everything pooled",
     "derived": true,
     "files": [

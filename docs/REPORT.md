@@ -345,7 +345,7 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 
 ![Pass rate by difficulty rung, 10 attempts per rung per config.](../results/report/charts/pass_by_rung.svg)
 
-![Passes out of 5 per problem and config. The Gemini and Antigravity columns are a partial ladder: each cell is passes over the tries made before the account quota ran out.](../results/report/charts/heatmap.svg)
+![Passes out of 5 per problem and config. The Gemini and Antigravity columns are a first round: each cell is passes over the tries made so far.](../results/report/charts/heatmap.svg)
 
 ![Minimum input tokens over all calls, cached share shaded.](../results/report/charts/token_floor.svg)
 
@@ -369,10 +369,10 @@ Google Gemini through the Antigravity CLI (agy) on one Google AI Pro subscriptio
 
 | config | passes/tries (function tests) | median s per call | weekly quota points per 12 calls | 5-hour quota points per 12 calls | price |
 |---|---|---|---|---|---|
-| gemini38flash-low | 50/60 | 9.3 | 0.5 (shared batch) | 1.8 (shared batch) | plan, $26.99/month |
-| hydrogen-low | 56/60 | 9.7 | 0.5 (shared batch) | 1.8 (shared batch) | plan, $26.99/month |
-| hydrogen-medium | 59/60 | 16.3 | 0.5 (shared batch) | 1.8 (shared batch) | plan, $26.99/month |
-| hydrogen-high | 43/43 | 25.6 | 0.5 (shared batch) | 1.8 (shared batch) | plan, $26.99/month |
+| gemini38flash-low | 50/60 | 9.3 | 0.6 (shared batch) | 2.3 (shared batch) | plan, $26.99/month |
+| hydrogen-low | 56/60 | 9.7 | 0.6 (shared batch) | 2.3 (shared batch) | plan, $26.99/month |
+| hydrogen-medium | 59/60 | 16.3 | 0.6 (shared batch) | 2.3 (shared batch) | plan, $26.99/month |
+| hydrogen-high | 43/43 | 25.6 | 0.6 (shared batch) | 2.3 (shared batch) | plan, $26.99/month |
 | neon-medium | 60/60 | 37.4 | 1.4 | 4.6 | plan, $26.99/month |
 | neon-high | 36/36 | 61.8 | 1.3 | 7.3 | plan, $26.99/month |
 | haiku-low | 57/60 | 10.0 | – | – | $0.0011 per pass (measured) |
@@ -380,9 +380,9 @@ Google Gemini through the Antigravity CLI (agy) on one Google AI Pro subscriptio
 | terra61-low | 60/60 | 10.3 | – | – | $0.010 per pass (token estimate) |
 | sol61-high | 60/60 | 27.4 | – | – | $0.019 per pass (token estimate) |
 
-First round, extend later. This is rough: one pass of 12 problems per repeat, 3 to 5 repeats (60 tries for 3.8 Flash, Neon medium and Hydrogen low and medium, 36 for Neon high, 43 for Hydrogen high), one day's quota readings that move by about a point between reads and include any other use of the account. Hydrogen and 3.8 Flash ran in one batch, so their quota figure is the batch average. The Claude, Codex and GPT-OSS models on the same login have their own limit pool and were not run again.
+First round, extend later. This is rough: one pass of 12 problems per repeat, and not the same number of repeats everywhere (60 tries for 3.8 Flash, Hydrogen low and Neon medium, 36 for Neon high, 43 for Hydrogen high; Hydrogen medium 60). Quota figures come from one day's /usage readings that move by about a point between reads and include any other use of the account; the 100% start before the first batch was assumed, not read. Hydrogen and 3.8 Flash ran in one batch, so their quota figure is the batch average. Their rows mix agy 1.5.16 (before the plan change) and 1.5.17. The Claude and GPT-OSS models on the same login have their own limit pool and were not run again.
 
-Neon passed every try (60/60 at medium, 36/36 at high) but takes 37 s and 62 s a call, against 10 s for terra61-low, which passed 60/60. Hydrogen low and 3.8 Flash are as fast as the Codex and Claude rows but miss more (56/60 and 50/60).
+Neon passed every try (60/60 at medium, 36/36 at high) but takes 37 s and 62 s a call, against 10 s for terra61-low, which passed 60/60. Hydrogen low and 3.8 Flash take about 10 and 9 s a call, like haiku-low and terra61-low, but miss more (56/60 and 50/60).
 
 ## Hetzner free tier (exploratory calibration)
 

@@ -110,7 +110,7 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 
 {{chart:pass_by_rung.svg|Pass rate by difficulty rung, {{rung_attempts}} attempts per rung per config.}}
 
-{{chart:heatmap.svg|Passes out of {{repeats}} per problem and config. The Gemini and Antigravity columns are a partial ladder: each cell is passes over the tries made before the account quota ran out.}}
+{{chart:heatmap.svg|Passes out of {{repeats}} per problem and config. The Gemini and Antigravity columns are a first round: each cell is passes over the tries made so far.}}
 
 {{chart:token_floor.svg|Minimum input tokens over all calls, cached share shaded.}}
 
