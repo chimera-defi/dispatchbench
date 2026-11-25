@@ -39,7 +39,7 @@ const st={view:X.default_view,set:X.default_set,quota:false,minPass:X.default_fl
 const money=v=>v==null?'unavailable':v===0?'$0':'$'+Number(v.toPrecision(2)).toLocaleString('en-US',{maximumFractionDigits:8});
 const pc=v=>(100*v).toFixed(1).replace(/\.0$/,'')+'%';
 const cost=r=>st.quota?r.quota_usd_per_pass:r.usd_per_pass;
-const costLabel=r=>({measured:'measured',proxy:'token-estimate',unmetered:'unmetered','free-tier':'free tier',local:'local, no price','box-hours':'estimated from box-hours'})[r.cost_kind];
+const costLabel=r=>({measured:'measured',proxy:'token-estimate',unmetered:'unmetered','free-tier':'free tier',local:'local, no price','box-hours':'estimated from box-hours','colab-units':'estimated from compute units'})[r.cost_kind];
 function familyLabel(r){return r.mode==='pipeline'?'pipeline':r.model_short==='sonnet'?'Sonnet':r.family==='Codex'&&r.generation==='5.6'?'Codex 5.6':r.family}
 function colour(r,facet=st.colorBy){const k=facet==='effort'?'effort-'+r.effort:facet==='mode'?r.mode:r.mode==='pipeline'?'pipeline':r.model_short==='sonnet'?'sonnet':r.family==='Codex'&&r.generation==='5.6'?'codex-old':r.family.toLowerCase();return 'var(--data-'+k+')'}
 const objs=()=>X.views[st.view].objectives;

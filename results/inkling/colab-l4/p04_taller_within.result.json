@@ -1,0 +1,32 @@
+{
+ "pid": "p04_taller_within",
+ "effort": "default",
+ "max_tokens": 12288,
+ "wall_s": 120.05030603399996,
+ "loadavg_start": [
+  "1.17",
+  "1.36",
+  "1.23"
+ ],
+ "finish_reason": "stop",
+ "prompt_tok": 337,
+ "out_tok": 3943,
+ "gen_tps": 33.052111458092135,
+ "prompt_tps": 602.7492785554789,
+ "peak_rss_kib": 17587732,
+ "rss_end": {
+  "VmHWM": 17587732,
+  "VmRSS": 2691592,
+  "RssAnon": 1901768,
+  "RssFile": 665384
+ },
+ "memavail_gib_end": 49.16088104248047,
+ "reasoning_chars": 10429,
+ "verdict": {
+  "outcome": "pass",
+  "cases": 309,
+  "worst_time_frac": 0.092
+ },
+ "error": null,
+ "code_lines": 42
+}

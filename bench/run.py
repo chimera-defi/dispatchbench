@@ -61,6 +61,7 @@ CONFIGS["hetzner-qwen38"] = ("hetzner", "Qwen/Qwen3.8-27B", "default")
 CONFIGS["inkling2mini-default"] = ("llama.cpp", "Inkling-2-Mini-IQ4_NL.gguf", "default")  # primary run, max_tokens 12288
 CONFIGS.update({"inkling2mini-medium16k": ("llama.cpp", "Inkling-2-Mini-IQ4_NL.gguf", "medium"), "inkling2mini-low16k": ("llama.cpp", "Inkling-2-Mini-IQ4_NL.gguf", "low"),
                 "inkling2mini-default24k": ("llama.cpp", "Inkling-2-Mini-IQ4_NL.gguf", "default")})  # retry stages of the tasks capped at 12288 (secondary, labelled)
+CONFIGS["inkling2mini-colab-l4"] = ("llama.cpp-cuda", "Inkling-2-Mini-IQ4_NL.gguf", "default")  # 2026-11-25: same model on a Colab L4 (results/inkling/runner_colab_l4.py), own lane; rows via bench/inkling_export.py --colab
 
 
 def codex_flags(config, portable=False):

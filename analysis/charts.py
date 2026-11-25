@@ -338,7 +338,8 @@ def heatmap(s):
     ink = s.get("inkling") or {}  # p13–p15 are not in this p01–p12 grid
     if ink:
         cols += [(c, {p: int(ok) for p, ok in tasks.items()}, True) for c, tasks in ((configs.INKLING_PRIMARY, {p: x["passed"] for p, x in ink["primary"]["tasks"].items()}), (configs.INKLING_LADDER, ink["ladder"]["tasks"]))]
-    dv = {**dv, **{c: None for c in (configs.INKLING_PRIMARY, configs.INKLING_LADDER)}}
+        if ink.get("colab"): cols.append((configs.COLAB_CONFIG, {p: int(x["passed"]) for p, x in ink["colab"]["tasks"].items()}, True))
+    dv = {**dv, **{c: None for c in (configs.INKLING_PRIMARY, configs.INKLING_LADDER, configs.COLAB_CONFIG)}}
     probs = sorted(s["problems"], key=lambda q: (s["problems"][q]["rung"], q)); cw, ch, L, T, gap = 50, 24, 250, 130, 14
     X = lambda j: L + j * cw + (gap if cols[j][2] else 0)
     W, H = X(len(cols) - 1) + cw + 20, T + ch * len(probs) + 40
@@ -551,7 +552,7 @@ def main():
 
 
 def explorer_cost_label(r):
-    return {"measured": "measured", "proxy": "token-estimate", "unmetered": "unmetered", "free-tier": "free tier", "local": "local, no price", "box-hours": "estimated from box-hours"}[r["cost_kind"]]
+    return {"measured": "measured", "proxy": "token-estimate", "unmetered": "unmetered", "free-tier": "free tier", "local": "local, no price", "box-hours": "estimated from box-hours", "colab-units": "estimated from compute units"}[r["cost_kind"]]
 
 
 def explorer_colour(r):

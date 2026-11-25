@@ -1,0 +1,32 @@
+{
+ "pid": "p07_weighted_distance_sums",
+ "effort": "default",
+ "max_tokens": 12288,
+ "wall_s": 74.88488168200001,
+ "loadavg_start": [
+  "1.13",
+  "1.19",
+  "1.18"
+ ],
+ "finish_reason": "stop",
+ "prompt_tok": 320,
+ "out_tok": 2470,
+ "gen_tps": 33.30590845601943,
+ "prompt_tps": 589.0081141604818,
+ "peak_rss_kib": 17587732,
+ "rss_end": {
+  "VmHWM": 17587732,
+  "VmRSS": 4153708,
+  "RssAnon": 3363884,
+  "RssFile": 665384
+ },
+ "memavail_gib_end": 47.77656936645508,
+ "reasoning_chars": 5053,
+ "verdict": {
+  "outcome": "pass",
+  "cases": 307,
+  "worst_time_frac": 0.126
+ },
+ "error": null,
+ "code_lines": 40
+}

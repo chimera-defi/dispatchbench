@@ -1,0 +1,32 @@
+{
+ "pid": "p08_recur",
+ "effort": "default",
+ "max_tokens": 12288,
+ "wall_s": 375.4774779459999,
+ "loadavg_start": [
+  "1.42",
+  "1.25",
+  "1.20"
+ ],
+ "finish_reason": "stop",
+ "prompt_tok": 817,
+ "out_tok": 11899,
+ "gen_tps": 31.810896141498716,
+ "prompt_tps": 603.7827552144704,
+ "peak_rss_kib": 17587732,
+ "rss_end": {
+  "VmHWM": 17587732,
+  "VmRSS": 4602628,
+  "RssAnon": 3812804,
+  "RssFile": 665384
+ },
+ "memavail_gib_end": 47.295257568359375,
+ "reasoning_chars": 34890,
+ "verdict": {
+  "outcome": "pass",
+  "cases": 350,
+  "worst_time_frac": 0.002
+ },
+ "error": null,
+ "code_lines": 90
+}

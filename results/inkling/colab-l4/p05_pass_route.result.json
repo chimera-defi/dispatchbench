@@ -1,0 +1,32 @@
+{
+ "pid": "p05_pass_route",
+ "effort": "default",
+ "max_tokens": 12288,
+ "wall_s": 147.308850979,
+ "loadavg_start": [
+  "1.10",
+  "1.26",
+  "1.21"
+ ],
+ "finish_reason": "stop",
+ "prompt_tok": 517,
+ "out_tok": 4802,
+ "gen_tps": 32.79756328792286,
+ "prompt_tps": 644.3430507920954,
+ "peak_rss_kib": 17587732,
+ "rss_end": {
+  "VmHWM": 17587732,
+  "VmRSS": 3087968,
+  "RssAnon": 2298144,
+  "RssFile": 665384
+ },
+ "memavail_gib_end": 48.7957878112793,
+ "reasoning_chars": 14703,
+ "verdict": {
+  "outcome": "pass",
+  "cases": 306,
+  "worst_time_frac": 0.009
+ },
+ "error": null,
+ "code_lines": 48
+}

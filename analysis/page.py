@@ -595,7 +595,8 @@ def grid(s, grok=None):
     """Problems (rows, by rung) × configs (columns); each cell is passes out of the attempts at that problem.
     grok maps each Grok config to {problem: [passes, attempts]}; a config that skipped a problem shows a dash there."""
     grok = grok or {}; ink = s.get("inkling") or {}
-    inkling = {configs.INKLING_PRIMARY: {p: x["passed"] for p, x in ink["primary"]["tasks"].items()}, configs.INKLING_LADDER: ink["ladder"]["tasks"]} if ink else {}  # 1 try per task, like the Hetzner lanes
+    inkling = {configs.INKLING_PRIMARY: {p: x["passed"] for p, x in ink["primary"]["tasks"].items()}, configs.INKLING_LADDER: ink["ladder"]["tasks"],
+                                **({configs.COLAB_CONFIG: {p: x["passed"] for p, x in ink["colab"]["tasks"].items()}} if ink.get("colab") else {})} if ink else {}  # 1 try per task, like the Hetzner lanes
     cols = ORDER + [c for c in GROK_ORDER if c in grok] + list(configs.DEVIN_CONFIGS) + list(configs.DEVIN_FLASH) + list(hetzner(s)) + list(inkling)
     E = {**every(s), **devin(s), **{c: v for c, v in s['exploratory'].items() if c in configs.DEVIN_FLASH}, **hetzner(s)}; probs = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
     main = set(probs)
@@ -915,9 +916,11 @@ def short_table(s, need):
                     rate=v["pass_at_1"], key=s["facts"]["verdict_key"], cost_label="free tier")) for c, v in hz.items()]
     ink = s.get("inkling") or {}  # local CPU lane: the frozen primary and the secondary ladder, each its own row
     ink_rows = [row(DISP(c), FAM(c), b["passes"], ink["n"], None, None, b["median_s"], verdict, rate=b["passes"] / ink["n"], key=s["facts"]["verdict_key"],
-                    cost_label=f"est. {s['facts']['inkling_pp_primary' if c == configs.INKLING_PRIMARY else 'inkling_pp_ladder']} from box-hours", set_name=name)
+                    cost_label=f"est. {s['facts']['inkling_colab_pp' if c == configs.COLAB_CONFIG else 'inkling_pp_primary' if c == configs.INKLING_PRIMARY else 'inkling_pp_ladder']} from "
+                               + ("compute units" if c == configs.COLAB_CONFIG else "box-hours"), set_name=name)
                 for c, b, name, verdict in ((configs.INKLING_PRIMARY, ink.get("primary"), "primary, frozen", "primary, no retries"),
-                                            (configs.INKLING_LADDER, ink.get("ladder"), "retry ladder, secondary", "secondary")) if b]
+                                            (configs.INKLING_LADDER, ink.get("ladder"), "retry ladder, secondary", "secondary"),
+                                            (configs.COLAB_CONFIG, ink.get("colab"), "Colab L4 GPU, same file", "same model on a GPU")) if b]
     problems = sorted(s["problems"])
     def group(label, rows, source, extra=""):
         regular = "".join(body for c, body in rows if not configs.low_context(c, source))
@@ -934,7 +937,7 @@ def short_table(s, need):
     n_grok_part = grok_part.count("<tr") - grok_part.count('class="grp"')
     more = []
     if hetzner_rows: more.append(f"Hetzner free tier ({len(hetzner_rows)})")
-    if ink_rows: more.append(f"Inkling local CPU ({len(ink_rows)})")
+    if ink_rows: more.append(f"Inkling local CPU and Colab GPU ({len(ink_rows)})")
     if n_grok_part: more.append(f"Grok partial ladder ({n_grok_part})")
     if hard: more.append(f"{configs.set_label('rescue set')} ({len(hard)})")
     if dv_rows: more.append(f"Devin ({len(dv_rows)})")
@@ -942,7 +945,7 @@ def short_table(s, need):
     wrap = lambda body: '<div class="tablewrap"><table class="sortable">' + head + body + '</table></div>'
     hetzner_group = ('<tbody><tr class="grp"><th colspan="6">' + esc("Main ladder: Hetzner " + configs.HETZNER_NOTE)
                      + '</th></tr>' + "".join(body for _, body in hetzner_rows) + '</tbody>') if hetzner_rows else ""
-    inkling_group = (f'<tbody><tr class="grp"><th colspan="6">Inkling 2 Mini on a local CPU: {ink["n"]} tasks, 1 try each, no list price, cost estimated from box-hours</th></tr>' + "".join(ink_rows) + '</tbody>') if ink_rows else ""
+    inkling_group = (f'<tbody><tr class="grp"><th colspan="6">Inkling 2 Mini on a local CPU and a Colab GPU: {ink["n"]} tasks, 1 try each, no list price, cost estimated from box-hours or compute units</th></tr>' + "".join(ink_rows) + '</tbody>') if ink_rows else ""
     return (wrap(group(ladder_label, top, "main") + grok_main + low_group)
             + '<details class="more-rows"><summary>' + esc("More rows: " + ", ".join(more)) + '</summary>'
             + wrap(hetzner_group + inkling_group + grok_part + group(subset_label, hard, "rescue", extra=devin_rows))
