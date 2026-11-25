@@ -52,11 +52,15 @@ Token counts are each CLI's own report (agy counts its harness prompt in input t
 |---|---|---|---|
 | hydrogen-low | p05 r2 | 02:34:16 | RESOURCE_EXHAUSTED (code 429): Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 167h55m58s. |
 | hydrogen-medium | p10 r1 | 02:34:16 | RESOURCE_EXHAUSTED (code 429): Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 167h55m57s. |
+| hydrogen-high | p07 r1 | 02:34:19 | RESOURCE_EXHAUSTED (code 429): Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 167h55m54s. |
 | gemini38flash-low | p07 r2 | 02:34:20 | RESOURCE_EXHAUSTED (code 429): Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 167h55m53s. |
 | hydrogen-high | p07 r1 | 02:55:14 | RESOURCE_EXHAUSTED (code 429): Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 167h34m59s. |
+| agy-gptoss120b-medium | p05 r1 | 02:57:21 | UNAVAILABLE (code 503): No capacity available for model gpt-oss-120b-medium on the server |
+| agy-gptoss120b-medium | p07 r2 | 03:00:26 | UNAVAILABLE (code 503): No capacity available for model gpt-oss-120b-medium on the server |
 | agy-sonnet46-default | p10 r1 | 03:01:15 | RESOURCE_EXHAUSTED (code 429): Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 167h45m23s. |
 | agy-gptoss120b-medium | p11 r2 | 03:01:17 | RESOURCE_EXHAUSTED (code 429): Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 167h45m21s. |
 | agy-opus46-default | p07 r1 | 03:02:35 | RESOURCE_EXHAUSTED (code 429): Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 167h44m3s. |
+| agy-gptoss120b-medium | p07 r2 | 03:07:38 | RESOURCE_EXHAUSTED (code 429): Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 167h39m0s. |
 | agy-gptoss120b-medium | p07 r2 | 03:08:59 | RESOURCE_EXHAUSTED (code 429): Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 167h37m39s. |
 
 ### Quota used before the stop (tokens agy reported)
