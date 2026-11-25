@@ -1986,7 +1986,7 @@ def _inkling(ds, s):
     F["inkling_pp_primary"], F["inkling_pp_ladder"] = (usd(ib[c]["usd_per_pass"]) for c in (configs.INKLING_PRIMARY, configs.INKLING_LADDER))
     F["inkling_price_pp"] = "Estimated per pass: " + ", ".join(f"{usd(ib[c]['usd_per_pass'])} {w}" for c, w in ((configs.INKLING_PRIMARY, 'primary'), (configs.INKLING_LADDER, 'ladder'))) + "."
     F["inkling_hetzner"] = "The Hetzner API lanes are free, so they have no price."
-    free = {}  # the free lanes side by side: the Hetzner Qwen calls (1 try per task) and the two Inkling lanes
+    free = {}  # the Hetzner and Inkling lanes side by side: the Hetzner Qwen calls (1 try per task) and the two Inkling lanes
     for src, name, st_, x in _rows():
         if name in configs.HETZNER_CONFIGS: free.setdefault(name, []).append(x["sec"])
     lanes = [(DISP(c), s["hetzner"][c]["passes"], s["hetzner"][c]["n"], statistics.median(free[c]), sum(free[c])) for c in configs.HETZNER_CONFIGS if c in free]

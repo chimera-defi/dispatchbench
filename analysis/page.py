@@ -913,7 +913,7 @@ def short_table(s, need):
     hetzner_rows = [(c, row(DISP(c) + " †", FAM(c), v["passes"], v["n"], None, None, dataset.median_seconds(v),
                     "usable but slow; not recommended", derived=configs.HETZNER_NOTE,
                     rate=v["pass_at_1"], key=s["facts"]["verdict_key"], cost_label="free tier")) for c, v in hz.items()]
-    ink = s.get("inkling") or {}  # free local CPU lane: the frozen primary and the secondary ladder, each its own row
+    ink = s.get("inkling") or {}  # local CPU lane: the frozen primary and the secondary ladder, each its own row
     ink_rows = [row(DISP(c), FAM(c), b["passes"], ink["n"], None, None, b["median_s"], verdict, rate=b["passes"] / ink["n"], key=s["facts"]["verdict_key"],
                     cost_label=f"est. {s['facts']['inkling_pp_primary' if c == configs.INKLING_PRIMARY else 'inkling_pp_ladder']} from box-hours", set_name=name)
                 for c, b, name, verdict in ((configs.INKLING_PRIMARY, ink.get("primary"), "primary, frozen", "primary, no retries"),
@@ -942,7 +942,7 @@ def short_table(s, need):
     wrap = lambda body: '<div class="tablewrap"><table class="sortable">' + head + body + '</table></div>'
     hetzner_group = ('<tbody><tr class="grp"><th colspan="6">' + esc("Main ladder: Hetzner " + configs.HETZNER_NOTE)
                      + '</th></tr>' + "".join(body for _, body in hetzner_rows) + '</tbody>') if hetzner_rows else ""
-    inkling_group = (f'<tbody><tr class="grp"><th colspan="6">Inkling 2 Mini on a local CPU: {ink["n"]} tasks, 1 try each, free, no list price</th></tr>' + "".join(ink_rows) + '</tbody>') if ink_rows else ""
+    inkling_group = (f'<tbody><tr class="grp"><th colspan="6">Inkling 2 Mini on a local CPU: {ink["n"]} tasks, 1 try each, no list price, cost estimated from box-hours</th></tr>' + "".join(ink_rows) + '</tbody>') if ink_rows else ""
     return (wrap(group(ladder_label, top, "main") + grok_main + low_group)
             + '<details class="more-rows"><summary>' + esc("More rows: " + ", ".join(more)) + '</summary>'
             + wrap(hetzner_group + inkling_group + grok_part + group(subset_label, hard, "rescue", extra=devin_rows))
