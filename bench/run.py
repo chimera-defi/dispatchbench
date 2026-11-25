@@ -58,6 +58,7 @@ CONFIGS["grok47fast-low"] = ("grok", "grok-4.7-build-fast", "low")
 # 2026-11-25, operator request: Google Gemini 4 Hydrogen through the Antigravity CLI (agy), signed-in subscription: tokens reported, no dollars.
 CONFIGS.update({f"hydrogen-{e}": ("agy", f"gemini-4-hydrogen-{e}", e) for e in ("low", "medium", "high")})
 CONFIGS["gemini38flash-low"] = ("agy", "gemini-3.8-flash-low", "low")
+CONFIGS.update({f"neon-{e}": ("agy", "gemini-4-neon", e) for e in ("low", "medium", "high")})  # same login, after the account moved to Google AI Pro (2026-11-25)
 # Same CLI, other vendors' models (they hit the same 429 once the account quota ran out), no effort flag: the model id carries the setting.
 CONFIGS.update({"agy-sonnet46-default": ("agy", "claude-sonnet-4-6", "default"), "agy-opus46-default": ("agy", "claude-opus-4-6-thinking", "default"),
                 "agy-gptoss120b-medium": ("agy", "gpt-oss-120b-medium", "medium")})
