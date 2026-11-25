@@ -1,0 +1,23 @@
+{
+ "key": "5bb4a87abfb9aa5642dac5586c9ebc4b6b8dfcc5ce60cdd0d551e4b8eccd1730",
+ "ts": "2026-11-25T01:02:25+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p05_pass_route",
+ "repeat": 2,
+ "lanes": 1,
+ "prompt_sha": "a9070ce4e2ec",
+ "wall_s": 9.005724299000576,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nimport heapq\n\n\ndef pass_route(n: int, edges: list[list[int]], stations: list[list[int]], prices: list[int]) -> int:\n    # State: (stop, owned_zone) where owned_zone is -1 if no pass has been bought,\n    # otherwise the single zone whose rides are free. A pass can be bought at most once.\n    Z = len(prices)\n    adj = [[] for _ in range(n)]\n    for u, v, c, z in edges:\n        adj[u].append((v, c, z))\n        adj[v].append((u, c, z))\n\n    # stations_by_stop[v] = list of zones purchasable at v\n    stations_by_stop = [[] for _ in range(n)]\n    for s, z in stations:\n        if 0 <= z < Z:\n            stations_by_stop[s].append(z)\n\n    # dist[v][k]: k = -1 -> no pass owned; k in 0..Z-1 -> pass for zone k owned\n    INF = float(\"inf\")\n    dist = [[INF] * (Z + 1) for _ in range(n)]\n    # index owned zone z as k = z, no pass as k = Z\n    NONE = Z\n    dist[0][NONE] = 0\n\n    pq = [(0, 0, NONE)]\n    target = n - 1\n    while pq:\n        d, v, k = heapq.heappop(pq)\n        if d != dist[v][k]:\n            continue\n        if v == target:\n            return d\n\n        owned = -1 if k == NONE else k\n        # Ride edges\n        for w, c, z in adj[v]:\n            cost = 0 if z == owned else c\n            nk = k\n            nd = d + cost\n            if nd < dist[w][nk]:\n                dist[w][nk] = nd\n                heapq.heappush(pq, (nd, w, nk))\n\n        # Buy a pass if we don't own one and a station here sells one\n        if k == NONE:\n            for z in stations_by_stop[v]:\n                nd = d + prices[z]\n                if nd < dist[v][z]:\n                    dist[v][z] = nd\n                    heapq.heappush(pq, (nd, v, z))\n\n    best = min(dist[target])\n    return -1 if best == INF else best\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

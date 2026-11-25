@@ -1,0 +1,23 @@
+{
+ "key": "a1a43783935ff236b3b4689ebea1f9668130b48b191677b632582dfc193a0dd5",
+ "ts": "2026-11-25T01:02:32+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p06_calc",
+ "repeat": 2,
+ "lanes": 1,
+ "prompt_sha": "d79d580c7384",
+ "wall_s": 7.020783208019566,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nimport sys\nsys.setrecursionlimit(100000)\n\ndef calc(expr: str) -> int | str:\n    tokens = []\n    i = 0\n    n = len(expr)\n    while i < n:\n        c = expr[i]\n        if c == ' ':\n            i += 1\n        elif c.isdigit():\n            j = i\n            while j < n and expr[j].isdigit():\n                j += 1\n            tokens.append(int(expr[i:j]))\n            i = j\n        elif c in '+-*/%^()':\n            tokens.append(c)\n            i += 1\n        else:\n            i += 1  # not expected; input is valid\n    pos = 0\n    try:\n        def parse_add():\n            nonlocal pos\n            v = parse_mul()\n            while pos < len(tokens) and tokens[pos] in ('+', '-'):\n                op = tokens[pos]; pos += 1\n                r = parse_mul()\n                v = v + r if op == '+' else v - r\n            return v\n        def parse_mul():\n            nonlocal pos\n            v = parse_unary()\n            while pos < len(tokens) and tokens[pos] in ('*', '/', '%'):\n                op = tokens[pos]; pos += 1\n                r = parse_unary()\n                if op == '*':\n                    v = v * r\n                elif op == '/':\n                    if r == 0: raise ZeroDivisionError\n                    q = abs(v) // abs(r)\n                    if (v < 0) != (r < 0): q = -q\n                    v = q\n                else:\n                    if r == 0: raise ZeroDivisionError\n                    q = abs(v) // abs(r)\n                    if (v < 0) != (r < 0): q = -q\n                    v = v - r * q\n            return v\n        def parse_unary():\n            nonlocal pos\n            if pos < len(tokens) and tokens[pos] == '-':\n                pos += 1\n                return -parse_unary()\n            return parse_power()\n        def parse_power():\n            nonlocal pos\n            base = parse_atom()\n            if pos < len(tokens) and tokens[pos] == '^':\n                pos += 1\n                exp = parse_unary()\n                if exp < 0: raise ZeroDivisionError\n                return base ** exp\n            return base\n        def parse_atom():\n            nonlocal pos\n            t = tokens[pos]\n            if t == '(':\n                pos += 1\n                v = parse_add()\n                pos += 1  # ')'\n                return v\n            pos += 1\n            return t\n        return parse_add()\n    except (ZeroDivisionError, IndexError):\n        return \"error\"\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

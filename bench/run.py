@@ -54,10 +54,11 @@ CONFIGS.update({"terra61-low": ("codex", "gpt-6.1-terra", "low"), "terra61-high"
 # Exploratory, 2026-10-26, operator request (hackathon): staged L1-L3 Grok lane; see PLAN.md.
 CONFIGS.update({f"grok47-{e}": ("grok", "grok-4.7", e) for e in ("low", "medium", "high")})
 CONFIGS["grok47fast-low"] = ("grok", "grok-4.7-build-fast", "low")
-CONFIGS["devin16slow-default"] = ("devin", "swe-1-6-slow", "default")  # free tier: the only accessible Devin-native model
 # 2026-11-25, operator request: Google Gemini 4 Hydrogen through the Antigravity CLI (agy), signed-in subscription: tokens reported, no dollars.
 CONFIGS.update({f"hydrogen-{e}": ("agy", f"gemini-4-hydrogen-{e}", e) for e in ("low", "medium", "high", "xhigh")})
 CONFIGS["gemini38flash-low"] = ("agy", "gemini-3.8-flash-low", "low")
+CONFIGS["devin16slow-default"] = ("devin", "swe-1-6-slow", "default")  # free tier model (2026-10-28; swe-2-flash-medium also runs on Free, 2026-11-25)
+CONFIGS["devinflash-medium"] = ("devin", "swe-2-flash-medium", "default")  # 2026-11-25, free tier, exploratory; the Devin caller stays retired (216aba0), this run used it restored locally
 CONFIGS["hetzner-qwen36"] = ("hetzner", "Qwen/Qwen3.6-35B-A3B-FP8", "default")
 CONFIGS["hetzner-qwen38"] = ("hetzner", "Qwen/Qwen3.8-27B", "default")
 # 2026-11-22, operator request: local CPU model on llama.cpp b12600 (not comparable on latency); runner results/inkling/runner.py, rows via bench/inkling_export.py
@@ -228,7 +229,7 @@ def call_agy(mid, eff, prompt, cwd):
     u = d.get("usage") or {}
     bad = r.returncode != 0 or d.get("status") != "SUCCESS"
     return dict(wall_s=wall, text=d.get("response", ""), is_error=bad,
-                error=(r.stderr or str(d.get("response", "")))[-300:] if bad else None, error_type="infrastructure" if bad else "model",
+                error=(str(d.get("response", "")) + " " + r.stderr)[-300:] if bad else None, error_type="infrastructure" if bad else "model",
                 api_duration_ms=int((d.get("duration_seconds") or 0) * 1000),
                 in_tok=u.get("input_tokens", 0), cached_tok=u.get("cache_read_tokens", 0), cache_write_tok=0,
                 out_tok=u.get("output_tokens", 0), reasoning_tok=u.get("thinking_tokens", 0),

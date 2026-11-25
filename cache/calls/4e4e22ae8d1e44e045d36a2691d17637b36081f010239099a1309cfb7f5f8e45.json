@@ -1,0 +1,23 @@
+{
+ "key": "4e4e22ae8d1e44e045d36a2691d17637b36081f010239099a1309cfb7f5f8e45",
+ "ts": "2026-11-25T00:48:12+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p06_calc",
+ "repeat": 1,
+ "lanes": 1,
+ "prompt_sha": "d79d580c7384",
+ "wall_s": 19.493733371025883,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nimport sys\n\ndef calc(expr: str) -> int | str:\n    sys.setrecursionlimit(1000000)\n    s = expr\n    n = len(s)\n    i = 0\n\n    class Err(Exception):\n        pass\n\n    def skip():\n        nonlocal i\n        while i < n and s[i] == ' ':\n            i += 1\n\n    def parse_expr():\n        nonlocal i\n        val = parse_term()\n        while True:\n            skip()\n            if i < n and s[i] in '+-':\n                op = s[i]\n                i += 1\n                rhs = parse_term()\n                val = val + rhs if op == '+' else val - rhs\n            else:\n                return val\n\n    def parse_term():\n        nonlocal i\n        val = parse_unary()\n        while True:\n            skip()\n            if i < n and s[i] in '*/%':\n                op = s[i]\n                i += 1\n                rhs = parse_unary()\n                if op == '*':\n                    val *= rhs\n                else:\n                    if rhs == 0:\n                        raise Err()\n                    if op == '/':\n                        q = abs(val) // abs(rhs)\n                        val = -q if (val < 0) != (rhs < 0) else q\n                    else:\n                        q = abs(val) // abs(rhs)\n                        if (val < 0) != (rhs < 0):\n                            q = -q\n                        val = val - rhs * q\n            else:\n                return val\n\n    def parse_unary():\n        nonlocal i\n        skip()\n        neg = False\n        while i < n and s[i] == '-':\n            neg = not neg\n            i += 1\n            skip()\n        val = parse_power()\n        return -val if neg else val\n\n    def parse_power():\n        nonlocal i\n        base = parse_atom()\n        skip()\n        if i < n and s[i] == '^':\n            i += 1\n            exp = parse_unary()\n            if exp < 0:\n                raise Err()\n            return pow(base, exp)\n        return base\n\n    def parse_atom():\n        nonlocal i\n        skip()\n        if s[i] == '(':\n            i += 1\n            val = parse_expr()\n            skip()\n            i += 1  # ')'\n            return val\n        j = i\n        while i < n and s[i].isdigit():\n            i += 1\n        return int(s[j:i])\n\n    try:\n        result = parse_expr()\n        return result\n    except Err:\n        return \"error\"\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

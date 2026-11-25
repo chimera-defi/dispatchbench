@@ -1,0 +1,3 @@
+t1 rc=0 secs=18
+t2 rc=0 secs=15
+t3 rc=0 secs=52

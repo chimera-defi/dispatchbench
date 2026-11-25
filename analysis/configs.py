@@ -45,7 +45,7 @@ NOTATION = {
 SOURCES = {  # source id -> files under results/ that hold its rows
     "main": ["2026-10-22b-function.jsonl", "2026-10-26-grok-function.jsonl", "2026-10-28-grok-spectrum-function.jsonl",
              "2026-10-28-terra-function.jsonl", "2026-10-28-devin-function.jsonl", "2026-11-01-hetzner-function.jsonl", "2026-11-02-terra-priority-function.jsonl", "2026-11-02-terra-l7-fast-function.jsonl",
-             "2026-11-22-inkling-function.jsonl", "2026-11-22-inkling-retry-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
+             "2026-11-22-inkling-function.jsonl", "2026-11-22-inkling-retry-function.jsonl", "2026-11-25-devin-flash-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
     "rescue": ["appendix/luna_rescue.jsonl"], "pilot": ["2026-10-22-pilot.jsonl"], "pilot-agentic": ["2026-10-22-pilot-agentic.jsonl"],
     "harness-bias": ["appendix/harness_bias.jsonl", "appendix/codex_harness.jsonl"]}  # the last two land with the codex-own-harness branch
 CATEGORIES = ["main ladder", "exploratory", "fast mode and xhigh", "rescue pipeline", "repo tasks", "trim", "pilot", "harness-bias", "low context"]
@@ -81,6 +81,10 @@ DEVIN_CONFIGS = ("devin16slow-default",)  # free tier, 1 repeat, no token data: 
 add("main", "exploratory", ("devin16slow-default",
     "Devin swe-1-6-slow (the only model the free tier allows), default effort; devin CLI, no token or cost data; exploratory, added 2026-10-28 at operator request; "
     "function track p01–p12, 1 repeat (PLAN.md deviation 24)"))
+DEVIN_FLASH = ("devinflash-medium",)  # free tier, 5 repeats, no token data; SWE-2.1 itself needs Pro (PLAN.md deviation 28)
+add("main", "exploratory", ("devinflash-medium",
+    "Devin swe-2-flash-medium (free tier; NOT SWE-2.1, which the Free plan refuses), default effort; devin CLI, no token or cost data; exploratory, added 2026-11-25 at operator request; "
+    "function track p01–p12, 5 repeats per problem (PLAN.md deviation 28)"))
 HETZNER_CONFIGS = ("hetzner-qwen36", "hetzner-qwen38")
 add("main", "exploratory", *((c,
     "Hetzner " + model + "; OpenAI-compatible streaming API, measured input/output tokens; free experimental tier, no published list price; "
@@ -107,10 +111,11 @@ EUR_USD_DATE = "2026-11-23"
 BOX_USD_PER_HOUR = BOX_EUR_PER_HOUR * EUR_USD  # about 0.0767
 BOX_NOTE = f"Estimated from box-hours: wall time at ${BOX_USD_PER_HOUR:.4f} an hour, from the eth2-3 bill."
 INKLING_SHOWN = (INKLING_PRIMARY, INKLING_LADDER)  # the two Inkling lanes that join tables and charts, like the Hetzner lanes
-FREE_TIER_CONFIGS = DEVIN_CONFIGS + HETZNER_CONFIGS + INKLING_CONFIGS + (INKLING_LADDER,)  # Inkling's box-hour estimate is not a list price: it is priced only in the explorer. Others: no published $ comparison: off all $ charts, Winner and frontier
+FREE_TIER_CONFIGS = DEVIN_CONFIGS + DEVIN_FLASH + HETZNER_CONFIGS + INKLING_CONFIGS + (INKLING_LADDER,)  # Inkling's box-hour estimate is not a list price: it is priced only in the explorer. Others: no published $ comparison: off all $ charts, Winner and frontier
 CHART_HIDDEN = CHART_HIDDEN + FREE_TIER_CONFIGS
 HETZNER_NOTE = "exploratory calibration, 1 repeat, free tier, measured tokens"
 DEVIN_NOTE = "1 repeat, free tier, no token data"
+DEVIN_FLASH_NOTE = "5 repeats, free tier, no token data"
 DEVIN_GROUP = "Devin (free tier, 1 repeat)"  # legend group, table group heading and grid column title
 DEVIN_UPGRADE_ERROR = "Error: Upgrade to Pro to access this model (https://devin.ai/pricing)"  # verbatim from PLAN.md deviation 24
 DEVIN_STAGE2_MIN = 9  # PLAN.md deviation 24: stage 2 (repeats 2-5) runs only if stage 1 passes at least 9 of 12

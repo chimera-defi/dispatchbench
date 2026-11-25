@@ -1,0 +1,23 @@
+{
+ "key": "076f970b47bd9b3b0b95c45e20b573cd7100a32642bfaf09a8ecf91a343ec0be",
+ "ts": "2026-11-25T00:47:52+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p05_pass_route",
+ "repeat": 1,
+ "lanes": 1,
+ "prompt_sha": "a9070ce4e2ec",
+ "wall_s": 30.68315681698732,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nimport heapq\n\n\ndef pass_route(n: int, edges: list[list[int]], stations: list[list[int]], prices: list[int]) -> int:\n    zcount = len(prices)\n    states = zcount + 1\n    none = zcount\n\n    adj = [[] for _ in range(n)]\n    for u, v, c, z in edges:\n        adj[u].append((v, c, z))\n        adj[v].append((u, c, z))\n\n    sell = [set() for _ in range(n)]\n    for s, z in stations:\n        if 0 <= s < n and 0 <= z < zcount:\n            sell[s].add(z)\n\n    inf = float(\"inf\")\n    dist = [inf] * (n * states)\n    start = none\n    dist[start] = 0\n    pq = [(0, start)]\n    target = n - 1\n\n    while pq:\n        d, state = heapq.heappop(pq)\n        node, owned = divmod(state, states)\n        if d != dist[state]:\n            continue\n        if node == target:\n            return d\n\n        base = node * states\n\n        if owned == none:\n            for z in sell[node]:\n                ns = base + z\n                nd = d + prices[z]\n                if nd < dist[ns]:\n                    dist[ns] = nd\n                    heapq.heappush(pq, (nd, ns))\n\n        for nb, c, z in adj[node]:\n            w = c if owned == none or z != owned else 0\n            ns = nb * states + owned\n            nd = d + w\n            if nd < dist[ns]:\n                dist[ns] = nd\n                heapq.heappush(pq, (nd, ns))\n\n    return -1\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

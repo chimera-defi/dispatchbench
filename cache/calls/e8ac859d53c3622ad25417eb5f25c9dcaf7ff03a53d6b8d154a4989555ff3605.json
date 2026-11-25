@@ -1,0 +1,23 @@
+{
+ "key": "e8ac859d53c3622ad25417eb5f25c9dcaf7ff03a53d6b8d154a4989555ff3605",
+ "ts": "2026-11-25T01:15:24+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p11_best_average",
+ "repeat": 3,
+ "lanes": 1,
+ "prompt_sha": "2183e22bdc23",
+ "wall_s": 231.53900034097023,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef best_average(a: list[int], k: int) -> list[int]:\n    from fractions import Fraction\n    from math import gcd\n\n    n = len(a)\n    pref = [0] * (n + 1)\n    for i, x in enumerate(a):\n        pref[i + 1] = pref[i] + x\n\n    maxa = max(a)\n\n    def feasible(p: int, m: int) -> bool:\n        # threshold is p / 2**m; element weight is a[i] - p/2**m\n        C = [0]\n        s = 0\n        for t in range(k):\n            s += (a[t] << m) - p\n            C.append(s)\n\n        minv = C[0]\n        if C[k] - minv >= 0:\n            return True\n\n        for end in range(k + 1, n + 1):\n            j = end - k\n            if C[j] < minv:\n                minv = C[j]\n            s += (a[end - 1] << m) - p\n            C.append(s)\n            if C[end] - minv >= 0:\n                return True\n        return False\n\n    lo = Fraction(0)\n    hi = Fraction(maxa + 1)\n    limit = Fraction(1, 2 * n * n)\n    while hi - lo > limit:\n        mid = (lo + hi) / 2\n        if feasible(mid.numerator, mid.denominator.bit_length() - 1):\n            lo = mid\n        else:\n            hi = mid\n\n    p = lo.numerator\n    m = lo.denominator.bit_length() - 1\n\n    # Full scan at lo: the maximizing pair's true average is the optimum.\n    C = [0]\n    s = 0\n    for t in range(k):\n        s += (a[t] << m) - p\n        C.append(s)\n\n    minv = C[0]\n    minj = 0\n    best = C[k] - minv\n    bi = k\n    bj = 0\n\n    for end in range(k + 1, n + 1):\n        j = end - k\n        if C[j] < minv:\n            minv = C[j]\n            minj = j\n        s += (a[end - 1] << m) - p\n        C.append(s)\n        val = C[end] - minv\n        if val > best:\n            best = val\n            bi = end\n            bj = minj\n\n    length = bi - bj\n    total = pref[bi] - pref[bj]\n    g = gcd(total, length)\n    return [total // g, length // g]\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

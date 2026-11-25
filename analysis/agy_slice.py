@@ -23,7 +23,7 @@ def table(rows, probs, title):
         ws = sorted(r["wall_s"] for r in rs); med = ws[len(ws) // 2] if len(ws) % 2 else (ws[len(ws) // 2 - 1] + ws[len(ws) // 2]) / 2
         tok = lambda k: f"{sum(r[k] or 0 for r in rs) / len(rs):,.0f}"
         out.append(f"| {c} | {sum(r['passed'] for r in rs)}/{len(rs)} | {med:.1f} | {tok('in_tok')} | {tok('out_tok')} |")
-    return out + [""]
+    return out + ["Token counts are each CLI's own report (agy counts its harness prompt in input tokens), so they are not a like-for-like prompt size.", ""]
 
 
 def main():

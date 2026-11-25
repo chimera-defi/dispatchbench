@@ -1,0 +1,6 @@
+Attempt 1, `devin-delegate --workspace <worktree> --task ...` (permission mode auto), 2026-11-25. rc=0 for all three, secs 18 / 15 / 52, `git status` clean in each worktree afterwards.
+The per-run stdout/stderr files were overwritten by attempt 2 (same file names); what was read at the time, verbatim:
+stderr (all three): warning: rejected a tool call that requires confirmation. Running in non-interactive mode. Use --permission-mode dangerous to auto-approve all tools.
+task1 stdout: "The edit was rejected — where would you like the three entries placed? ..."
+task2 stdout: "The file write was rejected twice. Anything you'd like changed before I create `tests/test_ci_text.py` ..."
+task3 stdout: "Adding the line after `crss ls`... Both edits were rejected, so I haven't changed anything."

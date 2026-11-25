@@ -1,0 +1,23 @@
+{
+ "key": "8c45a27e6c0c66defde5395503e046ab87a76eee61dc1df72b638b887803ed62",
+ "ts": "2026-11-25T00:48:21+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p07_weighted_distance_sums",
+ "repeat": 1,
+ "lanes": 1,
+ "prompt_sha": "d98e731ec858",
+ "wall_s": 9.605800647987053,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef weighted_distance_sums(n: int, edges: list[list[int]], w: list[list[int] if False else list[int]]) -> list[int]:\n    adj = [[] for _ in range(n)]\n    for a, b in edges:\n        adj[a].append(b)\n        adj[b].append(a)\n\n    parent = [-1] * n\n    order = []\n    parent[0] = n\n    stack = [0]\n    while stack:\n        v = stack.pop()\n        order.append(v)\n        for u in adj[v]:\n            if parent[u] == -1:\n                parent[u] = v\n                stack.append(u)\n\n    dp = [0] * n  # sum of w[u] * dist(u, v) over subtree rooted at v\n    sw = [0] * n  # total weight in subtree rooted at v\n    for v in reversed(order):\n        acc = 0\n        tot = w[v]\n        for u in adj[v]:\n            if parent[u] == v:\n                acc += dp[u] + sw[u]\n                tot += sw[u]\n        dp[v] = acc\n        sw[v] = tot\n\n    total = sw[0]\n    ans = [0] * n\n    ans[0] = dp[0]\n    for v in order:\n        av = ans[v]\n        for u in adj[v]:\n            if parent[u] == v:\n                # nodes in u's subtree get 1 closer, all others 1 farther\n                ans[u] = av + total - 2 * sw[u]\n    return ans\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

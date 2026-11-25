@@ -6,6 +6,7 @@
   "codex 0.163.0",
   "codex 0.164.0",
   "devin 3000.11.228",
+  "devin 3000.14.30821",
   "grok 1.0.70",
   "hetzner chat/completions-v1"
  ],
@@ -150,6 +151,11 @@
    "model": "swe-1-6-slow",
    "effort": "default"
   },
+  "devinflash-medium": {
+   "cli": "devin",
+   "model": "swe-2-flash-medium",
+   "effort": "default"
+  },
   "hetzner-qwen36": {
    "cli": "hetzner",
    "model": "Qwen/Qwen3.6-35B-A3B-FP8",
@@ -221,11 +227,11 @@
   4
  ],
  "first_call_utc": "2026-10-22T08:32:54+00:00",
- "last_call_utc": "2026-11-02T06:23:55+00:00",
+ "last_call_utc": "2026-11-25T01:44:52+00:00",
  "rows_by_phase": {
   "calibration": 54,
   "escalation": 15,
-  "exploratory": 826,
+  "exploratory": 886,
   "fastmode": 105,
   "hard": 210,
   "main": 561,
@@ -240,7 +246,7 @@
   "codex_proxy_usd": 39.2963,
   "codex_fastmode_usd": 3.4069,
   "calls": {
-   "function": 1777,
+   "function": 1837,
    "agentic": 84
   },
   "grok_measured_usd": 22.3741
@@ -273,7 +279,8 @@
   "results/2026-10-28-terra-function.jsonl",
   "results/2026-11-01-hetzner-function.jsonl",
   "results/2026-11-02-terra-l7-fast-function.jsonl",
-  "results/2026-11-02-terra-priority-function.jsonl"
+  "results/2026-11-02-terra-priority-function.jsonl",
+  "results/2026-11-25-devin-flash-function.jsonl"
  ],
  "exploratory": {
   "results/2026-10-22b-trim.jsonl": {
@@ -468,6 +475,7 @@
   "gpt-6.1-terra",
   "grok-4.7",
   "grok-4.7-build-fast",
-  "swe-1-6-slow"
+  "swe-1-6-slow",
+  "swe-2-flash-medium"
  ]
 }

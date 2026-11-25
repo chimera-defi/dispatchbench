@@ -1,0 +1,23 @@
+{
+ "key": "ec33bbf12fe3e16259c5ebd71b27df9fec85c95875b981334dce551699b4f957",
+ "ts": "2026-11-25T00:52:56+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p10_avoid_count",
+ "repeat": 1,
+ "lanes": 1,
+ "prompt_sha": "ae3e79b27a12",
+ "wall_s": 222.234967847995,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef avoid_count(n: int, alphabet: str, banned: list[str]) -> int:\n    MOD = 1_000_000_007\n\n    chars = sorted(set(alphabet))\n\n    children = [{}]\n    out = [False]\n    fail = [0]\n\n    for s in banned:\n        u = 0\n        for ch in s:\n            v = children[u].get(ch)\n            if v is None:\n                v = len(children)\n                children[u][ch] = v\n                children.append({})\n                out.append(False)\n                fail.append(0)\n            u = v\n        out[u] = True\n\n    q = []\n    for v in children[0].values():\n        q.append(v)\n\n    head = 0\n    while head < len(q):\n        u = q[head]\n        head += 1\n        for c, v in children[u].items():\n            f = fail[u]\n            while f != 0 and c not in children[f]:\n                f = fail[f]\n            if c in children[f]:\n                fail[v] = children[f][c]\n            else:\n                fail[v] = 0\n            q.append(v)\n\n    bad = [None] * len(children)\n\n    def is_bad(u: int) -> bool:\n        if bad[u] is None:\n            bad[u] = out[u] or (u != 0 and is_bad(fail[u]))\n        return bad[u]\n\n    for i in range(len(children)):\n        is_bad(i)\n\n    go_memo = {}\n\n    def go(u: int, c: str) -> int:\n        key = (u, c)\n        res = go_memo.get(key)\n        if res is None:\n            if c in children[u]:\n                res = children[u][c]\n            elif u == 0:\n                res = 0\n            else:\n                res = go(fail[u], c)\n            go_memo[key] = res\n        return res\n\n    good = [i for i in range(len(children)) if not bad[i]]\n    idx = {u: i for i, u in enumerate(good)}\n    S = len(good)\n\n    A = [[0] * S for _ in range(S)]\n    for u in good:\n        fu = idx[u]\n        for c in chars:\n            v = go(u, c)\n            if not bad[v]:\n                A[idx[v]][fu] = (A[idx[v]][fu] + 1) % MOD\n\n    def mat_mul(X, Y):\n        S = len(X)\n        Z = [[0] * S for _ in range(S)]\n        for i in range(S):\n            Zi = Z[i]\n            Xi = X[i]\n            for k in range(S):\n                a = Xi[k]\n                if a:\n                    Yk = Y[k]\n                    for j in range(S):\n                        Zi[j] = (Zi[j] + a * Yk[j]) % MOD\n        return Z\n\n    def mat_pow(M, e):\n        S = len(M)\n        R = [[int(i == j) for j in range(S)] for i in range(S)]\n        B = [row[:] for row in M]\n        while e:\n            if e & 1:\n                R = mat_mul(R, B)\n            e >>= 1\n            if e:\n                B = mat_mul(B, B)\n        return R\n\n    P = mat_pow(A, n)\n    r = idx[0]\n    return sum(P[i][r] for i in range(S)) % MOD\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

@@ -1,0 +1,23 @@
+{
+ "key": "8aea2eb83c7aa8b041e5edb90487c9ab6b78b23cd709af001555fc675736f3a0",
+ "ts": "2026-11-25T01:20:56+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p07_weighted_distance_sums",
+ "repeat": 4,
+ "lanes": 1,
+ "prompt_sha": "d98e731ec858",
+ "wall_s": 6.5112272429978475,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nimport sys\nsys.setrecursionlimit(1000000)\n\ndef weighted_distance_sums(n: int, edges: list[list[int]], w: list[int]) -> list[int]:\n    if n == 1:\n        return [0]\n    adj = [[] for _ in range(n)]\n    for u, v in edges:\n        adj[u].append(v)\n        adj[v].append(u)\n\n    # Root the tree at 0 with iterative DFS; record parent, order, and subtree size.\n    parent = [-1] * n\n    parent[0] = 0\n    order = []\n    stack = [0]\n    while stack:\n        u = stack.pop()\n        order.append(u)\n        for v in adj[u]:\n            if v != parent[u]:\n                parent[v] = u\n                stack.append(v)\n\n    # Post-order: for each u compute\n    #   A[u] = sum_{x in subtree(u)} w[x]\n    #   B[u] = sum_{x in subtree(u)} w[x] * (depth[x] - depth[u])\n    A = w[:]\n    B = [0] * n\n    depth = [0] * n\n    for u in reversed(order):\n        for v in adj[u]:\n            if parent[v] == u:\n                depth[v] = depth[u] + 1\n                A[u] += A[v]\n                B[u] += B[v] + A[v]\n\n    # Total for root: B[0] equals sum_x w[x] * dist(x, 0).\n    ans = [0] * n\n    ans[0] = B[0]\n\n    # Reroot: moving u -> child v changes answer by\n    #   (total_weight - 2 * A[v])  (all nodes outside v's subtree are one\n    #   edge closer to v than to u, all inside are one farther).\n    total = A[0]\n    for u in order:\n        for v in adj[u]:\n            if parent[v] == u:\n                ans[v] = ans[u] + (total - 2 * A[v])\n\n    return ans\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

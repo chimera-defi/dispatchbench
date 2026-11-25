@@ -1,0 +1,23 @@
+{
+ "key": "fd4ff631046dccd56f7b476315df757819ed14523b2312b40b8a74381143baee",
+ "ts": "2026-11-25T01:11:32+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p10_avoid_count",
+ "repeat": 3,
+ "lanes": 1,
+ "prompt_sha": "ae3e79b27a12",
+ "wall_s": 14.217377374996431,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef avoid_count(n: int, alphabet: str, banned: list[str]) -> int:\n    MOD = 1_000_000_007\n\n    if n == 0:\n        return 1\n\n    chars = list(dict.fromkeys(alphabet))\n    k = len(chars)\n\n    # Deduplicate banned strings\n    words = set(banned)\n    if not words:\n        return pow(k, n, MOD)\n\n    # Build Aho-Corasick trie\n    nxt = [{}]\n    term = [False]\n    depth = [0]\n    for w in words:\n        node = 0\n        for ch in w:\n            c = next.get(node, {}).get(ch)\n            if c is None:\n                nxt[node][ch] = len(nxt)\n                nxt.append({})\n                term.append(False)\n                depth.append(depth[node] + 1)\n                c = nxt[node][ch]\n            node = c\n        term[node] = True\n\n    m = len(nxt)\n\n    # Build failure links (BFS)\n    fail = [0] * m\n    queue = []\n    for ch, c in nxt[0].items():\n        fail[c] = 0\n        queue.append(c)\n\n    head = 0\n    while head < len(queue):\n        r = queue[head]\n        head += 1\n        for ch, u in nxt[r].items():\n            queue.append(u)\n            f = fail[r]\n            while f and ch not in nxt[f]:\n                f = fail[f]\n            fail[u] = nxt[f].get(ch, 0) if nxt[f].get(ch, 0) != u else 0\n            # If child transition from fail points to u itself (self-loop on root path),\n            # standard AC just uses that; for root children it is 0 anyway.\n            if fail[u] == u:\n                fail[u] = 0\n            term[u] = term[u] or term[fail[u]]\n\n    # Full transition table: go(state, ch) resolves via fail links\n    def go(state, ch):\n        s = state\n        while s and ch not in nxt[s]:\n            s = fail[s]\n        return nxt[s].get(ch, 0)\n\n    # Transition matrix over non-terminal states; terminal states are dead ends.\n    alive = [i for i in range(m) if not term[i]]\n    index = {s: i for i, s in enumerate(alive)}\n    d = len(alive)\n\n    # Matrix A[i][j] = number of chars taking alive state alive[i] to alive[j]\n    A = [[0] * d for _ in range(d)]\n    for s in alive:\n        for ch in chars:\n            t = go(s, ch)\n            if not term[t] and t in index:\n                A[index[s]][index[t]] = (A[index[s]][index[t]] + 1) % MOD\n\n    def mat_mul(X, Y):\n        Z = [[0] * d for _ in range(d)]\n        for i in range(d):\n            Xi = X[i]\n            Zi = Z[i]\n            for l in range(d):\n                a = Xi[l]\n                if a:\n                    Yl = Y[l]\n                    for j in range(d):\n                        if Yl[j]:\n                            Zi[j] = (Zi[j] + a * Yl[j]) % MOD\n        return Z\n\n    def mat_pow(M, e):\n        R = [[0] * d for _ in range(d)]\n        for i in range(d):\n            R[i][i] = 1\n        while e:\n            if e & 1:\n                R = mat_mul(R, M)\n            M = mat_mul(M, M)\n            e >>= 1\n        return R\n\n    B = mat_pow(A, n)\n\n    # Start at root (state 0), sum over all ending states\n    v = [0] * d\n    if 0 in index:\n        v[index[0]] = 1\n    ans = 0\n    for i in range(d):\n        if v[i]:\n            row = B[i]\n            for j in range(d):\n                ans = (ans + v[i] * row[j]) % MOD\n    return ans % MOD\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

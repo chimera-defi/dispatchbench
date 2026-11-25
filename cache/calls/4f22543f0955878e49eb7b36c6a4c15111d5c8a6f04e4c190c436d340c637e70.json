@@ -1,0 +1,23 @@
+{
+ "key": "4f22543f0955878e49eb7b36c6a4c15111d5c8a6f04e4c190c436d340c637e70",
+ "ts": "2026-11-25T01:02:39+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p07_weighted_distance_sums",
+ "repeat": 2,
+ "lanes": 1,
+ "prompt_sha": "d98e731ec858",
+ "wall_s": 6.93306637997739,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef weighted_distance_sums(n: int, edges: list[list[int]], w: list[int]) -> list[int]:\n    adj = [[] for _ in range(n)]\n    for a, b in edges:\n        adj[a].append(b)\n        adj[b].append(a)\n\n    # Iterative DFS from root 0: parent order + post-order\n    parent = [-1] * n\n    order = []\n    stack = [0]\n    parent[0] = 0\n    while stack:\n        u = stack.pop()\n        order.append(u)\n        for v in adj[u]:\n            if v != parent[u]:\n                parent[v] = u\n                stack.append(v)\n\n    total = sum(w)\n    sub = [0] * n\n    for u in reversed(order):\n        s = w[u]\n        for v in adj[u]:\n            if v != parent[u]:\n                s += sub[v]\n        sub[u] = s\n\n    ans = [0] * n\n    # S(0) = sum over u of w[u] * dist(u,0) = sum of sub[v] over all v != 0... actually sum of sub[v] for all v including 0 gives w[u]*dist? \n    # Each subtree sum sub[v] counts w[u]*dist(u,0) for u in subtree exactly once per ancestor edge; standard result: S(0) = sum_{v} sub[v] - ... \n    # Correct: S(0) = sum_{v != 0} sub[v] where sub[v] is subtree weight of v (each non-root subtree root's contribution). Simpler: compute directly.\n    ans[0] = sum(sub[v] for v in range(n) if v != 0)\n    for u in order[1:]:  # parent before child since order is preorder-ish (BFS/DFS preorder ensures parent precedes child)\n        p = parent[u]\n        ans[u] = ans[p] + total - 2 * sub[u]\n    return ans\n```\n\nWait \u2014 `order` from the DFS stack is preorder (parent pushed before children processed), so every parent appears before its children. Good. And `ans[0] = sum(sub[v] for v != 0)` equals S(0): each node's subtree sum counts w[u]\u00b7dist(u,0) contributions summed over subtrees \u2014 standard identity \u03a3_{v\u22600} sub[v] = \u03a3_u w[u]\u00b7depth(u) = S(0). Correct.\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

@@ -177,6 +177,14 @@
    "used": false
   },
   {
+   "path": "results/2026-11-25-devin-flash-function.jsonl",
+   "sha256": "13e006857da94f5cfaeb33bf23733deaa839f5dbd2016c91715978b821abfbc1",
+   "rows": 60,
+   "date": "2026-11-25",
+   "lanes": "devin",
+   "used": true
+  },
+  {
    "path": "results/appendix/codex_harness.jsonl",
    "sha256": "5bf8288a66bf2efa931316c1834e82ec5fb0ffa8019cf49f816bdf75d9b1752e",
    "rows": 138,
@@ -6241,6 +6249,245 @@
    "complete_marker": null
   },
   {
+   "id": "main/devinflash-medium",
+   "source": "main",
+   "config": "devinflash-medium",
+   "display": "devinflash-medium",
+   "family": "Devin",
+   "category": "exploratory",
+   "what": "Devin swe-2-flash-medium (free tier; NOT SWE-2.1, which the Free plan refuses), default effort; devin CLI, no token or cost data; exploratory, added 2026-11-25 at operator request; function track p01–p12, 5 repeats per problem (PLAN.md deviation 28)",
+   "set": "main ladder",
+   "derived": false,
+   "files": [
+    "results/2026-11-25-devin-flash-function.jsonl"
+   ],
+   "model": "swe-2-flash-medium",
+   "effort": "default",
+   "service_tier": null,
+   "passes": 48,
+   "n": 60,
+   "pass_rate": 0.8,
+   "ci95": [
+    0.6333,
+    0.9333
+   ],
+   "groups": 12,
+   "usd_per_pass": null,
+   "claude_usd_per_pass": null,
+   "codex_usd_per_pass": null,
+   "usd_per_call": null,
+   "spend": 0,
+   "spend_claude": 0,
+   "spend_codex": 0,
+   "unknown_usd": 60,
+   "median_s_raw": 16.441916709503857,
+   "median_s": 16.44,
+   "p25_s": 7.2,
+   "p75_s": 35.16,
+   "tokens_in_mean": 0,
+   "tokens_out_mean": 0,
+   "tokens_cached_mean": 0,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    0,
+    0
+   ],
+   "p90_s": 222.65,
+   "max_s": 362.26,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 4,
+     "n": 5
+    },
+    "p05_pass_route": {
+     "passes": 4,
+     "n": 5
+    },
+    "p06_calc": {
+     "passes": 4,
+     "n": 5
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 5,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 1,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 4,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 3,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 4,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 4,
+     "n": 5
+    }
+   },
+   "misses": 12,
+   "ci95_plot": [
+    0.6333,
+    0.9333
+   ],
+   "usd_saved_per_pass": null,
+   "usd_per_1k_tokens": null,
+   "rule": "function tests (reference + brute force)",
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     9,
+     10
+    ],
+    "L3": [
+     8,
+     10
+    ],
+    "L4": [
+     6,
+     10
+    ],
+    "L5": [
+     7,
+     10
+    ],
+    "L6": [
+     8,
+     10
+    ]
+   },
+   "cost_kind": "unmetered",
+   "cli": "devin",
+   "outcomes": {
+    "pass": 48,
+    "crash": 7,
+    "wrong": 4,
+    "timeout": 1
+   },
+   "breaking_point": null,
+   "details": {
+    "cli": "devin",
+    "model": "swe-2-flash-medium",
+    "effort": "default",
+    "n": 60,
+    "passes": 48,
+    "pass_at_1": 0.8,
+    "ci95": [
+     0.6333,
+     0.9333
+    ],
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 48,
+     "crash": 7,
+     "wrong": 4,
+     "timeout": 1
+    },
+    "input_floor": [
+     0,
+     0
+    ],
+    "usd_per_call": null,
+    "usd_total": null,
+    "usd_per_pass": null,
+    "usd_per_pass_L1_L2": null,
+    "pass_L1_L2": [
+     19,
+     20
+    ],
+    "cost_kind": "unmetered",
+    "vs": [
+     {
+      "b": "luna-low",
+      "diff": 0.0333,
+      "ci95": [
+       -0.2,
+       0.2833
+      ],
+      "problems": 12
+     },
+     {
+      "b": "haiku-low",
+      "diff": -0.15,
+      "ci95": [
+       -0.3333,
+       0.0
+      ],
+      "problems": 12
+     },
+     {
+      "b": "luna-medium",
+      "diff": 0.0167,
+      "ci95": [
+       -0.2333,
+       0.2833
+      ],
+      "problems": 12
+     }
+    ],
+    "usd_per_pass_uncached": null,
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 5,
+     "p04_taller_within": 4,
+     "p05_pass_route": 4,
+     "p06_calc": 4,
+     "p07_weighted_distance_sums": 5,
+     "p08_recur": 1,
+     "p09_k_machine_schedule": 4,
+     "p10_avoid_count": 3,
+     "p11_best_average": 4,
+     "p12_sheet": 4
+    },
+    "misses": 12,
+    "ci95_plot": [
+     0.6333,
+     0.9333
+    ],
+    "usd_text": "–",
+    "claude_usd_per_pass": null,
+    "usd_saved_per_pass": null,
+    "usd_per_1k_tokens": null
+   },
+   "mode": "normal",
+   "generation": "swe-2-flash-medium",
+   "model_short": "devin",
+   "fast_twin": null,
+   "bare_of": null,
+   "prereg": false,
+   "provenance": "later exploration",
+   "quota_usd_per_pass": null,
+   "winner_pick": null,
+   "winner_pricing": null,
+   "panel": "devin",
+   "gate": null,
+   "coverage_note": "Devin probe: 5 repeats, free tier, no token data",
+   "complete_marker": null
+  },
+  {
    "id": "main/terra56-low",
    "source": "main",
    "config": "terra56-low",
@@ -10195,6 +10442,124 @@
    "panel": "devin",
    "gate": null,
    "coverage_note": "Devin probe: 1 repeat, free tier, no token data",
+   "complete_marker": null
+  },
+  {
+   "id": "main/devinflash-medium",
+   "source": "main",
+   "config": "devinflash-medium",
+   "display": "devinflash-medium",
+   "family": "Devin",
+   "category": "exploratory",
+   "what": "Devin swe-2-flash-medium (free tier; NOT SWE-2.1, which the Free plan refuses), default effort; devin CLI, no token or cost data; exploratory, added 2026-11-25 at operator request; function track p01–p12, 5 repeats per problem (PLAN.md deviation 28)",
+   "set": "rescue set",
+   "derived": true,
+   "files": [
+    "results/2026-11-25-devin-flash-function.jsonl"
+   ],
+   "model": "swe-2-flash-medium",
+   "effort": "default",
+   "service_tier": null,
+   "passes": 25,
+   "n": 35,
+   "pass_rate": 0.7143,
+   "ci95": [
+    0.4857,
+    0.9143
+   ],
+   "groups": 7,
+   "usd_per_pass": null,
+   "claude_usd_per_pass": null,
+   "codex_usd_per_pass": null,
+   "usd_per_call": null,
+   "spend": 0,
+   "spend_claude": 0,
+   "spend_codex": 0,
+   "unknown_usd": 35,
+   "median_s_raw": 24.9674162560259,
+   "median_s": 24.97,
+   "p25_s": 14.22,
+   "p75_s": 170.91,
+   "tokens_in_mean": 0,
+   "tokens_out_mean": 0,
+   "tokens_cached_mean": 0,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    0,
+    0
+   ],
+   "p90_s": 247.14,
+   "max_s": 362.26,
+   "by_group": {
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 4,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 1,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 4,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 3,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 4,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 4,
+     "n": 5
+    }
+   },
+   "misses": 10,
+   "ci95_plot": [
+    0.4857,
+    0.9143
+   ],
+   "usd_saved_per_pass": null,
+   "usd_per_1k_tokens": null,
+   "rule": "function tests (reference + brute force)",
+   "by_rung": {
+    "L2": [
+     9,
+     10
+    ],
+    "L4": [
+     1,
+     5
+    ],
+    "L5": [
+     7,
+     10
+    ],
+    "L6": [
+     8,
+     10
+    ]
+   },
+   "cost_kind": "unmetered",
+   "mode": "normal",
+   "generation": "swe-2-flash-medium",
+   "model_short": "devin",
+   "fast_twin": null,
+   "bare_of": null,
+   "prereg": false,
+   "provenance": "later exploration",
+   "quota_usd_per_pass": null,
+   "winner_pick": null,
+   "winner_pricing": null,
+   "panel": "devin",
+   "gate": null,
+   "coverage_note": "Devin probe: 5 repeats, free tier, no token data",
    "complete_marker": null
   },
   {
@@ -21900,6 +22265,152 @@
    "complete_marker": null
   },
   {
+   "id": "main/devinflash-medium",
+   "source": "main",
+   "config": "devinflash-medium",
+   "display": "devinflash-medium",
+   "family": "Devin",
+   "category": "exploratory",
+   "what": "Devin swe-2-flash-medium (free tier; NOT SWE-2.1, which the Free plan refuses), default effort; devin CLI, no token or cost data; exploratory, added 2026-11-25 at operator request; function track p01–p12, 5 repeats per problem (PLAN.md deviation 28)",
+   "set": "all runs",
+   "derived": false,
+   "files": [
+    "results/2026-11-25-devin-flash-function.jsonl"
+   ],
+   "model": "swe-2-flash-medium",
+   "effort": "default",
+   "service_tier": null,
+   "passes": 48,
+   "n": 60,
+   "pass_rate": 0.8,
+   "ci95": [
+    0.6333,
+    0.9333
+   ],
+   "groups": 12,
+   "usd_per_pass": null,
+   "claude_usd_per_pass": null,
+   "codex_usd_per_pass": null,
+   "usd_per_call": null,
+   "spend": 0,
+   "spend_claude": 0,
+   "spend_codex": 0,
+   "unknown_usd": 60,
+   "median_s_raw": 16.441916709503857,
+   "median_s": 16.44,
+   "p25_s": 7.2,
+   "p75_s": 35.16,
+   "tokens_in_mean": 0,
+   "tokens_out_mean": 0,
+   "tokens_cached_mean": 0,
+   "tokens_reasoning_mean": 0,
+   "input_floor": [
+    0,
+    0
+   ],
+   "p90_s": 222.65,
+   "max_s": 362.26,
+   "by_group": {
+    "p01_overlap_minutes": {
+     "passes": 5,
+     "n": 5
+    },
+    "p02_squash": {
+     "passes": 5,
+     "n": 5
+    },
+    "p03_ledger": {
+     "passes": 5,
+     "n": 5
+    },
+    "p04_taller_within": {
+     "passes": 4,
+     "n": 5
+    },
+    "p05_pass_route": {
+     "passes": 4,
+     "n": 5
+    },
+    "p06_calc": {
+     "passes": 4,
+     "n": 5
+    },
+    "p07_weighted_distance_sums": {
+     "passes": 5,
+     "n": 5
+    },
+    "p08_recur": {
+     "passes": 1,
+     "n": 5
+    },
+    "p09_k_machine_schedule": {
+     "passes": 4,
+     "n": 5
+    },
+    "p10_avoid_count": {
+     "passes": 3,
+     "n": 5
+    },
+    "p11_best_average": {
+     "passes": 4,
+     "n": 5
+    },
+    "p12_sheet": {
+     "passes": 4,
+     "n": 5
+    }
+   },
+   "misses": 12,
+   "ci95_plot": [
+    0.6333,
+    0.9333
+   ],
+   "usd_saved_per_pass": null,
+   "usd_per_1k_tokens": null,
+   "rule": "function tests (reference + brute force)",
+   "by_rung": {
+    "L1": [
+     10,
+     10
+    ],
+    "L2": [
+     9,
+     10
+    ],
+    "L3": [
+     8,
+     10
+    ],
+    "L4": [
+     6,
+     10
+    ],
+    "L5": [
+     7,
+     10
+    ],
+    "L6": [
+     8,
+     10
+    ]
+   },
+   "cost_kind": "unmetered",
+   "mode": "normal",
+   "generation": "swe-2-flash-medium",
+   "model_short": "devin",
+   "fast_twin": null,
+   "bare_of": null,
+   "prereg": false,
+   "provenance": "later exploration",
+   "quota_usd_per_pass": null,
+   "winner_pick": null,
+   "winner_pricing": null,
+   "panel": "devin",
+   "gate": null,
+   "coverage_note": "Devin probe: 5 repeats, free tier, no token data",
+   "complete_marker": null
+  },
+  {
    "id": "main/hetzner-qwen36",
    "source": "main",
    "config": "hetzner-qwen36",
@@ -25169,7 +25680,7 @@
    "spend": 2.718465
   },
   "exploratory": {
-   "n_configs": 23,
+   "n_configs": 24,
    "spend": 35.8863
   },
   "fast mode and xhigh": {
@@ -25212,7 +25723,8 @@
    "results/2026-10-28-terra-function.jsonl",
    "results/2026-11-01-hetzner-function.jsonl",
    "results/2026-11-02-terra-l7-fast-function.jsonl",
-   "results/2026-11-02-terra-priority-function.jsonl"
+   "results/2026-11-02-terra-priority-function.jsonl",
+   "results/2026-11-25-devin-flash-function.jsonl"
   ],
   "configs": {
    "haiku-low": {
@@ -25997,7 +26509,7 @@
   "phases": {
    "calibration": 54,
    "escalation": 15,
-   "exploratory": 826,
+   "exploratory": 886,
    "fastmode": 105,
    "hard": 210,
    "main": 561,
@@ -27509,6 +28021,181 @@
      "p12_sheet": {
       "passes": 0,
       "n": 1
+     }
+    }
+   },
+   "devinflash-medium": {
+    "cli": "devin",
+    "model": "swe-2-flash-medium",
+    "effort": "default",
+    "n": 60,
+    "passes": 48,
+    "pass_at_1": 0.8,
+    "ci95": [
+     0.6333,
+     0.9333
+    ],
+    "by_rung": {
+     "L1": {
+      "passed": 10,
+      "n": 10
+     },
+     "L2": {
+      "passed": 9,
+      "n": 10
+     },
+     "L3": {
+      "passed": 8,
+      "n": 10
+     },
+     "L4": {
+      "passed": 6,
+      "n": 10
+     },
+     "L5": {
+      "passed": 7,
+      "n": 10
+     },
+     "L6": {
+      "passed": 8,
+      "n": 10
+     }
+    },
+    "breaking_point": null,
+    "outcomes": {
+     "pass": 48,
+     "crash": 7,
+     "wrong": 4,
+     "timeout": 1
+    },
+    "latency_s": {
+     "median_raw": 16.441916709503857,
+     "median": 16.44,
+     "p25": 7.2,
+     "p75": 35.16,
+     "p90": 222.65,
+     "max": 362.26
+    },
+    "tokens_mean": {
+     "in_tok": 0,
+     "cached_tok": 0,
+     "out_tok": 0,
+     "reasoning_tok": 0
+    },
+    "input_floor": [
+     0,
+     0
+    ],
+    "usd_per_call": null,
+    "usd_total": null,
+    "usd_per_pass": null,
+    "usd_per_pass_L1_L2": null,
+    "pass_L1_L2": [
+     19,
+     20
+    ],
+    "cost_kind": "unmetered",
+    "vs": [
+     {
+      "b": "luna-low",
+      "diff": 0.0333,
+      "ci95": [
+       -0.2,
+       0.2833
+      ],
+      "problems": 12
+     },
+     {
+      "b": "haiku-low",
+      "diff": -0.15,
+      "ci95": [
+       -0.3333,
+       0.0
+      ],
+      "problems": 12
+     },
+     {
+      "b": "luna-medium",
+      "diff": 0.0167,
+      "ci95": [
+       -0.2333,
+       0.2833
+      ],
+      "problems": 12
+     }
+    ],
+    "usd_per_pass_uncached": null,
+    "by_problem": {
+     "p01_overlap_minutes": 5,
+     "p02_squash": 5,
+     "p03_ledger": 5,
+     "p04_taller_within": 4,
+     "p05_pass_route": 4,
+     "p06_calc": 4,
+     "p07_weighted_distance_sums": 5,
+     "p08_recur": 1,
+     "p09_k_machine_schedule": 4,
+     "p10_avoid_count": 3,
+     "p11_best_average": 4,
+     "p12_sheet": 4
+    },
+    "misses": 12,
+    "ci95_plot": [
+     0.6333,
+     0.9333
+    ],
+    "usd_text": "–",
+    "claude_usd_per_pass": null,
+    "usd_saved_per_pass": null,
+    "usd_per_1k_tokens": null,
+    "by_group": {
+     "p01_overlap_minutes": {
+      "passes": 5,
+      "n": 5
+     },
+     "p02_squash": {
+      "passes": 5,
+      "n": 5
+     },
+     "p03_ledger": {
+      "passes": 5,
+      "n": 5
+     },
+     "p04_taller_within": {
+      "passes": 4,
+      "n": 5
+     },
+     "p05_pass_route": {
+      "passes": 4,
+      "n": 5
+     },
+     "p06_calc": {
+      "passes": 4,
+      "n": 5
+     },
+     "p07_weighted_distance_sums": {
+      "passes": 5,
+      "n": 5
+     },
+     "p08_recur": {
+      "passes": 1,
+      "n": 5
+     },
+     "p09_k_machine_schedule": {
+      "passes": 4,
+      "n": 5
+     },
+     "p10_avoid_count": {
+      "passes": 3,
+      "n": 5
+     },
+     "p11_best_average": {
+      "passes": 4,
+      "n": 5
+     },
+     "p12_sheet": {
+      "passes": 4,
+      "n": 5
      }
     }
    },
@@ -34524,7 +35211,7 @@
    "codex_proxy_usd": 39.2963,
    "codex_fastmode_usd": 3.4069,
    "calls": {
-    "function": 1777,
+    "function": 1837,
     "agentic": 84
    },
    "grok_measured_usd": 22.3741
@@ -35594,9 +36281,9 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "run_dates": {
-   "value": "All calls ran 2026-10-22 to 2026-11-22.",
+   "value": "All calls ran 2026-10-22 to 2026-11-25.",
    "unit": "text",
-   "display": "All calls ran 2026-10-22 to 2026-11-22.",
+   "display": "All calls ran 2026-10-22 to 2026-11-25.",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "cite": {
@@ -35702,9 +36389,9 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "exploratory_items": {
-   "value": "<li>astra-medium</li><li>astra-medium ⚡</li><li>devin16slow-default</li><li>haiku-high</li><li>luna-high</li><li>luna-low-bare</li><li>luna56-high</li><li>luna56-low</li><li>sol56-high</li><li>sol61-high</li><li>sol61-high ⚡</li><li>terra56-high</li><li>terra56-low</li><li>terra61-high</li><li>terra61-high ⚡</li><li>terra61-low</li><li>terra61-low ⚡</li><li>hetzner-qwen36</li><li>hetzner-qwen38</li>",
+   "value": "<li>astra-medium</li><li>astra-medium ⚡</li><li>devin16slow-default</li><li>devinflash-medium</li><li>haiku-high</li><li>luna-high</li><li>luna-low-bare</li><li>luna56-high</li><li>luna56-low</li><li>sol56-high</li><li>sol61-high</li><li>sol61-high ⚡</li><li>terra56-high</li><li>terra56-low</li><li>terra61-high</li><li>terra61-high ⚡</li><li>terra61-low</li><li>terra61-low ⚡</li><li>hetzner-qwen36</li><li>hetzner-qwen38</li>",
    "unit": "text",
-   "display": "<li>astra-medium</li><li>astra-medium ⚡</li><li>devin16slow-default</li><li>haiku-high</li><li>luna-high</li><li>luna-low-bare</li><li>luna56-high</li><li>luna56-low</li><li>sol56-high</li><li>sol61-high</li><li>sol61-high ⚡</li><li>terra56-high</li><li>terra56-low</li><li>terra61-high</li><li>terra61-high ⚡</li><li>terra61-low</li><li>terra61-low ⚡</li><li>hetzner-qwen36</li><li>hetzner-qwen38</li>",
+   "display": "<li>astra-medium</li><li>astra-medium ⚡</li><li>devin16slow-default</li><li>devinflash-medium</li><li>haiku-high</li><li>luna-high</li><li>luna-low-bare</li><li>luna56-high</li><li>luna56-low</li><li>sol56-high</li><li>sol61-high</li><li>sol61-high ⚡</li><li>terra56-high</li><li>terra56-low</li><li>terra61-high</li><li>terra61-high ⚡</li><li>terra61-low</li><li>terra61-low ⚡</li><li>hetzner-qwen36</li><li>hetzner-qwen38</li>",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "l7_problem_items": {
@@ -38534,9 +39221,9 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "date_last": {
-   "value": "2026-11-22",
+   "value": "2026-11-25",
    "unit": "text",
-   "display": "2026-11-22",
+   "display": "2026-11-25",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "grok_cli_usd": {
@@ -39032,9 +39719,9 @@
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "n_exploratory": {
-   "value": 19,
+   "value": 20,
    "unit": "count",
-   "display": "19",
+   "display": "20",
    "source": "rows set main ladder (results/2026-10-22b-function.jsonl and later function files)"
   },
   "badge_disagreement_items": {
@@ -40067,6 +40754,16 @@
      "unmetered"
     ],
     [
+     "devinflash-medium †",
+     "80% (48/60)",
+     "63%–93%",
+     "16.4",
+     "222.7",
+     "–",
+     "–",
+     "unmetered"
+    ],
+    [
      "haiku-high †",
      "100% (60/60)",
      "≥78% (all passed)",
@@ -40311,6 +41008,12 @@
      "unmetered"
     ],
     [
+     "devinflash-medium †",
+     "63%–93%",
+     "222.7",
+     "unmetered"
+    ],
+    [
      "haiku-high †",
      "≥78% (all passed)",
      "37.6",
@@ -40496,6 +41199,14 @@
     ],
     [
      "devin16slow-default †",
+     "–",
+     "–",
+     "–",
+     "–",
+     "–"
+    ],
+    [
+     "devinflash-medium †",
      "–",
      "–",
      "–",
@@ -43308,6 +44019,10 @@
     1,
     2
    ],
+   "devinflash-medium": [
+    1,
+    2
+   ],
    "sol61-high-fast": [
     6,
     null
@@ -44020,6 +44735,10 @@
     null
    ],
    "terra61-high": [
+    1,
+    2
+   ],
+   "devinflash-medium": [
     1,
     2
    ],
@@ -50412,6 +51131,246 @@
     "key": "main/terra61-high@main ladder"
    },
    {
+    "id": "main/devinflash-medium",
+    "source": "main",
+    "config": "devinflash-medium",
+    "display": "devinflash-medium",
+    "family": "Devin",
+    "category": "exploratory",
+    "what": "Devin swe-2-flash-medium (free tier; NOT SWE-2.1, which the Free plan refuses), default effort; devin CLI, no token or cost data; exploratory, added 2026-11-25 at operator request; function track p01–p12, 5 repeats per problem (PLAN.md deviation 28)",
+    "set": "main ladder",
+    "derived": false,
+    "files": [
+     "results/2026-11-25-devin-flash-function.jsonl"
+    ],
+    "model": "swe-2-flash-medium",
+    "effort": "default",
+    "service_tier": null,
+    "passes": 48,
+    "n": 60,
+    "pass_rate": 0.8,
+    "ci95": [
+     0.6333,
+     0.9333
+    ],
+    "groups": 12,
+    "usd_per_pass": null,
+    "claude_usd_per_pass": null,
+    "codex_usd_per_pass": null,
+    "usd_per_call": null,
+    "spend": 0,
+    "spend_claude": 0,
+    "spend_codex": 0,
+    "unknown_usd": 60,
+    "median_s_raw": 16.441916709503857,
+    "median_s": 16.44,
+    "p25_s": 7.2,
+    "p75_s": 35.16,
+    "tokens_in_mean": 0,
+    "tokens_out_mean": 0,
+    "tokens_cached_mean": 0,
+    "tokens_reasoning_mean": 0,
+    "input_floor": [
+     0,
+     0
+    ],
+    "p90_s": 222.65,
+    "max_s": 362.26,
+    "by_group": {
+     "p01_overlap_minutes": {
+      "passes": 5,
+      "n": 5
+     },
+     "p02_squash": {
+      "passes": 5,
+      "n": 5
+     },
+     "p03_ledger": {
+      "passes": 5,
+      "n": 5
+     },
+     "p04_taller_within": {
+      "passes": 4,
+      "n": 5
+     },
+     "p05_pass_route": {
+      "passes": 4,
+      "n": 5
+     },
+     "p06_calc": {
+      "passes": 4,
+      "n": 5
+     },
+     "p07_weighted_distance_sums": {
+      "passes": 5,
+      "n": 5
+     },
+     "p08_recur": {
+      "passes": 1,
+      "n": 5
+     },
+     "p09_k_machine_schedule": {
+      "passes": 4,
+      "n": 5
+     },
+     "p10_avoid_count": {
+      "passes": 3,
+      "n": 5
+     },
+     "p11_best_average": {
+      "passes": 4,
+      "n": 5
+     },
+     "p12_sheet": {
+      "passes": 4,
+      "n": 5
+     }
+    },
+    "misses": 12,
+    "ci95_plot": [
+     0.6333,
+     0.9333
+    ],
+    "usd_saved_per_pass": null,
+    "usd_per_1k_tokens": null,
+    "rule": "function tests (reference + brute force)",
+    "by_rung": {
+     "L1": [
+      10,
+      10
+     ],
+     "L2": [
+      9,
+      10
+     ],
+     "L3": [
+      8,
+      10
+     ],
+     "L4": [
+      6,
+      10
+     ],
+     "L5": [
+      7,
+      10
+     ],
+     "L6": [
+      8,
+      10
+     ]
+    },
+    "cost_kind": "unmetered",
+    "cli": "devin",
+    "outcomes": {
+     "pass": 48,
+     "crash": 7,
+     "wrong": 4,
+     "timeout": 1
+    },
+    "breaking_point": null,
+    "details": {
+     "cli": "devin",
+     "model": "swe-2-flash-medium",
+     "effort": "default",
+     "n": 60,
+     "passes": 48,
+     "pass_at_1": 0.8,
+     "ci95": [
+      0.6333,
+      0.9333
+     ],
+     "breaking_point": null,
+     "outcomes": {
+      "pass": 48,
+      "crash": 7,
+      "wrong": 4,
+      "timeout": 1
+     },
+     "input_floor": [
+      0,
+      0
+     ],
+     "usd_per_call": null,
+     "usd_total": null,
+     "usd_per_pass": null,
+     "usd_per_pass_L1_L2": null,
+     "pass_L1_L2": [
+      19,
+      20
+     ],
+     "cost_kind": "unmetered",
+     "vs": [
+      {
+       "b": "luna-low",
+       "diff": 0.0333,
+       "ci95": [
+        -0.2,
+        0.2833
+       ],
+       "problems": 12
+      },
+      {
+       "b": "haiku-low",
+       "diff": -0.15,
+       "ci95": [
+        -0.3333,
+        0.0
+       ],
+       "problems": 12
+      },
+      {
+       "b": "luna-medium",
+       "diff": 0.0167,
+       "ci95": [
+        -0.2333,
+        0.2833
+       ],
+       "problems": 12
+      }
+     ],
+     "usd_per_pass_uncached": null,
+     "by_problem": {
+      "p01_overlap_minutes": 5,
+      "p02_squash": 5,
+      "p03_ledger": 5,
+      "p04_taller_within": 4,
+      "p05_pass_route": 4,
+      "p06_calc": 4,
+      "p07_weighted_distance_sums": 5,
+      "p08_recur": 1,
+      "p09_k_machine_schedule": 4,
+      "p10_avoid_count": 3,
+      "p11_best_average": 4,
+      "p12_sheet": 4
+     },
+     "misses": 12,
+     "ci95_plot": [
+      0.6333,
+      0.9333
+     ],
+     "usd_text": "–",
+     "claude_usd_per_pass": null,
+     "usd_saved_per_pass": null,
+     "usd_per_1k_tokens": null
+    },
+    "mode": "normal",
+    "generation": "swe-2-flash-medium",
+    "model_short": "devin",
+    "fast_twin": null,
+    "bare_of": null,
+    "prereg": false,
+    "provenance": "later exploration",
+    "quota_usd_per_pass": null,
+    "winner_pick": null,
+    "winner_pricing": null,
+    "panel": "devin",
+    "gate": null,
+    "coverage_note": "Devin probe: 5 repeats, free tier, no token data",
+    "complete_marker": null,
+    "key": "main/devinflash-medium@main ladder"
+   },
+   {
     "id": "main/terra56-low",
     "source": "main",
     "config": "terra56-low",
@@ -54106,6 +55065,125 @@
     "coverage_note": "Devin probe: 1 repeat, free tier, no token data",
     "complete_marker": null,
     "key": "main/devin16slow-default@rescue set"
+   },
+   {
+    "id": "main/devinflash-medium",
+    "source": "main",
+    "config": "devinflash-medium",
+    "display": "devinflash-medium",
+    "family": "Devin",
+    "category": "exploratory",
+    "what": "Devin swe-2-flash-medium (free tier; NOT SWE-2.1, which the Free plan refuses), default effort; devin CLI, no token or cost data; exploratory, added 2026-11-25 at operator request; function track p01–p12, 5 repeats per problem (PLAN.md deviation 28)",
+    "set": "rescue set",
+    "derived": true,
+    "files": [
+     "results/2026-11-25-devin-flash-function.jsonl"
+    ],
+    "model": "swe-2-flash-medium",
+    "effort": "default",
+    "service_tier": null,
+    "passes": 25,
+    "n": 35,
+    "pass_rate": 0.7143,
+    "ci95": [
+     0.4857,
+     0.9143
+    ],
+    "groups": 7,
+    "usd_per_pass": null,
+    "claude_usd_per_pass": null,
+    "codex_usd_per_pass": null,
+    "usd_per_call": null,
+    "spend": 0,
+    "spend_claude": 0,
+    "spend_codex": 0,
+    "unknown_usd": 35,
+    "median_s_raw": 24.9674162560259,
+    "median_s": 24.97,
+    "p25_s": 14.22,
+    "p75_s": 170.91,
+    "tokens_in_mean": 0,
+    "tokens_out_mean": 0,
+    "tokens_cached_mean": 0,
+    "tokens_reasoning_mean": 0,
+    "input_floor": [
+     0,
+     0
+    ],
+    "p90_s": 247.14,
+    "max_s": 362.26,
+    "by_group": {
+     "p03_ledger": {
+      "passes": 5,
+      "n": 5
+     },
+     "p04_taller_within": {
+      "passes": 4,
+      "n": 5
+     },
+     "p08_recur": {
+      "passes": 1,
+      "n": 5
+     },
+     "p09_k_machine_schedule": {
+      "passes": 4,
+      "n": 5
+     },
+     "p10_avoid_count": {
+      "passes": 3,
+      "n": 5
+     },
+     "p11_best_average": {
+      "passes": 4,
+      "n": 5
+     },
+     "p12_sheet": {
+      "passes": 4,
+      "n": 5
+     }
+    },
+    "misses": 10,
+    "ci95_plot": [
+     0.4857,
+     0.9143
+    ],
+    "usd_saved_per_pass": null,
+    "usd_per_1k_tokens": null,
+    "rule": "function tests (reference + brute force)",
+    "by_rung": {
+     "L2": [
+      9,
+      10
+     ],
+     "L4": [
+      1,
+      5
+     ],
+     "L5": [
+      7,
+      10
+     ],
+     "L6": [
+      8,
+      10
+     ]
+    },
+    "cost_kind": "unmetered",
+    "mode": "normal",
+    "generation": "swe-2-flash-medium",
+    "model_short": "devin",
+    "fast_twin": null,
+    "bare_of": null,
+    "prereg": false,
+    "provenance": "later exploration",
+    "quota_usd_per_pass": null,
+    "winner_pick": null,
+    "winner_pricing": null,
+    "panel": "devin",
+    "gate": null,
+    "coverage_note": "Devin probe: 5 repeats, free tier, no token data",
+    "complete_marker": null,
+    "key": "main/devinflash-medium@rescue set"
    },
    {
     "id": "main/sol61-high-fast",
@@ -65908,6 +66986,153 @@
     "key": "main/devin16slow-default@all runs"
    },
    {
+    "id": "main/devinflash-medium",
+    "source": "main",
+    "config": "devinflash-medium",
+    "display": "devinflash-medium",
+    "family": "Devin",
+    "category": "exploratory",
+    "what": "Devin swe-2-flash-medium (free tier; NOT SWE-2.1, which the Free plan refuses), default effort; devin CLI, no token or cost data; exploratory, added 2026-11-25 at operator request; function track p01–p12, 5 repeats per problem (PLAN.md deviation 28)",
+    "set": "all runs",
+    "derived": false,
+    "files": [
+     "results/2026-11-25-devin-flash-function.jsonl"
+    ],
+    "model": "swe-2-flash-medium",
+    "effort": "default",
+    "service_tier": null,
+    "passes": 48,
+    "n": 60,
+    "pass_rate": 0.8,
+    "ci95": [
+     0.6333,
+     0.9333
+    ],
+    "groups": 12,
+    "usd_per_pass": null,
+    "claude_usd_per_pass": null,
+    "codex_usd_per_pass": null,
+    "usd_per_call": null,
+    "spend": 0,
+    "spend_claude": 0,
+    "spend_codex": 0,
+    "unknown_usd": 60,
+    "median_s_raw": 16.441916709503857,
+    "median_s": 16.44,
+    "p25_s": 7.2,
+    "p75_s": 35.16,
+    "tokens_in_mean": 0,
+    "tokens_out_mean": 0,
+    "tokens_cached_mean": 0,
+    "tokens_reasoning_mean": 0,
+    "input_floor": [
+     0,
+     0
+    ],
+    "p90_s": 222.65,
+    "max_s": 362.26,
+    "by_group": {
+     "p01_overlap_minutes": {
+      "passes": 5,
+      "n": 5
+     },
+     "p02_squash": {
+      "passes": 5,
+      "n": 5
+     },
+     "p03_ledger": {
+      "passes": 5,
+      "n": 5
+     },
+     "p04_taller_within": {
+      "passes": 4,
+      "n": 5
+     },
+     "p05_pass_route": {
+      "passes": 4,
+      "n": 5
+     },
+     "p06_calc": {
+      "passes": 4,
+      "n": 5
+     },
+     "p07_weighted_distance_sums": {
+      "passes": 5,
+      "n": 5
+     },
+     "p08_recur": {
+      "passes": 1,
+      "n": 5
+     },
+     "p09_k_machine_schedule": {
+      "passes": 4,
+      "n": 5
+     },
+     "p10_avoid_count": {
+      "passes": 3,
+      "n": 5
+     },
+     "p11_best_average": {
+      "passes": 4,
+      "n": 5
+     },
+     "p12_sheet": {
+      "passes": 4,
+      "n": 5
+     }
+    },
+    "misses": 12,
+    "ci95_plot": [
+     0.6333,
+     0.9333
+    ],
+    "usd_saved_per_pass": null,
+    "usd_per_1k_tokens": null,
+    "rule": "function tests (reference + brute force)",
+    "by_rung": {
+     "L1": [
+      10,
+      10
+     ],
+     "L2": [
+      9,
+      10
+     ],
+     "L3": [
+      8,
+      10
+     ],
+     "L4": [
+      6,
+      10
+     ],
+     "L5": [
+      7,
+      10
+     ],
+     "L6": [
+      8,
+      10
+     ]
+    },
+    "cost_kind": "unmetered",
+    "mode": "normal",
+    "generation": "swe-2-flash-medium",
+    "model_short": "devin",
+    "fast_twin": null,
+    "bare_of": null,
+    "prereg": false,
+    "provenance": "later exploration",
+    "quota_usd_per_pass": null,
+    "winner_pick": null,
+    "winner_pricing": null,
+    "panel": "devin",
+    "gate": null,
+    "coverage_note": "Devin probe: 5 repeats, free tier, no token data",
+    "complete_marker": null,
+    "key": "main/devinflash-medium@all runs"
+   },
+   {
     "id": "main/hetzner-qwen36",
     "source": "main",
     "config": "hetzner-qwen36",
@@ -72397,6 +73622,153 @@
     "key": "main/terra61-low-fast@everything pooled"
    },
    {
+    "id": "main/devinflash-medium",
+    "source": "main",
+    "config": "devinflash-medium",
+    "display": "devinflash-medium",
+    "family": "Devin",
+    "category": "exploratory",
+    "what": "Devin swe-2-flash-medium (free tier; NOT SWE-2.1, which the Free plan refuses), default effort; devin CLI, no token or cost data; exploratory, added 2026-11-25 at operator request; function track p01–p12, 5 repeats per problem (PLAN.md deviation 28)",
+    "set": "everything pooled",
+    "derived": true,
+    "files": [
+     "results/2026-11-25-devin-flash-function.jsonl"
+    ],
+    "model": "swe-2-flash-medium",
+    "effort": "default",
+    "service_tier": null,
+    "passes": 48,
+    "n": 60,
+    "pass_rate": 0.8,
+    "ci95": [
+     0.6333,
+     0.9333
+    ],
+    "groups": 12,
+    "usd_per_pass": null,
+    "claude_usd_per_pass": null,
+    "codex_usd_per_pass": null,
+    "usd_per_call": null,
+    "spend": 0,
+    "spend_claude": 0,
+    "spend_codex": 0,
+    "unknown_usd": 60,
+    "median_s_raw": 16.441916709503857,
+    "median_s": 16.44,
+    "p25_s": 7.2,
+    "p75_s": 35.16,
+    "tokens_in_mean": 0,
+    "tokens_out_mean": 0,
+    "tokens_cached_mean": 0,
+    "tokens_reasoning_mean": 0,
+    "input_floor": [
+     0,
+     0
+    ],
+    "p90_s": 222.65,
+    "max_s": 362.26,
+    "by_group": {
+     "p01_overlap_minutes": {
+      "passes": 5,
+      "n": 5
+     },
+     "p02_squash": {
+      "passes": 5,
+      "n": 5
+     },
+     "p03_ledger": {
+      "passes": 5,
+      "n": 5
+     },
+     "p04_taller_within": {
+      "passes": 4,
+      "n": 5
+     },
+     "p05_pass_route": {
+      "passes": 4,
+      "n": 5
+     },
+     "p06_calc": {
+      "passes": 4,
+      "n": 5
+     },
+     "p07_weighted_distance_sums": {
+      "passes": 5,
+      "n": 5
+     },
+     "p08_recur": {
+      "passes": 1,
+      "n": 5
+     },
+     "p09_k_machine_schedule": {
+      "passes": 4,
+      "n": 5
+     },
+     "p10_avoid_count": {
+      "passes": 3,
+      "n": 5
+     },
+     "p11_best_average": {
+      "passes": 4,
+      "n": 5
+     },
+     "p12_sheet": {
+      "passes": 4,
+      "n": 5
+     }
+    },
+    "misses": 12,
+    "ci95_plot": [
+     0.6333,
+     0.9333
+    ],
+    "usd_saved_per_pass": null,
+    "usd_per_1k_tokens": null,
+    "rule": "function tests (reference + brute force)",
+    "by_rung": {
+     "L1": [
+      10,
+      10
+     ],
+     "L2": [
+      9,
+      10
+     ],
+     "L3": [
+      8,
+      10
+     ],
+     "L4": [
+      6,
+      10
+     ],
+     "L5": [
+      7,
+      10
+     ],
+     "L6": [
+      8,
+      10
+     ]
+    },
+    "cost_kind": "unmetered",
+    "mode": "normal",
+    "generation": "swe-2-flash-medium",
+    "model_short": "devin",
+    "fast_twin": null,
+    "bare_of": null,
+    "prereg": false,
+    "provenance": "later exploration",
+    "quota_usd_per_pass": null,
+    "winner_pick": null,
+    "winner_pricing": null,
+    "panel": "devin",
+    "gate": null,
+    "coverage_note": "Devin probe: 5 repeats, free tier, no token data",
+    "complete_marker": null,
+    "key": "main/devinflash-medium@everything pooled"
+   },
+   {
     "id": "agentic/haiku-high",
     "source": "agentic",
     "config": "haiku-high",
@@ -78095,6 +79467,7 @@
      "main/astra-medium@main ladder",
      "main/terra61-low@main ladder",
      "main/terra61-high@main ladder",
+     "main/devinflash-medium@main ladder",
      "main/terra56-low@partial ladder",
      "main/terra56-high@partial ladder",
      "main/grok47-low@partial ladder",
@@ -78260,6 +79633,11 @@
           "main/haiku-medium@main ladder",
           "main/haiku-high@main ladder"
          ]
+        },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
         },
         "main/terra56-low@partial ladder": {
          "eligible": true,
@@ -78576,7 +79954,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -78619,7 +79997,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -79336,6 +80714,11 @@
           "main/luna56-high@main ladder"
          ]
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/terra56-low@partial ladder": {
          "eligible": false,
          "on_frontier": false,
@@ -79538,7 +80921,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -79566,7 +80949,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -80143,6 +81526,25 @@
           "main/terra61-high-fast@main ladder"
          ]
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": true,
+         "on_frontier": false,
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-low@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder"
+         ]
+        },
         "main/terra56-low@partial ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -80311,6 +81713,7 @@
           "main/astra-medium@main ladder",
           "main/terra61-low@main ladder",
           "main/terra61-high@main ladder",
+          "main/devinflash-medium@main ladder",
           "main/terra56-low@partial ladder",
           "main/terra56-high@partial ladder",
           "main/grok47-low@partial ladder",
@@ -80438,8 +81841,8 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
-         "beaten": 1,
+         "total": 2,
+         "beaten": 2,
          "staircase": [
           [
            0.010646,
@@ -80456,7 +81859,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -80863,6 +82266,11 @@
          "on_frontier": true,
          "beaten_by": []
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/terra56-low@partial ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -81175,7 +82583,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -81243,7 +82651,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -82200,6 +83608,11 @@
          "on_frontier": true,
          "beaten_by": []
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/terra56-low@partial ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -82512,7 +83925,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -82580,7 +83993,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -83663,6 +85076,11 @@
           "main/sol61-xhigh@partial ladder"
          ]
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/terra56-low@partial ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -83987,7 +85405,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -84045,7 +85463,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -84939,6 +86357,11 @@
           "main/terra61-high-fast@main ladder"
          ]
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/terra56-low@partial ladder": {
          "eligible": false,
          "on_frontier": false,
@@ -85128,7 +86551,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -85146,7 +86569,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -85595,6 +87018,25 @@
           "main/terra61-high-fast@main ladder"
          ]
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": true,
+         "on_frontier": false,
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-low@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder"
+         ]
+        },
         "main/terra56-low@partial ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -85763,6 +87205,7 @@
           "main/astra-medium@main ladder",
           "main/terra61-low@main ladder",
           "main/terra61-high@main ladder",
+          "main/devinflash-medium@main ladder",
           "main/terra56-low@partial ladder",
           "main/terra56-high@partial ladder",
           "main/grok47-low@partial ladder",
@@ -85887,8 +87330,8 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
-         "beaten": 1,
+         "total": 2,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -85905,7 +87348,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -86338,6 +87781,11 @@
           "main/terra61-high-fast@main ladder"
          ]
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/terra56-low@partial ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -86606,7 +88054,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -86624,7 +88072,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -87057,6 +88505,11 @@
           "main/terra61-high-fast@main ladder"
          ]
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/terra56-low@partial ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -87325,7 +88778,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -87343,7 +88796,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -87650,6 +89103,7 @@
      "main/terra56-low@rescue set",
      "main/terra56-high@rescue set",
      "main/devin16slow-default@rescue set",
+     "main/devinflash-medium@rescue set",
      "main/sol61-high-fast@rescue set",
      "main/astra-medium-fast@rescue set",
      "main/terra61-low-fast@rescue set",
@@ -87927,6 +89381,11 @@
          ]
         },
         "main/devin16slow-default@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
+        "main/devinflash-medium@rescue set": {
          "eligible": false,
          "on_frontier": false,
          "beaten_by": []
@@ -88270,7 +89729,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -88303,7 +89762,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -89030,6 +90489,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -89314,7 +90778,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -89342,7 +90806,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -90070,6 +91534,37 @@
           "derived/astra-medium-fast+haiku-on-fail@rescue set"
          ]
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": true,
+         "on_frontier": false,
+         "beaten_by": [
+          "main/haiku-low@rescue set",
+          "main/haiku-medium@rescue set",
+          "main/sonnet-medium@rescue set",
+          "main/haiku-high@rescue set",
+          "main/luna-high@rescue set",
+          "main/luna56-low@rescue set",
+          "main/luna56-high@rescue set",
+          "main/sol56-high@rescue set",
+          "main/terra61-low@rescue set",
+          "main/terra61-high@rescue set",
+          "main/sol61-high-fast@rescue set",
+          "main/astra-medium-fast@rescue set",
+          "main/terra61-low-fast@rescue set",
+          "main/terra61-high-fast@rescue set",
+          "rescue/luna-low-selftest@rescue arms",
+          "rescue/haiku-low-plan+luna-low@rescue arms",
+          "rescue/luna-high-bare+haiku-on-fail@rescue arms",
+          "rescue/luna-high-bare+retry-on-fail@rescue arms",
+          "rescue/luna-low+haiku-on-fail@rescue arms",
+          "rescue/astra-medium+haiku-on-fail@rescue arms",
+          "rescue/luna-low+haiku-review-all@rescue arms",
+          "rescue/luna-low-noshell-B1@rescue arms",
+          "rescue/luna-high-bare@rescue arms",
+          "derived/sol61-high-fast+haiku-on-fail@rescue set",
+          "derived/astra-medium-fast+haiku-on-fail@rescue set"
+         ]
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -90437,8 +91932,8 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
-         "beaten": 1,
+         "total": 2,
+         "beaten": 2,
          "staircase": [
           [
            0.012746,
@@ -90455,7 +91950,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -90964,6 +92459,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -91242,7 +92742,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -91300,7 +92800,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -92289,6 +93789,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -92567,7 +94072,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -92625,7 +94130,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -93775,6 +95280,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": true,
@@ -94287,7 +95797,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -94365,7 +95875,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -95634,6 +97144,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -95928,7 +97443,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -95946,7 +97461,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -96533,6 +98048,37 @@
           "derived/astra-medium-fast+haiku-on-fail@rescue set"
          ]
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": true,
+         "on_frontier": false,
+         "beaten_by": [
+          "main/haiku-low@rescue set",
+          "main/haiku-medium@rescue set",
+          "main/sonnet-medium@rescue set",
+          "main/haiku-high@rescue set",
+          "main/luna-high@rescue set",
+          "main/luna56-low@rescue set",
+          "main/luna56-high@rescue set",
+          "main/sol56-high@rescue set",
+          "main/terra61-low@rescue set",
+          "main/terra61-high@rescue set",
+          "main/sol61-high-fast@rescue set",
+          "main/astra-medium-fast@rescue set",
+          "main/terra61-low-fast@rescue set",
+          "main/terra61-high-fast@rescue set",
+          "rescue/luna-low-selftest@rescue arms",
+          "rescue/haiku-low-plan+luna-low@rescue arms",
+          "rescue/luna-high-bare+haiku-on-fail@rescue arms",
+          "rescue/luna-high-bare+retry-on-fail@rescue arms",
+          "rescue/luna-low+haiku-on-fail@rescue arms",
+          "rescue/astra-medium+haiku-on-fail@rescue arms",
+          "rescue/luna-low+haiku-review-all@rescue arms",
+          "rescue/luna-low-noshell-B1@rescue arms",
+          "rescue/luna-high-bare@rescue arms",
+          "derived/sol61-high-fast+haiku-on-fail@rescue set",
+          "derived/astra-medium-fast+haiku-on-fail@rescue set"
+         ]
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -96897,8 +98443,8 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
-         "beaten": 1,
+         "total": 2,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -96915,7 +98461,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -97445,6 +98991,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -97763,7 +99314,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -97781,7 +99332,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -98311,6 +99862,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -98629,7 +100185,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -98647,7 +100203,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -103206,6 +104762,7 @@
      "main/grok47-high@all runs",
      "main/grok47fast-low@all runs",
      "main/devin16slow-default@all runs",
+     "main/devinflash-medium@all runs",
      "main/hetzner-qwen36@all runs",
      "main/hetzner-qwen38@all runs",
      "main/inkling2mini-default@all runs",
@@ -103487,6 +105044,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@all runs": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/hetzner-qwen36@all runs": {
          "eligible": false,
          "on_frontier": false,
@@ -103663,7 +105225,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -103701,7 +105263,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -104438,6 +106000,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@all runs": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/hetzner-qwen36@all runs": {
          "eligible": false,
          "on_frontier": false,
@@ -104564,7 +106131,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -104597,7 +106164,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -105350,6 +106917,22 @@
           "main/luna-low-bare@all runs"
          ]
         },
+        "main/devinflash-medium@all runs": {
+         "eligible": true,
+         "on_frontier": false,
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-high@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/astra-medium-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs"
+         ]
+        },
         "main/hetzner-qwen36@all runs": {
          "eligible": false,
          "on_frontier": false,
@@ -105386,6 +106969,7 @@
           "main/grok47-high@all runs",
           "main/grok47fast-low@all runs",
           "main/devin16slow-default@all runs",
+          "main/devinflash-medium@all runs",
           "main/sol61-high-fast@all runs",
           "main/astra-medium-fast@all runs",
           "main/terra61-low-fast@all runs",
@@ -105508,8 +107092,8 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
-         "beaten": 1,
+         "total": 2,
+         "beaten": 2,
          "staircase": [
           [
            0.011453,
@@ -105531,7 +107115,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -106108,6 +107692,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@all runs": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/hetzner-qwen36@all runs": {
          "eligible": false,
          "on_frontier": false,
@@ -106294,7 +107883,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -106357,7 +107946,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -107374,6 +108963,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@all runs": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/hetzner-qwen36@all runs": {
          "eligible": false,
          "on_frontier": false,
@@ -107560,7 +109154,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -107623,7 +109217,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -108789,6 +110383,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@all runs": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/hetzner-qwen36@all runs": {
          "eligible": false,
          "on_frontier": false,
@@ -108982,7 +110581,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -109030,7 +110629,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -109881,6 +111480,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@all runs": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/hetzner-qwen36@all runs": {
          "eligible": false,
          "on_frontier": false,
@@ -109986,7 +111590,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -110004,7 +111608,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -110574,6 +112178,22 @@
           "main/luna-low-bare@all runs"
          ]
         },
+        "main/devinflash-medium@all runs": {
+         "eligible": true,
+         "on_frontier": false,
+         "beaten_by": [
+          "main/haiku-low@all runs",
+          "main/haiku-medium@all runs",
+          "main/sonnet-medium@all runs",
+          "main/luna-high@all runs",
+          "main/luna56-high@all runs",
+          "main/terra61-low@all runs",
+          "main/terra61-high@all runs",
+          "main/astra-medium-fast@all runs",
+          "main/terra61-low-fast@all runs",
+          "main/terra61-high-fast@all runs"
+         ]
+        },
         "main/hetzner-qwen36@all runs": {
          "eligible": false,
          "on_frontier": false,
@@ -110610,6 +112230,7 @@
           "main/grok47-high@all runs",
           "main/grok47fast-low@all runs",
           "main/devin16slow-default@all runs",
+          "main/devinflash-medium@all runs",
           "main/sol61-high-fast@all runs",
           "main/astra-medium-fast@all runs",
           "main/terra61-low-fast@all runs",
@@ -110729,8 +112350,8 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
-         "beaten": 1,
+         "total": 2,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -110752,7 +112373,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -111351,6 +112972,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@all runs": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/hetzner-qwen36@all runs": {
          "eligible": false,
          "on_frontier": false,
@@ -111498,7 +113124,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -111521,7 +113147,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -112120,6 +113746,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@all runs": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/hetzner-qwen36@all runs": {
          "eligible": false,
          "on_frontier": false,
@@ -112267,7 +113898,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -112290,7 +113921,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -113799,6 +115430,7 @@
      "main/hetzner-qwen36@everything pooled",
      "main/terra61-high-fast@everything pooled",
      "main/terra61-low-fast@everything pooled",
+     "main/devinflash-medium@everything pooled",
      "agentic/haiku-high@everything pooled",
      "agentic/haiku-low@everything pooled",
      "agentic/sonnet-medium@everything pooled",
@@ -114920,6 +116552,11 @@
           "pilot-agentic/pipeline B@everything pooled",
           "harness-bias/haiku-low / Codex harness@everything pooled"
          ]
+        },
+        "main/devinflash-medium@everything pooled": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
         },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
@@ -116914,7 +118551,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -116932,7 +118569,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -118135,6 +119772,11 @@
           "pilot/luna-high-prio@everything pooled",
           "pilot/luna-low-defa@everything pooled"
          ]
+        },
+        "main/devinflash-medium@everything pooled": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
         },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
@@ -119652,7 +121294,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -119675,7 +121317,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -121501,6 +123143,59 @@
           "pilot/luna-low-defa@everything pooled"
          ]
         },
+        "main/devinflash-medium@everything pooled": {
+         "eligible": true,
+         "on_frontier": false,
+         "beaten_by": [
+          "main/haiku-low@everything pooled",
+          "main/sonnet-medium@everything pooled",
+          "main/haiku-medium@everything pooled",
+          "main/luna-high@everything pooled",
+          "main/luna56-high@everything pooled",
+          "main/astra-medium-fast@everything pooled",
+          "main/terra61-high@everything pooled",
+          "main/terra61-low@everything pooled",
+          "main/terra61-high-fast@everything pooled",
+          "main/terra61-low-fast@everything pooled",
+          "trim/luna/base@everything pooled",
+          "trim/luna/mininst@everything pooled",
+          "trim/luna/noctx@everything pooled",
+          "trim/luna/nodoc@everything pooled",
+          "trim/luna/nofeat@everything pooled",
+          "trim/luna/noshell@everything pooled",
+          "trim/terra/base@everything pooled",
+          "trim/terra/mininst@everything pooled",
+          "trim/terra/noctx@everything pooled",
+          "trim/terra/nodoc@everything pooled",
+          "trim/terra/nofeat@everything pooled",
+          "trim/terra/noshell@everything pooled",
+          "trim/haiku@everything pooled",
+          "pilot/haiku-low@everything pooled",
+          "pilot/sonnet-low@everything pooled",
+          "pilot/codex-low@everything pooled",
+          "pilot/haiku-medium@everything pooled",
+          "pilot/sonnet-medium@everything pooled",
+          "pilot/codex-medium@everything pooled",
+          "pilot/codex-low-lean@everything pooled",
+          "pilot/astra-low@everything pooled",
+          "pilot/luna-low@everything pooled",
+          "pilot/terra56-low-prio@everything pooled",
+          "pilot/sol6-low-prio@everything pooled",
+          "pilot/sol61-low-prio@everything pooled",
+          "pilot/sol61-low-defa@everything pooled",
+          "pilot/luna-high-prio@everything pooled",
+          "pilot/codex-bare@everything pooled",
+          "pilot/haiku-low-agent@everything pooled",
+          "pilot/sonnet-medium-agent@everything pooled",
+          "pilot/luna-low-defa@everything pooled",
+          "rescue/luna-high-bare@everything pooled",
+          "rescue/luna-high-bare+haiku-on-fail@everything pooled",
+          "rescue/luna-high-bare+retry-on-fail@everything pooled",
+          "rescue/luna-low+haiku-on-fail@everything pooled",
+          "harness-bias/haiku-low / Claude harness@everything pooled",
+          "harness-bias/haiku-low / Codex harness@everything pooled"
+         ]
+        },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
          "on_frontier": false,
@@ -121741,6 +123436,7 @@
           "main/terra61-low@everything pooled",
           "main/terra61-high-fast@everything pooled",
           "main/terra61-low-fast@everything pooled",
+          "main/devinflash-medium@everything pooled",
           "trim/luna/base@everything pooled",
           "trim/luna/mininst@everything pooled",
           "trim/luna/noctx@everything pooled",
@@ -123576,6 +125272,7 @@
           "main/terra61-low@everything pooled",
           "main/terra61-high-fast@everything pooled",
           "main/terra61-low-fast@everything pooled",
+          "main/devinflash-medium@everything pooled",
           "trim/luna/base@everything pooled",
           "trim/luna/mininst@everything pooled",
           "trim/luna/noctx@everything pooled",
@@ -123824,8 +125521,8 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
-         "beaten": 1,
+         "total": 2,
+         "beaten": 2,
          "staircase": [
           [
            0.000296,
@@ -123842,7 +125539,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -125164,6 +126861,11 @@
           "pilot/luna-high-prio@everything pooled",
           "pilot/luna-low-defa@everything pooled"
          ]
+        },
+        "main/devinflash-medium@everything pooled": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
         },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
@@ -126677,7 +128379,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -126700,7 +128402,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -128103,6 +129805,11 @@
           "pilot/luna-low-defa@everything pooled"
          ]
         },
+        "main/devinflash-medium@everything pooled": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
          "on_frontier": false,
@@ -129615,7 +131322,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -129638,7 +131345,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -131335,6 +133042,11 @@
           "rescue/sol61-high+haiku-on-fail@everything pooled",
           "harness-bias/sol61-medium / Codex harness@everything pooled"
          ]
+        },
+        "main/devinflash-medium@everything pooled": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
         },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
@@ -133481,7 +135193,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -133679,7 +135391,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -137814,6 +139526,11 @@
           "pilot/luna-low-defa@everything pooled"
          ]
         },
+        "main/devinflash-medium@everything pooled": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
          "on_frontier": false,
@@ -139621,7 +141338,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -139639,7 +141356,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -141361,6 +143078,59 @@
           "pilot/luna-low-defa@everything pooled"
          ]
         },
+        "main/devinflash-medium@everything pooled": {
+         "eligible": true,
+         "on_frontier": false,
+         "beaten_by": [
+          "main/haiku-low@everything pooled",
+          "main/sonnet-medium@everything pooled",
+          "main/haiku-medium@everything pooled",
+          "main/luna-high@everything pooled",
+          "main/luna56-high@everything pooled",
+          "main/astra-medium-fast@everything pooled",
+          "main/terra61-high@everything pooled",
+          "main/terra61-low@everything pooled",
+          "main/terra61-high-fast@everything pooled",
+          "main/terra61-low-fast@everything pooled",
+          "trim/luna/base@everything pooled",
+          "trim/luna/mininst@everything pooled",
+          "trim/luna/noctx@everything pooled",
+          "trim/luna/nodoc@everything pooled",
+          "trim/luna/nofeat@everything pooled",
+          "trim/luna/noshell@everything pooled",
+          "trim/terra/base@everything pooled",
+          "trim/terra/mininst@everything pooled",
+          "trim/terra/noctx@everything pooled",
+          "trim/terra/nodoc@everything pooled",
+          "trim/terra/nofeat@everything pooled",
+          "trim/terra/noshell@everything pooled",
+          "trim/haiku@everything pooled",
+          "pilot/haiku-low@everything pooled",
+          "pilot/sonnet-low@everything pooled",
+          "pilot/codex-low@everything pooled",
+          "pilot/haiku-medium@everything pooled",
+          "pilot/sonnet-medium@everything pooled",
+          "pilot/codex-medium@everything pooled",
+          "pilot/codex-low-lean@everything pooled",
+          "pilot/astra-low@everything pooled",
+          "pilot/luna-low@everything pooled",
+          "pilot/terra56-low-prio@everything pooled",
+          "pilot/sol6-low-prio@everything pooled",
+          "pilot/sol61-low-prio@everything pooled",
+          "pilot/sol61-low-defa@everything pooled",
+          "pilot/luna-high-prio@everything pooled",
+          "pilot/codex-bare@everything pooled",
+          "pilot/haiku-low-agent@everything pooled",
+          "pilot/sonnet-medium-agent@everything pooled",
+          "pilot/luna-low-defa@everything pooled",
+          "rescue/luna-high-bare@everything pooled",
+          "rescue/luna-high-bare+haiku-on-fail@everything pooled",
+          "rescue/luna-high-bare+retry-on-fail@everything pooled",
+          "rescue/luna-low+haiku-on-fail@everything pooled",
+          "harness-bias/haiku-low / Claude harness@everything pooled",
+          "harness-bias/haiku-low / Codex harness@everything pooled"
+         ]
+        },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
          "on_frontier": false,
@@ -141601,6 +143371,7 @@
           "main/terra61-low@everything pooled",
           "main/terra61-high-fast@everything pooled",
           "main/terra61-low-fast@everything pooled",
+          "main/devinflash-medium@everything pooled",
           "trim/luna/base@everything pooled",
           "trim/luna/mininst@everything pooled",
           "trim/luna/noctx@everything pooled",
@@ -143436,6 +145207,7 @@
           "main/terra61-low@everything pooled",
           "main/terra61-high-fast@everything pooled",
           "main/terra61-low-fast@everything pooled",
+          "main/devinflash-medium@everything pooled",
           "trim/luna/base@everything pooled",
           "trim/luna/mininst@everything pooled",
           "trim/luna/noctx@everything pooled",
@@ -143681,8 +145453,8 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
-         "beaten": 1,
+         "total": 2,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -143699,7 +145471,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -145180,6 +146952,11 @@
           "pilot/luna-low-defa@everything pooled"
          ]
         },
+        "main/devinflash-medium@everything pooled": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
          "on_frontier": false,
@@ -147164,7 +148941,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -147182,7 +148959,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -148663,6 +150440,11 @@
           "pilot/luna-low-defa@everything pooled"
          ]
         },
+        "main/devinflash-medium@everything pooled": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "agentic/haiku-high@everything pooled": {
          "eligible": true,
          "on_frontier": false,
@@ -150647,7 +152429,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -150665,7 +152447,7 @@
           ],
           "median_s": [
            6.993333333333333,
-           11.748800000000001
+           18.412800000000004
           ]
          }
         },
@@ -152970,6 +154752,7 @@
      "main/astra-medium@main ladder",
      "main/terra61-low@main ladder",
      "main/terra61-high@main ladder",
+     "main/devinflash-medium@main ladder",
      "main/sol61-high-fast@main ladder",
      "main/astra-medium-fast@main ladder",
      "main/terra61-low-fast@main ladder",
@@ -153119,6 +154902,11 @@
           "main/haiku-high@main ladder"
          ]
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -153220,6 +155008,55 @@
           "median_s": [
            6.6000000000000005,
            23.430400000000006
+          ]
+         }
+        },
+        "devin": {
+         "on_frontier": 0,
+         "total": 1,
+         "beaten": 0,
+         "staircase": [
+          [
+           0.000798,
+           0.7333,
+           6.81
+          ],
+          [
+           0.00089,
+           0.7833,
+           8.24
+          ],
+          [
+           0.001049,
+           0.9167,
+           12.17
+          ],
+          [
+           0.001122,
+           0.95,
+           9.96
+          ],
+          [
+           0.00149,
+           0.9833,
+           13.04
+          ],
+          [
+           0.002822,
+           1.0,
+           14.74
+          ]
+         ],
+         "extents": {
+          "cost": null,
+          "zero_lane": false,
+          "pass_rate": [
+           0.6033,
+           1.03
+          ],
+          "median_s": [
+           10.96,
+           18.412800000000004
           ]
          }
         },
@@ -153729,6 +155566,11 @@
           "main/luna56-high@main ladder"
          ]
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -153806,6 +155648,40 @@
           "median_s": [
            6.6000000000000005,
            23.430400000000006
+          ]
+         }
+        },
+        "devin": {
+         "on_frontier": 0,
+         "total": 1,
+         "beaten": 0,
+         "staircase": [
+          [
+           0.001049,
+           0.9167,
+           12.17
+          ],
+          [
+           0.001122,
+           0.95,
+           9.96
+          ],
+          [
+           0.010646,
+           1.0,
+           5.97
+          ]
+         ],
+         "extents": {
+          "cost": null,
+          "zero_lane": false,
+          "pass_rate": [
+           0.6033,
+           1.03
+          ],
+          "median_s": [
+           10.96,
+           18.412800000000004
           ]
          }
         },
@@ -154234,6 +156110,25 @@
           "main/terra61-high-fast@main ladder"
          ]
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": true,
+         "on_frontier": false,
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-low@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder"
+         ]
+        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -154298,6 +156193,30 @@
           "median_s": [
            6.6000000000000005,
            23.430400000000006
+          ]
+         }
+        },
+        "devin": {
+         "on_frontier": 0,
+         "total": 1,
+         "beaten": 1,
+         "staircase": [
+          [
+           0.010646,
+           1.0,
+           5.97
+          ]
+         ],
+         "extents": {
+          "cost": null,
+          "zero_lane": false,
+          "pass_rate": [
+           0.6033,
+           1.03
+          ],
+          "median_s": [
+           10.96,
+           18.412800000000004
           ]
          }
         },
@@ -154597,6 +156516,11 @@
          "on_frontier": true,
          "beaten_by": []
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -154707,6 +156631,80 @@
           "median_s": [
            6.6000000000000005,
            23.430400000000006
+          ]
+         }
+        },
+        "devin": {
+         "on_frontier": 0,
+         "total": 1,
+         "beaten": 0,
+         "staircase": [
+          [
+           0.000798,
+           0.7333,
+           6.81
+          ],
+          [
+           0.00089,
+           0.7833,
+           8.24
+          ],
+          [
+           0.000899,
+           0.7667,
+           7.22
+          ],
+          [
+           0.001049,
+           0.9167,
+           12.17
+          ],
+          [
+           0.001122,
+           0.95,
+           9.96
+          ],
+          [
+           0.00149,
+           0.9833,
+           13.04
+          ],
+          [
+           0.00218,
+           0.8,
+           9.16
+          ],
+          [
+           0.002822,
+           1.0,
+           14.74
+          ],
+          [
+           0.007918,
+           0.9667,
+           11.93
+          ],
+          [
+           0.010405,
+           1.0,
+           10.34
+          ],
+          [
+           0.010646,
+           1.0,
+           5.97
+          ]
+         ],
+         "extents": {
+          "cost": null,
+          "zero_lane": false,
+          "pass_rate": [
+           0.6033,
+           1.03
+          ],
+          "median_s": [
+           10.96,
+           18.412800000000004
           ]
          }
         },
@@ -155356,6 +157354,11 @@
          "on_frontier": true,
          "beaten_by": []
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -155466,6 +157469,80 @@
           "median_s": [
            6.6000000000000005,
            23.430400000000006
+          ]
+         }
+        },
+        "devin": {
+         "on_frontier": 0,
+         "total": 1,
+         "beaten": 0,
+         "staircase": [
+          [
+           0.000798,
+           0.7333,
+           6.81
+          ],
+          [
+           0.00089,
+           0.7833,
+           8.24
+          ],
+          [
+           0.000899,
+           0.7667,
+           7.22
+          ],
+          [
+           0.001049,
+           0.9167,
+           12.17
+          ],
+          [
+           0.001122,
+           0.95,
+           9.96
+          ],
+          [
+           0.00149,
+           0.9833,
+           13.04
+          ],
+          [
+           0.00218,
+           0.8,
+           9.16
+          ],
+          [
+           0.002822,
+           1.0,
+           14.74
+          ],
+          [
+           0.007918,
+           0.9667,
+           11.93
+          ],
+          [
+           0.010405,
+           1.0,
+           10.34
+          ],
+          [
+           0.010646,
+           1.0,
+           5.97
+          ]
+         ],
+         "extents": {
+          "cost": null,
+          "zero_lane": false,
+          "pass_rate": [
+           0.6033,
+           1.03
+          ],
+          "median_s": [
+           10.96,
+           18.412800000000004
           ]
          }
         },
@@ -156221,6 +158298,11 @@
           "main/terra61-low-fast@main ladder"
          ]
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": true,
@@ -156323,6 +158405,60 @@
           "median_s": [
            6.6000000000000005,
            23.430400000000006
+          ]
+         }
+        },
+        "devin": {
+         "on_frontier": 0,
+         "total": 1,
+         "beaten": 0,
+         "staircase": [
+          [
+           0.0,
+           1.0,
+           14.47
+          ],
+          [
+           0.0,
+           1.0,
+           27.43
+          ],
+          [
+           0.0,
+           1.0,
+           20.92
+          ],
+          [
+           0.0,
+           1.0,
+           10.34
+          ],
+          [
+           0.0,
+           1.0,
+           17.39
+          ],
+          [
+           0.0,
+           1.0,
+           9.9
+          ],
+          [
+           0.0,
+           1.0,
+           5.97
+          ]
+         ],
+         "extents": {
+          "cost": null,
+          "zero_lane": false,
+          "pass_rate": [
+           0.6033,
+           1.03
+          ],
+          "median_s": [
+           10.96,
+           18.412800000000004
           ]
          }
         },
@@ -156881,6 +159017,11 @@
           "main/terra61-high-fast@main ladder"
          ]
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -156943,6 +159084,30 @@
           "median_s": [
            6.6000000000000005,
            23.430400000000006
+          ]
+         }
+        },
+        "devin": {
+         "on_frontier": 0,
+         "total": 1,
+         "beaten": 0,
+         "staircase": [
+          [
+           0.0,
+           1.0,
+           5.97
+          ]
+         ],
+         "extents": {
+          "cost": null,
+          "zero_lane": false,
+          "pass_rate": [
+           0.6033,
+           1.03
+          ],
+          "median_s": [
+           10.96,
+           18.412800000000004
           ]
          }
         },
@@ -157286,6 +159451,25 @@
           "main/terra61-high-fast@main ladder"
          ]
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": true,
+         "on_frontier": false,
+         "beaten_by": [
+          "main/haiku-low@main ladder",
+          "main/haiku-medium@main ladder",
+          "main/sonnet-medium@main ladder",
+          "main/haiku-high@main ladder",
+          "main/luna-high@main ladder",
+          "main/luna56-low@main ladder",
+          "main/luna56-high@main ladder",
+          "main/sol56-high@main ladder",
+          "main/terra61-low@main ladder",
+          "main/terra61-high@main ladder",
+          "main/astra-medium-fast@main ladder",
+          "main/terra61-low-fast@main ladder",
+          "main/terra61-high-fast@main ladder"
+         ]
+        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -157347,6 +159531,30 @@
           "median_s": [
            6.6000000000000005,
            23.430400000000006
+          ]
+         }
+        },
+        "devin": {
+         "on_frontier": 0,
+         "total": 1,
+         "beaten": 1,
+         "staircase": [
+          [
+           0.0,
+           1.0,
+           5.97
+          ]
+         ],
+         "extents": {
+          "cost": null,
+          "zero_lane": false,
+          "pass_rate": [
+           0.6033,
+           1.03
+          ],
+          "median_s": [
+           10.96,
+           18.412800000000004
           ]
          }
         },
@@ -157674,6 +159882,11 @@
           "main/terra61-high-fast@main ladder"
          ]
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -157733,6 +159946,30 @@
           "median_s": [
            6.6000000000000005,
            23.430400000000006
+          ]
+         }
+        },
+        "devin": {
+         "on_frontier": 0,
+         "total": 1,
+         "beaten": 0,
+         "staircase": [
+          [
+           0.0,
+           1.0,
+           5.97
+          ]
+         ],
+         "extents": {
+          "cost": null,
+          "zero_lane": false,
+          "pass_rate": [
+           0.6033,
+           1.03
+          ],
+          "median_s": [
+           10.96,
+           18.412800000000004
           ]
          }
         },
@@ -158060,6 +160297,11 @@
           "main/terra61-high-fast@main ladder"
          ]
         },
+        "main/devinflash-medium@main ladder": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@main ladder": {
          "eligible": true,
          "on_frontier": false,
@@ -158119,6 +160361,30 @@
           "median_s": [
            6.6000000000000005,
            23.430400000000006
+          ]
+         }
+        },
+        "devin": {
+         "on_frontier": 0,
+         "total": 1,
+         "beaten": 0,
+         "staircase": [
+          [
+           0.0,
+           1.0,
+           5.97
+          ]
+         ],
+         "extents": {
+          "cost": null,
+          "zero_lane": false,
+          "pass_rate": [
+           0.6033,
+           1.03
+          ],
+          "median_s": [
+           10.96,
+           18.412800000000004
           ]
          }
         },
@@ -172744,6 +175010,7 @@
      "main/terra56-low@rescue set",
      "main/terra56-high@rescue set",
      "main/devin16slow-default@rescue set",
+     "main/devinflash-medium@rescue set",
      "main/sol61-high-fast@rescue set",
      "main/astra-medium-fast@rescue set",
      "main/terra61-low-fast@rescue set",
@@ -172952,6 +175219,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -173098,7 +175370,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -173126,7 +175398,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -173637,6 +175909,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -173769,7 +176046,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -173802,7 +176079,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -174426,6 +176703,28 @@
           "derived/astra-medium-fast+haiku-on-fail@rescue set"
          ]
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": true,
+         "on_frontier": false,
+         "beaten_by": [
+          "main/haiku-low@rescue set",
+          "main/haiku-medium@rescue set",
+          "main/sonnet-medium@rescue set",
+          "main/haiku-high@rescue set",
+          "main/luna-high@rescue set",
+          "main/luna56-low@rescue set",
+          "main/luna56-high@rescue set",
+          "main/sol56-high@rescue set",
+          "main/terra61-low@rescue set",
+          "main/terra61-high@rescue set",
+          "main/sol61-high-fast@rescue set",
+          "main/astra-medium-fast@rescue set",
+          "main/terra61-low-fast@rescue set",
+          "main/terra61-high-fast@rescue set",
+          "derived/sol61-high-fast+haiku-on-fail@rescue set",
+          "derived/astra-medium-fast+haiku-on-fail@rescue set"
+         ]
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -174537,8 +176836,8 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
-         "beaten": 1,
+         "total": 2,
+         "beaten": 2,
          "staircase": [
           [
            0.012746,
@@ -174555,7 +176854,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -174955,6 +177254,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -175094,7 +177398,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -175152,7 +177456,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -175912,6 +178216,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -176051,7 +178360,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -176109,7 +178418,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -177011,6 +179320,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": true,
@@ -177162,7 +179476,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -177230,7 +179544,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -178122,6 +180436,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -178234,7 +180553,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -178252,7 +180571,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -178720,6 +181039,28 @@
           "derived/astra-medium-fast+haiku-on-fail@rescue set"
          ]
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": true,
+         "on_frontier": false,
+         "beaten_by": [
+          "main/haiku-low@rescue set",
+          "main/haiku-medium@rescue set",
+          "main/sonnet-medium@rescue set",
+          "main/haiku-high@rescue set",
+          "main/luna-high@rescue set",
+          "main/luna56-low@rescue set",
+          "main/luna56-high@rescue set",
+          "main/sol56-high@rescue set",
+          "main/terra61-low@rescue set",
+          "main/terra61-high@rescue set",
+          "main/sol61-high-fast@rescue set",
+          "main/astra-medium-fast@rescue set",
+          "main/terra61-low-fast@rescue set",
+          "main/terra61-high-fast@rescue set",
+          "derived/sol61-high-fast+haiku-on-fail@rescue set",
+          "derived/astra-medium-fast+haiku-on-fail@rescue set"
+         ]
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -178828,8 +181169,8 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
-         "beaten": 1,
+         "total": 2,
+         "beaten": 2,
          "staircase": [
           [
            0.0,
@@ -178846,7 +181187,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -179278,6 +181619,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -179377,7 +181723,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -179395,7 +181741,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },
@@ -179827,6 +182173,11 @@
          "on_frontier": false,
          "beaten_by": []
         },
+        "main/devinflash-medium@rescue set": {
+         "eligible": false,
+         "on_frontier": false,
+         "beaten_by": []
+        },
         "main/sol61-high-fast@rescue set": {
          "eligible": true,
          "on_frontier": false,
@@ -179926,7 +182277,7 @@
         },
         "devin": {
          "on_frontier": 0,
-         "total": 1,
+         "total": 2,
          "beaten": 0,
          "staircase": [
           [
@@ -179944,7 +182295,7 @@
           ],
           "median_s": [
            7.593333333333334,
-           12.756800000000002
+           27.9664
           ]
          }
         },

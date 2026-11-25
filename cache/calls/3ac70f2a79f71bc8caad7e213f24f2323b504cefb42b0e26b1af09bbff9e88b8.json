@@ -1,0 +1,23 @@
+{
+ "key": "3ac70f2a79f71bc8caad7e213f24f2323b504cefb42b0e26b1af09bbff9e88b8",
+ "ts": "2026-11-25T01:41:15+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p11_best_average",
+ "repeat": 5,
+ "lanes": 1,
+ "prompt_sha": "2183e22bdc23",
+ "wall_s": 129.36213570303516,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nfrom math import gcd\n\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    P = [0] * (n + 1)\n    for i in range(n):\n        P[i + 1] = P[i] + a[i]\n\n    hull = []\n    best_num, best_den = 0, 1\n\n    for j in range(1, n + 1):\n        t = j - k\n        if t < 0:\n            continue\n\n        while len(hull) >= 2:\n            u, v = hull[-2], hull[-1]\n            if (P[v] - P[u]) * (t - v) >= (P[t] - P[v]) * (v - u):\n                hull.pop()\n            else:\n                break\n        hull.append(t)\n\n        lo, hi = 0, len(hull) - 1\n        while lo < hi:\n            mid = (lo + hi) // 2\n            c, d = hull[mid + 1], hull[mid]\n            if (P[j] - P[c]) * (j - d) > (P[j] - P[d]) * (j - c):\n                lo = mid + 1\n            else:\n                hi = mid\n\n        v = hull[lo]\n        num, den = P[j] - P[v], j - v\n        if num * best_den > best_num * den:\n            best_num, best_den = num, den\n\n    g = gcd(best_num, best_den)\n    return [best_num // g, best_den // g]\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

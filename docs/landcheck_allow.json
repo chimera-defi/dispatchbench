@@ -8,7 +8,9 @@
     "results | config / passed / $ per pass / Claude $ / median s / verdict | hetzner-qwen38 † | Claude $: '–'": "Hetzner uses no Claude step and has no published list price. Its own cost is labelled free tier; the Claude-cost dash follows the Devin free-tier row and does not invent a dollar figure.",
     "results | config / passed / $ per pass / Claude $ / median s / verdict | inkling2mini-default · primary, frozen | Claude $: '–'": "Inkling uses no Claude step and has no list price; the dash follows the Hetzner free-tier rows.",
     "results | config / passed / $ per pass / Claude $ / median s / verdict | inkling2mini-ladder · retry ladder, secondary | Claude $: '–'": "Inkling uses no Claude step and has no list price; the dash follows the Hetzner free-tier rows.",
-    "notes | name / pass / $ per pass / median s / spend / where it appears | inkling2mini-low16k | $ per pass: '–'": "This retry stage passed 0 of 2 tasks, so it has no cost per pass; it is a stage, not a lane."
+    "notes | name / pass / $ per pass / median s / spend / where it appears | inkling2mini-low16k | $ per pass: '–'": "This retry stage passed 0 of 2 tasks, so it has no cost per pass; it is a stage, not a lane.",
+    "notes | name / pass / $ per pass / median s / spend / where it appears | devinflash-medium | $ per pass: '–'": "Devin reports no token usage or cost on the free tier; its unavailable dollar cells remain explicit rather than inventing a price (swe-2-flash-medium, PLAN.md deviation 28).",
+    "notes | name / pass / $ per pass / median s / spend / where it appears | devinflash-medium | spend: '–'": "Devin reports no token usage or cost on the free tier; its unavailable dollar cells remain explicit rather than inventing a price (swe-2-flash-medium, PLAN.md deviation 28)."
   },
   "groups": {},
   "removals": {

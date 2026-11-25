@@ -1,0 +1,23 @@
+{
+ "key": "6752957091b34a64877a94da1f5f78a33bd0a601ce1453b30ae8f94f55992707",
+ "ts": "2026-11-25T01:20:17+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p04_taller_within",
+ "repeat": 4,
+ "lanes": 1,
+ "prompt_sha": "a21d6b392d59",
+ "wall_s": 22.871535904007033,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nfrom bisect import bisect_left\n\ndef taller_within(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    if k == 0:\n        return [0] * n\n\n    vals = sorted(set(a))\n    ranks = [bisect_left(vals, x) for x in a]\n    m = len(vals)\n    bit = [0] * (m + 1)\n\n    def add(p: int, d: int) -> None:\n        p += 1\n        while p <= m:\n            bit[p] += d\n            p += p & -p\n\n    def prefix(p: int) -> int:\n        p += 1\n        s = 0\n        while p > 0:\n            s += bit[p]\n            p -= p & -p\n        return s\n\n    res = [0] * n\n    for i, r in enumerate(ranks):\n        size = i if i < k else k\n        res[i] = size - prefix(r)\n\n        add(r, 1)\n        out = i - k\n        if out >= 0:\n            add(ranks[out], -1)\n\n    return res\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

@@ -1,0 +1,23 @@
+{
+ "key": "309b82339ef44b52e4b514bbcd23d4069976646722f77936be6d0f49ffc31268",
+ "ts": "2026-11-25T00:47:22+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p04_taller_within",
+ "repeat": 1,
+ "lanes": 1,
+ "prompt_sha": "a21d6b392d59",
+ "wall_s": 10.954249047033954,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef taller_within(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    if k <= 0:\n        return [0] * n\n    vals = sorted(set(a))\n    m = len(vals)\n    idx = {v: i + 1 for i, v in enumerate(vals)}\n\n    bit = [0] * (m + 1)\n\n    def add(p, d):\n        while p <= m:\n            bit[p] += d\n            p += p & -p\n\n    def prefix(p):\n        s = 0\n        while p > 0:\n            s += bit[p]\n            p -= p & -p\n        return s\n\n    res = [0] * n\n    left = 0\n    added = 0\n    size = 0\n    for i in range(n):\n        while added < i:\n            add(idx[a[added]], 1)\n            added += 1\n            size += 1\n        while left < i - k:\n            add(idx[a[left]], -1)\n            left += 1\n            size -= 1\n        le = prefix(idx[a[i]])\n        res[i] = size - le\n    return res\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

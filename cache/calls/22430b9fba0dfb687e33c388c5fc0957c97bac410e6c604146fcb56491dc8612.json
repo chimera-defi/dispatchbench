@@ -1,0 +1,23 @@
+{
+ "key": "22430b9fba0dfb687e33c388c5fc0957c97bac410e6c604146fcb56491dc8612",
+ "ts": "2026-11-25T01:03:18+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p09_k_machine_schedule",
+ "repeat": 2,
+ "lanes": 1,
+ "prompt_sha": "cfc0b4d177d5",
+ "wall_s": 22.853253737965133,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nimport heapq\n\n\ndef k_machine_schedule(jobs: list[list[int]], k: int) -> int:\n    if not jobs or k <= 0:\n        return 0\n\n    times = sorted({t for s, e, _ in jobs for t in (s, e)})\n    idx = {t: i for i, t in enumerate(times)}\n    n = len(times)\n\n    # Min-cost flow: forward edges (capacity k, cost 0) let machines idle;\n    # each job is a backward edge end -> start (capacity 1, cost -pay).\n    # One unit of flow = one printer's timeline; k units = k printers.\n    g = [[] for _ in range(n)]\n    to_ = []\n    cap = []\n    cost = []\n    nxt = []\n\n    def add_edge(u, v, c, w):\n        to_.append(v); cap.append(c); cost.append(w); nxt.append(len(g[v])); g[u].append(len(to_) - 1)\n        to_.append(u); cap.append(0); cost.append(-w); nxt.append(len(g[u]) - 1); g[v].append(len(to_) - 1)\n\n    for i in range(n - 1):\n        add_edge(i, i + 1, k, 0)\n    for s, e, p in jobs:\n        add_edge(idx[e], idx[s], 1, -p)\n\n    src, dst = 0, n - 1\n    total = 0\n    for _ in range(k):\n        # Bellman-Ford shortest path (handles negative edges)\n        dist = [float('inf')] * n\n        prev_e = [-1] * n\n        dist[src] = 0\n        for _ in range(n):\n            upd = False\n            for u in range(n):\n                if dist[u] == float('inf'):\n                    continue\n                for ei in g[u]:\n                    if cap[ei] > 0 and dist[u] + cost[ei] < dist[to_[ei]]:\n                        dist[to_[ei]] = dist[u] + cost[ei]\n                        prev_e[to_[ei]] = ei\n                        upd = True\n            if not upd:\n                break\n        if dist[dst] == float('inf'):\n            break\n        # augment 1 unit along the path\n        v = dst\n        while v != src:\n            ei = prev_e[v]\n            cap[ei] -= 1\n            cap[ei ^ 1] += 1\n            v = to_[ei ^ 1]\n        total += dist[dst]\n\n    return -total\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

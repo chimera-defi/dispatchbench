@@ -1,0 +1,23 @@
+{
+ "key": "839bc4de7a5b66efcb98cfd8ea1e87822fe7403e23d2ce31b73cb68ac8073946",
+ "ts": "2026-11-25T01:38:09+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p08_recur",
+ "repeat": 5,
+ "lanes": 1,
+ "prompt_sha": "a11a8a333669",
+ "wall_s": 7.2369373589754105,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nfrom datetime import date, timedelta\nimport calendar\n\n\ndef recur(start: str, rule: str, count: int) -> list[str]:\n    s = date.fromisoformat(start)\n    parts = rule.split()\n    freq = parts[0]\n    k = int(parts[1])\n    res = []\n\n    if freq == \"DAILY\":\n        d = s\n        while len(res) < count:\n            res.append(d.isoformat())\n            d += timedelta(days=k)\n\n    elif freq == \"WEEKLY\":\n        days = {t: i for i, t in enumerate([\"MO\", \"TU\", \"WE\", \"TH\", \"FR\", \"SA\", \"SU\"])}\n        wd = {days[t] for t in parts[3].split(\",\")}\n        week0 = (s - timedelta(days=s.weekday())).toordinal() // 7\n        # candidate week index w >= week0, w % k == 0; w index = week0 - i for integer\n        # find smallest multiple of k >= week0\n        w = ((week0 + k - 1) // k) * k\n        while len(res) < count:\n            week_start = date.fromordinal((w - week0) * 7 + (s - timedelta(days=s.weekday())).toordinal())\n            for offset in range(7):\n                d = week_start + timedelta(days=offset)\n                if d.weekday() in wd and d >= s:\n                    res.append(d.isoformat())\n                    if len(res) == count:\n                        break\n            w += k\n\n    elif freq == \"MONTHLY\" and len(parts) == 4:\n        dspec = parts[3]\n        m0 = s.year * 12 + s.month - 1\n        i = (m0 + k - 1) // k * k - m0  # not quite; simpler below\n        # active months: m0 + k*j for j>=0\n        j = 0\n        y, m = s.year, s.month\n        while len(res) < count:\n            if j % k == 0:\n                if dspec == \"-1\":\n                    last = calendar.monthrange(y, m)[1]\n                    d = date(y, m, last)\n                else:\n                    day = int(dspec)\n                    if day <= calendar.monthrange(y, m)[1]:\n                        d = date(y, m, day)\n                    else:\n                        d = None\n                if d is not None and d >= s:\n                    res.append(d.isoformat())\n            j += 1\n            m += 1\n            if m == 13:\n                m = 1\n                y += 1\n\n    elif freq == \"MONTHLY\":\n        n = int(parts[3])\n        wdcode = parts[4]\n        wd = {\"MO\": 0, \"TU\": 1, \"WE\": 2, \"TH\": 3, \"FR\": 4, \"SA\": 5, \"SU\": 6}[wdcode]\n        j = 0\n        y, m = s.year, s.month\n        while len(res) < count:\n            if j % k == 0:\n                first = date(y, m, 1)\n                days = [d for d in range(1, calendar.monthrange(y, m)[1] + 1)\n                        if date(y, m, d).weekday() == wd]\n                if days:\n                    d = date(y, m, days[n - 1] if n > 0 else days[n])\n                    if d >= s:\n                        res.append(d.isoformat())\n            j += 1\n            m += 1\n            if m == 13:\n                m = 1\n                y += 1\n\n    elif freq == \"YEARLY\":\n        mm, dd = map(int, parts[3].split(\"-\"))\n        y = s.year\n        j = 0\n        while len(res) < count:\n            yy = y + j * k\n            try:\n                d = date(yy, mm, dd)\n                if d >= s:\n                    res.append(d.isoformat())\n            except ValueError:\n                pass\n            j += 1\n\n    return res\n```\n\nWait \u2014 issue: for MONTHLY fixed-day, I iterate every month and skip non-active via `j % k`, that's fine. But for `MONTHLY K D` I had a leftover dead line (`i = ...` unused and wrong). Let me clean that up.\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

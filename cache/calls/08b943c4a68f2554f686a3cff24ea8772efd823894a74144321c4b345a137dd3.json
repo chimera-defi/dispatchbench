@@ -1,0 +1,23 @@
+{
+ "key": "08b943c4a68f2554f686a3cff24ea8772efd823894a74144321c4b345a137dd3",
+ "ts": "2026-11-25T00:46:43+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p01_overlap_minutes",
+ "repeat": 1,
+ "lanes": 1,
+ "prompt_sha": "c95d1fe6b46f",
+ "wall_s": 7.214054731943179,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef overlap_minutes(meetings: list[list[int]], k: int) -> int:\n    events = []\n    for start, end in meetings:\n        if start < end:\n            events.append((start, 1))\n            events.append((end, -1))\n    events.sort(key=lambda e: (e[0], e[1]))\n    total = 0\n    active = 0\n    prev = None\n    for time, delta in events:\n        if prev is not None and active >= k:\n            total += time - prev\n        active += delta\n        prev = time\n    return total\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

@@ -1,0 +1,11 @@
+diff --git a/results/README.md b/results/README.md
+index 890188f..5bbaa8f 100644
+--- a/results/README.md
++++ b/results/README.md
+@@ -51,3 +51,6 @@ Each move needs its readers rewritten, then `make report`, `python3 -m analysis.
+ 
+ summary.json is gone: the summary is computed in memory and folded into dataset.json. Add a config to `analysis/configs.py` when a new run lands; audit enforces it.
+ - `2026-11-02-terra-priority-function.jsonl`, `2026-11-02-terra-noise-function.jsonl`, `2026-11-02-terra-priority-repo.jsonl` gpt-6.1-terra priority tier, noise check, repo track (PLAN.md deviation 25) | bench runners | analysis/terra_priority.py (appendix only; not in the page)
++- `2026-11-02-terra-followup-function.jsonl` gpt-6.1-terra function-track follow-up rows (terra61-low/high, exploratory; standard-tier L7/repo/p04 comparison sets, PLAN.md deviation 26) | bench runner | analysis/terra_priority.py (appendix only; not in the page), dataset
++- `2026-11-02-terra-followup-repo.jsonl` gpt-6.1-terra repo-task follow-up rows (t1–t4, standard tier, deviation 26) | bench runner | analysis/terra_priority.py (appendix only; not in the page), dataset
++- `2026-11-02-terra-l7-fast-function.jsonl` gpt-6.1-terra L7 hard-problem rows at the priority tier (terra61-low-fast, exploratory, deviation 27) | bench runner | analysis/terra_priority.py (appendix only; not in the page), summarize, dataset

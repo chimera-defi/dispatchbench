@@ -1,0 +1,23 @@
+{
+ "key": "a1a922fd75e9e85abe4c4113e7fa9da2db7b030011ea97044b5545a59badb968",
+ "ts": "2026-11-25T00:46:53+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p02_squash",
+ "repeat": 1,
+ "lanes": 1,
+ "prompt_sha": "d181f757d981",
+ "wall_s": 6.636395129025914,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef squash(s: str) -> str:\n    out = []\n    n = len(s)\n    i = 0\n    while i < n:\n        j = i + 1\n        while j < n and s[j] == s[i]:\n            j += 1\n        run = j - i\n        c = s[i]\n        esc = \"\\\\\" + c if c == \"\\\\\" or \"0\" <= c <= \"9\" else c\n        if run >= 3:\n            out.append(str(run))\n            out.append(esc)\n        else:\n            out.append(esc * run)\n        i = j\n    return \"\".join(out)\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

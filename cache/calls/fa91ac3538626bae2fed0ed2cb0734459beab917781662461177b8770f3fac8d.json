@@ -1,0 +1,23 @@
+{
+ "key": "fa91ac3538626bae2fed0ed2cb0734459beab917781662461177b8770f3fac8d",
+ "ts": "2026-11-25T01:37:17+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p05_pass_route",
+ "repeat": 5,
+ "lanes": 1,
+ "prompt_sha": "a9070ce4e2ec",
+ "wall_s": 12.687896338000428,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nimport heapq\n\ndef pass_route(n: int, edges: list[list[int]], stations: list[list[int]], prices: list[int]) -> int:\n    Z = len(prices)\n    S = 1 << Z\n    INF = float(\"inf\")\n\n    adj = [[] for _ in range(n)]\n    for u, v, c, z in edges:\n        adj[u].append((v, c, z))\n        adj[v].append((u, c, z))\n\n    station_zones = [[] for _ in range(n)]\n    for s, z in stations:\n        if 0 <= z < Z:\n            station_zones[s].append(1 << z)\n\n    dist = [[INF] * S for _ in range(n)]\n    dist[0][0] = 0\n    heap = [(0, 0, 0)]  # (cost, node, mask)\n\n    while heap:\n        d, u, mask = heapq.heappop(heap)\n        if d != dist[u][mask]:\n            continue\n        if u == n - 1:\n            return d\n\n        # Buy any pass available at this stop.\n        for bit in station_zones[u]:\n            if not (mask & bit):\n                nm = mask | bit\n                nd = d + prices[bit.bit_length() - 1]\n                if nd < dist[u][nm]:\n                    dist[u][nm] = nd\n                    heapq.heappush(heap, (nd, u, nm))\n\n        # Ride each edge.\n        for v, c, z in adj[u]:\n            if z >= 0 and (mask >> z) & 1:\n                w = 0\n            else:\n                w = c\n            nd = d + w\n            if nd < dist[v][mask]:\n                dist[v][mask] = nd\n                heapq.heappush(heap, (nd, v, mask))\n\n    return min(dist[n - 1]) if min(dist[n - 1]) != INF else -1\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

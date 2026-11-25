@@ -14,6 +14,7 @@ Completed agy calls: hydrogen-low 16, hydrogen-medium 9, hydrogen-high 6, gemini
 | gemini38flash-low | 5/6 | 6.1 | 16,972 | 481 |
 | haiku-low | 6/6 | 10.2 | 4,466 | 1,428 |
 | terra61-low | 6/6 | 7.2 | 14,044 | 363 |
+Token counts are each CLI's own report (agy counts its harness prompt in input tokens), so they are not a like-for-like prompt size.
 
 ### Slice B: low, medium, flash (p01-p09)
 
@@ -26,6 +27,7 @@ Completed agy calls: hydrogen-low 16, hydrogen-medium 9, hydrogen-high 6, gemini
 | gemini38flash-low | 7/9 | 6.7 | 17,431 | 585 |
 | haiku-low | 8/9 | 9.1 | 4,458 | 1,306 |
 | terra61-low | 9/9 | 7.4 | 14,042 | 402 |
+Token counts are each CLI's own report (agy counts its harness prompt in input tokens), so they are not a like-for-like prompt size.
 
 ### Slice C: low and flash, all of p01-p12 (p01-p12)
 
@@ -37,3 +39,4 @@ Completed agy calls: hydrogen-low 16, hydrogen-medium 9, hydrogen-high 6, gemini
 | gemini38flash-low | 8/12 | 8.2 | 17,680 | 820 |
 | haiku-low | 10/12 | 10.4 | 4,497 | 1,516 |
 | terra61-low | 12/12 | 7.6 | 14,067 | 499 |
+Token counts are each CLI's own report (agy counts its harness prompt in input tokens), so they are not a like-for-like prompt size.
