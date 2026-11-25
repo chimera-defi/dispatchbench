@@ -110,7 +110,7 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 
 {{chart:pass_by_rung.svg|Pass rate by difficulty rung, {{rung_attempts}} attempts per rung per config.}}
 
-{{chart:heatmap.svg|Passes out of {{repeats}} per problem and config. The Gemini and Antigravity columns are a partial ladder: each cell is passes over the tries made before the account quota ran out.}}
+{{chart:heatmap.svg|Passes out of {{repeats}} per problem and config. The Gemini and Antigravity columns are a first round: each cell is passes over the tries made so far.}}
 
 {{chart:token_floor.svg|Minimum input tokens over all calls, cached share shaded.}}
 
@@ -124,6 +124,16 @@ Each trim level adds Codex CLI 0.163.0 config knobs to the one before. The probe
 {{table:floor}}
 
 gpt-5.6-terra at the smallest prompt costs {{terra_call}} per call on the pilot problems, about {{terra_x}} haiku-low, so it was not run on the full ladder.
+
+## Gemini through the Antigravity CLI (exploratory, first round)
+
+{{agy_lead}}
+
+{{table:agy_summary}}
+
+{{agy_scope}}
+
+{{agy_verdict}}
 
 ## Hetzner free tier (exploratory calibration)
 

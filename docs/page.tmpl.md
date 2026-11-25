@@ -149,6 +149,13 @@
 <details><summary>Everything we tried</summary>
 {{table:grok_catalog}}
 </details>
+<h3 id="gemini">Gemini through the Antigravity CLI</h3>
+{{table:agy_summary}}
+<ul class="tight small">
+<li>{{agy_lead}}</li>
+<li>{{agy_scope}}</li>
+<li>{{agy_verdict}}</li>
+</ul>
 <h3 id="hetzner">Hetzner free tier</h3>
 {{table:hetzner_summary}}
 <ul class="tight small">

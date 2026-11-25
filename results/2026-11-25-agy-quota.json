@@ -1,0 +1,16 @@
+{
+  "source": "agy -p \"/usage\" --model gemini-3.8-flash-low --output-format json: Gemini Models limits, percent remaining, read by hand between batches on 2026-11-25. Readings move by about one point between reads and include any other use of the account.",
+  "plan": {"name": "Google AI Pro", "first_month": 30.50, "renewal": 26.99, "currency": "CA$", "currency_note": "operator verified: Google Play order 30.50 in the Canada store, plan page CA$26.99"},
+  "readings": {
+    "18:55Z": {"weekly": 100, "five_hour": 100, "note": "assumed start; no reading was taken before the first batch"},
+    "19:21Z": {"weekly": 91, "five_hour": 67},
+    "21:11Z": {"weekly": 84, "five_hour": 44},
+    "22:01Z": {"weekly": 80, "five_hour": 22}
+  },
+  "batch_note": "The Hydrogen and Flash batch counts the 174 calls made between the 18:55Z and 19:21Z readings (agy 1.5.17, after the move to Google AI Pro). The other 49 Hydrogen and Flash rows ran at 02:31-02:34Z on agy 1.5.16 before the first 429 and are not in that figure.",
+  "batches": [
+    {"configs": ["hydrogen-low", "hydrogen-medium", "hydrogen-high", "gemini38flash-low"], "calls": 174, "before": "18:55Z", "after": "19:21Z"},
+    {"configs": ["neon-medium"], "calls": 60, "before": "19:21Z", "after": "21:11Z"},
+    {"configs": ["neon-high"], "calls": 36, "before": "21:11Z", "after": "22:01Z"}
+  ]
+}

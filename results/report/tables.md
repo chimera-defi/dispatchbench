@@ -205,17 +205,17 @@ By rung: L1 10/10, L2 9/10, L3 8/10, L4 6/10, L5 7/10, L6 8/10
 
 ## Exploratory, not pre-registered: gemini38flash-low (stock harness, partial ladder, n per cell in the results table)
 
-By rung: L1 4/4, L2 4/4, L3 3/4, L4 2/2, L5 1/2, L6 0/2
+By rung: L1 10/10, L2 10/10, L3 9/10, L4 10/10, L5 7/10, L6 4/10
 
 | config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
 |---|---|---|---|---|---|---|---|---|---|---|
-| gemini38flash-low | 78% (14/18) | 53%–95% | L6 | 7.37 | 10.7 | 17000 | – | – | – | unmetered |
+| gemini38flash-low | 83% (50/60) | 63%–98% | L6 | 9.31 | 12.99 | 17996 | – | – | – | unmetered |
 
 | a | b | diff | 95% CI |
 |---|---|---|---|
-| gemini38flash-low | luna-low | +1.1 pts | -21.7 to +23.3 |
-| gemini38flash-low | haiku-low | -17.2 pts | -38.7 to -1.9 |
-| gemini38flash-low | luna-medium | -0.6 pts | -25.0 to +22.5 |
+| gemini38flash-low | luna-low | +6.7 pts | -8.3 to +25.0 |
+| gemini38flash-low | haiku-low | -11.7 pts | -28.3 to +1.7 |
+| gemini38flash-low | luna-medium | +5.0 pts | -13.3 to +25.0 |
 
 ## Exploratory, not pre-registered: haiku-high (stock harness, full ladder)
 
@@ -233,45 +233,45 @@ By rung: L1 10/10, L2 10/10, L3 10/10, L4 10/10, L5 10/10, L6 10/10
 
 ## Exploratory, not pre-registered: hydrogen-high (stock harness, partial ladder, n per cell in the results table)
 
-By rung: L1 2/2, L2 2/2, L3 2/2
+By rung: L1 8/8, L2 8/8, L3 8/8, L4 7/7, L5 6/6, L6 6/6
 
 | config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
 |---|---|---|---|---|---|---|---|---|---|---|
-| hydrogen-high | 100% (6/6) | ≥61% (all passed) | not reached | 18.74 | 41.25 | 18928 | – | – | – | unmetered |
+| hydrogen-high | 100% (43/43) | ≥78% (all passed) | not reached | 25.58 | 60.73 | 19003 | – | – | – | unmetered |
 
 | a | b | diff | 95% CI |
 |---|---|---|---|
-| hydrogen-high | luna-low | +13.3 pts | +0.0 to +43.3 |
-| hydrogen-high | haiku-low | +0.0 pts | +0.0 to +0.0 |
-| hydrogen-high | luna-medium | +16.7 pts | +0.0 to +46.7 |
+| hydrogen-high | luna-low | +23.3 pts | +5.0 to +45.0 |
+| hydrogen-high | haiku-low | +5.0 pts | +0.0 to +15.0 |
+| hydrogen-high | luna-medium | +21.7 pts | +3.3 to +43.3 |
 
 ## Exploratory, not pre-registered: hydrogen-low (stock harness, partial ladder, n per cell in the results table)
 
-By rung: L1 4/4, L2 4/4, L3 2/2, L4 2/2, L5 2/2, L6 2/2
+By rung: L1 10/10, L2 10/10, L3 9/10, L4 10/10, L5 10/10, L6 7/10
 
 | config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
 |---|---|---|---|---|---|---|---|---|---|---|
-| hydrogen-low | 100% (16/16) | ≥78% (all passed) | not reached | 7.82 | 13.61 | 18941 | – | – | – | unmetered |
+| hydrogen-low | 93% (56/60) | 80%–100% | not reached | 9.68 | 14.85 | 17893 | – | – | – | unmetered |
 
 | a | b | diff | 95% CI |
 |---|---|---|---|
-| hydrogen-low | luna-low | +23.3 pts | +5.0 to +45.0 |
-| hydrogen-low | haiku-low | +5.0 pts | +0.0 to +15.0 |
-| hydrogen-low | luna-medium | +21.7 pts | +3.3 to +43.3 |
+| hydrogen-low | luna-low | +16.7 pts | +0.0 to +35.0 |
+| hydrogen-low | haiku-low | -1.7 pts | -13.3 to +10.0 |
+| hydrogen-low | luna-medium | +15.0 pts | +0.0 to +35.0 |
 
 ## Exploratory, not pre-registered: hydrogen-medium (stock harness, partial ladder, n per cell in the results table)
 
-By rung: L1 2/2, L2 2/2, L3 1/2, L4 2/2, L5 1/1
+By rung: L1 10/10, L2 10/10, L3 9/10, L4 10/10, L5 10/10, L6 10/10
 
 | config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
 |---|---|---|---|---|---|---|---|---|---|---|
-| hydrogen-medium | 89% (8/9) | 67%–100% | not reached | 14.25 | 26.67 | 18937 | – | – | – | unmetered |
+| hydrogen-medium | 98% (59/60) | 93%–100% | not reached | 16.3 | 44.35 | 18187 | – | – | – | unmetered |
 
 | a | b | diff | 95% CI |
 |---|---|---|---|
-| hydrogen-medium | luna-low | +6.7 pts | -26.7 to +35.6 |
-| hydrogen-medium | haiku-low | -6.7 pts | -33.3 to +13.3 |
-| hydrogen-medium | luna-medium | +0.0 pts | -31.1 to +26.7 |
+| hydrogen-medium | luna-low | +21.7 pts | +1.7 to +45.0 |
+| hydrogen-medium | haiku-low | +3.3 pts | -5.0 to +13.3 |
+| hydrogen-medium | luna-medium | +20.0 pts | +0.0 to +43.3 |
 
 ## Exploratory, not pre-registered: luna-high (stock harness, full ladder)
 
@@ -328,6 +328,34 @@ By rung: L1 10/10, L2 9/10, L3 6/10, L4 8/10, L5 9/10, L6 6/10
 | luna56-low | luna-low | +3.3 pts | -20.0 to +25.0 |
 | luna56-low | haiku-low | -15.0 pts | -35.0 to +3.3 |
 | luna56-low | luna-medium | +1.7 pts | -21.7 to +25.0 |
+
+## Exploratory, not pre-registered: neon-high (stock harness, partial ladder, n per cell in the results table)
+
+By rung: L1 6/6, L2 6/6, L3 6/6, L4 6/6, L5 6/6, L6 6/6
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| neon-high | 100% (36/36) | ≥78% (all passed) | not reached | 61.75 | 127.52 | 7556 | – | – | – | unmetered |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| neon-high | luna-low | +23.3 pts | +5.0 to +45.0 |
+| neon-high | haiku-low | +5.0 pts | +0.0 to +15.0 |
+| neon-high | luna-medium | +21.7 pts | +3.3 to +45.0 |
+
+## Exploratory, not pre-registered: neon-medium (stock harness, partial ladder, n per cell in the results table)
+
+By rung: L1 10/10, L2 10/10, L3 10/10, L4 10/10, L5 10/10, L6 10/10
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| neon-medium | 100% (60/60) | ≥78% (all passed) | not reached | 37.41 | 81.53 | 8363 | – | – | – | unmetered |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| neon-medium | luna-low | +23.3 pts | +5.0 to +45.0 |
+| neon-medium | haiku-low | +5.0 pts | +0.0 to +15.0 |
+| neon-medium | luna-medium | +21.7 pts | +3.3 to +45.0 |
 
 ## Exploratory, not pre-registered: sol56-high (stock harness, full ladder)
 
