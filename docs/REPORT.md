@@ -375,14 +375,14 @@ Google Gemini through the Antigravity CLI (agy) on one Google AI Pro subscriptio
 | hydrogen-high | 43/43 | 25.6 | 0.6 (shared batch) | 2.3 (shared batch) | plan, CA$26.99 a month |
 | neon-medium | 60/60 | 37.4 | 1.4 | 4.6 | plan, CA$26.99 a month |
 | neon-high | 36/36 | 61.8 | 1.3 | 7.3 | plan, CA$26.99 a month |
-| haiku-low | 57/60 | 10.0 | – | – | $0.0011 per pass (measured) |
-| sonnet-medium | 60/60 | 10.1 | – | – | $0.012 per pass (measured) |
-| terra61-low | 60/60 | 10.3 | – | – | $0.010 per pass (token estimate) |
-| sol61-high | 60/60 | 27.4 | – | – | $0.019 per pass (token estimate) |
+| haiku-low | 57/60 | 10.0 | – | – | US$0.0011 per pass (measured) |
+| sonnet-medium | 60/60 | 10.1 | – | – | US$0.012 per pass (measured) |
+| terra61-low | 60/60 | 10.3 | – | – | US$0.010 per pass (token estimate) |
+| sol61-high | 60/60 | 27.4 | – | – | US$0.019 per pass (token estimate) |
 
 First round, extend later. This is rough: one pass of 12 problems per repeat, and not the same number of repeats everywhere (60 tries for 3.8 Flash, Hydrogen low and Neon medium, 36 for Neon high, 43 for Hydrogen high; Hydrogen medium 60). Quota figures come from one day's /usage readings that move by about a point between reads and include any other use of the account; the 100% start before the first batch was assumed, not read. Hydrogen and 3.8 Flash ran in one batch, so their quota figure is the batch average. Their rows mix agy 1.5.16 (before the plan change) and 1.5.17. The Claude and GPT-OSS models on the same login have their own limit pool and were not run again.
 
-Neon passed every try (60/60 at medium, 36/36 at high) but takes 37 s and 62 s a call, against 10 s for terra61-low, which passed 60/60. Hydrogen low and 3.8 Flash take about 10 and 9 s a call, like haiku-low and terra61-low, but miss more (56/60 and 50/60).
+Neon passed every try (60/60 at medium, 36/36 at high) but takes 37 s and 62 s a call, against 10 s for terra61-low, which passed 60/60. Hydrogen low and 3.8 Flash take about 10 and 9 s a call, like haiku-low and terra61-low; 3.8 Flash misses more than both, Hydrogen low about the same as haiku-low (56/60 and 50/60).
 
 ## Hetzner free tier (exploratory calibration)
 

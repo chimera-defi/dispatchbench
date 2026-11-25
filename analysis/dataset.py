@@ -1969,7 +1969,7 @@ def _agy(ds, s):
         table.append([DISP(c), f"{r['passes']}/{r['n']}", f"{median_seconds(r):.1f}", f"{w:.1f}" + (" (shared batch)" if shared else ""), f"{h:.1f}" + (" (shared batch)" if shared else ""), price])
     for c in ("haiku-low", "sonnet-medium", "terra61-low", "sol61-high"):
         r = get(ds, c, "main ladder"); got[c] = r
-        table.append([DISP(c), f"{r['passes']}/{r['n']}", f"{median_seconds(r):.1f}", "–", "–", f"{usd(r['usd_per_pass'])} per pass ({'measured' if r['cost_kind'] == 'measured' else 'token estimate'})"])
+        table.append([DISP(c), f"{r['passes']}/{r['n']}", f"{median_seconds(r):.1f}", "–", "–", f"US{usd(r['usd_per_pass'])} per pass ({'measured' if r['cost_kind'] == 'measured' else 'token estimate'})"])
     ds["tables"]["agy_summary"] = md_table(["config", "passes/tries", "median s per call", "weekly quota points per 12 calls", "5-hour quota points per 12 calls", "price"], table)
     nm, nh = got["neon-medium"], got["neon-high"]
     need(nm["pass_rate"] == 1 and nh["pass_rate"] == 1 and median_seconds(nm) > 3 * median_seconds(got["terra61-low"]),
@@ -1986,7 +1986,7 @@ def _agy(ds, s):
                       "The Claude and GPT-OSS models on the same login have their own limit pool and were not run again.")
     F["agy_verdict"] = (f"Neon passed every try ({nm['passes']}/{nm['n']} at medium, {nh['passes']}/{nh['n']} at high) but takes {median_seconds(nm):.0f} s and {median_seconds(nh):.0f} s a call, "
                         f"against {median_seconds(got['terra61-low']):.0f} s for terra61-low, which passed {got['terra61-low']['passes']}/{got['terra61-low']['n']}. "
-                        f"Hydrogen low and 3.8 Flash take about {median_seconds(got['hydrogen-low']):.0f} and {median_seconds(got['gemini38flash-low']):.0f} s a call, like haiku-low and terra61-low, but miss more ({got['hydrogen-low']['passes']}/{got['hydrogen-low']['n']} and {got['gemini38flash-low']['passes']}/{got['gemini38flash-low']['n']}).")
+                        f"Hydrogen low and 3.8 Flash take about {median_seconds(got['hydrogen-low']):.0f} and {median_seconds(got['gemini38flash-low']):.0f} s a call, like haiku-low and terra61-low; 3.8 Flash misses more than both, Hydrogen low about the same as haiku-low ({got['hydrogen-low']['passes']}/{got['hydrogen-low']['n']} and {got['gemini38flash-low']['passes']}/{got['gemini38flash-low']['n']}).")
 
 
 def _inkling(ds, s):

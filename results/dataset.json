@@ -46751,9 +46751,9 @@
    "source": "results/2026-11-25-agy-function.jsonl + results/2026-11-25-agy-quota.json (/usage readings); references: results/2026-10-22b-function.jsonl"
   },
   "agy_verdict": {
-   "value": "Neon passed every try (60/60 at medium, 36/36 at high) but takes 37 s and 62 s a call, against 10 s for terra61-low, which passed 60/60. Hydrogen low and 3.8 Flash take about 10 and 9 s a call, like haiku-low and terra61-low, but miss more (56/60 and 50/60).",
+   "value": "Neon passed every try (60/60 at medium, 36/36 at high) but takes 37 s and 62 s a call, against 10 s for terra61-low, which passed 60/60. Hydrogen low and 3.8 Flash take about 10 and 9 s a call, like haiku-low and terra61-low; 3.8 Flash misses more than both, Hydrogen low about the same as haiku-low (56/60 and 50/60).",
    "unit": "text",
-   "display": "Neon passed every try (60/60 at medium, 36/36 at high) but takes 37 s and 62 s a call, against 10 s for terra61-low, which passed 60/60. Hydrogen low and 3.8 Flash take about 10 and 9 s a call, like haiku-low and terra61-low, but miss more (56/60 and 50/60).",
+   "display": "Neon passed every try (60/60 at medium, 36/36 at high) but takes 37 s and 62 s a call, against 10 s for terra61-low, which passed 60/60. Hydrogen low and 3.8 Flash take about 10 and 9 s a call, like haiku-low and terra61-low; 3.8 Flash misses more than both, Hydrogen low about the same as haiku-low (56/60 and 50/60).",
    "source": "results/2026-11-25-agy-function.jsonl + results/2026-11-25-agy-quota.json (/usage readings); references: results/2026-10-22b-function.jsonl"
   },
   "inkling_name": {
@@ -50144,7 +50144,7 @@
      "10.0",
      "–",
      "–",
-     "$0.0011 per pass (measured)"
+     "US$0.0011 per pass (measured)"
     ],
     [
      "sonnet-medium",
@@ -50152,7 +50152,7 @@
      "10.1",
      "–",
      "–",
-     "$0.012 per pass (measured)"
+     "US$0.012 per pass (measured)"
     ],
     [
      "terra61-low",
@@ -50160,7 +50160,7 @@
      "10.3",
      "–",
      "–",
-     "$0.010 per pass (token estimate)"
+     "US$0.010 per pass (token estimate)"
     ],
     [
      "sol61-high",
@@ -50168,7 +50168,7 @@
      "27.4",
      "–",
      "–",
-     "$0.019 per pass (token estimate)"
+     "US$0.019 per pass (token estimate)"
     ]
    ]
   },
