@@ -101,7 +101,7 @@ def _rows(include_grok_repo=False):
         add("main", c, st, r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
         if c not in configs.GROK_CONFIGS and r["problem"] in PIDS and r["phase"] in ("main", "exploratory", "fastmode") and r["repeat"] <= REPEATS:  # the same rows again, as the rescue-set baseline
             add("main", c, "rescue set", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
-    for r in summarize.inkling_rows() + summarize.inkling_ladder_rows():  # free local CPU lane (primary, retry stages, and the ladder as one lane): p01–p15, outside the ladder statistics, listed as partial-ladder rows
+    for r in summarize.inkling_rows() + summarize.inkling_ladder_rows():  # local CPU lane (primary, retry stages, and the ladder as one lane): p01–p15, outside the ladder statistics, listed as partial-ladder rows
         add("main", r["config"], "partial ladder", r, r["passed"], r["wall_s"], r["problem"], r["wall_s"] / 3600 * configs.BOX_USD_PER_HOUR, r["in_tok"], r["out_tok"])  # estimated from box-hours
     for r in summarize.agentic_rows():
         done = bool(r.get("task_complete", r["visible_pass"] and r["hidden_pass"]))  # the headline repo-task rule: hidden and the run's own visible suite both green

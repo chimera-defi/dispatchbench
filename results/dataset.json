@@ -154,7 +154,7 @@
   },
   {
    "path": "results/2026-11-22-inkling-function.jsonl",
-   "sha256": "4c2c8dba0e05046a85de539099ce0804ba8894a4ccd745ea1d23c909a51f8642",
+   "sha256": "9c085f1ada25efd5c36c1df590336dcbdeaed02d88e72789fe8ca2cad2f114dc",
    "rows": 15,
    "date": "2026-11-22",
    "lanes": "llama.cpp",
@@ -162,7 +162,7 @@
   },
   {
    "path": "results/2026-11-22-inkling-retry-function.jsonl",
-   "sha256": "5b96217f0e33ed651e4c366c7a2a978bc9445587433f95685ef244d01707a29b",
+   "sha256": "24f8586e38e09087e5124cbfba28c438aa0c22f63b7e063d450b0c340238e3c1",
    "rows": 11,
    "date": "2026-11-22",
    "lanes": "llama.cpp",
@@ -8206,7 +8206,7 @@
    "display": "inkling2mini-default",
    "family": "Inkling",
    "category": "exploratory",
-   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, Inkling 2 Mini IQ4_NL GGUF, default effort, 12288-token cap: the frozen primary run on p01–p15",
+   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); local CPU model, no list price, cost estimated from box-hours; exploratory, Inkling 2 Mini IQ4_NL GGUF, default effort, 12288-token cap: the frozen primary run on p01–p15",
    "set": "partial ladder",
    "derived": false,
    "files": [
@@ -8368,7 +8368,7 @@
    "display": "inkling2mini-medium16k",
    "family": "Inkling",
    "category": "exploratory",
-   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, same model, medium effort, 16384-token cap: secondary retry of the tasks the primary run left capped",
+   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); local CPU model, no list price, cost estimated from box-hours; exploratory, same model, medium effort, 16384-token cap: secondary retry of the tasks the primary run left capped",
    "set": "partial ladder",
    "derived": false,
    "files": [
@@ -8490,7 +8490,7 @@
    "display": "inkling2mini-low16k",
    "family": "Inkling",
    "category": "exploratory",
-   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, same model, low effort, 16384-token cap: secondary retry of the tasks still capped",
+   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); local CPU model, no list price, cost estimated from box-hours; exploratory, same model, low effort, 16384-token cap: secondary retry of the tasks still capped",
    "set": "partial ladder",
    "derived": false,
    "files": [
@@ -8573,7 +8573,7 @@
    "display": "inkling2mini-default24k",
    "family": "Inkling",
    "category": "exploratory",
-   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, same model, default effort, 24576-token cap: secondary retry of the tasks still capped",
+   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); local CPU model, no list price, cost estimated from box-hours; exploratory, same model, default effort, 24576-token cap: secondary retry of the tasks still capped",
    "set": "partial ladder",
    "derived": false,
    "files": [
@@ -8652,7 +8652,7 @@
    "display": "inkling2mini-ladder",
    "family": "Inkling",
    "category": "exploratory",
-   "what": "Inkling 2 Mini retry ladder, secondary: the primary run, then medium 16384, low 16384 and default 24576 retries of the tasks it left capped; a task passes if any stage passed it and its time is the sum over the stages; llama.cpp b12600 on a local CPU, free, no list price; exploratory",
+   "what": "Inkling 2 Mini retry ladder, secondary: the primary run, then medium 16384, low 16384 and default 24576 retries of the tasks it left capped; a task passes if any stage passed it and its time is the sum over the stages; llama.cpp b12600 on a local CPU, no list price, cost estimated from box-hours; exploratory",
    "set": "partial ladder",
    "derived": false,
    "files": [
@@ -22190,7 +22190,7 @@
    "display": "inkling2mini-default",
    "family": "Inkling",
    "category": "exploratory",
-   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, Inkling 2 Mini IQ4_NL GGUF, default effort, 12288-token cap: the frozen primary run on p01–p15",
+   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); local CPU model, no list price, cost estimated from box-hours; exploratory, Inkling 2 Mini IQ4_NL GGUF, default effort, 12288-token cap: the frozen primary run on p01–p15",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -22352,7 +22352,7 @@
    "display": "inkling2mini-medium16k",
    "family": "Inkling",
    "category": "exploratory",
-   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, same model, medium effort, 16384-token cap: secondary retry of the tasks the primary run left capped",
+   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); local CPU model, no list price, cost estimated from box-hours; exploratory, same model, medium effort, 16384-token cap: secondary retry of the tasks the primary run left capped",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -22474,7 +22474,7 @@
    "display": "inkling2mini-low16k",
    "family": "Inkling",
    "category": "exploratory",
-   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, same model, low effort, 16384-token cap: secondary retry of the tasks still capped",
+   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); local CPU model, no list price, cost estimated from box-hours; exploratory, same model, low effort, 16384-token cap: secondary retry of the tasks still capped",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -22557,7 +22557,7 @@
    "display": "inkling2mini-default24k",
    "family": "Inkling",
    "category": "exploratory",
-   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, same model, default effort, 24576-token cap: secondary retry of the tasks still capped",
+   "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); local CPU model, no list price, cost estimated from box-hours; exploratory, same model, default effort, 24576-token cap: secondary retry of the tasks still capped",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -22636,7 +22636,7 @@
    "display": "inkling2mini-ladder",
    "family": "Inkling",
    "category": "exploratory",
-   "what": "Inkling 2 Mini retry ladder, secondary: the primary run, then medium 16384, low 16384 and default 24576 retries of the tasks it left capped; a task passes if any stage passed it and its time is the sum over the stages; llama.cpp b12600 on a local CPU, free, no list price; exploratory",
+   "what": "Inkling 2 Mini retry ladder, secondary: the primary run, then medium 16384, low 16384 and default 24576 retries of the tasks it left capped; a task passes if any stage passed it and its time is the sum over the stages; llama.cpp b12600 on a local CPU, no list price, cost estimated from box-hours; exploratory",
    "set": "all runs",
    "derived": false,
    "files": [
@@ -52386,7 +52386,7 @@
     "display": "inkling2mini-default",
     "family": "Inkling",
     "category": "exploratory",
-    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, Inkling 2 Mini IQ4_NL GGUF, default effort, 12288-token cap: the frozen primary run on p01–p15",
+    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); local CPU model, no list price, cost estimated from box-hours; exploratory, Inkling 2 Mini IQ4_NL GGUF, default effort, 12288-token cap: the frozen primary run on p01–p15",
     "set": "partial ladder",
     "derived": false,
     "files": [
@@ -52549,7 +52549,7 @@
     "display": "inkling2mini-ladder",
     "family": "Inkling",
     "category": "exploratory",
-    "what": "Inkling 2 Mini retry ladder, secondary: the primary run, then medium 16384, low 16384 and default 24576 retries of the tasks it left capped; a task passes if any stage passed it and its time is the sum over the stages; llama.cpp b12600 on a local CPU, free, no list price; exploratory",
+    "what": "Inkling 2 Mini retry ladder, secondary: the primary run, then medium 16384, low 16384 and default 24576 retries of the tasks it left capped; a task passes if any stage passed it and its time is the sum over the stages; llama.cpp b12600 on a local CPU, no list price, cost estimated from box-hours; exploratory",
     "set": "partial ladder",
     "derived": false,
     "files": [
@@ -66200,7 +66200,7 @@
     "display": "inkling2mini-default",
     "family": "Inkling",
     "category": "exploratory",
-    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, Inkling 2 Mini IQ4_NL GGUF, default effort, 12288-token cap: the frozen primary run on p01–p15",
+    "what": "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); local CPU model, no list price, cost estimated from box-hours; exploratory, Inkling 2 Mini IQ4_NL GGUF, default effort, 12288-token cap: the frozen primary run on p01–p15",
     "set": "all runs",
     "derived": false,
     "files": [
@@ -66363,7 +66363,7 @@
     "display": "inkling2mini-ladder",
     "family": "Inkling",
     "category": "exploratory",
-    "what": "Inkling 2 Mini retry ladder, secondary: the primary run, then medium 16384, low 16384 and default 24576 retries of the tasks it left capped; a task passes if any stage passed it and its time is the sum over the stages; llama.cpp b12600 on a local CPU, free, no list price; exploratory",
+    "what": "Inkling 2 Mini retry ladder, secondary: the primary run, then medium 16384, low 16384 and default 24576 retries of the tasks it left capped; a task passes if any stage passed it and its time is the sum over the stages; llama.cpp b12600 on a local CPU, no list price, cost estimated from box-hours; exploratory",
     "set": "all runs",
     "derived": false,
     "files": [

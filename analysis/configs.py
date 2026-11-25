@@ -92,11 +92,11 @@ INKLING_RUNS = {c: w for c, w in zip(INKLING_CONFIGS, (
     "same model, medium effort, 16384-token cap: secondary retry of the tasks the primary run left capped",
     "same model, low effort, 16384-token cap: secondary retry of the tasks still capped",
     "same model, default effort, 24576-token cap: secondary retry of the tasks still capped"))}
-add("main", "exploratory", *((c, "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); free local CPU model, no list price; exploratory, "
+add("main", "exploratory", *((c, "Inkling 2 Mini, llama.cpp b12600 on a local CPU (i7-8700); local CPU model, no list price, cost estimated from box-hours; exploratory, "
     + INKLING_RUNS[c]) for c in INKLING_CONFIGS))
 INKLING_LADDER = "inkling2mini-ladder"  # the secondary retry ladder as one lane: a task passes if any stage passed it, its time adds the stages' time
 add("main", "exploratory", (INKLING_LADDER, "Inkling 2 Mini retry ladder, secondary: the primary run, then medium 16384, low 16384 and default 24576 retries of the tasks it left capped; "
-    "a task passes if any stage passed it and its time is the sum over the stages; llama.cpp b12600 on a local CPU, free, no list price; exploratory"))
+    "a task passes if any stage passed it and its time is the sum over the stages; llama.cpp b12600 on a local CPU, no list price, cost estimated from box-hours; exploratory"))
 INKLING_PRIMARY = INKLING_CONFIGS[0]
 INKLING_STAGES = INKLING_CONFIGS[1:]  # raw retry stages: shown only through the ladder lane
 BOX_EUR_PER_MONTH = 52.17  # Hetzner Oct 2026 invoice, auction box eth2-3 (the i7-8700): EUR 50.47 server plus EUR 1.70 primary IPv4
