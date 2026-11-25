@@ -101,8 +101,8 @@ def _rows(include_grok_repo=False):
         add("main", c, st, r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
         if c not in configs.GROK_CONFIGS and r["problem"] in PIDS and r["phase"] in ("main", "exploratory", "fastmode") and r["repeat"] <= REPEATS:  # the same rows again, as the rescue-set baseline
             add("main", c, "rescue set", r, r["passed"], r["wall_s"], r["problem"], _usd(r, "main"), r["in_tok"], r["out_tok"])
-    for r in summarize.inkling_rows() + summarize.inkling_ladder_rows():  # local CPU lane (primary, retry stages, and the ladder as one lane): p01–p15, outside the ladder statistics, listed as partial-ladder rows
-        add("main", r["config"], "partial ladder", r, r["passed"], r["wall_s"], r["problem"], r["wall_s"] / 3600 * configs.BOX_USD_PER_HOUR, r["in_tok"], r["out_tok"])  # estimated from box-hours
+    for r in summarize.inkling_rows() + summarize.inkling_ladder_rows() + summarize.colab_rows():  # local CPU lane (primary, retry stages, and the ladder as one lane) and the Colab L4 lane: p01–p15, outside the ladder statistics, listed as partial-ladder rows
+        add("main", r["config"], "partial ladder", r, r["passed"], r["wall_s"], r["problem"], configs.est_usd(r), r["in_tok"], r["out_tok"])  # estimated from box-hours (CPU) or Colab compute units
     for r in summarize.agentic_rows():
         done = bool(r.get("task_complete", r["visible_pass"] and r["hidden_pass"]))  # the headline repo-task rule: hidden and the run's own visible suite both green
         add("agentic", r["config"], "repo tasks", r, done, r["wall_s"], r["task"], _usd(r, "agentic"), r["in_tok"], r["out_tok"], tc=done, hid=bool(r["hidden_pass"]))
@@ -147,7 +147,7 @@ def _rule_fields(src, rr):
 
 
 def _row(src, name, st, rr):
-    boxed = rr[0]["cli"] == "llama.cpp"  # Inkling's cost is a box-hour estimate: no Codex spend, no money spent
+    boxed = rr[0]["cli"] in ("llama.cpp", configs.COLAB_CLI)  # Inkling's cost is a rate estimate (box-hours, Colab units): no Codex spend, no money spent
     k = sum(x["ok"] for x in rr); n = len(rr); known = [x["usd"] for x in rr if x["usd"] is not None]
     cl = [x["claude"] for x in rr if x["claude"] is not None]; secs = [x["sec"] for x in rr]
     complete = len(known) == n; e = configs.entry(src, name) if (src, name) in configs.REGISTRY else {"id": f"{src}/{name}", "display": configs.display(name), "family": configs.family(name), "category": "?", "files": [], "what": ""}
@@ -182,7 +182,7 @@ def _row(src, name, st, rr):
             "usd_saved_per_pass": 0.0 if boxed and k else round((spend - sc - sg) / k, 6) if k and complete else None,
             "usd_per_1k_tokens": (1000 * round(spend / n, 6) / (round(statistics.mean(x["in"] or 0 for x in rr)) + round(statistics.mean(x["out"] or 0 for x in rr)))) if complete and any((x["in"] or 0) + (x["out"] or 0) for x in rr) else None,
             **_rule_fields(src, rr),
-            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "free-tier" if rr[0]["cli"] == "hetzner" else "box-hours" if rr[0]["cli"] == "llama.cpp" else "unmetered" if rr[0]["cli"] == "devin" else "measured" if summarize.measured(rr[0]) else "proxy"}
+            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "free-tier" if rr[0]["cli"] == "hetzner" else "box-hours" if rr[0]["cli"] == "llama.cpp" else configs.COLAB_COST_KIND if rr[0]["cli"] == configs.COLAB_CLI else "unmetered" if rr[0]["cli"] == "devin" else "measured" if summarize.measured(rr[0]) else "proxy"}
 
 
 def _base():
@@ -255,7 +255,7 @@ def median_seconds(v):
 
 def price_text(row, value):
     """Free experimental access is a label, never a published zero-dollar price."""
-    return "est. " + usd(value) + " from box-hours" if row["cost_kind"] == "box-hours" and value is not None else "local, no price" if row["cost_kind"] == "local" else "free tier" if row["cost_kind"] == "free-tier" else usd(value)
+    return "est. " + usd(value) + " from " + ("compute units" if row["cost_kind"] == configs.COLAB_COST_KIND else "box-hours") if row["cost_kind"] in configs.ESTIMATED_COST_KINDS and value is not None else "local, no price" if row["cost_kind"] == "local" else "free tier" if row["cost_kind"] == "free-tier" else usd(value)
 
 
 def p1(d):
@@ -442,7 +442,7 @@ def _facts(s, arms):
     # Models and versions: one CLI version per vendor across the function track.
     by_cli = defaultdict(set)
     for r in rows:
-        if r["config"] not in configs.GROK_CONFIGS and not r["config"].startswith("terra") and r["cli"] not in ("devin", "hetzner", "llama.cpp"): by_cli[r["cli"], r["cli_version"]].add(r["model"])
+        if r["config"] not in configs.GROK_CONFIGS and not r["config"].startswith("terra") and r["cli"] not in ("devin", "hetzner", "llama.cpp", configs.COLAB_CLI): by_cli[r["cli"], r["cli_version"]].add(r["model"])
     need(len({cli for cli, _ in by_cli}) == len(by_cli) == 2, "one CLI version per vendor")
     vers = dict(by_cli)
     F["versions_claude"] = next(f"Main bench, Claude Code {v}: {', '.join(sorted(m))}." for (c, v), m in vers.items() if c == "claude")
@@ -461,7 +461,7 @@ def _facts(s, arms):
     need(set(extra) == {"claude", "codex"}, "Codex-built bench used other CLI builds on both sides")
     F["versions_extra"] = (f"Whose bench? also used Codex CLI {', '.join(sorted(extra['codex']))}"
                            f" and Claude Code {', '.join(sorted(extra['claude']))}.")
-    dated = rows + agent + summarize.inkling_rows() + [r for source, paths in configs.SOURCES.items() if source not in ("main", "agentic")
+    dated = rows + agent + summarize.inkling_rows() + summarize.colab_rows() + [r for source, paths in configs.SOURCES.items() if source not in ("main", "agentic")
                             for path in paths for r in load(os.path.join(RES, path))]
     days = sorted(r["ts"][:10] for r in dated if r.get("ts"))
     F["run_dates"] = f"All calls ran {days[0]} to {days[-1]}."
@@ -819,7 +819,7 @@ def _facts(s, arms):
     F["codex_rerun_date"] = max(r["ts"] for r in rerun_rows)[:10] if rerun_rows else ""
     F["terra_dates"] = " and ".join(sorted({r["ts"][:10] for r in terra_rows}))
     need(abs(sum(map(cost, orig_rows)) + sum(map(cost, rerun_rows)) + sum(map(cost, terra_rows)) + nu + ffu + sp['codex_fastmode_usd'] - sp['codex_proxy_usd']) < 1e-3, "the Codex spend buckets sum to the Codex total")
-    F["date_last"] = max(r["ts"] for r in rows + agent + summarize.inkling_rows())[:10]
+    F["date_last"] = max(r["ts"] for r in rows + agent + summarize.inkling_rows() + summarize.colab_rows())[:10]
     import glob as _glob
     gk = [r for f in sorted(_glob.glob(os.path.join(RES, "*grok*.jsonl"))) for r in load(f) if r.get("cli") == "grok"]
     F["grok_cli_usd"] = usd(sum(map(cost, gk)))
@@ -1017,6 +1017,10 @@ def _inkling_blocks():
     for c, rr in ((configs.INKLING_PRIMARY, prim), (configs.INKLING_LADDER, summarize.inkling_ladder_rows())):
         b = summarize.config_block(rr); total = sum(r["wall_s"] for r in rr) / 3600 * configs.BOX_USD_PER_HOUR  # estimated from box-hours
         out[c] = {**b, "cost_kind": "box-hours", "usd_per_1k_tokens": None, "usd_total": round(total, 4), "usd_per_call": round(total / len(rr), 6), "usd_per_pass": round(total / b["passes"], 6) if b["passes"] else None}
+    cr = summarize.colab_rows()
+    if cr:  # Colab L4: wall x units an hour x dollars a unit
+        b = summarize.config_block(cr); total = sum(map(configs.est_usd, cr))
+        out[configs.COLAB_CONFIG] = {**b, "cost_kind": configs.COLAB_COST_KIND, "usd_per_1k_tokens": None, "usd_total": round(total, 4), "usd_per_call": round(total / len(cr), 6), "usd_per_pass": round(total / b["passes"], 6) if b["passes"] else None}
     return out
 
 
@@ -1634,7 +1638,7 @@ def explorer_facets(r):
                c.split("-noshell")[0] if "-noshell" in c else
                c.removesuffix("-lean") if c.endswith("-lean") else None) if mode == "bare" else None
     if c == "codex-bare": bare_of = "codex-low"
-    quota = None if r["cost_kind"] == "unmetered" or r["usd_per_pass"] is None else r["usd_per_pass"] if r["cost_kind"] == "box-hours" else round(r["usd_per_pass"] - r["codex_usd_per_pass"], 6)
+    quota = None if r["cost_kind"] == "unmetered" or r["usd_per_pass"] is None else r["usd_per_pass"] if r["cost_kind"] in configs.ESTIMATED_COST_KINDS else round(r["usd_per_pass"] - r["codex_usd_per_pass"], 6)
     gate = ("plan" if "-plan+" in c else "retry" if "retry" in c else "review all" if "review-all" in c or "repair" in c
             else "on fail" if "on-fail" in c else "pilot") if pipeline else None
     return {"mode": mode, "generation": generation, "model_short": model, "effort": effort,
@@ -1642,7 +1646,7 @@ def explorer_facets(r):
             "prereg": explorer_provenance(r) == "pre-registered", "provenance": explorer_provenance(r),
             "quota_usd_per_pass": quota, "winner_pick": WINNER_PICKS.get(c), "winner_pricing": "list price" if c in WINNER_PICKS else None,
             "panel": "pipeline: " + gate if pipeline else model + (" · " + generation if r["family"] == "Codex" else ""),
-            "gate": gate, "coverage_note": (configs.HETZNER_NOTE if r["config"] in configs.HETZNER_CONFIGS else configs.BOX_NOTE if r["cost_kind"] == "box-hours" else ("Devin probe: " + (configs.DEVIN_FLASH_NOTE if r["config"] in configs.DEVIN_FLASH else configs.DEVIN_NOTE)) if r["cost_kind"] == "unmetered" else
+            "gate": gate, "coverage_note": (configs.HETZNER_NOTE if r["config"] in configs.HETZNER_CONFIGS else configs.BOX_NOTE if r["cost_kind"] == "box-hours" else configs.COLAB_NOTE if r["cost_kind"] == configs.COLAB_COST_KIND else ("Devin probe: " + (configs.DEVIN_FLASH_NOTE if r["config"] in configs.DEVIN_FLASH else configs.DEVIN_NOTE)) if r["cost_kind"] == "unmetered" else
                 f"{r['groups']} problem/task groups; {r['n']} attempts"),
             "complete_marker": f"{r['task_complete']}/{r['n']} complete ({r['hidden_pass']}/{r['n']} hidden)" if "task_complete" in r else None}
 
@@ -1686,7 +1690,7 @@ def explorer_data(ds):
     pooled = defaultdict(list)
     repo = defaultdict(list)
     for src, name, st, r in _rows(include_grok_repo=True):
-        if name in configs.INKLING_CONFIGS + (configs.INKLING_LADDER,): continue  # 15 tasks, one repeat: not pooled with the other sets
+        if name in configs.INKLING_CONFIGS + (configs.INKLING_LADDER, configs.COLAB_CONFIG): continue  # 15 tasks, one repeat: not pooled with the other sets
         if st not in DERIVED: pooled[(src, name)].append(r)
         if src == "grok-repo": repo[name].append(r)
     for name, rr in repo.items():
@@ -1769,7 +1773,7 @@ def build(summary=None):
                     "xor_time_bound": re.search(r"0 <= t <= ([^`]+)", xor_statement).group(1).replace("**", "^"),
                     "usd_ticks": _currency_ticks([v["usd_per_pass"] for v in {**s["configs"], **s["exploratory"]}.values() if v["usd_per_pass"] is not None])}
     s["design"] = ds["design"]
-    ds["categories"] = {cat: {"n_configs": len(rr), "spend": sum(r["spend"] for r in rr if r["cost_kind"] != "box-hours")}
+    ds["categories"] = {cat: {"n_configs": len(rr), "spend": sum(r["spend"] for r in rr if r["cost_kind"] not in configs.ESTIMATED_COST_KINDS)}
                         for cat in configs.CATEGORIES
                         if (rr := [r for r in catalog_rows(ds) if r["category"] == cat])}
     ds["report"] = s
@@ -1779,7 +1783,7 @@ def build(summary=None):
     # Per-config call counts: most configs ran the nominal grid; the exceptions are named from the data, never typed.
     fr = [r for r in ds["rows"] if r["source"] == "main" and r["set"] in ("main ladder", "partial ladder")]
     nominal = get(ds, "haiku-low", "main ladder")["n"]
-    odd = [r for r in fr if r["n"] != nominal and r["config"] not in configs.INKLING_CONFIGS + (configs.INKLING_LADDER,)]  # Inkling ran p01–p15: described in its own section
+    odd = [r for r in fr if r["n"] != nominal and r["config"] not in configs.INKLING_CONFIGS + (configs.INKLING_LADDER, configs.COLAB_CONFIG)]  # Inkling ran p01–p15: described in its own section
     ds["facts"]["calls_exceptions"] = "; ".join(f"{r['config']} {r['n']} calls" for r in odd)
     ds["facts"]["calls_exceptions_why"] = "; ".join(f"{r['config']} {r['n']} calls ({'p01–p06 only' if r['config'] == 'grok47-medium' else 'one repeat' if r['n'] == int(ds['facts']['n_problems']) else 'a partial ladder'})" for r in odd)
     ds["facts"]["n_configs_all"] = str(len({r["config"] for r in fr if r["config"] not in configs.FREE_TIER_CONFIGS}))  # model-and-effort configs; the Devin lane runs its default
@@ -1991,6 +1995,24 @@ def _inkling(ds, s):
         if name in configs.HETZNER_CONFIGS: free.setdefault(name, []).append(x["sec"])
     lanes = [(DISP(c), s["hetzner"][c]["passes"], s["hetzner"][c]["n"], statistics.median(free[c]), sum(free[c])) for c in configs.HETZNER_CONFIGS if c in free]
     lanes += [(f"{F['inkling_name']} primary (frozen)", p["passes"], k["n"], p["median_s"], p["wall_s"]), (f"{F['inkling_name']} retry ladder (secondary)", lad["passes"], k["n"], lad["median_s"], lad["wall_s"])]
+    col = k.get("colab")
+    if col:  # Colab L4: the same GGUF on a GPU; its own lane, never part of the retry ladder
+        cb = _inkling_blocks()[configs.COLAB_CONFIG]; pb = _inkling_blocks()[configs.INKLING_PRIMARY]; N = k["n"]
+        need(col["n"] == N and col["model"] == p["model"] and col["max_tokens"] == p["max_tokens"] and col["effort"] == p["effort"], "Inkling Colab: same model, effort, cap and tasks as the CPU primary")
+        lanes.append((f"{F['inkling_name']}, Colab L4 GPU", col["passes"], N, col["median_s"], col["wall_s"]))
+        F["inkling_speedup"] = f"{p['wall_s'] / col['wall_s']:.1f}×"
+        F["inkling_colab_hr"], F["inkling_box_hr"] = f"${configs.COLAB_USD_PER_HOUR:.2f}", f"${configs.BOX_USD_PER_HOUR:.4f}"
+        F["inkling_colab_pp"] = usd(cb["usd_per_pass"])
+        p_tps = statistics.median(x["gen_tok_per_s"] for x in p["tasks"].values())
+        F["inkling_colab"] = (f"Colab L4 GPU, same file: {F['inkling_speedup']} faster than the box ({hours(col['wall_s'])} against {hours(p['wall_s'])} for the 15 tasks). "
+                              f"The GPU costs about {F['inkling_colab_hr']} an hour against the box's {F['inkling_box_hr']}, {configs.COLAB_USD_PER_HOUR / configs.BOX_USD_PER_HOUR:.0f}× more an hour, so it is cheaper per pass: "
+                              f"{F['inkling_colab_pp']} against {F['inkling_pp_primary']} estimated.")
+        F["inkling_colab_quality"] = (f"It passed {col['passes']}/{N} against the box's {p['passes']}/{N}. That is the same model, quant and settings at temperature 1.0 with one repeat each, "
+                                      "so the gap is noise, not a GPU quality gain. Speed and cost per hour are the solid comparisons.")
+        F["inkling_colab_price"] = (f"Colab cost is estimated from compute units: {hours(col['wall_s'])} × {configs.COLAB_UNITS_PER_HOUR} units an hour × ${configs.COLAB_USD_PER_UNIT:.4f} a unit = ${cb['usd_total']:.2f}. "
+                                    f"The ${configs.COLAB_USD_PER_UNIT * 100:.2f} per 100 units list price is third-party reported and not verified on Google's page; the units here came bundled in a Google AI plan, so the real marginal cost was zero until they run out. "
+                                    f"The balance went from {configs.COLAB_UNITS_BEFORE:.2f} to {configs.COLAB_UNITS_AFTER:.2f} units ({configs.COLAB_UNITS_BEFORE - configs.COLAB_UNITS_AFTER:.2f}) over setup, debugging and the run.")
+        F["inkling_colab_model"] = f"Colab run: same {col['model']}, llama.cpp {col['cli_version']} CUDA 12.8 on an L4 (23 GB), -ngl 99, -c 32768, default effort, {F['inkling_cap']}-token cap, one repeat; {col['gen_tok_per_s']:.1f} generated tokens a second (median per task) against {p_tps:.1f} on the CPU."
     ds["tables"]["inkling_lanes"] = md_table(["lane", "passed", "median min per task", "mean min per task", "total wall"],
                                              [[a, f"{b}/{c}", f"{d / 60:.1f}", f"{e / c / 60:.1f}", hours(e)] for a, b, c, d, e in sorted(lanes, key=lambda r: r[3])])
     F["inkling_sec_a"] = f"Primary seconds per task: median {p['median_s']:,.0f}, mean {p['wall_s'] / k['n']:,.0f}."
@@ -2000,8 +2022,9 @@ def _inkling(ds, s):
     for t, v in p["tasks"].items():
         later = [(x["effort"], x["max_tokens"], x["tasks"][t]) for x in st if t in x["tasks"]]
         retry = " → ".join(f"{e} @ {n(m)}: {r['outcome']}" for e, m, r in later) or "–"
-        rows.append([short(t), "pass" if v["passed"] else v["outcome"], f"{v['wall_s'] / 60:.1f}", retry, "pass" if lad["tasks"][t] else "fail"])
-    ds["tables"]["inkling_summary"] = md_table(["task", f"primary ({F['inkling_cap']} cap)", "primary minutes", "retry stages", "ladder"], rows)
+        rows.append([short(t), "pass" if v["passed"] else v["outcome"], f"{v['wall_s'] / 60:.1f}", retry, "pass" if lad["tasks"][t] else "fail"]
+                    + ([("pass" if col["tasks"][t]["passed"] else col["tasks"][t]["outcome"]), f"{col['tasks'][t]['wall_s'] / 60:.1f}"] if col else []))
+    ds["tables"]["inkling_summary"] = md_table(["task", f"primary ({F['inkling_cap']} cap)", "primary minutes", "retry stages", "ladder"] + (["Colab L4", "Colab minutes"] if col else []), rows)
 
 
 def view(ds):
@@ -2017,6 +2040,8 @@ FACT_SOURCES = (
     ("d_", None), ("t1v2_", "results/2026-10-28-t1-hidden-v2-regrade.jsonl (bench/regrade_t1.py)"), ("audit_", "audit session forensics (stage2b/FORENSICS.md), pending results/annotations.json"),
     ("grok_cli_", "results/*grok*.jsonl, CLI-reported cost"), ("ag_", "results/2026-10-22b-agentic.jsonl + results/2026-10-25-isolated-agentic.jsonl (rows agentic/*, set repo tasks)"),
     ("grok_", "results/2026-10-26-grok-function.jsonl + results/2026-10-28-grok-spectrum-function.jsonl + results/2026-10-27-grok-agentic.jsonl"),
+    ("inkling_colab", "results/2026-11-25-inkling-colab-l4-function.jsonl (Colab L4) + results/2026-11-22-inkling-function.jsonl (CPU primary)"),
+    ("inkling_speedup", "results/2026-11-25-inkling-colab-l4-function.jsonl + results/2026-11-22-inkling-function.jsonl"),
     ("inkling_", "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"),
     ("hetzner_gateway_", "results/2026-11-01-hetzner-notes.json (operator observation; first-attempt rows not cached)"),
     ("hetzner_", "results/2026-11-01-hetzner-function.jsonl + results/2026-11-01-hetzner-notes.json; main-grid comparisons: results/2026-10-22b-function.jsonl"),

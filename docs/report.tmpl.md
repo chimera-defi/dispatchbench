@@ -137,7 +137,7 @@ Endpoint: {{hetzner_endpoint}} (OpenAI-compatible). {{hetzner_lead}}
 
 {{hetzner_verdict}}
 
-## {{inkling_name}} on a local CPU (exploratory)
+## {{inkling_name}} on a local CPU and a Colab GPU (exploratory)
 
 {{inkling_for}}
 
@@ -153,6 +153,8 @@ Endpoint: {{hetzner_endpoint}} (OpenAI-compatible). {{hetzner_lead}}
 
 {{inkling_price}} {{inkling_rate}} {{inkling_fx}} {{inkling_price_pp}} {{inkling_hetzner}}
 
+{{inkling_colab}} {{inkling_colab_quality}}
+
 {{table:inkling_summary}}
 
 - {{inkling_model}}
@@ -166,6 +168,8 @@ Endpoint: {{hetzner_endpoint}} (OpenAI-compatible). {{hetzner_lead}}
 - {{inkling_slowest}}
 - {{inkling_caveat}}
 - {{inkling_host}}
+- {{inkling_colab_model}}
+- {{inkling_colab_price}}
 
 ## Code quality
 

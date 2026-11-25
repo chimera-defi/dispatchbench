@@ -45,7 +45,7 @@ NOTATION = {
 SOURCES = {  # source id -> files under results/ that hold its rows
     "main": ["2026-10-22b-function.jsonl", "2026-10-26-grok-function.jsonl", "2026-10-28-grok-spectrum-function.jsonl",
              "2026-10-28-terra-function.jsonl", "2026-10-28-devin-function.jsonl", "2026-11-01-hetzner-function.jsonl", "2026-11-02-terra-priority-function.jsonl", "2026-11-02-terra-l7-fast-function.jsonl",
-             "2026-11-22-inkling-function.jsonl", "2026-11-22-inkling-retry-function.jsonl", "2026-11-25-devin-flash-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
+             "2026-11-22-inkling-function.jsonl", "2026-11-22-inkling-retry-function.jsonl", "2026-11-25-devin-flash-function.jsonl", "2026-11-25-inkling-colab-l4-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
     "rescue": ["appendix/luna_rescue.jsonl"], "pilot": ["2026-10-22-pilot.jsonl"], "pilot-agentic": ["2026-10-22-pilot-agentic.jsonl"],
     "harness-bias": ["appendix/harness_bias.jsonl", "appendix/codex_harness.jsonl"]}  # the last two land with the codex-own-harness branch
 CATEGORIES = ["main ladder", "exploratory", "fast mode and xhigh", "rescue pipeline", "repo tasks", "trim", "pilot", "harness-bias", "low context"]
@@ -110,8 +110,32 @@ EUR_USD = 1.0939  # ECB euro foreign exchange reference rate, 2026-11-23 (https:
 EUR_USD_DATE = "2026-11-23"
 BOX_USD_PER_HOUR = BOX_EUR_PER_HOUR * EUR_USD  # about 0.0767
 BOX_NOTE = f"Estimated from box-hours: wall time at ${BOX_USD_PER_HOUR:.4f} an hour, from the eth2-3 bill."
+# Colab L4 lane: the same model on a GPU, one lane of its own. Not in INKLING_CONFIGS: that tuple is the CPU retry ladder and is priced from box-hours.
+COLAB_CONFIG = "inkling2mini-colab-l4"
+COLAB_CLI = "llama.cpp-cuda"  # distinct from the CPU lane's "llama.cpp", which marks box-hour pricing
+COLAB_COST_KIND = "colab-units"
+COLAB_UNITS_PER_HOUR = 2.33  # `colab usage` while the L4 ran, 2026-11-25
+COLAB_USD_PER_UNIT = 9.99 / 100  # pay-as-you-go list price, third-party reported, not verified on Google's page
+COLAB_NOTE = (f"Estimated from compute units: wall time x {COLAB_UNITS_PER_HOUR} units an hour x ${COLAB_USD_PER_UNIT:.4f} a unit. The list price is third-party reported and unverified; "
+              "the units here came bundled in a Google AI plan, so the real marginal cost was zero until they run out.")
+COLAB_UNITS_BEFORE, COLAB_UNITS_AFTER = 80.00, 76.70  # `colab usage` balance around setup, debugging and the run (3.30 units in all)
+COLAB_USD_PER_HOUR = COLAB_UNITS_PER_HOUR * COLAB_USD_PER_UNIT  # about 0.233
+ESTIMATED_COST_KINDS = ("box-hours", COLAB_COST_KIND)  # priced from a rate, not metered: no Codex spend, not in spend totals
+add("main", "exploratory", (COLAB_CONFIG, "Inkling 2 Mini, Colab L4 (23 GB), llama.cpp b12600 CUDA 12.8, same IQ4_NL GGUF as the CPU lane, -ngl 99, default effort, 12288-token cap, one repeat; "
+    "cost estimated from Colab compute units, no list price paid; exploratory"))
+
+
+def colab_usd(wall_s):
+    return wall_s / 3600 * COLAB_USD_PER_HOUR
+
+
+def est_usd(r):
+    """Estimated dollars of a row priced from a rate: Colab compute units for the Colab lane, box-hours for the CPU lanes."""
+    return colab_usd(r["wall_s"]) if r["config"] == COLAB_CONFIG else r["wall_s"] / 3600 * BOX_USD_PER_HOUR
+
+
 INKLING_SHOWN = (INKLING_PRIMARY, INKLING_LADDER)  # the two Inkling lanes that join tables and charts, like the Hetzner lanes
-FREE_TIER_CONFIGS = DEVIN_CONFIGS + DEVIN_FLASH + HETZNER_CONFIGS + INKLING_CONFIGS + (INKLING_LADDER,)  # Inkling's box-hour estimate is not a list price: it is priced only in the explorer. Others: no published $ comparison: off all $ charts, Winner and frontier
+FREE_TIER_CONFIGS = DEVIN_CONFIGS + DEVIN_FLASH + HETZNER_CONFIGS + INKLING_CONFIGS + (INKLING_LADDER, COLAB_CONFIG)  # Inkling's box-hour estimate is not a list price: it is priced only in the explorer. Others: no published $ comparison: off all $ charts, Winner and frontier
 CHART_HIDDEN = CHART_HIDDEN + FREE_TIER_CONFIGS
 HETZNER_NOTE = "exploratory calibration, 1 repeat, free tier, measured tokens"
 DEVIN_NOTE = "1 repeat, free tier, no token data"
@@ -201,6 +225,7 @@ def display(c):
                    "codex-low-lean": "sol61-low-prio-lean",
                    "codex-bare": "sol61-low-prio-bare"}
     if c in pilot_names: return pilot_names[c]
+    if c == COLAB_CONFIG: return "Inkling 2 Mini, Colab L4"
     if c in globals().get("RESCUE_NAMES", {}): return RESCUE_NAMES[c]
     if ' / ' in c:
         model, harness = c.split(' / ', 1)
@@ -258,7 +283,7 @@ def _seen(text, name):
 def where(e, rest, chart_bodies):
     """Where the page shows this config outside the section, decided by source: main-run names are searched in the page text, repo-task
     names in the repo-task chart, rescue arms by their page label. Pilot, trim and harness-bias configs are never claimed elsewhere."""
-    if e["config"] in INKLING_CONFIGS + (INKLING_LADDER,): return "Inkling section (#inkling), charts and tables"  # its own section; the config names are not in the page text
+    if e["config"] in INKLING_CONFIGS + (INKLING_LADDER, COLAB_CONFIG): return "Inkling section (#inkling), charts and tables"  # its own section; the config names are not in the page text
     if e["source"] == "main" and _seen(rest, e["config"]): return "charts and tables"
     if e["source"] == "agentic":
         repo = re.search(r'<div class="compact-bars" id="repo-chart">.*?</details>', rest, re.S)  # the page's repo-task bars and table
@@ -293,7 +318,7 @@ def section(rest, ds, root, chart_bodies=None, grok_only=False, entries=None):
         head = "".join(f"<th>{h}</th>" for h in ("name", "task complete (hidden in brackets)" if complete else "pass",
                                                "$ per complete task" if complete else "$ per pass", "median s", "spend", "where it appears"))
         label = "Low context (prompt or tool text trimmed)" if cat == "low context" else set_label(cat)
-        totals = {"n_configs": len(es), "spend": sum(e["spend"] for e in es if e["cost_kind"] != "box-hours")}
+        totals = {"n_configs": len(es), "spend": sum(e["spend"] for e in es if e["cost_kind"] not in ESTIMATED_COST_KINDS)}
         out.append(f"<details><summary>{html.escape(label)}: {totals['n_configs']} configs, {'~' if any(e['cost_kind'] == 'proxy' for e in es) else ''}{money(totals['spend'])} spent</summary><div class=\"tablewrap\"><table class=\"sortable\"><thead><tr>{head}</tr></thead><tbody>")
         for e in es:
             spend = None if e["unknown_usd"] else e["spend"]

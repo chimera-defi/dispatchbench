@@ -40,6 +40,7 @@ The main run was on 2026-10-22; the runs on this page span 2026-10-22 to 2026-11
 | hetzner-qwen38 † | 75% (9/12) | 50%–100% | 820.6 | 1768.9 | free tier | free tier | free-tier |
 | inkling2mini-default † | 47% (7/15) | 20%–73% | 2881.3 | 3028.5 | est. $0.099 from box-hours | est. $0.69 from box-hours | box-hours |
 | inkling2mini-ladder † | 87% (13/15) | 67%–100% | 4630.4 | 9403.7 | est. $0.12 from box-hours | est. $1.54 from box-hours | box-hours |
+| Inkling 2 Mini, Colab L4 † | 60% (9/15) | 33%–87% | 353.6 | 386.9 | est. $0.030 from compute units | est. $0.27 from compute units | colab-units |
 
 Function track: 12 problems × 5 attempts for most configs (exceptions: terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); hetzner-qwen36 12 calls (one repeat); hetzner-qwen38 12 calls (one repeat); sol61-xhigh 35 calls (a partial ladder)). Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
 
@@ -322,6 +323,7 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 | hetzner-qwen38 † | 409 | 0 | 17,562 | 17,068 | free tier |
 | inkling2mini-default † | 530 | 0 | 8,496 | 0 | – |
 | inkling2mini-ladder † | 957 | 0 | 17,726 | 0 | – |
+| Inkling 2 Mini, Colab L4 † | 530 | 0 | 8,846 | 0 | – |
 
 ![Pass rate by difficulty rung, 10 attempts per rung per config.](../results/report/charts/pass_by_rung.svg)
 
@@ -358,7 +360,7 @@ Exploratory calibration: one repeat only (n=12, not 60 in the 5-repeat main grid
 
 Verdict: usable but slow, below the Claude and Codex sol61 middle tiers. Qwen3.8's nearest main-grid pass-rate comparison is luna-low (77%). Not recommended for the dispatch route. Off dollar charts, the Winner and the frontier.
 
-## Inkling 2 Mini on a local CPU (exploratory)
+## Inkling 2 Mini on a local CPU and a Colab GPU (exploratory)
 
 For anyone weighing a local model for coding tasks.
 
@@ -373,29 +375,32 @@ It is a local CPU model, so its times do not match API lanes.
 | lane | passed (function tests) | median min per task | mean min per task | total wall |
 |---|---|---|---|---|
 | hetzner-qwen36 | 10/12 | 5.7 | 6.7 | 1.33 h |
+| Inkling 2 Mini, Colab L4 GPU | 9/15 | 5.9 | 4.6 | 1.15 h |
 | hetzner-qwen38 | 9/12 | 13.7 | 14.9 | 2.98 h |
 | Inkling 2 Mini primary (frozen) | 7/15 | 48.0 | 36.0 | 9.01 h |
 | Inkling 2 Mini retry ladder (secondary) | 13/15 | 77.2 | 80.3 | 20.08 h |
 
 Cost is estimated from box-hours on Hetzner auction box eth2-3, EUR 52.17 a month. That box costs EUR 0.0701 an hour, or $0.0767 an hour. The exchange rate is 1.0939 dollars per euro, from the ECB on 2026-11-23. Estimated per pass: $0.099 primary, $0.12 ladder. The Hetzner API lanes are free, so they have no price.
 
-| task | primary (12,288 cap) | primary minutes | retry stages | ladder |
-|---|---|---|---|---|
-| p01 | pass | 6.1 | – | pass |
-| p02 | pass | 3.8 | – | pass |
-| p03 | pass | 21.5 | – | pass |
-| p04 | pass | 11.1 | – | pass |
-| p05 | pass | 9.3 | – | pass |
-| p06 | no_code | 48.7 | medium @ 16,384: pass | pass |
-| p07 | pass | 11.4 | – | pass |
-| p08 | pass | 43.0 | – | pass |
-| p09 | no_code | 48.0 | medium @ 16,384: pass | pass |
-| p10 | no_code | 48.3 | medium @ 16,384: pass | pass |
-| p11 | no_code | 50.1 | medium @ 16,384: no_code → low @ 16,384: no_code → default @ 24,576: pass | pass |
-| p12 | no_code | 50.7 | medium @ 16,384: no_code → low @ 16,384: crash | fail |
-| p13 | no_code | 48.9 | medium @ 16,384: pass | pass |
-| p14 | no_code | 48.2 | medium @ 16,384: pass | pass |
-| p15 | no_code | 91.6 | medium @ 16,384: wrong | fail |
+Colab L4 GPU, same file: 7.8× faster than the box (1.15 h against 9.01 h for the 15 tasks). The GPU costs about $0.23 an hour against the box's $0.0767, 3× more an hour, so it is cheaper per pass: $0.030 against $0.099 estimated. It passed 9/15 against the box's 7/15. That is the same model, quant and settings at temperature 1.0 with one repeat each, so the gap is noise, not a GPU quality gain. Speed and cost per hour are the solid comparisons.
+
+| task | primary (12,288 cap) | primary minutes | retry stages | ladder | Colab L4 | Colab minutes |
+|---|---|---|---|---|---|---|
+| p01 | pass | 6.1 | – | pass | pass | 1.4 |
+| p02 | pass | 3.8 | – | pass | pass | 0.7 |
+| p03 | pass | 21.5 | – | pass | pass | 5.4 |
+| p04 | pass | 11.1 | – | pass | pass | 2.0 |
+| p05 | pass | 9.3 | – | pass | pass | 2.5 |
+| p06 | no_code | 48.7 | medium @ 16,384: pass | pass | pass | 5.2 |
+| p07 | pass | 11.4 | – | pass | pass | 1.2 |
+| p08 | pass | 43.0 | – | pass | pass | 6.3 |
+| p09 | no_code | 48.0 | medium @ 16,384: pass | pass | pass | 5.9 |
+| p10 | no_code | 48.3 | medium @ 16,384: pass | pass | no_code | 6.4 |
+| p11 | no_code | 50.1 | medium @ 16,384: no_code → low @ 16,384: no_code → default @ 24,576: pass | pass | no_code | 6.4 |
+| p12 | no_code | 50.7 | medium @ 16,384: no_code → low @ 16,384: crash | fail | no_code | 6.5 |
+| p13 | no_code | 48.9 | medium @ 16,384: pass | pass | no_code | 6.4 |
+| p14 | no_code | 48.2 | medium @ 16,384: pass | pass | no_code | 6.5 |
+| p15 | no_code | 91.6 | medium @ 16,384: wrong | fail | no_code | 6.4 |
 
 - Model: Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600, run on p01–p15 on this host's CPU, one call at a time. It has no list price; cost is estimated from box-hours.
 - Primary settings: default effort, 12,288-token cap.
@@ -408,6 +413,8 @@ Cost is estimated from box-hours on Hetzner auction box eth2-3, EUR 52.17 a mont
 - Slowest on the ladder: p11, 326 min.
 - The ladder is secondary because its settings were chosen after seeing which tasks hit the cap.
 - Other work sometimes ran on the host, so times vary.
+- Colab run: same Inkling-2-Mini-IQ4_NL.gguf, llama.cpp b12600 CUDA 12.8 on an L4 (23 GB), -ngl 99, -c 32768, default effort, 12,288-token cap, one repeat; 32.0 generated tokens a second (median per task) against 4.3 on the CPU.
+- Colab cost is estimated from compute units: 1.15 h × 2.33 units an hour × $0.0999 a unit = $0.27. The $9.99 per 100 units list price is third-party reported and not verified on Google's page; the units here came bundled in a Google AI plan, so the real marginal cost was zero until they run out. The balance went from 80.00 to 76.70 units (3.30) over setup, debugging and the run.
 
 ## Code quality
 

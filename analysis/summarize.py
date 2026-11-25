@@ -8,7 +8,7 @@ from collections import defaultdict
 
 from analysis.stats import hier_boot, paired_boot, p90
 from analysis.labels import DISP, plabel, pshort
-from analysis.configs import INKLING_LADDER, DEVIN_CONFIGS, DEVIN_FLASH, HETZNER_CONFIGS, INKLING_CONFIGS, GROK_CONFIGS, GROK_PARTIAL, ONE_REPEAT, FIRST_GROK_FILE, SOURCES
+from analysis.configs import COLAB_CONFIG, INKLING_LADDER, DEVIN_CONFIGS, DEVIN_FLASH, HETZNER_CONFIGS, INKLING_CONFIGS, GROK_CONFIGS, GROK_PARTIAL, ONE_REPEAT, FIRST_GROK_FILE, SOURCES
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RES = os.path.join(ROOT, "results")
@@ -62,7 +62,7 @@ def function_rows():
     from bench import problems
     return [dict(row, phase="hard") if name == "2026-11-02-terra-l7-fast-function.jsonl" else row
             for name in SOURCES["main"] for row in _sourced(os.path.join(RES, name))
-            if row["config"] not in INKLING_CONFIGS  # Inkling has its own block (inkling_rows), outside the per-config statistics
+            if row["config"] not in INKLING_CONFIGS + (COLAB_CONFIG,)  # Inkling has its own block (inkling_rows, colab_rows), outside the per-config statistics
             and name not in ("2026-11-02-terra-priority-function.jsonl", "2026-11-02-terra-l7-fast-function.jsonl")
             or (row["config"] in ("terra61-low-fast", "terra61-high-fast")
                 and row["problem"] in (problems.HARD if name == "2026-11-02-terra-l7-fast-function.jsonl" else problems.MAIN) and row["repeat"] in range(1, 6))]
@@ -70,6 +70,11 @@ def function_rows():
 
 def inkling_rows():
     return [r for name in SOURCES["main"] for r in _sourced(os.path.join(RES, name)) if r["config"] in INKLING_CONFIGS]
+
+
+def colab_rows():
+    """The Colab L4 lane, kept apart from inkling_rows: the ladder sums every row it is handed per task, and the CPU rows are priced from box-hours."""
+    return [r for name in SOURCES["main"] for r in _sourced(os.path.join(RES, name)) if r["config"] == COLAB_CONFIG]
 
 
 def inkling_ladder_rows(rows=None):
@@ -135,7 +140,7 @@ def list_cost(r):
         got = r.get("cost_usd") if r.get("cost_usd") is not None else r.get("total_cost_usd")
         # A Grok call killed at the 20-minute limit returns no bill. It counts as a failed attempt at $0, so Grok $ per pass is a floor by those calls.
         return 0.0 if got is None and r["cli"] == "grok" and r.get("is_error") else got
-    if r.get("is_error") or r["cli"] in ("devin", "hetzner", "llama.cpp"): return None  # free tiers have no published list price
+    if r.get("is_error") or r["cli"] in ("devin", "hetzner", "llama.cpp", "llama.cpp-cuda"): return None  # free tiers have no published list price
     p = PRICES[r["model"]]
     return ((r["in_tok"] - r["cached_tok"]) * p["input"] + r["cached_tok"] * p["cached_input"] + r["out_tok"] * p["output"]) / 1e6
 
@@ -148,7 +153,7 @@ def cost_uncached(r):
 def _uncached(r):
     if measured(r):
         return list_cost(r)
-    if r.get("is_error") or r["cli"] in ("devin", "hetzner", "llama.cpp"): return None
+    if r.get("is_error") or r["cli"] in ("devin", "hetzner", "llama.cpp", "llama.cpp-cuda"): return None
     p = PRICES[r["model"]]
     return (r["in_tok"] * p["input"] + r["out_tok"] * p["output"]) / 1e6
 
@@ -210,6 +215,16 @@ def inkling_block(rows):
                           "gen_tok_per_s": r.get("gen_tok_per_s")} for p, r in prim.items()}},
             "stages": stages, "ladder": {"passes": sum(final.values()), "tasks": final, "task_wall_s": cum, "median_s": statistics.median(cum.values()), "max_s": max(cum.values()),
             "wall_s": round(sum(r["wall_s"] for c in INKLING_CONFIGS for r in by[c].values()), 1)}}
+
+
+def colab_block(rows):
+    """Colab L4 lane summary, same shape as the CPU primary block."""
+    by = {r["problem"]: r for r in rows}
+    return {"passes": sum(r["passed"] for r in rows), "n": len(rows), "wall_s": round(sum(r["wall_s"] for r in rows), 1), "median_s": statistics.median(r["wall_s"] for r in rows),
+            "max_s": max(r["wall_s"] for r in rows), "max_tokens": rows[0]["max_tokens"], "effort": rows[0]["effort"], "model": rows[0]["model"], "cli_version": rows[0]["cli_version"],
+            "gen_tok_per_s": statistics.median(r["gen_tok_per_s"] for r in rows),
+            "tasks": {p: {"passed": r["passed"], "outcome": r["outcome"], "wall_s": r["wall_s"], "out_tok": r["out_tok"], "finish_reason": r.get("finish_reason"),
+                          "gen_tok_per_s": r.get("gen_tok_per_s")} for p, r in sorted(by.items())}}
 
 
 def config_block(rows):
@@ -438,6 +453,7 @@ def build():
         blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}  # heatmap columns
         (s["hetzner"] if c in HETZNER_CONFIGS else s["exploratory"])[c] = blk
     s["inkling"] = inkling_block(inkling_rows())
+    if s["inkling"] and colab_rows(): s["inkling"]["colab"] = colab_block(colab_rows())
     hr = [r for r in rows if r["phase"] == "hard"]
     s["hard"] = {}
     for c in sorted({r["config"] for r in hr}, key=lambda c: (-sum(r["passed"] for r in hr if r["config"] == c), c)):

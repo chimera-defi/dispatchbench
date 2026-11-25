@@ -1,0 +1,32 @@
+{
+ "pid": "p03_ledger",
+ "effort": "default",
+ "max_tokens": 12288,
+ "wall_s": 326.76694397200004,
+ "loadavg_start": [
+  "1.21",
+  "1.73",
+  "1.26"
+ ],
+ "finish_reason": "stop",
+ "prompt_tok": 759,
+ "out_tok": 10436,
+ "gen_tps": 32.0607452159062,
+ "prompt_tps": 630.6575554801356,
+ "peak_rss_kib": 17587732,
+ "rss_end": {
+  "VmHWM": 17587732,
+  "VmRSS": 2102708,
+  "RssAnon": 1312884,
+  "RssFile": 665384
+ },
+ "memavail_gib_end": 49.73371505737305,
+ "reasoning_chars": 34024,
+ "verdict": {
+  "outcome": "pass",
+  "cases": 307,
+  "worst_time_frac": 0.008
+ },
+ "error": null,
+ "code_lines": 127
+}

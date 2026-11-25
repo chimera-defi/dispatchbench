@@ -1,0 +1,439 @@
+=== REASONING ===
+We need answer only code block. Need solve problem. Let's reason thoroughly.
+
+We need implement recurrence expansion.
+
+Input start date string YYYY-MM-DD, rule string, count int. Return first count dates ascending on/after start matching rule. Need parse forms exactly. Tokens separated by single spaces. But WEEKLY DAYS comma-separated list of distinct weekday codes in any order. Rule forms:
+- `DAILY K`: tokens length 2: ['DAILY','K']
+- `WEEKLY K DAYS`: tokens length 3: ['WEEKLY','K','DAYS'] where DAYS like 'MO,FR'
+- `MONTHLY K D`: tokens length 3: ['MONTHLY','K','D'] where D integer 1..31 or -1
+- `MONTHLY K N WD`: tokens length 4: ['MONTHLY','K','N','WD'] where N 1..5 or -1, WD in MO TU WE TH FR SA SU
+- `YEARLY K MM-DD`: tokens length 3: ['YEARLY','K','MM-DD']
+
+Need semantics carefully.
+
+DAILY K: start, start+K days, start+2K ... ascending. start itself included if matches. We return first count dates on/after start that match rule. For DAILY, all dates start + iK match (the sequence). Are there dates on/after start not in sequence that match? Rule defines set of dates: start + iK, i>=0. So yes.
+
+WEEKLY K DAYS: Weeks run Monday to Sunday. Week 0 is week that contains start. Only weeks 0, K, 2K, ... active. Only listed weekdays in them match. Need be precise: week containing start: weeks Monday-Sunday. If start is e.g. 2026-10-22 (Thursday? Let's compute: 2026-10-22 maybe Thursday). Week 0 is week of that start. Active weeks indices multiples of K: 0, K, 2K... For each active week, for each listed weekday, date = week start Monday + weekday offset. Only dates on/after start? Since rule says return first dates on or after start that match. The dates generated in week 0 may be before start; we should filter on/after start. Week 0 weekdays before start in that week should not be returned. Example: recur("2026-10-22","WEEKLY 2 MO,FR",3) returns ["2026-10-23","2026-11-02","2026-11-06"]. Let's validate. 2026-10-22: What weekday? 2026-01-01 Thursday? Let's compute roughly. 2026 leap? not leap. 2026-10-22. Use known: 2024-01-01 Monday. 2024 leap year. 2025-01-01 Wednesday? 2024 leap has 366 days, so 2025-01-01 = Monday + 2 = Wednesday. 2025 nonleap 365, 2026-01-01 = Wednesday +1 = Thursday. 2026-10-22: Jan 1 Thursday. Days before Oct: Jan31+Feb28+Mar31+Apr30+May31+Jun30+Jul31+Aug31+Sep30 = let's sum:31+28=59,+31=90,+30=120,+31=151,+30=181,+31=212,+31=243,+30=273. Oct 22 -> day of year 273+22=295. Day of week: Jan1 day1 Thursday. (295-1)=294 days later; 294 mod 7 = 0 (42*7). So Thursday. Yes start Thursday. Week 0 = Monday Oct 19 to Sunday Oct 25 (2026? Oct 22 Thu). Weeks active: week indices 0 and 2 (K=2). Week 0: MO Oct 19, FR Oct 23. on/after start: FR Oct 23 only (MO before). Week 2 = 2*7=14 days after week0. Week0 index0 Monday Oct 19. Week 2 Monday = Oct 19 + 14 days = Nov 2. Active week days MO Nov 2, FR Nov 6. Both on/after start. So returns Oct 23, Nov 2, Nov 6. Matches. Good.
+
+Need choose week start Monday for given date. date.weekday() Monday=0. Monday = start - timedelta(days=date.weekday()). Week index n: Monday = week0 Monday + timedelta(weeks=K*n)? Wait weeks numbered 0,1,2... week 0 contains start. Active weeks are indices 0,K,2K,... So active week index w = 0,K,2K,... Monday = week0_monday + timedelta(weeks=w). Then for each listed weekday code, offset = ['MO','TU','WE','TH','FR','SA','SU'].index(code), date = Monday + timedelta(days=offset). Then filter date >= start. Sort by date/week; return first count. Good.
+
+MONTHLY K D: Month 0 is month of start. Only months 0,K,2K,... active. A month that has no day D contributes nothing. Need parse D integer 1..31 or -1. For D positive: date = active month with day D; if day valid in month, candidate. If D=-1: last day of month. Month index n -> active month = month of start + n*K (months total), date last day or D. Filter >= start. Note active months 0..: For month 0, if start itself is within month 0 and date D equals/after start? If D positive and day D maybe before start day in month 0: filter out. Example start 2026-01-30 MONTHLY 1 31: month0 Jan has day31 valid -> candidate 2026-01-31 >= start. month1 Feb no day31 (2026 nonleap Feb 28; month index1 K=1 active month 1? K=1 means months 0,1,2... active; example output ["2026-01-31","2026-03-31","2026-05-31"]; Wait start 2026-01-30, MONTHLY 1 31. Month 0 January day31 = 2026-01-31. Month 1 February day31 invalid. Month 2 March day31 = 2026-03-31. Month 3 April day31 invalid. Month 4 May day31 = 2026-05-31. Output first 3 = Jan31, Mar31, May31. Yes.
+
+Need handle month arithmetic with year rollover. Implement function to add months: year = y + (m-1 + delta)//12, month = (m-1+delta)%12+1. Month start = date(y,m,1). Last day = (first day next month) - 1; use calendar.monthrange. Candidate date = if d==-1: date(y,m, monthrange(y,m)[1]) else date(y,m,d) if d <= monthrange[1] else None. Filter >= start and collect count. Need generate until count found. Constraints: count <=50, and every test has count matching dates before 3000-01-01. But we can loop safely. Since active months step K; count up to 50; before 3000 enough. Need avoid infinite loop if rule has few matches before 3000? problem says every test has count matches before 3000-01-01, so loop okay. But for robustness, can stop if date > 3000-01-01? Need ensure return exactly count; tests guarantee. Could loop years up to 2999? But active months with K maybe large; still count <=50 before 3000. We can set limit datetime(3000,1,1) and break. But if no matches within range due to bug, return fewer; not expected.
+
+MONTHLY K N WD: N-th weekday WD of each active month, where N=1..5, or -1 for last one. A month without a 5th such weekday contributes nothing. Need semantics for N=-1 last one: last weekday of month? For given WD, find last date in month with that weekday. For N positive: nth occurrence of weekday in month. If month doesn't have nth, contributes nothing. For WD code. Month0 = month of start. Only months 0,K,2K,... active. Need date >= start. Example recur("2026-10-22","MONTHLY 1 -1 FR",2) returns ["2026-10-30","2026-11-27"]. Let's validate. Start Thursday Oct22. Month0 October 2026: what weekdays? Need FR last one in October. Oct 2026: Oct 1? We can compute: Jan1 Thursday 2026. Day 1 Jan Thursday. Month days before Oct = 273 as above; Oct 1 = day of year 274. (274-1)=273 mod7 = 0? 273 mod7=0 (7*39). So Oct 1 Thursday. Oct 2 Friday, ... date 22: Oct1 Thu +21 days => Thu (21 mod7=0) yes. Fridays in Oct 2026: Oct 2,9,16,23,30. Last FR = Oct30. Filter >= start: Oct30 (since Oct23 < start? start Oct22, Oct23 is after start and is Friday! Wait hold on. October 2026 Fridays: Oct2, Oct9, Oct16, Oct23, Oct30. Actually Oct1 Thu, Oct2 Fri, Oct3 Sat, Oct4 Sun, Oct5 Mon, Oct6 Tue, Oct7 Wed, Oct8 Thu, Oct9 Fri, Oct15? Let's list carefully: If Oct1 Thursday, Oct3 Saturday, Oct2 Friday, Oct9 Friday, Oct16 Friday, Oct23 Friday, Oct30 Friday. Start Oct22 (Thursday). Friday Oct23 is on/after start. But rule is MONTHLY 1 -1 FR: last Friday of month, not any Friday. So for month0, candidate = last Friday = Oct30 (not Oct23). Filter Oct30 >= start. Good. Month1 November 2026: Nov1? Oct has 31 days; Nov1 = Oct1 +31 days; 31 mod7=3; Thursday+3 = Sunday. Fridays in Nov 2026: Nov6, Nov13, Nov20, Nov27. Last = Nov27. Return Oct30, Nov27. Matches. For positive N: e.g., MONTHLY 1 3 MO: third Monday. For N=-1 last. Need note N=-1 for last one; N=1..5. The tokens `WD` weekday code. For N positive: nth occurrence. For N=5: month may have 4 or 5 occurrences. If no 5th contributes nothing. For N=-1: find last occurrence; every month has at least one of each weekday? Yes every month has each weekday at least once? A month length at least 28 days = exactly 4 weeks; yes each weekday occurs exactly 4 times for 28-day Feb; other months have either 4 or 5. So last exists. Good.
+
+YEARLY K MM-DD: year 0 = year of start. Only years 0,K,2K,... active. Each active year on month MM day DD. If date doesn't exist in active year, contributes nothing. Example start 2023-03-01 YEARLY 1 02-29 count2: years 2023,2024,...; Feb29 2023 invalid (2023 nonleap), 2024 valid -> 2024-02-29, next 2025 invalid, 2026 invalid, 2027 invalid, 2028 valid -> output ["2024-02-29","2028-02-29"]. Need note active years are 0,K,2K,... relative to start year; for K=1 and start year 2023, active years 2023,2024,2025,2026,2027,2028... start itself included if matches? Rule sequence includes year 0 (2023) but Feb29 invalid, so no. If start date were 2024-02-29? Start must be date; for YEARLY rule, if start date matches rule (e.g., 2024-02-29) then start included. But filtering date >= start handles. Note rule sequence for year0 includes date MM-DD in start year, not necessarily start. Return dates matching rule (on/after start). Good.
+
+Need implement exactly top-level function `recur`. No class. Return list[str]. Could parse manually. Need ensure exact code. Need include `from datetime import date, timedelta` and `import calendar` maybe. Single code block only.
+
+Potential pitfalls:
+- WEEKLY: tokens: rule maybe `WEEKLY 2 MO,FR`. DAYS contains commas no spaces. Distinct weekday codes. We can split on ','. Need validate not necessary. Week 0 is week that contains start. Weeks run Monday-Sunday. Week number relative: active weeks indices multiples of K. We must be cautious about week numbering if start is Sunday: week containing start Monday is start - weekday (Sunday weekday=6, so Monday is 6 days earlier). Good. Active week indices 0,K,...; if K maybe 0? No K>=1.
+- Sorting: generating by week index outer loop and weekday list; but weekday order in list arbitrary. If we iterate listed weekdays in arbitrary order, candidate dates within same week not sorted. Need collect candidates then sort. Or iterate offsets sorted after parsing? Since DAYS list any order, we should parse and sort codes by weekday offset before generating, or collect all then sort and filter. Simpler: generate candidates as (index, date) for active weeks and for sorted offsets, then sort by date. Because within active week, offsets ascending. Then filter >= start. Return first count. Also if DAYS has duplicates? It says distinct; no need. Could use set and sort by offset. But if we build list sorted, preserve count. Fine.
+- MONTHLY D: K active months; generate by month index; candidate for month. Filter and collect. For month0, date may be before start (e.g., start Oct22, D=1 => Oct1 before start; excluded). Good. For D positive invalid -> None. For D=-1 last day. Need sort by date; iterate months increasing so natural ascending; filter; fine.
+- MONTHLY N WD: Need function to get nth weekday in month. We can loop day 1..monthrange, collect dates with weekday == offset. Candidate = dates[N-1] if N>0 and N-1 < len; if N==-1 candidate = dates[-1] if dates else None (dates always nonempty). Filter >= start. Good.
+- YEARLY MM-DD: parse mm, dd; active years start_year + i*K. Candidate date(year, mm, dd) if valid else None. Use try/except ValueError. Filter >= start. Return first count.
+
+Need ensure all dates after start. The rules produce ascending order naturally if iterating relative indices ascending. But for WEEKLY if DAYS order arbitrary, sort candidates. For MONTHLY N WD if iterate days in month ascending, candidate date is single. Good.
+
+Need think about the phrase "Expand a calendar recurrence rule. `start` is a date ... Return the first `count` dates, in ascending order as `YYYY-MM-DD` strings, that are on or after `start` and match `rule`. `start` itself is included if it matches." For DAILY, start itself matches. For all forms, yes filter >= start. For WEEKLY, start itself matches if start weekday listed in DAYS and start's week index is active (week 0 always active). Since start is in week 0, if its weekday is listed, date == start included. Good.
+
+Need consider WEEKLY with K>1 and week 0 active. Example K=2: active weeks 0 and 2. But what about week 1? Inactive. Good. K can be 1. What about start day in week 0 before? filter.
+
+Need consider MONTHLY K D with D=-1: last day. Active months 0,K,...; if month has no day D? For -1 no month has no day. For D positive invalid, nothing. Good.
+
+Need maybe generate enough: We should not include dates before 1900? Start between 1900 and 2400; rules before 3000. Candidate years: for YEARLY, active years could exceed 3000; tests guarantee count before 3000-01-01, so loop until count or limit. Similarly monthly/weekly. We can include upper bound `end_limit = date(3000,1,1)` and avoid infinite. But if break at limit without count, return partial; but guaranteed count before. Not relevant. Could avoid setting upper bound and simply loop `while len(result) < count`; since guaranteed, fine. But for malformed rules infinite loop? Not required. Still implement safe with `max_iter` maybe. We can use for `i in range(...)`? For DAILY, i can go up to count*K? Actually matches every K days, count dates straightforward. For WEEKLY, days in weeks; count up to 50. K can be huge? The problem doesn't explicitly bound K, but tests before 3000. If K huge and active week beyond 3000, count guaranteed before 3000, so K cannot be huge? Could be K=1000 and count=1 with start 2026; active week 0 has weekdays; if none on/after start, next active week 1000 beyond 3000? But every test has count matching dates before 3000, so not. We can still loop while result < count and candidate_date < date(3000,1,1). For DAILY, candidate start + i*K; if beyond 3000 and result not reached, break. If result reaches count before, okay. This is safe.
+
+Need parse ints. Use `int` on tokens. Need handle `MM-DD` by splitting `-`. Token `MM-DD` length 5? e.g. "02-29". Parse `mm, dd = MM-DD.split('-')`; int.
+
+Need return strings with zfill. `date.isoformat()` gives YYYY-MM-DD. Good.
+
+Need exact top-level function not class. Could include helper functions? Problem says Implement exactly this function. "exactly this function" likely means the requested function signature; helper functions? It says "Implement exactly this function (a top-level function, not a class): def recur...". Could mean no extra public functions? To be safe, implement helper inside `recur` or as nested functions? Or just implement all logic inline within `recur` to avoid defining extra top-level functions. That satisfies "exactly this function" (one top-level function). We can use local imports at top? Top-level imports are fine? "exactly this function" probably means implement only that function (top-level). Imports are okay. But to be safe, put imports at top and only `def recur`. No helper top-level. We can nest local functions inside recur if needed. That's allowed.
+
+Need maybe no tests. Reply only code in single ```python block. No explanation. Good.
+
+Let's craft code carefully.
+
+Implementation options:
+```python
+from datetime import date, timedelta
+import calendar
+
+def recur(start: str, rule: str, count: int) -> list[str]:
+    tokens = rule.split()
+    sd = date.fromisoformat(start)
+    end = date(3000, 1, 1)
+    out = []
+    if tokens[0] == 'DAILY':
+        K = int(tokens[1])
+        d = sd
+        while len(out) < count and d < end:
+            out.append(d)
+            d += timedelta(days=K)
+    elif tokens[0] == 'WEEKLY':
+        K = int(tokens[1])
+        days = tokens[2].split(',')
+        weekdays = sorted({days.index(c) for c in ...?})
+```
+Better: weekday names list, parse codes to offsets. Need preserve codes distinct; use sorted(set(codes), key=lambda c: WD_INDEX[c]). No top-level WD_INDEX? can define local dict.
+```
+        wd = ['MO','TU','WE','TH','FR','SA','SU']
+        offs = sorted({wd.index(code) for code in tokens[2].split(',')})
+        monday = sd - timedelta(days=sd.weekday())
+        w = 0
+        while len(out) < count:
+            week_monday = monday + timedelta(weeks=w)
+            if week_monday >= end: # but candidates later impossible; break
+                break
+            for off in offs:
+                cand = week_monday + timedelta(days=off)
+                if cand >= sd:
+                    out.append(cand)
+                    if len(out) >= count:
+                        break
+            if len(out) >= count:
+                break
+            w += K
+```
+But careful: `w += K` for active weeks indices multiples of K. If we set w=0 then w += K gives K, then 2K etc. Good. However, `week_monday >= end` doesn't mean all candidate dates in week >= end? Even if Monday is before end but only weekday Sunday before end maybe could have candidate >= sd and < end? Actually if week_monday >= end, all dates >= end; break. If week_monday < end, some dates may still >= end; need filter candidates < end? Not needed since count guaranteed before 3000; but if no candidates before end, loop might continue forever if `week_monday < end` but active weeks step K and maybe candidates never >= sd? Wait if week_monday < end, candidates could all be before sd? But for active weeks after start week, candidates >= start? Let's reason. The first active week is week 0; candidates on/after start may be none if all listed weekdays are before start (same week). Then we proceed to next active week w=K. Since K>=1, week_monday grows by K*7 days, so by the time week_monday >= end we break. Before that, candidate dates in active week may be before sd? only first week (week 0) can have candidates before start. Later active weeks have week_monday >= week1 Monday (at least one week after) which is after the end of week0 (Saturday/Sunday) which is after start (same week). If start is Sunday, week_monday of next active week = start - 6 + 7K days, for K>=1 at least start +1? Let's check K=1: next active week Monday = start -6 +7 = start+1, candidates >= start+1? Yes. So later active weeks all candidates >= start. Good. But candidate >= end maybe; we break only when week_monday >= end. Suppose K=1 and start 2999-12-31; week_monday week0 < end? week containing start with Monday maybe 2999-12-28; candidates maybe <= end? start=2999-12-31 Sunday, sd weekday=6, monday=2999-12-26. Week0 candidates MO Dec28..SU Dec31 all < end (3000-01-01) but only if offsets listed. Active week next week Monday 2999-12-28+7 = 2999-13-04 (i.e. 3000-01-04) >= end; break. Good. If K=1, week0 candidate candidates could include date 3000-01-01? Only dates in week0: Dec26-Jan. Sunday is 3000-01-01? Wait week containing 2999-12-31: Monday 2999-12-28, Sunday 2999-? Let's compute: Monday Dec28, Tuesday29, Wednesday30, Thursday31, Friday Jan1 3000! Ah, I made error: 2026 etc. A week Monday-Sunday can cross year-end; if start Dec31 2999 (Thursday), its Monday is Dec28, Sunday is Jan3 3000. Active week0 candidates could include Jan1 3000 or beyond. We must filter date < end or >= start and < end? The problem says first dates on/after start and match rule; constraints say every test has count matching dates before 3000-01-01, but rule could potentially match after 3000. Do we need to exclude dates >=3000? It says constraints: start between 1900-01-01 and 2400-12-31, count<=50. Every test has count matching dates before 3000-01-01. It doesn't explicitly say dates before 3000 are the only possible; it says every test has count matching dates before 3000-01-01, i.e., the first count matches occur before 3000. So we can just generate until count found; no need to exclude beyond 3000. But if count matches earlier, fine. Break only if count reached. Since guaranteed, no issue. If we include `if week_monday >= end: break`, could in theory miss matches after 3000 if count not reached before 3000; but tests guarantee count before 3000, so not an issue. But safer to not impose end limit? If we don't, and there's a bug in rule? There is no infinite for DAILY (infinite), WEEKLY infinite until count guaranteed; if no matches before 3000 (not in tests) infinite loop. With guarantee, okay. Maybe include no upper bound to avoid accidentally returning partial if date exactly 3000-01-01? Problem says count matching dates before 3000, so first count matches are before 3000; no need. We can simply loop until count. But infinite loop if code wrong? not. Use safety max iterations e.g. 10_000_000? Not necessary and could mask. Simpler: while len(result)<count. Since tests guaranteed. For DAILY, guaranteed. Good.
+
+However, for WEEKLY, if `K` is huge (e.g. 100000) and first active week 0 has no listed weekday after start but test has count matches before 3000? Is that possible? Active weeks only multiples of K. If K huge, active week 0 only before 3000; if no listed weekday after start, then no matches before 3000. So not in tests. Good.
+
+But `while len(out) < count` for WEEKLY with `w += K`. If `w` becomes extremely large gradually, eventually week_monday > sd+? It will keep generating until count or after huge years; tests guarantee count but maybe K enormous and yet count match in week0, fine. If count match in week0, out reaches count, no massive loop. Good.
+
+Need be precise with active week indexing for WEEKLY: "Week 0 is the week that contains start. Only weeks 0, K, 2K, ... are active". So active week indices are multiples of K, not `k*K` starting at 0 but also `0` and `K` etc. We can set `active_index = 0; while ...: ...; active_index += K`. Good.
+
+Need sort weekday offsets. We can parse `offs = sorted({wd.index(code) for code in tokens[2].split(',')})`. If DAYS has duplicate codes, set reduces; spec says distinct. Fine. This uses set for offsets and sorted; good.
+
+Need think about WEEKLY week containing start in year boundary; Monday = sd - timedelta(days=sd.weekday()). Good. Candidate for week active index active_index: week_monday = week0_monday + timedelta(weeks=active_index). active_index multiples of K. Candidate sorted. We need ensure candidates in same week added ascending by offsets (sorted), and later weeks later. Good.
+
+MONTHLY:
+```
+    elif tokens[0] == 'MONTHLY':
+        K=int(tokens[1])
+        if len(tokens)==3: # D
+            d=int(tokens[2])
+            offset=0
+            y,m = sd.year, sd.month
+            while len(out)<count:
+                year, month = add_months(sd.year, sd.month, offset*K) # Can't call top-level; local function
+                days_in = calendar.monthrange(year, month)[1]
+                if d == -1:
+                    cand = date(year, month, days_in)
+                elif d <= days_in:
+                    cand = date(year, month, d)
+                else:
+                    cand = None
+                if cand and cand >= sd:
+                    out.append(cand)
+                offset += 1
+```
+Need careful: `offset += 1` inside loop while; then next iteration computes `year, month = ...` uses updated offset. Good. But naming `offset` maybe month index relative. Use `rel = 0`. `candidate` maybe before sd in month0; filter. `if cand and cand >= sd: out.append(cand)`. Then `rel += 1`. Good.
+
+Need local add months. Define inside function:
+```
+        def add_months(y, m, months):
+            total = (y*12 + (m-1)) + months
+            return total // 12, total % 12 + 1
+```
+Works y positive.
+
+MONTHLY K N WD:
+```
+        K=int(tokens[1]); n=int(tokens[2]); code=tokens[3]
+        wd=[...]; offset_wd=wd.index(code)
+        rel=0
+        while len(out)<count:
+            y,m=add_months(...)
+            days_in=calendar.monthrange(y,m)[1]
+            dates=[date(y,m,d) for d in range(1,days_in+1) if date(y,m,d).weekday()==offset_wd]
+            if n == -1:
+                cand=dates[-1] if dates else None
+            else:
+                cand=dates[n-1] if n-1 < len(dates) else None
+            if cand and cand >= sd: out.append(cand)
+            rel += 1
+```
+Always len dates >=4. Good.
+
+YEARLY:
+```
+    elif tokens[0] == 'YEARLY':
+        K=int(tokens[1]); mm, dd = tokens[2].split('-'); mm=int(mm); dd=int(dd)
+        rel=0
+        while len(out)<count:
+            y=sd.year + rel*K
+            try: cand=date(y, mm, dd)
+            except ValueError: cand=None
+            if cand and cand >= sd: out.append(cand)
+            rel += 1
+```
+Good.
+
+For DAILY, `d=sd; while len(out)<count: out.append(d); d += timedelta(days=K)`. No date upper bound. Guaranteed. This will append exactly count regardless. Good.
+
+Need decide if local helper functions inside `recur` or compute inline. To keep exact, nested helper is fine. But code length okay.
+
+Potential issue: type annotation `list[str]` requires Python 3.9+ (as specified). Date fromisoformat Python 3.7? For YYYY-MM-DD okay. Fine.
+
+Need final code only. Ensure no extra explanation.
+
+Let's test mentally examples:
+1. recur("2026-01-30","MONTHLY 1 31",3): sd 2026-01-30; monthly D=31; rel0 Jan 2026 days_in31 cand Jan31 >=sd out; rel1 Feb 2026 days_in28 (2026 nonleap) d31 invalid; rel2 Mar days31 cand Mar31 out; rel3 Apr invalid; rel4 May days31 out; return first3. Good.
+2. WEEKLY 2026-10-22 K2 MO,FR; wd index MO0 FR4; offsets [0,4]; sd weekday Thursday=3; monday=2026-10-19; rel0 candidates Oct19 (<sd skip), Oct23 (>=sd) out; rel2 week_monday=2026-11-02; candidates MO Nov2 out, FR Nov6 out; return first3. Good.
+3. MONTHLY 1 -1 FR: sd Oct22; offset_wd FR=4; rel0 Oct 2026 days31; dates Fridays: Oct2,9,16,23,30 (check: Oct1? 2026 Oct actual? Let's verify with known: 2026-10-22 Thursday; then Oct23 Friday yes, Oct30 Friday? Oct23 Fri, Oct30 Fri yes; list includes Oct23. dates list [2,9,16,23,30]. n=-1 cand Oct30; >=sd out. rel1 Nov 2026: Oct30 Fri; Nov1? Oct has 31; Oct30 Fri, Oct31 Sat, Nov1 Sunday; Fridays Nov6? Wait if Oct30 Fri, Oct31 Sat, Nov1 Sun, Nov2 Mon, Nov3 Tue, Nov4 Wed, Nov5 Thu, Nov6 Fri. Actually I earlier said Nov1 Sunday yes; Fridays Nov6,13,20,27. n=-1 cand Nov27. return. Good.
+Wait example WEEKLY used 2026-10-22 Thursday; candidate week0 MO Oct21? Hold on! If week runs Monday-Sunday and start Thursday Oct22, Monday of week should be Oct19? Oct22 Thu minus 3 days = Oct19 Monday. Yes. MO Oct19, FR Oct23. Good. And WEEKLY output first date Oct23 = Friday. Good. But I earlier computed Oct1 Thursday; Oct19 Monday? Oct1 Thu, Oct8 Thu, Oct15 Thu, Oct22 Thu; Oct19 Monday (Oct15 Thu, Oct16 Fri, Oct17 Sat, Oct18 Sun, Oct19 Mon). yes. Friday Oct23. good.
+
+Wait WEEKLY example output ["2026-10-23","2026-11-02","2026-11-06"] with K=2. Candidate week2: week0 Monday Oct19; active week index2 = Monday Oct19 +14 days = Nov2. MO Nov2, FR Nov6. good.
+
+4. YEARLY example: sd 2023-03-01. tokens YEARLY,1,02-29. rel0 y2023 date Feb29 invalid; rel1 y2024 valid >= sd out; rel2 y2025 invalid; rel3 2026 invalid; rel4 2027 invalid; rel5 2028 valid out. return [2024,2028]. Good.
+
+Need consider date validity with `date(y, mm, dd)` for YEARLY in leap year; good.
+
+Need think about if rule maybe uses `MONTHLY K D` with D=-1 but also `MONTHLY K N WD`; parse by token length: tokens length 3 vs 4. Good. For `MONTHLY 1 -1 FR`, tokens ['MONTHLY','1','-1','FR'] length 4, n=-1. For `MONTHLY 1 31`, tokens length3, D=31. Fine. For `MONTHLY K 1 -1`? Not valid; not needed.
+
+Potential nuance: "DAILY K: start, start + K days, start + 2K days, and so on." It might mean the first date is start regardless of matching? It matches rule by definition. Good.
+
+Potential nuance: "Only weeks 0, K, 2K, ... are active" for WEEKLY. Could K=0? no. Good.
+
+Potential nuance: "Week 0 is the week that contains `start`." If start is in week that contains start, week 0's Monday is computed as containing start. Good. If start itself is a listed weekday, included even if there are previous same-week listed weekdays skipped. Good.
+
+Potential nuance: "A month that has no day `D` (for example day 31 in April) contributes nothing; the date is not moved to another day." We do not clamp to end of month. For D=-1, last day. Good.
+
+Potential nuance: "MONTHLY K N WD: the N-th weekday WD of each active month, where N is 1..5, or -1 for the last one. A month without a 5th such weekday contributes nothing." For N=5 and no 5th, none. For N=1..4 all months have at least 4 occurrences? For a 28-day month exactly 4 each; for 29/30/31 days, at least 4. Yes. For N=-1, all months have last. Good.
+
+Potential nuance: N=-1 last one: for a weekday with 5 occurrences, last = 5th occurrence; for a 28-day month, last = 4th occurrence. Good.
+
+Need now produce code. We can include only `from datetime import date, timedelta` and `import calendar`. Since Python 3.9, list[str] okay.
+
+Should I include `from __future__ import annotations`? Not needed.
+
+Let's write clean code. Ensure no helper top-level. Nested add_months inside recur. In WEEKLY branch, we need local `weekday_index` dictionary? Use list. In monthly branch local nested function is defined after DAILY maybe? Define add_months before branches inside recur to be available to monthly/yearly. Simple.
+
+Code:
+```python
+from datetime import date, timedelta
+import calendar
+
+def recur(start: str, rule: str, count: int) -> list[str]:
+    sd = date.fromisoformat(start)
+    parts = rule.split()
+    kind = parts[0]
+    result: list[str] = []
+
+    def add_months(y, m, months):
+        total = y * 12 + (m - 1) + months
+        return total // 12, total % 12 + 1
+
+    if kind == "DAILY":
+        step = int(parts[1])
+        d = sd
+        while len(result) < count:
+            result.append(d.isoformat())
+            d += timedelta(days=step)
+    elif kind == "WEEKLY":
+        step = int(parts[1])
+        weekdays = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
+        offs = sorted({weekdays.index(code) for code in parts[2].split(",")})
+        monday0 = sd - timedelta(days=sd.weekday())
+        week_index = 0
+        while len(result) < count:
+            monday = monday0 + timedelta(weeks=week_index)
+            for off in offs:
+                d = monday + timedelta(days=off)
+                if d >= sd:
+                    result.append(d.isoformat())
+                    if len(result) >= count:
+                        break
+            if len(result) >= count:
+                break
+            week_index += step
+    elif kind == "MONTHLY":
+        step = int(parts[1])
+        rel = 0
+        if len(parts) == 3:
+            dnum = int(parts[2])
+            while len(result) < count:
+                y, m = add_months(sd.year, sd.month, rel * step)
+                last_day = calendar.monthrange(y, m)[1]
+                cand = None
+                if dnum == -1:
+                    cand = date(y, m, last_day)
+                elif dnum <= last_day:
+                    cand = date(y, m, dnum)
+                if cand is not None and cand >= sd:
+                    result.append(cand.isoformat())
+                rel += 1
+        else:
+            n = int(parts[2])
+            wd_code = parts[3]
+            weekdays = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
+            wd_offset = weekdays.index(wd_code)
+            while len(result) < count:
+                y, m = add_months(sd.year, sd.month, rel * step)
+                last_day = calendar.monthrange(y, m)[1]
+                dates = [date(y, m, day) for day in range(1, last_day + 1)
+                         if date(y, m, day).weekday() == wd_offset]
+                cand = None
+                if n == -1:
+                    if dates:
+                        cand = dates[-1]
+                elif n - 1 < len(dates):
+                    cand = dates[n - 1]
+                if cand is not None and cand >= sd:
+                    result.append(cand.isoformat())
+                rel += 1
+    elif kind == "YEARLY":
+        step = int(parts[1])
+        mm_dd = parts[2]
+        mm, dd = mm_dd.split("-")
+        month = int(mm)
+        day = int(dd)
+        rel = 0
+        while len(result) < count:
+            y = sd.year + rel * step
+            try:
+                cand = date(y, month, day)
+            except ValueError:
+                cand = None
+            if cand is not None and cand >= sd:
+                result.append(cand.isoformat())
+            rel += 1
+    return result
+```
+
+Potential issue inside WEEKLY: `week_index += step` after computing. Since step K. Good. But if `count` reached inside inner for, we break inner, then outer if len>=count break. Good.
+
+Potential issue: MONTHLY `parts[2]` when len(parts)==3. But there are two MONTHLY forms: `MONTHLY K D` (tokens 3) and `MONTHLY K N WD` (tokens 4). What about `MONTHLY K -1 FR`? tokens 4. Good. No ambiguity.
+
+Potential issue: YEARLY `mm_dd.split("-")`: token `02-29`; good. For `MM-DD` with mm like `10`, fine.
+
+Need maybe validate no top-level helper functions. Good.
+
+Could there be an expectation to include `__all__`? no.
+
+Need ensure `list[str]` annotation works in code block Python 3.3? no, Python 3.9+. Specified Python 3. Fine.
+
+Now, is there any concern that `date.fromisoformat` accepts date strings with no leading zeros? start format YYYY-MM-DD, fine.
+
+Should I include handling for DAILY negative step? no.
+
+One subtlety: DAILY rule "start, start + K days, start + 2K days, and so on." Starting at start, d increments. This matches sequence. It includes start itself. Good.
+
+One subtlety: WEEKLY week numbering with K: Active weeks are 0,K,2K...; If K=2, active weeks: 0 and 2. We set week_index=0; after processing add step=2 -> 2; after processing ->4; yes. Good.
+
+One subtlety: In WEEKLY, if DAYS includes e.g. `MO, FR`? spec says comma-separated list, tokens separated by single spaces; so no spaces. If it did, parts length 4/5; not needed.
+
+Need final only code block. Done.
+
+But let's maybe contemplate if there is a chance that `WEEKLY K DAYS` uses week 0 as the week that contains start, and only weeks `0,K,2K,...` active. It might mean active week numbers are 0, K, 2K,... but for K=2, weeks 0,2,4; yes. Does week 0 count as "week that contains start" even if start is in a partial week? Weeks run Monday-Sunday, so partial? There is no partial. Fine.
+
+Need no markdown outside code block. Final only code.
+
+Check if we should not include imports because "Implement exactly this function"? They ask "Solve this problem in Python 3... Implement exactly this function". Including imports is standard. Could make function self-contained by importing inside function to have exactly one top-level def and no imports? Actually imports are top-level statements, not functions. They might still be okay. To be even safer, we can do imports inside function to avoid any top-level non-function besides def. That would make exactly `def recur`. Code:
+```
+def recur(...):
+    from datetime import date, timedelta
+    import calendar
+```
+This has exactly one top-level function and no top-level imports. That may be best. It is slightly inefficient but fine. Use local imports inside. Let's do that to strictly satisfy. Need ensure list[str] annotation still okay. Yes.
+
+Full code with local imports. No extra top-level. Good.
+
+Potential code style: `result: list[str]` local annotation. Fine. Use `rel * step` each iteration; for MONTHLY/YEARLY active rel indices multiples of step. Good.
+
+Need final answer only one python block. No explanatory text. Done.
+=== CONTENT ===
+```python
+def recur(start: str, rule: str, count: int) -> list[str]:
+    from datetime import date, timedelta
+    import calendar
+
+    sd = date.fromisoformat(start)
+    parts = rule.split()
+    kind = parts[0]
+    result: list[str] = []
+
+    def add_months(y, m, months):
+        total = y * 12 + (m - 1) + months
+        return total // 12, total % 12 + 1
+
+    if kind == "DAILY":
+        step = int(parts[1])
+        d = sd
+        while len(result) < count:
+            result.append(d.isoformat())
+            d += timedelta(days=step)
+    elif kind == "WEEKLY":
+        step = int(parts[1])
+        weekdays = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
+        offsets = sorted({weekdays.index(code) for code in parts[2].split(",")})
+        monday0 = sd - timedelta(days=sd.weekday())
+        week_index = 0
+        while len(result) < count:
+            monday = monday0 + timedelta(weeks=week_index)
+            for offset in offsets:
+                d = monday + timedelta(days=offset)
+                if d >= sd:
+                    result.append(d.isoformat())
+                    if len(result) >= count:
+                        break
+            if len(result) >= count:
+                break
+            week_index += step
+    elif kind == "MONTHLY":
+        step = int(parts[1])
+        rel = 0
+        if len(parts) == 3:
+            day_num = int(parts[2])
+            while len(result) < count:
+                y, m = add_months(sd.year, sd.month, rel * step)
+                last_day = calendar.monthrange(y, m)[1]
+                cand = None
+                if day_num == -1:
+                    cand = date(y, m, last_day)
+                elif day_num <= last_day:
+                    cand = date(y, m, day_num)
+                if cand is not None and cand >= sd:
+                    result.append(cand.isoformat())
+                rel += 1
+        else:
+            occurrence = int(parts[2])
+            weekdays = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
+            target_weekday = weekdays.index(parts[3])
+            while len(result) < count:
+                y, m = add_months(sd.year, sd.month, rel * step)
+                last_day = calendar.monthrange(y, m)[1]
+                dates = [
+                    date(y, m, day)
+                    for day in range(1, last_day + 1)
+                    if date(y, m, day).weekday() == target_weekday
+                ]
+                cand = None
+                if occurrence == -1:
+                    if dates:
+                        cand = dates[-1]
+                elif occurrence - 1 < len(dates):
+                    cand = dates[occurrence - 1]
+                if cand is not None and cand >= sd:
+                    result.append(cand.isoformat())
+                rel += 1
+    elif kind == "YEARLY":
+        step = int(parts[1])
+        mm, dd = parts[2].split("-")
+        month = int(mm)
+        day = int(dd)
+        rel = 0
+        while len(result) < count:
+            year = sd.year + rel * step
+            try:
+                cand = date(year, month, day)
+            except ValueError:
+                cand = None
+            if cand is not None and cand >= sd:
+                result.append(cand.isoformat())
+            rel += 1
+
+    return result
+```

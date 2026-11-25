@@ -1,0 +1,31 @@
+{
+ "pid": "p15_paint_erase",
+ "effort": "default",
+ "max_tokens": 12288,
+ "wall_s": 386.33025694499975,
+ "loadavg_start": [
+  "1.11",
+  "1.25",
+  "1.26"
+ ],
+ "finish_reason": "length",
+ "prompt_tok": 473,
+ "out_tok": 12288,
+ "gen_tps": 31.88294287674259,
+ "prompt_tps": 669.9315536308546,
+ "peak_rss_kib": 17587732,
+ "rss_end": {
+  "VmHWM": 17587732,
+  "VmRSS": 9385992,
+  "RssAnon": 8596168,
+  "RssFile": 665384
+ },
+ "memavail_gib_end": 42.76970291137695,
+ "reasoning_chars": 45516,
+ "verdict": {
+  "outcome": "no_code",
+  "detail": "no final fenced python block; finish_reason=length"
+ },
+ "error": null,
+ "code_lines": 0
+}

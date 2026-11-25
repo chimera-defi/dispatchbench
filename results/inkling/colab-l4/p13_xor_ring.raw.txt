@@ -1,0 +1,267 @@
+=== REASONING ===
+We need answer only code block. Need solve algorithm carefully.
+
+We have n up to 5000, offsets length <=6, t up to 1e18. Linear cellular automaton over GF(2) on cycle length n. Need compute state after t seconds. We can use linear algebra / polynomial exponentiation.
+
+Important: Offsets duplicates: "one term for each d in offsets, in the order given. An offset that appears twice contributes two terms, and those two terms cancel. Offsets may be negative..." Means new value lamp i = XOR of old values at positions (i+d) mod n for each d in offsets. If duplicate offset appears, terms are XOR of same position twice = 0, so effectively offsets with multiplicity mod 2. Need dedupe by parity. Since length <=6, set unique residues of d mod n with odd multiplicity. If zero terms, state remains? New value = XOR over empty set = 0. Wait: Every second all lamps change at once. New value of lamp i is XOR of old values ... in the order given. If all terms cancel, XOR of no terms = 0. So all lamps become 0 after one second. But check example evolve("1", [0,0], 5) returns "0": yes offsets duplicate cancel => new state "0", after 5 seconds still "0". Need account.
+
+t can be 0 -> return state unchanged.
+
+Approach: Represent linear transformation T on vector x over GF(2)^n. Need x after t = T^t x. n=5000; cannot do matrix exponent with dense vectors 5000x5000 x log t? Dense vector-matrix multiplication O(n^2) ~25M per multiplication; number muls O(log t) ~60 => 1.5B too high maybe borderline. But offsets length <=6 so T is sparse (each new lamp is XOR of at most 6 old positions). We can exponentiate linear operator efficiently using polynomial arithmetic modulo x^n -1 over GF(2). Because transformation corresponds to multiplication by polynomial p = sum_j x^{d_j mod n} (odd multiplicities) modulo x^n -1 (cyclic), but careful: new lamp i = XOR_j old[(i+d_j) mod n]. That's convolution with kernel? Let's define state vector x indexed by i (lamp position). After one step y_i = sum_j x_{(i+d_j) mod n} mod2. In polynomial terms, represent x as polynomial A(z)=sum_i x_i z^i. Multiplication by P(z)=sum_j z^{?} modulo z^n -1 gives coefficient? If y_i = sum_j x_{(i+d_j) mod n}. Let y = Q * x where coefficient y_i = sum_j x_{i+d_j mod n}. Multiplication by R(z)=sum_j z^{-d_j}? Since coefficient of z^i in A(z) R(z) mod z^n-1 = sum_i? A(z)R(z)=sum_i x_i sum_j z^{i+r_j}; coefficient z^i = sum_{i+r_j ≡ i} x_i z^{i+r_j} = x_{i-r_j}. We want x_{i+d_j}. Set r_j = -d_j mod n. coefficient z^i = sum_j x_{i+d_j} if r_j ≡ -d_j? i - r_j = i + d_j mod n => r_j = - d_j mod n. Yes R(z)=sum_j z^{(-d_j) mod n}. Or equivalently polynomial q(z)=sum z^{d_j} with convention y_i = sum x_{i+d_j}; maybe use exponentiation of sparse operator via polynomial modular exponent and then apply? Need final state after t seconds. Since offsets length small, T is multiplication by fixed sparse polynomial r of degree < n with at most 6 terms modulo z^n -1 (after parity dedup). Then T^t corresponds to multiplying state polynomial by r(z)^t mod (z^n -1). We can compute R = r(z)^t mod z^n -1 via repeated squaring with polynomial arithmetic modulo x^n -1. Polynomial degree <n up to 5000, arithmetic with mod 2 and cyclic reduction. Complexity O(n log^2 n?) naive polynomial multiplication O(n^2) =25M per multiplication, times log t ~60 => 1.5B (bit ops maybe too high in Python). Need better. n=5000; O(n^2) ~25M per multiplication; repeated squaring ~60 =>1.5B simple integer? In Python too slow. We need efficient. Since t up to 1e18; number of nonzero terms in current polynomial can blow up to n after one multiplication maybe. But maybe structure can be done smarter.
+
+Alternative: Since offsets count <=6 and n<=5000, we need exact state after t. Could use linear recurrence/period. There may be special structure: y_i = XOR of up to 6 positions spaced by offsets. This is a sum of shifts. T = sum_j S^{d_j} where S is shift (new_i = old_{i+d}). Over GF(2). Duplicates cancel. Need T^t x. Could use fast exponentiation of sparse matrix applying to vector? O(t) too big. Could use exponentiation by repeated squaring with vectors? Polynomial exponent still.
+
+We need implement robust efficient enough for n=5000, log t <=60. Need optimize polynomial multiplication modulo x^n-1 over GF(2). Could use bit-packed integers for polynomials. n=5000 fits in Python integer (arbitrary precision). Represent state polynomial bits. Addition = XOR. Multiplication modulo x^n -1 over GF(2): product of two bit polynomials (degree<n) with cyclic reduction mod n. Without reduction, product degree <2n; coefficient at exponent e mod n = sum bits product[e] and product[e+n] (carry? over GF(2), if degree >= n, reduce by XOR bits at >=n into corresponding positions; degree<2n so just XOR low/high half). Need compute product of bit polynomials over GF(2) efficiently. Naive for each set bit in one polynomial iterate over set bits in other: up to n*m. If both dense (5000 bits), 25M bit-level operations in Python loop too slow. Need use bit tricks.
+
+We can use Python integers as bit arrays and do multiplication via convolution using FFT? But over GF(2), polynomial multiplication modulo x^n-1 with n=5000. Could use number theoretic / NTT? GF(2) convolution not directly. But we can leverage Python big integers and shifts: product of two polynomials over GF(2) cannot be computed with integer multiplication because integer multiplication has carries. But over GF(2), if we avoid carries? Need mod 2 convolution. There are tricks using Python integers and Karatsuba? Another route: Since offsets length <=6, maybe we can exponentiate sparse operator using recurrence and cycle detection. n=5000, state space 2^n huge, but transformation on finite set has eventually periodic orbit. t huge; we need exact. Could find period by iterating? n=5000; state can change each step, cycle length could be huge (order of element in GL(n,2) up to something enormous). Not feasible.
+
+Maybe there is special property with offsets small count <=6: T is XOR of shifts; T^t can be characterized by binomial coefficients of offsets depending on parity. Wait over GF(2), sum of shifts S^{d_j}; raising to power t in group algebra GF(2)[z]/(z^n-1) with sparse elements. We can use Freshman's dream modulo 2: In characteristic 2, (A+B)^{2^k} = A^{2^k}+B^{2^k} (since cross terms cancel). But t has binary expansion; however t may not be power of two. But because n<=5000 and t up to 1e18, we can use binary lifting with polynomials. Need multiply sparse polynomials. Once we compute r^{2^k} for k up to 60, the elements may become dense. But maybe we can apply r^t to state directly using binary decomposition with polynomials; number of polynomial squarings 60, each dense maybe costly. But perhaps we can represent polynomial multiplication via number theoretic transform over GF(2) using Python integers and bitwise operations. Let's explore.
+
+n=5000; bit-packed 2^13=8192. Cyclic convolution length n can be computed by zero-pad to m power of two >=2n? Since cyclic modulo x^n-1 with degree<n. If compute ordinary convolution of degrees <n via FFT and reduce mod n, but over GF(2) FFT not straightforward. Could use binary exponentiation of operator as sparse? Let's consider exact algebra and alternative.
+
+Because offsets length <=6, r is sparse (<=6 terms). We need compute r^t modulo x^n-1. There are algorithms for polynomial exponentiation with sparse polynomial? t up to 1e18. Need efficient. Could exploit that degree< n <=5000 and r has <=6 terms. In characteristic 2, r^{2^k} = sum_j (z^{d_j})^{2^k} = sum_j z^{d_j * 2^k mod n} because cross terms cancel and duplicate terms cancel due to multiplicity mod 2. Aha! That's key. Since r is sum of odd multiplicity shifts. In characteristic 2, (u+v)^{2^k}=u^{2^k}+v^{2^k}. More generally, r^{2^k} is sum over terms j of z^{d_j 2^k} modulo z^n-1, with duplicates cancel (if d_j 2^k mod n collide, terms cancel once per pair). This is extremely sparse: number terms <=6 (after parity). Then to compute r^t for arbitrary t (binary expansion), we need multiply these sparse polynomials according to bits of t. But multiplying sparse polynomial by another may remain? If we multiply r^{2^k} (sparse <=6) by r^{2^l} (sparse <=6), result has up to 36 terms (after cancellation maybe less), still sparse! We don't need full dense polynomial for exponentiation of r if we keep polynomial as set of bits with coefficients 0/1. Since r^t is an element of group algebra with at most 6 * 2^{popcount?}?? Let's analyze.
+
+r has m<=6 terms. r^{2^k} remains <=6 terms (one per original offset) modulo n after parity deduplication. Multiplying these sparse polynomials for bits in binary t: If we iterate bits from low to high or high to low, accumulator starts as 1 (one term). For each set bit k, accumulator = accumulator * r^{2^k} mod (z^n-1). Accumulator may grow by factor up to 6 each time, but number of set bits <=60; could blow up to 6^60 if naive, impossible. But maybe we can choose better.
+
+Alternative: For t with binary expansion, r^t = product over set bits r^{2^k}. There are at most 60 set bits; product of sparse polynomials with total terms maybe O((number of set bits)*(initial terms))? Actually multiplying two sparse polynomials with a and b terms yields a*b terms before cancellation. If accumulator accumulates over set bits, its term count can grow by factor <=6 per set bit. Worst-case if t all ones (60 bits) and m=6, term count ~6^60 huge. But cancellations may reduce? Not guaranteed? Need more robust.
+
+But maybe due to cyclic group of order n, the set {r^{2^k}} has special structure; t up to 1e18 (<2^60), n<=5000. Could use linear algebra/exponentiation by squaring but with bit-packed polynomial multiplication using a fast algorithm. Need decide.
+
+Let's examine problem statement likely designed with n<=5000, offsets<=6, t huge. There is expected algorithm using exponentiation by squaring of a sparse transformation. Need infer intended solution. Could be from coding challenge; constraints modest. Need produce accepted solution. We need robust enough.
+
+Let's think deeply.
+
+We need evolve(state, offsets,t). Transformation: y = M x over GF(2). M is circulant with first row? M's action y_i = sum_j x_{i+d_j}. This is linear. Duplicates cancel. We can set D = multiset of residues of d_j mod n with odd multiplicity. m = len(D) <=6.
+
+Then t seconds = M^t x. Since M is a linear operator on 2^n. Could compute M^t x by applying linear recurrence using binary exponentiation on the state vector if m=1 maybe. For m<=6, we can use exponentiation by squaring of operator as a sparse matrix, but operator can become dense. However because m is tiny, maybe the set of states reachable? Hmm.
+
+One idea: Represent state as bit integer; maintain current polynomial p (the operator acting on state?) Actually y = r(D_x) x, where r(x) = sum_{d in D} x^d. The state polynomial A. y corresponds to B = r(z) A mod (z^n-1). After t steps, B = r(z)^t A mod (z^n-1). Thus if we can compute Q = r^t mod z^n-1 as bit integer, then simply convolve Q with A (Q may be dense). Since n=5000 and Q dense, final convolution cost O(n^2) maybe 25M bit operations. Could be okay if implemented with integer bit tricks? Need design.
+
+Compute Q = r^t modulo x^n -1. m<=6, t<=1e18. Maybe we can compute Q efficiently by iterating over binary exponent t with r^{2^k} which are sparse. If t has s set bits, Q is product of s sparse polynomials (each <=m terms). Naive term count m^s huge. But we can instead compute r^t using exponentiation where current polynomial may be dense. That is m initial terms; squaring (dense * dense) each bit. So same as before.
+
+But maybe we can avoid computing Q explicitly by applying r^t to A using a different method: exponentiate the sparse operator r by using characteristic 2 and binary representation of t in terms of powers of 2 applied to A? Let's test. We want r^t A. Over GF(2), r^{2^k} A can be computed by repeated shift? Since r = sum_{j=1}^m z^{d_j} (as shifts). In characteristic 2, r^{2^k} = sum_j z^{d_j 2^k} (mod n, with cancellations). Applying r^{2^k} to A (state polynomial) is easy: y_i = xor over j of A[(i + d_j 2^k) mod n]? Need sign convention but with polynomial shift. Good: each bit of t corresponds to r^{2^k} which is sparse. To combine set bits, we need multiply A by product_{k set} r^{2^k}. Product of sparse polynomials equals? We can evaluate sequentially: A_acc = A (as vector). For each set bit k (say from high to low), A_acc = r^{2^k} applied to A_acc. Because r^{t1+t2} = r^{t1} r^{t2}; to apply to A, iterate over set bits: if t = sum_{k in set}2^k, then r^t A = (product_{k in set} r^{2^k}) A. Applying in sequence: start A0=A; for each k in set, A_{new}=r^{2^k} applied to A_current. Since each r^{2^k} is sparse, each application is O(m*n) (<=6*5000=30000). Number of set bits <=60. Total O(60*6*n)=O(1.8M) bit operations. This is fantastic! Need ensure correct order and convention. This avoids polynomial multiplication entirely. Great. Need verify r^{2^k} = sum_j z^{d_j*2^k mod n} with cancellation for duplicates. In characteristic 2, (sum_{j=1}^m z^{d_j})^{2^k} = sum_j z^{d_j 2^k} because (a+b)^{2^k}=a^{2^k}+b^{2^k}; by induction. Mod (z^n-1), exponents mod n; duplicate terms cancel (XOR). Then r^{t} = product over set bits k of r^{2^k} (commutative ring GF(2)[z]/... because polynomials commute). Applying to A uses each set bit. Yes.
+
+Then final state: maintain bits as Python integer. Applying shift operation to polynomial A: For polynomial Q = sum_{e in Qset} z^e (sparse), B = Q * A mod (z^n-1). Coefficient B_i = sum_{e in Qset} A_{(i - e) mod n}? Need sign consistent with earlier. Let's define carefully.
+
+Original transformation: new lamp i = XOR of old lamps (i + d) mod n for d in offsets (odd multiplicity D). Let state polynomial A(z) = sum_i A_i z^i. We want polynomial B with B_i = sum_{d in D} A_{(i+d) mod n}. What polynomial R(z) gives B(z) = R(z) A(z) mod (z^n-1)? Coefficient of R A at z^i: sum_{e,f: e+f ≡ i} R_e A_f = sum_{e in Exp(R)} A_{(i-e) mod n}. We need sum_{d in D} A_{(i+d) mod n}. Set e = - d mod n. Then i - e = i + d mod n. Thus R(z)=sum_{d in D} z^{(-d) mod n}. Alternatively define R_d = z^{d}? Then coefficient = sum_{d} A_{i-d}; that's right-hand? Let's be exact.
+
+Maybe easier to implement transformation directly without polynomial convention. We can maintain state as string/list of booleans. Applying shift by q to polynomial operator: We want new_state_i = XOR_{d in D'} old_state[(i+d) mod n], where D' = residues r_k = d_j*2^k mod n (after cancellation) for each set bit k. That is simply new = xor over q in D' of shifted_old_by? Define shifted sequence S_q[i] = old_state[(i+q) mod n]. This is XOR_{q in D'} S_q[i]. Since D' has <=m entries (after cancel), and old_state is list of bools or bit integer. O(m*n). Great. No polynomial sign confusion. We don't even need polynomial exponent; just direct iterative over bits of t, applying sparse shift operator r^{2^k} to state each time. But is r^t A equal to product of r^{2^k} applied sequentially? Since operators commute (shifts commute), yes. If t = sum_{k in S} 2^k, then operator T^t = product_{k in S} (T^{2^k}) (because T^{a+b}=T^a T^b and operators commute; binary decomposition). We can iterate set bits and apply T^{2^k} to state. T^{2^k} is sparse with terms d_j 2^k mod n. Need account for duplicates within T^{2^k}: terms for original offsets d_j (odd multiplicity) with same residue q=d_j*2^k mod n cancel. We can compute D_k = list of q for j where d_j odd multiplicity, modulo n, with parity dedup. Then new state = XOR_{q in D_k} shift(old,q). Applying this for each set bit k. After processing all set bits, final state. t=0: no set bits -> return initial state. Good.
+
+Need double-check T^{2^k} terms: T = sum_j S^{d_j}? Define operator (U x)_i = sum_j x_{(i+d_j) mod n}. This is not exactly shift operator with exponent d_j? Shift operator (R^d x)_i = x_{(i+d) mod n}. Yes T = sum_j R^{d_j} mod2 (linearity). In characteristic 2, T^{2^k} = (sum_j R^{d_j})^{2^k} = sum_j R^{d_j 2^k} (because R^{d_j} are operators over GF(2) that commute with each other; cross terms cancel). Then T^t = product_{k: bit k set} T^{2^k} = product_k sum_j R^{d_j 2^k}. Wait careful: T^t is not generally product of T^{2^k}? Since t = sum bits 2^k, T^t = product_{k set} T^{2^k}. Yes because T^{a+b}=T^aT^b and any t is sum powers of two (binary). Great. Then T^t x = product over set bits [sum_j R^{d_j 2^k}] x. Sequential application of each bracket to x. Good.
+
+This is probably intended. Complexity O(popcount(t)*m*n). popcount <=60, m<=6, n<=5000 => <1.8 million operations, trivial.
+
+Now need ensure m after preprocessing: offsets list can have duplicates, including duplicates across? Since length <=6, simplest make freq = {}; for d in offsets: freq[d] ^=1 (parity). D = [d % n for d, parity in freq.items() if parity]. But careful: offsets may be negative or > n; use d % n in Python (nonnegative). Duplicate same offset with odd count -> keep residue. Example offsets [0,0] freq 0 -> D empty. Good. Offsets may be e.g. [1,1,2] -> freq 1=0,2=1 D=[2]. Good.
+
+Then for each set bit k in t: Need compute residues for original offsets in D (after parity): q_j = (d_j * (1<<k)) % n? But k can be up to 59 (t<=1e18 <2^60). 1<<k large (2^60 fits in Python int). d_j in [0,n-1]. Product d_j * 2^k mod n; can compute ((d_j * (1<<k)) % n) or better d_j * (2^k % n) % n. Since d_j<n<=5000 and k<=60, product <=5e3*1e18=5e21, Python handles. Fine. Use pow(2,k,n) maybe faster: multiplier = pow(2,k,n); q=(d_j*multiplier)%n. Duplicate q's cancel: build set/list parity. m small. Then build list D_k parity of q_j. Note q=0 terms are valid; shift by 0 means old_state same. New state = XOR over q in D_k of shifted old. If D_k empty -> new state all zeros (since XOR over empty =0). That's consistent with T^{2^k}=0? In characteristic 2 if all terms cancel, operator is zero. Then applying yields all zeros. Good.
+
+Then apply to state: Need represent state efficiently. We can use list of booleans/ints length n. For each q in D_k: if q==0: XOR with current list? Could handle q==0 by toggling current state? But new_i = xor over q of current[(i+q) mod n]. If q==0 contributes current[i]. We can build new = bytearray(n) or list of ints; for each q, loop i from 0 to n-1, j=(i+q)%n, new[i] ^= cur[j]. For q up to n-1. That's n per q. m<=6, popcount<=60 -> up to 60*6*5000=1.8M XOR operations. Fine. Need be careful not to mutate current while computing new; allocate new list each set bit (60*5000 booleans =300k, trivial). Use bytearray for memory and speed? bytearray supports XOR? In Python, new[i] ^= cur[j] works? bytearray elements are ints 0/1; ^= works. Setting new = bytearray(n) starts zeros. Good. But for q loop, if q==0, new[i] ^= cur[i]. For q>0, could split loop into i < n-q: j=i+q; i >= n-q: j=i+q-n. Use local variables for speed. Fine.
+
+At the end convert list/bytearray to string: ''.join('1' if bit else '0' for bit in cur). Good.
+
+Let's verify with examples.
+
+Example1 evolve("0100", [1],1): n=4, offsets [1], D=[1]. t=1 binary k=0. multiplier=1, q=[1]. current "0100" positions: i0=0,i1=1,i2=0,i3=0. new_i=cur[(i+1)%4]: i0=cur1=1 -> '1'; i1=cur2=0; i2=cur3=0; i3=cur0=0 => "1000". matches. They say each lamp copies right-hand neighbour? If lamps numbered 0..n-1 and offset 1 means (i+1) mod n; example "0100" new i0 = old lamp1 =1 -> yes "1000". Good.
+
+Example2 evolve("0100", [-1,1],1): D=[3,1] (since -1 mod4=3). D_0=[3,1]. new_i=cur[(i+3)%4]^cur[(i+1)%4]. cur positions 0:0,1:1,2:0,3:0.
+i0: cur3=0 ^ cur1=1 =1
+i1: cur0=0 ^ cur2=0 =0
+i2: cur1=1 ^ cur3=0 =1
+i3: cur2=0 ^ cur0=0 =0 => "1010". matches.
+
+Example3 evolve("110", [5],2): n=3, offsets [5] => residue 2 (5 mod3=2). D=[2]. t=2 binary k=1 (2^1=2). multiplier=pow(2,1,3)=2. q=(2*2)%3=1. current 110. new_i=cur[(i+1)%3]: i0=cur1=1; i1=cur2=0; i2=cur0=1 => "101". matches. Good. Note T^2 = T^{2^1}=sum R^{d*2 mod n}; with d=2, d*2=4 mod3=1. Good.
+
+Example4 evolve("1", [0,0],5): n=1. offsets [0,0] freq0=0 -> D=[]. t=5 bits k=0 (1) and k=2 (4). For each set bit, D_k=[] => new all zeros. after first bit becomes "0"; final "0". matches.
+
+Example5 evolve("1011", [2,7],0): t=0 return state. Note D after parity: offsets 2 and7 distinct => residue2 and residue3? n=4, 2 mod4=2,7 mod4=3. But t=0 return initial. matches. Good.
+
+Now, is direct sequential application over set bits always valid with operator T^{2^k}=sum R^{d_j 2^k} when T = sum R^{d_j} with duplicates parity? Need prove in characteristic 2: T^{2^k} = sum_{j in D} R^{d_j 2^k}, where D is list of unique residues with odd multiplicity. Because cross terms: (a+b)^{2^k}=a^{2^k}+b^{2^k} in char 2 (binomial coefficients even). For m terms: product over subsets with binomial coefficients; since 2^k power of two, only subsets of size power? Let's recall in char 2, (x+y)^{2^k}=x^{2^k}+y^{2^k}. Repeated for m terms: (sum_j R^{d_j})^{2^k}=sum_j (R^{d_j})^{2^k} = sum_j R^{d_j 2^k}. This is true because the endomorphism Frobenius is additive for commuting elements in commutative algebra char2. Yes.
+
+But note offsets after parity D may include duplicate residues? No, we dedupe. Good.
+
+Now, could t be larger than 2^64? Constraint t<=1e18 <2^60. popcount <=60. Fine.
+
+Potential issue: applying T^{2^k} for each set bit k sequentially. T^t = T^{sum bits 2^k} = product_k T^{2^k}. Operators are linear; product commutative. Applying to current vector sequentially yields same. Good.
+
+Now need implement exactly top-level function with type hints. Reply only code block. No explanation.
+
+Need ensure code in single ```python block. Could include comments? User says reply only code; code can include comments but safer minimal. Need include from typing import? Use built-in list[int] since Python 3.10. Type hint in signature must match. We can write exactly:
+
+def evolve(state: str, offsets: list[int], t: int) -> str:
+    n = len(state)
+    freq = {}
+    for d in offsets:
+        r = d % n
+        freq[r] = freq.get(r, 0) ^ 1
+    D = [r for r, p in freq.items() if p]
+    cur = bytearray(1 if ch == '1' else 0 for ch in state)
+    # If t == 0, cur unchanged.
+    bit = 0
+    # iterate bits in increasing order? any order as operators commute; increasing fine.
+    while t:
+        if t & 1:
+            mult = pow(2, bit, n)  # if t has bits maybe bit up to 59; ok
+            # To compute residues: for d in D: q=d*mult % n; parity dedup
+            seen = {} # or bytearray and list
+            qs = []
+            seen = bytearray(n)  # n<=5000, fine; but if n? ok. But for each bit allocation bytearray(n) maybe 60*5000 fine. Or use set/dict local.
+            for d in D:
+                q = (d * mult) % n
+                if not seen[q]:
+                    seen[q] = 1
+                    qs.append(q)
+                else:
+                    # toggle: if seen[q] ==1 -> seen[q]=0; remove from qs? Easier use parity dict.
+                    qs.pop() # but if duplicates not adjacent? Could use freq local.
+            # Simpler: small dict local parity
+            ...
+            new = bytearray(n)
+            for q in qs:
+                if q == 0:
+                    for i in range(n): new[i] ^= cur[i]
+                else:
+                    for i in range(n-q): new[i] ^= cur[i+q]
+                    for i in range(n-q,n): new[i] ^= cur[i+q-n]
+            cur = new
+        t >>= 1
+        bit += 1
+    return ''.join('1' if c else '0' for c in cur)
+
+Need implement dedup correctly. Since D has <=6, easiest: use local dict parity:
+q_par = {}
+for d in D:
+    q = (d * mult) % n
+    q_par[q] = q_par.get(q,0) ^ 1
+qs = [q for q,p in q_par.items() if p]
+
+This handles duplicates. Good.
+
+Potential optimization for q=0 loops: new[i] ^= cur[i]; q>0 as split. Good.
+
+Question: Should new[i] ^= cur[j] when cur elements are 0/1 and new are ints? yes.
+
+Need consider that t may be Python integer with bit length > n? t up to 1e18, fine. We mutate t in loop; but we also need D after parity. If t ==0, while loop doesn't execute, returns state. Good.
+
+Now, is pow(2, bit, n) correct if n=1? pow(2,bit,1) returns 0? In Python, pow(2, bit, 1) -> 0? Let's recall: pow(x,y,z) computes (x**y)%z. For z=1, result 0. Yes. Then d*0=0. D residues mod1 are all 0; D might be [0] or empty. If D empty (all cancel) skip; if D=[0], qs=[0], shift by 0 toggles state each set bit. For n=1 offsets [0], t=1: T = identity operator (new_i = old_{i+0}=old_i), should return same state. Our code D=[0]; t bits k=0; mult=0; q=0; new[i] ^= cur[i] -> cur toggles! That's wrong! Wait check: offset d=0 means new lamp i = XOR of old value at i+0 = old_i. With one term, new = old, not toggled. In our per-set-bit application, for k=0, T^{1} = sum_j R^{d_j}; with D=[0], T^{1}=R^0 = identity, not toggling. But our application new[i] = XOR_{q in qs} cur[(i+q) mod n]. For q=0, that is cur[i], not cur[i] toggled; but our code does new[i] ^= cur[i], starting new all zeros. That yields new[i]=cur[i] (since 0 xor cur[i]=cur[i]), not toggled. Sorry new[i] = 0 ^ cur[i] = cur[i]. Good. For multiple q terms, e.g. D=[0,0?] after parity empty. If D=[1] and q=0 plus q=? new[i] = xor. Toggle only if q==0 term contributes cur[i]; that's correct. For q==0 and D has only 0, it returns same (identity). Good.
+
+But example evolve("1", [0,0],5) D empty, each set bit qs empty -> new[i] remains 0. Good. For t=0 return initial. For n=1, offsets [0], t=1: initial "1", D=[0], one set bit, new[0]=0^cur[0]=1 => "1". good. t=2: bits k=1; D=[0], mult=pow(2,1,1)=0, q=0, new=cur=1. T^2=identity. good.
+
+Need check duplication cancellation across offsets: e.g offsets [1,2,3] n=5; D unique. t=3 binary bits k=0 (1), k=1 (2). Apply T and T^2 sequentially. T x = cur[i+1]^cur[i+2]^cur[i+3]. T^2 x = x[i+2]^x[i+4]^x[i+6=1] (since d*2: 2,4,6 mod5=1) = x[i+2]^x[i+4]^x[i+1]. Sequential: after T, y_i = x[i+1]^x[i+2]^x[i+3]. After T^2, z_i = y[i+2]^y[i+4]^y[i+1] (terms for T^2 as computed? T^{2} terms q=[2,4,1]. z_i= y[i+2]^y[i+4]^y[i+1]). Expand: y[i+2]=x[i+3]^x[i+4]^x[i+5=0]; y[i+4]=x[i+5=0]^x[i+6=1]^x[i+7=2]; y[i+1]=x[i+2]^x[i+3]^x[i+4]. XOR: x[i+0] appears in first and second -> cancel; x[i+1] once; x[i+2] once (last) ? let's systematically: terms: first: a=i+3, b=i+4, c=i+0. second: c=i+0, d=i+1, e=i+2. third: f=i+2, g=i+3, h=i+4. Cancel c twice, g twice, b/h twice, f/e twice. left d=i+1. z_i=x[i+1]. Is T^3 x = x[i+1] for D=[1,2,3]? T = S^1+S^2+S^3; T^2 =? Over char2 and commute: T^2 = S^2 + S^4 + S^6 (since (sum a_j)^2 = sum a_j^2). S^2+S^4+S^6. Then T^3 = T^2*T = (S^2+S^4+S^6)(S^1+S^2+S^3). Multiply: S^3 + S^4 + S^5 + S^6 + S^6 + S^7 + S^7 + S^8 + S^9. Mod5: S^3 + S^4 + S^0 + S^6(1)=S1? Let's do mod exponents: S^3, S^4, S^5=0, S^6=1, S^6=1 (cancel), S^7=2, S^7=2 (cancel), S^8=3, S^9=4. Left S^3 appears twice? first term S^3 and S^8=3 -> cancel. S^4 appears first and last -> cancel. S^0 once, S^1 once. z_i = x[(i?)] maybe S^0+S^1 = x_i + x_{i+1}? Hmm mismatch due to using wrong operator direction? Let's recalc carefully; important. Maybe I made expansion mistake or polynomial convention. Let's verify with a concrete small n/example mentally or by rigorous derivation.
+
+Define operator R^d: (R^d x)_i = x_{(i+d) mod n}. It is linear, R^a R^b = R^{a+b}? Check (R^a (R^b x))_i = (R^b x)_{i+a} = x_{(i+a)+b} = x_{(i+(a+b))}. Yes R^a R^b = R^{a+b}. Good. T=sum_j R^{d_j}. In char2, T^2 = sum_j R^{2d_j} (because cross terms cancel). For D=[1,2,3], n=5: T^2 = R^2+R^4+R^6=R^2+R^4+R^1. T^3 = T^2*T = (R^2+R^4+R^1)(R^1+R^2+R^3). Multiply terms (exponents mod5):
+R^2*R^1 = R^3
+R^2*R^2 = R^4
+R^2*R^3 = R^5 = R^0
+R^4*R^1 = R^5 = R^0
+R^4*R^2 = R^6 = R^1
+R^4*R^3 = R^7 = R^2
+R^1*R^1 = R^2
+R^1*R^2 = R^3
+R^1*R^3 = R^4
+Now collect: R^3: first and second-to-last? Let's list: R3 (1), R4 (1), R0 (1), R0 (another -> cancels first R0), R1 (1), R2 (from 4*3) (1), R2 (from 1*2) (another -> cancels), R3 (from 1*? wait R^1*R^2 = R^3 I counted as second-to-last? Let's systematically list 9 products:
+1) R2*R1 = R3
+2) R2*R2 = R4
+3) R2*R3 = R5 = R0
+4) R4*R1 = R5 = R0
+5) R4*R2 = R6 = R1
+6) R4*R3 = R7 = R2
+7) R1*R1 = R2
+8) R1*R2 = R3
+9) R1*R3 = R4
+Now collect parity exponents mod5:
+R3: products 1 and8 -> cancel (0)
+R4: products 2 and9 -> cancel (0)
+R0: products3 and4 -> cancel (0)
+R1: product5 (1)
+R2: products6 and7 -> cancel (0)
+Leaves R^1. z_i=x[(i+1)]. This matches our sequential expansion? Sequential gave z_i=x[i+1]. Good! Great.
+
+Now, our sequential method: t=3 bits k=0 and k=1. T^{1}=R1+R2+R3. T^{2}=R2+R4+R6(=R1). Starting x, apply T^1: y_i=x[i+1]^x[i+2]^x[i+3]. Apply T^2: z_i=y[i+2]^y[i+4]^y[i+1] (since q for T^2 = [2,4,1]). Expand y[i+2]=x[i+3]^x[i+4]^x[i+5]=x[i+3]^x[i+4]^x[i+0]. y[i+4]=x[i+5]^x[i+6]^x[i+7]=x[i+0]^x[i+1]^x[i+2]. y[i+1]=x[i+2]^x[i+3]^x[i+4]. XOR: x[i+0]: first and second -> cancel; x[i+1]: second once; x[i+2]: second and third? second has x[i+2], third has x[i+2] -> cancel; x[i+3]: first and third -> cancel; x[i+4]: first and third -> cancel. Leaves x[i+1]. Good.
+
+Great.
+
+Need think about applying per-bit T^{2^k} to current state. Since t's bits maybe processed in increasing order; operators commute. Fine. We can choose increasing.
+
+Now possible concern: offsets can be larger than 2^31 etc but n small; d%n handles. For pow(2, bit, n), if n=1 returns 0; fine. bit up to 59. Good.
+
+Now, maybe t=0 should return original string exactly; even if state has invalid characters? Not needed.
+
+Now, should offsets with duplicates cancel globally before exponentiation, or duplicates of same offset in T^{2^k} cancel per k too. We do both: globally parity to get D. Then per bit q dedup. Good. If globally D has one term but q collisions cancel within a bit (e.g. D=[1,1? no, global dedupe], for t=2 and n=2, D=[1], q=(1*2)%2=0 => qs=[0], T^2=identity. T = XOR of R^1; over n=2, T^2=R^2=identity. correct. For D=[1,2] n=3, t=2: q for d=1:2 mod3=2; d=2:4 mod3=1; T^2=R2+R1. correct. For D=[1,2,3]? did. Good.
+
+Need ensure state as bytearray can hold 0/1. Conversion to string final uses cur. If t=0, cur built from state. Good.
+
+Now, check constraints n up to 5000 but offsets length <=6. Popcount of t <=60. Code O(60*6*n). Good. Final answer only code block.
+
+But let's question if there is any subtlety with "offsets in the order given" maybe XOR of same terms in order matters? XOR commutative/associative, order irrelevant except duplicates cancel. Good.
+
+Now, let's consider if duplicates of same offset cancel, but an offset appearing twice contributes two terms and cancel. If an offset appears three times, net once. We handle. If entire offsets list has even number of identical terms, D excludes; if all cancel D empty, after t>=1 state all zeros? Wait if D empty, T = zero operator. T^t for t>=1 = zero operator (since zero^t=0 for t>=1) yielding all zeros. Our algorithm for t>=1: for each set bit (at least one), qs empty -> new bytearray zeros. After loop cur all zeros. Good. t=0 returns original. Good.
+
+Let's maybe include function exact signature. Fine.
+
+Potential issue: `pow(2, bit, n)` with n=1 returns 0 but `bit` int. Good.
+
+Now final answer must be only code block. No extra text. Need ensure code block contains only Python code. Could include a comment? No. Now final.
+
+But before final, maybe think about optimizing per-bit allocation. Not necessary. But maybe if n=5000, bytearray(n) per set bit and for each q loops, fine. 60*6*5000 =1.8M iterations; actual code loops q maybe 6 bits? okay.
+
+Let's craft code cleanly:
+
+def evolve(state: str, offsets: list[int], t: int) -> str:
+    n = len(state)
+    par = {}
+    for d in offsets:
+        r = d % n
+        par[r] = par.get(r, 0) ^ 1
+    base = [r for r, p in par.items() if p]
+    cur = bytearray(1 if c == '1' else 0 for c in state)
+    bit = 0
+    while t:
+        if t & 1:
+            mult = pow(2, bit, n)
+            qmap = {}
+            for d in base:
+                q = (d * mult) % n
+                qmap[q] = qmap.get(q, 0) ^ 1
+            qs = [q for q, p in qmap.items() if p]
+            nxt = bytearray(n)
+            for q in qs:
+                if q == 0:
+                    for i in range(n):
+                        nxt[i] ^= cur[i]
+                else:
+                    for i in range(n - q):
+                        nxt[i] ^= cur[i + q]
+                    for i in range(n - q, n):
+                        nxt[i] ^= cur[i + q - n]
+            cur = nxt
+        t >>= 1
+        bit += 1
+    return ''.join('1' if x else '0' for x in cur)
+
+Potential bug: if qs empty, nxt zeroed; yes. If qs has q=0 and q>0, nxt initialized zeros, XOR q terms. Good. If multiple q=0? qmap dedupe. Good.
+
+Let's test mentally with n=1, base empty and t=5: bit0 t&1 -> qs empty -> nxt zero; bit1 t=2 (binary 101) skip? t after bit0 t>>=1 =>2, bit1 t&1=0 skip; bit2 t>>1 =>1, bit=2, t&1=1, mult=pow(2,2,1)=0, qs empty -> nxt zero. final "0". Good.
+
+For t=1 and base=[0], bit0: mult=1, q=0; nxt[i]=0^cur[i]=cur[i]. final same state. Good.
+
+For t=2 and base=[0], bit1: mult=pow(2,1,n) (mod1=0); q=0; nxt=cur. same. Good.
+
+Now, maybe `d % n` when n=1 always 0; par keys [0]; if duplicate cancels to empty; good.
+
+Could use `while t:` but if t has bit length 60, loop 60 times. Good.
+
+Now final. Ensure only code block. Done.
+=== CONTENT ===
+```python
+def evolve(state: str, offsets: list[int], t: int) -> str:
+    n = len(state)
+    par = {}
+    for d in offsets:
+        r = d % n
+        par[r] = par.get(r, 0) ^ 1
+    base = [r for r, p in par.items() if p]
+    cur = bytearray(1 if c == '1' else 0 for c in state)
+    bit = 0
+    while t:
+        if t & 1:
+            mult =

@@ -1,0 +1,229 @@
+=== REASONING ===
+We need answer with only code block. Need solve problem. Let's think thoroughly.
+
+We have board cells 0..n. Token starts on cell 0. Each turn: roll fair die faces 1..m. Move forward by roll. If p+r > n, token bounces: from cell p with roll r and p+r>n, lands on 2n - p - r. Need understand if bounce lands <0? Since p in 0..n, r in 1..m, n>=1. p+r>n implies r>n-p. 2n - p - r. Since p+r <= n + m? Could be >2n? p<=n, r<=m<=n, p+r<=2n, so 2n-(p+r)>=0. Also lower? p+r>n => 2n-p-r < n. Good nonnegative. If p+r == n lands exactly n. If p+r <= n lands p+r. So after roll, we have a landing cell l in 0..n. Then apply jumps: while l is a jump start (a), set l=b (jump target), and continue (if b is also jump start). These moves same turn. Need expected number of turns until game ends. Game ends when token rests on cell n. Important: sequence after roll: The token lands on cell l (bounce included). If l == n, game ends (no jumps from n? Jump starts only 1..n-1 so n no jump; even if jumps to n? jump targets can be n; after moving to n we stop? Need handle). If l is a jump start, it moves to b straight away in same turn. If b is also jump start, keeps moving, until lands on a cell that starts no jump. Need define final cell after jump chain. If chain reaches cell n, token rests on n and game ends. If chain reaches cell 0, continue next turn. If chain reaches some cell <=? jumps targets b in 0..n. Jump starts are distinct and following jumps never loops forever. So finite chain. If l initially n, do we need to apply jumps? start of jump only cells 1..n-1, so no. If after roll l is a jump start and target chain eventually reaches n, then game ends. If l after jump chain (no jump) equals n, game ends. Also if jump target is n, n has no jump, chain ends at n, game ends. If jump chain target maybe a start whose b equals? no loops.
+
+Need expected turns until game ends as exact fraction [p,q] lowest terms q>=1. If positive probability never ends, return None.
+
+Constraints n,m<=80. n cells 0..n => N=n+1 <=81. Need compute expected hitting time to state n with jumps. Straightforward linear equations over states 0..n? But note token after jumps may land in 0..n. Let E[i] = expected turns to reach n starting from cell i before rolling? But jumps are applied after each roll, not before. Need define E[i] for token resting on cell i at beginning of a turn (i not necessarily no jump? It may be a jump start? Actually token rests on cell i after jump chain or after game start at 0. At start of a turn, token is on cell i and no jump is pending (it rests there). If i has outgoing jump, would that mean it didn't rest? The process applies jumps immediately when token lands on a, so after any roll, if it lands on jump start, it moves immediately; the token can never rest on a jump start after the turn (except maybe start? no). At the beginning of each turn, token rests on a cell that starts no jump, or cell 0 (which could be? jump starts distinct and 1<=a<=n-1, so 0 not start; good), or cell n (game ended). So valid resting states are cells with no outgoing jump plus cell n. Start 0 not jump start. We can set up equations for resting states.
+
+But maybe simpler: define F = function next_resting_cell_after_roll(i,r): compute l = i+r; if l>n: l=2n-i-r; then apply jumps until no jump. Returns final cell s in 0..n. If s==n game ends that turn. If s != n, process continues for additional turns. Then E[0] satisfies E[i] = sum_r (1/m) * ( 1 + [next != n]*E[next] )? Need careful: For a resting state i (not n), one turn always elapses. After roll and jump chain, if final s=n, game ends, total turns increment by 1. Else, need spend expected E[s] more turns. So E[i] = 1 + (1/m) sum_r (E[next(i,r)] if next != n else 0). For i=n, E[n]=0 (already ended). This is a linear system for i in finite states (0..n) including n=0 equation. Since there may be positive probability never ends (e.g. expected infinite), the system may not have finite solution? Need detect.
+
+However, jumps after roll may produce s that is a jump start? No, chain continues until no jump. It could produce s=0, which is fine. It could produce s=i? Possibly. We can include all cells 0..n in variables; equations for jump-start cells are not needed because not resting states; but we can still define E for all cells via same formula? If i is a jump start, at beginning of turn can it occur? It shouldn't, but equations would be similar? If we include E[i] for all i with E[n]=0 and E[i]=1+(1/m)sum_r ... then for jump-start cells it computes expected turns from being on a start at beginning of a turn with jump already pending. But problem never has that. Could including it bias? No, because we only care E[0]; equations for jump-start cells may be referenced as next? No, next after roll applies jumps so never returns jump start. It can return 0 (which is not jump start). So we won't reference E[jump starts]. But variables equations for unreachable states may be inconsistent? They are just extra equations not referenced; we can solve only equations for cells that are possible resting states. Or build linear system for all i but with unknown E for jump-start cells too; they are not needed and also their values may be underdetermined? Let's examine. If i is a jump start, next(i,r) = final after roll/jump chain, never a jump start. The equation includes E[next], which are resting states. So equations for jump-start states could be solved from resting states values, but not needed. If we set up solve for all cells 0..n using fractions, we need ensure all variables determined. For jump-start cells, equations are independent and could be solved backwards if needed, but not needed. Simpler: consider set S of all cells except n? Actually all cells 0..n; unknown E[i] for i != n. Use equations. E[n]=0. But if jump-start states included, unknown count n+1, equations n+1 (for i=0..n-1) linear. Is matrix invertible? Possibly singular if there is positive probability of non-termination. Need detect. We don't have to solve jump-start equations; but matrix for all cells might still be singular due to nontermination cycles among resting states. Need handle.
+
+Alternative: Model as Markov chain on resting cells. Compute expected time to reach n. If chain (restricted to resting cells) has a closed communicating class not containing n with positive probability, return None. Otherwise finite expected hitting time. Since m,n<=80, easy. Could solve linear equations via exact fractions.
+
+Need be careful with exact fraction. Several approaches:
+1. Determine if there is positive probability never end. For Markov chain with finite states (resting cells excluding n) and transition probabilities p_{i->s} (after roll+jumps). Let P be submatrix among transient states (excluding n), and b maybe vector? We can compute expected hitting time via solving linear equations or via fundamental matrix (I-P)^{-1}. If some state has expected infinite, return None. Need exact fraction. Approach: Use exact rational Gaussian elimination for (I - P) x = 1 on states S (resting cells excluding n). If singular and no finite solution, return None. But equations might be inconsistent? Let's derive.
+
+Let S = set of cells that can be resting after jumps? Actually cells 0..n excluding n and jump starts? But the final cell after roll+jump chain is always a cell with no outgoing jump (or n). Because jump chain continues until no outgoing. Thus transitions only from a resting state i (which is no-jump or 0 or maybe n) to cells s with no outgoing jump or n. But if i itself is jump start (not resting), we ignore. At start 0, 0 no-jump (jump starts >=1). Good. Resting states S = {0 <= i <= n-1 : i not in jump_starts}. Because cell n is absorbing end. This includes 0. Could there be jump target 0? Yes (e.g. jumps [[1,0],[2,0]]); 0 no-jump. Good. If target cell has no outgoing jump, it's resting. If jump target is a jump start, chain continues. If jump chain eventually reaches a cell no-jump, that's final. If it reaches n, absorbing. Good.
+
+Then transition probabilities from i in S: for each r in 1..m, compute raw = i+r; if raw > n: raw = 2n - i - r; then apply jump chain starting from raw: while raw in jump_map: raw = jump_map[raw]; (this is finite). If raw == n: probability to end (absorbing) for that roll. Else (raw in S): p_{i->raw} += 1/m.
+
+Then expected turns x_i for i in S (i != n): x_i = 1 + sum_{s in S} p_{i,s} x_s. If the chain reaches n, no x_n term (x_n=0). This is (I - P) x = 1 where P_{i,s}=sum_r 1/m [final=s], over S. Need solve. If there is positive probability of never ending, then expected infinite. In finite Markov chain, expected hitting time finite iff all states in S are transient (cannot reach a closed recurrent class excluding n), equivalently spectral radius of P < 1, equivalently (I-P) invertible? Actually for finite states, I-P is invertible iff no recurrent class contained in S (i.e. all states transient). If there is a closed class excluding n, P has eigenvalue 1, I-P singular. There could also be singular matrix without positive recurrent class? In finite Markov chain with sub-stochastic matrix P (rows sum <=1). I-P singular iff there exists positive vector v such that P v = v? For nonnegative P, eigenvalue 1 has nonnegative eigenvector (by Perron-Frobenius for irreducible components; if reducible, still singular). This corresponds to a closed class reachable? Positive eigenvector may be supported on a closed communicating class? I think if P has eigenvalue 1, then there is a state in a closed class; expected time infinite for states that can reach it. Since we start at 0, if 0 cannot reach the closed class, expected time to hit n could still be finite even if I-P singular? Need check. Important: We only need expected time from cell 0 (start) until n. Even if some other states have positive probability never end, if start state 0 cannot reach those bad states, then expected time finite. The problem says "If there is a positive probability that the game never ends, return None". Starting from cell 0, positive probability never ends. Not necessarily if all states somewhere have bad loops, but if start cannot reach them, no. Need detect reachability from 0 in the Markov chain of resting states (and absorbing n). Since finite, can restrict S_reachable = states reachable from 0 via transitions (i in S). Then determine if within S_reachable there is a closed recurrent class not containing n. Simpler: solve equations for reachable states only. If I-P_reachable singular, return None? But if singular, could still have finite x_0? Let's analyze.
+
+Equation x = 1 + P x on reachable states R. If a closed bad class is reachable from 0, then there is positive probability never end; x infinite; equations have no finite nonnegative solution? They may have multiple/no solutions. If no closed bad class reachable, chain is finite transient to n; I-P_R invertible; unique finite solution. So for reachable R, invertibility of I-P_R is equivalent to finite expected time. But we should be cautious: I-P_R singular can happen if there is a closed class within R. Since R is reachable from 0, that closed class is reachable from 0, so positive probability never ends? Need ensure if reachable closed class can be entered with positive probability from any state, particularly from 0. R includes all states reachable from 0, so yes there is a path with positive probability from 0 to some state in closed class. At the end of path, probability to eventually enter closed class? In finite chain, from state r in R, if the closed class is reachable, probability to enter it is >0 (finite path). At entry, once in closed class, never hits n. Thus positive probability never end. Yes. Good.
+
+Could I-P_R be singular due to a zero eigenvalue causing finite x not unique but still finite? For transient finite Markov chain, I-P is invertible. If P has eigenvalue 1 with eigenvector supported only on states not reachable? R restricted handles. If P_R singular, there is nonnegative eigenvector for eigenvalue 1 supported on R? Need confirm. P_R is nonnegative substochastic. If singular (eigenvalue 1), by PF for nonnegative matrices, there is an eigenvector v>=0, v !=0 with P_R v = v. Let C = support(v). Does C form a closed class? Need show states in C cannot transition to states outside C? Since P v = v. Let R_out = states in support with positive probability to s outside C. If i in C has p_{i,s}>0 for s not in C, then (P v)_i = sum_{s in support C} p_i,s v_s + sum_{s outside C} p_i,s*0? Wait if s outside C, v_s=0, and outside C means not in support, so p_i,s doesn't contribute to (P v)_i except p_i,s*0 =0. That doesn't force p_i,s=0. Hmm support argument not direct. Let's derive: (P v)_i = v_i for all i. For i in C, RHS>0. Sum over j in C p_i,j v_j = v_i (since outside support v_j=0). This can happen while p_i,s outside C >0 if outside transition probabilities are compensated? Since total row sum <=1, sum_{j in C} p_i,j ≤ sum_j p_i,j ≤1 - p_i,n(end). But no requirement that sum inside =1. Example two states: state A in support, state B outside support; row A: p_AB=0.5, p_AA=0? row sum 0.5 <=1; eigenvalue 1? equations: v_A = p_AA v_A + p_AB v_B? Actually (Pv)_A = p_AA v_A (B=0) = v_A -> if p_AA=1. Row sum inside C =1, so no outside transition. OK because p_AA =1. If p_AA=0.5 and p_AB=0.5, then (Pv)_A=0.5 v_A, not equal v_A unless v_A=0 contradiction. So indeed for i in C, sum inside p_i,j v_j = v_i. But because v_i >0, we need sum inside p_i,j v_j = v_i. If p_i,outside>0 or p_i,end>0, row sum inside <1, but v_j vary; could still equal v_i if inside distribution weighted by v equals v_i. Is that possible with v_j>0 for j in C? Yes if v_j all equal, then sum inside = p_inside v_i? Wait v_i = sum inside p_i,j v_j. If v constant c on C, then v_i=c = c sum inside p_i,j -> sum inside p_i,j =1. So no outside. If v not constant, possible? Let C={A,B}, outside transitions from A to X. Equations: v_A = p_AA v_A + p_AB v_B; v_B = p_BA v_A + p_BB v_B. There may be solution with outside probs? Row sums inside can be <1 leaving probability to end/outside. Example C two states, A row: p_AA=0,p_AB=1,p_AX=0? not outside. Need find singular substochastic matrix with eigenvalue 1 and rows not closed. Known theorem: For a substochastic matrix Q, if I-Q is singular, then there exists a closed subset (absorbing class) of states reachable? Let's recall: Q substochastic finite. Expected occupation times finite iff spectral radius <1 iff I-Q invertible. Singular implies there exists a recurrent class (closed communicating class). I believe correct for finite Markov chains; the nonnegative eigenvector support can be used to define closed class among support? Let's prove enough for our use maybe not necessary: We can detect never-ending probability directly by graph reachability of closed classes.
+
+Simpler robust approach: Compute reachable resting states R from 0 in directed graph with edge i->s probability>0 (s in S_reachable or n maybe). Build graph of resting states R (excluding n). Find if there exists any state in R that belongs to a strongly connected component (SCC) with no outgoing edges to outside SCC nor to n (i.e., a closed recurrent class). In a finite Markov chain, positive probability never end from 0 iff 0 can reach a state that is in a closed SCC (not containing n). Since R is exactly reachable from 0, if any SCC of R has no outgoing edges (to other states or to n), then 0 can reach some state in that SCC? R reachable includes all states reachable from 0; an SCC in R is reachable as a set? Need ensure from 0, positive probability to reach a state in that SCC. If the SCC consists of reachable states, each state is reachable from 0 by definition (R is union of all reachable states). So pick any s in SCC; path from 0 to s has positive probability. Once at s in closed SCC, chain never leaves; never hits n (n outside R). Thus positive never ends. Conversely, if no closed SCC in R, all chains eventually hit n with probability 1 (finite transient). Good. This avoids singular issue. But note an SCC might have no outgoing edges to outside, but may have probability to n? If there is an edge i->n (roll leads final n) from a state in SCC, then it has outgoing edge to n, so not closed excluding n. Since we exclude n in graph, detect edges to n as outgoing. If i in SCC has p_i,end>0, then the SCC is not closed (it can exit to n). The chain may still never end with positive probability by staying in SCC multiple times? If the state can go to n with positive prob and stay in SCC with positive prob, then the SCC is not closed; it is a transient SCC? In finite Markov chain, an SCC with exits to outside is transient overall (eventually exits), but if exit probability less than 1, eventually exits a.s. if no closed subset. Within SCC, if it has self-contained subclass? That would be separate SCC? Strongly connected component is maximal all mutual reachable; if exits exist, states in SCC can still be transient (leave and not return) or recurrent? Example chain states A,B,C: A<->B, A->C? B no exit. SCC {A,B}? Are A and B mutually reachable yes; but SCC has edge A->C outside. In finite chain, from A, probability never hit? You can leave A->C with prob .5, otherwise return; eventually you may have left to C (outside) or stayed. If C is absorbing bad or n? Suppose C=n, then eventual hit n? But if A->B->A loop and A->n with prob .5 each visit, then eventually hit n a.s. (prob 1-(.5)^k). Good. SCC with exit to n is transient; expected finite. So closed SCC must have no edges to any other resting state and no edge to n. That's exactly a maximal closed communicating class among resting states.
+
+Alternatively, detect positive probability never ends by solving probability that start reaches n? Could set up equations for probability hit n; if <1 return None. But expected infinite even if probability hit n =1? In finite Markov chain, if absorption possible and all chains lead to absorption with probability 1, expected hitting time finite. If probability hit n <1, expected time infinite (and never ends positive). So checking P(hit n)=1 and finite states is equivalent. We could compute probability of eventual absorption via linear equations, or detect closed SCC. SCC method is simple and exact (probabilities not needed except positive). Need also handle if reachable states R includes 0 and all. Then solve expected equations.
+
+Another subtlety: jump chains can move token from a rolled raw cell to another cell, possibly to n. The number of turns doesn't increase; but the expected equation includes one turn. Good.
+
+Another subtlety: Bounce formula for p+r>n: lands on 2n - p - r. This can result in a cell that is a jump start? Then apply jump chain. Good.
+
+Another subtlety: Jump target b may equal currently raw cell? Constraints a != b; chain no loops. It may be that b equals a jump start that has b already? no loops. Fine.
+
+Need compute exact expected turns. Could use Fraction. n<=80, S size <=81. Gaussian elimination with fractions is easy. Need exact fraction p/q. Fraction returns lowest terms with denominator >=1 automatically for numerator possibly negative? It never negative. [p,q] with q>=1. If expected turns finite, E[0] nonnegative rational; Fraction will normalize. For expected turns 1? E[0]=1 => [1,1]. For 2 -> [2,1]. Good.
+
+Need consider positive probability that game never ends even if E[0] finite? In finite Markov chain with absorption n possible; if probability of never ending >0 then expected turns infinite. So return None. Detect by closed SCC or by probability. Let's think of exact equations for finite expectation: If chain is transient (no closed class in reachable R), I-P invertible. Solve with Gaussian elimination. Given probabilities with denominator m (m <=80), P entries multiples of 1/m. We can avoid fractions in linear system? We can use Fraction; fine for 81.
+
+But need ensure if there is a closed SCC reachable from 0 but somehow expected time from 0 finite? No, positive probability never ends means expected time infinite? Let's prove: If P(at any time never reach n) = π >0, expected number of turns is at least π * infinity? More rigorously, expected hitting time to n is infinite because on event never reach n, time infinite; on event reach in finite T, expected contribution maybe finite? But could finite total expectation despite positive probability of infinite? No, a nonnegative random variable T with P(T=∞)>0 has E[T]=∞ (integral over {T>k} tends to π*∞? Actually if T=∞ on event A with P(A)=π>0, E[T] = ∫_0^∞ P(T>t) dt. Since T>t for all t on A, P(T>t)≥π for all t, integral diverges). So yes None.
+
+Need produce code exactly. Let's design.
+
+Function expected_turns(n:int,m:int,jumps:list[list[int]]) -> list[int] | None.
+
+Implementation steps:
+- jump_map = {a: b for a,b in jumps} (pairs [a,b]); jumps starts distinct per constraints. Could include invalid? assume valid.
+- Define function final_after_roll(i,r): raw = i + r; if raw > n: raw = 2*n - i - r; # Note if raw>n, i+r>n; formula. elif raw <= n unchanged.
+  while raw in jump_map: raw = jump_map[raw]; # finite
+  return raw.
+  Check bounce formula uses p and r not raw. For raw after bounce, could be n? condition raw>n so raw_bounce = 2n - (i+r) < n. good.
+  Note if raw in jump_map after bounce and chain loops? guaranteed no.
+- Resting cells: cells 0..n-1 that are not jump_map keys. (cell n excluded). Also cell 0 included (not jump start). S = list.
+- Build reachable set R: start set {0}; queue; for each i in R, for each roll r compute s=final_after_roll(i,r). If s < n and s not in R: R.add(s), push. If s == n: absorbing (ignore; no resting state). If s is a jump start? final_after_roll returns no-jump or n; if it returns a jump start due to bug? It shouldn't. If due to jump mapping? no. Could assert.
+  Note: The graph for reachability should include edges to n to detect closed SCC. Build adjacency: for i in R, for r, s; if s==n: edge to end flag; elif s in R (must): add s.
+- Determine closed SCC in directed graph with vertices R. Need find SCCs of directed graph where edges are i->s for s in R. If an SCC has no edge to outside vertices (including n) then it's closed excluding n. But also an SCC could be singleton with self-loop and no outgoing: closed. Good.
+  Use Tarjan or simple algorithm. n<=81 so O(|R|^2) possible. Implement strongly connected components via Kosaraju or Tarjan. Need also handle graph with 80 nodes. Simple approach: use Tarjan. Or compute SCC via epsilon? Let's implement Tarjan compactly.
+  Alternatively compute reachability sets from each node to all other nodes in R and end. O(N^3) maybe fine (81^3=531k). Closed SCC detection: For each state i, compute set of states reachable from i within R (including i). Closed SCC if there exists nonempty C such that every i in C can reach every j in C and no i in C reaches outside C or n. Finding maximal SCCs via Tarjan easier.
+
+  Need be precise: A "closed" SCC in the finite Markov chain that excludes n means no transition from any vertex in SCC to a vertex outside SCC (including n). Edges to n are transitions to game end; if any, SCC not closed (it can exit to n). Tarjan gives SCCs; for each SCC, for each vertex i, for each roll edge, compute s; if s==n or s not in SCC: break and not closed. If no such, closed. Then if exists closed SCC in R, return None.
+  Is it enough to detect any closed SCC in R? R is reachable from 0, so yes. What about an SCC containing cell 0? Then positive never ends (start eventually never? If 0 in closed SCC and 0 can reach all states in SCC, staying in SCC forever positive probability? Since SCC is closed and has transition probabilities summing 1 (no outgoing), starting at 0, it never hits n; expected infinite. Even if 0's own path can exit? Closed SCC means no exit from any state in SCC, so yes stays forever. Return None.
+  But wait: If closed SCC has no outgoing edges to outside/n, the rows for states in SCC sum to 1. Then expected solving would have singular matrix. Good.
+
+- If no closed SCC, set up linear system for R (size k). Let index = {state: i}. Unknown x_j = expected additional turns for j in R. RHS vector ones? For each state i, x_i = 1 + sum_{s in R} P_i,s x_s. So (I - P) x = 1. Build matrix A[i][j] = (j == i ? 1 : 0) - P_i,s; RHS b[i]=1. P_i,s = (# rolls r with final==s)/m. For rolls ending at n, contribute probability to absorption; row sum of A? Fine.
+- Solve k x k using exact Fraction Gaussian elimination with partial pivot? Since A is strictly diagonally dominant? Need not? For transient chains, I-P is an M-matrix, diagonally dominant? Row sum of P (over R) = 1 - p_end(i). If p_end(i)>0, diagonal 1 - P_ii maybe less than sum off-diagonal? Let's check: A_ii=1-P_ii; sum_j A_ij off = -P_ij; absolute off sum = sum_{j != i} P_ij = row_sum(P) - P_ii. Compare A_ii (1-P_ii) vs row_sum(P)-P_ii = (1-p_end_i) - P_ii. A_ii - offsum = (1-P_ii) - ((1-p_end_i)-P_ii)=p_end_i ≥0. If p_end_i=0, A row is weakly diagonally dominant (equal), but transient reachable set guarantees strong for connected? Not necessarily (e.g., deterministic cycle? that would closed SCC, excluded). For transient, irreducible? Reachable set R may be reducible with SCCs transient (non-closed). A is invertible. Gaussian elimination with partial pivot handles. Could have zero diagonal pivot; use pivot search (partial pivoting) with exact fractions. Since size <=80, fine.
+- Need return [Fraction(*?)]? Expected turns integer? No, expected can be fraction.
+  q >=1 by Fraction normalization. Return [numerator, denominator] as ints.
+  If no closed SCC, but solving yields non-finite? shouldn't. Maybe if reachable set empty? S nonempty includes 0. Good.
+  Could return [0,1] if n==? n>=1. Start 0. If m? At start cell 0, roll maybe >n? bounce formula. It always requires at least one turn; expected >0. Good.
+
+Potential alternative simpler: Directly solve with matrix including all resting states, and use fractions. If matrix singular, return None. But as discussed, including unreachable states could make singular even if start finite? Need avoid. Use reachable only. Good.
+
+Need double check examples:
+Example 1: n=1,m=1,jumps=[].
+Cells 0..1. Raw roll r=1 from 0: raw=1 == n => end. S resting = {0} (n excluded). R {0}; transitions: s=n. closed SCC detection: SCC {0}; edge to n, so not closed. k=1. A=[1], b=[1] => x=1. Return [1,1]. Good.
+Example 2: n=2,m=2,jumps=[].
+S resting = {0,1} (n=2 excluded). From 0: r=1 raw1 (not end) edge to 1; r=2 raw2=n end. From 1: r=1 raw2=n; r=2 raw3>2 bounce = 2*2 -1 -2 =1. Edge to 1 self-loop. SCC? Graph edges 0->1, 1->1 (self), 1->end. SCC {1}: has edge to end (roll1) and self-loop; not closed. SCC {0}: edge to 1, not closed. No closed SCC. Solve: x0 = 1 + (1/2)x1 (r=2 absorb). x1 = 1 + (1/2)*0 + (1/2)*x1 (r=1 absorb; r=2 edge to 1) = 1 + 0.5 x1 => x1=2; x0=1+1=2. [2,1]. Good.
+Example 3: n=3,m=2,jumps [[1,0],[2,0]].
+S = cells 0..2 excluding jump starts 1,2 => {0}. From 0: r=1 raw1 -> jump to 0 (final 0). r=2 raw2 -> jump to 0 (final 0). Edge 0->0 and no end. SCC {0}: edge to 0 inside, no outside/n => closed -> return None. Good. Note every roll from 0 sends back to 0.
+Example 4: n=3,m=3,jumps [[2,0]].
+Jump start {2}. S={0,1} (2 excluded, n=3 excluded). From 0:
+ r=1 raw1 not start? raw1, no jump -> final 1.
+ r=2 raw2 start -> jump to 0 final 0.
+ r=3 raw3=n (raw<=n) final n (ignore jump start? raw=n not start). Edge to end.
+From 1:
+ r=1 raw2 start -> jump to 0 final 0.
+ r=2 raw3 end.
+ r=3 raw4>3 bounce = 2*3 -1 -3 =2? 6-4=2; raw2 start -> jump0 final0. Edge to 0.
+R from 0 includes 0,1. Graph edges: 0->1 (r1), 0->0 (r2), 0->end (r3); 1->0 (r1,r3; probability 2/3), 1->end (r2). SCCs: {0}? vertex 0 self-loop edge to 0, edge to 1 outside, edge end. SCC {0} not closed. {1}? edge to 0 outside, edge end. Not closed. No closed. Solve k states [0,1]:
+x0 = 1 + (1/3)x1 + (1/3)x0 + (1/3)*0 [end] = 1 + (1/3)x1 + (1/3)x0 -> (2/3)x0 - (1/3)x1 =1 -> 2 x0 - x1 =3.
+x1 = 1 + (2/3)x0 + (1/3)*0 [end] = 1 + (2/3)x0.
+Substitute: 2x0 - (1 + (2/3)x0) =3 -> (4/3)x0 -1 =3 -> (4/3)x0=4 -> x0=3. Return [3,1]. Good.
+
+Now need craft code. Need ensure only code block, no extra text. Exactly function. Could include helper inside function. No other top-level functions. Need import Fraction. Could also use fractions.Fraction. Need no main. Use Python 3.10 type hint. Need list[list[int]] etc.
+
+Implement Tarjan or SCC. Simpler robust: Use graph reachability via DFS to find strongly connected components? n small. We can implement repeated removal of non-closed? Let's just implement Tarjan. Need be careful with recursion depth: max 81, recursion depth fine, but to be safe use iterative or sys.setrecursionlimit. Could avoid recursion with Kosaraju DFS. Simpler with O(V^2) closed SCC: For each subset? no.
+
+Maybe detection of never-ending probability can be done without SCC: compute probability of hitting n by solving linear equations; if hit probability <1 return None. But expected solving already; closed SCC easier. However, closed SCC detection itself requires SCCs; Tarjan okay. Could do even simpler: compute reachable set of states that cannot reach n (within R). Since graph finite, determine set B of resting states that are part of closed components (cannot escape to n). We can compute by iterative reverse reachability: Let cannot_reach_n set? We need detect if 0 can reach a state that cannot reach n. Actually a state can avoid n forever with positive prob if it is in a closed recurrent class (cannot reach n). Finite Markov chain: define Bad = states that can reach a closed SCC? Hmm.
+
+Simplest robust method for never-ending detection: compute absorption probability a_i = probability that starting from i, eventually hit n (before never). Solve a_i = sum_rolls (1/m)( [final==n] ? 1 : a_final ) for states in R. If a_0 < 1, return None. This uses same linear system as expected but RHS 1 and matrix I - P_noend. But if chain has closed SCC, the linear equations may have a unique solution? Let's see for closed SCC states, equations for a: a=P a; solution a=0? But also could be a=1? In SCC with all transitions sum 1 and no end, equation a_i = sum_j P_ij a_j. For a closed irreducible Markov chain, the only harmonic functions are constant (if finite irreducible), so a_i = c; not uniquely determined by equations? Actually harmonic functions for finite irreducible Markov chain are constant, not necessarily 0; with boundary? There is no boundary in closed class, so equations underdetermined. Example two-state absorbing? Closed two-state class: equations a_A = a_B (if deterministic cycle A->B->A), a_B=a_A; infinitely many solutions a_A=a_B=c. So cannot solve uniquely. But we can choose c=0 because if a state can never reach n, absorption probability=0. Need know. SCC method avoids.
+
+Alternative compute reachability to n: In each state i in R, determine if there is positive probability to ever reach n by graph reachability to n (edge i->n). Let can_reach_n = set of states that can reach n in graph (including edges to n). Since finite directed graph, compute by reverse DFS from all states with edge to n? Let's define can_reach_n[i]=True if state i has a path to a state j with edge to n (or i has direct edge to n). For all states in R, if i cannot reach n, then there is positive probability never end? If i cannot reach n, starting from i, maybe it is in an SCC that cannot reach n; yes, it can never reach n, probability of never end =1? Wait if a state cannot reach n (no path to n), then starting there never reaches n, regardless of probabilities, so positive (indeed probability 1) never ends. Good. If i can reach n, does starting from i guarantee eventual hit n with probability 1? Not necessarily: there may be an escapable closed SCC reachable from i; finite states, from i you might choose closed SCC with positive probability and never n. Example state i: with prob 0.5 go to bad closed SCC; with prob 0.5 go to n-reachable state. Graph reachability: i can reach n, but absorption probability <1. Need detect by reachability to bad SCC. So need bad SCC.
+
+Compute Bad = states that cannot reach n? But start may have path to bad states and path to n; still positive never end if bad states reachable and bad states remain forever. Need detect if any reachable state can reach a closed SCC (no n). That is exactly reachable bad set. Compute SCCs, find closed ones. Good.
+
+Alternative compute set of states that can reach a closed SCC. That set includes states with positive never-end probability. If 0 in it, return None. Since we only need 0, compute closed SCC nodes and their ancestors within R. If 0 in ancestor set, None. Simpler: after finding closed SCC set ClosedNodes (union of nodes in closed SCC), compute ReverseReach = nodes that can reach any node in ClosedNodes. If 0 in ReverseReach, return None. But if any closed SCC reachable from 0, then 0 in ReverseReach. This is robust. But closed SCC detection still needed. Tarjan fine.
+
+Another simple way: iterative probability with least fixed point. Compute p_hit[i] = probability eventually hit n. Initialize p_hit[i]=1 if direct edge to n? Then iterate p_hit[i]=sum_r (1/m)(1 if s==n else p_hit[s] with p_hit[bad]=?). Need know. We want least fixed point (probabilities) for reachability probabilities. Bad states have p=0. Could compute by dynamic programming on graph condensation: finite DAG of SCCs. For each SCC, compute whether it can reach n; if yes, solve within SCC for probability hit n (harmonic with boundary); if no, p=0. This is essentially same but maybe more code. Tarjan easiest.
+
+Let's implement SCC via Tarjan. Need graph adjacency for R. We can store edges list. Then Tarjan returns list of SCCs (each list of vertices). For each SCC, check closed: for v in SCC, for s in succ[v] (resting states) or edge to end: if s not in SCC_set or is end -> not closed. Need include edge to end. We can have for each v a set of outs: states in R plus special marker None for end. Closed if all outs are in SCC_set. End marker None not in SCC_set -> not closed.
+
+Then if any SCC closed: But is it possible that start 0 is not in any closed SCC reachable? Need compute ancestors. Simpler: since SCC list computed from R only (reachable from 0), any closed SCC is contained in R and hence reachable from 0. Wait R includes only states reachable from 0 (via edges). Any SCC in R is by definition a set of states reachable from 0? The state in SCC is reachable from 0 (since R contains it). Yes. Therefore any closed SCC in R means positive probability never end from 0. So no need reverse ancestors. Good. However, subtle: A state v in R is reachable from 0, but the path from 0 to v may pass through n? No, R excludes n; paths are within resting states; if a path reached n, then all states before n are reachable, but n not in R. v in R is reachable by path not through n by definition. Good. Once at v, because SCC closed, never leaves and never hits n. Probability of path to v >0. So positive never end. Return None. Good.
+
+Could there be an edge from i in R to a resting state not yet in R? No, we built R by exploring all edges. Good.
+
+Need build graph with transitions probabilities. Maybe we compute succ and probs in one pass:
+```
+rest = [i for i in range(n) if i not in jumps_map]  # 0..n-1 no jump; n excluded
+index = {s:idx for idx,s in enumerate(rest)}
+R=[0]
+seen={0}; queue=[0]
+outs={s:set() for s in rest}
+counts={s:{} for s in rest} # s-> dict target-> number of rolls
+for i in rest:
+    counts[i]={}
+    for r in 1..m:
+        s=final(i,r)
+        if s == n: outs[i].add(None) # or special
+        else: outs[i].add(s); counts[i][s]=counts[i].get(s,0)+1
+        # note outs[None]? We'll store end flag.
+# Reachability R:
+seen={0}; dq=deque([0])
+while dq:
+  i=dq.popleft()
+  for s in outs[i]:
+    if s is None: continue
+    if s not in seen: seen.add(s); dq.append(s)
+```
+But note rest[0] =0 since 0 not jump start; yes.
+Then `states = sorted([s for s in rest if s in seen])` maybe order. Need maintain index. Since seen set built from 0, all seen are in rest. We should also ensure `outs[i]` contains only states in seen (it does by construction). Use `states = [s for s in rest if s in seen]` preserving cell order; size k. index mapping.
+Build adjacency `succ[i] = [s for s in outs[i] if s is not None]`; end flag `has_end[i] = None in outs[i]` (or separately). For transitions counts, `counts[i]` only resting targets; end contributes probability. For linear matrix, for each s in states, off_diag P = Fraction(counts[i].get(s,0), m). We can store dictionary per i.
+No closed SCC: Use succ dict. Tarjan nodes = states. Implement iterative or recursive. Recursion depth <=80 so okay with `sys.setrecursionlimit` maybe not needed. But 80 is low. Use nested function visited/index/low/on_stack/stack/iteration with recursion. Recursion in function could be okay; Python default recursion limit 1000. Fine.
+Tarjan code:
+```
+tarjan_index=0
+stack=[]; on_stack=set(); idx={}; low={}; counter=0
+def strongconnect(v):
+    nonlocal counter?? nested in function can't nonlocal? Yes if function nested in expected_turns, can use nonlocal? In nested function within expected_turns, `nonlocal counter` works? Actually nonlocal refers to enclosing function scope, yes expected_turns has counter local. Fine. But to keep simple, implement iterative? We can also use recursion with default mutable dicts and nonlocal. Fine.
+```
+Simpler: Use Kosaraju via DFS; recursion. Or use a function to compute SCCs using `scipy`? no scipy. Tarjan okay.
+Alternative use SCC with `networkx` not allowed. Implement.
+
+Tarjan details:
+```
+def scc():
+    idx={}; low={}; stack=[]; on=set()
+    def strongconnect(v):
+        idx[v]=low[v]=counter; nonlocal counter; counter+=1
+        stack.append(v); on.add(v)
+        for w in succ.get(v,set()):
+            if w not in idx:
+                strongconnect(w)
+                low[v]=min(low[v],low[w])
+            elif w in on:
+                low[v]=min(low[v],idx[w])
+        if low[v]==idx[v]:
+            scc=[]
+            while True:
+                w=stack.pop(); on.remove(w); scc.append(w)
+                if w==v: break
+            sccs.append(scc)
+    for v in states:
+        if v not in idx: strongconnect(v)
+```
+Need nonlocal counter and sccs? sccs=[] local; appending list okay. counter integer need nonlocal counter. Use `nonlocal counter` inside. Good.
+After Tarjan, for each scc, scc_set=set(scc); closed=True; for v in scc: for w in succ[v]: if w not in scc_set: closed=False; break; also if has_end[v]: closed=False; then if closed: return None. Need succ includes only states, not end. has_end[v] True if any roll ends at n.
+Then no closed SCC: solve.
+
+Solve linear system:
+```
+k=len(states)
+A=[[Fraction(0) for _ in range(k)] for __ in range(k)]
+b=[Fraction(1) for _ in range(k)]
+for ii,i in enumerate(states):
+    # diagonal
+    # sum_j A[ii][j] =? We'll set A[ii][ii] = 1 - p_ii; A[ii][jj] = -p_ij
+    for jj,j in enumerate(states):
+        p = Fraction(counts[i].get(j,0), m)
+        if j==i: A[ii][ii]=Fraction(1)-p
+        else: A[ii][jj]=-p
+    # RHS 1 (ones)
+```
+Wait counts[i] includes number of rolls with final j. If a roll ends at n, not counted. p_ii = Fraction(counts[i].get(i,0),m). Good.
+RHS b=1.
+Then Gaussian elimination:
+```
+M=[row[:] for row in A]
+b=b[:] # copy not needed? A rows are mutable; b list.
+for col in range(k):
+    pivot=None
+    for r in range(col,k):
+        if M[r][col] != 0:
+            pivot=r; break
+    if pivot is None: raise? Shouldn't happen if no closed SCC; return None? Could happen if transient but exact singular due to bad? no. If happens, return None (positive never? but we've detected closed SCC; still safe). 
+    if pivot != col:
+        M[col],M[pivot]=M[pivot],M[col]; b[col],b[pivot]=b[pivot],b[col]
+    pivot_val=M[col][col]
+    for r in range(k):
+        if r!=col and M[r][col]!=0:
+            factor=M[r][col]/pivot_val
+            for c in range(col,k): M[r][c] -= factor*M[col][c]
+            b[r]-=factor*b[col]
+# back substitution
+x=[Fraction(0)]*k
+for r in range(k-1,-1,-1):
+    s=b[r]
+    for c in range(r+1,k): s -= M[r][c]*x[c]
+    x[r]=s/M[r][r]
+```
+This Gauss-Jordan. If singular pivot None return None. But if no closed SCC, invertible; pivot None shouldn't occur. Still return None for safety. Note we shouldn't return None if system truly has finite solution but pivot zero due to bad numerical? Exact fractions no.
+Then x0 = x[index[0]]. Convert to list[int]. Expected turns nonnegative. Fraction denominator positive. Return [x0.numerator, x0.denominator]. Since Fraction normalizes denominator positive.
+
+Need check exact equation with absorbing probabilities. For i in states, A rows: diagonal 1 - p_self; off diag -p_j. RHS=1. For deterministic chain ending (n reached) with zero expected? Example states? fine.
+
+One nuance: Resting states set rest includes cell 0..n-1 not jump start. But what about a cell j that is a jump start and also reachable as a final cell after jump chain? final_after_roll prevents that. What about cell 0
+=== CONTENT ===

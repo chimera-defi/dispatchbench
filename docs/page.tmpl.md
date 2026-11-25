@@ -157,7 +157,7 @@
 <li>{{hetzner_scope}}</li>
 <li>{{hetzner_verdict}}</li>
 </ul>
-<h3 id="inkling">{{inkling_name}} on a local CPU</h3>
+<h3 id="inkling">{{inkling_name}} on a local CPU and a Colab GPU</h3>
 <p>{{inkling_for}}</p>
 <p>{{inkling_answer}}</p>
 <ul class="tight">
@@ -168,6 +168,7 @@
 <p>{{inkling_cpu}}</p>
 {{table:inkling_lanes}}
 <p>{{inkling_price}} {{inkling_rate}} {{inkling_fx}} {{inkling_price_pp}} {{inkling_hetzner}}</p>
+<p>{{inkling_colab}} {{inkling_colab_quality}}</p>
 <details><summary>Per-task results and run details</summary>
 {{table:inkling_summary}}
 <ul class="tight small">
@@ -182,6 +183,8 @@
 <li>{{inkling_slowest}}</li>
 <li>{{inkling_caveat}}</li>
 <li>{{inkling_host}}</li>
+<li>{{inkling_colab_model}}</li>
+<li>{{inkling_colab_price}}</li>
 </ul>
 </details>
 </section>
