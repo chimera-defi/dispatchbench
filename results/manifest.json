@@ -2,6 +2,7 @@
  "experiment": "2026-10-22b",
  "pre_registration": "PLAN.md (committed before any model call)",
  "cli_versions": [
+  "agy 1.5.16",
   "claude 2.1.308",
   "codex 0.163.0",
   "codex 0.164.0",
@@ -146,6 +147,41 @@
    "model": "grok-4.7-build-fast",
    "effort": "low"
   },
+  "hydrogen-low": {
+   "cli": "agy",
+   "model": "gemini-4-hydrogen-low",
+   "effort": "low"
+  },
+  "hydrogen-medium": {
+   "cli": "agy",
+   "model": "gemini-4-hydrogen-medium",
+   "effort": "medium"
+  },
+  "hydrogen-high": {
+   "cli": "agy",
+   "model": "gemini-4-hydrogen-high",
+   "effort": "high"
+  },
+  "gemini38flash-low": {
+   "cli": "agy",
+   "model": "gemini-3.8-flash-low",
+   "effort": "low"
+  },
+  "agy-sonnet46-default": {
+   "cli": "agy",
+   "model": "claude-sonnet-4-6",
+   "effort": "default"
+  },
+  "agy-opus46-default": {
+   "cli": "agy",
+   "model": "claude-opus-4-6-thinking",
+   "effort": "default"
+  },
+  "agy-gptoss120b-medium": {
+   "cli": "agy",
+   "model": "gpt-oss-120b-medium",
+   "effort": "medium"
+  },
   "devin16slow-default": {
    "cli": "devin",
    "model": "swe-1-6-slow",
@@ -227,11 +263,11 @@
   4
  ],
  "first_call_utc": "2026-10-22T08:32:54+00:00",
- "last_call_utc": "2026-11-25T01:44:52+00:00",
+ "last_call_utc": "2026-11-25T03:07:36+00:00",
  "rows_by_phase": {
   "calibration": 54,
   "escalation": 15,
-  "exploratory": 886,
+  "exploratory": 971,
   "fastmode": 105,
   "hard": 210,
   "main": 561,
@@ -246,7 +282,7 @@
   "codex_proxy_usd": 39.2963,
   "codex_fastmode_usd": 3.4069,
   "calls": {
-   "function": 1837,
+   "function": 1922,
    "agentic": 84
   },
   "grok_measured_usd": 22.3741
@@ -280,6 +316,7 @@
   "results/2026-11-01-hetzner-function.jsonl",
   "results/2026-11-02-terra-l7-fast-function.jsonl",
   "results/2026-11-02-terra-priority-function.jsonl",
+  "results/2026-11-25-agy-function.jsonl",
   "results/2026-11-25-devin-flash-function.jsonl"
  ],
  "exploratory": {
@@ -465,7 +502,13 @@
   "Qwen/Qwen3.6-35B-A3B-FP8",
   "Qwen/Qwen3.8-27B",
   "claude-haiku-5-5",
+  "claude-opus-4-6-thinking",
+  "claude-sonnet-4-6",
   "claude-sonnet-5-5",
+  "gemini-3.8-flash-low",
+  "gemini-4-hydrogen-high",
+  "gemini-4-hydrogen-low",
+  "gemini-4-hydrogen-medium",
   "gpt-5.6-luna",
   "gpt-5.6-sol",
   "gpt-5.6-terra",
@@ -473,6 +516,7 @@
   "gpt-6-luna",
   "gpt-6.1-sol",
   "gpt-6.1-terra",
+  "gpt-oss-120b-medium",
   "grok-4.7",
   "grok-4.7-build-fast",
   "swe-1-6-slow",

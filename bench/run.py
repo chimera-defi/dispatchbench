@@ -57,6 +57,9 @@ CONFIGS["grok47fast-low"] = ("grok", "grok-4.7-build-fast", "low")
 # 2026-11-25, operator request: Google Gemini 4 Hydrogen through the Antigravity CLI (agy), signed-in subscription: tokens reported, no dollars.
 CONFIGS.update({f"hydrogen-{e}": ("agy", f"gemini-4-hydrogen-{e}", e) for e in ("low", "medium", "high", "xhigh")})
 CONFIGS["gemini38flash-low"] = ("agy", "gemini-3.8-flash-low", "low")
+# Same CLI, other vendors' models (separate quota pools), no effort flag: the model id carries the setting.
+CONFIGS.update({"agy-sonnet46-default": ("agy", "claude-sonnet-4-6", "default"), "agy-opus46-default": ("agy", "claude-opus-4-6-thinking", "default"),
+                "agy-gptoss120b-medium": ("agy", "gpt-oss-120b-medium", "medium")})
 CONFIGS["devin16slow-default"] = ("devin", "swe-1-6-slow", "default")  # free tier model (2026-10-28; swe-2-flash-medium also runs on Free, 2026-11-25)
 CONFIGS["devinflash-medium"] = ("devin", "swe-2-flash-medium", "default")  # 2026-11-25, free tier, exploratory; the Devin caller stays retired (216aba0), this run used it restored locally
 CONFIGS["hetzner-qwen36"] = ("hetzner", "Qwen/Qwen3.6-35B-A3B-FP8", "default")
@@ -161,6 +164,9 @@ def claude_spend(cache_root=None):
 class SpendLimit(RuntimeError): pass
 
 
+RETRY_LIMITS = False  # --retry-limits: call again the cells whose cached row stopped on a quota/rate limit; the old row stays as previous_attempt
+
+
 def check_claude_budget():
     spent = claude_spend()
     if spent >= CLAUDE_BUDGET_USD:
@@ -218,7 +224,7 @@ def call_claude(mid, eff, prompt, cwd):
 
 def call_agy(mid, eff, prompt, cwd):
     """Antigravity CLI, headless, JSON output, run in an empty directory. Reports tokens, not dollars."""
-    cmd = [AGY, "-p", prompt, "--model", mid, "--effort", eff, "--output-format", "json"]
+    cmd = [AGY, "-p", prompt, "--model", mid] + (["--effort", eff] if mid.startswith("gemini") else []) + ["--output-format", "json"]
     t = time.monotonic(); r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, cwd=cwd, timeout=1200)
     wall = time.monotonic() - t
     try:
@@ -268,6 +274,7 @@ def call_codex(mid, eff, prompt, cwd, flags=CODEX_FLAGS):
 def one(config, pid, rep, phase, lanes):
     prompt = prompt_for(pid); key = key_for(config, pid, rep, prompt); fp = os.path.join(CALLS, key + ".json")
     status, prior = cache_state(fp)
+    if status and RETRY_LIMITS and status.startswith("stopped"): status = None
     if status: return status
     cli, mid, eff = CONFIGS[config]
     cwd = tempfile.mkdtemp(prefix="mrb-")
@@ -312,7 +319,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--phase", required=True); ap.add_argument("--configs", required=True)
     ap.add_argument("--problems", default="all"); ap.add_argument("--repeats", default="1-5"); ap.add_argument("--lanes", type=int, default=4)
+    ap.add_argument("--retry-limits", action="store_true", help="retry cells that stopped on a quota/rate limit (resume after the reset)")
     a = ap.parse_args()
+    global RETRY_LIMITS; RETRY_LIMITS = a.retry_limits
     cfgs = a.configs.split(","); pids = {"all": problems.MAIN, "hard": problems.HARD}.get(a.problems) or a.problems.split(","); reps = parse_reps(a.repeats)
     assert a.lanes <= 4, "at most 4 lanes (timing hygiene)"
     for c in cfgs: assert c in CONFIGS, c

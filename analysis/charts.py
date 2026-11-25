@@ -13,7 +13,7 @@ BADC, WARNC = "var(--bad)", "var(--warn)"
 def FAMILY(c):
     """One family token shared by charts, grids, chips and table swatches."""
     if "+" in c or c.startswith("pipeline "): return "var(--pipeline)"
-    for prefix, token in (("hetzner", "hetzner"), ("inkling", "inkling"), ("grok", "grok"), ("devin", "devin"),
+    for prefix, token in (("hetzner", "hetzner"), ("inkling", "inkling"), ("grok", "grok"), ("devin", "devin"), ("hydrogen", "gemini"), ("gemini", "gemini"), ("agy-", "gemini"),
                           ("haiku", "claude"), ("sonnet", "sonnet"),
                           (("sol56", "luna56", "terra56", "terra/"), "codex56")):
         if c.startswith(prefix): return f"var(--{token})"

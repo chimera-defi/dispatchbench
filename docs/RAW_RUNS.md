@@ -39,7 +39,7 @@ Blank lines, malformed JSON and non-object values are skipped when deriving date
 | 2026-11-02-terra-priority-repo | 2026-11-02 | codex | 60 | `d2b14b09f7a9185a3d5e4924339dc3932f06c7b29a3b442e918b5f1ab91cdae0` | [results/2026-11-02-terra-priority-repo.jsonl](../results/2026-11-02-terra-priority-repo.jsonl) |
 | 2026-11-22-inkling-function | 2026-11-22 | llama.cpp | 15 | `9c085f1ada25efd5c36c1df590336dcbdeaed02d88e72789fe8ca2cad2f114dc` | [results/2026-11-22-inkling-function.jsonl](../results/2026-11-22-inkling-function.jsonl) |
 | 2026-11-22-inkling-retry-function | 2026-11-22 | llama.cpp | 11 | `24f8586e38e09087e5124cbfba28c438aa0c22f63b7e063d450b0c340238e3c1` | [results/2026-11-22-inkling-retry-function.jsonl](../results/2026-11-22-inkling-retry-function.jsonl) |
-| 2026-11-25-agy-function | 2026-11-25 | agy | 49 | `eb6820d4bc8649820e610dba36147435ce519b59394cf7a9653d14336f4a6d78` | [results/2026-11-25-agy-function.jsonl](../results/2026-11-25-agy-function.jsonl) |
+| 2026-11-25-agy-function | 2026-11-25 | agy | 85 | `42c61643e5894ecc2afe759bb6b97aa20441c3827c68ab97ec76f02e40baebfa` | [results/2026-11-25-agy-function.jsonl](../results/2026-11-25-agy-function.jsonl) |
 | 2026-11-25-devin-flash-function | 2026-11-25 | devin | 60 | `13e006857da94f5cfaeb33bf23733deaa839f5dbd2016c91715978b821abfbc1` | [results/2026-11-25-devin-flash-function.jsonl](../results/2026-11-25-devin-flash-function.jsonl) |
 | appendix/codex_harness | 2026-10-24 | claude, codex | 138 | `5bf8288a66bf2efa931316c1834e82ec5fb0ffa8019cf49f816bdf75d9b1752e` | [results/appendix/codex_harness.jsonl](../results/appendix/codex_harness.jsonl) |
 | appendix/harness_bias | 2026-10-24 | claude, codex | 240 | `a61ae36c295a5eb28358163f0f6936591345969aceac52afd3d34bbb6651fcf3` | [results/appendix/harness_bias.jsonl](../results/appendix/harness_bias.jsonl) |
@@ -80,7 +80,7 @@ Their hashes hold only for the commit you read. Regenerate this index after rebu
 
 | File | SHA-256 |
 |---|---|
-| [results/manifest.json](../results/manifest.json) | `bc33300261fafdb7e0692884e51597a0546d9cc47373372168c3e8c5d8dd4507` |
+| [results/manifest.json](../results/manifest.json) | `51382ee20d287de9c2216c5e0e403a1e70a45b4b789236227365df741b008991` |
 | [results/prices.json](../results/prices.json) | `f215215ae059ffe9eaaa7d907fe844246d72fa2af96ee242793f290d0514992c` |
 | [results/agentic_tests.json](../results/agentic_tests.json) | `bbf0dda405ca67a8da3139325b59fdd780073888359b54382adb739bddada3b5` |
 | [results/quality.jsonl](../results/quality.jsonl) | `67a5f24651a2366f5f37ead0250d9eb59131ab37c76c85e533b5e76eec8ea747` |
@@ -91,9 +91,9 @@ Their hashes hold only for the commit you read. Regenerate this index after rebu
 
 | Folder | Holds | Files | Aggregate SHA-256 |
 |---|---|---:|---|
-| [cache/calls/](../cache/calls/) | Function completions, usage and call metadata | 2346 | `e3c8a78dd3162da5744ec803268adfe9232b8e1b39f2adf6eb7ab17a10d11571` |
+| [cache/calls/](../cache/calls/) | Function completions, usage and call metadata | 2386 | `075aeca5ed34d10e9125e2230567198d551d5db4a17e1ac514c66985b5944f78` |
 | [cache/agentic/](../cache/agentic/) | Repo-task verdicts, usage and test summaries | 200 | `e4ad31fced45248e77300c44f5f08ac4abf52dac9b4edd787534cfab052502db` |
-| [cache/grades/](../cache/grades/) | Function verdicts and timing fractions | 2166 | `c062d610f0640027cc51fb0588d83baeb8437eaccfe801ad73f9712d3729dd24` |
+| [cache/grades/](../cache/grades/) | Function verdicts and timing fractions | 2202 | `2f14da21e9d31e66dc41e6ebcc63761a72fda39a8ff21c8bb47f993d56427e83` |
 | [cache/gated_repair/](../cache/gated_repair/) | Builds, visible-test gates and repair completions | 227 | `1d93ce9b6ddcef8778891e78cbc95ea05d64f7f352c4272a53ef4a1de24afa9f` |
 | [cache/plan_first/](../cache/plan_first/) | Planner and builder completions | 105 | `b1a47b100de26699a3b2eafc7bc10f1659f5541d386fdcb363a369b91564f05a` |
 | [cache/trim/](../cache/trim/) | Harness-trim probe completions and usage | 69 | `9e333cf6e3ac1c367167fd8e3ba6d83cf751e1833e488854d6332b270a8a07aa` |

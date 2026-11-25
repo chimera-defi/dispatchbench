@@ -182,7 +182,7 @@ def _row(src, name, st, rr):
             "usd_saved_per_pass": 0.0 if boxed and k else round((spend - sc - sg) / k, 6) if k and complete else None,
             "usd_per_1k_tokens": (1000 * round(spend / n, 6) / (round(statistics.mean(x["in"] or 0 for x in rr)) + round(statistics.mean(x["out"] or 0 for x in rr)))) if complete and any((x["in"] or 0) + (x["out"] or 0) for x in rr) else None,
             **_rule_fields(src, rr),
-            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "free-tier" if rr[0]["cli"] == "hetzner" else "box-hours" if rr[0]["cli"] == "llama.cpp" else "unmetered" if rr[0]["cli"] == "devin" else "measured" if summarize.measured(rr[0]) else "proxy"}
+            "by_rung": dict(sorted(by_rung.items())), "cost_kind": "free-tier" if rr[0]["cli"] == "hetzner" else "box-hours" if rr[0]["cli"] == "llama.cpp" else "unmetered" if rr[0]["cli"] in ("devin", "agy") else "measured" if summarize.measured(rr[0]) else "proxy"}
 
 
 def _base():
@@ -442,7 +442,7 @@ def _facts(s, arms):
     # Models and versions: one CLI version per vendor across the function track.
     by_cli = defaultdict(set)
     for r in rows:
-        if r["config"] not in configs.GROK_CONFIGS and not r["config"].startswith("terra") and r["cli"] not in ("devin", "hetzner", "llama.cpp"): by_cli[r["cli"], r["cli_version"]].add(r["model"])
+        if r["config"] not in configs.GROK_CONFIGS and not r["config"].startswith("terra") and r["cli"] not in ("devin", "agy", "hetzner", "llama.cpp"): by_cli[r["cli"], r["cli_version"]].add(r["model"])
     need(len({cli for cli, _ in by_cli}) == len(by_cli) == 2, "one CLI version per vendor")
     vers = dict(by_cli)
     F["versions_claude"] = next(f"Main bench, Claude Code {v}: {', '.join(sorted(m))}." for (c, v), m in vers.items() if c == "claude")
@@ -1219,7 +1219,7 @@ def _project(ds, summary):
     for block, source, set_ in (("configs", "main", "main ladder"), ("exploratory", "main", "main ladder"),
                                 ("hetzner", "main", "partial ladder"), ("hard", "main", "L7 set"), ("agentic", "agentic", "repo tasks"), ("grok", "main", "partial ladder")):
         for c, v in summary.get(block, {}).items():
-            r = get(ds, c, "partial ladder" if block == "exploratory" and c in configs.ONE_REPEAT + configs.DEVIN_CONFIGS else set_, source)
+            r = get(ds, c, "partial ladder" if block == "exploratory" and c in configs.ONE_REPEAT + configs.DEVIN_CONFIGS + configs.AGY_CONFIGS else set_, source)
             r.update({k: v[k] for k in ("cli", "model", "effort", "outcomes", "breaking_point") if k in v})
             v.update({"n": r["n"], "passes": r["passes"], "pass_at_1": r["pass_rate"], "misses": r["misses"],
                       "ci95": r["ci95"] or [r["pass_rate"], r["pass_rate"]], "ci95_plot": r["ci95_plot"],
@@ -1642,7 +1642,7 @@ def explorer_facets(r):
             "prereg": explorer_provenance(r) == "pre-registered", "provenance": explorer_provenance(r),
             "quota_usd_per_pass": quota, "winner_pick": WINNER_PICKS.get(c), "winner_pricing": "list price" if c in WINNER_PICKS else None,
             "panel": "pipeline: " + gate if pipeline else model + (" · " + generation if r["family"] == "Codex" else ""),
-            "gate": gate, "coverage_note": (configs.HETZNER_NOTE if r["config"] in configs.HETZNER_CONFIGS else configs.BOX_NOTE if r["cost_kind"] == "box-hours" else ("Devin probe: " + (configs.DEVIN_FLASH_NOTE if r["config"] in configs.DEVIN_FLASH else configs.DEVIN_NOTE)) if r["cost_kind"] == "unmetered" else
+            "gate": gate, "coverage_note": (configs.HETZNER_NOTE if r["config"] in configs.HETZNER_CONFIGS else configs.BOX_NOTE if r["cost_kind"] == "box-hours" else (configs.GEMINI_NOTE if r["config"] in configs.AGY_CONFIGS else "Devin probe: " + (configs.DEVIN_FLASH_NOTE if r["config"] in configs.DEVIN_FLASH else configs.DEVIN_NOTE)) if r["cost_kind"] == "unmetered" else
                 f"{r['groups']} problem/task groups; {r['n']} attempts"),
             "complete_marker": f"{r['task_complete']}/{r['n']} complete ({r['hidden_pass']}/{r['n']} hidden)" if "task_complete" in r else None}
 

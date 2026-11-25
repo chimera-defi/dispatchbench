@@ -18,11 +18,18 @@ The main run was on 2026-10-22; the runs on this page span 2026-10-22 to 2026-11
 | luna-low | 77% (46/60) | 53%–95% | 7.2 | 11.6 | $0.00090 | $0.041 | proxy |
 | luna-medium | 78% (47/60) | 57%–97% | 8.2 | 11.8 | $0.00089 | $0.042 | proxy |
 | sol61-medium | 97% (58/60) | 87%–100% | 22.6 | 36.2 | $0.015 | $0.87 | proxy |
+| agy-gptoss120b-medium † | 81% (17/21) | 57%–100% | 12.0 | 21.1 | – | – | unmetered |
+| agy-opus46-default † | 100% (6/6) | ≥78% (all passed) | 24.5 | 144.9 | – | – | unmetered |
+| agy-sonnet46-default † | 78% (7/9) | 44%–100% | 14.3 | 50.6 | – | – | unmetered |
 | astra-medium † | 100% (60/60) | ≥78% (all passed) | 20.9 | 35.6 | $0.075 | $4.52 | proxy |
 | astra-medium ⚡ † | 100% (60/60) | ≥78% (all passed) | 9.9 | 13.6 | $0.15 | $9.12 | proxy |
 | devin16slow-default † | 50% (6/12) | 25%–75% | 10.5 | 15.8 | – | – | unmetered |
 | devinflash-medium † | 80% (48/60) | 63%–93% | 16.4 | 222.7 | – | – | unmetered |
+| gemini38flash-low † | 78% (14/18) | 53%–95% | 7.4 | 10.7 | – | – | unmetered |
 | haiku-high † | 100% (60/60) | ≥78% (all passed) | 14.7 | 37.6 | $0.0028 | $0.17 | measured |
+| hydrogen-high † | 100% (6/6) | ≥78% (all passed) | 18.7 | 41.2 | – | – | unmetered |
+| hydrogen-low † | 100% (16/16) | ≥78% (all passed) | 7.8 | 13.6 | – | – | unmetered |
+| hydrogen-medium † | 89% (8/9) | 67%–100% | 14.2 | 26.7 | – | – | unmetered |
 | luna-high † | 92% (55/60) | 82%–100% | 12.2 | 22.9 | $0.0010 | $0.058 | proxy |
 | luna-low-bare † | 73% (44/60) | 52%–92% | 6.8 | 11.1 | $0.00080 | $0.035 | proxy |
 | luna56-high † | 93% (56/60) | 83%–100% | 11.4 | 35.5 | $0.0030 | $0.17 | proxy |
@@ -41,7 +48,7 @@ The main run was on 2026-10-22; the runs on this page span 2026-10-22 to 2026-11
 | inkling2mini-default † | 47% (7/15) | 20%–73% | 2881.3 | 3028.5 | est. $0.099 from box-hours | est. $0.69 from box-hours | box-hours |
 | inkling2mini-ladder † | 87% (13/15) | 67%–100% | 4630.4 | 9403.7 | est. $0.12 from box-hours | est. $1.54 from box-hours | box-hours |
 
-Function track: 12 problems × 5 attempts for most configs (exceptions: terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); hetzner-qwen36 12 calls (one repeat); hetzner-qwen38 12 calls (one repeat); sol61-xhigh 35 calls (a partial ladder)). Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
+Function track: 12 problems × 5 attempts for most configs (exceptions: terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); hydrogen-low 16 calls (a partial ladder); hydrogen-medium 9 calls (a partial ladder); hydrogen-high 6 calls (a partial ladder); gemini38flash-low 18 calls (a partial ladder); agy-sonnet46-default 9 calls (a partial ladder); agy-opus46-default 6 calls (a partial ladder); agy-gptoss120b-medium 21 calls (a partial ladder); hetzner-qwen36 12 calls (one repeat); hetzner-qwen38 12 calls (one repeat); sol61-xhigh 35 calls (a partial ladder)). Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
 
 ## Grok
 
@@ -300,11 +307,18 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 | luna-low | 14,688 | 11,520 | 514 | 0 | $0.000045 |
 | luna-medium | 14,688 | 11,520 | 530 | 7 | $0.000046 |
 | sol61-medium | 15,380 | 12,346 | 718 | 209 | $0.00090 |
+| agy-gptoss120b-medium † | – | – | – | – | – |
+| agy-opus46-default † | – | – | – | – | – |
+| agy-sonnet46-default † | – | – | – | – | – |
 | astra-medium † | 15,319 | 12,207 | 639 | 127 | $0.0047 |
 | astra-medium ⚡ † | 15,316 | 12,160 | 646 | 136 | $0.0095 |
 | devin16slow-default † | – | – | – | – | – |
 | devinflash-medium † | – | – | – | – | – |
+| gemini38flash-low † | – | – | – | – | – |
 | haiku-high † | 4,418 | 649 | 4,123 | 3,353 | $0.00033 |
+| hydrogen-high † | – | – | – | – | – |
+| hydrogen-low † | – | – | – | – | – |
+| hydrogen-medium † | – | – | – | – | – |
 | luna-high † | 14,688 | 11,520 | 1,060 | 526 | $0.000061 |
 | luna-low-bare † | 6,144 | 3,255 | 528 | 0 | $0.000088 |
 | luna56-high † | 12,962 | 10,240 | 1,693 | 1,147 | $0.00019 |
@@ -486,21 +500,21 @@ Three more problems, written and checked before any model saw them (PLAN.md, dev
 
 Every problem with at least one failure, over all phases. Cells are passes out of 5 (bold when 2 or fewer), then the failures: w wrong answer, c crash, t timeout. A dash means not run.
 
-| problem | haiku-low | haiku-medium | sonnet-medium | luna-low | luna-medium | sol61-medium | astra-medium | astra-medium-fast | haiku-high | luna-high | luna-low-bare | luna56-high | luna56-low | sol56-high | sol61-high | sol61-high-fast | terra56-high | terra56-low | terra61-high | terra61-high-fast | terra61-low | terra61-low-fast |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| p03 ledger (L2) | 5 | 5 | 5 | 5 | 4 (1c) | 5 | 5 | 5 | 5 | 5 | 3 (1c 1w) | 5 | 5 | 5 | 5 | 5 | 1 | 1 | 5 | 5 | 5 | 5 |
-| p04 taller_within (L2) | 5 | 5 | 5 | **1** (2t 2w) | **1** (1t 3w) | 5 | 5 | 5 | 5 | 5 | **1** (4w) | 4 (1w) | 4 (1w) | 5 | 5 | 5 | 1 | 1 | 3 (2w) | 3 (2w) | 5 | 5 |
-| p05 pass_route (L3) | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 5 | 5 | 1 | 1 | 5 | 5 | 5 | 5 |
-| p06 calc (L3) | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1w) | **1** (4w) | 5 | 5 | 5 | 1 | 1 | 5 | 5 | 5 | 5 |
-| p07 weighted_distance_sums (L4) | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 3 (1t 1w) | 5 | 5 | 5 | 1 | 1 | 5 | 5 | 5 | 5 |
-| p08 recur (L4) | 5 | 5 | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1t) | 5 | 5 | 5 | 5 | 5 | 1 | 1 | 5 | 5 | 5 | 5 |
-| p09 k_machine_schedule (L5) | 3 (2t) | 5 | 5 | **2** (2t 1w) | 5 | 5 | 5 | 5 | 5 | 4 (1c) | 5 | 5 | 5 | 5 | 5 | 5 | 1 | **0** (1w) | 5 | 5 | 5 | 5 |
-| p10 avoid_count (L5) | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 5 | 4 (1c) | 4 (1w) | 5 | 4 (1w) | 5 | 5 | 5 | 1 | 1 | 5 | 5 | 5 | 5 |
-| p11 best_average (L6) | 5 | 5 | 5 | 4 (1w) | **2** (3w) | 5 | 5 | 5 | 5 | 5 | **2** (1c 2w) | 5 | 5 | 5 | 5 | 5 | 1 | **0** (1w) | 5 | 5 | 5 | 5 |
-| p12 sheet (L6) | 4 (1c) | 5 | 5 | **0** (4c 1w) | **0** (4c 1w) | 3 (2c) | 5 | 5 | 5 | 3 (2c) | **0** (4c 1w) | 3 (2c) | **1** (3c 1w) | 5 | 5 | 5 | 1 | **0** (1t) | 5 | 5 | 5 | 5 |
-| p13 xor_ring (L7) | 5 | 5 | 5 | – | – | 5 | 5 | 5 | 5 | 5 | – | 4 (1c) | 3 (2w) | 5 | 5 | 5 | – | – | – | – | – | 5 |
-| p14 bounce_board (L7) | 5 | 4 (1c) | 5 | – | – | 5 | 5 | 5 | 5 | 5 | – | **2** (3c) | **2** (3c) | 3 (2c) | 5 | 5 | – | – | – | – | – | 5 |
-| p15 paint_erase (L7) | **2** (3t) | 4 (1t) | 5 | – | – | 5 | 5 | 5 | 5 | 5 | – | 3 (2w) | 3 (2w) | 5 | 5 | 5 | – | – | – | – | – | 4 (1w) |
+| problem | haiku-low | haiku-medium | sonnet-medium | luna-low | luna-medium | sol61-medium | agy-gptoss120b-medium | agy-opus46-default | agy-sonnet46-default | astra-medium | astra-medium-fast | gemini38flash-low | haiku-high | hydrogen-high | hydrogen-low | hydrogen-medium | luna-high | luna-low-bare | luna56-high | luna56-low | sol56-high | sol61-high | sol61-high-fast | terra56-high | terra56-low | terra61-high | terra61-high-fast | terra61-low | terra61-low-fast |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| p03 ledger (L2) | 5 | 5 | 5 | 5 | 4 (1c) | 5 | 2 | 1 | 1 | 5 | 5 | 2 | 5 | 1 | 2 | 1 | 5 | 3 (1c 1w) | 5 | 5 | 5 | 5 | 5 | 1 | 1 | 5 | 5 | 5 | 5 |
+| p04 taller_within (L2) | 5 | 5 | 5 | **1** (2t 2w) | **1** (1t 3w) | 5 | 2 | 1 | **0** (1c) | 5 | 5 | 2 | 5 | 1 | 2 | 1 | 5 | **1** (4w) | 4 (1w) | 4 (1w) | 5 | 5 | 5 | 1 | 1 | 3 (2w) | 3 (2w) | 5 | 5 |
+| p05 pass_route (L3) | 5 | 4 (1w) | 5 | 5 | 5 | 5 | 2 | 1 | 1 | 5 | 5 | 2 | 5 | 1 | 1 | 1 | 4 (1w) | 5 | 5 | 5 | 5 | 5 | 5 | 1 | 1 | 5 | 5 | 5 | 5 |
+| p06 calc (L3) | 5 | 5 | 5 | 5 | 5 | 5 | **0** (2w) | 1 | **0** (1w) | 5 | 5 | 1 (1w) | 5 | 1 | 1 | **0** (1c) | 5 | 5 | 4 (1w) | **1** (4w) | 5 | 5 | 5 | 1 | 1 | 5 | 5 | 5 | 5 |
+| p07 weighted_distance_sums (L4) | 5 | 5 | 5 | 5 | 5 | 5 | 1 | – | 1 | 5 | 5 | 1 | 5 | – | 1 | 1 | 5 | 5 | 5 | 3 (1t 1w) | 5 | 5 | 5 | 1 | 1 | 5 | 5 | 5 | 5 |
+| p08 recur (L4) | 5 | 5 | 5 | 4 (1w) | 5 | 5 | 2 | – | 1 | 5 | 5 | 1 | 5 | – | 1 | 1 | 5 | 4 (1t) | 5 | 5 | 5 | 5 | 5 | 1 | 1 | 5 | 5 | 5 | 5 |
+| p09 k_machine_schedule (L5) | 3 (2t) | 5 | 5 | **2** (2t 1w) | 5 | 5 | 2 | – | 1 | 5 | 5 | **0** (1w) | 5 | – | 1 | 1 | 4 (1c) | 5 | 5 | 5 | 5 | 5 | 5 | 1 | **0** (1w) | 5 | 5 | 5 | 5 |
+| p10 avoid_count (L5) | 5 | 5 | 5 | 5 | 5 | 5 | 2 | – | – | 5 | 5 | 1 | 5 | – | 1 | – | 4 (1c) | 4 (1w) | 5 | 4 (1w) | 5 | 5 | 5 | 1 | 1 | 5 | 5 | 5 | 5 |
+| p11 best_average (L6) | 5 | 5 | 5 | 4 (1w) | **2** (3w) | 5 | **0** (1w) | – | – | 5 | 5 | **0** (1w) | 5 | – | 1 | – | 5 | **2** (1c 2w) | 5 | 5 | 5 | 5 | 5 | 1 | **0** (1w) | 5 | 5 | 5 | 5 |
+| p12 sheet (L6) | 4 (1c) | 5 | 5 | **0** (4c 1w) | **0** (4c 1w) | 3 (2c) | **0** (1w) | – | – | 5 | 5 | **0** (1c) | 5 | – | 1 | – | 3 (2c) | **0** (4c 1w) | 3 (2c) | **1** (3c 1w) | 5 | 5 | 5 | 1 | **0** (1t) | 5 | 5 | 5 | 5 |
+| p13 xor_ring (L7) | 5 | 5 | 5 | – | – | 5 | – | – | – | 5 | 5 | – | 5 | – | – | – | 5 | – | 4 (1c) | 3 (2w) | 5 | 5 | 5 | – | – | – | – | – | 5 |
+| p14 bounce_board (L7) | 5 | 4 (1c) | 5 | – | – | 5 | – | – | – | 5 | 5 | – | 5 | – | – | – | 5 | – | **2** (3c) | **2** (3c) | 3 (2c) | 5 | 5 | – | – | – | – | – | 5 |
+| p15 paint_erase (L7) | **2** (3t) | 4 (1t) | 5 | – | – | 5 | – | – | – | 5 | 5 | – | 5 | – | – | – | 5 | – | 3 (2w) | 3 (2w) | 5 | 5 | 5 | – | – | – | – | – | 4 (1w) |
 
 - **sonnet-medium never failed**: 75/75 across L1–L7. Of the configs added later, haiku-high, sol61-high and astra-medium matched it.
 - **p12 sheet (a spreadsheet evaluator) is where most configs break, and they break by crashing.** Of the 15 attempts by luna-low, luna-medium and stripped luna, 9 raise a parse error on one of the statement's own worked examples and 3 hit Python's recursion limit on a long chain of cell references; haiku-low's one miss is also the recursion limit.
