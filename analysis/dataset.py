@@ -1027,11 +1027,11 @@ def _tables(s, arms):
             [[DISP(c), f'{len(v["by_problem"])} of {nprob} problems', f'{pct(v["pass_at_1"])} ({v["passes"]}/{v["n"]})',
               usd(v["usd_per_pass"]), usd(v["usd_total"]), f'{median_seconds(v):.1f}'] for c, v in s["grok"].items()])
     T["result"] = md_table(["config", "pass rate", "95% CI", "median s", "slow-call time s", "$ per pass", "total $ (all calls)", "$ kind"],
-                           [[DISP(c) + (" †" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], nprob),
+                           [[DISP(c) + (" †" if c in ex else ""), f"{pct(v['pass_at_1'])} ({v['passes']}/{v['n']})", ci_text(v["passes"], v["n"], v["ci95"], len(v.get("by_problem") or ()) or nprob),
                              f"{median_seconds(v):.1f}", f"{v['latency_s']['p90']:.1f}", price_text(v, v["usd_per_pass"]), price_text(v, v["usd_total"]), v["cost_kind"]]
                             for c, v in {**cfg, **ex}.items()])
     T["result_detail"] = md_table(["config", "pass rate 95% CI", "slow-call time s", "total $ (all calls)"],
-                                  [[DISP(c) + (" †" if c in ex else ""), ci_text(v["passes"], v["n"], v["ci95"], nprob),
+                                  [[DISP(c) + (" †" if c in ex else ""), ci_text(v["passes"], v["n"], v["ci95"], len(v.get("by_problem") or ()) or nprob),
                                     f"{v['latency_s']['p90']:.1f}", "unmetered" if v["cost_kind"] == "unmetered" else ("~" if v["cost_kind"] == "proxy" else "") + price_text(v, v["usd_total"])]
                                    for c, v in sorted({**cfg, **ex}.items(), key=lambda pair: configs.low_context(pair[0]))])
     T["tokens"] = md_table(["config", "mean input", "of which cached", "mean output", "of which reasoning", "$ per 1k tokens"],

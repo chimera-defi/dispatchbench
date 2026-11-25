@@ -164,7 +164,7 @@ def claude_spend(cache_root=None):
 class SpendLimit(RuntimeError): pass
 
 
-RETRY_LIMITS = False  # --retry-limits: call again the cells whose cached row stopped on a quota/rate limit; the old row stays as previous_attempt
+RETRY_LIMITS = False  # --retry-limits: call again the cells whose cached row stopped on a quota/rate limit or ended in an error; the old row stays as previous_attempt
 
 
 def check_claude_budget():
@@ -274,7 +274,7 @@ def call_codex(mid, eff, prompt, cwd, flags=CODEX_FLAGS):
 def one(config, pid, rep, phase, lanes):
     prompt = prompt_for(pid); key = key_for(config, pid, rep, prompt); fp = os.path.join(CALLS, key + ".json")
     status, prior = cache_state(fp)
-    if status and RETRY_LIMITS and status.startswith("stopped"): status = None
+    if status and RETRY_LIMITS and (status.startswith("stopped") or (prior or {}).get("is_error")): status = None  # resume: limit stops and error cells are called again
     if status: return status
     cli, mid, eff = CONFIGS[config]
     cwd = tempfile.mkdtemp(prefix="mrb-")

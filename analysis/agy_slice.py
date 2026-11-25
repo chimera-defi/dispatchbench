@@ -35,7 +35,10 @@ def stops_and_usage():
     calls = [json.load(open(f)) for f in glob.glob(os.path.join(ROOT, "cache", "calls", "*.json"))]
     calls = [d for d in calls if d.get("cli") == "agy"]
     out = ["### Stopped cells (exact error text)", "", "| config | cell | time (UTC) | error |", "|---|---|---|---|"]
-    for d in sorted((d for d in calls if d["is_error"]), key=lambda d: d["ts"]):
+    def chain(d):  # a cell's current row and every earlier attempt kept under previous_attempt
+        while d:
+            yield d; d = d.get("previous_attempt")
+    for d in sorted((x for c0 in calls for x in chain(c0) if x.get("is_error")), key=lambda d: d["ts"]):
         short = json.loads(d["error"].split("GY_ERROR: ", 1)[-1].strip().split("\n")[0]).get("short_error", d["error"]) if "GY_ERROR" in d["error"] else d["error"]
         out.append(f"| {d['config']} | {d['problem'][:3]} r{d['repeat']} | {d['ts'][11:19]} | {short} |")
     out += ["", "### Quota used before the stop (tokens agy reported)", "", "| config | completed calls | stopped cells | input tok | output tok | thinking tok | wall min |", "|---|---|---|---|---|---|---|"]

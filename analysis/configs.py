@@ -88,7 +88,7 @@ add("main", "exploratory", ("devinflash-medium",
 GEMINI_CONFIGS = ("hydrogen-low", "hydrogen-medium", "hydrogen-high", "gemini38flash-low")  # agy subscription: tokens reported, no list price, so never on a $ chart, in the Winner or the frontier
 AGY_OTHER = ("agy-sonnet46-default", "agy-opus46-default", "agy-gptoss120b-medium")  # other vendors' models through the same agy login: the same quota stopped them too
 AGY_CONFIGS = GEMINI_CONFIGS + AGY_OTHER
-GEMINI_NOTE = "partial: the weekly Gemini quota ran out, n per cell shown; tokens reported, no dollars"
+GEMINI_NOTE = "partial: the account quota for agy ran out, n per cell shown; tokens reported, no dollars"
 AGY_NAMES = {"hydrogen": "Google Gemini 4 Hydrogen", "gemini38flash": "Google Gemini 3.8 Flash", "agy-sonnet46": "Claude Sonnet 4.6 (Thinking)", "agy-opus46": "Claude Opus 4.6 (Thinking)", "agy-gptoss120b": "GPT-OSS 120B"}
 add("main", "exploratory", *((c, f"{AGY_NAMES[c.rsplit('-', 1)[0]]}, {c.rsplit('-', 1)[1]} setting; Antigravity CLI (agy), headless, "
     "signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, partial: the run stopped on a 429 quota error (PLAN.md deviation 29)") for c in AGY_CONFIGS))
