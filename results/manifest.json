@@ -3,6 +3,7 @@
  "pre_registration": "PLAN.md (committed before any model call)",
  "cli_versions": [
   "agy 1.5.16",
+  "agy 1.5.17",
   "claude 2.1.308",
   "codex 0.163.0",
   "codex 0.164.0",
@@ -167,6 +168,16 @@
    "model": "gemini-3.8-flash-low",
    "effort": "low"
   },
+  "neon-medium": {
+   "cli": "agy",
+   "model": "gemini-4-neon",
+   "effort": "medium"
+  },
+  "neon-high": {
+   "cli": "agy",
+   "model": "gemini-4-neon",
+   "effort": "high"
+  },
   "agy-sonnet46-default": {
    "cli": "agy",
    "model": "claude-sonnet-4-6",
@@ -263,11 +274,11 @@
   4
  ],
  "first_call_utc": "2026-10-22T08:32:54+00:00",
- "last_call_utc": "2026-11-25T03:07:36+00:00",
+ "last_call_utc": "2026-11-25T22:01:00+00:00",
  "rows_by_phase": {
   "calibration": 54,
   "escalation": 15,
-  "exploratory": 971,
+  "exploratory": 1241,
   "fastmode": 105,
   "hard": 210,
   "main": 561,
@@ -282,7 +293,7 @@
   "codex_proxy_usd": 39.2963,
   "codex_fastmode_usd": 3.4069,
   "calls": {
-   "function": 1922,
+   "function": 2192,
    "agentic": 84
   },
   "grok_measured_usd": 22.3741
@@ -509,6 +520,7 @@
   "gemini-4-hydrogen-high",
   "gemini-4-hydrogen-low",
   "gemini-4-hydrogen-medium",
+  "gemini-4-neon",
   "gpt-5.6-luna",
   "gpt-5.6-sol",
   "gpt-5.6-terra",

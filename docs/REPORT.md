@@ -25,15 +25,17 @@ The main run was on 2026-10-22; the runs on this page span 2026-10-22 to 2026-11
 | astra-medium ⚡ † | 100% (60/60) | ≥78% (all passed) | 9.9 | 13.6 | $0.15 | $9.12 | proxy |
 | devin16slow-default † | 50% (6/12) | 25%–75% | 10.5 | 15.8 | – | – | unmetered |
 | devinflash-medium † | 80% (48/60) | 63%–93% | 16.4 | 222.7 | – | – | unmetered |
-| gemini38flash-low † | 78% (14/18) | 53%–95% | 7.4 | 10.7 | – | – | unmetered |
+| gemini38flash-low † | 83% (50/60) | 63%–98% | 9.3 | 13.0 | – | – | unmetered |
 | haiku-high † | 100% (60/60) | ≥78% (all passed) | 14.7 | 37.6 | $0.0028 | $0.17 | measured |
-| hydrogen-high † | 100% (6/6) | ≥61% (all passed) | 18.7 | 41.2 | – | – | unmetered |
-| hydrogen-low † | 100% (16/16) | ≥78% (all passed) | 7.8 | 13.6 | – | – | unmetered |
-| hydrogen-medium † | 89% (8/9) | 67%–100% | 14.2 | 26.7 | – | – | unmetered |
+| hydrogen-high † | 100% (43/43) | ≥78% (all passed) | 25.6 | 60.7 | – | – | unmetered |
+| hydrogen-low † | 93% (56/60) | 80%–100% | 9.7 | 14.8 | – | – | unmetered |
+| hydrogen-medium † | 98% (59/60) | 93%–100% | 16.3 | 44.4 | – | – | unmetered |
 | luna-high † | 92% (55/60) | 82%–100% | 12.2 | 22.9 | $0.0010 | $0.058 | proxy |
 | luna-low-bare † | 73% (44/60) | 52%–92% | 6.8 | 11.1 | $0.00080 | $0.035 | proxy |
 | luna56-high † | 93% (56/60) | 83%–100% | 11.4 | 35.5 | $0.0030 | $0.17 | proxy |
 | luna56-low † | 80% (48/60) | 60%–97% | 9.2 | 17.4 | $0.0022 | $0.10 | proxy |
+| neon-high † | 100% (36/36) | ≥78% (all passed) | 61.8 | 127.5 | – | – | unmetered |
+| neon-medium † | 100% (60/60) | ≥78% (all passed) | 37.4 | 81.5 | – | – | unmetered |
 | sol56-high † | 100% (60/60) | ≥78% (all passed) | 14.5 | 48.4 | $0.042 | $2.51 | proxy |
 | sol61-high † | 100% (60/60) | ≥78% (all passed) | 27.4 | 50.2 | $0.019 | $1.12 | proxy |
 | sol61-high ⚡ † | 100% (60/60) | ≥78% (all passed) | 17.4 | 27.9 | $0.036 | $2.15 | proxy |
@@ -49,7 +51,7 @@ The main run was on 2026-10-22; the runs on this page span 2026-10-22 to 2026-11
 | inkling2mini-ladder † | 87% (13/15) | 67%–100% | 4630.4 | 9403.7 | est. $0.12 from box-hours | est. $1.54 from box-hours | box-hours |
 | Inkling 2 Mini, Colab L4 † | 60% (9/15) | 33%–87% | 353.6 | 386.9 | est. $0.030 from compute units | est. $0.27 from compute units | colab-units |
 
-Function track: 12 problems × 5 attempts for most configs (exceptions: terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); hydrogen-low 16 calls (a partial ladder); hydrogen-medium 9 calls (a partial ladder); hydrogen-high 6 calls (a partial ladder); gemini38flash-low 18 calls (a partial ladder); agy-sonnet46-default 9 calls (a partial ladder); agy-opus46-default 6 calls (a partial ladder); agy-gptoss120b-medium 21 calls (a partial ladder); hetzner-qwen36 12 calls (one repeat); hetzner-qwen38 12 calls (one repeat); sol61-xhigh 35 calls (a partial ladder)). Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
+Function track: 12 problems × 5 attempts for most configs (exceptions: terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); hydrogen-high 43 calls (a partial ladder); neon-high 36 calls (a partial ladder); agy-sonnet46-default 9 calls (a partial ladder); agy-opus46-default 6 calls (a partial ladder); agy-gptoss120b-medium 21 calls (a partial ladder); hetzner-qwen36 12 calls (one repeat); hetzner-qwen38 12 calls (one repeat); sol61-xhigh 35 calls (a partial ladder)). Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
 
 ## Grok
 
@@ -315,15 +317,17 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 | astra-medium ⚡ † | 15,316 | 12,160 | 646 | 136 | $0.0095 |
 | devin16slow-default † | – | – | – | – | – |
 | devinflash-medium † | – | – | – | – | – |
-| gemini38flash-low † | 17,000 | 1,349 | 718 | 0 | – |
+| gemini38flash-low † | 17,996 | 405 | 857 | 0 | – |
 | haiku-high † | 4,418 | 649 | 4,123 | 3,353 | $0.00033 |
-| hydrogen-high † | 18,928 | 0 | 5,188 | 4,696 | – |
-| hydrogen-low † | 18,941 | 0 | 1,649 | 1,031 | – |
-| hydrogen-medium † | 18,937 | 0 | 3,348 | 2,785 | – |
+| hydrogen-high † | 19,003 | 0 | 7,729 | 7,000 | – |
+| hydrogen-low † | 17,893 | 1,111 | 1,839 | 1,145 | – |
+| hydrogen-medium † | 18,187 | 825 | 4,562 | 3,836 | – |
 | luna-high † | 14,688 | 11,520 | 1,060 | 526 | $0.000061 |
 | luna-low-bare † | 6,144 | 3,255 | 528 | 0 | $0.000088 |
 | luna56-high † | 12,962 | 10,240 | 1,693 | 1,147 | $0.00019 |
 | luna56-low † | 12,965 | 10,281 | 835 | 295 | $0.00013 |
+| neon-high † | 7,556 | 10,758 | 10,309 | 9,537 | – |
+| neon-medium † | 8,363 | 9,950 | 5,945 | 5,208 | – |
 | sol56-high † | 14,504 | 11,315 | 1,226 | 668 | $0.0027 |
 | sol61-high † | 15,380 | 12,083 | 1,081 | 565 | $0.0011 |
 | sol61-high ⚡ † | 15,380 | 12,288 | 1,052 | 541 | $0.0022 |
@@ -358,6 +362,27 @@ Each trim level adds Codex CLI 0.163.0 config knobs to the one before. The probe
 | gpt-5.6-terra | 14,201 | 14,197 | 14,020 | 9,469 | 5,928 | 5,288 |
 
 gpt-5.6-terra at the smallest prompt costs $0.0080 per call on the pilot problems, about 29× haiku-low, so it was not run on the full ladder.
+
+## Gemini through the Antigravity CLI (exploratory, first round)
+
+Google Gemini through the Antigravity CLI (agy) on one Google AI Pro subscription: $26.99 a month, $30.50 CAD for the first month. agy reports tokens and no dollars, so these rows have no price per pass; the cost shown is the share of the account's Gemini quota each 12 calls used, read from its /usage screen between batches.
+
+| config | passes/tries (function tests) | median s per call | weekly quota points per 12 calls | 5-hour quota points per 12 calls | price |
+|---|---|---|---|---|---|
+| gemini38flash-low | 50/60 | 9.3 | 0.5 (shared batch) | 1.8 (shared batch) | plan, $26.99/month |
+| hydrogen-low | 56/60 | 9.7 | 0.5 (shared batch) | 1.8 (shared batch) | plan, $26.99/month |
+| hydrogen-medium | 59/60 | 16.3 | 0.5 (shared batch) | 1.8 (shared batch) | plan, $26.99/month |
+| hydrogen-high | 43/43 | 25.6 | 0.5 (shared batch) | 1.8 (shared batch) | plan, $26.99/month |
+| neon-medium | 60/60 | 37.4 | 1.4 | 4.6 | plan, $26.99/month |
+| neon-high | 36/36 | 61.8 | 1.3 | 7.3 | plan, $26.99/month |
+| haiku-low | 57/60 | 10.0 | – | – | $0.0011 per pass (measured) |
+| sonnet-medium | 60/60 | 10.1 | – | – | $0.012 per pass (measured) |
+| terra61-low | 60/60 | 10.3 | – | – | $0.010 per pass (token estimate) |
+| sol61-high | 60/60 | 27.4 | – | – | $0.019 per pass (token estimate) |
+
+First round, extend later. This is rough: one pass of 12 problems per repeat, 3 to 5 repeats (60 tries for 3.8 Flash, Neon medium and Hydrogen low and medium, 36 for Neon high, 43 for Hydrogen high), one day's quota readings that move by about a point between reads and include any other use of the account. Hydrogen and 3.8 Flash ran in one batch, so their quota figure is the batch average. The Claude, Codex and GPT-OSS models on the same login have their own limit pool and were not run again.
+
+Neon passed every try (60/60 at medium, 36/36 at high) but takes 37 s and 62 s a call, against 10 s for terra61-low, which passed 60/60. Hydrogen low and 3.8 Flash are as fast as the Codex and Claude rows but miss more (56/60 and 50/60).
 
 ## Hetzner free tier (exploratory calibration)
 

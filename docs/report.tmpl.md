@@ -125,6 +125,16 @@ Each trim level adds Codex CLI 0.163.0 config knobs to the one before. The probe
 
 gpt-5.6-terra at the smallest prompt costs {{terra_call}} per call on the pilot problems, about {{terra_x}} haiku-low, so it was not run on the full ladder.
 
+## Gemini through the Antigravity CLI (exploratory, first round)
+
+{{agy_lead}}
+
+{{table:agy_summary}}
+
+{{agy_scope}}
+
+{{agy_verdict}}
+
 ## Hetzner free tier (exploratory calibration)
 
 Endpoint: {{hetzner_endpoint}} (OpenAI-compatible). {{hetzner_lead}}
