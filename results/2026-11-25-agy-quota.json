@@ -1,6 +1,6 @@
 {
   "source": "agy -p \"/usage\" --model gemini-3.8-flash-low --output-format json: Gemini Models limits, percent remaining, read by hand between batches on 2026-11-25. Readings move by about one point between reads and include any other use of the account.",
-  "plan": {"name": "Google AI Pro", "first_month_cad": 30.50, "renewal_usd": 26.99},
+  "plan": {"name": "Google AI Pro", "first_month": 30.50, "renewal": 26.99, "currency_note": "prices as the operator gave them (first month shown for the Canada store); the currency was not checked against a bill"},
   "readings": {
     "18:55Z": {"weekly": 100, "five_hour": 100, "note": "assumed start; no reading was taken before the first batch"},
     "19:21Z": {"weekly": 91, "five_hour": 67},

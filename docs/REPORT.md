@@ -365,16 +365,16 @@ gpt-5.6-terra at the smallest prompt costs $0.0080 per call on the pilot problem
 
 ## Gemini through the Antigravity CLI (exploratory, first round)
 
-Google Gemini through the Antigravity CLI (agy) on one Google AI Pro subscription: $26.99 a month, $30.50 CAD for the first month. agy reports tokens and no dollars, so these rows have no price per pass; the cost shown is the share of the account's Gemini quota each 12 calls used, read from its /usage screen between batches.
+Google Gemini through the Antigravity CLI (agy) on one Google AI Pro subscription: 26.99 a month, 30.50 for the first month in the Canada store (prices as the operator gave them; the currency was not checked against a bill). agy reports tokens and no dollars, so these rows have no price per pass; the cost shown is the share of the account's Gemini quota each 12 calls used, from the /usage screen read between batches (the 100% start before the first batch was assumed, not read).
 
 | config | passes/tries (function tests) | median s per call | weekly quota points per 12 calls | 5-hour quota points per 12 calls | price |
 |---|---|---|---|---|---|
-| gemini38flash-low | 50/60 | 9.3 | 0.6 (shared batch) | 2.3 (shared batch) | plan, $26.99/month |
-| hydrogen-low | 56/60 | 9.7 | 0.6 (shared batch) | 2.3 (shared batch) | plan, $26.99/month |
-| hydrogen-medium | 59/60 | 16.3 | 0.6 (shared batch) | 2.3 (shared batch) | plan, $26.99/month |
-| hydrogen-high | 43/43 | 25.6 | 0.6 (shared batch) | 2.3 (shared batch) | plan, $26.99/month |
-| neon-medium | 60/60 | 37.4 | 1.4 | 4.6 | plan, $26.99/month |
-| neon-high | 36/36 | 61.8 | 1.3 | 7.3 | plan, $26.99/month |
+| gemini38flash-low | 50/60 | 9.3 | 0.6 (shared batch) | 2.3 (shared batch) | plan, 26.99 a month |
+| hydrogen-low | 56/60 | 9.7 | 0.6 (shared batch) | 2.3 (shared batch) | plan, 26.99 a month |
+| hydrogen-medium | 59/60 | 16.3 | 0.6 (shared batch) | 2.3 (shared batch) | plan, 26.99 a month |
+| hydrogen-high | 43/43 | 25.6 | 0.6 (shared batch) | 2.3 (shared batch) | plan, 26.99 a month |
+| neon-medium | 60/60 | 37.4 | 1.4 | 4.6 | plan, 26.99 a month |
+| neon-high | 36/36 | 61.8 | 1.3 | 7.3 | plan, 26.99 a month |
 | haiku-low | 57/60 | 10.0 | – | – | $0.0011 per pass (measured) |
 | sonnet-medium | 60/60 | 10.1 | – | – | $0.012 per pass (measured) |
 | terra61-low | 60/60 | 10.3 | – | – | $0.010 per pass (token estimate) |
