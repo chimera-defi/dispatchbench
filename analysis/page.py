@@ -597,7 +597,7 @@ def grid(s, grok=None):
     grok = grok or {}; ink = s.get("inkling") or {}
     inkling = {configs.INKLING_PRIMARY: {p: x["passed"] for p, x in ink["primary"]["tasks"].items()}, configs.INKLING_LADDER: ink["ladder"]["tasks"],
                                 **({configs.COLAB_CONFIG: {p: x["passed"] for p, x in ink["colab"]["tasks"].items()}} if ink.get("colab") else {})} if ink else {}  # 1 try per task, like the Hetzner lanes
-    cols = ORDER + [c for c in GROK_ORDER if c in grok] + list(configs.DEVIN_CONFIGS) + list(configs.DEVIN_FLASH) + list(hetzner(s)) + list(inkling)
+    cols = ORDER + [c for c in GROK_ORDER if c in grok] + list(configs.DEVIN_CONFIGS) + list(configs.DEVIN_FLASH) + list(hetzner(s)) + list(inkling) + [c for c in configs.AGY_CONFIGS if c in s['exploratory']]
     E = {**every(s), **devin(s), **{c: v for c, v in s['exploratory'].items() if c in configs.DEVIN_FLASH}, **hetzner(s)}; probs = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
     main = set(probs)
     hard = sorted({p for v in s["hard"].values() for p in v["by_problem"]})
@@ -605,6 +605,8 @@ def grid(s, grok=None):
         if c in grok:
             k, n = grok[c].get(p, (None, None)); return (k, n)
         if c in inkling: return (int(inkling[c][p]), 1) if p in inkling[c] else (None, None)
+        if c in configs.AGY_CONFIGS:  # partial ladder: passes out of the tries made so far
+            b = s['exploratory'][c]; return (b['by_problem'][p], b['tries_by_problem'][p]) if p in b['by_problem'] else (None, None)
         v = E.get(c) if p in main else s["hard"].get(c)
         cell = v["by_group"].get(p) if v else None
         return (cell["passes"], cell["n"]) if cell else (None, None)

@@ -19,6 +19,8 @@ CLAUDE = os.environ.get("CLAUDE_BIN", "claude")
 CODEX = os.environ.get("CODEX_BIN", "codex")
 GROK = os.environ.get("GROK_BIN", "grok")
 DEVIN = os.environ.get("DEVIN_BIN", "devin")
+AGY = os.environ.get("AGY_BIN", "agy")
+AGY_KEY_VERSION = "1.5.16"
 HETZNER_BASE_URL = "https://inference.hetzner.com/api/v1"
 CLAUDE_BUDGET_USD = 8.00
 
@@ -53,6 +55,12 @@ CONFIGS.update({"terra61-low": ("codex", "gpt-6.1-terra", "low"), "terra61-high"
 # Exploratory, 2026-10-26, operator request (hackathon): staged L1-L3 Grok lane; see PLAN.md.
 CONFIGS.update({f"grok47-{e}": ("grok", "grok-4.7", e) for e in ("low", "medium", "high")})
 CONFIGS["grok47fast-low"] = ("grok", "grok-4.7-build-fast", "low")
+# 2026-11-25, operator request: Google Gemini 4 Hydrogen through the Antigravity CLI (agy), signed-in subscription: tokens reported, no dollars.
+CONFIGS.update({f"hydrogen-{e}": ("agy", f"gemini-4-hydrogen-{e}", e) for e in ("low", "medium", "high")})
+CONFIGS["gemini38flash-low"] = ("agy", "gemini-3.8-flash-low", "low")
+# Same CLI, other vendors' models (they hit the same 429 once the account quota ran out), no effort flag: the model id carries the setting.
+CONFIGS.update({"agy-sonnet46-default": ("agy", "claude-sonnet-4-6", "default"), "agy-opus46-default": ("agy", "claude-opus-4-6-thinking", "default"),
+                "agy-gptoss120b-medium": ("agy", "gpt-oss-120b-medium", "medium")})
 CONFIGS["devin16slow-default"] = ("devin", "swe-1-6-slow", "default")  # free tier model (2026-10-28; swe-2-flash-medium also runs on Free, 2026-11-25)
 CONFIGS["devinflash-medium"] = ("devin", "swe-2-flash-medium", "default")  # 2026-11-25, free tier, exploratory; the Devin caller stays retired (216aba0), this run used it restored locally
 CONFIGS["hetzner-qwen36"] = ("hetzner", "Qwen/Qwen3.6-35B-A3B-FP8", "default")
@@ -110,10 +118,12 @@ def write_rows(path, lines):
 def cli_version(cli):
     if cli == "hetzner": return "chat/completions-v1"
     if cli not in _versions:
-        exe = {"claude": CLAUDE, "codex": CODEX, "grok": GROK, "devin": DEVIN}[cli]
+        exe = {"claude": CLAUDE, "codex": CODEX, "grok": GROK, "devin": DEVIN, "agy": AGY}[cli]
         if cli == "codex":
             with isolated_codex_env() as env:
                 version = subprocess.run([exe, "--version"], env=env, capture_output=True, text=True).stdout
+        elif cli == "agy":
+            version = subprocess.run([exe, "--version"], capture_output=True, text=True).stdout
         elif cli == "devin":
             version = subprocess.run([exe, "version"], capture_output=True, text=True).stdout
         else:
@@ -130,8 +140,9 @@ def prompt_for(pid):
 def key_for(config, pid, rep, prompt):
     cli, mid, eff = CONFIGS[config]
     flags = (["--base-url", HETZNER_BASE_URL, "--model", mid, "--stream", "--include-usage"] if cli == "hetzner" else
-             CLAUDE_FLAGS if cli == "claude" else GROK_FLAGS if cli == "grok" else codex_flags(config, portable=True))
-    identity = {"config": config, "model": mid, "effort": eff, "cli": cli, "cli_version": cli_version(cli),
+             CLAUDE_FLAGS if cli == "claude" else ["--output-format", "json"] if cli == "agy" else GROK_FLAGS if cli == "grok" else codex_flags(config, portable=True))
+    # agy self-updates (1.5.16 -> 1.5.17 mid-run); its cache key pins the version the cells were first made with, the row still stores the real one
+    identity = {"config": config, "model": mid, "effort": eff, "cli": cli, "cli_version": AGY_KEY_VERSION if cli == "agy" else cli_version(cli),
                 "flags": flags, "prompt": prompt, "problem": pid, "repeat": rep}
     if cli == "codex": identity["codex_home"] = "isolated"
     blob = json.dumps(identity, sort_keys=True)
@@ -154,6 +165,9 @@ def claude_spend(cache_root=None):
 
 
 class SpendLimit(RuntimeError): pass
+
+
+RETRY_LIMITS = False  # --retry-limits: call again the cells whose cached row stopped on a quota/rate limit or ended in an error; the old row stays as previous_attempt
 
 
 def check_claude_budget():
@@ -211,6 +225,26 @@ def call_claude(mid, eff, prompt, cwd):
                 cost_usd=d.get("total_cost_usd"), cost_kind="measured (CLI total_cost_usd)", turns=d.get("num_turns")), r.stdout
 
 
+def call_agy(mid, eff, prompt, cwd):
+    """Antigravity CLI, headless, JSON output, run in an empty directory. Reports tokens, not dollars."""
+    cmd = [AGY, "-p", prompt, "--model", mid] + (["--effort", eff] if mid.startswith("gemini") else []) + ["--output-format", "json"]
+    t = time.monotonic(); r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, cwd=cwd, timeout=1200)
+    wall = time.monotonic() - t
+    try:
+        d = json.loads(r.stdout)
+        if not isinstance(d, dict): raise ValueError("expected a JSON object")
+    except (ValueError, TypeError):
+        return dict(wall_s=wall, text="", is_error=True, error=(r.stderr or r.stdout)[-300:], error_type="infrastructure", cost_usd=None), r.stdout
+    u = d.get("usage") or {}
+    bad = r.returncode != 0 or d.get("status") != "SUCCESS"
+    return dict(wall_s=wall, text=d.get("response", ""), is_error=bad,
+                error=(str(d.get("response", "")) + " " + r.stderr)[-300:] if bad else None, error_type="infrastructure" if bad else "model",
+                api_duration_ms=int((d.get("duration_seconds") or 0) * 1000),
+                in_tok=u.get("input_tokens", 0), cached_tok=u.get("cache_read_tokens", 0), cache_write_tok=0,
+                out_tok=u.get("output_tokens", 0), reasoning_tok=u.get("thinking_tokens", 0),
+                cost_usd=None, cost_kind="subscription (tokens reported, no dollars)", turns=d.get("num_turns")), r.stdout
+
+
 def parse_codex(stdout):
     i = c = o = rs = 0; tools = 0; err = None; text = ""
     for line in stdout.splitlines():
@@ -243,12 +277,14 @@ def call_codex(mid, eff, prompt, cwd, flags=CODEX_FLAGS):
 def one(config, pid, rep, phase, lanes):
     prompt = prompt_for(pid); key = key_for(config, pid, rep, prompt); fp = os.path.join(CALLS, key + ".json")
     status, prior = cache_state(fp)
+    if status and RETRY_LIMITS and (status.startswith("stopped") or (prior or {}).get("is_error")): status = None  # resume: limit stops and error cells are called again
     if status: return status
     cli, mid, eff = CONFIGS[config]
     cwd = tempfile.mkdtemp(prefix="mrb-")
     t0 = time.monotonic()
     try:
         if cli == "claude": res, raw = call_claude(mid, eff, prompt, cwd)
+        elif cli == "agy": res, raw = call_agy(mid, eff, prompt, cwd)
         elif cli in ("grok", "devin", "hetzner"):
             raise SystemExit("the grok/devin/hetzner callers were removed; use the runner at commit 7e946a6")
         else: res, raw = call_codex(mid, eff, prompt, cwd, codex_flags(config))
@@ -286,7 +322,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--phase", required=True); ap.add_argument("--configs", required=True)
     ap.add_argument("--problems", default="all"); ap.add_argument("--repeats", default="1-5"); ap.add_argument("--lanes", type=int, default=4)
+    ap.add_argument("--retry-limits", action="store_true", help="retry cells that stopped on a quota/rate limit (resume after the reset)")
     a = ap.parse_args()
+    global RETRY_LIMITS; RETRY_LIMITS = a.retry_limits
     cfgs = a.configs.split(","); pids = {"all": problems.MAIN, "hard": problems.HARD}.get(a.problems) or a.problems.split(","); reps = parse_reps(a.repeats)
     assert a.lanes <= 4, "at most 4 lanes (timing hygiene)"
     for c in cfgs: assert c in CONFIGS, c

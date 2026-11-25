@@ -13,7 +13,7 @@ BADC, WARNC = "var(--bad)", "var(--warn)"
 def FAMILY(c):
     """One family token shared by charts, grids, chips and table swatches."""
     if "+" in c or c.startswith("pipeline "): return "var(--pipeline)"
-    for prefix, token in (("hetzner", "hetzner"), ("inkling", "inkling"), ("grok", "grok"), ("devin", "devin"),
+    for prefix, token in (("hetzner", "hetzner"), ("inkling", "inkling"), ("grok", "grok"), ("devin", "devin"), ("hydrogen", "gemini"), ("gemini", "gemini"), ("agy-", "gemini"),
                           ("haiku", "claude"), ("sonnet", "sonnet"),
                           (("sol56", "luna56", "terra56", "terra/"), "codex56")):
         if c.startswith(prefix): return f"var(--{token})"
@@ -329,9 +329,15 @@ def rung_chart(s, ds=None):
     return re.sub(r"font-size='([\d.]+)'( text-anchor='\w+' style=')", r"\2font-size:\1px;", out)  # inline size: the page's phone CSS does not rescale this chart
 
 
+AGY_N = {}
+
+
 def heatmap(s):
     """Main-run configs first, then exploratory ones after a gap; family-coloured headers and dashes for unrun problems."""
     ex = visible(s.get("exploratory"))
+    AGY_N.clear()
+    for c, v in {**s.get("exploratory", {}), **s.get("hetzner", {})}.items():
+        for p, n in (v.get("tries_by_problem") or {}).items(): AGY_N[c, p] = n
     dv = {c: v for c, v in {**s.get("exploratory", {}), **s.get("hetzner", {})}.items() if c in configs.FREE_TIER_CONFIGS}  # 1 repeat: cells are 0 or 1 of 1
     cols = [(c, {p: v[c] for p, v in s["problems"].items()}, False) for c in s["configs"]] + [(c, v["by_problem"], True) for c, v in ex.items()] \
         + [(c, v["by_problem"], True) for c, v in dv.items()]
@@ -344,7 +350,7 @@ def heatmap(s):
     X = lambda j: L + j * cw + (gap if cols[j][2] else 0)
     W, H = X(len(cols) - 1) + cw + 20, T + ch * len(probs) + 40
     b = [text(12, 24, "Passes out of 5 per problem and config", 14, weight="600"),
-         text(12, 42, "Main ladder, p01–p12, rungs L1–L6 (2 per rung). Left: main run. Right, family colours: exploratory configs; ⚡ = fast mode. Last columns: Devin, Hetzner and Inkling, exploratory, 1 try per problem (0 or 1), except devinflash-medium (5).", 11, fill=MUTED)]
+         text(12, 42, "Main ladder, p01–p12, rungs L1–L6 (2 per rung). Left: main run. Right, family colours: exploratory configs; ⚡ = fast mode. Last columns: Devin, Hetzner and Inkling, exploratory, 1 try per problem (0 or 1), except the agy columns (passes/attempts, partial) and devinflash-medium (5).", 11, fill=MUTED)]
     for j, (c, _, x) in enumerate(cols):  # rotated headers so every config fits
         b.append(text(X(j) + cw / 2 + 4, T - 8, DISP(c), 11, "start", FAMILY(c), rotate=-55))
     for i, p in enumerate(probs):
@@ -354,6 +360,10 @@ def heatmap(s):
             k = bp.get(p)
             if k is None:
                 b.append(text(X(j) + cw / 2, y + ch / 2 + 4, "–", 11, "middle", MUTED)); continue
+            if c in configs.AGY_CONFIGS:  # partial ladder: the cell says passes/attempts, shade by the share passed
+                n = AGY_N.get((c, p), 1)
+                b.append(f"<rect x='{X(j) + 1}' y='{y + 1}' width='{cw - 2}' height='{ch - 2}' fill='{'var(--bad)' if k == 0 else 'var(--good)'}' opacity='{0.35 if k == 0 else 0.1 + 0.45 * k / n:.2f}'/>")
+                b.append(text(X(j) + cw / 2, y + ch / 2 + 4, f"{k}/{n}", 11, "middle", INK)); continue
             top = 1 if c in dv and c not in configs.DEVIN_FLASH else 5  # Devin's single try is a full-strength cell; swe-2-flash-medium has 5
             fill, op = ("var(--bad)", 0.35) if k == 0 else ("var(--good)", 0.1 + 0.09 * k * 5 / top)
             b.append(f"<rect x='{X(j) + 1}' y='{y + 1}' width='{cw - 2}' height='{ch - 2}' fill='{fill}' opacity='{op:.2f}'/>")

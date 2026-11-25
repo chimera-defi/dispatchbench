@@ -18,11 +18,18 @@ The main run was on 2026-10-22; the runs on this page span 2026-10-22 to 2026-11
 | luna-low | 77% (46/60) | 53%–95% | 7.2 | 11.6 | $0.00090 | $0.041 | proxy |
 | luna-medium | 78% (47/60) | 57%–97% | 8.2 | 11.8 | $0.00089 | $0.042 | proxy |
 | sol61-medium | 97% (58/60) | 87%–100% | 22.6 | 36.2 | $0.015 | $0.87 | proxy |
+| agy-gptoss120b-medium † | 81% (17/21) | 57%–100% | 12.0 | 21.1 | – | – | unmetered |
+| agy-opus46-default † | 100% (6/6) | ≥61% (all passed) | 24.5 | 144.9 | – | – | unmetered |
+| agy-sonnet46-default † | 78% (7/9) | 44%–100% | 14.3 | 50.6 | – | – | unmetered |
 | astra-medium † | 100% (60/60) | ≥78% (all passed) | 20.9 | 35.6 | $0.075 | $4.52 | proxy |
 | astra-medium ⚡ † | 100% (60/60) | ≥78% (all passed) | 9.9 | 13.6 | $0.15 | $9.12 | proxy |
 | devin16slow-default † | 50% (6/12) | 25%–75% | 10.5 | 15.8 | – | – | unmetered |
 | devinflash-medium † | 80% (48/60) | 63%–93% | 16.4 | 222.7 | – | – | unmetered |
+| gemini38flash-low † | 78% (14/18) | 53%–95% | 7.4 | 10.7 | – | – | unmetered |
 | haiku-high † | 100% (60/60) | ≥78% (all passed) | 14.7 | 37.6 | $0.0028 | $0.17 | measured |
+| hydrogen-high † | 100% (6/6) | ≥61% (all passed) | 18.7 | 41.2 | – | – | unmetered |
+| hydrogen-low † | 100% (16/16) | ≥78% (all passed) | 7.8 | 13.6 | – | – | unmetered |
+| hydrogen-medium † | 89% (8/9) | 67%–100% | 14.2 | 26.7 | – | – | unmetered |
 | luna-high † | 92% (55/60) | 82%–100% | 12.2 | 22.9 | $0.0010 | $0.058 | proxy |
 | luna-low-bare † | 73% (44/60) | 52%–92% | 6.8 | 11.1 | $0.00080 | $0.035 | proxy |
 | luna56-high † | 93% (56/60) | 83%–100% | 11.4 | 35.5 | $0.0030 | $0.17 | proxy |
@@ -42,7 +49,7 @@ The main run was on 2026-10-22; the runs on this page span 2026-10-22 to 2026-11
 | inkling2mini-ladder † | 87% (13/15) | 67%–100% | 4630.4 | 9403.7 | est. $0.12 from box-hours | est. $1.54 from box-hours | box-hours |
 | Inkling 2 Mini, Colab L4 † | 60% (9/15) | 33%–87% | 353.6 | 386.9 | est. $0.030 from compute units | est. $0.27 from compute units | colab-units |
 
-Function track: 12 problems × 5 attempts for most configs (exceptions: terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); hetzner-qwen36 12 calls (one repeat); hetzner-qwen38 12 calls (one repeat); sol61-xhigh 35 calls (a partial ladder)). Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
+Function track: 12 problems × 5 attempts for most configs (exceptions: terra56-low 12 calls (one repeat); terra56-high 12 calls (one repeat); grok47-medium 21 calls (p01–p06 only); devin16slow-default 12 calls (one repeat); hydrogen-low 16 calls (a partial ladder); hydrogen-medium 9 calls (a partial ladder); hydrogen-high 6 calls (a partial ladder); gemini38flash-low 18 calls (a partial ladder); agy-sonnet46-default 9 calls (a partial ladder); agy-opus46-default 6 calls (a partial ladder); agy-gptoss120b-medium 21 calls (a partial ladder); hetzner-qwen36 12 calls (one repeat); hetzner-qwen38 12 calls (one repeat); sol61-xhigh 35 calls (a partial ladder)). Click a column header on the page version to sort. "$ per pass" is total spend divided by passing attempts. Claude dollars are the CLI's reported `total_cost_usd`; Codex dollars are token counts times list price ([results/prices.json](../results/prices.json)), a proxy. The exploratory rows were added after the main run: luna-high is luna at high effort on all 12 problems, luna-low-bare is luna-low with the Codex harness stripped to its smallest prompt (next section), and the other five are later Codex models (finding 5).
 
 ## Grok
 
@@ -301,11 +308,18 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 | luna-low | 14,688 | 11,520 | 514 | 0 | $0.000045 |
 | luna-medium | 14,688 | 11,520 | 530 | 7 | $0.000046 |
 | sol61-medium | 15,380 | 12,346 | 718 | 209 | $0.00090 |
+| agy-gptoss120b-medium † | 5,275 | 10,947 | 1,573 | 0 | – |
+| agy-opus46-default † | 13,802 | 6,408 | 3,867 | 0 | – |
+| agy-sonnet46-default † | 14,515 | 5,696 | 2,159 | 0 | – |
 | astra-medium † | 15,319 | 12,207 | 639 | 127 | $0.0047 |
 | astra-medium ⚡ † | 15,316 | 12,160 | 646 | 136 | $0.0095 |
 | devin16slow-default † | – | – | – | – | – |
 | devinflash-medium † | – | – | – | – | – |
+| gemini38flash-low † | 17,000 | 1,349 | 718 | 0 | – |
 | haiku-high † | 4,418 | 649 | 4,123 | 3,353 | $0.00033 |
+| hydrogen-high † | 18,928 | 0 | 5,188 | 4,696 | – |
+| hydrogen-low † | 18,941 | 0 | 1,649 | 1,031 | – |
+| hydrogen-medium † | 18,937 | 0 | 3,348 | 2,785 | – |
 | luna-high † | 14,688 | 11,520 | 1,060 | 526 | $0.000061 |
 | luna-low-bare † | 6,144 | 3,255 | 528 | 0 | $0.000088 |
 | luna56-high † | 12,962 | 10,240 | 1,693 | 1,147 | $0.00019 |
@@ -327,7 +341,7 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 
 ![Pass rate by difficulty rung, 10 attempts per rung per config.](../results/report/charts/pass_by_rung.svg)
 
-![Passes out of 5 per problem and config.](../results/report/charts/heatmap.svg)
+![Passes out of 5 per problem and config. The Gemini and Antigravity columns are a partial ladder: each cell is passes over the tries made before the account quota ran out.](../results/report/charts/heatmap.svg)
 
 ![Minimum input tokens over all calls, cached share shaded.](../results/report/charts/token_floor.svg)
 

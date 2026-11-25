@@ -1,0 +1,8 @@
+[Unit]
+Description=DispatchBench: resume agy cells stopped on the account quota
+
+[Service]
+Type=oneshot
+Environment=PATH=/home/agents/.local/bin:/usr/local/bin:/usr/bin:/bin
+WorkingDirectory=/home/agents/workspace/dispatchbench
+ExecStart=/home/agents/workspace/dispatchbench/tools/agy_resume.sh

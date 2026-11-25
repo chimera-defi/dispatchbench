@@ -1,0 +1,10 @@
+[Unit]
+Description=DispatchBench: retry the agy cells after the agy quota resets
+
+[Timer]
+OnCalendar=2026-12-02 04:15:00 Europe/Paris
+Persistent=true
+Unit=agy-resume.service
+
+[Install]
+WantedBy=timers.target
