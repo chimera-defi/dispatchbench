@@ -596,8 +596,8 @@ def grid(s, grok=None):
     grok maps each Grok config to {problem: [passes, attempts]}; a config that skipped a problem shows a dash there."""
     grok = grok or {}; ink = s.get("inkling") or {}
     inkling = {configs.INKLING_PRIMARY: {p: x["passed"] for p, x in ink["primary"]["tasks"].items()}, configs.INKLING_LADDER: ink["ladder"]["tasks"]} if ink else {}  # 1 try per task, like the Hetzner lanes
-    cols = ORDER + [c for c in GROK_ORDER if c in grok] + list(configs.DEVIN_CONFIGS) + list(hetzner(s)) + list(inkling)
-    E = {**every(s), **devin(s), **hetzner(s)}; probs = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
+    cols = ORDER + [c for c in GROK_ORDER if c in grok] + list(configs.DEVIN_CONFIGS) + list(configs.DEVIN_FLASH) + list(hetzner(s)) + list(inkling)
+    E = {**every(s), **devin(s), **{c: v for c, v in s['exploratory'].items() if c in configs.DEVIN_FLASH}, **hetzner(s)}; probs = sorted(s["problems"], key=lambda p: (s["problems"][p]["rung"], p))
     main = set(probs)
     hard = sorted({p for v in s["hard"].values() for p in v["by_problem"]})
     def cell(p, c):
@@ -608,7 +608,7 @@ def grid(s, grok=None):
         cell = v["by_group"].get(p) if v else None
         return (cell["passes"], cell["n"]) if cell else (None, None)
     out = [f'<div class="grid" style="--n:{len(cols)};grid-template-columns:minmax(150px,auto) repeat({len(cols)},minmax(40px,1fr))">', '<div class="h m">problem</div>']
-    out += [f'<div style="color:{FAM(c)}" class="h{" fast" if c.endswith("-fast") else " devin" if c in configs.DEVIN_CONFIGS else " hetzner" if c in configs.HETZNER_CONFIGS else " inkling" if c in inkling else ""}"'
+    out += [f'<div style="color:{FAM(c)}" class="h{" fast" if c.endswith("-fast") else " devin" if c in configs.DEVIN_CONFIGS + configs.DEVIN_FLASH else " hetzner" if c in configs.HETZNER_CONFIGS else " inkling" if c in inkling else ""}"'
             + (f' title="{esc(s["facts"]["devin_group"])}"' if c in configs.DEVIN_CONFIGS else f' title="{esc(configs.HETZNER_NOTE)}"' if c in configs.HETZNER_CONFIGS else "") + f'>{esc(DISP(c))}</div>' for c in cols]
     for p in probs + hard:
         if p == hard[0]: out.append(f'<div class="set-separator" style="grid-column:1 / -1">L7 set</div>')
