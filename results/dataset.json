@@ -169,6 +169,14 @@
    "used": true
   },
   {
+   "path": "results/2026-11-25-agy-function.jsonl",
+   "sha256": "eb6820d4bc8649820e610dba36147435ce519b59394cf7a9653d14336f4a6d78",
+   "rows": 49,
+   "date": "2026-11-25",
+   "lanes": "agy",
+   "used": false
+  },
+  {
    "path": "results/appendix/codex_harness.jsonl",
    "sha256": "5bf8288a66bf2efa931316c1834e82ec5fb0ffa8019cf49f816bdf75d9b1752e",
    "rows": 138,

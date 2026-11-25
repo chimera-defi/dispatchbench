@@ -19,6 +19,7 @@ CLAUDE = os.environ.get("CLAUDE_BIN", "claude")
 CODEX = os.environ.get("CODEX_BIN", "codex")
 GROK = os.environ.get("GROK_BIN", "grok")
 DEVIN = os.environ.get("DEVIN_BIN", "devin")
+AGY = os.environ.get("AGY_BIN", "agy")
 HETZNER_BASE_URL = "https://inference.hetzner.com/api/v1"
 CLAUDE_BUDGET_USD = 8.00
 
@@ -54,6 +55,9 @@ CONFIGS.update({"terra61-low": ("codex", "gpt-6.1-terra", "low"), "terra61-high"
 CONFIGS.update({f"grok47-{e}": ("grok", "grok-4.7", e) for e in ("low", "medium", "high")})
 CONFIGS["grok47fast-low"] = ("grok", "grok-4.7-build-fast", "low")
 CONFIGS["devin16slow-default"] = ("devin", "swe-1-6-slow", "default")  # free tier: the only accessible Devin-native model
+# 2026-11-25, operator request: Google Gemini 4 Hydrogen through the Antigravity CLI (agy), signed-in subscription: tokens reported, no dollars.
+CONFIGS.update({f"hydrogen-{e}": ("agy", f"gemini-4-hydrogen-{e}", e) for e in ("low", "medium", "high", "xhigh")})
+CONFIGS["gemini38flash-low"] = ("agy", "gemini-3.8-flash-low", "low")
 CONFIGS["hetzner-qwen36"] = ("hetzner", "Qwen/Qwen3.6-35B-A3B-FP8", "default")
 CONFIGS["hetzner-qwen38"] = ("hetzner", "Qwen/Qwen3.8-27B", "default")
 # 2026-11-22, operator request: local CPU model on llama.cpp b12600 (not comparable on latency); runner results/inkling/runner.py, rows via bench/inkling_export.py
@@ -108,10 +112,12 @@ def write_rows(path, lines):
 def cli_version(cli):
     if cli == "hetzner": return "chat/completions-v1"
     if cli not in _versions:
-        exe = {"claude": CLAUDE, "codex": CODEX, "grok": GROK, "devin": DEVIN}[cli]
+        exe = {"claude": CLAUDE, "codex": CODEX, "grok": GROK, "devin": DEVIN, "agy": AGY}[cli]
         if cli == "codex":
             with isolated_codex_env() as env:
                 version = subprocess.run([exe, "--version"], env=env, capture_output=True, text=True).stdout
+        elif cli == "agy":
+            version = subprocess.run([exe, "--version"], capture_output=True, text=True).stdout
         elif cli == "devin":
             version = subprocess.run([exe, "version"], capture_output=True, text=True).stdout
         else:
@@ -128,7 +134,7 @@ def prompt_for(pid):
 def key_for(config, pid, rep, prompt):
     cli, mid, eff = CONFIGS[config]
     flags = (["--base-url", HETZNER_BASE_URL, "--model", mid, "--stream", "--include-usage"] if cli == "hetzner" else
-             CLAUDE_FLAGS if cli == "claude" else GROK_FLAGS if cli == "grok" else codex_flags(config, portable=True))
+             CLAUDE_FLAGS if cli == "claude" else ["--output-format", "json"] if cli == "agy" else GROK_FLAGS if cli == "grok" else codex_flags(config, portable=True))
     identity = {"config": config, "model": mid, "effort": eff, "cli": cli, "cli_version": cli_version(cli),
                 "flags": flags, "prompt": prompt, "problem": pid, "repeat": rep}
     if cli == "codex": identity["codex_home"] = "isolated"
@@ -209,6 +215,26 @@ def call_claude(mid, eff, prompt, cwd):
                 cost_usd=d.get("total_cost_usd"), cost_kind="measured (CLI total_cost_usd)", turns=d.get("num_turns")), r.stdout
 
 
+def call_agy(mid, eff, prompt, cwd):
+    """Antigravity CLI, headless, JSON output, run in an empty directory. Reports tokens, not dollars."""
+    cmd = [AGY, "-p", prompt, "--model", mid, "--effort", eff, "--output-format", "json"]
+    t = time.monotonic(); r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, cwd=cwd, timeout=1200)
+    wall = time.monotonic() - t
+    try:
+        d = json.loads(r.stdout)
+        if not isinstance(d, dict): raise ValueError("expected a JSON object")
+    except (ValueError, TypeError):
+        return dict(wall_s=wall, text="", is_error=True, error=(r.stderr or r.stdout)[-300:], error_type="infrastructure", cost_usd=None), r.stdout
+    u = d.get("usage") or {}
+    bad = r.returncode != 0 or d.get("status") != "SUCCESS"
+    return dict(wall_s=wall, text=d.get("response", ""), is_error=bad,
+                error=(r.stderr or str(d.get("response", "")))[-300:] if bad else None, error_type="infrastructure" if bad else "model",
+                api_duration_ms=int((d.get("duration_seconds") or 0) * 1000),
+                in_tok=u.get("input_tokens", 0), cached_tok=u.get("cache_read_tokens", 0), cache_write_tok=0,
+                out_tok=u.get("output_tokens", 0), reasoning_tok=u.get("thinking_tokens", 0),
+                cost_usd=None, cost_kind="subscription (tokens reported, no dollars)", turns=d.get("num_turns")), r.stdout
+
+
 def parse_codex(stdout):
     i = c = o = rs = 0; tools = 0; err = None; text = ""
     for line in stdout.splitlines():
@@ -247,6 +273,7 @@ def one(config, pid, rep, phase, lanes):
     t0 = time.monotonic()
     try:
         if cli == "claude": res, raw = call_claude(mid, eff, prompt, cwd)
+        elif cli == "agy": res, raw = call_agy(mid, eff, prompt, cwd)
         elif cli in ("grok", "devin", "hetzner"):
             raise SystemExit("the grok/devin/hetzner callers were removed; use the runner at commit 7e946a6")
         else: res, raw = call_codex(mid, eff, prompt, cwd, codex_flags(config))
