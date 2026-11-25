@@ -8,7 +8,7 @@ from collections import defaultdict
 
 from analysis.stats import hier_boot, paired_boot, p90
 from analysis.labels import DISP, plabel, pshort
-from analysis.configs import INKLING_LADDER, DEVIN_CONFIGS, HETZNER_CONFIGS, INKLING_CONFIGS, GROK_CONFIGS, GROK_PARTIAL, ONE_REPEAT, FIRST_GROK_FILE, SOURCES
+from analysis.configs import INKLING_LADDER, DEVIN_CONFIGS, DEVIN_FLASH, HETZNER_CONFIGS, INKLING_CONFIGS, GROK_CONFIGS, GROK_PARTIAL, ONE_REPEAT, FIRST_GROK_FILE, SOURCES
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RES = os.path.join(ROOT, "results")
@@ -444,7 +444,7 @@ def build():
         rr = [r for r in hr if r["config"] == c]; blk = config_block(rr)
         blk["by_problem"] = {p: sum(r["passed"] for r in rr if r["problem"] == p) for p in sorted({r["problem"] for r in rr})}
         s["hard"][c] = blk
-    s["failures"] = failures([r for r in rows if r["config"] not in GROK_CONFIGS and r["config"] not in DEVIN_CONFIGS and
+    s["failures"] = failures([r for r in rows if r["config"] not in GROK_CONFIGS and r["config"] not in DEVIN_CONFIGS + DEVIN_FLASH and
                               (r["phase"] in ("main", "exploratory", "escalation", "hard")
                                or (r["phase"] == "fastmode" and r["config"] == "sol61-high-fast"))])  # full-ladder configs only
     cfg = s["configs"]

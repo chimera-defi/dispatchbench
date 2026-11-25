@@ -1,0 +1,23 @@
+{
+ "key": "978de6274f48f57debbd0f7af84f8781844ffbcdbbe450995ba7eb85143a8b75",
+ "ts": "2026-11-25T01:37:52+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p06_calc",
+ "repeat": 5,
+ "lanes": 1,
+ "prompt_sha": "d79d580c7384",
+ "wall_s": 34.28623341600178,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nimport sys\n\nsys.setrecursionlimit(100000)\n\n\nclass _CalcError(Exception):\n    pass\n\n\ndef calc(expr: str) -> int | str:\n    s = expr\n    n = len(s)\n    i = 0\n\n    def skip():\n        nonlocal i\n        while i < n and s[i] == \" \":\n            i += 1\n\n    def tdiv(a, b):\n        q = abs(a) // abs(b)\n        return -q if (a < 0) != (b < 0) else q\n\n    def tmod(a, b):\n        return a - b * tdiv(a, b)\n\n    def parse_expr():\n        v = parse_term()\n        while True:\n            skip()\n            if i < n and s[i] in \"+-\":\n                op = s[i]\n                i += 1\n                r = parse_term()\n                v = v + r if op == \"+\" else v - r\n            else:\n                return v\n\n    def parse_term():\n        v = parse_unary()\n        while True:\n            skip()\n            if i < n and s[i] in \"*/%\":\n                op = s[i]\n                i += 1\n                r = parse_unary()\n                if op == \"*\":\n                    v = v * r\n                elif op == \"/\":\n                    if r == 0:\n                        raise _CalcError()\n                    v = tdiv(v, r)\n                else:\n                    if r == 0:\n                        raise _CalcError()\n                    v = tmod(v, r)\n            else:\n                return v\n\n    def parse_unary():\n        nonlocal i\n        skip()\n        neg = False\n        while i < n and s[i] == \"-\":\n            neg = not neg\n            i += 1\n            skip()\n        v = parse_power()\n        return -v if neg else v\n\n    def parse_power():\n        nonlocal i\n        base = parse_primary()\n        skip()\n        if i < n and s[i] == \"^\":\n            i += 1\n            exp = parse_unary()\n            if exp < 0:\n                raise _CalcError()\n            return pow(base, exp)\n        return base\n\n    def parse_primary():\n        nonlocal i\n        skip()\n        if s[i] == \"(\":\n            i += 1\n            v = parse_expr()\n            skip()\n            i += 1  # consume ')'\n            return v\n        j = i\n        while i < n and s[i].isdigit():\n            i += 1\n        return int(s[j:i])\n\n    try:\n        return parse_expr()\n    except _CalcError:\n        return \"error\"\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

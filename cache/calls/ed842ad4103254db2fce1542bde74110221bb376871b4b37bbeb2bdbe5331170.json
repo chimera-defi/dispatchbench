@@ -1,0 +1,23 @@
+{
+ "key": "ed842ad4103254db2fce1542bde74110221bb376871b4b37bbeb2bdbe5331170",
+ "ts": "2026-11-25T01:04:13+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p11_best_average",
+ "repeat": 2,
+ "lanes": 1,
+ "prompt_sha": "2183e22bdc23",
+ "wall_s": 29.043381198018324,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nfrom math import gcd\n\ndef best_average(a: list[int], k: int) -> list[int]:\n    n = len(a)\n    # prefix sums P[i] = sum of first i elements; subarray (i, j) has\n    # sum P[j]-P[i] and length j-i. We want max slope (P[j]-P[i])/(j-i)\n    # over pairs with j-i >= k.\n    P = [0] * (n + 1)\n    for i, v in enumerate(a):\n        P[i + 1] = P[i] + v\n\n    # Upper convex hull of prefix points (x = index, y = P[index]),\n    # x strictly increasing, consecutive slopes strictly decreasing.\n    hull = []\n\n    def slope2(o, p, q):\n        # sign of slope(o->p) - slope(o->q) via cross product (exact)\n        return (p[0] - o[0]) * (q[1] - o[1]) - (p[1] - o[1]) * (q[0] - o[0])\n\n    def add_point(idx):\n        p = (idx, P[idx])\n        while len(hull) >= 2:\n            o = hull[-2]\n            m = hull[-1]\n            # pop m if slope(o->m) <= slope(m->p), i.e. m is below chord o->p\n            # cross(o,m,p) = (m.x-o.x)*(p.y-o.y) - (m.y-o.y)*(p.x-o.x)\n            # slope(o->m) <= slope(m->p)  <=>  cross(o,m,p) >= 0\n            if (m[0] - o[0]) * (p[1] - o[1]) - (m[1] - o[1]) * (p[0] - o[0]) >= 0:\n                hull.pop()\n            else:\n                break\n        hull.append(p)\n\n    best_num = 0   # best sum\n    best_den = 1   # best length\n\n    for j in range(k, n + 1):\n        add_point(j - k)\n        X = j\n        Y = P[j]\n        # find hull vertex maximizing (Y - y)/(X - x); f is unimodal\n        lo, hi = 0, len(hull) - 1\n        h = hull\n        while lo < hi:\n            mid = (lo + hi) // 2\n            m1 = h[mid]\n            m2 = h[mid + 1]\n            f1_num = Y - m1[1]\n            f1_den = X - m1[0]\n            f2_num = Y - m2[1]\n            f2_den = X - m2[0]\n            if f1_num * f2_den < f2_num * f1_den:\n                lo = mid + 1\n            else:\n                hi = mid\n        i = h[lo][0]\n        num = P[j] - P[i]\n        den = j - i\n        if num * best_den > best_num * den:\n            best_num, best_den = num, den\n\n    g = gcd(best_num, best_den)\n    return [best_num // g, best_den // g]\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

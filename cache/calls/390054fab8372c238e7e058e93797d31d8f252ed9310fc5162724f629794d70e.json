@@ -1,0 +1,23 @@
+{
+ "key": "390054fab8372c238e7e058e93797d31d8f252ed9310fc5162724f629794d70e",
+ "ts": "2026-11-25T01:25:08+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p10_avoid_count",
+ "repeat": 4,
+ "lanes": 1,
+ "prompt_sha": "ae3e79b27a12",
+ "wall_s": 18.46792883996386,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nfrom collections import deque\n\nMOD = 1_000_000_007\n\n\ndef avoid_count(n: int, alphabet: str, banned: list[str]) -> int:\n    if n == 0:\n        return 1\n\n    # Aho-Corasick trie over all banned strings\n    trie = [{}]\n    out = [False]\n    for w in set(banned):\n        v = 0\n        for ch in w:\n            if ch not in trie[v]:\n                trie[v][ch] = len(trie)\n                trie.append({})\n                out.append(False)\n            v = trie[v][ch]\n        out[v] = True\n\n    m = len(trie)\n    fail = [0] * m\n    q = deque()\n    for ch, u in trie[0].items():\n        q.append(u)\n    while q:\n        r = q.popleft()\n        out[r] = out[r] or out[fail[r]]\n        for ch, u in trie[r].items():\n            q.append(u)\n            f = fail[r]\n            while f and ch not in trie[f]:\n                f = fail[f]\n            fail[u] = trie[f].get(ch, 0)\n\n    # Full transition function go(v, ch), memoized\n    memo = {}\n    sys.setrecursionlimit = None  # not needed; recursion is shallow\n    def go(v, ch):\n        key = (v, ch)\n        if key in memo:\n            return memo[key]\n        if ch in trie[v]:\n            u = trie[v][ch]\n        elif fail[v]:\n            u = go(fail[v], ch)\n        else:\n            u = 0\n        memo[key] = u\n        return u\n\n    # Valid states: nodes whose suffix contains no banned string\n    states = [v for v in range(m) if not out[v]]\n    idx = {v: i for i, v in enumerate(states)}\n    k = len(states)\n\n    # Adjacency matrix M[i][j] = number of alphabet chars taking state i to j\n    M = [[0] * k for _ in range(k)]\n    for v in states:\n        i = idx[v]\n        for ch in alphabet:\n            u = go(v, ch)\n            if not out[u]:\n                M[i][idx[u]] = (M[i][idx[u]] + 1) % MOD\n\n    # Start vector: root state\n    vec = [0] * k\n    vec[idx[0]] = 1\n\n    # vec <- vec * M^n via binary exponentiation\n    e = n\n    while e:\n        if e & 1:\n            vec = [sum(vec[i] * M[i][j] for i in range(k)) % MOD\n                   for j in range(k)]\n        M = [[sum(M[i][t] * M[t][j] for t in range(k)) % MOD\n              for j in range(k)] for i in range(k)]\n        e >>= 1\n\n    return sum(vec) % MOD\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

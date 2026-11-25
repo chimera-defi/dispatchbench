@@ -1,0 +1,23 @@
+{
+ "key": "43d0b45d76e44f71e57ce47d7978dc24d472b80c0501c0c4e8a869eb8f797869",
+ "ts": "2026-11-25T01:11:18+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p09_k_machine_schedule",
+ "repeat": 3,
+ "lanes": 1,
+ "prompt_sha": "cfc0b4d177d5",
+ "wall_s": 50.84866980602965,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef k_machine_schedule(jobs: list[list[int]], k: int) -> int:\n    if not jobs:\n        return 0\n    times = sorted({t for s, e, _ in jobs for t in (s, e)})\n    idx = {t: i for i, t in enumerate(times)}\n    n = len(times)\n    g = [[] for _ in range(n)]\n\n    def add(u, v, cap, cost):\n        g[u].append([v, len(g[v]), cap, cost])\n        g[v].append([u, len(g[u]) - 1, 0, -cost])\n\n    for i in range(n - 1):\n        add(i, i + 1, k, 0)\n    for s, e, p in jobs:\n        add(idx[s], idx[e], 1, -p)\n\n    total = 0\n    for _ in range(k):\n        dist = [float(\"inf\")] * n\n        prev = [None] * n\n        dist[0] = 0\n        for _ in range(n - 1):\n            updated = False\n            for u in range(n):\n                if dist[u] == float(\"inf\"):\n                    continue\n                for ei, e in enumerate(g[u]):\n                    if e[2] > 0 and dist[u] + e[3] < dist[e[0]]:\n                        dist[e[0]] = dist[u] + e[3]\n                        prev[e[0]] = (u, ei)\n                        updated = True\n            if not updated:\n                break\n        v = n - 1\n        while v != 0:\n            u, ei = prev[v]\n            e = g[u][ei]\n            e[2] -= 1\n            g[v][e[1]][2] += 1\n            v = u\n        total += dist[n - 1]\n\n    return -total\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

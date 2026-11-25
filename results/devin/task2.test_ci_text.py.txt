@@ -1,0 +1,18 @@
+"""ci_text: 'all passed' bound and bootstrap CI rendering."""
+from analysis.summarize import ci_text, pct
+
+
+def test_ci_text_all_passed():
+    out = ci_text(5, 5, (1.0, 1.0), 10)
+    assert out.startswith("≥")
+    assert "(all passed)" in out
+
+
+def test_ci_text_bootstrap_range():
+    ci = (0.4, 0.9)
+    assert ci_text(3, 5, ci, 5) == f"{pct(ci[0])}–{pct(ci[1])}"
+
+
+def test_ci_text_empty():
+    ci = (0.0, 1.0)
+    assert ci_text(0, 0, ci, 0) == f"{pct(ci[0])}–{pct(ci[1])}"

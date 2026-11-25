@@ -1,0 +1,23 @@
+{
+ "key": "db6c0b326a1822c3891b817635d7c704ed490cf52aa1926cc2d2bd82616c8d56",
+ "ts": "2026-11-25T00:47:11+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p03_ledger",
+ "repeat": 1,
+ "lanes": 1,
+ "prompt_sha": "4f7943020618",
+ "wall_s": 18.21330627601128,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef ledger(ops: list[str]) -> tuple[dict[str, int], list[int]]:\n    balances: dict[str, int] = {}\n    frozen: dict[str, bool] = {}\n    rejected: list[int] = []\n    undo_stack: list[tuple] = []\n\n    def valid_amount(s: str) -> bool:\n        return len(s) > 0 and all('0' <= c <= '9' for c in s)\n\n    for i, op in enumerate(ops):\n        parts = op.split()\n        verb = parts[0] if parts else \"\"\n        ok = True\n        undo_rec = None\n\n        if verb == \"undo\":\n            if len(parts) != 1 or not undo_stack:\n                ok = False\n            else:\n                rec = undo_stack.pop()\n                kind = rec[0]\n                if kind == \"open\":\n                    del balances[rec[1]]\n                    del frozen[rec[1]]\n                elif kind == \"deposit\":\n                    balances[rec[1]] -= rec[2]\n                elif kind == \"withdraw\":\n                    balances[rec[1]] += rec[2]\n                elif kind == \"transfer\":\n                    balances[rec[1]] += rec[2]\n                    balances[rec[3]] -= rec[2]\n                elif kind == \"freeze\":\n                    frozen[rec[1]] = rec[2]\n                elif kind == \"unfreeze\":\n                    frozen[rec[1]] = rec[2]\n                undo_rec = \"no_push\"\n\n        elif verb == \"open\":\n            if len(parts) != 3 or not valid_amount(parts[2]):\n                ok = False\n            else:\n                a, n = parts[1], int(parts[2])\n                if a in balances:\n                    ok = False\n                else:\n                    balances[a] = n\n                    frozen[a] = False\n                    undo_rec = (\"open\", a)\n\n        elif verb == \"deposit\":\n            if len(parts) != 3 or not valid_amount(parts[2]):\n                ok = False\n            else:\n                a, n = parts[1], int(parts[2])\n                if n <= 0 or a not in balances:\n                    ok = False\n                else:\n                    balances[a] += n\n                    undo_rec = (\"deposit\", a, n)\n\n        elif verb == \"withdraw\":\n            if len(parts) != 3 or not valid_amount(parts[2]):\n                ok = False\n            else:\n                a, n = parts[1], int(parts[2])\n                if n <= 0 or a not in balances or frozen[a] or balances[a] < n:\n                    ok = False\n                else:\n                    balances[a] -= n\n                    undo_rec = (\"withdraw\", a, n)\n\n        elif verb == \"transfer\":\n            if len(parts) != 4 or not valid_amount(parts[3]):\n                ok = False\n            else:\n                a, b, n = parts[1], parts[2], int(parts[3])\n                if (n <= 0 or a == b or a not in balances or b not in balances\n                        or frozen[a] or balances[a] < n):\n                    ok = False\n                else:\n                    balances[a] -= n\n                    balances[b] += n\n                    undo_rec = (\"transfer\", a, n, b)\n\n        elif verb == \"freeze\":\n            if len(parts) != 2:\n                ok = False\n            else:\n                a = parts[1]\n                if a not in balances or frozen[a]:\n                    ok = False\n                else:\n                    frozen[a] = True\n                    undo_rec = (\"freeze\", a, False)\n\n        elif verb == \"unfreeze\":\n            if len(parts) != 2:\n                ok = False\n            else:\n                a = parts[1]\n                if a not in balances or not frozen[a]:\n                    ok = False\n                else:\n                    frozen[a] = False\n                    undo_rec = (\"unfreeze\", a, True)\n\n        else:\n            ok = False\n\n        if not ok:\n            rejected.append(i)\n        elif undo_rec != \"no_push\" and undo_rec is not None:\n            undo_stack.append(undo_rec)\n\n    return balances, rejected\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

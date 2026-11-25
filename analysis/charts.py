@@ -467,7 +467,7 @@ def all_configs(s):
 def ladder(ds, s, set_="main ladder"):
     """[(config, dataset row, hollow)] for one set: the 12-problem x 5-repeat configs. Hollow = fast mode."""
     order = [c for c, _, _ in all_configs(s)]  # page order, until the registry owns it
-    rows = [(r["config"], r, "-fast" in r["config"]) for r in ds["rows"] if r["source"] == "main" and r["set"] == set_]
+    rows = [(r["config"], r, "-fast" in r["config"]) for r in ds["rows"] if r["source"] == "main" and r["set"] == set_ and r["config"] not in configs.FREE_TIER_CONFIGS]
     return sorted(rows, key=lambda x: (configs.low_context(x[0]), order.index(x[0])))
 
 

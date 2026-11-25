@@ -1,0 +1,23 @@
+{
+ "key": "ae3cdc75c0c96f40fab366bdabc059bc7f7614ffa8599b6b3cd1ee91944082df",
+ "ts": "2026-11-25T01:20:38+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p05_pass_route",
+ "repeat": 4,
+ "lanes": 1,
+ "prompt_sha": "a9070ce4e2ec",
+ "wall_s": 20.917656633013394,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\nimport heapq\n\n\ndef pass_route(n: int, edges: list[list[int]], stations: list[list[int]], prices: list[int]) -> int:\n    z_count = len(prices)\n    adj = [[] for _ in range(n)]\n    for u, v, cost, zone in edges:\n        adj[u].append((v, cost, zone))\n        adj[v].append((u, cost, zone))\n\n    station_zones = [[] for _ in range(n)]\n    for stop, z in stations:\n        if 0 <= z < z_count:\n            station_zones[stop].append(z)\n\n    mask_count = 1 << z_count\n    inf = 10**18\n    dist = [[inf] * n for _ in range(mask_count)]\n    dist[0][0] = 0\n    heap = [(0, 0, 0)]\n\n    while heap:\n        d, u, mask = heapq.heappop(heap)\n        if d != dist[mask][u]:\n            continue\n\n        if mask == 0:\n            for z in station_zones[u]:\n                nm = 1 << z\n                nd = d + prices[z]\n                if nd < dist[nm][u]:\n                    dist[nm][u] = nd\n                    heapq.heappush(heap, (nd, u, nm))\n\n        for v, cost, zone in adj[u]:\n            w = 0 if zone >= 0 and ((mask >> zone) & 1) else cost\n            nd = d + w\n            if nd < dist[mask][v]:\n                dist[mask][v] = nd\n                heapq.heappush(heap, (nd, v, mask))\n\n    best = min(dist[mask][n - 1] for mask in range(mask_count))\n    return -1 if best == inf else best\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

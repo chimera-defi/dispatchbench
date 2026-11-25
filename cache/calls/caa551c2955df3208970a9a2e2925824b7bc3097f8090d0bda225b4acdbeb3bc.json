@@ -1,0 +1,23 @@
+{
+ "key": "caa551c2955df3208970a9a2e2925824b7bc3097f8090d0bda225b4acdbeb3bc",
+ "ts": "2026-11-25T01:36:48+00:00",
+ "phase": "exploratory",
+ "config": "devinflash-medium",
+ "cli": "devin",
+ "cli_version": "3000.14.30821",
+ "model": "swe-2-flash-medium",
+ "effort": "default",
+ "problem": "p03_ledger",
+ "repeat": 5,
+ "lanes": 1,
+ "prompt_sha": "4f7943020618",
+ "wall_s": 11.566359905991703,
+ "cost_usd": null,
+ "cost_kind": "free-tier (tokens not reported)",
+ "in_tok": null,
+ "out_tok": null,
+ "text": "```python\ndef ledger(ops: list[str]) -> tuple[dict[str, int], list[int]]:\n    balances = {}\n    frozen = {}\n    undo_stack = []\n    rejected = []\n\n    def valid_amount(tok):\n        return tok.isdigit() and tok != \"\"\n\n    for i, op in enumerate(ops):\n        parts = op.split(\" \")\n        verb = parts[0] if parts else \"\"\n\n        if verb == \"undo\":\n            if len(parts) != 1 or not undo_stack:\n                rejected.append(i)\n            else:\n                rec = undo_stack.pop()\n                kind = rec[0]\n                if kind == \"open\":\n                    balances.pop(rec[1], None)\n                    frozen.pop(rec[1], None)\n                elif kind == \"dep\":\n                    balances[rec[1]] -= rec[2]\n                elif kind == \"wd\":\n                    balances[rec[1]] += rec[2]\n                elif kind == \"tr\":\n                    balances[rec[1]] += rec[3]\n                    balances[rec[2]] -= rec[3]\n                elif kind == \"freeze\":\n                    frozen[rec[1]] = False\n                elif kind == \"unfreeze\":\n                    frozen[rec[1]] = True\n            continue\n\n        if verb == \"open\":\n            if len(parts) != 3 or not valid_amount(parts[2]) or parts[1] in balances:\n                rejected.append(i)\n                continue\n            n = int(parts[2])\n            if n < 0:  # unreachable: digits only, but keep spec-safe\n                rejected.append(i)\n                continue\n            balances[parts[1]] = n\n            frozen[parts[1]] = False\n            undo_stack.append((\"open\", parts[1]))\n        elif verb == \"deposit\":\n            if len(parts) != 3 or not valid_amount(parts[2]) or parts[1] not in balances:\n                rejected.append(i)\n                continue\n            n = int(parts[2])\n            if n <= 0:\n                rejected.append(i)\n                continue\n            balances[parts[1]] += n\n            undo_stack.append((\"dep\", parts[1], n))\n        elif verb == \"withdraw\":\n            if len(parts) != 3 or not valid_amount(parts[2]) or parts[1] not in balances:\n                rejected.append(i)\n                continue\n            n = int(parts[2])\n            if n <= 0 or frozen[parts[1]] or balances[parts[1]] < n:\n                rejected.append(i)\n                continue\n            balances[parts[1]] -= n\n            undo_stack.append((\"wd\", parts[1], n))\n        elif verb == \"transfer\":\n            if len(parts) != 4 or not valid_amount(parts[3]):\n                rejected.append(i)\n                continue\n            a, b, n = parts[1], parts[2], int(parts[3])\n            if (n <= 0 or a == b or a not in balances or b not in balances\n                    or frozen[a] or balances[a] < n):\n                rejected.append(i)\n                continue\n            balances[a] -= n\n            balances[b] += n\n            undo_stack.append((\"tr\", a, b, n))\n        elif verb == \"freeze\":\n            if len(parts) != 2 or parts[1] not in balances or frozen[parts[1]]:\n                rejected.append(i)\n                continue\n            frozen[parts[1]] = True\n            undo_stack.append((\"freeze\", parts[1]))\n        elif verb == \"unfreeze\":\n            if len(parts) != 2 or parts[1] not in balances or not frozen[parts[1]]:\n                rejected.append(i)\n                continue\n            frozen[parts[1]] = False\n            undo_stack.append((\"unfreeze\", parts[1]))\n        else:\n            rejected.append(i)\n\n    return balances, rejected\n```\n",
+ "is_error": false,
+ "error": null,
+ "retry_count": 0
+}

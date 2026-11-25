@@ -1,0 +1,1 @@
+Added the `crss adopt` example to the README command block, aligned with the neighbouring `#` column, using the description verbatim from `scripts/crss.sh` line 20.
