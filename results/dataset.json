@@ -40775,9 +40775,9 @@
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_for": {
-   "value": "For anyone weighing a local model for coding tasks.",
+   "value": "For anyone weighing an open model for coding tasks, on a local box or a rented GPU.",
    "unit": "text",
-   "display": "For anyone weighing a local model for coding tasks.",
+   "display": "For anyone weighing an open model for coding tasks, on a local box or a rented GPU.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_answer": {
@@ -40805,9 +40805,9 @@
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_cpu": {
-   "value": "It is a local CPU model, so its times do not match API lanes.",
+   "value": "The box runs it on a CPU, so its times do not match API lanes.",
    "unit": "text",
-   "display": "It is a local CPU model, so its times do not match API lanes.",
+   "display": "The box runs it on a CPU, so its times do not match API lanes.",
    "source": "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"
   },
   "inkling_model": {
@@ -40913,15 +40913,15 @@
    "source": "results/2026-11-25-inkling-colab-l4-function.jsonl (Colab L4) + results/2026-11-22-inkling-function.jsonl (CPU primary)"
   },
   "inkling_colab": {
-   "value": "Colab L4 GPU, same file: 7.8× faster than the box (1.15 h against 9.01 h for the 15 tasks). The GPU costs about $0.23 an hour against the box's $0.0767, 3× more an hour, so it is cheaper per pass: $0.030 against $0.099 estimated.",
+   "value": "Colab L4 GPU, same file: 7.8× faster than the box (1.15 h against 9.01 h for the 15 tasks). The GPU costs about $0.23 an hour against the box's $0.0767, 3× more an hour but 7.8× faster, so each task costs less: $0.018 against $0.046 estimated, $0.030 against $0.099 per pass. The unit price is a third-party-reported list price, not verified on Google's page, and the units come bundled in a Google AI plan.",
    "unit": "text",
-   "display": "Colab L4 GPU, same file: 7.8× faster than the box (1.15 h against 9.01 h for the 15 tasks). The GPU costs about $0.23 an hour against the box's $0.0767, 3× more an hour, so it is cheaper per pass: $0.030 against $0.099 estimated.",
+   "display": "Colab L4 GPU, same file: 7.8× faster than the box (1.15 h against 9.01 h for the 15 tasks). The GPU costs about $0.23 an hour against the box's $0.0767, 3× more an hour but 7.8× faster, so each task costs less: $0.018 against $0.046 estimated, $0.030 against $0.099 per pass. The unit price is a third-party-reported list price, not verified on Google's page, and the units come bundled in a Google AI plan.",
    "source": "results/2026-11-25-inkling-colab-l4-function.jsonl (Colab L4) + results/2026-11-22-inkling-function.jsonl (CPU primary)"
   },
   "inkling_colab_quality": {
-   "value": "It passed 9/15 against the box's 7/15. That is the same model, quant and settings at temperature 1.0 with one repeat each, so the gap is noise, not a GPU quality gain. Speed and cost per hour are the solid comparisons.",
+   "value": "It passed 9/15 against the box's 7/15. That is the same model, quant and settings at temperature 1.0 with one repeat each, so the gap is noise, not a GPU quality gain. Speed is the solid comparison; the cost per hour rests on the unverified unit price.",
    "unit": "text",
-   "display": "It passed 9/15 against the box's 7/15. That is the same model, quant and settings at temperature 1.0 with one repeat each, so the gap is noise, not a GPU quality gain. Speed and cost per hour are the solid comparisons.",
+   "display": "It passed 9/15 against the box's 7/15. That is the same model, quant and settings at temperature 1.0 with one repeat each, so the gap is noise, not a GPU quality gain. Speed is the solid comparison; the cost per hour rests on the unverified unit price.",
    "source": "results/2026-11-25-inkling-colab-l4-function.jsonl (Colab L4) + results/2026-11-22-inkling-function.jsonl (CPU primary)"
   },
   "inkling_colab_price": {

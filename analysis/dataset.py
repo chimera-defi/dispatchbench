@@ -1969,13 +1969,13 @@ def _inkling(ds, s):
     stage = lambda x: f"{x['effort'].capitalize()} effort at {n(x['max_tokens'])} tokens passed {x['passes']}/{x['n']}."
     need(len(st) == 3, "Inkling: three retry stages")
     F["inkling_stage_a"], F["inkling_stage_b"], F["inkling_stage_c"] = (stage(x) for x in st)
-    F["inkling_for"] = "For anyone weighing a local model for coding tasks."
+    F["inkling_for"] = "For anyone weighing an open model for coding tasks, on a local box or a rented GPU."
     F["inkling_answer"] = f"{F['inkling_name']} passed {F['inkling_primary']} frozen and {F['inkling_ladder']} with retries."
     F["inkling_b1"] = f"Primary, frozen before the full run: {F['inkling_primary']}, in {F['inkling_primary_wall']} of wall time."
     F["inkling_b2"] = f"Retry ladder, secondary: {F['inkling_ladder']} after re-running the tasks the cap cut off."
     mins = lambda sec: f"{sec / 60:.0f} min"
     F["inkling_b3"] = f"Median time per task: {mins(p['median_s'])} primary, {mins(lad['median_s'])} ladder."
-    F["inkling_cpu"] = "It is a local CPU model, so its times do not match API lanes."
+    F["inkling_cpu"] = "The box runs it on a CPU, so its times do not match API lanes."
     F["inkling_model"] = f"Model: {p['model']}, llama.cpp {p['cli_version']}, run on p01–p{k['n']} on this host's CPU, one call at a time. It has no list price; cost is estimated from box-hours."
     F["inkling_settings"] = f"Primary settings: default effort, {F['inkling_cap']}-token cap."
     F["inkling_retry_time"] = f"The retry added {F['inkling_retry_wall']} of wall time, {F['inkling_total_wall']} in all."
@@ -1997,7 +1997,7 @@ def _inkling(ds, s):
     lanes += [(f"{F['inkling_name']} primary (frozen)", p["passes"], k["n"], p["median_s"], p["wall_s"]), (f"{F['inkling_name']} retry ladder (secondary)", lad["passes"], k["n"], lad["median_s"], lad["wall_s"])]
     col = k.get("colab")
     if col:  # Colab L4: the same GGUF on a GPU; its own lane, never part of the retry ladder
-        cb = _inkling_blocks()[configs.COLAB_CONFIG]; pb = _inkling_blocks()[configs.INKLING_PRIMARY]; N = k["n"]
+        IB = _inkling_blocks(); cb, pb = IB[configs.COLAB_CONFIG], IB[configs.INKLING_PRIMARY]; N = k["n"]
         need(col["n"] == N and col["model"] == p["model"] and col["max_tokens"] == p["max_tokens"] and col["effort"] == p["effort"], "Inkling Colab: same model, effort, cap and tasks as the CPU primary")
         lanes.append((f"{F['inkling_name']}, Colab L4 GPU", col["passes"], N, col["median_s"], col["wall_s"]))
         F["inkling_speedup"] = f"{p['wall_s'] / col['wall_s']:.1f}×"
@@ -2005,10 +2005,11 @@ def _inkling(ds, s):
         F["inkling_colab_pp"] = usd(cb["usd_per_pass"])
         p_tps = statistics.median(x["gen_tok_per_s"] for x in p["tasks"].values())
         F["inkling_colab"] = (f"Colab L4 GPU, same file: {F['inkling_speedup']} faster than the box ({hours(col['wall_s'])} against {hours(p['wall_s'])} for the 15 tasks). "
-                              f"The GPU costs about {F['inkling_colab_hr']} an hour against the box's {F['inkling_box_hr']}, {configs.COLAB_USD_PER_HOUR / configs.BOX_USD_PER_HOUR:.0f}× more an hour, so it is cheaper per pass: "
-                              f"{F['inkling_colab_pp']} against {F['inkling_pp_primary']} estimated.")
+                              f"The GPU costs about {F['inkling_colab_hr']} an hour against the box's {F['inkling_box_hr']}, {configs.COLAB_USD_PER_HOUR / configs.BOX_USD_PER_HOUR:.0f}× more an hour but {F['inkling_speedup']} faster, so each task costs less: "
+                              f"{usd(cb['usd_per_call'])} against {usd(pb['usd_per_call'])} estimated, {F['inkling_colab_pp']} against {F['inkling_pp_primary']} per pass. "
+                              "The unit price is a third-party-reported list price, not verified on Google's page, and the units come bundled in a Google AI plan.")
         F["inkling_colab_quality"] = (f"It passed {col['passes']}/{N} against the box's {p['passes']}/{N}. That is the same model, quant and settings at temperature 1.0 with one repeat each, "
-                                      "so the gap is noise, not a GPU quality gain. Speed and cost per hour are the solid comparisons.")
+                                      "so the gap is noise, not a GPU quality gain. Speed is the solid comparison; the cost per hour rests on the unverified unit price.")
         F["inkling_colab_price"] = (f"Colab cost is estimated from compute units: {hours(col['wall_s'])} × {configs.COLAB_UNITS_PER_HOUR} units an hour × ${configs.COLAB_USD_PER_UNIT:.4f} a unit = ${cb['usd_total']:.2f}. "
                                     f"The ${configs.COLAB_USD_PER_UNIT * 100:.2f} per 100 units list price is third-party reported and not verified on Google's page; the units here came bundled in a Google AI plan, so the real marginal cost was zero until they run out. "
                                     f"The balance went from {configs.COLAB_UNITS_BEFORE:.2f} to {configs.COLAB_UNITS_AFTER:.2f} units ({configs.COLAB_UNITS_BEFORE - configs.COLAB_UNITS_AFTER:.2f}) over setup, debugging and the run.")

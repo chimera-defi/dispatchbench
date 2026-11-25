@@ -362,7 +362,7 @@ Verdict: usable but slow, below the Claude and Codex sol61 middle tiers. Qwen3.8
 
 ## Inkling 2 Mini on a local CPU and a Colab GPU (exploratory)
 
-For anyone weighing a local model for coding tasks.
+For anyone weighing an open model for coding tasks, on a local box or a rented GPU.
 
 Inkling 2 Mini passed 7/15 frozen and 13/15 with retries.
 
@@ -370,7 +370,7 @@ Inkling 2 Mini passed 7/15 frozen and 13/15 with retries.
 - Retry ladder, secondary: 13/15 after re-running the tasks the cap cut off.
 - Median time per task: 48 min primary, 77 min ladder.
 
-It is a local CPU model, so its times do not match API lanes.
+The box runs it on a CPU, so its times do not match API lanes.
 
 | lane | passed (function tests) | median min per task | mean min per task | total wall |
 |---|---|---|---|---|
@@ -382,7 +382,7 @@ It is a local CPU model, so its times do not match API lanes.
 
 Cost is estimated from box-hours on Hetzner auction box eth2-3, EUR 52.17 a month. That box costs EUR 0.0701 an hour, or $0.0767 an hour. The exchange rate is 1.0939 dollars per euro, from the ECB on 2026-11-23. Estimated per pass: $0.099 primary, $0.12 ladder. The Hetzner API lanes are free, so they have no price.
 
-Colab L4 GPU, same file: 7.8× faster than the box (1.15 h against 9.01 h for the 15 tasks). The GPU costs about $0.23 an hour against the box's $0.0767, 3× more an hour, so it is cheaper per pass: $0.030 against $0.099 estimated. It passed 9/15 against the box's 7/15. That is the same model, quant and settings at temperature 1.0 with one repeat each, so the gap is noise, not a GPU quality gain. Speed and cost per hour are the solid comparisons.
+Colab L4 GPU, same file: 7.8× faster than the box (1.15 h against 9.01 h for the 15 tasks). The GPU costs about $0.23 an hour against the box's $0.0767, 3× more an hour but 7.8× faster, so each task costs less: $0.018 against $0.046 estimated, $0.030 against $0.099 per pass. The unit price is a third-party-reported list price, not verified on Google's page, and the units come bundled in a Google AI plan. It passed 9/15 against the box's 7/15. That is the same model, quant and settings at temperature 1.0 with one repeat each, so the gap is noise, not a GPU quality gain. Speed is the solid comparison; the cost per hour rests on the unverified unit price.
 
 | task | primary (12,288 cap) | primary minutes | retry stages | ladder | Colab L4 | Colab minutes |
 |---|---|---|---|---|---|---|
