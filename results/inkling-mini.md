@@ -1,10 +1,11 @@
 # Inkling 2 Mini on DispatchBench p01-p15 (2026-11-22)
 
-Free local CPU model (i7-8700 6C/12T, ~63 GiB RAM, no GPU), llama.cpp b12600, IQ4_NL GGUF. **Not comparable on latency** with the API lanes; no price (cost 0).
+Local CPU model (i7-8700 6C/12T, ~63 GiB RAM, no GPU), llama.cpp b12600, IQ4_NL GGUF. **Not comparable on latency** with the API lanes; no list price.
+**Cost is estimated from box-hours**, not metered: wall time at the rate of Hetzner auction box eth2-3 (EUR 52.17 a month over 744 h = EUR 0.0701 an hour; $0.0767 an hour at 1.0939 dollars per euro, ECB 2026-11-23).
 Settings (frozen after p01 tuning, sources in `inkling/SETTINGS_NOTES.md`; tuning in `inkling/TUNING_LOG.md`): `llama-server --jinja -c 32768 -t 6 -tb 6 -np 1`, temp 1.0, top_k 50, top_p 1.0, min_p 0, default thinking effort (high, 0.9). One repeat, tasks run sequentially, frozen grader. Each task is capped at 12288 generated tokens, which the API lanes are not; every `no_code (length)` row below means the model was still thinking at the cap and wrote no final code, so those are token-budget failures, not wrong answers. One server process served all tasks, so the memory column is a running high-water mark. The load column is the 1-minute load average at task start; other host processes pushed it to 12-25 during p15 (2.2 tok/s vs 4-5 elsewhere), so p15's time is inflated.
 
 ## Primary result (max_tokens 12288): **7/15**
-Total generation wall time 9h00m (9.01 h); median 48.0 min per task.
+Total generation wall time 9h00m (9.01 h); median 48.0 min per task. Estimated cost $0.69, $0.099 per pass (9.01 h x $0.0767 an hour).
 
 | problem | rung | outcome | wall | out tok | gen tok/s | server peak RSS so far GiB (VmHWM, cumulative, includes mapped weights) | load avg |
 |---|---|---|---|---|---|---|---|
@@ -27,7 +28,7 @@ Total generation wall time 9h00m (9.01 h); median 48.0 min per task.
 ## Secondary: retry ladder on the tasks that were capped at 12288 (labelled; the primary above stays the headline)
 The operator asked for a retry of the capped tasks. Stage 1: thinking effort medium (0.7, `chat_template_kwargs.reasoning_effort`) at max_tokens 16384 on every capped task. Stage 2: effort low (0.2) at 16384 on the tasks still capped. Stage 3: default effort at 24576 on the task still capped. A task moves to the next stage only if it ended `no_code` at the cap; a wrong or crashing answer ends the ladder for that task. Same server flags, sampling and grader as the primary. Host load at task start was 5.7-14.8 during these runs (3.0-4.5 tok/s, slower than the primary), so times are inflated by other host processes.
 
-**Ladder result: 13/15** (primary passes + best ladder outcome per task). This mixes settings per task, so it is a secondary figure, not a single-configuration score. Retry wall time 11h04m (11.07 h); primary + retries 20h04m (20.08 h).
+**Ladder result: 13/15** (primary passes + best ladder outcome per task). This mixes settings per task, so it is a secondary figure, not a single-configuration score. Retry wall time 11h04m (11.07 h); primary + retries 20h04m (20.08 h). Estimated cost $1.54, $0.118 per pass (20.08 h x $0.0767 an hour).
 
 ### Stage `inkling2mini-medium16k` (effort medium, max_tokens 16384): 5/8 pass
 
