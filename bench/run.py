@@ -20,6 +20,7 @@ CODEX = os.environ.get("CODEX_BIN", "codex")
 GROK = os.environ.get("GROK_BIN", "grok")
 DEVIN = os.environ.get("DEVIN_BIN", "devin")
 AGY = os.environ.get("AGY_BIN", "agy")
+AGY_KEY_VERSION = "1.5.16"
 HETZNER_BASE_URL = "https://inference.hetzner.com/api/v1"
 CLAUDE_BUDGET_USD = 8.00
 
@@ -55,9 +56,9 @@ CONFIGS.update({"terra61-low": ("codex", "gpt-6.1-terra", "low"), "terra61-high"
 CONFIGS.update({f"grok47-{e}": ("grok", "grok-4.7", e) for e in ("low", "medium", "high")})
 CONFIGS["grok47fast-low"] = ("grok", "grok-4.7-build-fast", "low")
 # 2026-11-25, operator request: Google Gemini 4 Hydrogen through the Antigravity CLI (agy), signed-in subscription: tokens reported, no dollars.
-CONFIGS.update({f"hydrogen-{e}": ("agy", f"gemini-4-hydrogen-{e}", e) for e in ("low", "medium", "high", "xhigh")})
+CONFIGS.update({f"hydrogen-{e}": ("agy", f"gemini-4-hydrogen-{e}", e) for e in ("low", "medium", "high")})
 CONFIGS["gemini38flash-low"] = ("agy", "gemini-3.8-flash-low", "low")
-# Same CLI, other vendors' models (separate quota pools), no effort flag: the model id carries the setting.
+# Same CLI, other vendors' models (they hit the same 429 once the account quota ran out), no effort flag: the model id carries the setting.
 CONFIGS.update({"agy-sonnet46-default": ("agy", "claude-sonnet-4-6", "default"), "agy-opus46-default": ("agy", "claude-opus-4-6-thinking", "default"),
                 "agy-gptoss120b-medium": ("agy", "gpt-oss-120b-medium", "medium")})
 CONFIGS["devin16slow-default"] = ("devin", "swe-1-6-slow", "default")  # free tier model (2026-10-28; swe-2-flash-medium also runs on Free, 2026-11-25)
@@ -68,6 +69,7 @@ CONFIGS["hetzner-qwen38"] = ("hetzner", "Qwen/Qwen3.8-27B", "default")
 CONFIGS["inkling2mini-default"] = ("llama.cpp", "Inkling-2-Mini-IQ4_NL.gguf", "default")  # primary run, max_tokens 12288
 CONFIGS.update({"inkling2mini-medium16k": ("llama.cpp", "Inkling-2-Mini-IQ4_NL.gguf", "medium"), "inkling2mini-low16k": ("llama.cpp", "Inkling-2-Mini-IQ4_NL.gguf", "low"),
                 "inkling2mini-default24k": ("llama.cpp", "Inkling-2-Mini-IQ4_NL.gguf", "default")})  # retry stages of the tasks capped at 12288 (secondary, labelled)
+CONFIGS["inkling2mini-colab-l4"] = ("llama.cpp-cuda", "Inkling-2-Mini-IQ4_NL.gguf", "default")  # 2026-11-25: same model on a Colab L4 (results/inkling/runner_colab_l4.py), own lane; rows via bench/inkling_export.py --colab
 
 
 def codex_flags(config, portable=False):
@@ -139,7 +141,8 @@ def key_for(config, pid, rep, prompt):
     cli, mid, eff = CONFIGS[config]
     flags = (["--base-url", HETZNER_BASE_URL, "--model", mid, "--stream", "--include-usage"] if cli == "hetzner" else
              CLAUDE_FLAGS if cli == "claude" else ["--output-format", "json"] if cli == "agy" else GROK_FLAGS if cli == "grok" else codex_flags(config, portable=True))
-    identity = {"config": config, "model": mid, "effort": eff, "cli": cli, "cli_version": cli_version(cli),
+    # agy self-updates (1.5.16 -> 1.5.17 mid-run); its cache key pins the version the cells were first made with, the row still stores the real one
+    identity = {"config": config, "model": mid, "effort": eff, "cli": cli, "cli_version": AGY_KEY_VERSION if cli == "agy" else cli_version(cli),
                 "flags": flags, "prompt": prompt, "problem": pid, "repeat": rep}
     if cli == "codex": identity["codex_home"] = "isolated"
     blob = json.dumps(identity, sort_keys=True)

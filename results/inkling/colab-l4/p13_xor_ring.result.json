@@ -1,0 +1,31 @@
+{
+ "pid": "p13_xor_ring",
+ "effort": "default",
+ "max_tokens": 12288,
+ "wall_s": 386.3145416570005,
+ "loadavg_start": [
+  "1.21",
+  "1.18",
+  "1.18"
+ ],
+ "finish_reason": "length",
+ "prompt_tok": 451,
+ "out_tok": 12288,
+ "gen_tps": 31.88317634676955,
+ "prompt_tps": 659.7475826788458,
+ "peak_rss_kib": 17587732,
+ "rss_end": {
+  "VmHWM": 17587732,
+  "VmRSS": 8032376,
+  "RssAnon": 7242552,
+  "RssFile": 665384
+ },
+ "memavail_gib_end": 44.06084442138672,
+ "reasoning_chars": 33245,
+ "verdict": {
+  "outcome": "no_code",
+  "detail": "no final fenced python block; finish_reason=length"
+ },
+ "error": null,
+ "code_lines": 0
+}

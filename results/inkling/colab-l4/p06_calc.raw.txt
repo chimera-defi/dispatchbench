@@ -1,0 +1,575 @@
+=== REASONING ===
+We need answer with only code in single python block. Need solve. Let's reason carefully.
+
+We need implement parser/evaluator for expression with non-negative decimal integer literals, binary ops + - * / % ^, unary minus, parentheses, spaces. Input syntactically valid. Precedence: ^ right-assoc, unary minus binds looser than ^ but right operand of ^ may start with unary minus. Need define grammar precisely.
+
+Let's design recursive descent.
+
+Tokens: integer literal (sequence digits), operators + - * / % ^, parens, whitespace skipped. Input syntactically valid, so no need token error handling but okay.
+
+Grammar according to precedence from loosest to tightest:
+expr := additive
+additive := multiplicative (('+'|'-') multiplicative)*
+multiplicative := unary (('*'|'/'|'%') unary)*
+unary := '-' unary | power? Need be precise.
+
+Precedence: ^ tightest, then unary minus binds looser than ^. So expression level for unary: unary := '-' unary | power. But right operand of ^ may start with unary minus: "2^-1" is 2^(-1). This means in power rule, after '^', parse a unary? Let's think.
+
+Standard:
+expr: term ((+|-) term)*
+term: unary ((*|/|%) unary)*
+unary: '-' unary | power
+power: primary ('^' unary)? Because ^ right-assoc and right operand can be unary minus. Example 2^3^2 = 2^(3^2): parse power: primary 2, sees ^, parse right operand. If right operand is unary, parse '-'? For 2^3^2, right operand unary sees '3', then power? Hmm.
+
+Need separate power parsing. Let's formalize.
+
+Grammar:
+expr := add
+add := mul (('+'|'-') mul)*
+mul := unary (('*'|'/'|'%') unary)*
+unary := '-' unary | power
+power := primary ('^' unary)*? Wait unary minus binds looser than ^, so -2^2 = -(2^2). In grammar unary := '-' unary | power, parse '-' unary -> recursive unary parses '2^2' as power? Since unary after '-' calls unary which calls power, yes 2^2. Good. But power's right operand: 2^-1. parse power: primary 2, see ^, need parse right operand which may start with unary minus. If we do power := primary ('^' unary)? and unary := '-' unary | power, then for 2^-1: parse primary 2, see ^, parse unary -> sees '-', recurse unary -> parse power -> primary 1 -> -1. Then power returns 2^(-1). Good. But right-associativity of ^: 2^3^2. Parse power at top: primary 2, see ^, parse unary for right operand. unary -> power: primary 3, sees ^, parse unary right operand: 2. Then power returns 3^2=9. Then outer power: 2^9=512. Good. However, consider 2^3^2^4 maybe. Grammar works right associative? power -> primary 2 ^ unary(right). unary -> power(3 ^ unary(4?)). Let's see right operand for outer: unary parses power: primary 3, sees ^, parses unary right = power(2 ^ unary(4?))? Need careful with precedence of unary minus below power. For 2^3^2^4: Outer power: primary 2, '^', parse unary. unary -> power (no minus): primary 3, sees '^', parse unary: power: primary 2, sees '^', parse unary: primary 4. returns 2^4=16. Then power(2, 16)=2^16. Then power(3, 2^16). returns 3^(65536). Outer 2^(3^(2^4)) = 2^(3^16). Correct right assoc.
+
+But issue: power right operand grammar unary allows unary minus and also power. Good. But does unary minus really bind looser than ^? "-2^2^3": Should be -(2^(2^3))? Let's parse unary: '-' unary -> recursive unary -> power: primary 2, sees ^, parse unary right: power: primary 2, sees ^, parse unary right: primary 3. =2^3=8. Then power 2 ^ 8 =256. Then unary minus -> -256. Correct as -(2^2^3) = -(2^(2^3)) = -256.
+
+What about "-2^-2"? Unary outer '-' -> recursive unary -> power: primary 2, '^', parse unary = '-' unary -> power 2 -> -2. returns 2^-2 -> error. Outer -> - (that error). Whole result error. Good.
+
+But note the whole result is error if any evaluated step divides/rem by zero or raises to a negative power. Does error propagate immediately? Yes. If an evaluated step error, the whole expression is error. Need ensure we don't do pow with negative exponent. Python int ** negative gives float? Actually 2**-1 returns float 0.5, not int. Need error. Also division by zero error. For a % b with b=0, in Python `a % 0` raises ZeroDivisionError. Need raise custom or catch. Also `a / b` with b=0 ZeroDivisionError. We can raise a custom exception and catch at top, or check.
+
+Potential issue with huge integers: Python ints arbitrary precision, constraints few thousand digits, okay.
+
+Need implement exact semantics.
+
+Now, is this grammar fully consistent with syntax and precedence? Let's examine multiplicative level calls unary operands. Expression like "2*-3^2"? Precedence: unary minus inside multiplicative: mul := unary (('*'|'/'|'%') unary)*. Parse unary -> power 2. operator *. unary -> power? Wait unary sees '-' then recursive unary -> power: primary 3, sees ^, right unary: primary 2 -> 3^2=9. then recursive unary returns 9? Actually unary := '-' unary | power. For "-3^2", parse '-' then unary: that unary parses power: primary 3, operator ^, parse unary right: power 2 -> 9. Then unary (recursive) returns 9. Outer unary returns -9. So mul parses 2 * (-9) = -18. Good. semantics: unary minus binds looser than ^, so -3^2 = -(3^2) = -9. Good.
+
+Now check "2^2^-3"? parse power: 2 ^ unary(right). unary right sees '-' then unary: power 3? Wait right operand of ^ may start with unary minus. For "2^2^-3", outer power: primary 2, see ^, parse unary (right operand). unary -> power: primary 2, sees ^, parse unary right: '-' then unary: power 3 -> 3; returns -3. power(2,-3) error (negative power). Good.
+
+But maybe grammar power should be primary ('^' unary)? rather than recursive ('^' unary)*? Let's consider "2^3^2" parse earlier. We used power := primary ('^' unary)?? Actually I wrote power := primary ('^' unary)*? Let's define cleanly.
+
+Simplest:
+def parse_expression(): return parse_additive()
+def parse_additive():
+  node = parse_multiplicative()
+  loop on +/-
+def parse_multiplicative():
+  node = parse_unary()
+  loop on * / %
+def parse_unary():
+  if tok == '-': consume; val = parse_unary(); return -val
+  return parse_power()
+def parse_power():
+  base = parse_primary()
+  if tok == '^':
+    consume; exp = parse_unary()
+    val = pow_int(base, exp) # error if exp<0
+    # right associativity: should exp already include higher power ops? exp = parse_unary -> parse_power, which will consume following ^. Good.
+    return val
+  return base
+def parse_primary():
+  if tok == '(': consume; val = parse_expression(); expect ')'; return val
+  else: parse int literal; return int
+
+Need be careful: parse_unary after '-' calls parse_unary which calls parse_power, so -2^2 -> power handles exponent. Good. But wait: in multiplicative, after parse_unary returns -9, sees next op. Fine.
+
+Potential ambiguity: unary minus can repeat: "--3" is 3. parse_unary: tok '-' -> val=parse_unary() -> parse_unary -> parse_power -> 3; return -3. outer -> 3. Good. "---3" = -3 (negative). parse_unary: '-' (outer) -> parse_unary -> '-' -> parse_unary -> parse_power 3 -> -3 -> inner? Let's compute: outer '-' calls parse_unary (level), which sees '-' calls parse_unary, which sees '-' calls parse_unary, which sees primary 3 returns 3? Wait parse_unary for outermost: consume '-', val = parse_unary(). That call: consume '-', val2 = parse_unary(). That call: consume '-', val3 = parse_unary(). That call: no '-', parse_power -> 3. returns 3. val3=3; inner-middle returns -3; outer-middle returns 3? Let's track three minuses: call A consumes '-', calls B. B consumes '-', calls C. C consumes '-', calls D. D parse_power -> 3. C returns -3. B returns -(-3)=3. A returns -3. Result -3. Correct: ---3 = -(3)?? Wait three unary minuses applied to 3: -(-(-3)) = -3? Actually -(-(-3)): innermost -3, next -(-3)=3, next -3. Yes -3. Good.
+
+"--3" two minuses: A consumes '-', calls B. B consumes '-', calls C -> 3. B returns -3. A returns 3. Good.
+
+Now "2^-1" parse_power: primary 2, tok '^', consume, exp=parse_unary(): tok '-' consume, val=parse_unary(): tok not '-', parse_power -> 1. returns -1. exp=-1. Pow: b<0 error. Good.
+
+Semantics for ^ with b>=0: a ** b, with 0^0 = 1. Python already 0**0 = 1. Good. Negative power error. Also a ^ b where a is maybe negative and b huge; Python int handles big ints.
+
+Division semantics: a / b trunc toward zero. Python // floors. Implement int(a/b)? no for big ints. Use sign-aware: q = abs(a)//abs(b); if (a<0) ^ (b<0): q = -q. Or use int(a/b) invalid for big. Use math? implement manually. Since b may be 0, raise custom error. `%` semantics: a % b = a - b*(a/b) using truncating division. Implement with truncating div. Note if b==0 error. Use that.
+
+Now, what about huge exponents? Constraints small. Python may raise OverflowError? No for int**int with int exponent positive, returns big int; possible memory. Fine.
+
+Need return string "error" if any evaluated step errors. Custom exception e.g. class EvalError(Exception); raise. In calc, try parse/evaluate; except EvalError: return "error". Since input syntactically valid, parse errors won't occur. But maybe parsing can run out; not needed. Could also catch Exception? Better only catch EvalError; maybe also catch RecursionError? Depth at most 50, fine. Could catch Exception to return error? Semantics: invalid only zero division or negative power. Input syntactically valid. So don't accidentally catch unintended. But okay to catch EvalError only.
+
+Need implement int parsing: expression non-negative decimal integer literals; literals may have arbitrary digits. We can parse by scanning. Simpler: implement a tokenizer function or a simple scanner with pointer.
+
+Implementation detail:
+def calc(expr):
+    tokens? Could parse directly with index over string.
+
+Let's write with index i and skip spaces. Since literals may be long digits, handle via loop.
+
+def skip_ws(i): while i < len(s) and s[i] == ' '? Spaces between tokens: any number of spaces (probably only space char, maybe tab? "spaces" likely ' '; constraints only spaces. Use s.isspace()? Safer: while i < n and s[i].isspace(): i+=1. That handles tabs too; harmless.
+def peek(): skip_ws; if i>=n: return None; return s[i]
+def parse_number(i): n = len(s); start = i; while i<n and s[i].isdigit(): i+=1; return int(s[start:i]), i. Note "decimal integer literals" maybe no leading zeros issue; int handles.
+
+Need parser closures with mutable index. In Python, closures with nonlocal i. Or use a small class? Simplest: use list token? Let's do token list:
+
+def tokenize(expr):
+    tokens=[]
+    i=0; n=len(expr)
+    while i<n:
+        c=expr[i]
+        if c.isspace(): i+=1; continue
+        if c.isdigit():
+            start=i
+            while i<n and expr[i].isdigit(): i+=1
+            tokens.append(('int', int(expr[start:i])))
+            continue
+        if c in '+-*/%^()':
+            tokens.append((c,c)); i+=1; continue
+        raise EvalError('bad token') # shouldn't happen
+    return tokens
+
+Then parser using index. Since input valid, no error. Could skip tokenizer and direct parse. Token list is simple. But literals can be long; int conversion fine.
+
+Parse:
+def calc(expr):
+    tokens = tokenize(expr)
+    pos = 0 (nonlocal)
+    def peek(): nonlocal pos; return tokens[pos][0] if pos < len(tokens) else None
+    def next(): nonlocal pos; t=tokens[pos]; pos+=1; return t
+    def expect(op): if next()[0] != op: raise EvalError('expected') maybe.
+    ...
+    value = parse_expr()
+    # pos should be len(tokens)
+    return value
+
+Need closure modifications. Use lists for pos to avoid nonlocal issues: pos = [0].
+
+Let's write parse functions:
+
+def calc(expr: str) -> int | str:
+    def error(): raise _Error()
+    tokens = tokenize(expr)
+    pos = 0 maybe nonlocal in nested funcs; Python supports nonlocal inside calc. Good.
+
+But tokenize has raise _Error. Let's define _Error(Exception) at module top? User requested exactly this function, top-level function not class. We can define auxiliary classes? It says implement exactly this function. Probably okay to have helper module-level functions? "Implement exactly this function (a top-level function, not a class)". It might mean don't implement calc as class or method; helper functions/classes are fine. To be safe, keep helpers nested inside calc, and define error exception inside calc? Nested defs and nested exception class inside function allowed. But recursion with nested functions fine.
+
+Could avoid exception class by using return sentinel for errors? More cumbersome. Exception nested:
+    class _Err(Exception): pass
+    tokens = ...
+    ...
+    try:
+        val = parse_expr()
+        return val
+    except _Err:
+        return "error"
+    finally? no.
+
+Nested class definition inside function is fine (not top-level). "Implement exactly this function" maybe means only function calc as top-level. Nested exception class okay.
+
+Need ensure tokenize doesn't fail on input syntactically valid. If it does, tokenize raises _Err before try? If we define _Err inside and call tokenize before try, raising _Err outside catch would propagate. So put tokenization inside try as well. Or tokenize doesn't raise (input valid). Simpler: do everything in try.
+
+Let's design:
+
+def calc(expr: str) -> int | str:
+    class Error(Exception): pass
+    def tokenize(s):
+        toks=[]; i=0; n=len(s)
+        while i<n:
+            c=s[i]
+            if c.isspace():
+                i+=1; continue
+            if '0' <= c <= '9':
+                j=i
+                while j<n and '0' <= s[j] <= '9': j+=1
+                toks.append(('num', s[i:j]))  # keep string, convert later? Could convert int.
+                i=j; continue
+            if c in '+-*/%^()':
+                toks.append((c,c)); i+=1; continue
+            raise Error('bad token')
+        return toks
+
+    toks = tokenize(expr) # inside try
+    i=0? Use index var self? Nested funcs with nonlocal i.
+
+    def peek():
+        nonlocal i
+        while i < len(toks) and toks[i][0]==' ': i+=1  # no spaces in tokens
+        return toks[i][0] if i < len(toks) else None
+
+Since tokens removed spaces, peek simple.
+
+    def advance():
+        nonlocal i
+        t = toks[i]
+        i += 1
+        return t
+
+    def parse_expr():
+        v = parse_add()
+        if i != len(toks): raise Error('trailing')
+        return v
+
+But parse_add itself loops and doesn't check trailing; final check in calc.
+
+Multiplicative:
+    def parse_add():
+        nonlocal i
+        v = parse_mul()
+        while peek() in ('+','-'):
+            op = advance()[0]
+            rhs = parse_mul()
+            if op == '+': v = v + rhs
+            else: v = v - rhs
+        return v
+
+    def parse_mul():
+        nonlocal i
+        v = parse_unary()
+        while peek() in ('*','/','%'):
+            op = advance()[0]
+            rhs = parse_unary()
+            if op == '*': v = v*rhs
+            elif op == '/':
+                if rhs == 0: raise Error('div0')
+                v = trunc_div(v, rhs)
+            else:
+                if rhs == 0: raise Error('mod0')
+                v = v - rhs * trunc_div(v, rhs)
+        return v
+
+Need trunc_div helper:
+    def trunc_div(a,b):
+        q = abs(a)//abs(b)
+        if (a<0) != (b<0): q = -q
+        return q
+For a=0, b negative: (0<0)!=(b<0) = False != True -> q=-0 = 0. Fine.
+
+    def parse_unary():
+        nonlocal i
+        if peek() == '-':
+            advance()
+            v = parse_unary()
+            return -v
+        return parse_power()
+
+    def parse_power():
+        nonlocal i
+        base = parse_primary()
+        if peek() == '^':
+            advance()
+            exp = parse_unary()
+            if exp < 0: raise Error('neg pow')
+            # 0^0 = 1 handled by Python
+            return base ** exp
+        return base
+
+    def parse_primary():
+        nonlocal i
+        t = peek()
+        if t == '(':
+            advance()
+            v = parse_expr()
+            if peek() != ')': raise Error('expected )')
+            advance()
+            return v
+        if t == 'num':
+            tok = advance()
+            return int(tok[1])
+        raise Error('unexpected')
+
+Need parse_expr check trailing only at top. But inside parentheses, parse_expr loops add and returns; then check ). Good. However parse_expr doesn't check trailing; it just calls parse_add. Let's make parse_add handle final? Simpler: parse_expr = parse_add; top calc checks i == len(toks) after parse_add. For parentheses, after parse_add, we expect ')'. That's fine; trailing inside parentheses should be ')'. Good.
+
+Potential parsing issue with power and unary minus as above. Let's test mentally more.
+
+Expression "2^-1": parse_add -> parse_mul -> parse_unary -> parse_power: base=2, peek ^, consume, exp=parse_unary: peek '-', consume, v = parse_unary (recursive) -> peek int 1 -> parse_power: base=1, peek None? Actually after 1, expression may have more operators e.g. "2^-1+3". Let's test: "2^-1+3": parse_power consumes 2, ^, parse_unary -> '-', parse_unary: parse_power base=1, peek? next token '+', not '^', return 1. returns -1. parse_power: exp<0 raise Error -> whole result error. Is that correct? Semantics: 2^-1 is negative power so error. Yes.
+
+Expression "2^3^2": parse_power outer base=2, ^, exp=parse_unary -> parse_power: base=3, peek ^ consume, exp2=parse_unary -> parse_power base=2, peek None return 2. Power: base 3 ^ 2 =9. return 9. Outer: 2^9=512. Good. Peek after 2 at outer: after parse_unary returned 9, what about remaining tokens? None. return 512.
+
+Expression "2^3*4": parse_power outer base2, ^, exp=parse_unary: parse_power base3, peek '*', not '^', return 3. outer power returns 8. parse_mul: peek '*', advance, parse_unary=4, v=8*4=32. Correct: (2^3)*4.
+
+Expression "2*3^2": parse_unary -> parse_power: base=2, peek '*', not ^, return 2. parse_mul: peek '*', v=2* parse_unary. parse_unary: parse_power base=3, peek ^, consume, exp=parse_unary -> 2. returns 9. v=18. Good, exponent binds tighter.
+
+Expression "-2^2": parse_mul -> parse_unary: peek '-', consume, v=parse_unary -> parse_power: base=2, peek ^ consume, exp=parse_unary -> 2; returns 4. v=-4. Good.
+
+Expression "(-2)^2": parse_unary -> parse_power: base=parse_primary -> '(' parse_expr -> parse_mul -> parse_unary: '-', parse_unary -> parse_power -> 2; v=-2. close. base=-2. peek ^, consume, exp=parse_unary -> 2. returns 4. Good.
+
+Expression "-7 / 2": parse_mul -> parse_unary -> '-' -> parse_unary -> parse_power 7 -> -7. peek '/', consume, rhs=2, trunc_div(-7,2) = q=3, sign diff -> -3. Good.
+
+Expression "7 % -2": parse_unary ->7. op '%', rhs parse_unary -> parse_power: base=2? Wait token sequence: 7 % - 2. After operator '%', parse_unary sees '-', consume, parse_unary -> parse_power -> base 2? Actually tokens: num7, '%', '-', num2. parse_unary: peek '-', consume, v=parse_unary: no '-', parse_power: base=2, peek None, return 2; v=2; return -2. rhs=-2. trunc_div(7,-2): q=3, (7<0)!=(-2<0)? False != True -> q=-3. v - rhs*q = 7 - (-2)*(-3) = 7 - 6 = 1. Good.
+
+Now "5 / (3 - 3)": parse_mul -> parse_unary -> parse_power base 5; op '/', rhs=parse_unary -> parse_power -> parse_primary '(': parse_expr -> parse_add -> parse_mul -> parse_unary 3; peek '-', advance, parse_mul ->2? Actually parse_add: v=parse_mul(); parse_mul -> parse_unary 3; peek '-', advance, v=3-parse_mul (3? Wait expression (3 - 3) tokens: ( 3 - 3 ). parse_add: v=parse_mul() -> 3; peek '-' advance, rhs=parse_mul() ->3; v=0. returns 0. then expect ), advance. rhs=0. trunc_div? b=0 raise Error. whole error.
+
+Good.
+
+Expression "10^20 / 3": parse_power: base=10, ^, exp=parse_unary: parse_power: base=20, peek '/', not '^', return 20. returns 10**20. parse_mul: op '/', rhs=3, trunc_div = 33333333333333333333 (10**20 = 100000000000000000000; //3 = 33333333333333333333 with trunc? q=33,333,333,333,333,333,333? Let's check: 10^20 / 3 trunc = 33333333333333333333.33 trunc 33333333333333333333. Yes.)
+
+Now one subtlety: unary minus binds looser than power, but right operand of ^ may start with unary minus. Grammar parse_power uses parse_unary for exp. Correct.
+
+Potential issue: exponent can be negative and result error; but also the exponent itself might be an expression with unary minus and power; handled. What about a very large exponent causing memory? constraints small.
+
+Should we handle literal too long? fine.
+
+Return type int | str. Good.
+
+Potential issue with `base ** exp` when exp huge could take long/memory; constraints small enough. Fine.
+
+Now about error handling: "whole result is 'error' if any evaluated step divides or takes a remainder by zero, or raises to a negative power." Our parser may raise Error for bad syntax, but input valid. Also Python's int ** with negative exp? We check. What about `0 ** negative`? negative check catches all negative exp before pow. Good. What about division by zero inside nested parentheses: error propagates. Good.
+
+Potential problem: `parse_unary` inside parentheses for unary minus and parentheses. Fine.
+
+Now let's think if there is any ambiguity in grammar for "^" right operand: unary minus's right operand may also be a power. Good.
+
+Could there be issue with exponent being negative and error should occur before evaluating other steps? Error propagation catches. If expression is "(-2)^2"? fine no error. If expression is "1+2^-1", parse: parse_unary for left? Let's parse: parse_add -> parse_mul -> parse_unary: base=1, peek '+', return 1. back in add: op '+', rhs=parse_mul -> parse_unary -> parse_power: base=2, peek ^ consume, exp=parse_unary: '-', parse_unary -> parse_power 1 -> -1. rise Error. whole error. Correct because evaluating 2^-1 is part of steps. Good.
+
+What about "0^0" returns 1: parse_power: base=0, ^, exp=parse_unary -> maybe 0, exp=0; return 0**0 =1. Good.
+
+Now we need output only code in single ```python block. No explanation. Good.
+
+Let's consider if the problem expects Python code only. Yes.
+
+Should we use `int | str` annotation with Python 3.10+. Fine.
+
+Need only top-level calc. Nested helper functions okay. Could implement everything inside calc. Let's write final code cleanly.
+
+One concern: the nested class `Error` inside function and tokenize inside try. Simpler:
+
+def calc(expr: str) -> int | str:
+    class _Error(Exception):
+        pass
+    try:
+        tokens = []
+        i = 0
+        n = len(expr)
+        while i < n:
+            c = expr[i]
+            if c.isspace():
+                i += 1
+                continue
+            if '0' <= c <= '9':
+                start = i
+                while i < n and '0' <= expr[i] <= '9':
+                    i += 1
+                tokens.append(('num', int(expr[start:i])))
+                continue
+            if c in '+-*/%^()':
+                tokens.append((c, c))
+                i += 1
+                continue
+            raise _Error()
+        pos = 0
+        def peek():
+            nonlocal pos
+            return tokens[pos][0] if pos < len(tokens) else None
+        def advance():
+            nonlocal pos
+            tok = tokens[pos]
+            pos += 1
+            return tok
+        def trunc_div(a, b):
+            q = abs(a) // abs(b)
+            if (a < 0) != (b < 0):
+                q = -q
+            return q
+        def parse_primary():
+            nonlocal pos
+            if peek() == '(':
+                advance()
+                v = parse_additive()
+                if peek() != ')':
+                    raise _Error()
+                advance()
+                return v
+            t = peek()
+            if t == 'num':
+                return advance()[1]
+            raise _Error()
+        def parse_power():
+            nonlocal pos
+            base = parse_primary()
+            if peek() == '^':
+                advance()
+                exp = parse_unary()
+                if exp < 0:
+                    raise _Error()
+                return base ** exp
+            return base
+        def parse_unary():
+            nonlocal pos
+            if peek() == '-':
+                advance()
+                return -parse_unary()
+            return parse_power()
+        def parse_multiplicative():
+            nonlocal pos
+            v = parse_unary()
+            while peek() in ('*', '/', '%'):
+                op = advance()[0]
+                rhs = parse_unary()
+                if op == '*':
+                    v = v * rhs
+                elif op == '/':
+                    if rhs == 0:
+                        raise _Error()
+                    v = trunc_div(v, rhs)
+                else:
+                    if rhs == 0:
+                        raise _Error()
+                    v = v - rhs * trunc_div(v, rhs)
+            return v
+        def parse_additive():
+            nonlocal pos
+            v = parse_multiplicative()
+            while peek() in ('+', '-'):
+                op = advance()[0]
+                rhs = parse_multiplicative()
+                if op == '+':
+                    v = v + rhs
+                else:
+                    v = v - rhs
+            return v
+        result = parse_additive()
+        if pos != len(tokens):
+            raise _Error()
+        return result
+    except _Error:
+        return "error"
+
+Potential bug: In tokenization, converting to int eagerly could overflow? int from string fine. But for huge literals, okay.
+
+Potential bug: recursion definitions use nonlocal pos but `parse_multiplicative` etc referenced before definition? Python nested defs: parse_primary calls parse_additive which is defined later, but at call time it exists. Fine because calls happen after all defs. parse_power calls parse_unary, defined later; at call time exists. Fine.
+
+Potential issue: nested class _Error defined before try, exceptions raised inside try caught. Good.
+
+Potential issue: `nonlocal pos` in nested functions nested inside calc: yes, direct lexical parent is calc; works.
+
+Space handling: `c.isspace()` covers all whitespace; input valid. Fine.
+
+Error semantics: unary minus applying to `error`? Since errors raise, fine.
+
+Now, one nuance: the whole result is "error" if any evaluated step divides/rem by zero or raises to negative power. What about evaluating `0^0`? okay. What about `base ** exp` where exp is huge but small digits? fine.
+
+Now, maybe `%` semantics with truncating division: For negative divisor, e.g. 7 % -2 = 7 - (-2)*trunc_div(7,-2) = 7 - (-2)*(-3) = 7 - 6 = 1. Yes. -7 % -2 = -7 - (-2)*trunc_div(-7,-2). q=abs(-7)//2=3, sign (-)!=(−)? equal -> q=3. -7 - (-2)*3 = -7 +6 = -1. Truncating modulo for negative divisor: a - b*trunc(a/b). OK.
+
+Now, final answer must be only code block. No extra text. Ensure no explanation. Good.
+
+But let's think if parsing of integer literals with plus? Not allowed; non-negative. Good.
+
+Could input include "00"? int handles.
+
+Edge: expression "1" -> parse_additive: parse_multiplicative -> parse_unary -> parse_power: base1; no ^; return; no ops; return 1; pos==len; return 1.
+
+Edge: "3+2^2*4" = 3 + 4*4 = 19. Parse add: v=parse_mul: unary -> power 3? Wait expression starts `3+2^2*4`; parse_multiplicative: parse_unary -> parse_power: base3, peek '+', return3. while peek in ('*','/','%')? peek '+', no. return3. add: op '+', rhs=parse_mul: unary -> power: base2, ^, exp parse_unary ->2, returns4. peek '*', advance, rhs parse_unary->4, v=16. add: 3+16=19. Good.
+
+Edge: "-2^2^3": parse_unary -> '-', parse_unary -> parse_power: base2, peek ^, exp=parse_unary -> parse_power: base2, peek ^, exp=parse_unary -> base3; returns 2^3=8; outer: 2^8=256; return -256. Correct: -2^2^3 = -(2^(2^3)) = -256. Good.
+
+Now perhaps an important semantic: unary minus may repeat and bind looser than ^, but what about minus after ^: "2^3-4" -> (2^3)-4 =4. parse_mul: parse_unary -> parse_power returns 8; peek '-', not in mul ops; outer add: op -, rhs 4 => 4. Good.
+
+What about "2^-3"? error. Good.
+
+What about exponent negative but not evaluated due to parse? It's evaluated in parse_power. Good.
+
+What about `0 ^ -1`? negative error. Good.
+
+Potential issue: `base ** exp` with base huge and exp 0 -> returns 1 (including 0**0). Good.
+
+Now final. Ensure only one python block, no prose. Done.
+=== CONTENT ===
+```python
+def calc(expr: str) -> int | str:
+    class _Error(Exception):
+        pass
+
+    try:
+        tokens = []
+        i = 0
+        n = len(expr)
+        while i < n:
+            c = expr[i]
+            if c.isspace():
+                i += 1
+                continue
+            if '0' <= c <= '9':
+                start = i
+                while i < n and '0' <= expr[i] <= '9':
+                    i += 1
+                tokens.append(('num', int(expr[start:i])))
+                continue
+            if c in '+-*/%^()':
+                tokens.append((c, c))
+                i += 1
+                continue
+            raise _Error()
+
+        pos = 0
+
+        def peek():
+            nonlocal pos
+            return tokens[pos][0] if pos < len(tokens) else None
+
+        def advance():
+            nonlocal pos
+            tok = tokens[pos]
+            pos += 1
+            return tok
+
+        def trunc_div(a, b):
+            q = abs(a) // abs(b)
+            if (a < 0) != (b < 0):
+                q = -q
+            return q
+
+        def parse_primary():
+            nonlocal pos
+            if peek() == '(':
+                advance()
+                v = parse_additive()
+                if peek() != ')':
+                    raise _Error()
+                advance()
+                return v
+            if peek() == 'num':
+                return advance()[1]
+            raise _Error()
+
+        def parse_power():
+            nonlocal pos
+            base = parse_primary()
+            if peek() == '^':
+                advance()
+                exp = parse_unary()
+                if exp < 0:
+                    raise _Error()
+                return base ** exp
+            return base
+
+        def parse_unary():
+            nonlocal pos
+            if peek() == '-':
+                advance()
+                return -parse_unary()
+            return parse_power()
+
+        def parse_multiplicative():
+            nonlocal pos
+            v = parse_unary()
+            while peek() in ('*', '/', '%'):
+                op = advance()[0]
+                rhs = parse_unary()
+                if op == '*':
+                    v = v * rhs
+                elif op == '/':
+                    if rhs == 0:
+                        raise _Error()
+                    v = trunc_div(v, rhs)
+                else:
+                    if rhs == 0:
+                        raise _Error()
+                    v = v - rhs * trunc_div(v, rhs)
+            return v
+
+        def parse_additive():
+            nonlocal pos
+            v = parse_multiplicative()
+            while peek() in ('+', '-'):
+                op = advance()[0]
+                rhs = parse_multiplicative()
+                if op == '+':
+                    v = v + rhs
+                else:
+                    v = v - rhs
+            return v
+
+        result = parse_additive()
+        if pos != len(tokens):
+            raise _Error()
+        return result
+    except _Error:
+        return "error"
+```

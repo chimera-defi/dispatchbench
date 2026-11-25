@@ -13,7 +13,7 @@ PAIRS = (
 )
 # Hetzner labels and marks, and Grok and Devin graphics that also colour text, need normal-text contrast.
 HETZNER = tuple((f'Hetzner on {ground}', '--hetzner', ground, 4.5) for ground in ('--bg', '--panel'))
-FAMILIES = tuple((f'{family} on {ground}', family, ground, 4.5) for family in ('--grok', '--devin', '--inkling') for ground in ('--bg', '--panel'))
+FAMILIES = tuple((f'{family} on {ground}', family, ground, 4.5) for family in ('--grok', '--devin', '--inkling', '--gemini') for ground in ('--bg', '--panel'))
 
 
 def declarations(body):

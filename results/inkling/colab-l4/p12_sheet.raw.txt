@@ -1,0 +1,466 @@
+=== REASONING ===
+We need produce code only in single python block. Need solve thoroughly. Let's restate problem.
+
+We need implement sheet(cells) -> dict mapping every name in cells to value int or error strings. Cells map name -> contents string. Contents either integer literal e.g. "42" or "-7" (could possibly include whitespace? "An integer literal such as 42 or -7" probably content exactly integer literal, maybe spaces? It says otherwise content starts with = and rest formula. Spaces may appear between any two tokens, so integer literal no spaces. Could content be "  42"? No, otherwise starts with =? We should handle maybe strip? Let's consider robustness: If content starts with '=' then formula; else parse integer. Might allow surrounding whitespace? Not specified. Better parse with stripping? But integer literal "such as" maybe may include no spaces. We can strip content and parse int; if int yields. But careful: an integer literal such as "42" or "-7"; if content=" +42"? otherwise not starts with =; int("+42") works. Fine.
+
+Formula grammar:
+- tokens? Need parse expression with precedence.
+Grammar lowest to highest:
++ - left assoc
+* / left assoc
+unary minus repeat
+atoms: non-negative integer, cell name, ( formula ), function call.
+
+Need handle function calls SUM/MIN/MAX with args comma-separated; each argument either range X1:Y2 or formula. IF(left OP right, then, else). Note IF argument left is formula, right is formula. But parsing left OP right: Need split on comparison operator. Grammar for IF special: after "IF(" parse formula for left up to comparison op? Because formulas inside parentheses can contain same comparison? Grammar functions: leaf? Actually IF evaluates left,right then then,else. Formula grammar as listed: + -, * /, unary minus, atoms (integer, cell name, parenthesized formula, function call). This grammar does NOT include comparison operators or IF as generic atom? Wait functions call includes IF(...). But grammar's atoms include function call, and function call is parsed how? Need parse function names and arguments. But inside atom for generic formula, a function call can be parsed. For IF, we need special parse to extract operator. We can parse tokens? Let's design.
+
+Need evaluate formulas with error propagation and order.
+
+Cell names: one letter A-Z followed by row number 1..99 no leading zero. Ranges: X1:Y2 where X1 and Y2 are cell names? It says range `X1:Y2` (the rectangle with those two corners...) Cell names valid. Spaces may appear between tokens; range might have spaces around colon? Grammar tokens spaces may appear between any two tokens. "range X1:Y2" token colon maybe a token? Need support spaces around colon: `A1 : B2` maybe valid? Spaces between any two tokens. Range is an atom? In grammar, atoms are integer, cell name, (formula), function call. Range is not listed as an atom in formula grammar. But functions take arguments either range or formula. So in function argument parsing, after comma, we need decide if argument starts with cell-name then optional spaces colon? Actually range syntax `X1:Y2` consists cell name `:` cell name. It might be parsed without spaces around colon? Spaces may appear between tokens, and colon is a token separator? Are spaces allowed around colon in range? Grammar says spaces between any two tokens. Tokens likely include cell names and colon? Range X1:Y2 maybe token sequence CELL COLON CELL. So spaces between cell name and colon and colon and cell name likely allowed. We should support spaces. However detecting range vs formula: A formula can start with cell name; e.g. `MIN(B1:B3)` arg is range. `MIN(A1+1)` arg formula starts with cell A1 then `+`. If we see cell name followed by optional spaces then colon, it's a range. But a formula cell reference followed by `:` impossible because ':' not in formula grammar except range. So parse: try to parse a cell name at current position; then optional spaces; if next char is ':' then parse range (second cell name) and return Range object. Else not range; parse formula.
+
+But note: an argument formula can be just a cell name (e.g. MIN(Z9)). It will parse as formula not range. Good.
+
+Function arguments: `SUM(...)`, `MIN(...)`, `MAX(...)` take one or more comma-separated arguments. `IF(left OP right, then, else)`. Need parse function call atom generically. How to parse args? We can parse function name before '('; if name == 'IF', special parsing; else if name in SUM/MIN/MAX, parse args; else error? Problem says every formula valid, so no unknown funcs. But code could raise.
+
+Need exact evaluation semantics.
+
+Data structures. Precompute cell coordinates: column index 0..25 for A..Z, row int 1..99. Range rectangle with two corners in either order: rows min..max, cols min..max. Row-major order top row first, left to right within row. Missing cells skipped (not in cells) — note inside range, cells not in cells are skipped. If cell in range has value error? Errors propagate: cells of a range in row-major order. The first error met is the result. So when evaluating range argument, we evaluate each existing cell in rectangle in row-major order; if any is error, return that error (stop). Missing cells skipped. If no error, return list of values? For SUM/MIN/MAX. For SUM with no values -> 0. MIN/MAX with no values -> 0. Else SUM sum; MIN min; MAX max. Need note if range has cell whose value is error: first error met (row-major) result. The function's first error met is result. Since range is one argument, evaluating function arguments left to right; a range argument evaluation yields either list of values or error. If error, stop. Good.
+
+But important: Range arguments are not formulas; evaluating a range references cells. Missing cells inside range skipped; cells in cells? If cell in range present in cells, evaluate it. If cell missing, skip. What about cell present in cells but not reached due to first error in range? skip. Fine.
+
+Function calls with formula args: e.g. MAX(D1:D5) + MIN(Z9). `MIN(Z9)`: argument is formula (not range) and is a missing cell. Rule 3: Formula arguments are never skipped: a formula argument that is a missing cell, such as MIN(Z9), contributes 0. So argument `Z9` evaluates to 0 (missing cell) and MIN of list [0] = 0. Good.
+
+IF semantics: IF evaluates left, then right. If either error result that error. Otherwise only chosen branch evaluated; other branch never evaluated, so errors and refs inside no effect. If comparison: Need compare left and right. Left/right are formulas, could be missing cell -> 0. Then choose then/else. Need parse IF carefully. The grammar of IF: `IF(left OP right, then, else)`, where OP one of =, <>, <=, >=, <, >, and left,right,then,else are formulas. `then` and `else` are formulas separated by commas. Because formulas can contain commas? Generic formula grammar doesn't include comma except function args. But then/else branches are formulas; they may contain function calls with commas (e.g. IF(a=b, SUM(1,2), 3)). Need parse them correctly. Since IF is known function, we can parse after IF( with a parser that knows the first comma separating left/right conditions and then first comma after right? Need find comparison operator at top level within IF parentheses, not inside nested parentheses or function calls (but comparison operators only appear inside IF conditions; nested IFs? Formula can contain nested IF: IF(...) atoms. In parsing left formula for outer IF, need find top-level comparison operator. That operator is at same nesting level as IF's arguments and outside any nested parentheses/function calls. But left/right are formulas; if left contains nested IF, it has commas inside nested parentheses; we must not treat them as top-level. Need top-level split on OP. So for IF parsing, we need scan from current index after '(' with a depth counter for '(' and ')' and maybe string? No strings. Need find one of operators at depth 1 (relative to IF arguments, i.e., inside IF but not inside nested group) between left and right. Also handle spaces. Let's design parser with position index and maybe a token function.
+
+Options: use full recursive descent parser with tokenizer. Simpler: implement parser for formulas on string with index. Need handle unary minus, binary ops, parentheses, atoms. For IF special parsing, handle in atom parsing.
+
+Let's design robust parser.
+
+Input formula string s (rest after '='). Could be empty? Every formula valid, so nonempty. We'll parse and expect end.
+
+Tokenizer? Could parse directly with helper functions:
+- skip_spaces(): while i < len and s[i].isspace(): i++
+- peek(): char or ''
+- isdigit(char)
+- parse_number(): non-negative integer: digits. For atom integer: parse digits only (non-negative). But unary minus handles sign.
+- cell name: uppercase letter A-Z followed by digits. Validate row 1..99? Given valid. We can parse cell name by regex or manual. If char is uppercase A-Z and next is digit, parse letter + digits; row must 1..99. Note column letters A..Z; number part can be 1..99 no leading zeros. If content cell e.g. "A01" invalid; problem valid. Parse manual: letter = s[i]; j=i+1; digits start; row = int; ensure entire cell name (j index) has no trailing letters. For atom cell, parse letter+digits. Use helper `try_cell_name_at(i)` returns (col,row,next_i) or None. But formulas might contain cell name in range. For general formula, after unary and binary, atoms: if char digit -> number; if uppercase letter -> cell or function? Function call starts with uppercase letter(s) then '('. Cell name starts with single uppercase letter followed by digit. Function name: SUM/MIN/MAX/IF (could also unknown) followed by '(' without digits. So disambiguation: if char uppercase letter and there is a cell name immediately? A cell name is letter+digits; function name is letter(s)+ '('; if char uppercase and next char is uppercase letter (or digit). SUM: S U M -> next char 'U' uppercase; IF -> 'F'; cell name: next char digit. So if char uppercase and s[i+1] is digit? cell. But function name could be "A1(...)"? invalid. We can parse token: if uppercase letter(s) followed by '(' => function name. Else if uppercase letter followed by digit => cell name. Since function names are known and consist uppercase letters; cell name first letter then digits. Good.
+
+- parse_formula(): parse_additive.
+- parse_additive(): parse left = parse_multiplicative(); loop while peek == '+' or '-': op; right=parse_multiplicative(); build binary expr (or evaluate immediately? Could evaluate during parse for simplicity). Since evaluation semantics order matters, we can evaluate recursively directly rather than build AST. But we need parse IF specially; maybe easier to evaluate during parsing. However need propagate errors strictly left-to-right. Direct recursive evaluation: parse_additive returns Value (int or Error). If left is error, return left immediately without parsing right. Else parse right; if right error return right. Else compute and maybe division. That naturally parses right operand only if left not error. But wait grammar left-associative: parse_additive: left=parse_multiplicative(); if left is error, return left. while peek in '+-': op=s[i]; skip; right=parse_multiplicative(); if right error return right; combine. Good. For binary, if left error and peek '+'? Actually if parse_multiplicative returns error, parse_additive returns error immediately, not parse more '+'. That matches error propagation stops at first error. Good.
+
+But for IF, we need parse left formula, find operator, parse right formula. We can evaluate left via parse_left? But parse_additive for left would consume greedily until it sees comparison op at same level; however comparison operators (=,<>,<,<=,>,>=) are not handled by parse_additive; parse_multiplicative/additive will stop when it encounters them (because not +,-,*,/, unary minus? Careful: unary minus can appear after left? e.g. IF(A1-1 = 2,...) left formula "A1-1" parse_additive handles. stop at '=' because not +,-,*,/. Good. For right formula in IF, we can parse after comparison operator. But right formula followed by comma: parse_additive will stop at comma because comma not handled (except inside function call). Good. Then after right parse, expect comma. parse then formula until next comma at top-level? Here after the right formula, we know the next char should be comma (separating then branch). But parse_additive for then might consume commas? No, commas only inside function arg lists. Parenthesized formula may include commas inside parentheses; parse functions will handle. parse_additive stops at top-level comma. Good. So direct parse is fine: For IF, after function name and '(', skip spaces; parse left = parse_additive() (stops at top-level comparison operator or comma? Wait left could be just `A2` in IF(A2 = 0, 1, A1): parse_additive parses `A2` and stops at space before `=`; after skip spaces, see '=' not + etc, returns. Good.) Then skip spaces; parse comparison operator. Need handle `<>`, `<=`, `>=`, `=`, `<`, `>`. Note order: check two-char operators first: `<>`, `<=`, `>=`, then `=` `<` `>`. If left is error during parse, return left? IF semantics: evaluates left, then right. If either error result that error. If left returns error, do we return immediately without parsing right? Yes, if left operand error in IF, result is that error and right not evaluated. But our parse_additive returns error; we should not parse operator/right/etc. So in IF parsing, after parse left, if left is error: we need still consume? Since we're in parse tree; if we return error immediately but don't consume rest, the outer context (maybe cell evaluation) sees error and stops, so unconsumed string irrelevant. Good.
+
+If left not error, parse operator; then skip spaces; parse right = parse_additive(). But if operator parsing fails? valid. If right is error, return right (left already evaluated, okay; error result right). Then parse then branch: skip spaces; expect ','; skip spaces; then = parse_comma_separated? Actually then is formula; parse_additive will parse until top-level comma that separates then and else. But parse_additive may stop at top-level comma; after parse, skip spaces; expect ','; skip; else = parse_additive(); skip spaces; expect ')'; evaluate remaining. Good. Need ensure left/right not containing top-level comma? Formulas don't include commas except inside function calls, which are handled by atom parser. Parenthesized formulas can include commas? A parenthesized formula `(SUM(1,2))` includes commas inside nested parentheses; parse_additive inside parentheses handles function call with commas. Good.
+
+Potential ambiguity: In IF, left formula may contain a function call with comparison operator inside? e.g. IF(MIN(A1:A2) = 0,...). Left contains `(MIN(A1:A2)`, parse_additive handles atom function call: parses MIN function with range; stops at ')'; returns. Then parse_additive after function returns sees '='; returns left. Good.
+
+Need ensure parse_multiplicative for left doesn't consume comparison operators due to unary minus? no.
+
+Parsing function call in atom:
+- If we see letters forming function name. Let i0=i; while alpha uppercase? Function names uppercase letters. Parse name = while char in A-Z; if name == 'IF' or name in ('SUM','MIN','MAX') maybe special; else error invalid. Since valid, fine. Then skip spaces; expect '('; then dispatch. After args expected ')'. Need skip spaces around.
+
+For SUM/MIN/MAX arguments:
+```
+args = []  # list of ('range', rc_list values?) or ('formula', value)? Actually we evaluate arguments as we parse.
+```
+Need evaluate each argument left to right. Each argument either range or formula. For a range, evaluating yields maybe error or list of values. For a formula, evaluate yields value error/int. Then after all args parsed, compute aggregation. However order of error propagation: Function arguments are evaluated left to right, and cells of a range in row-major order. The first error met is the result. So if parsing args, parse first arg: if it's a range, evaluating cells in row-major order; if a cell error encountered, return error immediately. If first arg formula returns error, return error. Then parse second arg; if error, return error. Etc. If all no errors, compute SUM/MIN/MAX. Note: If first arg is a formula returning a value (not error), we hold it; if second arg returns error, first value discarded; fine. Could optimize but not necessary.
+
+Parsing argument:
+- skip spaces. If current char is uppercase letter: candidate cell start? We need decide range vs formula. Try parse_cell_name; if returns (col,row,next), then skip spaces; if next char == ':': parse range. Else not range; but we've consumed cell name if we parse it. We cannot parse cell then backtrack easily unless we save i and use a probe that doesn't consume. Simpler: probe at i: try to parse cell name at i without modifying global i (local). If found and after optional spaces next char == ':', then parse as range: pos=i; cell1=parse_cell_name(pos); pos=next; skip; pos=next_after_colon=skip; expect ':'; parse cell2; skip; return range evaluated. Else parse formula normally at i (which will parse the cell again or other). Since probe doesn't mutate actual i. Good. If candidate cell parse fails, just return parse_additive() (formula). But wait: arguments can be formula that starts with number etc. parse_additive handles.
+- Parse range: after cell1 and ':' and cell2, skip spaces; then we need evaluate range to ensure? The argument is a range, not a formula, and its evaluation should happen when this argument is evaluated. We can immediately evaluate range and return list of values or error. Need skip spaces after range before checking for comma or ')'. Good.
+
+Detailed range eval:
+- Given cell1 (c1,r1), cell2 (c2,r2) in either order. rows = min..max, cols = min..max? Row numbers 1..99, columns A..Z. Rectangle with corners. Row-major: for r in rows, for col in cols: name=col_letter+str(r); if name in cells: v=evaluate_cell(name); if v is error: return error; else values.append(v). Missing skip. Note: if a cell in cells evaluates to error asynchronously? evaluate_cell handles cache and cycles. It may return error; then range returns first error. Good. Need consider if evaluate_cell returns integer 0 (missing cell) vs actual cell 0. Fine.
+- `SUM` with no values -> 0; MIN/MAX no values ->0. If values list can be empty; for non-empty use sum/min/max.
+But note SUM/MIN/MAX have one or more arguments. Each argument can be a range with no values (missing cells) => contributes no values. Example C1: MAX(D1:D5)+MIN(Z9): D1:D5 all missing -> range contributes no values; MAX no values -> 0. MIN(Z9): argument is formula missing cell -> value 0; MIN([0])=0; total 0. Good.
+
+Important: Formula argument missing cell contributes 0. For numeric formulas returning maybe error? okay.
+
+Cell evaluation and caching:
+- states: values dict name-> (int or error string), status dict name-> 'visiting' maybe. Evaluation each cell at most once; once has a value, reuse. Need cycle detection: reference to a cell whose own evaluation is still in progress -> #CYCLE!. If cell is in progress at outer evaluation, return #CYCLE!. Once has a value, reuse. Implementation:
+```
+values = {}
+in_progress = set()
+def eval_cell(name):
+    if name in values: return values[name]
+    if name in in_progress: return "#CYCLE!"
+    if name not in cells: return 0
+    in_progress.add(name)
+    try:
+        content = cells[name]
+        if content.startswith('='):
+            v = parse_formula(content[1:])
+        else:
+            v = int(content) # maybe strip
+        # Need validate? valid.
+    except FormulaError? maybe not.
+    finally: in_progress.remove(name)
+    values[name]=v
+    return v
+```
+But there is subtlety: IF non-chosen branch never evaluated. If we eagerly parse/evaluate whole formula but avoid evaluating branches not chosen. Direct recursive eval with parse-and-evaluate naturally avoids. For non-starting formula integer literal: parse with int. If content contains leading/trailing spaces? strip. But if content starts with '=' after strip? `content.lstrip().startswith('=')`? Problem says content starts with `=`. Use content.startswith('=')? If content = " =A1" then not starts with =; it would be integer? int(" =A1") error. Valid so ignore. Maybe strip content first: `content = cells[name].strip()`? But formulas can have spaces around =? grammar spaces between tokens in rest, content could be `= A1`? "otherwise the content starts with `=` and the rest is a formula. Spaces may appear between any two tokens." It says content starts with `=`; not that spaces after. But we can strip spaces after '=' in formula parse. Use `body = cells[name][1:]` and formula parsing skips spaces. If content has spaces before '=' invalid.
+
+Error propagation and caching: If a cell refers to a cell in cycle, e.g. A1 = B1, B1 = A1 + 1, evaluate A1: in_progress A1; parse formula: parse cell B1 => eval_cell(B1): in_progress A1,B1; parse B1 formula: A1 is in progress -> returns #CYCLE!; so B1 formula = A1 + 1: left is error #CYCLE!; parse additive returns error; B1 value = #CYCLE!; values[B1]=#CYCLE!; in_progress remove B1. Return #CYCLE; in A1 parse additive: parse left parse_multiplicative cell B1 returns #CYCLE error; parse_additive returns error immediately; A1 value = #CYCLE. values A1 #CYCLE. C1 MAX(A1:B3): iterate A1 value #CYCLE -> range returns #CYCLE; C1 #CYCLE. matches example. Good.
+
+But subtle: When evaluating B1 formula, left `A1` is in progress; parse_additive for `A1 + 1`: left = eval_cell(A1) returns "#CYCLE!"; it returns error immediately. It never parses right `1`. Good. The cell A1 still in progress; when B1 eval returns, A1 sets value #CYCLE and reuses. Good.
+
+Need think about error vs value: error strings are known; use constants. We must map every name in cells to its value. Should error strings from nested cells maybe are propagated; yes.
+
+Important: Each cell evaluated at most once; once it has a value, later references reuse. Does that mean if cell has error, later references reuse same error string. Yes values dict stores error. Good.
+
+Cycle with shared cell: e.g. A1 = B1, B1 = A2 + 1, A2 = A1? Evaluate A1 -> in progress A1; B1 -> in progress B1; A2 -> in progress A2; formula A1? A2 = A1? A1 in progress => #CYCLE. A2 value #CYCLE; B1 parse A2 +1 left error => B1 #CYCLE; A1 parse B1 left error => A1 #CYCLE. values all. Good.
+
+Need parse function call arguments. Let's define parser with global state. Maybe implement class or closure. Since asked function sheet; code can include nested helpers.
+
+Data types: Value = int or str error. Use sentinel? For parsing error? We won't raise except maybe invalid. Valid formulas. But for internal parse, if unexpected, raise ValueError; not needed. But catching? We shouldn't swallow errors. Use exceptions? Could avoid.
+
+Parsing details in code:
+
+```
+import re
+ERROR_DIV='#DIV/0!'
+ERROR_CYCLE='#CYCLE!'
+
+def sheet(cells):
+    # validate? no.
+    values = {}
+    in_progress = set()
+    formula_cache? values includes errors; okay.
+    def cell_name_at(s, i):
+        # returns (col_index,row,next_i) if valid cell name starting at i; else None
+        if i < len(s) and 'A' <= s[i] <= 'Z':
+            j=i+1
+            k=j
+            while j < len(s) and s[j].isdigit(): j+=1
+            if j > k:
+                row=int(s[k:j])
+                if 1 <= row <= 99:
+                    return (ord(s[i])-65,row,j)
+        return None
+```
+Need ensure no leading zero? "with no leading zero". The parser can allow digits 01? Problem valid. For cell name in formula, should we parse "A01"? It might not be a valid cell name per cell names with no leading zero. But valid formulas refer only to cells A1..Z99. We can simply parse digits and int; if row=1..99. This would accept A01 (row=1) in formula; but valid won't include. Could require no leading zero: if row string length >1 and startswith('0'), invalid. But since valid, not important. For range corners, valid. Maybe parse with function `is_cell_name_suffix`. Keep simple.
+
+Parsing number:
+```
+def parse_number(s,i): # at i digit
+    j=i
+    while j<len(s) and s[j].isdigit(): j+=1
+    return int(s[i:j]), j
+```
+
+Parsing function name:
+```
+def parse_func_name(s,i):
+    j=i
+    while j<len(s) and 'A' <= s[j] <= 'Z': j+=1
+    if j>i and j<len(s) and s[j]=='('? 
+```
+But function name could be "IF" (not cell because next char is digit? Actually IF next char would be digit if cell "IF1" impossible because two letters; our cell parser at i would see 'I' then 'F' (not digit), fail, so function. Good.) We can in parse_atom:
+```
+j=i
+while j<len(s) and 'A' <= s[j] <= 'Z': j+=1
+name=s[i:j]
+if name and s[j:j+1] == '(':
+   parse function
+if name and j>i: # could be cell? but no digits means invalid; cell handled by digits.
+```
+But cell names start with one uppercase letter followed by digit; if we have name length 3 = "SUM" and s[j] == '(' function. If cell name "B12", while loop stops at '1', name="B", s[j]='1' not '('; then fall through to cell name parser. Good. If function has lowercase? no.
+
+`parse_cell` expects name; for formula atom:
+```
+def parse_atom():
+    global pos? Use local i via closure.
+    skip spaces
+    if digit: num=parse_number
+    elif letter:
+      name_len ... if followed by '(': return parse_function()
+      cell=cell_name_at(s,pos)  # parse cell name
+      if cell:
+         return values cell via eval_cell(name)
+      else error invalid
+    elif s[pos] == '(': skip; v=parse_formula(); skip; expect ')'; return v
+    else raise
+```
+Need parse function returns Value.
+
+Function parsing:
+```
+def parse_function(name, i): # called after name and before '('? maybe current pos before name
+    start=pos
+    j=pos
+    while j<len(s) and 'A'<=s[j]<='Z': j+=1
+    name=s[pos:j]
+    # skip spaces between name and '('? Are spaces allowed between function name and '('? Grammar atoms: function call. Tokens: name and '(' are tokens? Spaces may appear between any two tokens, so name and '(' could have spaces? Example "SUM (1,2)" maybe? Valid? It says spaces may appear between any two tokens. `(` is a token? Probably yes. We can skip spaces after name. Similarly cell name and colon, commas, operators. Good.
+    pos=j
+    skip_spaces()
+    expect '(' (pos increments)
+    if name == 'IF':
+        return parse_if_args()
+    elif name in ('SUM','MIN','MAX'):
+        args=[]
+        skip_spaces()
+        # one or more args
+        while True:
+            skip_spaces()
+            v_or_vals, kind = parse_function_arg(pos?) # returns either ('err',error) or ('values',list) or ('formula_value',val)
+            ...
+            skip_spaces()
+            if pos < len and s[pos] == ',': pos+=1; continue
+            elif s[pos] == ')': break
+            else invalid
+        pos +=1 # consume )
+        ...
+    else invalid
+```
+Need manage pos global. Simpler: make parser functions use `i` nonlocal via closure with `self`? In Python nested functions can use nonlocal i. Let's write in function `sheet` with `pos` nonlocal. Since valid, raising IndexError okay.
+
+Let's define helper `skip()`: while pos < len(s) and s[pos].isspace(): pos+=1.
+`expect(ch)`: skip(); if s[pos] != ch: raise ValueError; pos+=1.
+`peek()`: skip(); return s[pos] if pos<len(s) else '' maybe but don't skip in peek? We will often `skip()` then inspect.
+
+Parser:
+```
+    def parse_formula():
+        return parse_additive()
+
+    def parse_additive():
+        v = parse_multiplicative()
+        skip()
+        while peek() in ('+','-'):
+            op=s[pos]; pos+=1
+            skip()
+            r=parse_multiplicative()
+            if is_error(v): return v  # actually parse_multiplicative shouldn't return before right? Wait if v is error, we should return before parsing r. Oops in loop if v error we must return v BEFORE parsing op and right. Need restructure.
+```
+Careful: parse_multiplicative may return error after evaluating left. The binary left error should stop before parsing * or +? In additive parse, if left error, we should return error immediately (no right). At the call site? In parse_formula, no comparison; If we call parse_multiplicative and it returns error, we return error at top of parse_additive without checking op. So:
+```
+    def parse_additive():
+        left = parse_multiplicative()
+        if is_error(left): return left
+        skip()
+        while peek() == '+' or peek() == '-':
+            op=s[pos]; pos+=1; skip()
+            right=parse_multiplicative()
+            if is_error(right): return right
+            left = left + right if op=='+' else left - right
+            skip()
+        return left
+```
+Good. Multiplicative similarly:
+```
+    def parse_multiplicative():
+        left=parse_unary()
+        if is_error(left): return left
+        skip()
+        while peek()=='*' or peek()=='/':
+            op=s[pos]; pos+=1; skip()
+            right=parse_unary()
+            if is_error(right): return right
+            if op=='*': left=left*right
+            else:
+                if right==0: return '#DIV/0!'
+                left = int(left/right)  # trunc toward zero. In Python, int(-7/2) works but float issues. Need precise truncation: 
+                # Use math.trunc? For big ints, use -(-left//right) if sign? Let's implement trunc toward zero for integers.
+            skip()
+        return left
+```
+Need implement trunc division exactly:
+```
+def trunc_div(a,b):
+    if b == 0: return ERROR
+    q = abs(a)//abs(b)
+    if (a<0) != (b<0): q = -q
+    return q
+```
+Given unbounded ints; Python `//` okay for abs. `int(a/b)` bad due to float overflow. Use q. Good.
+
+Unary minus:
+```
+    def parse_unary():
+        skip()
+        sign=1
+        while peek()=='-': # skip spaces before? after each '-' skip before operand handled by loop.
+            sign = -sign
+            pos += 1  # skip() at loop start? We should skip spaces after '-'? `--3` no spaces. `- -3`? spaces between tokens maybe; grammar unary minus repeated; spaces may appear between any two tokens. So skip before peek and after '-'.
+            skip()
+        if sign == -1:
+            v=parse_atom()
+            if is_error(v): return v
+            return -v
+        return parse_atom()
+```
+Need handle `-` then error: If parse_atom returns error, return error (propagates) without negating. Good. Repeated minus: `--3`: sign becomes 1, parse atom ->3, return 3? Let's trace: parse_unary: skip; peek '-' sign=-1 pos+=1 skip; peek '-' sign=1 pos+=1 skip; atom=3; sign=1 so don't negate; return 3. Correct. `---3`: sign after three minuses = -1; atom 3; return -3. Good. But spaces: after each '-', skip. While peek '-' after skip. Good.
+
+Binary ops with spaces: parse_multiplicative after left=parse_unary; skip; peek operator. Good.
+
+Cell references in formula and cycle:
+```
+def eval_cell(name):
+    if name in values: return values[name]
+    if name in in_progress: return ERROR_CYCLE
+    if name not in cells: return 0
+    in_progress.add(name)
+    try:
+        content=cells[name]
+        if content.startswith('='):
+            v = parse_formula_rest(content, 1)  # hmm parser global pos reset
+        else:
+            # integer literal; content may be '-7' etc.
+            v = int(content)
+    finally:
+        in_progress.remove(name)
+    values[name]=v
+    return v
+```
+Since parser uses global `pos` and a formula string `s`, set `s=content[1:]; pos=0` before parse. Need if content has leading spaces before '='? valid ignore. Could handle `body = cells[name]; if body.lstrip().startswith('='): body = body.lstrip()?` But if we strip body and start with '=', then rest = body[1:] maybe loses leading spaces? That's okay because formula parse skips spaces. But if we do `body=body.strip()`, then if starts with '=', s=body[1:]. Fine. If not starts with '=', parse int(body.strip()). However if content itself is "42", int fine. If content is "-7", int fine. If integer literal could have leading spaces, strip. Good. Should we strip content? likely okay. For formulas, leading/trailing spaces in formula okay due to parse. If we strip content and formula has trailing spaces, fine.
+
+Need value sentinel. Errors are strings. Use `is_error(v)`: return isinstance(v,str) (all error strings are strings). Ambiguity: int vs str okay. Value type int or error string. Good.
+
+Function call parse and evaluation:
+```
+    def parse_function():
+        # current pos at start of function name
+        start=pos
+        while pos<len(s) and 'A' <= s[pos] <= 'Z': pos += 1
+        name=s[start:pos]
+        skip()
+        expect('(')  # expect consumes '('
+        if name == 'IF':
+            return parse_if()
+        elif name == 'SUM' or name == 'MIN' or name == 'MAX':
+            values_list=[]
+            # evaluate arguments left to right
+            skip()
+            while True:
+                skip()
+                arg_kind, arg_value_or_list = parse_arg_value()
+                if is_error(arg_value_or_list):
+                    # Need consume? If error in range, parser may have stopped mid-range? Actually parse_arg_value returns error after possibly consuming? For range, we may consume range and cell evals, but if eval error in a cell, the parser's current pos remains after colon? It may not consume rest of formula. Return error; upper level stops. Fine.
+                    return arg_value_or_list
+                if isinstance(arg_value_or_list, list):
+                    values_list.extend(arg_value_or_list)
+                else:
+                    # formula arg value is int (not error). Should it always be int? Formula arg can be a formula that evaluates to int; no error. Could be error handled. Yes int.
+                    values_list.append(arg_value_or_list)
+                skip()
+                if peek() == ',':
+                    pos += 1
+                    continue
+                elif peek() == ')':
+                    pos += 1
+                    break
+                else:
+                    raise ValueError('expected ) or ,')
+            if name == 'SUM': return sum(values_list)
+            elif name == 'MIN': return min(values_list) if values_list else 0
+            else: return max(values_list) if values_list else 0
+        else:
+            raise ValueError('unknown function')
+```
+Potential problem: For range argument parsing, if a cell inside range is missing, skip. If a cell in range is in cells but its evaluation returns error, we return error; fine. But in `parse_arg_value`, if formula argument parse returns int, we pass it; but what if formula argument is a range in brackets? no.
+
+Parsing range argument:
+```
+    def parse_arg_value():
+        # current pos before argument. Return either error string, or list of ints (range), or int (formula)
+        save=pos
+        probe=cell_name_at(s,pos)
+        if probe is not None:
+            c1,r1,next_i=probe
+            save2=next_i
+            # skip spaces
+            j=save2
+            while j<len(s) and s[j].isspace(): j+=1
+            if j < len(s) and s[j] == ':':
+                # parse range for real
+                pos=save
+                # parse first cell (re-parse to set pos)
+                c1,r1,pos=cell_name_at(s,pos)
+                skip()
+                expect(':')  # consumes colon
+                skip()
+                probe2=cell_name_at(s,pos)
+                if probe2 is None: raise ValueError
+                c2,r2,pos=probe2
+                # skip spaces after range? Not here.
+                return eval_range(c1,r1,c2,r2)
+        # not a range; parse formula
+        return parse_additive()
+```
+Important: `probe` cell_name_at returns `(col_index,row,next_i)` and must handle row integer. Let's implement consistent: `cell_name_at(s,pos)` returns `(col_idx,row,next_i)`. Then in real parse:
+```
+        cell1 = cell_name_at(s,pos)
+        c1,r1,pos = cell1
+```
+Since for range we set pos=save before. Good.
+
+But: cell_name_at accepts only uppercase letter then digits; function name like SUM parse? In parse_arg_value, probe at pos could match cell 'R...'? For formula starting with a cell like "R1" and next char colon? It might be range. Good. For formula starting with number, cell_name_at returns None; parse_additive.
+
+For range eval:
+```
+    def eval_range(c1,r1,c2,r2):
+        vals=[]
+        for r in range(min(r1,r2), max(r1,r2)+1):
+            for c in range(min(c1,c2), max(c1,c2)+1):
+                nm = chr(ord('A')+c) + str(r)
+                if nm in cells:
+                    v = eval_cell(nm)
+                    if is_error(v): return v
+                    vals.append(v)
+        return vals
+```
+Rows 1..99, cols 0..25. Good.
+
+IF parsing:
+Need parse_if after '(' consumed? Actually parse_function consumed name and '('; pos is at after '('. Then:
+```
+    def parse_if():
+        left = parse_additive()
+        if is_error(left): return left
+        skip()
+        op = parse_comparison_op()  # if None raise?
+        right = parse_additive()? 
+```
+Need consume operator. But left parse_additive stops at top-level comparison operator or comma? Wait formula left cannot have a top-level comma; right parse should stop at top-level comma (after right). For left parse, it stops at top-level comparison op; good. But what about left formula ending with cell in progress? That's left error. Good.
+
+But direct parse_additive for left might consume a following `-` unary? Example IF(A1-1 = 2,...): left parse_additive: left=A1; skip; peek '-', consumes, parses right multiplicative `1`, left = A1-1; then skip; peek '=' not +-, returns left. Good. Example IF(A1 - 1 > 0...): same. Example IF(A1 <> B1...): parse_additive left A1; skip; peek '<' (not +/-) return. good. Example IF(A1 = B1 + 1, ...): left A1; skip; peek '=' return; operator '='; skip; right = parse_additive: starts with B1; skip; peek '+'; consumes; parses 1; left=B1+1; skip; peek ',' returns. Good.
+
+Comparison operator parse:
+```
+    def parse_comparison():
+        skip()
+        if s.startswith('<>', pos): pos += 2; return '<>'
+        if s.startswith('<=', pos): ...
+        if s.startswith('>=', pos): ...
+        if s[pos] == '=' : pos+=1; return '='
+        if s[pos] == '<' : ...
+        if s[pos] == '>' : ...
+```
+Careful: `<>`, `<=`, `>=`, then single. If none, raise.
+
+Then right = parse_additive(). But wait: left may be error; return error before parsing operator/right (IF semantics evaluates right only if left not error). Good. If right error return error. If left comparison result false/true, parse then/else. Need after right, expect comma. But right parse may stop at comma; if the right formula is e.g. `2` and then `,` after spaces; parse_additive stops at comma; good. skip; expect ','; skip; then = parse_additive(); skip; expect ','; skip; else_v=parse_additive(); skip; expect ')'; pos increment? expect handles. Then evaluate comparison:
+```
+        skip(); if right error return right
+        if not compare(left,op,right): val = parse then else... wait branches after right parse? 
+```
+Order of evaluation: IF evaluates left, then right. If either error result that error. Otherwise only chosen branch is evaluated. The then and else branches are not parsed before comparison? But our parser needs to parse branches syntactically? Actually we can evaluate branches at the moment needed. In direct evaluation, after parsing right, we should parse the then branch only if comparison true; else parse else branch. But we still need to parse commas syntactically? We could avoid parsing unused branch entirely by not calling parse_additive for it. However, the `else` branch after comma may remain unconsumed; but if we return after skipping ')'? We cannot consume ')' without consuming else branch. But if we return error/true value without consuming the unchosen branch and closing parenthesis, the outer parser might misbehave. Need ensure we consume the full IF expression, including unchosen branch, even if it's not evaluated. This is subtle.
+
+Problem: We need parse formulas with syntax such that unused branches are not evaluated, but presumably they are still parsed? The grammar includes formula branches; the parser must recognize them to find the top-level closing parenthesis. If we don't skip the unchosen branch, after returning from parse_function, outer parser may see leftover `, else, )` and fail or mis-evaluate. So we must at least consume/skip the unchosen branch syntactically without evaluating it. Need implement parse-only skip for branch formulas. Alternatively, parse branch formulas lazily? We need ensure correct `pos` after function call. We can parse and discard values? But that would evaluate unused branch, forbidden. We need parse syntax without evaluating references? Hmm.
+
+Since every formula valid, we can parse the unchosen branch in a "syntactic ignore" mode that consumes tokens but does not evaluate cells/functions. That's the safest. Need ensure this syntactic parser correctly handles nested functions and ranges with commas/parens, but ignores values and doesn't evaluate cells. However, syntactic parse must handle cell names, numbers, operators, parentheses, function calls, ranges. It can just consume tokens; no eval. Then skip spaces, expect ')'. Good.
+
+But maybe we can parse branch using the same parse_additive with a mode `evaluate=False`. In that mode, atom integer/cell/parentheses/function call just consume tokens and return a dummy marker (e.g. 0) without evaluating cell references. Binary operations just consume operator and right dummy. This is easy if parser uses global flag `ignore_eval`. But function call arg parsing with range in ignore mode: should consume range tokens, not evaluate cells. We can set flag and in `parse_arg_value` if ignore mode:
+- if range: parse cell:cell; return dummy list or int; not eval.
+- else parse_additive returns dummy.
+For aggregation in ignore mode, returns dummy 0 (not evaluating branches? Function args inside ignored branch not evaluated due to flag). Good. For IF in ignore mode: parse left/right/then/else syntactically? It must not evaluate either branch; we can just skip nested parse by using ignore mode. It may parse then/else branches in ignore mode; that's fine. It still needs to know comparison operator syntactically to skip branches? Could simply consume everything to the matching closing parenthesis at depth 0 for this IF, ignoring contents. But need ensure nested parentheses/functions correctly. Easiest: implement a `skip_formula_tokens()` that consumes from current pos through a top-level formula ending at a comma or closing parenthesis at the same nesting? But if called after parsing before branch, need leave pos at end of branch (before comma/closing). Could implement carefully.
+
+Alternative: For branches, always parse syntax in ignore mode: `dummy_parse_formula()` which just skips tokens:
+```
+def skip_formula_syntax():
+    # consume one full formula and return; no cells evaluated
+    # It returns after consuming formula that may not consume top-level comma? Actually when parsing a formula as a branch, it should stop at a top-level comma or ')'.
+    parse_additive_syntax()  # with ignore flag true, but its additive loop stops at '+'/'-' and then by definition may consume to top-level ')'? Need stop at comma and ')'? 
+```
+Need a separate syntactic parser with same precedence but no eval. It can be implemented by setting `ignore_eval=True` and using same parse functions. However, in ignore mode, the parse_additive loop that stops at '+' or '-' also needs to stop at top-level comma/')'. It does because parse_multiplicative/unary/atom will consume until an operator not handled (comma/paren) and not consume it. It won't stop at ')' but parse won't attempt to consume ')' because parse_additive only loops on +/-; after parse_multiplicative returns at ')' (peek ')' not +-), returns. Good. In ignore mode, parse_additive with left dummy, right dummy returns dummy. It doesn't evaluate cells. It must still parse function calls: parse_function with ignore flag; for SUM/MIN/MAX, it must parse arguments syntactically and return dummy without evaluating range. For IF in ignore mode, it must consume the whole IF, parsing branches syntactically and return dummy. This is doable if parse_function when ignore_eval calls a syntactic version of its internal parse. Need structure to support ignore mode.
+
+Simpler approach: In parse_
+=== CONTENT ===

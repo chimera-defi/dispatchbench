@@ -111,7 +111,7 @@ By rung: L1 4/4, L2 4/4, L3 2/4, L4 3/3, L5 4/4, L6 0/2
 
 | config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
 |---|---|---|---|---|---|---|---|---|---|---|
-| agy-gptoss120b-medium | 81% (17/21) | 57%–100% | L6 | 12.05 | 21.05 | 5275 | – | – | – | proxy |
+| agy-gptoss120b-medium | 81% (17/21) | 57%–100% | L6 | 12.05 | 21.05 | 5275 | – | – | – | unmetered |
 
 | a | b | diff | 95% CI |
 |---|---|---|---|
@@ -125,7 +125,7 @@ By rung: L1 2/2, L2 2/2, L3 2/2
 
 | config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
 |---|---|---|---|---|---|---|---|---|---|---|
-| agy-opus46-default | 100% (6/6) | ≥61% (all passed) | not reached | 24.47 | 144.86 | 13802 | – | – | – | proxy |
+| agy-opus46-default | 100% (6/6) | ≥61% (all passed) | not reached | 24.47 | 144.86 | 13802 | – | – | – | unmetered |
 
 | a | b | diff | 95% CI |
 |---|---|---|---|
@@ -139,7 +139,7 @@ By rung: L1 2/2, L2 1/2, L3 1/2, L4 2/2, L5 1/1
 
 | config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
 |---|---|---|---|---|---|---|---|---|---|---|
-| agy-sonnet46-default | 78% (7/9) | 44%–100% | not reached | 14.31 | 50.61 | 14515 | – | – | – | proxy |
+| agy-sonnet46-default | 78% (7/9) | 44%–100% | not reached | 14.31 | 50.61 | 14515 | – | – | – | unmetered |
 
 | a | b | diff | 95% CI |
 |---|---|---|---|
@@ -181,7 +181,7 @@ By rung: L1 2/2, L2 1/2, L3 1/2, L4 1/2, L5 1/2, L6 0/2
 
 | config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
 |---|---|---|---|---|---|---|---|---|---|---|
-| devin16slow-default | 50% (6/12) | 25%–75% | L6 | 10.49 | 15.78 | 0 | – | – | – | proxy |
+| devin16slow-default | 50% (6/12) | 25%–75% | L6 | 10.49 | 15.78 | 0 | – | – | – | unmetered |
 
 | a | b | diff | 95% CI |
 |---|---|---|---|
@@ -195,7 +195,7 @@ By rung: L1 10/10, L2 9/10, L3 8/10, L4 6/10, L5 7/10, L6 8/10
 
 | config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
 |---|---|---|---|---|---|---|---|---|---|---|
-| devinflash-medium | 80% (48/60) | 63%–93% | none ≤ L6 | 16.44 | 222.65 | 0 | – | – | – | proxy |
+| devinflash-medium | 80% (48/60) | 63%–93% | none ≤ L6 | 16.44 | 222.65 | 0 | – | – | – | unmetered |
 
 | a | b | diff | 95% CI |
 |---|---|---|---|
@@ -209,7 +209,7 @@ By rung: L1 4/4, L2 4/4, L3 3/4, L4 2/2, L5 1/2, L6 0/2
 
 | config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
 |---|---|---|---|---|---|---|---|---|---|---|
-| gemini38flash-low | 78% (14/18) | 53%–95% | L6 | 7.37 | 10.7 | 17000 | – | – | – | proxy |
+| gemini38flash-low | 78% (14/18) | 53%–95% | L6 | 7.37 | 10.7 | 17000 | – | – | – | unmetered |
 
 | a | b | diff | 95% CI |
 |---|---|---|---|
@@ -237,7 +237,7 @@ By rung: L1 2/2, L2 2/2, L3 2/2
 
 | config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
 |---|---|---|---|---|---|---|---|---|---|---|
-| hydrogen-high | 100% (6/6) | ≥61% (all passed) | not reached | 18.74 | 41.25 | 18928 | – | – | – | proxy |
+| hydrogen-high | 100% (6/6) | ≥61% (all passed) | not reached | 18.74 | 41.25 | 18928 | – | – | – | unmetered |
 
 | a | b | diff | 95% CI |
 |---|---|---|---|
@@ -251,7 +251,7 @@ By rung: L1 4/4, L2 4/4, L3 2/2, L4 2/2, L5 2/2, L6 2/2
 
 | config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
 |---|---|---|---|---|---|---|---|---|---|---|
-| hydrogen-low | 100% (16/16) | ≥78% (all passed) | not reached | 7.82 | 13.61 | 18941 | – | – | – | proxy |
+| hydrogen-low | 100% (16/16) | ≥78% (all passed) | not reached | 7.82 | 13.61 | 18941 | – | – | – | unmetered |
 
 | a | b | diff | 95% CI |
 |---|---|---|---|
@@ -265,7 +265,7 @@ By rung: L1 2/2, L2 2/2, L3 1/2, L4 2/2, L5 1/1
 
 | config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
 |---|---|---|---|---|---|---|---|---|---|---|
-| hydrogen-medium | 89% (8/9) | 67%–100% | not reached | 14.25 | 26.67 | 18937 | – | – | – | proxy |
+| hydrogen-medium | 89% (8/9) | 67%–100% | not reached | 14.25 | 26.67 | 18937 | – | – | – | unmetered |
 
 | a | b | diff | 95% CI |
 |---|---|---|---|
@@ -508,21 +508,21 @@ Not pre-registered (PLAN.md, deviation 16), so it is reported apart from L1–L6
 
 Every problem on which at least one config failed at least once, over all phases (main, escalation, exploratory, L7). Cells show passes/attempts and, for the failures, the outcome: w = wrong answer, c = crash, t = timeout, n = no code. A dash means not run.
 
-| problem | haiku-low | haiku-medium | sonnet-medium | luna-low | luna-medium | sol61-medium | agy-gptoss120b-medium | agy-opus46-default | agy-sonnet46-default | astra-medium | astra-medium ⚡ | gemini38flash-low | haiku-high | hydrogen-high | hydrogen-low | hydrogen-medium | luna-high | luna-low-bare | luna56-high | luna56-low | sol56-high | sol61-high | sol61-high ⚡ | terra56-high | terra56-low | terra61-high | terra61-high ⚡ | terra61-low | terra61-low ⚡ |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| p03 ledger (L2) | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 5/5 | 2/2 | 1/1 | 1/1 | 5/5 | 5/5 | 2/2 | 5/5 | 1/1 | 2/2 | 1/1 | 5/5 | 3/5 (1c 1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 | 5/5 | 5/5 |
-| p04 taller_within (L2) | 5/5 | 5/5 | 5/5 | 1/5 (2t 2w) | 1/5 (1t 3w) | 5/5 | 2/2 | 1/1 | 0/1 (1c) | 5/5 | 5/5 | 2/2 | 5/5 | 1/1 | 2/2 | 1/1 | 5/5 | 1/5 (4w) | 4/5 (1w) | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 3/5 (2w) | 3/5 (2w) | 5/5 | 5/5 |
-| p05 pass_route (L3) | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 2/2 | 1/1 | 1/1 | 5/5 | 5/5 | 2/2 | 5/5 | 1/1 | 1/1 | 1/1 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 | 5/5 | 5/5 |
-| p06 calc (L3) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 0/2 (2w) | 1/1 | 0/1 (1w) | 5/5 | 5/5 | 1/2 (1w) | 5/5 | 1/1 | 1/1 | 0/1 (1c) | 5/5 | 5/5 | 4/5 (1w) | 1/5 (4w) | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 | 5/5 | 5/5 |
-| p07 weighted_distance_sums (L4) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | – | 1/1 | 5/5 | 5/5 | 1/1 | 5/5 | – | 1/1 | 1/1 | 5/5 | 5/5 | 5/5 | 3/5 (1t 1w) | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 | 5/5 | 5/5 |
-| p08 recur (L4) | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 2/2 | – | 1/1 | 5/5 | 5/5 | 1/1 | 5/5 | – | 1/1 | 1/1 | 5/5 | 4/5 (1t) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 | 5/5 | 5/5 |
-| p09 k_machine_schedule (L5) | 3/5 (2t) | 5/5 | 5/5 | 2/5 (2t 1w) | 5/5 | 5/5 | 2/2 | – | 1/1 | 5/5 | 5/5 | 0/1 (1w) | 5/5 | – | 1/1 | 1/1 | 4/5 (1c) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 0/1 (1w) | 5/5 | 5/5 | 5/5 | 5/5 |
-| p10 avoid_count (L5) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 2/2 | – | – | 5/5 | 5/5 | 1/1 | 5/5 | – | 1/1 | – | 4/5 (1c) | 4/5 (1w) | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 | 5/5 | 5/5 |
-| p11 best_average (L6) | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 2/5 (3w) | 5/5 | 0/1 (1w) | – | – | 5/5 | 5/5 | 0/1 (1w) | 5/5 | – | 1/1 | – | 5/5 | 2/5 (1c 2w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 0/1 (1w) | 5/5 | 5/5 | 5/5 | 5/5 |
-| p12 sheet (L6) | 4/5 (1c) | 5/5 | 5/5 | 0/5 (4c 1w) | 0/5 (4c 1w) | 3/5 (2c) | 0/1 (1w) | – | – | 5/5 | 5/5 | 0/1 (1c) | 5/5 | – | 1/1 | – | 3/5 (2c) | 0/5 (4c 1w) | 3/5 (2c) | 1/5 (3c 1w) | 5/5 | 5/5 | 5/5 | 1/1 | 0/1 (1t) | 5/5 | 5/5 | 5/5 | 5/5 |
-| p13 xor_ring (L7) | 5/5 | 5/5 | 5/5 | – | – | 5/5 | – | – | – | 5/5 | 5/5 | – | 5/5 | – | – | – | 5/5 | – | 4/5 (1c) | 3/5 (2w) | 5/5 | 5/5 | 5/5 | – | – | – | – | – | 5/5 |
-| p14 bounce_board (L7) | 5/5 | 4/5 (1c) | 5/5 | – | – | 5/5 | – | – | – | 5/5 | 5/5 | – | 5/5 | – | – | – | 5/5 | – | 2/5 (3c) | 2/5 (3c) | 3/5 (2c) | 5/5 | 5/5 | – | – | – | – | – | 5/5 |
-| p15 paint_erase (L7) | 2/5 (3t) | 4/5 (1t) | 5/5 | – | – | 5/5 | – | – | – | 5/5 | 5/5 | – | 5/5 | – | – | – | 5/5 | – | 3/5 (2w) | 3/5 (2w) | 5/5 | 5/5 | 5/5 | – | – | – | – | – | 4/5 (1w) |
+| problem | haiku-low | haiku-medium | sonnet-medium | luna-low | luna-medium | sol61-medium | astra-medium | astra-medium ⚡ | haiku-high | luna-high | luna-low-bare | luna56-high | luna56-low | sol56-high | sol61-high | sol61-high ⚡ | terra56-high | terra56-low | terra61-high | terra61-high ⚡ | terra61-low | terra61-low ⚡ |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| p03 ledger (L2) | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 3/5 (1c 1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 | 5/5 | 5/5 |
+| p04 taller_within (L2) | 5/5 | 5/5 | 5/5 | 1/5 (2t 2w) | 1/5 (1t 3w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/5 (4w) | 4/5 (1w) | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 3/5 (2w) | 3/5 (2w) | 5/5 | 5/5 |
+| p05 pass_route (L3) | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 | 5/5 | 5/5 |
+| p06 calc (L3) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 1/5 (4w) | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 | 5/5 | 5/5 |
+| p07 weighted_distance_sums (L4) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 3/5 (1t 1w) | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 | 5/5 | 5/5 |
+| p08 recur (L4) | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1t) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 | 5/5 | 5/5 |
+| p09 k_machine_schedule (L5) | 3/5 (2t) | 5/5 | 5/5 | 2/5 (2t 1w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 0/1 (1w) | 5/5 | 5/5 | 5/5 | 5/5 |
+| p10 avoid_count (L5) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 4/5 (1c) | 4/5 (1w) | 5/5 | 4/5 (1w) | 5/5 | 5/5 | 5/5 | 1/1 | 1/1 | 5/5 | 5/5 | 5/5 | 5/5 |
+| p11 best_average (L6) | 5/5 | 5/5 | 5/5 | 4/5 (1w) | 2/5 (3w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 2/5 (1c 2w) | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | 1/1 | 0/1 (1w) | 5/5 | 5/5 | 5/5 | 5/5 |
+| p12 sheet (L6) | 4/5 (1c) | 5/5 | 5/5 | 0/5 (4c 1w) | 0/5 (4c 1w) | 3/5 (2c) | 5/5 | 5/5 | 5/5 | 3/5 (2c) | 0/5 (4c 1w) | 3/5 (2c) | 1/5 (3c 1w) | 5/5 | 5/5 | 5/5 | 1/1 | 0/1 (1t) | 5/5 | 5/5 | 5/5 | 5/5 |
+| p13 xor_ring (L7) | 5/5 | 5/5 | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 4/5 (1c) | 3/5 (2w) | 5/5 | 5/5 | 5/5 | – | – | – | – | – | 5/5 |
+| p14 bounce_board (L7) | 5/5 | 4/5 (1c) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 2/5 (3c) | 2/5 (3c) | 3/5 (2c) | 5/5 | 5/5 | – | – | – | – | – | 5/5 |
+| p15 paint_erase (L7) | 2/5 (3t) | 4/5 (1t) | 5/5 | – | – | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 | – | 3/5 (2w) | 3/5 (2w) | 5/5 | 5/5 | 5/5 | – | – | – | – | – | 4/5 (1w) |
 
 ## Agentic track (headline: task complete)
 

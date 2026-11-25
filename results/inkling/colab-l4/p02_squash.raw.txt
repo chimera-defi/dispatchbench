@@ -1,0 +1,82 @@
+=== REASONING ===
+We need answer only code block. Need think carefully. Problem: compress string splitting into maximal runs same char. For run length L of char c: if L>=3, output str(L) + esc(c). If L==1 or 2, output esc(c) repeated L times. esc(c) is c itself except when c is digit 0-9 or backslash: written as backslash followed by c. So esc(c) length 1 or 2. Need implement efficient len up to 200000, simple.
+
+Check examples:
+- "aaab": run aa a length3 -> "3a", run b length1 -> "b" => "3ab". yes.
+- "aabccccccccccc": Need parse: a a b c c c c c c c c c c c? Let's count: after "aab" there are? "cccccccccccc" maybe 12 c's? Example returns "aab11c". That indicates run c length 11 -> "11c". So input has 11 c's. Good.
+- "111": run length3 digit 1 -> "3" + "\1" = "3\\1" in Python literal = 4 chars. yes.
+- "a1": run a length1 -> a; run 1 length1 -> "\1"; result "a\\1" (Python literal) length 3? "a\1" would 2? Actually Python literal "a\\1" is characters a, \, 1 = 3 chars. yes.
+- "\\\\" in Python literal represents two backslashes? In code text, `squash("\\\\")`: Python literal "\\\\" is two backslashes? Let's count: Each pair backslash yields one. Four backslashes in literal = two actual backslashes. Returns "\\\\\\\\" (eight backslashes in literal) = four actual backslashes. Each backslash esc = "\\" (two chars) and length2 run (<3) so esc repeated twice = "\\\\" (four chars). yes.
+- empty returns empty.
+
+Need produce code only, no explanations. Should we include type hints. Implement.
+
+Potential pitfalls: maximal runs same character. Iterate through string with index i. Since printable ASCII only but no need. Build list of parts.
+
+Complexity O(n * maybe esc length). Fine.
+
+Could use itertools.groupby but index easier.
+
+Need ensure decimal run length followed by esc(c), not escaped digits in length? Length is decimal string, digits are not escaped. Example for digit char run >=3: "111" returns "3\1" not "3\\1"? Wait Python literal "3\\1" chars: 3, \, 1. Correct. For length e.g. 100 (if run length 100 of char c) output "100c". Digits in length are not escaped. Problem says run length followed by esc(c), so yes.
+
+Need reply exactly one python code block no extra text. Ensure code only. Could include from typing import? no.
+
+Let's craft:
+
+```python
+def squash(s: str) -> str:
+    parts = []
+    i = 0
+    n = len(s)
+    while i < n:
+        ch = s[i]
+        j = i + 1
+        while j < n and s[j] == ch:
+            j += 1
+        run_len = j - i
+        if ch.isdigit() or ch == '\\':
+            esc = '\\' + ch
+        else:
+            esc = ch
+        if run_len >= 3:
+            parts.append(str(run_len))
+            parts.append(esc)
+        else:
+            parts.append(esc * run_len)
+        i = j
+    return ''.join(parts)
+```
+
+Check esc repeated L times for length 1/2: esc*run_len. For run length 2 and esc len2 (digit), output 4 chars, matches backslash run of 2: esc '\\' *2 -> '\\\\' (4 chars). yes.
+
+Potential concern: digit detection: ch.isdigit() could true for non-ASCII digits, but constraint printable ASCII, so fine. Use '0' <= ch <= '9' perhaps safer. Use ch in '0123456789' or ch == '\\'. In code, ch == '\\' in Python source is single backslash? Within code block, need represent properly. The code in final answer should be valid Python. In final answer, I can write:
+```python
+if '0' <= ch <= '9' or ch == '\\':
+```
+In the code block, `'\\'` is valid and means one backslash. Good.
+
+Need ensure no extra text outside code block. Done.
+=== CONTENT ===
+```python
+def squash(s: str) -> str:
+    parts = []
+    i = 0
+    n = len(s)
+    while i < n:
+        ch = s[i]
+        j = i + 1
+        while j < n and s[j] == ch:
+            j += 1
+        run_len = j - i
+        if '0' <= ch <= '9' or ch == '\\':
+            esc = '\\' + ch
+        else:
+            esc = ch
+        if run_len >= 3:
+            parts.append(str(run_len))
+            parts.append(esc)
+        else:
+            parts.append(esc * run_len)
+        i = j
+    return ''.join(parts)
+```

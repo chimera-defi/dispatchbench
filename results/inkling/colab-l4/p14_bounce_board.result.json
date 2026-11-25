@@ -1,0 +1,31 @@
+{
+ "pid": "p14_bounce_board",
+ "effort": "default",
+ "max_tokens": 12288,
+ "wall_s": 387.26216286399995,
+ "loadavg_start": [
+  "1.33",
+  "1.42",
+  "1.29"
+ ],
+ "finish_reason": "length",
+ "prompt_tok": 563,
+ "out_tok": 12288,
+ "gen_tps": 31.826405321256853,
+ "prompt_tps": 585.7838446981779,
+ "peak_rss_kib": 17587732,
+ "rss_end": {
+  "VmHWM": 17587732,
+  "VmRSS": 8717896,
+  "RssAnon": 7928072,
+  "RssFile": 665384
+ },
+ "memavail_gib_end": 43.40579605102539,
+ "reasoning_chars": 41129,
+ "verdict": {
+  "outcome": "no_code",
+  "detail": "no final fenced python block; finish_reason=length"
+ },
+ "error": null,
+ "code_lines": 0
+}

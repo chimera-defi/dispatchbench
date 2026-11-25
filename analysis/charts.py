@@ -335,17 +335,17 @@ AGY_N = {}
 def heatmap(s):
     """Main-run configs first, then exploratory ones after a gap; family-coloured headers and dashes for unrun problems."""
     ex = visible(s.get("exploratory"))
-    from analysis import summarize
     AGY_N.clear()
-    for r in summarize.function_rows():
-        if r["config"] in configs.AGY_CONFIGS: AGY_N[r["config"], r["problem"]] = AGY_N.get((r["config"], r["problem"]), 0) + 1
+    for c, v in {**s.get("exploratory", {}), **s.get("hetzner", {})}.items():
+        for p, n in (v.get("tries_by_problem") or {}).items(): AGY_N[c, p] = n
     dv = {c: v for c, v in {**s.get("exploratory", {}), **s.get("hetzner", {})}.items() if c in configs.FREE_TIER_CONFIGS}  # 1 repeat: cells are 0 or 1 of 1
     cols = [(c, {p: v[c] for p, v in s["problems"].items()}, False) for c in s["configs"]] + [(c, v["by_problem"], True) for c, v in ex.items()] \
         + [(c, v["by_problem"], True) for c, v in dv.items()]
     ink = s.get("inkling") or {}  # p13–p15 are not in this p01–p12 grid
     if ink:
         cols += [(c, {p: int(ok) for p, ok in tasks.items()}, True) for c, tasks in ((configs.INKLING_PRIMARY, {p: x["passed"] for p, x in ink["primary"]["tasks"].items()}), (configs.INKLING_LADDER, ink["ladder"]["tasks"]))]
-    dv = {**dv, **{c: None for c in (configs.INKLING_PRIMARY, configs.INKLING_LADDER)}}
+        if ink.get("colab"): cols.append((configs.COLAB_CONFIG, {p: int(x["passed"]) for p, x in ink["colab"]["tasks"].items()}, True))
+    dv = {**dv, **{c: None for c in (configs.INKLING_PRIMARY, configs.INKLING_LADDER, configs.COLAB_CONFIG)}}
     probs = sorted(s["problems"], key=lambda q: (s["problems"][q]["rung"], q)); cw, ch, L, T, gap = 50, 24, 250, 130, 14
     X = lambda j: L + j * cw + (gap if cols[j][2] else 0)
     W, H = X(len(cols) - 1) + cw + 20, T + ch * len(probs) + 40
@@ -562,7 +562,7 @@ def main():
 
 
 def explorer_cost_label(r):
-    return {"measured": "measured", "proxy": "token-estimate", "unmetered": "unmetered", "free-tier": "free tier", "local": "local, no price", "box-hours": "estimated from box-hours"}[r["cost_kind"]]
+    return {"measured": "measured", "proxy": "token-estimate", "unmetered": "unmetered", "free-tier": "free tier", "local": "local, no price", "box-hours": "estimated from box-hours", "colab-units": "estimated from compute units"}[r["cost_kind"]]
 
 
 def explorer_colour(r):

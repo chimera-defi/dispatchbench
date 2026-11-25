@@ -1,0 +1,200 @@
+=== REASONING ===
+We need answer only code in single python block. Need solve problem. Let's reason thoroughly.
+
+Problem: undirected graph with up to 2000 stops, 10000 edges, prices <=4 zones. Pass per zone bought at specific stations (stop,z) while standing at stop. Once bought, makes every ride with that zone free rest of trip. Pass can be bought at most once. Rides zone -1 never free. Need min total cost rides+passes from 0 to n-1, or -1 if unreachable.
+
+We need implement exact function. Need be careful with states and purchase timing. Since zones <=4 and stations <=50. Simplest: Dijkstra over state (node, mask) where mask bits indicate zones whose passes already bought. Rides: cost 0 if ride zone in mask (0<=zone<len(prices) and bit set), else cost. Buying pass at station (stop,z): from state (stop, mask) if zone z not already in mask, can transition to (stop, mask|bit) with cost prices[z]. But do we need to consider buying pass only at exact stop and only once? Yes. Also if station has zone z and pass bought, we shouldn't buy again. If already in mask, no transition. There are stations list up to 50 with maybe duplicate [stop,z]; no issue. Dijkstra over n * 2^m states (m<=4 => <=2000*16=32000), edges 10000, stations transitions 50. Very easy. But wait: Can buy pass at station listed while standing at stop; if multiple stations at same stop for different zones, Dijkstra handles. Need include initial state (0,0). Also, is buying a pass at a stop and then traveling back to same station relevant? Already bought, mask has bit, no transition. Good.
+
+Complexity: Dijkstra with 32000 nodes, each state has adjacency edges (undirected) degree maybe 10000*2. Relaxation ~ O((N*16)*avg degree) = okay. Use heap.
+
+Need return int; if target unreachable, heap pops target; can return dist[target] after all? If target popped with minimal dist, return it. Since all costs nonnegative, can return when target popped. If final not reached (all states processed and target not popped) return -1. Need ensure mask bits for zones with stations? Actually pass can only be bought at stations; mask can only include zones that have at least one station. If prices length m, mask bits 0..m-1. Good.
+
+But subtlety: Pass bought makes every ride with that zone free for rest of trip. If you buy pass at stop 1 for zone 0, then ride to stop 2 free. Yes.
+
+Potential subtlety: Are stations [stop,z] necessarily unique? Not stated; maybe duplicates. Fine.
+
+Potential subtlety: A pass can be bought at most once. If you reach station after buying pass (mask includes), can ignore. Good.
+
+Potential subtlety: Rides with zone -1 are never free. Dijkstra ride cost = 0 if zone>=0 and (mask>>zone)&1 else cost. For zone == -1, no.
+
+Implementation: build adjacency list list of (neighbor, cost, zone). stations grouped by stop into list of zones. Need maybe list stations can include zone out of range? assume valid. Use m=len(prices); total_masks=1<<m. dist = [inf]*(n*total_masks) maybe use dictionary? Simpler 2D list: dist = [[INF]*total_masks for _ in range(n)]. Heap entries (d,u,mask). For each popped, if d > dist[u][mask] continue. If u==n-1: return d (because min). But is it valid to return immediately when popping first target state, regardless of mask? Since masks differ; first popped target among all is minimal total amount to reach target across all states. Return d. Yes because all costs nonnegative and heap ensures order. But do we need to distinguish reached target with passes already bought or not? No, cost total same. Good. However if there are zero-cost rides and pass transitions maybe zero price? Prices can be 0, costs can be 0. Dijkstra still works with nonnegative. Return when target popped: if edge relaxation to target with cost 0 and later a lower? No, once popped target, no unseen path can be lower due to nonnegative. Good.
+
+But wait: There is a subtle issue with Dijkstra and station pass transitions: From state (u,mask), buying pass could lead to (u,mask|bit) at cost prices[z]. If prices[z]=0 and ride costs 0, still nonnegative. Fine.
+
+Need maybe process station transitions only when u==stop. We can precompute buy_zones_at_stop[u] list of z. At pop state, loop over buy_zones_at_stop[u], if not bit in mask: new_mask=mask|bit; nd=d+prices[z]; relax target same stop. Also can consider transitive buys of multiple passes at same station (e.g., station list [1,0],[1,1] prices...). Dijkstra handles sequential transitions; since buying at same stop doesn't require moving, but transition cost prices[z]. It will process. Could also loop for all zones not in mask at that stop, sequential. Good.
+
+Alternative: Since m<=4, use Dijkstra/BFS. Need code only. They requested implement exactly this function top-level. Reply with only code in single ```python block. No extra text. Need include imports? In code block can include import heapq. It's okay. Function top-level. They said implement exactly this function; no class. We can include import at top. Probably acceptable. "Reply with only the code in a single python block." So final should contain code only.
+
+Need ensure syntax. Use typing.
+
+Let's consider if n=0? constraints 2<=n. fine.
+
+Edge cases: no edges; 0==n-1? constraints n>=2 so start != target. If unreachable, dist target inf; after heap empty return -1.
+
+But early return when target popped might skip pass buying at target (station at target) after reaching target. Not needed because once at target, trip ends; buying pass after reaching target doesn't help (can't continue). It could reduce cost? Pass costs nonnegative, so buying after reaching target would never reduce total (you could stop earlier maybe not). Return current d. Good.
+
+What about buying pass en route before reaching target, then reaching target. Handled.
+
+Need return minimum total amount spent on rides plus passes to travel from 0 to n-1. It doesn't say passes once bought persist for entire trip even if you pass the station later; yes mask. Good.
+
+Could there be benefit to buy a pass, ride, then pass becomes free; no expiration. Good.
+
+Let's think about exact state space and relaxation efficiency. dist as list of lists, index u*total_masks + mask maybe faster. Use heap of tuples (dist,u,mask). When popping target first, return dist. Need if d != dist[u][mask] continue. Since dist entries maybe inf. Set dist[0][0]=0. push (0,0,0). Loop while heap: d,u,mask = heappop; if d != dist[u][mask]: continue; if u == n-1: return d. For each edge in adj[u]: v,cost,zone = ...; effective = 0 if zone>=0 and (mask>>zone)&1 else cost; nm=mask; nd=d+effective; if nd < dist[v][nm]: update, push. Then for z in buy_at[u]: if not (mask>>z)&1: bit=1<<z; nmask=mask|bit; nd=d+prices[z]; if nd<dist[u][nmask]: update push. Note if z>=len(prices)? assume valid; but maybe stations can have zone numbers 0..len(prices)-1. ok.
+
+Potential issue: buying transitions should be processed before rides or after; order doesn't matter. But if we early return on target pop, and target has a station where buying a pass could lower cost? Can't lower, only add. no.
+
+Need ensure undirected edges: For edge [u,v,cost,zone], add both (v,c,z) to adj[u], and (u,c,z) to adj[v]. Multiple rides same pair: fine.
+
+Potential issue with zero cost and pass purchase causing cycles: Dijkstra with nonnegative cost, cycles won't cause infinite because updates decrease or equal; if equal no update (<). Fine.
+
+Let's verify example. n=4, edges etc. dist[0][0]=0. adj0: edge to1 cost5 zone-1, edge to3 cost250. buy at stop0? none. pop (0,0,0): relax to1 d5, to3 d250. pop (5,1,0): buy zones [0] -> mask1 at cost35; relax edge to2 cost100 (d105); edge to0 d? d5+5=10 back. state (1,1) nd35 push. pop (10,0,0?) Actually heap after first pop: entries d10? Wait after pop (0,0,0), push (5,1,0) and (250,3,0). Heap min 5. pop (5,1,0). Relax to2: d105. relax to0: d10. buy zone0 -> (1,mask1) d35. push. Heap: (10,0,0), (35,1,1), (105,2,0), (250,3,0). pop (10,0,0): d!=dist[0][0]? dist[0][0]=0, so skip (d=10 >0) continue. pop (35,1,1): relax edge to2 effective 0 (zone0 mask1) nd35 (better than105), edge to0 cost5 -> d40? Wait edge to0: d35+5=40; dist[0][1] maybe inf, update to40. buy at stop1? mask has zone0, no transition. push (35,2,1), (40,0,1). pop (35,2,1): relax edge to3 cost0 (zone0 mask1) nd35; edge to1 cost0 back d35. push (35,3,1). pop (35,3,1): target u=3 return35. Heap had (40,0,1) etc later. Good.
+
+But wait state (2,0) with d105 was in heap; when popped maybe after target? target returned already at d35, fine.
+
+Now need produce final only code. Need maybe not include explanations. Fine.
+
+Let's think if there is any hidden trap: prices per zone <=4, stations <=50, n<=2000, edges<=10000. Straight Dijkstra over mask is valid. But is it possible to buy pass at a station you start at? stations may list stop 0. If so, transitions from start state handled at pop (0,0). Need not special-case. Good.
+
+Potential issue: We can buy a pass at station [stop,z] only while standing at that stop. If same stop appears with zone z, and you arrive at stop via edge with zone free, you may stand there and buy another pass. handled.
+
+Now code style. Need no comments? Can include. Top-level function exact signature. Use from heapq import heappop, heappush. Use sys.setrecursionlimit not needed. Use INF = float('inf') but distances integer; use 10**30 maybe. Since n*m etc. Use INF = 10**30. dist as list of lists. total = 1 << len(prices). If prices empty? Constraints says len(prices)>=1. If empty, total_masks=1, buy_at empty; zones none. Works but prices len maybe 0 not. We can handle anyway.
+
+Potential early return: if target == start: return 0? constraints n>=2 but if n==1, return 0. Could include robust; not harmful. Since signature function perhaps n in constraints but robust. Add if start==n-1: return 0. But exact function maybe no extra behavior? Fine.
+
+What about target unreachable but pass transitions? no.
+
+Complexity: dist matrix 2000*16 ~ 32k; fine.
+
+Let's consider alternative: Min-cost with zones not bought could require buying pass to make free rides, but pass fixed cost; Dijkstra over masks handles.
+
+Now, the final answer must only be code in single ```python block. No explanation. Should code include only function? They said implement exactly this function; could include imports and function. Imports at top are extra but needed. Some judges require only function? They said top-level function not class. It's okay. To be safe, include imports within code; many tasks expect self-contained code. Could avoid import by using manual priority queue? No need.
+
+Let's verify with example and unreachable: n=2, edges empty, start0 target1. dist[0][0]=0 push. pop d0 u0; no edges; buy none. no target. heap empty return -1. Good.
+
+Multiple rides same pair: adjacency holds both; Dijkstra considers both; min. Good.
+
+Pass cost 0 at station and no rides: start to target via zero? returns maybe 0. okay.
+
+Integer overflow none.
+
+Need ensure effective cost for zone in mask; if zone == -1, bit check zone>=0 false => cost. If zone >= len(prices) (invalid) bit check shift by zone maybe if zone>=32 for Python ints no error; but (mask>>zone)&1 =0 for large zone? Python handles; effective=cost. But not needed. For zone = -1 shift by -1 would error if we did (mask >> zone) &1 without check; we check zone>=0 first. Good.
+
+Maybe mask bits correspond to zone numbers 0..len(prices)-1; if station has zone 3 and prices len4, bit ok. If station duplicate for same zone, buy_at[u] contains maybe z twice; first transition buys, second now already bit and skipped. Fine.
+
+One subtle point: Dijkstra early return when target popped: We have to ensure that after popping target at distance d, no other path to target with same distance but different mask might matter for... The task only asks total amount, not mask. Return d. ok.
+
+Now code. Use typing? Not necessary. Function signature exact. Code:
+
+import heapq
+
+def pass_route(n, edges, stations, prices):
+    m=len(prices)
+    masks=1<<m
+    adj=[[] for _ in range(n)]
+    for e in edges:
+        u,v,cost,zone=e
+        adj[u].append((v,cost,zone))
+        adj[v].append((u,cost,zone))
+    buy_at=[[] for _ in range(n)]
+    for stop,zone in stations:
+        if 0 <= zone < m:
+            buy_at[stop].append(zone)
+    start=0; target=n-1
+    if start==target: return 0
+    INF=10**30
+    dist=[[INF]*masks for _ in range(n)]
+    dist[start][0]=0
+    pq=[(0,start,0)]
+    while pq:
+        d,u,mask=heapq.heappop(pq)
+        if d != dist[u][mask]: continue
+        if u == target: return d
+        nd=d
+        # rides
+        for v,cost,zone in adj[u]:
+            eff=cost
+            if 0 <= zone < m and (mask>>zone)&1: eff=0
+            nd=d+eff
+            if nd < dist[v][mask]:
+                dist[v][mask]=nd
+                heapq.heappush(pq,(nd,v,mask))
+        for zone in buy_at[u]:
+            bit=1<<zone
+            if not (mask & bit):
+                nmask=mask | bit
+                nd=d + prices[zone]
+                if nd < dist[u][nmask]:
+                    dist[u][nmask]=nd
+                    heapq.heappush(pq,(nd,u,nmask))
+    return -1
+
+Need assign nd=d no need; remove.
+
+Potential bug: dist list as list of lists, but when using target early return, we might return d = dist[target][mask] where d is int. good.
+
+In rides loop, if neighbor v maybe same u? self-loop; eff maybe cost; nd=d+eff; if eff=0 (zone free), nd=d not < dist[u][mask] (same d) no update. if eff>0, no update. fine.
+
+Potential early return after heap pop target: If target has been reached with d but there is same target later with lower? impossible.
+
+Now final. Ensure only code block, no text. Done. But let's revisit problem statement: "Taking a ride in either direction costs cost. zone is either -1 (no zone) or a zone number 0 .. len(prices)-1." So rides with zone free are free. "A traveller can buy a pass for zone z at price prices[z], but only while standing at a stop listed in stations as [stop, z]." Means if [stop,z] in stations and traveller standing at stop, can buy pass for zone z. "Once bought, the pass makes every ride with that zone free for the rest of the trip. A pass can be bought at most once." yes.
+
+One possible interpretation: There is one pass per zone? It says buy a pass for zone z; zone z has one price; pass makes every ride with that zone free. At most once. yes.
+
+Let's think about whether you can buy pass for a zone at a station where the zone is already free due to a previously bought pass? no need. Handled.
+
+Potential alternate solution: BFS with 0-cost rides and Dijkstra with pass cost; mask method correct.
+
+Should we include `from __future__ import annotations`? no.
+
+Now final only code. Done. 
+=== CONTENT ===
+```python
+import heapq
+
+def pass_route(n: int, edges: list[list[int]], stations: list[list[int]], prices: list[int]) -> int:
+    m = len(prices)
+    masks = 1 << m
+    adj = [[] for _ in range(n)]
+    for u, v, cost, zone in edges:
+        adj[u].append((v, cost, zone))
+        adj[v].append((u, cost, zone))
+
+    buy_at = [[] for _ in range(n)]
+    for stop, zone in stations:
+        if 0 <= zone < m:
+            buy_at[stop].append(zone)
+
+    start, target = 0, n - 1
+    if start == target:
+        return 0
+
+    INF = 10 ** 30
+    dist = [[INF] * masks for _ in range(n)]
+    dist[start][0] = 0
+    pq = [(0, start, 0)]
+
+    while pq:
+        d, u, mask = heapq.heappop(pq)
+        if d != dist[u][mask]:
+            continue
+        if u == target:
+            return d
+
+        for v, cost, zone in adj[u]:
+            eff = 0 if 0 <= zone < m and (mask >> zone) & 1 else cost
+            nd = d + eff
+            if nd < dist[v][mask]:
+                dist[v][mask] = nd
+                heapq.heappush(pq, (nd, v, mask))
+
+        for zone in buy_at[u]:
+            bit = 1 << zone
+            if not (mask & bit):
+                nmask = mask | bit
+                nd = d + prices[zone]
+                if nd < dist[u][nmask]:
+                    dist[u][nmask] = nd
+                    heapq.heappush(pq, (nd, u, nmask))
+
+    return -1
+```

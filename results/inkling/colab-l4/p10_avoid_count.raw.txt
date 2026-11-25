@@ -1,0 +1,414 @@
+=== REASONING ===
+We need to solve: count strings of length n over alphabet (2-4 chars) avoiding banned substrings. n up to 1e18, total length of all banned strings ≤ 20. Need modular arithmetic with matrix exponentiation presumably.
+
+Standard approach: build automaton/trie of banned strings, states = prefixes that are not banned? Actually we need to count strings avoiding all banned strings. Use Aho-Corasick automaton. States correspond to length of the longest suffix of the processed string that is a prefix of some banned string, but also we need to reject any state that has matched a banned string. Since banned strings may contain other banned strings, we can simply track longest suffix that is a prefix of any banned string, and ensure that no state is "bad" (i.e., suffix is a banned string). Actually if a banned string ends at a position, the string is invalid. We can build a dictionary of states: all prefixes of banned strings, representing longest suffix that is a prefix of some banned string. Transitions: given state s (a string, the matched prefix), for each char c, candidate = (s + c), find the longest suffix of candidate that is a prefix of some banned string. If that candidate... wait the rule: we reject when any banned string occurs as substring. With Aho-Corasick, we maintain state = longest suffix of the processed string that is a prefix of some pattern; if that state corresponds to a suffix that is a banned string (or has a banned suffix via failure links), then invalid.
+
+Simplest robust approach given total banned length ≤ 20: build trie of banned strings. States = all prefixes of banned strings. Transition function: from state p (a prefix string), for char c, let s = p + c; we need longest suffix of s that is in the prefix set; but if s contains a banned string as suffix... Actually if any banned string appears, we reject immediately. Alternatively, we can compute transition based on longest suffix of s that belongs to prefix set OR is a banned string (reject). But banned strings are all in prefix set? No — prefix set includes all prefixes of banned strings, which includes the banned strings themselves (the root-to-leaf path). Yes, the banned strings themselves are prefixes of banned strings (the full string is a prefix of itself). So the prefix set includes all banned strings.
+
+Thus define states = set of all non-empty? plus empty string. For each state p (a string), for each char c in alphabet: s = p + c; find longest suffix of s that is in prefix set. If no suffix? Then empty string state. If s contains a banned string as substring, then... hmm, longest suffix being in prefix set is not enough: consider banned = ["ab", "abc"]? Total length ≤ 20 fine. Actually "abc" contains "ab" as substring, but since we maintain longest suffix that is a prefix of some banned string, if processed string ends with "abc", then the longest suffix that is a prefix of banned set could be "abc" (which is a banned string) → reject. If processed ends with "ab", longest suffix in prefix set is "ab" → banned → reject. But consider banned = ["ab", "bab"]. State p = "a" (suffix "a" of processed string... wait state is the longest suffix of processed string that is a prefix of any banned string). p + c = "ab": longest suffix of "ab" in prefix set = "ab" → banned → reject. Good.
+
+But consider banned = ["ab"], alphabet = "ab". Prefix set = {"", "a", "ab"}. State "b"? Not in prefix set. From state "", c="b": s="b", longest suffix in prefix set = "" → state "". Good. From state "a", c="b": s="ab", suffix "ab" in set → banned → reject. From state "a", c="a": s="aa", longest suffix in set: "a" → state "a". Good.
+
+But subtle: state p is the longest suffix of processed string that's a prefix of some banned string. For transition, the correct new state is the longest suffix of p + c that is a prefix of some banned string (over all). That's standard Aho-Corasick failure transition. But with duplicates and one banned string containing another, "longest suffix in prefix set" might give a state that's a banned string which is longer than the actual first banned occurrence? Doesn't matter; any banned occurrence → reject. But could the transition to a banned state reject a string that actually contains a banned string earlier... any banned occurrence is reject anyway. But could there be a false rejection: longest suffix in prefix set is a banned string s, meaning the processed string ends with s (a banned string), so yes invalid. Actually the suffix is the entire s? The longest suffix of p + c that is in prefix set being a banned string means the processed string ends with that banned string → invalid. Correct. Conversely, if processed string contains a banned string somewhere, then the current state would already have been rejected earlier. So as long as we reject when transition lands on a banned-string state, we correctly count valid strings. 
+
+Wait, subtlety: the state p is the longest suffix that is a prefix of some banned string, but the processed string may contain a banned string entirely within... no, if processed contains a banned string, at the time it was completed we would have rejected. Since we only follow valid paths, fine.
+
+Also we need to consider that p itself may be "bad"? We never store bad states.
+
+Number of states ≤ total length of banned strings ≤ 20. Great.
+
+Then count = number of walks of length n from start state "" following transitions that avoid rejecting. Since transitions from a state may have no valid continuations per character (rejected), we can model as adjacency matrix where entries = 1 if transition valid. Count via matrix exponentiation, or linear recurrence via exponentiation.
+
+n up to 1e18: matrix exponentiation O(states^3 log n) — states ≤ 20ish, totally fine. Or use linear recurrence / Kitamasa. Matrix exponentiation is simplest.
+
+But careful: states count: trie nodes for all banned strings total length ≤ 20, plus empty state. So ≤ 21 nodes.
+
+Implementation details:
+
+- Build set of prefixes: for each banned string, all prefixes (including full string). Let states = list(set of all prefixes) plus "". Map from string to index.
+- For each state p (string), for each c in alphabet: s = p + c; find longest suffix of s in set of prefixes (including ""). If that prefix is a banned string (i.e., in banned_set) → reject (no transition). Else new state index = idx[suffix].
+
+Hmm, but we must be careful: longest suffix in prefix set being a banned string means reject. But what if a shorter suffix is a prefix (non-banned) but the longer suffix is a banned string? Longest suffix takes priority, so reject. Correct since the string ends with that banned string.
+
+Edge: banned string that is a prefix of another banned string: e.g., banned = ["a", "ab"], alphabet="ab". Prefix set = {"", "a", "ab"}. State "a" is banned → never stored. Transitions from "" with c="a": s="a", suffix "a" is banned → reject. So number of valid strings of length n over "ab" avoiding "a" is just 1 (all b's), assuming banned "a" and "ab". Indeed avoiding "a" leaves only b. Correct.
+
+Now matrix: states count m. Transition matrix M[i][j] = number of chars leading from state i to j (should be 0/1 since each c gives a unique transition; multiple c could lead to same j? Possibly: from state "", c="b" and c=... alphabet distinct chars 2-4; from state p, different c produce different s, but longest suffix could coincide? e.g., alphabet "ab", banned ["aa"]. From state "a", c="a": s="aa" → banned reject. c="b": s="ab", suffix "b" not in set, "" → state "". From state "", c="a" → state "a"; c="b" → state "". So no duplicates. But could happen: alphabet "ab", banned ["bb"]. From state "b", c="b": s="bb" banned. c="a": s="ba", suffix "a" not in set → "". From state "", c="b" → "b", c="a" → "". Distinct. Possibly two chars map to same state: banned ["a"], alphabet "ab". States: "", "a". From "": c="a"→reject; c="b"→"". From state "b"? Not in states. Fine. Can two distinct c map to same state from p? p + c1 and p + c2 differ in last char; suffixes: suppose longest suffix of p+c1 is s1, of p+c2 is s2. Could s1 == s2? The suffixes both end with different chars (c1 vs c2) unless suffix length 0. If suffix is "", then both map to "". Yes possible! E.g., banned ["a"], alphabet "ab", state p = "" (only states "" and "a"). From "", c="b": suffix "" → state "". Only one char. Hmm need two chars both mapping to "": banned ["b"], alphabet "abc" (3 chars). From "", c="a": s="a", longest suffix in set {"", "b"}: "" → state "". c="c": → state "". So M[0][0] = 2 (two chars). Fine, matrix entries count characters.
+
+So count length-n strings = (M^n)[start][...] summed over states. Equivalently vector times matrix.
+
+Let's just do matrix exponentiation: represent as list of lists, multiply by vector maybe. n up to 1e18, log2 ~ 60, m ≤ 21, trivial.
+
+Mod = 1_000_000_007.
+
+Empty string n=0: count = 1, since empty string contains no substring. Our DP with vector of initial [1,0,...] and applying 0 transitions gives 1. Good.
+
+Check example: avoid_count(3, "ab", ["aa"]) = 5. Let's simulate: states "", "a", "aa" (full prefix). But "aa" is banned → never stored. Valid states "" and "a". Transitions:
+From "": c="a" → s="a", suffix in set: "a" (prefix, not banned? "a" is prefix of banned "aa", not itself banned) → state "a". c="b" → s="b", suffix "" → state "".
+From "a": c="a" → s="aa", suffix "aa" in set, banned → reject. c="b" → s="ab", suffixes: "b"? not in set. "" → state "".
+So from "": to a (1), to "" (1). From a: to "" (1).
+Count length 3: number of strings of length 3 over {a,b} avoiding "aa". Fibonacci: F(4)=5? Strings length 3 avoiding aa: ABA, ABB, BAB, BBB? Wait also BAA? Let's enumerate: positions: strings: aaa invalid, aab invalid (aa), aba valid, abb valid, baa valid, bab valid, bba valid, bbb valid → aba, abb, baa, bab, bba, bbb = 6? Hmm the expected answer 5: aba, abb, bab, bba, bbb. That's avoiding "aa" as substring: let's list all 8: aaa (contains aa) invalid; aab contains aa invalid; aba valid; abb valid; baa contains aa? "baa" — substring "aa"? b-a-a: positions 2-3 are "aa" → yes invalid! I made an error. baa contains "aa" (positions 2,3) → invalid. bab valid; bba valid; bbb valid. So valid: aba, abb, bab, bba, bbb = 5. ✓.
+
+Matrix: M[""]["a"]=1, M[""][""]=1; M["a"][""]=1.
+Start vector v=(1,0) (states "", "a"). vM after 1: (1,1). After 2: (1*1+1*1, 1) = (2,1). After 3: (2+1, 2) = (3,2). Total 5. ✓.
+
+Example 2: n=2, alphabet "abc", banned ["abc"]. All strings except "abc": 9. ✓.
+
+Example 3: n=1e18, alphabet "ab", banned ["a"]. Valid strings: all "b"'s: 1. ✓ (Matrix trivial.)
+
+Implementation:
+
+```python
+def avoid_count(n, alphabet, banned):
+    MOD = 1_000_000_007
+    alphabet = list(set(alphabet))  # distinct
+    # banned may contain empty strings? "Every banned string is non-empty" so ok.
+    banned = [b for b in set(banned) if b]
+    prefixes = {""}
+    for b in banned:
+        for i in range(1, len(b)+1):
+            prefixes.add(b[:i])
+    banned_set = set(banned)
+    states = list(prefixes)  # indices
+    idx = {s: i for i, s in enumerate(states)}
+    m = len(states)
+    target = len(banned_set)  # not needed
+
+    # Build transition counts
+    # transitions[i][j] = number of chars from state i leading to state j
+    trans = [[0]*m for _ in range(m)]
+    for i, p in enumerate(states):
+        for c in alphabet:
+            s = p + c
+            # find longest suffix of s in prefixes
+            # check lengths from min(len(s), max_prefix_len) down to 0
+            found = ""
+            maxlen = min(len(s), max_prefix_len)
+            for L in range(maxlen, -1, -1):
+                suffix = s[len(s)-L:] if L else ""
+                if suffix in idx:
+                    found = suffix
+                    break
+            if found in banned_set:
+                continue
+            trans[i][idx[found]] += 1
+    # Note: found is always "" at worst; check banned_set contains ""? No, banned strings non-empty.
+    # DP / matrix power
+```
+
+Wait, but if found in banned_set, reject. But also there is a subtlety: The longest suffix that is in prefixes might be a banned string, but maybe a shorter suffix is a non-banned prefix — irrelevant, we still reject because string contains that banned substring (at the end). Correct.
+
+But another subtlety: The state p itself might be a banned string? States include banned strings (full banned strings are in prefixes). We must avoid storing transitions from a banned state — but we never transition into banned states, so they are unreachable. However matrix includes them but starting vector only has state "" (index of ""), so unreachable states don't matter. Fine. Could optionally exclude banned strings from states. Better to exclude banned strings from states entirely (they're bad). But prefixes needed for suffix matching as intermediate states? Intermediate prefixes that are banned strings should be excluded from states but still could serve as suffix... Hmm, if a banned string is a prefix of a longer banned string, e.g. banned = ["ab", "abc"]. Prefix "ab" is a banned string → a processed string ending with "ab" is invalid. In transitions, from some state p, c: s = p + c. We look for longest suffix in prefixes. If suffix is "ab" (banned) → reject. We don't store "ab" as a reachable state. That's correct behavior.
+
+So we can exclude banned strings from states. States = prefixes \ banned_set. Empty string "" never banned (non-empty banned). States count ≤ 20. Suffix lookup still uses full prefix set (including banned strings) to determine invalidity. Good.
+
+Then answer: start vector v with 1 at idx[""]; multiply by trans repeatedly n times. n up to 1e18, m ≤ ~20. Do binary exponentiation applying matrix on vector: 
+
+```python
+def matvec(v, M):
+    return [sum(v[i]*M[i][j] for i in range(m)) for j in range(m)]
+```
+
+Actually better: precompute M^k via matrix exponentiation, or do vector binary exponentiation with matrix power: 
+
+Simple approach: vector v; base = trans; while n: if n&1: v = matvec(v, base); base = matmul(base, base); n >>= 1. m ≤ 20 so matmul is O(m^3) = 8000 * 60 = 480k, fine.
+
+Or use linear recurrence via linear_matrix exp. Fine.
+
+Check the transition correctness more carefully with the Aho-Corasick concept. The standard state when tracking max suffix that is a prefix of any pattern: from state p (which is a prefix of some pattern, and also a suffix of processed string), after reading c, new candidate string s = p + c (as string; but p is the longest suffix of processed string that is a prefix; s as a string is the suffix of processed string + c of length len(p)+1; the longest suffix of processed+c that is a prefix is the longest suffix of s that is a prefix of some pattern). Wait, the candidate's length could exceed the max prefix length; longest suffix that's in prefix set is at most max pattern length, but s could be longer? p is a prefix of a pattern, so len(p) ≤ max pattern length. s length ≤ max+1. Longest suffix ≤ max... fine, we loop L from min(len(s), maxlen) down to 0.
+
+Edge: maxlen = max banned string length. If a longer... p is always ≤ maxlen (p is a banned-string prefix; all prefixes ≤ maxlen). Good.
+
+But careful with suffix match cost: tiny.
+
+Also duplicates in banned: set.
+
+Now the vector approach: initial v[start]=1. But note v is a distribution over states after 0 steps. Multiplying by trans n times gives total valid strings of length n. Since each transition corresponds to exactly one character (trans entries count characters), the sum of v after n steps equals number of strings. Yes.
+
+Mod arithmetic.
+
+Now check example 1 again with code logic: states = prefixes {"", "a", "aa"} minus banned {"aa"} = ["", "a"]. idx includes "" and "a"; but we need suffix lookup to include "aa" (banned) to reject. So keep a separate set all_prefixes for lookup, and reachable states = [p for p in prefixes if p not in banned_set]. Transition loop over reachable states only.
+
+found = longest suffix in all_prefixes; if found in banned_set: reject; else j = idx[found]; trans[i][j]+=1.
+
+Example 1: prefixes all = {"", "a", "aa"}. banned_set={"aa"}. states ["", "a"]. From "": c="a": s="a", suffixes: "a" is in all_prefixes → found="a", not banned → trans[""]["a"]=1. c="b": s="b", longest suffix in all_prefixes: "" → trans[""][""]=1. From "a": c="a": s="aa", longest suffix in all_prefixes: "aa" (in all_prefixes) → banned → reject. c="b": s="ab", suffixes: "b"? not in all_prefixes; "ab"? not in all_prefixes? wait "ab" is in all_prefixes? Prefixes of "aa": "a", "aa". "ab" is not. "" → found="" → trans["a"][""]=1. Good matches earlier.
+
+Matrix power: n=3. v=(1,0).
+vM = (1, 1). vM^2 = (1*1+1*1, 1*1) = (2,1)? Wait row vector times matrix: v'[j] = sum_i v[i] * M[i][j]. M[""][""]=1, M[""]["a"]=1, M["a"][""]=1. v=(1,0): v' = (1*1+0*1, 1*1+0) = (1,1). v'' = (1*1+1*1, 1*1+1*0) = (2,1). v''' = (2*1+1*1, 2*1+1*0) = (3,2). total 5 ✓.
+
+Now example 2: n=2, alphabet "abc", banned ["abc"]. Prefixes: {"a","ab","abc"} all prefixes + "". banned_set={"abc"}. states ["","a","ab"].
+Transitions:
+From "": c="a": s="a", found "a" → state "a". c="b": s="b", found "" → "". c="c": s="c", found "" → "".
+From "a": c="a": s="aa", suffixes: "a" (in all_prefixes? "a" yes) → found "a"? longest suffix: check L=2: "aa" in all_prefixes? No ("aa" not prefix of "abc"). L=1: "a" yes → found "a" → state "a". c="b": s="ab", L=2: "ab" in set → found "ab" (not banned) → state "ab". c="c": s="ac", L=2: "ac"? no. L=1: "c"? no → "" → state "".
+From "ab": c="a": s="aba", L=3: "aba"? no. L=2: "ba"? no. L=1: "a"? yes → "a". c="b": s="abb", L=2: "bb"? no; L=1: "b"? no → "". c="c": s="abc", L=3: "abc" in set → banned → reject.
+Count length 2: start (1,0,0). v' = (v0*1 + v0? let's compute: v'[""] = v[""]*1 + v["a"]*1 + v["ab"]*1? M[""][""]=2 (b,c), M["a"][""]=1, M["ab"][""]=1. v'=(2, v[""]*1 + v["a"]*1 + v["ab"]*1 = 1+0+0=1, v[""]*1? M["a"]["ab"]=1; v'["ab"] = v["a"]*1 = 0). So v'=(2,1,0). total 3 (length-1 strings: "a","b","c" = 3 ✓).
+v'': v''[""] = 2*2 + 1*1 + 0*1 = 5; v''["a"] = 2*1 + 1*1 + 0*1 = 3? M["ab"]["a"]=1, v["ab"]=0. = 2+1 = 3; v''["ab"] = v'["a"]*1 = 1. total 9 ✓ (9 valid strings of length 2: all 9 minus... wait strings of length 2 that avoid "abc": all length-2 strings avoid it, 9 total. But wait v'' total = 5+3+1 = 9 ✓.)
+
+Example 3: n=1e18, banned ["a"], states: prefixes {"a"}, banned → states [""]. From "": c="a": s="a", found "a" banned → reject. c="b": found "" → state "". trans[""][""]=1. v=(1). v stays (1). Total 1 ✓.
+
+Now implement carefully.
+
+```python
+def avoid_count(n: int, alphabet: str, banned: list[str]) -> int:
+    MOD = 1_000_000_007
+    chars = sorted(set(alphabet))
+    banned_list = list(set(banned))
+    banned_set = set(banned_list)
+    all_prefixes = {""}
+    for b in banned_list:
+        for i in range(1, len(b)+1):
+            all_prefixes.add(b[:i])
+    states = [p for p in all_prefixes if p not in banned_set]
+    # ensure "" first
+    states.sort(key=lambda s: (len(s), s))  # or keep "" first
+    # put "" first for stability
+    states = [s for s in states if s == ""] + [s for s in states if s != ""]
+    idx = {s: i for i, s in enumerate(states)}
+    m = len(states)
+    maxlen = max((len(b) for b in banned_list), default=0)
+    adj = [[0]*m for _ in range(m)]
+    for i, p in enumerate(states):
+        for c in chars:
+            s = p + c
+            found = ""
+            L = min(len(s), maxlen)
+            # search from longest
+            for L in range(min(len(s), maxlen), -1, -1):
+                suffix = s[len(s)-L:] if L else ""
+                if suffix in all_prefixes:
+                    found = suffix
+                    break
+            if found in banned_set:
+                continue
+            adj[i][idx[found]] = (adj[i][idx[found]] + 1) % MOD
+    # vector
+    start = idx[""]
+    v = [0]*m
+    v[start] = 1
+    # binary exponentiation on vector
+    def pow_mat(base):
+        res = [[0]*m for _ in range(m)]
+        for a in range(m):
+            row = base[a]
+            if any? no
+            for b in range(m):
+                ...
+```
+
+Just write standard matmul.
+
+```python
+    def matmul(A, B):
+        res = [[0]*m for _ in range(m)]
+        for i in range(m):
+            Ai = A[i]
+            for k in range(m):
+                aik = Ai[k]
+                if aik == 0: continue
+                Bk = B[k]
+                res_i = res[i]
+                for j in range(m):
+                    res_i[j] = (res_i[j] + aik * Bk[j]) % MOD
+        return res
+    def matvec(M, v):
+        res = [0]*m
+        for i in range(m):
+            vi = v[i]
+            if vi == 0: continue
+            row = M[i]
+            for j in range(m):
+                if row[j]:
+                    res[j] = (res[j] + vi * row[j]) % MOD
+        return res
+    k = n
+    base = adj
+    while k > 0:
+        if k & 1:
+            v = matvec(base, v)
+        k >>= 1
+        if k:
+            base = matmul(base, base)
+    return sum(v) % MOD
+```
+
+Wait — need to be careful: matmul only computed when needed; fine.
+
+But binary exponentiation subtle: after processing bit, we square base. Correct pattern: while k: if k&1: v=matvec(base,v); k>>=1; base=matmul(base,base). But squaring unnecessarily at the end. Better:
+
+```python
+    while k:
+        if k & 1: v = matvec(base, v)
+        k >>= 1
+        if k: base = matmul(base, base)
+```
+
+That's fine (avoids final useless matmul) but still computes one extra matmul each iteration? Actually it computes matmul each iteration if k>0 after shift, which is at most log n times. Fine.
+
+Order: v = matvec(base, v) — v is row vector; base is matrix. v_new[j] = sum_i v[i]*base[i][j]. Yes.
+
+Mod: entries of base are mod values; products need mod. Since entries ≤ MOD ~ 1e9, product ~1e18 < 2^63, times m=21 ~ 2e19 overflow? In Python arbitrary precision, no overflow. Fine.
+
+Check n=0: while loop doesn't run; answer sum(v) = 1 ✓ (empty string). Note the empty string itself is valid (banned non-empty). Yes.
+
+Now double-check transition issue: state p is reachable; we compute longest suffix of p+c in all_prefixes. all_prefixes includes banned strings themselves. If found banned, reject. But there's a subtle scenario: found = banned string, but maybe a shorter suffix is a valid prefix — but the string ends with banned string so it's invalid; reject correct.
+
+But another subtle scenario: found is valid prefix, but the full string p+c also contains a banned string that is NOT a suffix of p+c but occurs earlier in p+c? Wait — the state p is the longest suffix of the processed string that is a prefix of any banned string. The processed string is "valid" (we rejected before). Could p contain a banned string as substring? p is a prefix of some banned string, so |p| ≤ maxlen. p could itself contain a shorter banned string as a substring? E.g., banned = ["ab", "aab"]. Prefixes of "aab": "a","aa","aab". "aab" banned. "aa" is a prefix, not banned. State p="aa"? Is "aa" reachable? Valid strings ending with "aa" where no banned string occurred: e.g., "aa" itself: contains "ab"? No. Contains "aab"? no. "aa" is valid. "aa" is prefix of "aab" (prefix: "a","aa","aab" — yes "aa"). So state "aa" reachable. p="aa" contains "a"? banned strings are "ab" and "aab"; "aa" doesn't contain either. OK.
+
+But could a prefix contain a banned string as substring while the processed string never landed on the banned state earlier? If p (prefix of some banned string) contains a banned string b as a substring, then the processed string ends with p, which contains b... but then the processed string would contain b, contradiction with validity (we'd have rejected). Unless b ends at position before the current moment... it would have been rejected at the time it completed. Since we only follow valid paths, p cannot contain a banned substring? Wait: processed string is valid means no banned substring. p is a suffix of processed string, so p cannot contain a banned substring. Good. So transitions only need to check the new suffix.
+
+Now is the state representation sufficient (i.e., is the longest-suffix-prefix state a sufficient statistic)? Yes, standard automaton: future behavior depends only on the longest suffix of processed string that is a prefix of some banned string. Because any banned string occurrence will begin at some position; the effect of the earlier part is only through overlapping suffix. Standard Aho-Corasick. But one subtlety: the state must also track whether a banned string has been seen — we reject immediately, so reachable states are valid. Also, could the "suffix that is a prefix" approach miss a banned string that ends at the current position but isn't the longest suffix... if a banned string b ends at current position, then b is a suffix of current string and b is in all_prefixes (full banned string is in prefixes). Longest suffix in prefixes might be longer than b, e.g., b="ab", prefixes include "abc" and "abcd"? Then longest suffix would be "abcd" if processed string ends with "abcd". But "abcd" as a prefix — if a banned string is "abcd"? Then "abcd" is banned, so reject. If "abcd" is a prefix of longer banned string "abce"? Hmm, prefixes: "a","ab","abc","abcd","abcde". Banned strings: "abce". Suffix "abcd" is a prefix but not banned → not rejected. The processed string ends with "abcd"; it contains "ab"? Only if b is a banned string. Banned = ["abce"] only. So "ab" is not banned. OK.
+
+But consider banned = ["abc", "abce"]. Processed string ends with "abcde"? Let's think: state before reading last char: suppose processed ends with "abcd" — wait "abcd" is prefix of "abce"? No, prefixes of "abce" are "a","ab","abc","abce". "abcd" is not a prefix of any banned string. Prefix set: for "abc": "a","ab","abc"; for "abce": "a","ab","abc","abce". Set {"","a","ab","abc","abce"}. If processed ends with "abcd", longest suffix in set: "abc"? No—processed ends with "abcd", suffixes: "d","cd","bcd","abcd",... none except "". So state "". Then reading 'e': s="de"? wait state "" then c='e': s="e", found "" → state "". The processed string contains "abc"? It ends with "abcd", so no. Contains "abce"? no. Fine.
+
+Now scenario: processed ends with "abc" (state "abc", but "abc" is banned → rejected at that step). Good: when we reading the 'c' that completes "abc", s ends with "abc", found "abc" (banned) → reject. ✓. Even if there were a longer prefix, e.g., banned = ["abcd", "abce"]? Prefixes: "a","ab","abc","abcd","abce". Processed ends with "abc": longest suffix in set = "abc" (since "abcd" and "abce" don't match suffix "abc"). "abc" not banned (banned are "abcd" and "abce") → not rejected. State "abc". Then reading 'd': s="abcd", found "abcd" banned → reject. ✓. Reading 'e': s="abce", found "abce" banned → reject ✓.
+
+Great.
+
+Now complexity fine.
+
+One more check: The transition found computation loops L from min(len(s), maxlen) down to 0. But all_prefixes contains strings up to maxlen (prefixes of banned strings). Any suffix in all_prefixes has length ≤ maxlen. Good. Also "" check: L=0, suffix="" and "" in all_prefixes → found="". So loop always terminates with found="" at worst. Good.
+
+Now alphabet: 2 to 4 distinct chars; may include characters not used in banned; fine. Note sorted(set(alphabet)) — order doesn't matter for count but stable deterministic.
+
+Return type int.
+
+Edge: n huge (1e18) — binary exponent loop ~60 iterations, matmul each ~ m^3 ≈ 8000 ops * small mod. Fine.
+
+Wait — we could stop the loop when k==0? We handle: if k: after decrement, square. Fine.
+
+Now also double check the example in problem statement: avoid_count(10**18, "ab", ["a"]) returns 1. ✓ our approach.
+
+Test another: avoid_count(0, "ab", ["a"]) → 1. Start v=[1], n=0 → return 1. ✓.
+
+avoid_count(1, "ab", ["a","b"]) → strings length 1: "a" contains banned "a" → invalid; "b" invalid → 0. States: all_prefixes {"","a","b"}, banned {"a","b"}, states [""]. Transitions from "": c="a": s="a", found "a" banned → reject. c="b": found "b" banned → reject. v=[1] → total 1? Wait start vector v[idx[""]]=1; transitions: v stays [1] with no transitions → total = sum(v) = 1?? That's wrong!
+
+Hold on. Binary exponentiation: applying 0 transitions gives v=[1], sum=1 — that's n=0. But n=1 means we must apply trans once: v = matvec(base, v). With no transitions, matvec gives [0]. sum=0. ✓. I confused myself. Good.
+
+Now also consider: does the vector approach double count reachable states that are unreachable? No.
+
+Potential issue: `states` includes only non-banned prefixes, but transitions for state p look up suffix in all_prefixes (banned too) to reject. Good.
+
+Potential performance: m small. Fine.
+
+One more subtlety: banned strings may include ones that are empty? Constraints say non-empty. We could defensively filter out empty strings (empty banned string would mean zero valid strings for any n≥... actually empty string occurs in every string, so answer 0 for n≥0? Empty string contains "" as substring trivially; every string contains the empty substring? Typically yes. But constraints say non-empty, so ignore.)
+
+Now write final code with clean structure.
+
+```python
+def avoid_count(n: int, alphabet: str, banned: list[str]) -> int:
+    MOD = 1_000_000_007
+    chars = sorted(set(alphabet))
+    banned = [b for b in set(banned) if b]
+    banned_set = set(banned)
+    all_prefixes = {""}
+    for b in banned:
+        for i in range(1, len(b) + 1):
+            all_prefixes.add(b[:i])
+    states = [p for p in all_prefixes if p not in banned_set]
+    states.sort(key=lambda s: (s != "", s))  # "" first
+    idx = {s: i for i, s in enumerate(states)}
+    m = len(states)
+    maxlen = max((len(b) for b in banned), default=0)
+
+    adj = [[0] * m for _ in range(m)]
+    for i, p in enumerate(states):
+        plen = len(p)
+        for c in chars:
+            s = p + c
+            found = ""
+            L = plen + 1 if plen + 1 < maxlen + 1 else maxlen
+            # simpler: L from min(len(s), maxlen) down to 0
+            L = min(plen + 1, maxlen)
+            while L >= 0:
+                suffix = s[plen + 1 - L:] if L else ""
+                if suffix in all_prefixes:
+                    found = suffix
+                    break
+                L -= 1
+            if found in banned_set:
+                continue
+            adj[i][idx[found]] = (adj[i][idx[found]] + 1) % MOD
+
+    def matmul(A, B):
+        res = [[0] * m for _ in range(m)]
+        for i in range(m):
+            Ai = A[i]
+            res_i = res[i]
+            for k in range(m):
+                aik = Ai[k]
+                if aik == 0:
+                    continue
+                Bk = B[k]
+                for j in range(m):
+                    bkj = Bk[j]
+                    if bkj:
+                        res_i[j] = (res_i[j] + aik * bkj) % MOD
+        return res
+
+    def matvec(M, v):
+        res = [0] * m
+        for i in range(m):
+            vi = v[i]
+            if vi == 0:
+                continue
+            row = M[i]
+            for j in range(m):
+                w = row[j]
+                if w:
+                    res[j] = (res[j] + vi * w) % MOD
+        return res
+
+    start = idx[""]
+    v = [0] * m
+    v[start] = 1
+    base = adj
+    k = n
+    while k:
+        if k & 1:
+            v = matvec(base, v)
+        k >>= 1
+        if k:
+            base = matmul(base, base)
+    return sum(v) % MOD
+```
+
+Wait, there's a subtle bug: `suffix = s[plen + 1 - L:]` where s has length plen+1, and L is the suffix length. s[plen+1-L:] — yes. But L here from maxlen down; when L=0, suffix="" handled. Good. Remove the weird L computation lines.
+
+Also `states.sort(key=lambda s: (s != "", s))` puts "" first ("" != "" is False → False < True). Good.
+
+One more consideration: the problem says "contain none of the strings in banned as a contiguous substring". Duplicates irrelevant. Empty n counts 1. Good.
+
+Matrix squaring each iteration except after final bit: with if k: base = matmul... this computes matmul for all iterations except the last. Good.
+
+Potential further optimization not needed.
+
+Now double check with examples mentally done. Let's also consider a tricky case: banned strings with repeats making the automaton: banned = ["aa", "aaa"]? Total length 5 ≤ 20. Prefixes: "a","aa","aaa". Banned set {"aa","aaa"}. states ["","a"]. Alphabet "ab". From "": c="a": found "a" → state "a". c="b": found "" → "". From "a": c="a": s="aa", found "aa" banned → reject. c="b": found "" → "". So valid strings: no two consecutive a's, i.e., avoiding "aa" entirely. Length 3: aba, abb, bab, bba, bbb = 5. Indeed avoiding "aa" supersedes. ✓.
+
+Banned = ["ab", "baa"]? Prefixes: "a","ab","b","ba","baa". Banned set {"ab","baa"}. States: "","a","b","ba". 
+Transitions:
+From "": c="a": s="a", found "a" → "a". c="b": s="b", found "b" → "b".
+From "a": c="a": s="aa", suffixes: "a" → found "a" → state "a". c="b": s="ab", found "ab" banned → reject.
+From "b": c="a": s="ba", found "ba" → state "ba". c="b": s="bb", suffixes: "b" → found "b" → state "b".
+From "ba": c="a": s="baa", found "baa" banned → reject. c="b": s="bab", suffixes: "b" → found "b" → state "b".
+Count length 3 avoiding "ab" and "baa": all strings over ab valid: enumerate length-3: aaa (contains? "ab"? no; "baa"? no) valid; aab contains "ab" → invalid; aba contains "ab" → invalid; abb contains "ab" → invalid; baa contains "baa" → invalid; bab: contains "ab"? positions: b-a-b: "ab" at positions 2-3 → yes invalid; bba: "ab"? no ("b","b","a": substring "ab"? positions 2-3 "ba" no; positions 1-2 "bb" no). "baa"? "bba" contains "baa"? no. valid; bbb valid. Count: aaa, bba, bbb = 3.
+Via DP: states order ["", "a","b","ba"]? states.sort: "" first, then others sorted by string: "a","b","ba". 
+v = (1,0,0,0).
+v'[j] = sum_i v[i]*M[i][j]:
+M[""] = {"":0? let's map}: from "": → a (1), → b (1). So M[""] = [0,1,1,0] (indices 0="",1="a",2="b",3="ba").
+M["a"]: c="a"→"a": M[1][1]=1; c="b"→reject. M[1]=[0,1,0,0].
+M["b"]: c="a"→"ba": M[2][3]=1; c="b"→"b": M[2][2]=1. M[2]=[0,0,1,1].
+M["ba"]: c="a" reject; c="b"→"b": M[3][2]=1. M[3]=[0,0,1,0].
+v' = (1*0, 1*1, 1*1, 0) = (0,1,1,0). length1 valid strings: "a","b" = 2 ✓.
+v'' = (0, v'*...) let's compute: v''[0] = v[0]*M[0][0] + v[1]*M[1][0] + v[2]*M[2][0] + v[3]*M[3][0] = 0. v''[1] = v'[0]*M[0][1] + v'[1]*M[1][1] + v'[2]*M[2][1] + v'[3]*M[3][1] = 1*1 + 1*0 = 1. v''[2] = v'[0]*M[0][2] + v'[1]*M[1][2] + v'[2]*M[2][2] + v'[3]*M[3][2] = 1*1 + 1*1 = 2. v''[3] = v'[2]*M[2][3] = 1. total = 1+2+1 = 4. Length-2 valid strings avoiding "ab" and "baa": aaa? wait length 2: strings over {a,b}: aa (valid? contains "ab"? no; "baa"? too long) valid; ab invalid; ba valid; bb valid → 3 valid. But our total is 4?? Let me recompute.
+
+Hmm wait v'' should count strings of length 2. Start v=(1,0,0,0). v' = matvec(adj, v) is length-1 distribution. Let's recompute v':
+v'[0] = sum_i v[i] M[i][0] = 1 * M[0][0] = 1*0 = 0. ✓ ("": no char leads to "").
+v'[1] = 1 * M[0][1] = 1. ✓.
+v'[2] = 1 * M[0][2] = 1. ✓.
+v'[3] = 1 * M[0][3] = 0. ✓.
+v' = (0,1,1,0). Sum 2 = 2 valid strings of length 1: "a","b". ✓.
+
+v'':
+v''[0] = v'[0]M[0][0] + v'[1]M[1][0] + v'[2]M[2][0] + v'[3]M[3][0] = 0.
+v''[1] = v'[1]M[1][1] + v'[2]M[2][1] = 1*1 + 1*0 = 1.
+v''[2] = v'[1]M[1][2] + v'[2]M[2][2] = 
+=== CONTENT ===

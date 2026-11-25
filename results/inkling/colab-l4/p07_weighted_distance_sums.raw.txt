@@ -1,0 +1,106 @@
+=== REASONING ===
+We need answer code only. Need reason fully here. Problem: Compute S(v)=sum_u w[u]*dist(u,v) for every node tree. Standard reroot tree DP.
+
+Let total = sum w. For node v, sum_{u} w[u]*dist(u,v) = sum_{u not in subtree?} ... Use postorder from root 0. Let down[v] = sum_{u in subtree(v)} w[u], down_dist[v] = sum_{u in subtree(v)} w[u] * dist(u,v) (distance within subtree from v). Then for child c of v (assuming tree rooted at 0), contribution of subtree c to S(v) excluding? Formula:
+
+For root r=0:
+down[v] = sum_{u in subtree v} w[u]
+downdist[v] = sum_{u in subtree v} w[u]*dist(u,v)
+
+For each v, total S(v) = ? Can compute via DP:
+For node v, for each child c, if we know S(parent[v]) maybe add delta.
+Reroot formula: For root 0, S(0)=sum_edges? Simplest O(n):
+Root tree at 0. Compute subtree sums: W[v]=sum w in subtree, D[v]=sum w[u]*dist(u,v) over subtree.
+Then compute S(v) using formula: For node v, S(v) = sum_{u not in subtree(v)} w[u]* (dist(u,v)). For u outside subtree(v), dist(u,v)=dist(u,parent[v]) + 1 (if v not root) but dist(u,parent) depends on u relative to parent. Standard technique: define for edge parent p of v: contribution from parent's side excluding subtree v.
+
+Let's derive. Root tree. For node v, S(v)= sum_{u in subtree(v)} w[u]*dist(u,v) + sum_{u notin subtree(v)} w[u]*dist(u,v).
+First term D[v]. Second term: For root 0, no parent side: S(0)=D[0]. For non-root v with parent p: outside subtree(v) consists nodes in p's subtree outside subtree(v), plus ancestors above p. For u outside subtree(v), dist(u,v)=dist(u,p)+1. Sum = sum_{u notin subtree(v)} w[u]*dist(u,p) + sum_{u notin subtree(v)} w[u].
+Now sum_{u notin subtree(v)} w[u]*dist(u,p) = S(p) - sum_{u in subtree(v)} w[u]*dist(u,p)? Wait S(p)=sum_{all u} w[u]*dist(u,p). Subtract u in subtree(v): dist(u,p)=dist(u,v)+1. So subtract [D[v] + W[v]]. Thus sum outside subtree(v) w[u]*dist(u,p) = S(p) - D[v] - W[v].
+Then sum outside subtree(v) w[u] = total - W[v].
+So S(v)= D[v] + [S(p) - D[v] - W[v]] + [total - W[v]] = S(p) - W[v] + total - W[v] = S(p) + total - 2*W[v].
+Check with example: path 0-1-2, w=[1,10,100]. total=111. Root 0. W[2]=100, D[2]=0. S[2]=? node2: u0 dist2*1=2,u1 dist1*10=10,u2 0 =>12. Formula S(2)=S(1)+total-2*W[2]. Need S(1)=? node1: u0 dist1=1,u1 0,u2 dist1*100=100 =>101. total-200=-89; S(1)-89=12 yes. S(1)=S(0)+total-2*W(1). W(1)=110, S(0)=u0 0 +u1 10*1 + u2 100*2 =210. S(1)=210+111-220=101 yes. Good.
+
+Implementation details: n up to 2e5, recursion depth issue. Use iterative stack or set recursionlimit. Safer iterative. Build adjacency. Root at 0. Do iterative DFS to get parent, order. Compute W and D postorder. Then traverse preorder computing S[v]. Use stack. Need avoid cycles: parent array. For n=1, adjacency empty, edges empty, compute S=[0]? Node0: sum w[0]*dist(0,0)=0. total etc still works: S[0]=D[0]=0.
+
+Let's craft:
+def weighted_distance_sums(n, edges, w):
+    adj=[[] for _ in range(n)]
+    for a,b in edges: adj[a].append(b); adj[b].append(a)
+    parent=[-1]*n; parent[0]=0 maybe mark visited.
+    order=[]
+    stack=[0]
+    visited=[False]*n; visited[0]=True
+    while stack:
+        v=stack.pop(); order.append(v)
+        for u in adj[v]:
+            if not visited[u]:
+                visited[u]=True; parent[u]=v; stack.append(u)
+    total=sum(w)
+    W=[0]*n; D=[0]*n
+    for v in reversed(order):
+        W[v]=w[v]; D[v]=0
+        for u in adj[v]:
+            if u==parent[v]: continue
+            W[v]+=W[u]; D[v]+=D[u]+W[u]  # distance from v to nodes in child subtree = dist(u,child?) Let's verify: sum_{u' in subtree(child)} w[u']*dist(u',v) = sum w[u']*(dist(u',child)+1) = D[child] + W[child]. Yes.
+        # no need add w[v]*0
+    S=[0]*n
+    S[0]=D[0]
+    # iterate order (parents before children because order is preorder from DFS stack? Stack DFS order: parent pushed before child; pop yields parent before child, yes order is preorder. Since parent marked visited before children pushed? In our loop, when popping v, mark children visited and push; parent appears in order before children. Good.)
+    for v in order:
+        sv=S[v]
+        for u in adj[v]:
+            if u==parent[v]: continue
+            S[u]=sv + total - 2*W[u]
+    return S
+Check formula uses W[u] where u is child subtree. Yes.
+
+Need be careful parent[0]=0 sentinel; when iterating child of 0, u==parent[u]=0, skip? For node v=0, for u in adj[0], parent[u]=0 equals v, but condition u==parent[v] compares child u to parent[v]; parent[0]=0, not equal to u (u!=0), so would process child even though u is child; good. For child u, parent[u]=0. In reversed(order), for v, skip u==parent[v]: For v child, parent[v]=0; skip u=0. Good. For root v=0, parent[0]=0, skip u==0? Are there u==0 in adj[0]? No self loops presumably. Fine.
+
+Potential recursion? none.
+
+Complexity O(n). Need reply only code block no explanation. Ensure function top-level. Use list[list[int]] annotations OK py3.10? list[list[int]] requires 3.9+ if built-in generics; fine. But user explicitly says Python3 and signature; okay.
+
+Need only code block. Done.
+=== CONTENT ===
+```python
+def weighted_distance_sums(n: int, edges: list[list[int]], w: list[int]) -> list[int]:
+    adj = [[] for _ in range(n)]
+    for a, b in edges:
+        adj[a].append(b)
+        adj[b].append(a)
+
+    parent = [-1] * n
+    visited = [False] * n
+    visited[0] = True
+    order = []
+    stack = [0]
+    while stack:
+        v = stack.pop()
+        order.append(v)
+        for u in adj[v]:
+            if not visited[u]:
+                visited[u] = True
+                parent[u] = v
+                stack.append(u)
+
+    total = sum(w)
+    W = [0] * n
+    D = [0] * n
+    for v in reversed(order):
+        W[v] = w[v]
+        D[v] = 0
+        for u in adj[v]:
+            if u == parent[v]:
+                continue
+            W[v] += W[u]
+            D[v] += D[u] + W[u]
+
+    S = [0] * n
+    S[0] = D[0]
+    for v in order:
+        for u in adj[v]:
+            if u == parent[v]:
+                continue
+            S[u] = S[v] + total - 2 * W[u]
+    return S
+```

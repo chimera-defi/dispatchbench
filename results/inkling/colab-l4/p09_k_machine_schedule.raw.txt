@@ -1,0 +1,253 @@
+=== REASONING ===
+We need answer code only. Need solve problem. Let's reason thoroughly.
+
+Problem: given jobs with intervals and pay, k identical machines, choose max total pay such that at most k jobs overlap at any time (assuming half-open, endpoints can share). n<=300, k<=10. Need exact.
+
+This is weighted interval scheduling with k machines. Classic DP over sorted jobs by end: dp[i][...] maybe. For k machines, can use DP with bit? n=300, k=10. Need O(n^2 log n) or O(n^2 k) maybe.
+
+Several approaches:
+1. Sort by end. Define dp[j] maybe maximum total pay considering jobs with end <= jobs[j].end? But with multiple machines and intervals, need more than just last job.
+
+Standard k-machine weighted interval scheduling DP:
+- Sort jobs by end time.
+- Let p[j] = largest index i with jobs[i].end <= jobs[j].start (compatible predecessor).
+- dp[j][m]? Hmm with k machines, if we fix processing order by end, state can be vector of machine availability times? n=300, k=10 -> state spaces large.
+
+Known solution for k machines: DP over subsets? Since k<=10 and n<=300, maybe DP over jobs and bitmasks of machines? But machines identical, not assignable. Need max pay. n=300, k<=10. Could do min-cost max-flow? Given intervals with capacity k and profits, selecting max weight set with depth <= k is a maximum weight independent set in interval graph with clique constraint. Interval graphs are perfect; weighted k-track assignment? We can model as min-cost max-flow over time points: sort event points, create nodes for boundaries, edge from time point to next time point with capacity k and cost 0 (machine capacity over time), and for each job an edge from start to end with capacity 1 and cost -pay. Find min cost flow? Need max profit. Standard: discretize event times, network with nodes time points, edges between consecutive times capacity k cost 0; each job edge capacity 1 cost -pay (or profit). Send k units of flow from earliest to latest time? Let's recall.
+
+Weighted interval scheduling on k machines: Create sorted unique event times. Graph with source at first time, sink at last time. Add edges from time_i to time_{i+1} with capacity k, cost 0. For each job [s,e), add edge from s to e with capacity 1, cost = -pay. Find min-cost flow of k units from source to sink. Each unit corresponds to a machine going from start to end. Along time edges, machine is idle; along job edge, machine runs job paying -pay. Since edges idle capacity k and job capacity 1, selecting job means k? Actually sending k units: each unit travels from first time to last. If unit takes job edge from s to e, it must pass through nodes? In network, source to sink, idle edges can be used by at most k units total; job edge by at most one. Min-cost flow of k units from earliest to latest with job edges negative cost and idle edges cost 0. This will route each machine along its interval as a path of idle/job edges. It selects jobs such that total machine usage over any time <= k, because idle edge capacity k; job edges are extra? Wait if job edge used, the flow from s to e bypasses intermediate idle edges. Then time edges before s and after e used by that flow. Over each elementary time segment, total flow (including those on job edge maybe?) Need ensure capacity. Standard construction: edges from t_i to t_{i+1} capacity k cost 0; job edge from start node to end node capacity 1 cost -profit. Send k units source->sink. If a machine takes job edge from s to e, it does not use idle edges for segments inside [s,e). In that segment, the flow count through idle edges decreases by 1 (assuming other machines maybe idle). But we need bound active jobs <= k. At any time, number of flows using job edges covering segment = ? Need check.
+
+The standard reduction for interval scheduling with m machines: sort all endpoints. Add source->first edge capacity m? Let's derive. Actually for k machines, if you send k units from first endpoint to last endpoint, the path consists of idle edges and job edges. For any segment [t_i,t_{i+1}), let F_i = flow on idle edge i. Let J_i = number job edges covering segment. Total machines = k. Each machine is either idle in segment or working a job covering segment (not exactly because job may start/end within segment? event points include all endpoints so segment has no endpoints inside, yes). So k = F_i + J_i. Need J_i <= k. But F_i >=? edge capacity k doesn't lower bound F_i; if J_i > k, then F_i = k - J_i <0 impossible, so cannot because flow must equal k on idle edge? Wait flow conservation along path with idle edge and job edge branches: Does flow on edge i necessarily equal k - J_i? Let's set source at t_0, sink at t_N. There is path decomposition into k units. Every unit has a path with idle edges and job edges. Sum over units of 1 over segment = k (each unit is somewhere? In each segment between consecutive event points, each unit either takes a job edge covering it or an idle edge; cannot be elsewhere because path from source to sink must pass through every segment? Could a unit jump over a segment via job edge that starts before and ends after, so it doesn't traverse idle edge for that segment. It still conceptually is working during segment, counted in J_i. Or it takes idle edge for segment, counted in F_i. It cannot skip segment without job edge covering it? It ends at sink at last endpoint; within segment i, to get from source to sink, each unit's path either uses idle edge i or a job edge spanning segment i. It cannot be absent. So k = F_i + J_i exactly. Idle edge capacity k means F_i<=k, but F_i=k-J_i, so k-J_i <= k -> J_i>=0, no upper bound. Need also F_i maybe >=0 due to flow nonneg; k-J_i >=0 => J_i<=k. Ah flow on idle edge cannot be negative, so J_i<=k. Good. Job edge capacity 1 ensures job selected once. Min-cost flow with negative job edges will select max profit (min cost = -profit). This seems valid.
+
+But implement min-cost max-flow for n=300, time points <=600, k<=10. Straightforward. Need be careful: number unique event times can be 600, edges fine. Source earliest, sink latest. Add edge source? Actually source at earliest event time, sink at latest event time. Need k units from earliest node to latest node. Since all jobs within [min start, max end], source=earliest start maybe. But some jobs start later; okay. Add edge from last time to sink? Could set source = first time node and sink = last time node. Then every unit must traverse entire timeline; job edges can shortcut over idle edges. But if a unit uses job edge from s to e, flow conservation at s? Source to node s via idle edges; at s, flow splits? Network: node s has incoming idle edge(s), outgoing idle edge to next and job edges starting at s. Flow can choose to go through job edge. At e, flow incoming from job edge and idle edge, goes outgoing idle edge to next. Conservation works. Costs: job edge negative, idle edge zero. Min-cost flow k units. Because idle edges cost zero, flow will not use job edges unless negative cost, and job edges capacity 1. It will select set of jobs with depth <=k max profit. Need ensure at most one job per machine and no overlap conflict if same time? Half-open [start,end): job ends at t and job starts at t can be same printer. In graph with nodes at exact event times, idle edge capacity k allows flows to be idle across segment [t,next). Job edge ending at t and another job edge starting at t can be sequential for same unit because unit path: job to t, then idle edge t->next, then job edge from t? Wait if unit path goes from job edge ending at t, it reaches node t. At node t, incoming flow from job edge and outgoing edges include idle edge t->next and job edge t->e'. Flow can split? For a single unit of integral flow, path decomposition: it can go job edge to t then immediately job edge starting at t? Does flow conservation allow that? Yes at node t, flow entering from job edge can leave via a job edge starting at t. But there is also idle edge; if job edges share node, flow can go from one job edge into another job edge with no idle edge. This represents sequential jobs on same machine. Good. Capacity of job edge 1. Need ensure no job selected more than once, edge capacity 1. Good.
+
+But is min-cost flow with negative edges and zero idle edges always find max profit under depth<=k? Standard yes. Costs: job edge cost -pay. We need send exactly k units from source to sink. If there aren't enough resources? Idle edges capacity k allow all units to pass to sink even if no jobs. Good.
+
+Complexity: nodes up to 600, edges: idle edges <=599, job edges <=300, but in min-cost flow with Dijkstra and 10 units, k<=10 but flow k units not necessarily one at a time? Actually sending k units of flow of value 1 each, min cost flow algorithm could augment one unit at a time: at most k augmentations (<=10). Each augmentation Dijkstra over graph with nodes <=600 and edges ~ (idle 599*2 + job 600? Actually directed reverse edges for each; maybe 1800 directed edges). Very fast. Need handle negative costs: use Bellman-Ford initially or potentials (Johnson) since idle edges zero and job negative; no negative cycles? There are no cycles in time-directed graph except reverse edges may create cycles in residual graph. Dijkstra with reduced costs after initial Bellman-Ford or use potentials with negative edges. Simpler: since edges are directed forward in acyclic original graph plus reverse residual edges backward. Residual graph with negative reverse edges can have cycles (idle forward zero then reverse job back? Let's examine: Original forward edges: idle cost0 increasing, job cost negative increasing. Residual after some flow includes reverse edges with cost +pay (if job selected) or 0, and forward remaining. There can be cycles in residual graph by going forward on idle edge zero, reverse edge back? e.g. cycle: node t_i -> idle forward zero to t_{i+1}, then reverse job edge? reverse job edge from e to s would go backward across multiple segments, possibly to s <= t_i? Need cycles maybe. Negative cost cycles in residual could exist if positive net? We want min cost flow; cannot assume no negative cycles in residual if using greedy. But for this construction, the min-cost flow with exactly k units should be found by augmenting along shortest path in residual graph with reduced costs. Need initialize potentials properly. Since original graph has negative job edges, use Bellman-Ford to set potentials from source before each Dijkstra, or use SPFA each augmentation. n small (<=600) so easiest: implement min-cost flow using Dijkstra with potentials computed via Bellman-Ford at start of each augmentation or globally. Because graph has possible negative edges, simple Dijkstra with potentials requires initial potential satisfying. Standard: run Bellman-Ford once to set initial reduced costs nonnegative (for all nodes reachable from source in original graph). Then during augmentations, when Dijkstra shortest path distance d, update potentials; no need re-run Bellman-Ford if algorithm maintains invariant (assuming no negative reduced edge when Dijkstra). Reverse edges have cost = -original cost; after potentials, reduced costs remain nonnegative if potentials are valid (phi_v >= phi_u + cost(u,v)? Actually reduced cost = cost + phi_u - phi_v; Dijkstra with potentials needs all reduced costs >=0 initially and after update). Standard algorithm works with valid potentials. Initialize phi = shortest distances from source using Bellman-Ford (to all nodes). For unreachable nodes set phi=0? But source can reach all nodes via idle edges (capacity k; all time nodes connected forward). Good. Then run k augmentations. Each augmentation selects shortest residual path by Dijkstra using reduced costs; update potential phi[v] += dist[v] (where dist is shortest path from source). Need be precise with sign. Common implementation:
+- potential[v] = 0 initially; Dijkstra with adjusted cost = dist[v] + potential[v] - potential[u]? Hmm.
+
+Let's recall min-cost max-flow with potentials:
+For each node v, maintain h[v]. Initially h = 0 (or shortest distances). When Dijkstra from s to t with edge weight cost[u][v] + h[u] - h[v], if dist[t] finite, update h[v] += dist[v] for all v. Then path cost true = dist[t] (plus h[t]-h[s] maybe). Actually dist returned in reduced costs; actual path cost = dist[t] + h[s] - h[t]? If s fixed h[s]=0 and h[t] after update? Standard:
+```
+while flow < k:
+  Dijkstra with weight = edge.cost + h[u] - h[v]
+  if dist[t] inf: break/assert
+  update h[v] += dist[v] for all v (where dist finite)
+  augment along path
+```
+Initial h must be such that reduced costs nonnegative. If h all 0 and graph has negative edges, Dijkstra invalid. Need initial Bellman-Ford to get h maybe equal to true shortest distances from s in original graph (negative edges). Then reduced cost = cost + h[u] - h[v]. If h is true shortest distance from source (h[v] <= h[u]+cost for all edges), then h[u]-h[v]+cost >=0? We need cost + h[u] - h[v] >=0. Since h[v] <= h[u]+cost (shortest to v via u), h[u]+cost - h[v] >=0 -> cost + h[u] - h[v] >=0. Yes. Good. Then maintain. After augmentation, h[v] += dist[v] (where dist reduced distances from source after update? Let's test: Standard formula with potentials: during Dijkstra, compute d[v] = min true cost? Actually many implementations use `dist[v] = min(dist[u] + cost + h[u] - h[v])`, update `h[v] += dist[v]`. Then path cost = dist[t] + h[t]? Let's recall exact. Alternately use Bellman-Ford each augmentation (slow but fine). Simpler to avoid bugs: since nodes<=600 and augmentations<=10, run Bellman-Ford each augmentation to find shortest residual path (O(VE) ~600*1800=1e6 per aug, fine). That handles negative residual edges. Then augment one unit. Complexity okay (10*1e6=1e7). This is robust and simple.
+
+Need define network nodes. Let's construct:
+```
+times = sorted({job[0] for job in jobs} | {job[1] for job in jobs})
+idx = {t:i for i,t in enumerate(times)}
+nodes: 0..len(times)-1 source=0 sink=len(times)-1? But source at min time. If jobs only span entire range? All jobs within; source first endpoint (minimum start among jobs or overall?). If we include only event times from jobs, source is min job start, sink max job end. Good. If jobs list empty, times empty; return 0.
+edges between consecutive times: for i in range(n_times-1): add edge i -> i+1 capacity k cost 0.
+For each job: u=idx[start], v=idx[end]; add edge u->v capacity 1 cost = -pay.
+Need maybe source node has incoming? no. Sink last time. Send k units from source to sink. Since time graph acyclic, but residual cycles; Bellman-Ford handles. Number nodes <=600 (n=300 jobs -> endpoints <=600; if duplicate times reduce). Edges: add directed edge with reverse. Use Bellman-Ford each augmentation:
+```
+def min_cost_flow(source,sink,k):
+  flow=0; total_cost=0
+  while flow<k:
+    dist = [inf]*m; dist[source]=0; parent=[None]*m
+    relax all edges (u,v,cap>0): if dist[u]+cost<dist[v]: update. Because residual may contain negative edges; need at most m-1 passes and handle negative cycle. If in last pass update found, negative cycle -> should not happen for finite shortest path if flow not optimal? In min-cost flow, a negative cycle in residual indicates current flow is not optimal; should augment along negative cycle, but if we augment one unit from source to sink with shortest path, negative cycles should be absent at optimality but may exist during augmentation? Starting with zero flow and k units, after an augmentation, residual graph might contain negative cycles? In min-cost flow with fixed sink, the algorithm of shortest augmenting path maintains optimality if no negative cycles in residual initially (yes original graph has negative job edges but no cycles; residual initially acyclic? reverse edges exist but unused, cap? Initially reverse edges cap 0, not considered. Dijkstra/Bellman-Ford shortest path from source to sink. After augmentation, residual has reverse edges with cost +pay (positive) and forward idle edges zero. No negative residual edges? Wait original job forward edge negative remains if capacity 1 and not saturated: if we selected a job, its forward residual capacity 0, reverse residual cap 1 cost +pay positive. If same job edge unused, still forward negative available; residual graph contains negative idle? It contains forward job edges negative (capacity 1) and reverse edges positive. Could there be negative cycle in residual? Example nodes 0<1<2. Idle edge 0->1 cost0, job edge 0->2 cost -5, reverse edge 2->0 cost +5 (if job selected). Cycle 0->1 (0) ->? 1->2 idle (0) -> reverse 2->0 (+5) total +5 positive. Another: job edge 0->2 -5, reverse idle? Idle forward never selected? Flow along idle edge leaves reverse idle edge with cost0 cap maybe; cycle 0->1 idle0 (reverse? forward) ->1 reverse? 1->0 reverse if flow used on 0->1; cost0, cycle 0->1 (0)->0 (0) total0. No negative cycle likely because idle reverse cost0 and job reverse positive, job forward negative only from earlier to later; a cycle must go backward via reverse edge(s). Reverse job edge from later e to earlier s cost +pay; then from s to e via forward job edge? That would be cycle s->e job (-pay), e->s reverse (+pay) total0, but to use reverse e->s requires flow on job, and forward job edge residual cap 0 (selected) or maybe if flow used by machine on job edge, forward cap=0. So cannot. Reverse idle edges cost0, cycles zero. Negative cycle not likely. Bellman-Ford can assert. But after augmenting one unit, reverse edges for idle segments used by that unit cap1 cost0. Reverse edge from later to earlier; forward job edge from earlier to later negative remains if unused. Example cycle: forward idle 0->1 0, forward idle 1->2 0, reverse idle 2->1 0, ... not negative; forward job from 0 to2 negative plus reverse idle? Need path from later node back to earlier only via reverse edge(s). If we take reverse idle edge 2->1 cost0 and reverse idle 1->0 cost0, no job. If reverse job edge e->s positive to go back to s, then forward job edge s->e capacity? selected so cap0, cannot use. Forward job edge s->mid? negative and reverse job? selected cap0. Forward idle path from s to e along nodes, then reverse job edge e->s positive total pay >0. No negative cycle. Good.
+
+Implement Bellman-Ford to find path (shortest) from source to sink. If sink unreachable or dist[sink] inf, break/return total_cost (shouldn't happen because idle edge enough for k units; all source/sink connected by idle cap k so dist finite). Then augment 1 unit along parent. total_cost += dist[sink]. Need ensure path can be augmented by 1: path consists of residual edges with cap>0; augment 1, decrement source-to-sink path capacities; reverse increment. The flow amount needed exactly k; if k <= number machines always. If flow reaches sink after k augmentations, done. Since idle edge capacity k, not issue.
+
+Then answer = -total_cost (since costs negative). Because path dist computed with residual edge costs including original negative job edges, total_cost = sum of edge costs along augmented paths = - selected pay. Need not separately handle. Return max total pay. Ensure if jobs empty return 0.
+
+Check examples:
+Example1: k=1, jobs [[0,4,5],[1,3,4],[3,6,4]]. times=[0,1,3,4,6]. Idle cap1. Need min cost flow 1 unit. It will choose jobs? Better path0->3? Let's not manually.
+Optimal: select first [0,4] pay5 and second? [1,3] overlaps first, cannot with k=1? [3,6] pay4 compatible with first? first ends at4, third starts at3 overlap, not compatible. Wait with 1 machine, jobs [0,4] and [3,6] overlap (3<4) cannot both. [1,3] and [3,6] compatible total8. [0,4] alone 5. So max8. Good.
+Example2: jobs: [0,10,9], [0,5,5], [5,10,5], [0,10,1], k=2. Optimal 19: select [0,5]5 + [5,10]5 + [0,10]9? Wait depth: [0,5] and [5,10] plus [0,10]? [0,10] overlaps all, depth with [0,5]=2, with [5,10]? [5,10] starts at5, [0,10] overlaps [5,10], so depth [0,5]: [0,5]&[0,10]=2; [5,10]: [5,10]&[0,10]=2; [0,10] alone 1. total 5+5+9=19. Yes.
+
+Need consider all jobs have distinct times? duplicates handled. n=0: times empty, times list empty, return 0 before.
+
+Now, exact function. Need no explanatory output. Single code block only.
+
+Potential subtlety: Constraints include 0 <= len(jobs) <=300. Need handle jobs with start=end? constraints start<end. k>=1.
+
+Potential issue with min-cost flow and idle edge capacity k for every elementary segment and job edges. Let's prove more rigorously to avoid wrong result. Let time points sorted unique. There is one unit path per machine? Sending exactly k units integral. We use augmenting 1 unit at a time; flows are integral (capacities integer). Decompose into k paths. For any segment i, total flow through idle edge i = F_i. Since k units each segment either traverse idle edge i or a job edge spanning segment i? Is it possible a unit's path passes through segment i via reverse edge? Flow path decomposition of augmenting path decomposition: Each augmentation path from source to sink uses residual edges. If a path later gets rerouted through reverse edges (augmentations after initial choices), decomposition still yields k paths that are nondecreasing? In residual graph, reverse edges go backward; a unit path in final flow decomposition can include reverse edges if considered? Flow decomposition of a circulation/flow with negative edges yields k paths that may include reverse edges? Actually flow value k from source to sink is a valid k-flow; by integral flow theorem, decomposes into k source-sink paths (not necessarily monotonic). If an augmenting path can include reverse idle edges, final decomposition might contain backward segments; but such a decomposition corresponds to same total flow; however we need interpret selected jobs. There could be overlapping selections weirdly? Standard min-cost flow reduction is valid for selecting intervals; augmentation paths may backtrack to improve, final flow represents a feasible k-machine schedule. Need ensure selected job edges (net flow on forward job edge) form a feasible set. In final flow, each job edge has net flow either 0 or 1 (capacity 1 forward). For any segment, idle flow F_i plus number of selected jobs spanning segment? Need derive with net flows and source-sink flow k (not necessarily monotonic). In a valid flow in this network with no circulation? Flows may include cycles, but min total cost with zero/positive edges and negative job edges should have no positive cycles; there may be zero cycles involving reverse idle edges? But final flow can be chosen acyclic? Standard feasible k-track selection corresponds to flow with no backward residual? Let's examine. The network has directed edges forward in increasing time. A valid flow of value k need not be monotonic; but any flow can be decomposed into k source-sink paths plus cycles. Positive/zero cycles are never beneficial for min cost; shortest augmenting paths will not create cycles? In min-cost flow with successive shortest paths, augmenting along shortest path in residual graph may include reverse edges; the final flow is a valid k-flow. It can have cycles in decomposition? If a path includes reverse edge, it goes backward; path decomposition into unit paths may produce paths that move backward and forward, corresponding to machines not simple monotonic schedules. But the flow value k at each segment: F_i (net forward? Need net on idle edge) could be negative or positive. Since F_i = sum of path contributions that use idle edge i; if a unit path goes backward across segment via reverse idle edge, then its net contribution to idle edge is -1. But final flow on idle edge F_i is a net amount (could be negative) and must satisfy capacity 0<=F_i<=k. Also job edge net 0/1. Need relation for active jobs. Let net job edge flow j_a ∈ {0,1} (could be negative? capacity 1 forward, but reverse flow from augmentations could make net flow? In final flow, net flow on job edge must be between 0 and capacity? In feasible flow with lower bound 0 default, yes net flow on forward edge >=0 and <=1; reverse capacity = net; if net=1, forward remaining cap0, reverse cap1; if net=0, forward cap1, reverse cap0. Good.) For idle edges, net flow r_i ∈ [0,k]. Flow conservation at node v. For node between segments, let out_idle = r_i (edge i to i+1), in_idle = r_{i-1} (edge i-1 to i). Job edges starting at v have total net J_start(v), job edges ending at v total net J_end(v). Conservation: in_idle + J_end = out_idle + J_start? Actually for node v, incoming flows = outgoing flows. Incoming: r_{i-1} (from previous idle edge) + sum net job edges ending at v (if start<=v? end node) + maybe job edge ending at v? Job edge from s to e entering e. Outgoing: r_i + sum net job edges starting at v. So r_i = r_{i-1} + sum_end_in(v) J - sum_start_out(v) J. Starting r_0? Source first node has no in, outgoing r_0 + J_start(source) = k? At source (min endpoint), incoming none; outgoing idle r_0 + job edges starting at source = k (flow value). Thus r_i = k - sum_{jobs spanning segment i} net_job_flow. Since at each node, increments subtract outgoing job edges and add incoming ended jobs. This holds. Then r_i = k - J_i (where J_i number selected jobs spanning segment i). Because feasibility 0<=r_i<=k, J_i<=k and J_i>=0. Good. Even if decomposition has backward path weirdness, net flows validate feasible set. The net flow on idle edge r_i is a net amount but not negative due to capacity/lower bound. Great. So valid.
+
+Do we need to send exactly k units? Suppose fewer than k machines are needed; sending exactly k units with idle edges uses all machines idle extra; fine. Objective independent of extra machines. Good.
+
+Complexity okay. Now code. Need no extra text. Single python block. Ensure top-level function only. We can include imports? The function uses no imports except maybe math.inf. Type hints list[list[int]] requires Python3.9+ (ok). We can implement class Edge? Not class. We can implement list-of-lists edges.
+
+Implementation details:
+```
+def k_machine_schedule(jobs: list[list[int]], k: int) -> int:
+    if not jobs:
+        return 0
+    times=sorted(set(x for job in jobs for x in job[:2]))  # works job[0], job[1]
+    # Better explicitly:
+    times = sorted({job[0] for job in jobs} | {job[1] for job in jobs})
+    pos = {t:i for i,t in enumerate(times)}
+    n=len(times)
+    # graph arrays
+    # edges as list [u,v,cap,cost, next?] simpler use arrays
+    class? No class allowed? top-level function only not class means no class definitions; inside function can we define? They said implement exactly this function (a top-level function, not a class). Avoid defining classes nested? Simpler no class.
+    N=n
+    # store edges as list of dict? maybe use lists.
+    # Each undirected edge: [u,v,cap,cost]; reverse is [v,u,0,-cost]. Manage cap on directed edge.
+    graph=[] # list of edges, each [u,v,cap,cost]
+    def add_edge(u,v,cap,cost):
+        graph.append([u,v,cap,cost])
+        graph.append([v,u,0,-cost])
+    for i in range(n-1): add_edge(i,i+1,k,0)
+    for s,e,p in jobs: # job may length 3 only
+        u=pos[s]; v=pos[e]
+        add_edge(u,v,1,-p)
+    source=0; sink=n-1
+    flow=0; cost=0
+    # Bellman-Ford augmenting path
+    while flow<k:
+        dist=[float('inf')]*n
+        parent=[None]*n # store (u,edge_index)
+        dist[source]=0.0
+        updated=True
+        # since graph small and negative edges maybe, run n-1 passes
+        for _ in range(n-1):
+            updated=False
+            for idx,(u,v,cap,edge_cost) in enumerate(graph):
+                if cap<=0: continue
+                if dist[u] + edge_cost < dist[v]:  # no epsilon, all integer
+                    dist[v]=dist[u]+edge_cost
+                    parent[v]=(u,idx)
+                    updated=True
+            if not updated: break
+        if parent[sink] is None and dist[sink]==float('inf'): # should not happen
+            break
+        # negative cycle check? optional: check after no updates; if still dist[sink] inf -> break.
+        # To augment, path edges: need find edge chosen by parent[v]
+        # but parent stores edge index from u to v.
+        # augment 1
+        v=sink
+        while v!=source:
+            u,idx=parent[v]
+            graph[idx][2]-=1
+            graph[idx^1][2]+=1
+            v=u
+        flow+=1
+        cost += dist[sink]
+        if dist[sink] == float('inf'): break
+    return -cost
+```
+Need check `parent` assignment for reverse edges. In graph, add_edge appends forward edge index idx and reverse edge idx+1. When relaxing, if edge cap>0, we set parent[v]=(u,idx). Then augment uses graph[idx] decrement; reverse edge idx^1 (since appended consecutive) increment. Since `idx^1` works if edges appended in pairs. Yes, graph always even; for even idx forward, reverse idx+1 = idx^1; for odd idx reverse, forward idx-1 = idx^1. Good.
+
+Potential issue: Bellman-Ford relaxation with `dist[u] + edge_cost < dist[v]` can use `dist[u] == inf` and overflow? In Python float inf + finite = inf, comparison inf < inf false; if dist[v] inf, inf < inf false. OK. If dist[u] finite and edge_cost negative makes dist[v] lower. Good. Since all edges finite nodes maybe unreachable? source connected.
+
+Negative cycle detection: We run n-1 passes, then check no update maybe; but negative cycle can cause dist[sink] to decrease indefinitely in passes. With n<=600 and exact integer costs, if negative cycle exists, Bellman-Ford after n-1 passes can still improve; our loop stops after n-1 passes, and dist[sink] could be less than actual? But as reasoned negative cycles shouldn't be present. However due to parent not updated after negative cycle? Fine. We could implement actual shortest path with Dijkstra + potentials to be more efficient and avoid negative cycles, but Bellman-Ford ok. Need ensure epsilon: all costs integer (pay), distances integer float if using float('inf') but values remain ints (int+float? dist[source]=0 int; dist[v]=dist[u]+edge_cost int; if inf remains float; fine). Use `-10**18`? no.
+
+Need maybe use `jobs` list jobs with exactly 3 items. If len(jobs)=0 handled. If jobs include duplicate exact intervals, each gets separate edge. Good.
+
+Now, the problem statement: "Implement exactly this function". We should not include prints. Code block only. Good.
+
+But let's scrutinize min-cost flow against constraints. n<=300, k<=10. Node count <=600. Edges: idle n-1 <=599 (forward+reverse = 1198) plus jobs n <=300 (forward+reverse=600), total directed edges ~1798. Bellman-Ford each augment: passes up to n-1=599; inner 1798; ~1.08 million edge relaxations per augmented path; for k=10 -> 10.8 million, fine in Python.
+
+Potential flaw: Initial Bellman-Ford on residual graph with negative job edges but no potentials. It will find shortest path from source to sink. If there are negative cycles in residual, the shortest path may not exist (can decrease unbounded) but no cycles. Good.
+
+Could there be issue if k exceeds number of time segments? no.
+
+Potential issue: Sending flow of exactly k units through idle edges capacity k. If k machines and there are m segments, idle edge cap k allows k units. Jobs edges cap1. Good.
+
+Need test with simple cases mentally.
+
+Case: one job [0,1,5], k=1, times [0,1], nodes=2, idle edge cap1 cost0, job edge cost -5 cap1. Bellman-Ford: start0 dist0. Relax idle 0->1 dist1=0 parent1=(0,idle). Relax job 0->1 dist1=min(0,-5)=-5 parent1=job. Augment path0->1 job, flow1 cost -5, returns5. correct.
+
+Case: two sequential jobs [0,1] and [1,2], k=1, times0,1,2; edges idle cap1 cost0 (0->1,1->2), job edges - pay. source0 sink2. dist: idle path 0->1->2 =0; job0 (0->1) to node1 -5; job1 (1->2) to node2 -5; total path0->1 job ->2 job = -10; path0->1 idle ->2 job = -5; etc min = -10 return10. Good.
+
+Case: two overlapping jobs same machine k=1, times0,1,2, job0 0->2 -9, job1 0->1 -5, job2 1->2 -5. Shortest path source to sink with k=1: choose job0 (-9) vs idle 0->1 (0), job1(-5), idle1->2? -5, or 0->1 idle, job2 -5 = -5, choose -9; return9. Optimal for k=1 with overlapping [0,2] vs [0,1]+[1,2]: [0,1]+[1,2]=10, path 0->1 job1 (-5), then node1 ->2 (idle or job2) min -5, return10; good.
+
+Case: k=2, three jobs 0->2 (9), 0->1(5),1->2(5) earlier, returns19. Good.
+
+Potential nuance: Job can end at time t and another starts at t. In graph, job edge ending at node t and job edge starting at node t can be used by same unit. Net flow relation r_i = k - J_i: If job ends at t and next starts at t, for segment before t (i), ending job included; after t, starting job included. Segment before t: J_i includes ending job; segment after t: J_i includes starting job. Good. A machine can transition from job edge e ending at t to idle edge t->next or to job edge starting at t. In path decomposition, at node t incoming job and outgoing job can be connected; yes.
+
+What about jobs with same start and end? Not allowed. Good.
+
+Now code syntax. Type annotation list[list[int]] works in Python 3.9. If they expect Python 3.8? Usually current. Use exactly. Need not import `List`. Could use `def k_machine_schedule(jobs: list[list[int]], k: int) -> int:` exactly. Do so.
+
+Need output only code block. No text. Ensure no explanation.
+
+Now, let's consider alternative algorithms: DP could be simpler? But min-cost flow is robust. Need ensure code's `graph[edge_index ^ 1]` doesn't fail if I store parent edge index reversed for reverse edge. Every edge appended as pair; reverse edge index = idx+1. If parent stores idx as chosen directed edge with cap>0. Forward if even, reverse if odd. `idx ^ 1` gives opposite. Good.
+
+Potential issue with using path parent after Bellman-Ford: If there are zero-cost cycles, parent could contain cycle? `parent=[None]*n`, dist finite. In Bellman-Ford, if there are cycles with negative edge, parent may form cycle; but no negative cycles. If there are zero cycles, parent assignments can form cycles maybe? Example idle edge 0->1 cost0, reverse? Initially no reverse. Later residual with reverse idle edges zero: parent for node2 could be (1, reverse edge?) But reverse edges go backward; could a final parent path from sink back to source go through a cycle and not terminate? Bellman-Ford sets parent[v] when relaxing an edge; parent path could include a zero-cycle if relaxation order causes dist equal? We check strict improvement `<`, zero cycles won't update parent once dist equal; parent may remain from a finite path. Could parent contain a loop? Suppose node0 dist0. Edges idle 0->1, 1->0? no reverse idle initially but after flow, reverse edge 1->0 cost0 could relax 0: dist[0] remains0 (initial) cannot improve, no parent[0] change. Cycles involving zero cost won't reduce dist, so parent unchanged. No loop.
+
+Potential issue with k=0? constraints 1<=k. okay.
+
+Need consider if total cost should include only job costs; idle edges cost0. Path cost sum = dist[sink]. When augment along path with parent edge indices, cost += dist[sink]. Good. But if dist[sink] = inf, we break. All good.
+
+Let's think about `bellman-ford` stopping early if no update. Suppose nodes are not all reachable from source via residual edges? But idle edges provide path for all nodes: cap remaining k maybe decreases as flows assigned; after augmentation, idle edges capacities could go down? Idle edge capacity k; each unit uses idle edges when not working. After one unit takes job0->1 (skipping idle edge for segment0), idle edge0 remaining k-1, enough for other units. If k=1, after augment job spanning segment0, idle edge0 cap0; other segments remain cap1. Source to sink path may be shortened? Still source connected to first segment that is idle; but if k=1 and first job edge from source to sink (job spanning entire range) selected, idle edges all cap0, and the selected job edge forward cap0 reverse cap1. Residual graph after flow=1 (k full) not augmented. All good. If k=2 and after two augmentations, final. During intermediate flow<k, source has outgoing idle/job total k enough. Not all nodes reachable? Suppose k=2, first augmentation takes job edge source->sink (span all) for machine A; idle edges cap1 remaining. Other machine B can move through idle edges. All nodes reachable via idle cap1. Good. Suppose all machines take jobs in later segments, idle edges early cap k; reachable. Fine.
+
+Need not implement Bellman-Ford negative cycle detection. Fine.
+
+Let's consider if an augmenting path can include multiple reverse edges causing flow decomposition not simply one machine path, but net flow argument valid. We don't care path interpretation. Good.
+
+Now potential issue: In final flow, idle edge net flow r_i can be non-integer? Capacities integer and augmentations integer, capacities integer, so net integral. Good.
+
+Need answer max total pay. Suppose `cost` returned as negative; `-cost` maybe float if dist float. Initialize dist as int? If we use `float('inf')`, dist entries after relaxation remain int? `0 + edge_cost` int; but parent/dist? if dist[u] is int and edge_cost int -> int. inf remains float. `dist[sink]` if finite will be int. `cost += dist[sink]` int. Good. If no path, dist inf float. We return `-cost`, cost int. If jobs empty return0. If after Bellman-Ford `parent[sink] is None` but dist[sink] finite? Should not happen: dist finite only if path found; parent set for last edge relax at some point in final pass. If parent[sink] None but dist[sink] inf. Fine. We can use `if dist[sink] == float('inf'): break`. Since finite int never equals float('inf'). Good.
+
+Could there be no path for remaining units because all idle edges cap0 and job edges selected cap0? But flow<k implies there is still an augmenting path from source to sink? In min-cost flow with source-sink capacities, if flow<k, there is at least a path of residual edges because original idle edges capacity k and flow on each idle edge <=k; but for an elementary segment, if all k units are working jobs spanning segment, idle edge cap0. Then can a remaining unit reach sink? Flow value k means a unit? Actually flow in network is a single amount k, not necessarily decomposed into machine identities. If flow=f<k, there are k-f units of capacity? Network's max flow could be less than k if idle edge capacity k? No, idle edges capacity k each; max flow at least k? All units can pass through all idle edges cap k, so max flow=k. Thus for any feasible flow f<k, residual has at least k-f path source->sink. But wait after selecting jobs, idle edge capacity k with f units net flow F_i <= f? Actually F_i = f? Let's define total flow = value sent so far, not eventual k. Initially 0; after r augmentations, value r. At each segment, r = sum of path contributions; after assignments, idle flow F_i = r - J_i (where J_i selected spanning segment) (since total sent so far r). Idle capacity k; remaining capacity k-F_i = k-r+J_i >= k-r >0 (since J_i>=0). Good. So path exists. For final r=k, done.
+
+Now maybe the idle edge capacity k and job edges capacity1 with k units exactly has another subtle objective: We select set of jobs by net flow on job edges. The flow value fixed k; if k small, yes. The max profit equals -min cost flow. Standard. Good.
+
+Now final code block only. Keep minimal.
+
+One thing: The function signature says `list[list[int]]`; in Python 3.8, `list[int]` invalid. But current benchmark likely Python3.9+. If want compatibility, could import List, but exact signature must be as shown. Use exact.
+
+No import needed.
+
+Let's produce only code block. Done.
+=== CONTENT ===
+```python
+def k_machine_schedule(jobs: list[list[int]], k: int) -> int:
+    if not jobs:
+        return 0
+
+    times = sorted({job[0] for job in jobs} | {job[1] for job in jobs})
+    pos = {t: i for i, t in enumerate(times)}
+    n = len(times)
+
+    graph = []
+
+    def add_edge(u: int, v: int, cap: int, cost: int) -> None:
+        graph.append([u, v, cap, cost])
+        graph.append([v, u, 0, -cost])
+
+    for i in range(n - 1):
+        add_edge(i, i + 1, k, 0)
+    for s, e, pay in jobs:
+        add_edge(pos[s], pos[e], 1, -pay)
+
+    source, sink = 0, n - 1
+    flow = 0
+    cost = 0
+
+    while flow < k:
+        dist = [float('inf')] * n
+        parent = [None] * n
+        dist[source] = 0
+        for _ in range(n - 1):
+            updated = False
+            for idx, (u, v, cap, edge_cost) in enumerate(graph):
+                if cap > 0 and dist[u] + edge_cost < dist[v]:
+                    dist[v] = dist[u] + edge_cost
+                    parent[v] = (u, idx)
+                    updated = True
+            if not updated:
+                break
+
+        if dist[sink] == float('inf'):
+            break
+
+        v = sink
+        while v != source:
+            u, idx = parent[v]
+            graph[idx][2] -= 1
+            graph[idx ^ 1][2] += 1
+            v = u
+
+        flow += 1
+        cost += dist[sink]
+
+    return -cost
+```

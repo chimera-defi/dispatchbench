@@ -110,7 +110,7 @@ Even stripped, luna's input is larger than Claude's with tools off: haiku-low's 
 
 {{chart:pass_by_rung.svg|Pass rate by difficulty rung, {{rung_attempts}} attempts per rung per config.}}
 
-{{chart:heatmap.svg|Passes out of {{repeats}} per problem and config.}}
+{{chart:heatmap.svg|Passes out of {{repeats}} per problem and config. The Gemini and Antigravity columns are a partial ladder: each cell is passes over the tries made before the account quota ran out.}}
 
 {{chart:token_floor.svg|Minimum input tokens over all calls, cached share shaded.}}
 
@@ -137,7 +137,7 @@ Endpoint: {{hetzner_endpoint}} (OpenAI-compatible). {{hetzner_lead}}
 
 {{hetzner_verdict}}
 
-## {{inkling_name}} on a local CPU (exploratory)
+## {{inkling_name}} on a local CPU and a Colab GPU (exploratory)
 
 {{inkling_for}}
 
@@ -153,6 +153,8 @@ Endpoint: {{hetzner_endpoint}} (OpenAI-compatible). {{hetzner_lead}}
 
 {{inkling_price}} {{inkling_rate}} {{inkling_fx}} {{inkling_price_pp}} {{inkling_hetzner}}
 
+{{inkling_colab}} {{inkling_colab_quality}}
+
 {{table:inkling_summary}}
 
 - {{inkling_model}}
@@ -166,6 +168,8 @@ Endpoint: {{hetzner_endpoint}} (OpenAI-compatible). {{hetzner_lead}}
 - {{inkling_slowest}}
 - {{inkling_caveat}}
 - {{inkling_host}}
+- {{inkling_colab_model}}
+- {{inkling_colab_price}}
 
 ## Code quality
 
