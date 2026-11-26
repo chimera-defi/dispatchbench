@@ -62,6 +62,11 @@ CONFIGS.update({f"neon-{e}": ("agy", "gemini-4-neon", e) for e in ("medium", "hi
 # Same CLI, other vendors' models (Claude and GPT-OSS share one limit pool apart from Gemini), no effort flag: the model id carries the setting.
 CONFIGS.update({"agy-sonnet46-default": ("agy", "claude-sonnet-4-6", "default"), "agy-opus46-default": ("agy", "claude-opus-4-6-thinking", "default"),
                 "agy-gptoss120b-medium": ("agy", "gpt-oss-120b-medium", "medium")})
+# 2026-11-26, operator request (round 2): Gemini 4 Argon/Carbon/Neon-low, Orchestrator (Neon), and Claude 5.5 through agy (separate Claude/GPT pool).
+# neon-medium and neon-high stay on "gemini-4-neon" (PR #25 canonical 60/60 & 36/36); agy 1.5.18 also exposes suffixed IDs (gemini-4-neon-{low,medium,high}).
+CONFIGS.update({"neon-low": ("agy", "gemini-4-neon-low", "low"), "carbon-medium": ("agy", "gemini-4-carbon-medium", "medium"),
+                "argon-medium": ("agy", "gemini-4-argon-medium", "medium"), "orch-neon-medium": ("agy", "gemini-pro-orchestrator-neon", "medium"),
+                "agy-opus55-medium": ("agy", "claude-opus-5-5-medium", "medium"), "agy-sonnet55-default": ("agy", "claude-sonnet-5-5", "default")})
 CONFIGS["devin16slow-default"] = ("devin", "swe-1-6-slow", "default")  # free tier model (2026-10-28; swe-2-flash-medium also runs on Free, 2026-11-25)
 CONFIGS["devinflash-medium"] = ("devin", "swe-2-flash-medium", "default")  # 2026-11-25, free tier, exploratory; the Devin caller stays retired (216aba0), this run used it restored locally
 CONFIGS["hetzner-qwen36"] = ("hetzner", "Qwen/Qwen3.6-35B-A3B-FP8", "default")
@@ -228,7 +233,7 @@ def call_claude(mid, eff, prompt, cwd):
 
 def call_agy(mid, eff, prompt, cwd):
     """Antigravity CLI, headless, JSON output, run in an empty directory. Reports tokens, not dollars."""
-    cmd = [AGY, "-p", prompt, "--model", mid] + (["--effort", eff] if mid.startswith("gemini") else []) + ["--output-format", "json"]
+    cmd = [AGY, "-p", prompt, "--model", mid] + (["--effort", eff] if mid.startswith("gemini") and "orchestrator" not in mid else []) + ["--output-format", "json"]
     t = time.monotonic(); r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, cwd=cwd, timeout=1200)
     wall = time.monotonic() - t
     try:
