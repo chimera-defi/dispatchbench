@@ -377,7 +377,7 @@ gpt-5.6-terra at the smallest prompt costs $0.0080 per call on the pilot problem
 
 ## Gemini through the Antigravity CLI (exploratory, first round)
 
-Google Gemini through the Antigravity CLI (agy) on one Google AI Pro subscription, billed in the Canada store: CA$26.99 a month, CA$30.50 for the first month. agy reports tokens and no dollars, so these rows have no price per pass; the cost shown is the share of the account's Gemini quota each 12 calls used, from the /usage screen read between batches (the 100% start before the first batch was assumed, not read).
+Google Gemini through the Antigravity CLI (agy) on one Google AI Pro subscription, billed in the Canada store: CA$26.99 a month, CA$30.50 for the first month. agy reports tokens and no dollars, so these rows have no price per pass; the cost shown is the share of the account's Gemini quota each 12 calls used, from the /usage screen read between batches (the 100% start before the first batch was assumed, not read); rows with no reading say 'not read', and the Claude 5.5 rows draw on the plan's separate third-party model pool.
 
 | config | passes/tries (function tests) | median s per call | weekly quota points per 12 calls | 5-hour quota points per 12 calls | price |
 |---|---|---|---|---|---|
@@ -391,8 +391,8 @@ Google Gemini through the Antigravity CLI (agy) on one Google AI Pro subscriptio
 | carbon-medium | 12/12 | 50.3 | not read | not read | plan, CA$26.99 a month |
 | argon-medium | 12/12 | 14.4 | not read | not read | plan, CA$26.99 a month |
 | orch-neon-medium | 12/12 | 70.5 | not read | not read | plan, CA$26.99 a month |
-| agy-opus55-medium | 12/12 | 11.2 | not read | not read | Claude pool, not billed per call |
-| agy-sonnet55-default | 12/12 | 7.3 | not read | not read | Claude pool, not billed per call |
+| agy-opus55-medium | 12/12 | 11.2 | not read | not read | plan, CA$26.99 a month (third-party model pool) |
+| agy-sonnet55-default | 12/12 | 7.3 | not read | not read | plan, CA$26.99 a month (third-party model pool) |
 | haiku-low | 57/60 | 10.0 | – | – | US$0.0011 per pass (measured) |
 | sonnet-medium | 60/60 | 10.1 | – | – | US$0.012 per pass (measured) |
 | terra61-low | 60/60 | 10.3 | – | – | US$0.010 per pass (token estimate) |
