@@ -133,6 +133,20 @@ By rung: L1 2/2, L2 2/2, L3 2/2
 | agy-opus46-default | haiku-low | +0.0 pts | +0.0 to +0.0 |
 | agy-opus46-default | luna-medium | +16.7 pts | +0.0 to +46.7 |
 
+## Exploratory, not pre-registered: agy-opus55-medium (stock harness, partial ladder, n per cell in the results table)
+
+By rung: L1 2/2, L2 2/2, L3 2/2, L4 2/2, L5 2/2, L6 2/2
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| agy-opus55-medium | 100% (12/12) | ≥78% (all passed) | not reached | 11.19 | 20.74 | 19192 | – | – | – | unmetered |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| agy-opus55-medium | luna-low | +23.3 pts | +5.0 to +45.0 |
+| agy-opus55-medium | haiku-low | +5.0 pts | +0.0 to +15.0 |
+| agy-opus55-medium | luna-medium | +21.7 pts | +3.3 to +43.3 |
+
 ## Exploratory, not pre-registered: agy-sonnet46-default (stock harness, partial ladder, n per cell in the results table)
 
 By rung: L1 2/2, L2 1/2, L3 1/2, L4 2/2, L5 1/1
@@ -146,6 +160,34 @@ By rung: L1 2/2, L2 1/2, L3 1/2, L4 2/2, L5 1/1
 | agy-sonnet46-default | luna-low | -4.4 pts | -33.3 to +20.0 |
 | agy-sonnet46-default | haiku-low | -17.8 pts | -51.1 to +8.9 |
 | agy-sonnet46-default | luna-medium | -11.1 pts | -35.6 to +6.7 |
+
+## Exploratory, not pre-registered: agy-sonnet55-default (stock harness, partial ladder, n per cell in the results table)
+
+By rung: L1 2/2, L2 2/2, L3 2/2, L4 2/2, L5 2/2, L6 2/2
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| agy-sonnet55-default | 100% (12/12) | ≥78% (all passed) | not reached | 7.31 | 11.94 | 19194 | – | – | – | unmetered |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| agy-sonnet55-default | luna-low | +23.3 pts | +5.0 to +45.0 |
+| agy-sonnet55-default | haiku-low | +5.0 pts | +0.0 to +15.0 |
+| agy-sonnet55-default | luna-medium | +21.7 pts | +3.3 to +43.3 |
+
+## Exploratory, not pre-registered: argon-medium (stock harness, partial ladder, n per cell in the results table)
+
+By rung: L1 2/2, L2 2/2, L3 2/2, L4 2/2, L5 2/2, L6 2/2
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| argon-medium | 100% (12/12) | ≥78% (all passed) | not reached | 14.41 | 23.09 | 18312 | – | – | – | unmetered |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| argon-medium | luna-low | +23.3 pts | +5.0 to +45.0 |
+| argon-medium | haiku-low | +5.0 pts | +0.0 to +15.0 |
+| argon-medium | luna-medium | +21.7 pts | +3.3 to +43.3 |
 
 ## Exploratory, not pre-registered: astra-medium (stock harness, full ladder)
 
@@ -174,6 +216,20 @@ By rung: L1 10/10, L2 10/10, L3 10/10, L4 10/10, L5 10/10, L6 10/10
 | astra-medium ⚡ | luna-low | +23.3 pts | +5.0 to +45.0 |
 | astra-medium ⚡ | haiku-low | +5.0 pts | +0.0 to +15.0 |
 | astra-medium ⚡ | luna-medium | +21.7 pts | +3.3 to +45.0 |
+
+## Exploratory, not pre-registered: carbon-medium (stock harness, partial ladder, n per cell in the results table)
+
+By rung: L1 2/2, L2 2/2, L3 2/2, L4 2/2, L5 2/2, L6 2/2
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| carbon-medium | 100% (12/12) | ≥78% (all passed) | not reached | 50.28 | 171.84 | 16971 | – | – | – | unmetered |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| carbon-medium | luna-low | +23.3 pts | +5.0 to +45.0 |
+| carbon-medium | haiku-low | +5.0 pts | +0.0 to +15.0 |
+| carbon-medium | luna-medium | +21.7 pts | +3.3 to +43.3 |
 
 ## Exploratory, not pre-registered: devin16slow-default (stock harness, full ladder)
 
@@ -343,6 +399,20 @@ By rung: L1 6/6, L2 6/6, L3 6/6, L4 6/6, L5 6/6, L6 6/6
 | neon-high | haiku-low | +5.0 pts | +0.0 to +15.0 |
 | neon-high | luna-medium | +21.7 pts | +3.3 to +45.0 |
 
+## Exploratory, not pre-registered: neon-low (stock harness, partial ladder, n per cell in the results table)
+
+By rung: L1 2/2, L2 2/2, L3 2/2, L4 2/2, L5 2/2, L6 2/2
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| neon-low | 100% (12/12) | ≥78% (all passed) | not reached | 25.67 | 58.48 | 14909 | – | – | – | unmetered |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| neon-low | luna-low | +23.3 pts | +5.0 to +45.0 |
+| neon-low | haiku-low | +5.0 pts | +0.0 to +15.0 |
+| neon-low | luna-medium | +21.7 pts | +3.3 to +43.3 |
+
 ## Exploratory, not pre-registered: neon-medium (stock harness, partial ladder, n per cell in the results table)
 
 By rung: L1 10/10, L2 10/10, L3 10/10, L4 10/10, L5 10/10, L6 10/10
@@ -356,6 +426,20 @@ By rung: L1 10/10, L2 10/10, L3 10/10, L4 10/10, L5 10/10, L6 10/10
 | neon-medium | luna-low | +23.3 pts | +5.0 to +45.0 |
 | neon-medium | haiku-low | +5.0 pts | +0.0 to +15.0 |
 | neon-medium | luna-medium | +21.7 pts | +3.3 to +45.0 |
+
+## Exploratory, not pre-registered: orch-neon-medium (stock harness, partial ladder, n per cell in the results table)
+
+By rung: L1 2/2, L2 2/2, L3 2/2, L4 2/2, L5 2/2, L6 2/2
+
+| config | pass@1 | 95% CI | breaking point | median s | p90 s | mean input | $/call | $/pass | $/pass, no cache discount | $ kind |
+|---|---|---|---|---|---|---|---|---|---|---|
+| orch-neon-medium | 100% (12/12) | ≥78% (all passed) | not reached | 70.52 | 135.31 | 7912 | – | – | – | unmetered |
+
+| a | b | diff | 95% CI |
+|---|---|---|---|
+| orch-neon-medium | luna-low | +23.3 pts | +5.0 to +45.0 |
+| orch-neon-medium | haiku-low | +5.0 pts | +0.0 to +15.0 |
+| orch-neon-medium | luna-medium | +21.7 pts | +3.3 to +43.3 |
 
 ## Exploratory, not pre-registered: sol56-high (stock harness, full ladder)
 

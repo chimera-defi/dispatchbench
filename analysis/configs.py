@@ -45,7 +45,7 @@ NOTATION = {
 SOURCES = {  # source id -> files under results/ that hold its rows
     "main": ["2026-10-22b-function.jsonl", "2026-10-26-grok-function.jsonl", "2026-10-28-grok-spectrum-function.jsonl",
              "2026-10-28-terra-function.jsonl", "2026-10-28-devin-function.jsonl", "2026-11-01-hetzner-function.jsonl", "2026-11-02-terra-priority-function.jsonl", "2026-11-02-terra-l7-fast-function.jsonl",
-             "2026-11-22-inkling-function.jsonl", "2026-11-22-inkling-retry-function.jsonl", "2026-11-25-agy-function.jsonl", "2026-11-25-devin-flash-function.jsonl", "2026-11-25-inkling-colab-l4-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
+             "2026-11-22-inkling-function.jsonl", "2026-11-22-inkling-retry-function.jsonl", "2026-11-25-agy-function.jsonl", "2026-11-26-neon-function.jsonl", "2026-11-25-devin-flash-function.jsonl", "2026-11-25-inkling-colab-l4-function.jsonl"], "agentic": ["2026-10-22b-agentic.jsonl"], "trim": ["2026-10-22b-trim.jsonl"],
     "rescue": ["appendix/luna_rescue.jsonl"], "pilot": ["2026-10-22-pilot.jsonl"], "pilot-agentic": ["2026-10-22-pilot-agentic.jsonl"],
     "harness-bias": ["appendix/harness_bias.jsonl", "appendix/codex_harness.jsonl"]}  # the last two land with the codex-own-harness branch
 CATEGORIES = ["main ladder", "exploratory", "fast mode and xhigh", "rescue pipeline", "repo tasks", "trim", "pilot", "harness-bias", "low context"]
@@ -85,11 +85,11 @@ DEVIN_FLASH = ("devinflash-medium",)  # free tier, 5 repeats, no token data; SWE
 add("main", "exploratory", ("devinflash-medium",
     "Devin swe-2-flash-medium (free tier; NOT SWE-2.1, which the Free plan refuses), default effort; devin CLI, no token or cost data; exploratory, added 2026-11-25 at operator request; "
     "function track p01–p12, 5 repeats per problem (PLAN.md deviation 28)"))
-GEMINI_CONFIGS = ("hydrogen-low", "hydrogen-medium", "hydrogen-high", "gemini38flash-low", "neon-medium", "neon-high")  # agy subscription: tokens reported, no list price, so never on a $ chart, in the Winner or the frontier
-AGY_OTHER = ("agy-sonnet46-default", "agy-opus46-default", "agy-gptoss120b-medium")  # other vendors' models through the same agy login: the same quota stopped them too
+GEMINI_CONFIGS = ("hydrogen-low", "hydrogen-medium", "hydrogen-high", "gemini38flash-low", "neon-medium", "neon-high", "neon-low", "carbon-medium", "argon-medium", "orch-neon-medium")  # agy subscription: tokens reported, no list price, so never on a $ chart, in the Winner or the frontier
+AGY_OTHER = ("agy-sonnet46-default", "agy-opus46-default", "agy-gptoss120b-medium", "agy-opus55-medium", "agy-sonnet55-default")  # other vendors' models through the same agy login: the same quota stopped them too
 AGY_CONFIGS = GEMINI_CONFIGS + AGY_OTHER
 GEMINI_NOTE = "first round, extend later: n per cell shown; tokens reported, no dollars"
-AGY_NAMES = {"hydrogen": "Google Gemini 4 Hydrogen", "neon": "Google Gemini 4 Neon", "gemini38flash": "Google Gemini 3.8 Flash", "agy-sonnet46": "Claude Sonnet 4.6 (Thinking)", "agy-opus46": "Claude Opus 4.6 (Thinking)", "agy-gptoss120b": "GPT-OSS 120B"}
+AGY_NAMES = {"hydrogen": "Google Gemini 4 Hydrogen", "neon": "Google Gemini 4 Neon", "gemini38flash": "Google Gemini 3.8 Flash", "agy-sonnet46": "Claude Sonnet 4.6 (Thinking)", "agy-opus46": "Claude Opus 4.6 (Thinking)", "agy-gptoss120b": "GPT-OSS 120B", "carbon": "Google Gemini 4 Carbon", "argon": "Google Gemini 4 Argon", "orch-neon": "Google Gemini Pro Orchestrator (Neon)", "agy-opus55": "Claude Opus 5.5", "agy-sonnet55": "Claude Sonnet 5.5"}
 add("main", "exploratory", *((c, f"{AGY_NAMES[c.rsplit('-', 1)[0]]}, {c.rsplit('-', 1)[1]} setting; Antigravity CLI (agy), headless, "
     "signed-in subscription: reports tokens, no dollars; exploratory, added 2026-11-25 at operator request; function track p01–p12, first round, extend later: run on one day's quota, with repeats cut by the account quota or the operator's call (PLAN.md deviation 29)") for c in AGY_CONFIGS))
 HETZNER_CONFIGS = ("hetzner-qwen36", "hetzner-qwen38")
@@ -251,7 +251,7 @@ def family(name):
     if name.startswith("grok"): return "Grok"
     if name.startswith("devin"): return "Devin"
     if name.startswith("hetzner"): return "Hetzner"
-    if name.startswith(("hydrogen", "gemini", "neon")): return "Gemini"
+    if name.startswith(("hydrogen", "gemini", "neon", "carbon", "argon", "orch-neon")): return "Gemini"
     if name.startswith("agy-"): return "Antigravity"
     if name.startswith("inkling"): return "Inkling"
     return "Claude" if name.split("-")[0] in ("haiku", "sonnet") or name.startswith("pipeline C") else "Codex"

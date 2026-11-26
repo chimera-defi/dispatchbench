@@ -1961,12 +1961,12 @@ def _agy(ds, s):
         w = (rd[b["before"]]["weekly"] - rd[b["after"]]["weekly"]) * 12 / b["calls"]
         h = (rd[b["before"]]["five_hour"] - rd[b["after"]]["five_hour"]) * 12 / b["calls"]
         for c in b["configs"]: per[c] = (w, h, len(b["configs"]) > 1)
-    order = ["gemini38flash-low", "hydrogen-low", "hydrogen-medium", "hydrogen-high", "neon-medium", "neon-high"]
+    order = ["gemini38flash-low", "hydrogen-low", "hydrogen-medium", "hydrogen-high", "neon-medium", "neon-high"] + [c for c in ("neon-low", "carbon-medium", "argon-medium", "orch-neon-medium", "agy-opus55-medium", "agy-sonnet55-default") if c in s["exploratory"]]
     plan = q["plan"]; price = f"plan, {plan['currency']}{plan['renewal']:.2f} a month"
     table, got = [], {}
     for c in order:
-        r = get(ds, c, "partial ladder"); got[c] = r; w, h, shared = per[c]
-        table.append([DISP(c), f"{r['passes']}/{r['n']}", f"{median_seconds(r):.1f}", f"{w:.1f}" + (" (shared batch)" if shared else ""), f"{h:.1f}" + (" (shared batch)" if shared else ""), price])
+        r = get(ds, c, "partial ladder"); got[c] = r; w, h, shared = per.get(c, (None, None, False))
+        table.append([DISP(c), f"{r['passes']}/{r['n']}", f"{median_seconds(r):.1f}", ("not read" if w is None else f"{w:.1f}" + (" (shared batch)" if shared else "")), ("not read" if h is None else f"{h:.1f}" + (" (shared batch)" if shared else "")), price if "agy-" not in c else "Claude pool, not billed per call"])
     for c in ("haiku-low", "sonnet-medium", "terra61-low", "sol61-high"):
         r = get(ds, c, "main ladder"); got[c] = r
         table.append([DISP(c), f"{r['passes']}/{r['n']}", f"{median_seconds(r):.1f}", "–", "–", f"US{usd(r['usd_per_pass'])} per pass ({'measured' if r['cost_kind'] == 'measured' else 'token estimate'})"])
@@ -1983,7 +1983,8 @@ def _agy(ds, s):
                       f"({tries['gemini38flash-low']} tries for 3.8 Flash, Hydrogen low and Neon medium, {tries['neon-high']} for Neon high, {tries['hydrogen-high']} for Hydrogen high; Hydrogen medium {tries['hydrogen-medium']}). "
                       "Quota figures come from one day's /usage readings that move by about a point between reads and include any other use of the account; the 100% start before the first batch was assumed, not read. "
                       "Hydrogen and 3.8 Flash ran in one batch, so their quota figure is the batch average. Their rows mix agy 1.5.16 (before the plan change) and 1.5.17. "
-                      "The Claude and GPT-OSS models on the same login have their own limit pool and were not run again.")
+                      "The Claude and GPT-OSS models on the same login have their own limit pool; Sonnet 4.6, Opus 4.6 and GPT-OSS were not run again. "
+                      + ("Round 2 (2026-11-26, agy 1.5.18): " + ", ".join(f"{DISP(c)} {got[c]['passes']}/{got[c]['n']}" for c in order[6:]) + "; one repeat each, quota points not read for these rows." if order[6:] else ""))
     F["agy_verdict"] = (f"Neon passed every try ({nm['passes']}/{nm['n']} at medium, {nh['passes']}/{nh['n']} at high) but takes {median_seconds(nm):.0f} s and {median_seconds(nh):.0f} s a call, "
                         f"against {median_seconds(got['terra61-low']):.0f} s for terra61-low, which passed {got['terra61-low']['passes']}/{got['terra61-low']['n']}. "
                         f"Hydrogen low and 3.8 Flash take about {median_seconds(got['hydrogen-low']):.0f} and {median_seconds(got['gemini38flash-low']):.0f} s a call, like haiku-low and terra61-low; 3.8 Flash misses more than both, Hydrogen low about the same as haiku-low ({got['hydrogen-low']['passes']}/{got['hydrogen-low']['n']} and {got['gemini38flash-low']['passes']}/{got['gemini38flash-low']['n']}).")

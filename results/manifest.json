@@ -4,6 +4,7 @@
  "cli_versions": [
   "agy 1.5.16",
   "agy 1.5.17",
+  "agy 1.5.18",
   "claude 2.1.308",
   "codex 0.163.0",
   "codex 0.164.0",
@@ -193,6 +194,36 @@
    "model": "gpt-oss-120b-medium",
    "effort": "medium"
   },
+  "neon-low": {
+   "cli": "agy",
+   "model": "gemini-4-neon-low",
+   "effort": "low"
+  },
+  "carbon-medium": {
+   "cli": "agy",
+   "model": "gemini-4-carbon-medium",
+   "effort": "medium"
+  },
+  "argon-medium": {
+   "cli": "agy",
+   "model": "gemini-4-argon-medium",
+   "effort": "medium"
+  },
+  "orch-neon-medium": {
+   "cli": "agy",
+   "model": "gemini-pro-orchestrator-neon",
+   "effort": "medium"
+  },
+  "agy-opus55-medium": {
+   "cli": "agy",
+   "model": "claude-opus-5-5-medium",
+   "effort": "medium"
+  },
+  "agy-sonnet55-default": {
+   "cli": "agy",
+   "model": "claude-sonnet-5-5",
+   "effort": "default"
+  },
   "devin16slow-default": {
    "cli": "devin",
    "model": "swe-1-6-slow",
@@ -274,11 +305,11 @@
   4
  ],
  "first_call_utc": "2026-10-22T08:32:54+00:00",
- "last_call_utc": "2026-11-25T22:01:00+00:00",
+ "last_call_utc": "2026-11-26T20:34:39+00:00",
  "rows_by_phase": {
   "calibration": 54,
   "escalation": 15,
-  "exploratory": 1241,
+  "exploratory": 1313,
   "fastmode": 105,
   "hard": 210,
   "main": 561,
@@ -293,7 +324,7 @@
   "codex_proxy_usd": 39.2963,
   "codex_fastmode_usd": 3.4069,
   "calls": {
-   "function": 2192,
+   "function": 2264,
    "agentic": 84
   },
   "grok_measured_usd": 22.3741
@@ -328,7 +359,8 @@
   "results/2026-11-02-terra-l7-fast-function.jsonl",
   "results/2026-11-02-terra-priority-function.jsonl",
   "results/2026-11-25-agy-function.jsonl",
-  "results/2026-11-25-devin-flash-function.jsonl"
+  "results/2026-11-25-devin-flash-function.jsonl",
+  "results/2026-11-26-neon-function.jsonl"
  ],
  "exploratory": {
   "results/2026-10-22b-trim.jsonl": {
@@ -514,13 +546,18 @@
   "Qwen/Qwen3.8-27B",
   "claude-haiku-5-5",
   "claude-opus-4-6-thinking",
+  "claude-opus-5-5-medium",
   "claude-sonnet-4-6",
   "claude-sonnet-5-5",
   "gemini-3.8-flash-low",
+  "gemini-4-argon-medium",
+  "gemini-4-carbon-medium",
   "gemini-4-hydrogen-high",
   "gemini-4-hydrogen-low",
   "gemini-4-hydrogen-medium",
   "gemini-4-neon",
+  "gemini-4-neon-low",
+  "gemini-pro-orchestrator-neon",
   "gpt-5.6-luna",
   "gpt-5.6-sol",
   "gpt-5.6-terra",
