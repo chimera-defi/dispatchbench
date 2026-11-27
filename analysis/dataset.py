@@ -1961,12 +1961,12 @@ def _agy(ds, s):
         w = (rd[b["before"]]["weekly"] - rd[b["after"]]["weekly"]) * 12 / b["calls"]
         h = (rd[b["before"]]["five_hour"] - rd[b["after"]]["five_hour"]) * 12 / b["calls"]
         for c in b["configs"]: per[c] = (w, h, len(b["configs"]) > 1)
-    order = ["gemini38flash-low", "hydrogen-low", "hydrogen-medium", "hydrogen-high", "neon-medium", "neon-high"]
+    order = ["gemini38flash-low", "hydrogen-low", "hydrogen-medium", "hydrogen-high", "neon-medium", "neon-high"] + [c for c in ("neon-low", "carbon-medium", "argon-medium", "orch-neon-medium", "agy-opus55-medium", "agy-sonnet55-default") if c in s["exploratory"]]
     plan = q["plan"]; price = f"plan, {plan['currency']}{plan['renewal']:.2f} a month"
     table, got = [], {}
     for c in order:
-        r = get(ds, c, "partial ladder"); got[c] = r; w, h, shared = per[c]
-        table.append([DISP(c), f"{r['passes']}/{r['n']}", f"{median_seconds(r):.1f}", f"{w:.1f}" + (" (shared batch)" if shared else ""), f"{h:.1f}" + (" (shared batch)" if shared else ""), price])
+        r = get(ds, c, "partial ladder"); got[c] = r; w, h, shared = per.get(c, (None, None, False))
+        table.append([DISP(c), f"{r['passes']}/{r['n']}", f"{median_seconds(r):.1f}", ("not read" if w is None else f"{w:.1f}" + (" (shared batch)" if shared else "")), ("not read" if h is None else f"{h:.1f}" + (" (shared batch)" if shared else "")), price if "agy-" not in c else f"plan, {plan['currency']}{plan['renewal']:.2f} a month (third-party model pool)"])
     for c in ("haiku-low", "sonnet-medium", "terra61-low", "sol61-high"):
         r = get(ds, c, "main ladder"); got[c] = r
         table.append([DISP(c), f"{r['passes']}/{r['n']}", f"{median_seconds(r):.1f}", "–", "–", f"US{usd(r['usd_per_pass'])} per pass ({'measured' if r['cost_kind'] == 'measured' else 'token estimate'})"])
@@ -1976,14 +1976,15 @@ def _agy(ds, s):
          "both Neon rows pass every try and Neon medium is more than three times slower than terra61-low")
     need(all(abs(median_seconds(got[c]) - median_seconds(got["terra61-low"])) < 2 for c in ("hydrogen-low", "gemini38flash-low", "haiku-low")), "Hydrogen low, 3.8 Flash, haiku-low and terra61-low all take about the same time per call")
     F["agy_lead"] = (f"Google Gemini through the Antigravity CLI (agy) on one {plan['name']} subscription, billed in the Canada store: {plan['currency']}{plan['renewal']:.2f} a month, {plan['currency']}{plan['first_month']:.2f} for the first month. "
-                     "agy reports tokens and no dollars, so these rows have no price per pass; the cost shown is the share of the account's Gemini quota each 12 calls used, from the /usage screen read between batches (the 100% start before the first batch was assumed, not read).")
+                     "agy reports tokens and no dollars, so these rows have no price per pass; the cost shown is the share of the account's Gemini quota each 12 calls used, from the /usage screen read between batches (the 100% start before the first batch was assumed, not read); rows with no reading say 'not read', and the Claude 5.5 rows draw on the plan's separate third-party model pool.")
     tries = {c: got[c]["n"] for c in order}; nprob = len(s["problems"])
     need(got["hydrogen-high"]["n"] % nprob != 0 and got["neon-high"]["n"] % nprob == 0, "Hydrogen high is the one row with a partial repeat")
     F["agy_scope"] = ("First round, extend later. This is rough: one pass of 12 problems per repeat, and not the same number of repeats everywhere "
                       f"({tries['gemini38flash-low']} tries for 3.8 Flash, Hydrogen low and Neon medium, {tries['neon-high']} for Neon high, {tries['hydrogen-high']} for Hydrogen high; Hydrogen medium {tries['hydrogen-medium']}). "
                       "Quota figures come from one day's /usage readings that move by about a point between reads and include any other use of the account; the 100% start before the first batch was assumed, not read. "
                       "Hydrogen and 3.8 Flash ran in one batch, so their quota figure is the batch average. Their rows mix agy 1.5.16 (before the plan change) and 1.5.17. "
-                      "The Claude and GPT-OSS models on the same login have their own limit pool and were not run again.")
+                      "The Claude and GPT-OSS models on the same login have their own limit pool; Sonnet 4.6, Opus 4.6 and GPT-OSS were not run again. "
+                      + ("Round 2 (2026-11-26, agy 1.5.18): " + ", ".join(f"{DISP(c)} {got[c]['passes']}/{got[c]['n']}" for c in order[6:]) + "; one repeat each, quota points not read for these rows." if order[6:] else ""))
     F["agy_verdict"] = (f"Neon passed every try ({nm['passes']}/{nm['n']} at medium, {nh['passes']}/{nh['n']} at high) but takes {median_seconds(nm):.0f} s and {median_seconds(nh):.0f} s a call, "
                         f"against {median_seconds(got['terra61-low']):.0f} s for terra61-low, which passed {got['terra61-low']['passes']}/{got['terra61-low']['n']}. "
                         f"Hydrogen low and 3.8 Flash take about {median_seconds(got['hydrogen-low']):.0f} and {median_seconds(got['gemini38flash-low']):.0f} s a call, like haiku-low and terra61-low; 3.8 Flash misses more than both, Hydrogen low about the same as haiku-low ({got['hydrogen-low']['passes']}/{got['hydrogen-low']['n']} and {got['gemini38flash-low']['passes']}/{got['gemini38flash-low']['n']}).")
@@ -2082,7 +2083,7 @@ FACT_SOURCES = (
     ("inkling_colab", "results/2026-11-25-inkling-colab-l4-function.jsonl (Colab L4) + results/2026-11-22-inkling-function.jsonl (CPU primary)"),
     ("inkling_speedup", "results/2026-11-25-inkling-colab-l4-function.jsonl + results/2026-11-22-inkling-function.jsonl"),
     ("inkling_", "results/2026-11-22-inkling-function.jsonl (primary) + results/2026-11-22-inkling-retry-function.jsonl (retry ladder)"),
-    ("agy_", "results/2026-11-25-agy-function.jsonl + results/2026-11-25-agy-quota.json (/usage readings); references: results/2026-10-22b-function.jsonl"),
+    ("agy_", "results/2026-11-25-agy-function.jsonl + results/2026-11-26-neon-function.jsonl + results/2026-11-25-agy-quota.json and results/2026-11-26-agy-quota.json (/usage readings); references: results/2026-10-22b-function.jsonl"),
     ("hetzner_gateway_", "results/2026-11-01-hetzner-notes.json (operator observation; first-attempt rows not cached)"),
     ("hetzner_", "results/2026-11-01-hetzner-function.jsonl + results/2026-11-01-hetzner-notes.json; main-grid comparisons: results/2026-10-22b-function.jsonl"),
     ("devin_", "results/2026-10-28-devin-function.jsonl"), ("fm_", "rows main/*-fast and their default-tier twins (results/2026-10-22b-function.jsonl)"),

@@ -1,0 +1,24 @@
+{
+  "source": "agy -p \"/usage\" --model gemini-3.8-flash-low --output-format json: Gemini Models limits, percent remaining, one reading on 2026-11-26, taken after the Gemini round-2 batches (15:20-17:02Z); no per-batch readings.",
+  "plan": {
+    "name": "Google AI Pro",
+    "first_month": 30.50,
+    "renewal": 26.99,
+    "currency": "CA$",
+    "currency_note": "operator verified: Google Play order 30.50 in the Canada store, plan page CA$26.99"
+  },
+  "readings": {
+    "19:35Z": {
+      "weekly": 56,
+      "weekly_fraction": 0.5600334405899048,
+      "five_hour": 30,
+      "five_hour_fraction": 0.2995319962501526,
+      "five_hour_reset": "2026-11-26T21:32:57Z",
+      "weekly_reset": "2026-12-03T10:35:23Z",
+      "claude_gpt_weekly": 32,
+      "claude_gpt_five_hour": 0,
+      "note": "single reading after the Gemini round-2 batches (agy 1.5.18)"
+    }
+  },
+  "batches": []
+}
